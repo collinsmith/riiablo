@@ -1,0 +1,173 @@
+
+buttons.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+button_battlenet_disabled
+  rotate: false
+  xy: 0, 215
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_battlenet_enabled
+  rotate: false
+  xy: 0, 180
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_battlenet_rollover
+  rotate: false
+  xy: 272, 215
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_battlenet_selected
+  rotate: false
+  xy: 0, 145
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_wide_disabled
+  rotate: false
+  xy: 272, 180
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_wide_enabled
+  rotate: false
+  xy: 544, 215
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_wide_rollover
+  rotate: false
+  xy: 0, 110
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_wide_selected
+  rotate: false
+  xy: 272, 145
+  size: 272, 35
+  orig: 272, 35
+  offset: 0, 0
+  index: -1
+button_realm_disabled
+  rotate: false
+  xy: 544, 190
+  size: 272, 25
+  orig: 272, 25
+  offset: 0, 0
+  index: -1
+button_realm_enabled
+  rotate: false
+  xy: 0, 85
+  size: 272, 25
+  orig: 272, 25
+  offset: 0, 0
+  index: -1
+button_realm_rollover
+  rotate: false
+  xy: 272, 120
+  size: 272, 25
+  orig: 272, 25
+  offset: 0, 0
+  index: -1
+button_realm_selected
+  rotate: false
+  xy: 544, 165
+  size: 272, 25
+  orig: 272, 25
+  offset: 0, 0
+  index: -1
+button_tall_disabled
+  rotate: false
+  xy: 816, 190
+  size: 168, 60
+  orig: 168, 60
+  offset: 0, 0
+  index: -1
+button_tall_enabled
+  rotate: false
+  xy: 0, 25
+  size: 168, 60
+  orig: 168, 60
+  offset: 0, 0
+  index: -1
+button_tall_rollover
+  rotate: false
+  xy: 544, 105
+  size: 168, 60
+  orig: 168, 60
+  offset: 0, 0
+  index: -1
+button_tall_selected
+  rotate: false
+  xy: 272, 60
+  size: 168, 60
+  orig: 168, 60
+  offset: 0, 0
+  index: -1
+button_small_disabled
+  rotate: false
+  xy: 816, 165
+  size: 135, 25
+  orig: 135, 25
+  offset: 0, 0
+  index: -1
+button_medium_disabled
+  rotate: false
+  xy: 712, 130
+  size: 128, 35
+  orig: 128, 35
+  offset: 0, 0
+  index: -1
+button_small_enabled
+  rotate: false
+  xy: 0, 0
+  size: 135, 25
+  orig: 135, 25
+  offset: 0, 0
+  index: -1
+button_medium_enabled
+  rotate: false
+  xy: 712, 95
+  size: 128, 35
+  orig: 128, 35
+  offset: 0, 0
+  index: -1
+button_medium_rollover
+  rotate: false
+  xy: 840, 130
+  size: 128, 35
+  orig: 128, 35
+  offset: 0, 0
+  index: -1
+button_medium_selected
+  rotate: false
+  xy: 840, 95
+  size: 128, 35
+  orig: 128, 35
+  offset: 0, 0
+  index: -1
+button_small_rollover
+  rotate: false
+  xy: 135, 0
+  size: 135, 25
+  orig: 135, 25
+  offset: 0, 0
+  index: -1
+button_small_selected
+  rotate: false
+  xy: 270, 35
+  size: 135, 25
+  orig: 135, 25
+  offset: 0, 0
+  index: -1

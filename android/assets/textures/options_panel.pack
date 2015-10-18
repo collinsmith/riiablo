@@ -1,0 +1,106 @@
+
+options_panel.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+panel
+  rotate: false
+  xy: 0, 448
+  size: 800, 540
+  orig: 800, 540
+  offset: 0, 0
+  index: -1
+switchboard
+  rotate: false
+  xy: 0, 18
+  size: 188, 430
+  orig: 188, 430
+  offset: 0, 0
+  index: -1
+button_exit_disabled
+  rotate: false
+  xy: 800, 970
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+button_exit_enabled
+  rotate: false
+  xy: 0, 0
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+button_exit_rollover
+  rotate: false
+  xy: 188, 430
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+button_exit_selected
+  rotate: false
+  xy: 800, 952
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+
+options_panel2.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+source/2DUI_Bnet_ExtendedExperiences
+  rotate: false
+  xy: 0, 0
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+
+options_panel3.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+source/panel
+  rotate: false
+  xy: 0, 42
+  size: 1420, 959
+  orig: 1420, 959
+  offset: 0, 0
+  index: -1
+source/switchboard
+  rotate: false
+  xy: 1420, 233
+  size: 373, 768
+  orig: 373, 768
+  offset: 0, 0
+  index: -1
+source/button_exit_disabled
+  rotate: false
+  xy: 0, 0
+  size: 42, 42
+  orig: 42, 42
+  offset: 0, 0
+  index: -1
+source/button_exit_enabled
+  rotate: false
+  xy: 1420, 191
+  size: 42, 42
+  orig: 42, 42
+  offset: 0, 0
+  index: -1
+source/button_exit_rollover
+  rotate: false
+  xy: 1793, 959
+  size: 42, 42
+  orig: 42, 42
+  offset: 0, 0
+  index: -1
+source/button_exit_selected
+  rotate: false
+  xy: 42, 0
+  size: 42, 42
+  orig: 42, 42
+  offset: 0, 0
+  index: -1

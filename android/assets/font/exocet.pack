@@ -1,0 +1,33 @@
+
+exocet.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+exocet42
+  rotate: false
+  xy: 0, 160
+  size: 506, 131
+  orig: 512, 512
+  offset: 0, 381
+  index: -1
+exocet32
+  rotate: false
+  xy: 0, 83
+  size: 506, 77
+  orig: 512, 512
+  offset: 0, 435
+  index: -1
+exocet24
+  rotate: false
+  xy: 0, 27
+  size: 511, 56
+  orig: 512, 512
+  offset: 0, 456
+  index: -1
+exocet16
+  rotate: false
+  xy: 0, 0
+  size: 510, 27
+  orig: 512, 512
+  offset: 0, 485
+  index: -1

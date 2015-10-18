@@ -11,6 +11,9 @@ public class AndroidLauncher extends AndroidApplication {
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new Client(1280, 720), config);
+        config.numSamples = 2;
+        config.useAccelerometer = false;
+        config.useCompass = false;
+		initialize(new Client(1280/2, 720/2), config);
 	}
 }

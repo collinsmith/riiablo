@@ -1,0 +1,102 @@
+{
+  "com.badlogic.gdx.graphics.Color": {
+    "white": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1
+    },
+    "black": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 1
+    },
+    "gold": {
+      "r": 0.80392,
+      "g": 0.61569,
+      "b": 0.31765,
+      "a": 1
+    },
+    "grey": {
+      "r": 0.49412,
+      "g": 0.47451,
+      "b": 0.45490,
+      "a": 1
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "wide": {
+      "up": "button_wide_enabled",
+      "down": "button_wide_selected",
+      "over": "button_wide_rollover",
+      "disabled": "button_wide_disabled",
+      "fontColor": "black",
+      "overFontColor": "black",
+      "downFontColor": "black",
+      "disabledFontColor": "grey",
+      "pressedOffsetX": -2,
+      "pressedOffsetY": -2
+    },
+    "medium": {
+      "up": "button_medium_enabled",
+      "down": "button_medium_selected",
+      "over": "button_medium_rollover",
+      "disabled": "button_medium_disabled",
+      "fontColor": "black",
+      "overFontColor": "black",
+      "downFontColor": "black",
+      "disabledFontColor": "grey",
+      "pressedOffsetX": -2,
+      "pressedOffsetY": -2
+    },
+    "small": {
+      "up": "button_small_enabled",
+      "down": "button_small_selected",
+      "over": "button_small_rollover",
+      "disabled": "button_small_disabled",
+      "fontColor": "black",
+      "overFontColor": "black",
+      "downFontColor": "black",
+      "disabledFontColor": "grey",
+      "pressedOffsetX": -2,
+      "pressedOffsetY": -2
+    },
+    "tall": {
+      "up": "button_tall_enabled",
+      "down": "button_tall_selected",
+      "over": "button_tall_rollover",
+      "disabled": "button_tall_disabled",
+      "fontColor": "black",
+      "overFontColor": "black",
+      "downFontColor": "black",
+      "disabledFontColor": "grey",
+      "pressedOffsetX": -2,
+      "pressedOffsetY": -2
+    },
+    "realm": {
+      "up": "button_realm_enabled",
+      "down": "button_realm_selected",
+      "over": "button_realm_rollover",
+      "disabled": "button_realm_disabled",
+      "fontColor": "black",
+      "overFontColor": "black",
+      "downFontColor": "black",
+      "disabledFontColor": "grey",
+      "pressedOffsetX": -2,
+      "pressedOffsetY": -2
+    },
+    "battle-net": {
+      "up": "button_battlenet_enabled",
+      "down": "button_battlenet_selected",
+      "over": "button_battlenet_rollover",
+      "disabled": "button_battlenet_disabled",
+      "fontColor": "black",
+      "overFontColor": "black",
+      "downFontColor": "black",
+      "disabledFontColor": "grey",
+      "pressedOffsetX": -2,
+      "pressedOffsetY": -2
+    }
+  }
+}
