@@ -4,13 +4,13 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.google.collinsmith70.diablo.DiabloGame;
+import com.google.collinsmith70.diablo.Client;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new DiabloGame(), config);
+		initialize(new Client(1280, 720), config);
 	}
 }
