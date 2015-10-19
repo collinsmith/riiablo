@@ -1,7 +1,8 @@
-package com.google.collinsmith70.diablo;
+package com.google.collinsmith70.old;
 
-import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Color;
@@ -10,15 +11,13 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.google.collinsmith70.diablo.asset.AtlasedBitmapFont;
-import com.google.collinsmith70.diablo.asset.loader.AtlasedBitmapFontLoader;
-import com.google.collinsmith70.diablo.scene.AbstractScene;
-import com.google.collinsmith70.diablo.scene.SplashScene;
-import com.google.collinsmith70.diablo.widget.panel.ConsolePanel;
-import com.google.collinsmith70.util.EffectivelyFinal;
+import com.google.collinsmith70.old.asset.AtlasedBitmapFont;
+import com.google.collinsmith70.old.asset.loader.AtlasedBitmapFontLoader;
+import com.google.collinsmith70.old.scene.AbstractScene;
+import com.google.collinsmith70.old.scene.SplashScene;
 
-public class Client implements ApplicationListener {
-    public static final String CLIENT_PREFS = Client.class.getCanonicalName();
+public class Client extends ApplicationAdapter {
+	public static final String CLIENT_PREFS = "com.google.collinsmith70.diablo.preferences";
 
     private final int VIRTUAL_WIDTH;
     private final int VIRTUAL_HEIGHT;
@@ -26,14 +25,11 @@ public class Client implements ApplicationListener {
     @EffectivelyFinal
     private AssetManager ASSET_MANAGER;
 
-//  @EffectivelyFinal
-//  private SettingManager SETTING_MANAGER;
+    @EffectivelyFinal
+    private SettingManager SETTING_MANAGER;
 
     @EffectivelyFinal
     private Stage STAGE;
-
-    @EffectivelyFinal
-    private ConsolePanel CONSOLE;
 
     @EffectivelyFinal
     private BitmapFont CONSOLE_FONT;
@@ -49,17 +45,9 @@ public class Client implements ApplicationListener {
         return ASSET_MANAGER;
     }
 
-    private BitmapFont getConsoleFont() {
-        return CONSOLE_FONT;
+    public SettingManager getSettingManager() {
+        return SETTING_MANAGER;
     }
-
-    public ConsolePanel getConsole() {
-        return CONSOLE;
-    }
-
-//  public SettingManager getSettingManager() {
-//     return SETTING_MANAGER;
-//  }
 
     public int getVirtualWidth() {
         return VIRTUAL_WIDTH;
@@ -78,7 +66,6 @@ public class Client implements ApplicationListener {
         Gdx.input.setInputProcessor(STAGE);
         this.scene.loadAssets();
         this.scene.show();
-        this.scene.addActor(CONSOLE);
         if (oldScene != null) {
             oldScene.dispose();
         }
@@ -88,45 +75,31 @@ public class Client implements ApplicationListener {
         return scene;
     }
 
-    public boolean process(String command) {
-        if (command.equals("exit")) {
-            Gdx.app.exit();
-            return true;
-        } else if (command.equals("help")) {
-            return true;
-        }
-
-        return false;
-    }
-
     @Override
     public void create() {
-        String defaultConsoleFont = "default.fnt";
+        Preferences PREFERENCES = Gdx.app.getPreferences(CLIENT_PREFS);
+        this.SETTING_MANAGER = new SettingManager(PREFERENCES);
+
+        String defaultConsoleFont = PREFERENCES.getString(Cvar.Client.Vis.ConsoleFont, "default.fnt");
         ASSET_MANAGER = new AssetManager();
         ASSET_MANAGER.setLoader(AtlasedBitmapFont.class, new AtlasedBitmapFontLoader(new InternalFileHandleResolver()));
         ASSET_MANAGER.load(defaultConsoleFont, BitmapFont.class);
         ASSET_MANAGER.finishLoading();
         CONSOLE_FONT = ASSET_MANAGER.get(defaultConsoleFont, BitmapFont.class);
         CONSOLE_FONT.setColor(new Color(
-                1.0f,
-                1.0f,
-                1.0f,
-                1.0f));
+                PREFERENCES.getFloat(Cvar.Client.Vis.ConsoleFontColor.r, 1.0f),
+                PREFERENCES.getFloat(Cvar.Client.Vis.ConsoleFontColor.g, 1.0f),
+                PREFERENCES.getFloat(Cvar.Client.Vis.ConsoleFontColor.b, 1.0f),
+                PREFERENCES.getFloat(Cvar.Client.Vis.ConsoleFontColor.a, 1.0f)));
 
-        //Gdx.graphics.setDisplayMode(1280, 720, true);
+        Gdx.graphics.setDisplayMode(1280, 720, true);
 
         this.STAGE = new Stage();
         STAGE.setViewport(new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
 
-        CONSOLE = new ConsolePanel(this);
-        CONSOLE.loadAssets();
-        CONSOLE.show();
-        CONSOLE.setVisible(false);
-
         setScene(new SplashScene(this));
 
         Gdx.input.setCatchBackKey(true);
-        Gdx.input.setCatchMenuKey(true);
     }
 
     @Override
@@ -142,9 +115,7 @@ public class Client implements ApplicationListener {
         STAGE.draw();
         Batch b = STAGE.getBatch();
         b.begin(); {
-            if (!CONSOLE.isVisible()) {
-                CONSOLE_FONT.draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
-            }
+            CONSOLE_FONT.draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
         } b.end();
     }
 
@@ -168,5 +139,6 @@ public class Client implements ApplicationListener {
         scene.dispose();
         STAGE.dispose();
         ASSET_MANAGER.dispose();
+        super.dispose();
     }
 }

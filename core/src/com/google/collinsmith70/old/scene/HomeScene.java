@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.scene;
+package com.google.collinsmith70.old.scene;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -13,12 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.google.collinsmith70.diablo.Assets;
-import com.google.collinsmith70.diablo.Client;
-import com.google.collinsmith70.diablo.EffectivelyFinal;
-import com.google.collinsmith70.diablo.util.Actors;
-import com.google.collinsmith70.diablo.widget.AnimationActor;
-import com.google.collinsmith70.diablo.widget.AudibleButton;
+import com.google.collinsmith70.old.Assets;
+import com.google.collinsmith70.old.Client;
+import com.google.collinsmith70.old.EffectivelyFinal;
+import com.google.collinsmith70.old.util.Actors;
+import com.google.collinsmith70.old.widget.AnimationActor;
+import com.google.collinsmith70.old.widget.AudibleButton;
 
 public class HomeScene extends BackgroundedScene {
 	@EffectivelyFinal
@@ -167,6 +167,10 @@ public class HomeScene extends BackgroundedScene {
 
 	@Override
 	public boolean keyDown(int keycode) {
+        if (!super.keyDown(keycode)) {
+            return false;
+        }
+
 		switch (keycode) {
 			case Input.Keys.BACK:
 			case Input.Keys.ESCAPE:

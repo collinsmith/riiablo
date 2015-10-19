@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.asset.loader;
+package com.google.collinsmith70.old.asset.loader;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
@@ -8,7 +8,7 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
-import com.google.collinsmith70.diablo.asset.AtlasedBitmapFont;
+import com.google.collinsmith70.old.asset.AtlasedBitmapFont;
 
 public class AtlasedBitmapFontLoader extends AsynchronousAssetLoader<AtlasedBitmapFont, AtlasedBitmapFontLoader.AtlasedBitmapFontParameter> {
 	public AtlasedBitmapFontLoader(FileHandleResolver resolver) {

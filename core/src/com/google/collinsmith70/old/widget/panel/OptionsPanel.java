@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.widget.panel;
+package com.google.collinsmith70.old.widget.panel;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -18,11 +18,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.google.collinsmith70.diablo.Actors;
-import com.google.collinsmith70.diablo.widget.AudibleButton;
-import com.google.collinsmith70.diablo.Assets;
-import com.google.collinsmith70.diablo.Client;
-import com.google.collinsmith70.util.EffectivelyFinal;
+import com.google.collinsmith70.old.Assets;
+import com.google.collinsmith70.old.Client;
+import com.google.collinsmith70.old.EffectivelyFinal;
+import com.google.collinsmith70.old.util.Actors;
+import com.google.collinsmith70.old.widget.AudibleButton;
 
 public class OptionsPanel extends AbstractPanel {
 //	public static final String PANEL_PATH = "textures/options_panel.pack";

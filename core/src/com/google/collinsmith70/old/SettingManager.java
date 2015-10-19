@@ -1,13 +1,16 @@
-package com.google.collinsmith70.diablo;
+package com.google.collinsmith70.old;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerAdapter;
 import com.badlogic.gdx.controllers.Controllers;
 
 import java.util.Locale;
 
 public final class SettingManager {
+    private static final String TAG = "Settings";
+
 	private final Preferences PREFERENCES;
 
 	public SettingManager(Preferences prefs) {
@@ -28,14 +31,14 @@ public final class SettingManager {
 	private Locale locale;
 
 	private void loadLocale() {
-		String tag = PREFERENCES.getString("cl.glob.language", "");
+		String tag = PREFERENCES.getString(Cvar.Client.Language, "");
 		if (tag.isEmpty()) {
 			locale = Locale.getDefault();
 		} else {
 			locale = Locale.forLanguageTag(tag);
 		}
 
-		Gdx.app.log("setting", "Locale loaded as " + locale);
+		Gdx.app.log(TAG, "Locale loaded as " + locale);
 	}
 
 	public Locale getLocale() {
@@ -44,7 +47,7 @@ public final class SettingManager {
 
 	public void setLocale(Locale l) {
 		this.locale = l;
-		Gdx.app.log("setting", "Locale set to " + locale);
+		Gdx.app.log(TAG, "Locale set to " + locale);
 	}
 
 	private Controller controller;
@@ -52,8 +55,22 @@ public final class SettingManager {
 	public void loadController() {
 		controller = findFirstController();
 		if (controller != null) {
-			Gdx.app.log("setting", "Controller loaded as " + controller.getName());
+			Gdx.app.log(TAG, "Controller loaded as " + controller.getName());
 		}
+
+        Controllers.addListener(new ControllerAdapter() {
+            @Override
+            public void connected(Controller controller) {
+                SettingManager.this.controller = controller;
+                Gdx.app.log(TAG, "Controller connected: " + SettingManager.this.controller.getName());
+            }
+
+            @Override
+            public void disconnected(Controller controller) {
+                SettingManager.this.controller = null;
+                Gdx.app.log(TAG, "Controller disconnected: " + controller.getName());
+            }
+        });
 	}
 
 	public boolean isUsingController() {
@@ -67,7 +84,7 @@ public final class SettingManager {
 	public void setController(Controller c) {
 		this.controller = c;
 		Gdx.input.setCursorCatched(controller != null);
-		Gdx.app.log("setting", "Controller set to " + controller.getName());
+		Gdx.app.log(TAG, "Controller set to " + controller.getName());
 	}
 
 	private static Controller findFirstController() {
@@ -81,8 +98,8 @@ public final class SettingManager {
 	private boolean vsyncEnabled;
 
 	private void loadVSync() {
-		vsyncEnabled = PREFERENCES.getBoolean("cl.vis.vsync", false);
-		Gdx.app.log("setting", "Vertical sync loaded as " + vsyncEnabled);
+		vsyncEnabled = PREFERENCES.getBoolean(Cvar.Client.Vis.VSyncEnabled, false);
+		Gdx.app.log(TAG, "Vertical sync loaded as " + vsyncEnabled);
 	}
 
 	public void setVSyncEnabled(boolean b) {

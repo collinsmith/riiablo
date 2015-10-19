@@ -1,0 +1,12 @@
+
+console.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+default
+  rotate: false
+  xy: 0, 0
+  size: 256, 128
+  orig: 256, 128
+  offset: 0, 0
+  index: -1

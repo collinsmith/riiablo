@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.util;
+package com.google.collinsmith70.diablo.scene;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;

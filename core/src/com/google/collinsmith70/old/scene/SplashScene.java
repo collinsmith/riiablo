@@ -1,10 +1,12 @@
-package com.google.collinsmith70.diablo.scene;
+package com.google.collinsmith70.old.scene;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -12,12 +14,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.google.collinsmith70.diablo.Actors;
-import com.google.collinsmith70.diablo.Assets;
-import com.google.collinsmith70.diablo.Client;
-import com.google.collinsmith70.diablo.widget.AnimationActor;
-import com.google.collinsmith70.diablo.widget.StrobingLabel;
-import com.google.collinsmith70.util.EffectivelyFinal;
+import com.badlogic.gdx.utils.I18NBundle;
+import com.google.collinsmith70.old.Assets;
+import com.google.collinsmith70.old.Client;
+import com.google.collinsmith70.old.EffectivelyFinal;
+import com.google.collinsmith70.old.util.Actors;
+import com.google.collinsmith70.old.widget.AnimationActor;
+import com.google.collinsmith70.old.widget.StrobingLabel;
 
 public class SplashScene extends BackgroundedScene {
 	@EffectivelyFinal
@@ -82,8 +85,8 @@ public class SplashScene extends BackgroundedScene {
 
 		INTRO.play();
 
-		String press_to_continue = "Press any key";
-		/*I18NBundle bundle = I18NBundle.createBundle(Gdx.files.internal("lang/splash"), getClient().getSettingManager().getLocale());
+		String press_to_continue;
+		I18NBundle bundle = I18NBundle.createBundle(Gdx.files.internal("lang/splash"), getClient().getSettingManager().getLocale());
 		if (getClient().getSettingManager().isUsingController()) {
 			press_to_continue = bundle.format("press_any_button");
 			getClient().getSettingManager().getController().addListener(new ControllerAdapter() {
@@ -99,7 +102,7 @@ public class SplashScene extends BackgroundedScene {
 			} else {
 				press_to_continue = bundle.format("press_any_key");
 			}
-		}*/
+		}
 
 		EXOCET = getClient().getAssetManager().get(Assets.Fonts.ASSET_EXOCET16);
 		LabelStyle labelStyle = new LabelStyle(EXOCET, Color.WHITE);
@@ -125,13 +128,13 @@ public class SplashScene extends BackgroundedScene {
         if (!super.keyDown(keycode)) {
             return false;
         }
-
+        
 		//if (getClient().getSettingManager().isUsingController()) {
 		//	return true;
 		//}
 
 		if (Gdx.app.getType() == Application.ApplicationType.Android) {
-            return true;
+			return true;
 		}
 
 		return false;
@@ -139,11 +142,6 @@ public class SplashScene extends BackgroundedScene {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (getClient().getConsole().isVisible()) {
-            Gdx.input.setOnscreenKeyboardVisible(true);
-            return false;
-        }
-
         //if (getClient().getSettingManager().isUsingController()) {
         //	return true;
         //}
@@ -168,7 +166,7 @@ public class SplashScene extends BackgroundedScene {
 		PRESSED.play();
 		continued = true;
 		lblPressToContinue.setVisible(false);
-		//getClient().setScene(new HomeScene(getClient(), INTRO, animMainTitle));
+		getClient().setScene(new HomeScene(getClient(), INTRO, animMainTitle));
 		return true;
 	}
 
@@ -202,10 +200,6 @@ public class SplashScene extends BackgroundedScene {
 
 	@Override
 	public boolean keyTyped(char character) {
-		if (!super.keyTyped(character)) {
-			return false;
-		}
-
 		return true;
 	}
 
