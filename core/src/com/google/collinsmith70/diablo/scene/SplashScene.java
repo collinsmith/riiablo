@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -12,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.google.collinsmith70.diablo.Actors;
 import com.google.collinsmith70.diablo.Assets;
 import com.google.collinsmith70.diablo.Client;
@@ -83,7 +86,7 @@ public class SplashScene extends BackgroundedScene {
 		INTRO.play();
 
 		String press_to_continue = "Press any key";
-		/*I18NBundle bundle = I18NBundle.createBundle(Gdx.files.internal("lang/splash"), getClient().getSettingManager().getLocale());
+		I18NBundle bundle = I18NBundle.createBundle(Gdx.files.internal("lang/splash"), getClient().getSettingManager().getLocale());
 		if (getClient().getSettingManager().isUsingController()) {
 			press_to_continue = bundle.format("press_any_button");
 			getClient().getSettingManager().getController().addListener(new ControllerAdapter() {
@@ -99,7 +102,7 @@ public class SplashScene extends BackgroundedScene {
 			} else {
 				press_to_continue = bundle.format("press_any_key");
 			}
-		}*/
+		}
 
 		EXOCET = getClient().getAssetManager().get(Assets.Fonts.ASSET_EXOCET16);
 		LabelStyle labelStyle = new LabelStyle(EXOCET, Color.WHITE);

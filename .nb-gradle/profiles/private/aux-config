@@ -9,10 +9,7 @@
     </open-files>
     <editor-bookmarks lastBookmarkId="0" xmlns="http://www.netbeans.org/ns/editor-bookmarks/2"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-      <group name="Diablo">
-        <file>file:/D:/projects/android/Diablo/android/src/com/google/collinsmith70/diablo/android/AndroidLauncher.java</file>
-        <file>file:/D:/projects/android/Diablo/android/build.gradle</file>
-      </group>
+      <group name="Diablo"/>
     </open-files>
   </auxiliary>
 </gradle-project-properties>

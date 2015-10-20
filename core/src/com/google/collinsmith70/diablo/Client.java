@@ -2,6 +2,7 @@ package com.google.collinsmith70.diablo;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Color;
@@ -26,8 +27,8 @@ public class Client implements ApplicationListener {
     @EffectivelyFinal
     private AssetManager ASSET_MANAGER;
 
-//  @EffectivelyFinal
-//  private SettingManager SETTING_MANAGER;
+    @EffectivelyFinal
+    private SettingManager SETTING_MANAGER;
 
     @EffectivelyFinal
     private Stage STAGE;
@@ -57,9 +58,9 @@ public class Client implements ApplicationListener {
         return CONSOLE;
     }
 
-//  public SettingManager getSettingManager() {
-//     return SETTING_MANAGER;
-//  }
+    public SettingManager getSettingManager() {
+       return SETTING_MANAGER;
+    }
 
     public int getVirtualWidth() {
         return VIRTUAL_WIDTH;
@@ -101,6 +102,9 @@ public class Client implements ApplicationListener {
 
     @Override
     public void create() {
+        Preferences PREFERENCES = Gdx.app.getPreferences(CLIENT_PREFS);
+        this.SETTING_MANAGER = new SettingManager(PREFERENCES);
+
         String defaultConsoleFont = "default.fnt";
         ASSET_MANAGER = new AssetManager();
         ASSET_MANAGER.setLoader(AtlasedBitmapFont.class, new AtlasedBitmapFontLoader(new InternalFileHandleResolver()));
