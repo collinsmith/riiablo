@@ -117,7 +117,7 @@ public class Client implements ApplicationListener {
                 1.0f,
                 1.0f));
 
-        //Gdx.graphics.setDisplayMode(1280, 720, true);
+        Gdx.graphics.setDisplayMode(1280, 720, false);
 
         this.STAGE = new Stage();
         STAGE.setViewport(new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
