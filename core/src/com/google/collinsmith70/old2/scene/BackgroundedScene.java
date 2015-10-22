@@ -1,9 +1,8 @@
-package com.google.collinsmith70.diablo.scene;
+package com.google.collinsmith70.old2.scene;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
-import com.google.collinsmith70.diablo.Client;
+import com.google.collinsmith70.old2.Client;
 
 public abstract class BackgroundedScene extends AbstractScene {
 	private TextureRegion background;

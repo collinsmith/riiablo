@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.widget.panel;
+package com.google.collinsmith70.old2.widget.panel;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
@@ -7,8 +7,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.google.collinsmith70.diablo.Assets;
-import com.google.collinsmith70.diablo.Client;
+import com.google.collinsmith70.old2.Assets;
+import com.google.collinsmith70.old2.Client;
 import com.google.collinsmith70.util.EffectivelyFinal;
 
 public class ConsolePanel extends AbstractPanel {

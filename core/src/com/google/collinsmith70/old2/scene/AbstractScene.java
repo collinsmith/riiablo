@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.scene;
+package com.google.collinsmith70.old2.scene;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -7,8 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.utils.Disposable;
-import com.google.collinsmith70.diablo.Client;
-import com.google.collinsmith70.diablo.widget.panel.ConsolePanel;
+import com.google.collinsmith70.old2.Client;
+import com.google.collinsmith70.old2.widget.panel.ConsolePanel;
 
 public abstract class AbstractScene extends WidgetGroup implements Disposable, InputProcessor {
     public abstract void render(float delta);

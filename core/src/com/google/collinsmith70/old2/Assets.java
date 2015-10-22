@@ -1,12 +1,12 @@
-package com.google.collinsmith70.diablo;
+package com.google.collinsmith70.old2;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.google.collinsmith70.diablo.asset.AtlasedBitmapFont;
-import com.google.collinsmith70.diablo.asset.loader.AtlasedBitmapFontLoader;
+import com.google.collinsmith70.old2.asset.AtlasedBitmapFont;
+import com.google.collinsmith70.old2.asset.loader.AtlasedBitmapFontLoader;
 
 public class Assets {
     private Assets() {

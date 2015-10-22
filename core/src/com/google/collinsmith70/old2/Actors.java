@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo;
+package com.google.collinsmith70.old2;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 

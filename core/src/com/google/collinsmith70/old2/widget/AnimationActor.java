@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.widget;
+package com.google.collinsmith70.old2.widget;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;

@@ -1,176 +1,81 @@
 package com.google.collinsmith70.diablo;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.google.collinsmith70.diablo.asset.AtlasedBitmapFont;
-import com.google.collinsmith70.diablo.asset.loader.AtlasedBitmapFontLoader;
-import com.google.collinsmith70.diablo.scene.AbstractScene;
-import com.google.collinsmith70.diablo.scene.SplashScene;
-import com.google.collinsmith70.diablo.widget.panel.ConsolePanel;
 import com.google.collinsmith70.util.EffectivelyFinal;
 
 public class Client implements ApplicationListener {
-    public static final String CLIENT_PREFS = Client.class.getCanonicalName();
+public static final String CLIENT_PREFS = Client.class.getCanonicalName();
 
-    private final int VIRTUAL_WIDTH;
-    private final int VIRTUAL_HEIGHT;
+private final int VIRTUAL_WIDTH;
+private final int VIRTUAL_HEIGHT;
 
-    @EffectivelyFinal
-    private AssetManager ASSET_MANAGER;
+@EffectivelyFinal
+private CvarManager CVAR_MANAGER;
 
-    @EffectivelyFinal
-    private SettingManager SETTING_MANAGER;
+public Client(int virtualWidth, int virtualHeight) {
+    this.VIRTUAL_WIDTH = virtualWidth;
+    this.VIRTUAL_HEIGHT = virtualHeight;
+}
 
-    @EffectivelyFinal
-    private Stage STAGE;
+public CvarManager getCvarManager() {
+    return CVAR_MANAGER;
+}
 
-    @EffectivelyFinal
-    private ConsolePanel CONSOLE;
+/**
+ * Called when the {@link Application} is first created.
+ */
+@Override
+public void create() {
+    final Preferences PREFERENCES = Gdx.app.getPreferences(CLIENT_PREFS);
+    CVAR_MANAGER = new CvarManager(PREFERENCES);
+}
 
-    @EffectivelyFinal
-    private BitmapFont CONSOLE_FONT;
+/**
+ * Called when the {@link Application} is resized. This can happen at any point during a non-paused
+ * state but will never happen before a call to {@link #create()}.
+ *
+ * @param width  the new width in pixels
+ * @param height the new height in pixels
+ */
+@Override
+public void resize(int width, int height) {
 
-    private AbstractScene scene;
+}
 
-    public Client(int virtualWidth, int virtualHeight) {
-        this.VIRTUAL_WIDTH = virtualWidth;
-        this.VIRTUAL_HEIGHT = virtualHeight;
-    }
+/**
+ * Called when the {@link Application} should render itself.
+ */
+@Override
+public void render() {
 
-    public AssetManager getAssetManager() {
-        return ASSET_MANAGER;
-    }
+}
 
-    private BitmapFont getConsoleFont() {
-        return CONSOLE_FONT;
-    }
+/**
+ * Called when the {@link Application} is paused, usually when it's not active or visible on screen.
+ * An Application is also paused before it is destroyed.
+ */
+@Override
+public void pause() {
 
-    public ConsolePanel getConsole() {
-        return CONSOLE;
-    }
+}
 
-    public SettingManager getSettingManager() {
-       return SETTING_MANAGER;
-    }
+/**
+ * Called when the {@link Application} is resumed from a paused state, usually when it regains
+ * focus.
+ */
+@Override
+public void resume() {
 
-    public int getVirtualWidth() {
-        return VIRTUAL_WIDTH;
-    }
+}
 
-    public int getVirtualHeight() {
-        return VIRTUAL_HEIGHT;
-    }
+/**
+ * Called when the {@link Application} is destroyed. Preceded by a call to {@link #pause()}.
+ */
+@Override
+public void dispose() {
 
-    public void setScene(AbstractScene scene) {
-        AbstractScene oldScene = this.scene;
-        this.scene = scene;
-        STAGE.clear();
-        STAGE.addActor(this.scene);
-        STAGE.setKeyboardFocus(this.scene);
-        Gdx.input.setInputProcessor(STAGE);
-        this.scene.loadAssets();
-        this.scene.show();
-        this.scene.addActor(CONSOLE);
-        if (oldScene != null) {
-            oldScene.dispose();
-        }
-    }
-
-    public AbstractScene getScene() {
-        return scene;
-    }
-
-    public boolean process(String command) {
-        if (command.equals("exit")) {
-            Gdx.app.exit();
-            return true;
-        } else if (command.equals("help")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public void create() {
-        Preferences PREFERENCES = Gdx.app.getPreferences(CLIENT_PREFS);
-        this.SETTING_MANAGER = new SettingManager(PREFERENCES);
-
-        String defaultConsoleFont = "default.fnt";
-        ASSET_MANAGER = new AssetManager();
-        ASSET_MANAGER.setLoader(AtlasedBitmapFont.class, new AtlasedBitmapFontLoader(new InternalFileHandleResolver()));
-        ASSET_MANAGER.load(defaultConsoleFont, BitmapFont.class);
-        ASSET_MANAGER.finishLoading();
-        CONSOLE_FONT = ASSET_MANAGER.get(defaultConsoleFont, BitmapFont.class);
-        CONSOLE_FONT.setColor(new Color(
-                1.0f,
-                1.0f,
-                1.0f,
-                1.0f));
-
-        Gdx.graphics.setDisplayMode(1280, 720, false);
-
-        this.STAGE = new Stage();
-        STAGE.setViewport(new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
-
-        CONSOLE = new ConsolePanel(this);
-        CONSOLE.loadAssets();
-        CONSOLE.show();
-        CONSOLE.setVisible(false);
-
-        setScene(new SplashScene(this));
-
-        Gdx.input.setCatchBackKey(true);
-        Gdx.input.setCatchMenuKey(true);
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        STAGE.getViewport().update(width, height, true);
-    }
-
-    @Override
-    public void render() {
-        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        STAGE.act(Gdx.graphics.getDeltaTime());
-        STAGE.draw();
-        Batch b = STAGE.getBatch();
-        b.begin(); {
-            if (!CONSOLE.isVisible()) {
-                CONSOLE_FONT.draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
-            }
-        } b.end();
-    }
-
-    @Override
-    public void pause() {
-        if (scene != null) {
-            scene.pause();
-        }
-    }
-
-    @Override
-    public void resume() {
-        if (scene != null) {
-            scene.resume();
-        }
-    }
-
-    @Override
-    public void dispose() {
-        Gdx.app.log("Application.State", "Disposing resources");
-        scene.dispose();
-        STAGE.dispose();
-        ASSET_MANAGER.dispose();
-    }
+}
 }

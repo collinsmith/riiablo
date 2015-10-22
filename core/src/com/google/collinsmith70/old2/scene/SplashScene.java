@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.scene;
+package com.google.collinsmith70.old2.scene;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
@@ -15,11 +15,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.I18NBundle;
-import com.google.collinsmith70.diablo.Actors;
-import com.google.collinsmith70.diablo.Assets;
-import com.google.collinsmith70.diablo.Client;
-import com.google.collinsmith70.diablo.widget.AnimationActor;
-import com.google.collinsmith70.diablo.widget.StrobingLabel;
+import com.google.collinsmith70.old2.Actors;
+import com.google.collinsmith70.old2.Assets;
+import com.google.collinsmith70.old2.Client;
+import com.google.collinsmith70.old2.widget.AnimationActor;
+import com.google.collinsmith70.old2.widget.StrobingLabel;
 import com.google.collinsmith70.util.EffectivelyFinal;
 
 public class SplashScene extends BackgroundedScene {

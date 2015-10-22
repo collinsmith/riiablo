@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.asset;
+package com.google.collinsmith70.old2.asset;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;

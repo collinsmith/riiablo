@@ -1,32 +1,24 @@
 package com.google.collinsmith70.diablo;
 
-public class Cvar {
-    private Cvar() {
-        //...
-    }
+public class Cvar<T> {
+private final String key;
+private final Class<T> type;
 
-    public static class Client {
-        private Client() {
-            //...
-        }
-        public static final String Language = "Client.Language";
+public Cvar(String key, Class<T> type) {
+    this.key = key;
+    this.type = type;
+}
 
-        public static class Vis {
-            private Vis() {
-                //...
-            }
-            public static final String ConsoleFont  = "Client.Vis.ConsoleFont";
-            public static final String VSyncEnabled = "Client.Vis.VSyncEnabled";
+public String getKey() {
+    return key;
+}
 
-            public static class ConsoleFontColor {
-                private ConsoleFontColor() {
-                    //...
-                }
-                public static final String r = "Client.Vis.ConsoleFontColor.r";
-                public static final String g = "Client.Vis.ConsoleFontColor.g";
-                public static final String b = "Client.Vis.ConsoleFontColor.b";
-                public static final String a = "Client.Vis.ConsoleFontColor.a";
-            }
-        }
-    }
+public Class<T> getType() {
+    return type;
+}
+
+@Override
+public String toString() {
+    return getKey();
+}
 }
