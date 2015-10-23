@@ -22,6 +22,12 @@ private final int VIRTUAL_WIDTH;
 private final int VIRTUAL_HEIGHT;
 
 @EffectivelyFinal
+private ClientInputProcessor INPUT_PROCESSOR;
+
+@EffectivelyFinal
+private ClientCommandProcessor COMMAND_PROCESSOR;
+
+@EffectivelyFinal
 private AssetManager ASSET_MANAGER;
 
 @EffectivelyFinal
@@ -30,12 +36,36 @@ private BitmapFont CONSOLE_FONT;
 @EffectivelyFinal
 private Stage STAGE;
 
+@EffectivelyFinal
+private Console CONSOLE;
+
 private boolean showFps;
+private boolean showConsole;
 
 public Client(int virtualWidth, int virtualHeight) {
     this.VIRTUAL_WIDTH = virtualWidth;
     this.VIRTUAL_HEIGHT = virtualHeight;
     this.showFps = false;
+}
+
+public ClientInputProcessor getInputProcessor() {
+    return INPUT_PROCESSOR;
+}
+
+public AssetManager getAssetManager() {
+    return ASSET_MANAGER;
+}
+
+public Console getConsole() {
+    return CONSOLE;
+}
+
+public boolean isConsoleVisible() {
+    return showConsole;
+}
+
+public void setConsoleVisibility(boolean b) {
+    this.showConsole = b;
 }
 
 /**
@@ -70,6 +100,14 @@ public void create() {
             Client.this.showFps = toValue;
         }
     });
+
+    this.COMMAND_PROCESSOR = new ClientCommandProcessor(this);
+
+    this.CONSOLE = new Console();
+    CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
+
+    this.INPUT_PROCESSOR = new ClientInputProcessor(this);
+    Gdx.input.setInputProcessor(INPUT_PROCESSOR);
 }
 
 /**
@@ -95,7 +133,9 @@ public void render() {
     STAGE.draw();
     Batch b = STAGE.getBatch();
     b.begin(); {
-        if (showFps) {
+        if (showConsole) {
+            CONSOLE_FONT.draw(b, CONSOLE.getBuffer() + "_", 0, VIRTUAL_HEIGHT);
+        } else if (showFps) {
             CONSOLE_FONT.draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
         }
     } b.end();

@@ -40,6 +40,10 @@ public void addCvarChangeListener(CvarChangeListener<T> l) {
     l.onCvarChanged(this, null, this.value);
 }
 
+public boolean containsCvarChangeListener(CvarChangeListener<T> l) {
+    return changeListeners.contains(l);
+}
+
 public boolean removeCvarChangeListener(CvarChangeListener<T> l) {
     return changeListeners.remove(l);
 }
