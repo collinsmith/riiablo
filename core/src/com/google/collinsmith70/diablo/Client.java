@@ -3,25 +3,15 @@ package com.google.collinsmith70.diablo;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
-import com.google.collinsmith70.util.EffectivelyFinal;
+import com.badlogic.gdx.utils.Timer;
 
 public class Client implements ApplicationListener {
-public static final String CLIENT_PREFS = Client.class.getCanonicalName();
-
 private final int VIRTUAL_WIDTH;
 private final int VIRTUAL_HEIGHT;
-
-@EffectivelyFinal
-private CvarManager CVAR_MANAGER;
 
 public Client(int virtualWidth, int virtualHeight) {
     this.VIRTUAL_WIDTH = virtualWidth;
     this.VIRTUAL_HEIGHT = virtualHeight;
-}
-
-public CvarManager getCvarManager() {
-    return CVAR_MANAGER;
 }
 
 /**
@@ -29,8 +19,10 @@ public CvarManager getCvarManager() {
  */
 @Override
 public void create() {
-    final Preferences PREFERENCES = Gdx.app.getPreferences(CLIENT_PREFS);
-    CVAR_MANAGER = new CvarManager(PREFERENCES);
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+        Timer.schedule(new ControllerDetectorTask(), 1.0f, 1.0f)
+                .run();
+    }
 }
 
 /**

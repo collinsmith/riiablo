@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.google.collinsmith70.old.Assets;
 import com.google.collinsmith70.old.Client;
+import com.google.collinsmith70.old.EffectivelyFinal;
 import com.google.collinsmith70.old.util.Actors;
 import com.google.collinsmith70.old.widget.AnimationActor;
 import com.google.collinsmith70.old.widget.StrobingLabel;

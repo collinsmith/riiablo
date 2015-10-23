@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.google.collinsmith70.old.Assets;
 import com.google.collinsmith70.old.Client;
+import com.google.collinsmith70.old.EffectivelyFinal;
 import com.google.collinsmith70.old.util.Actors;
 import com.google.collinsmith70.old.widget.AnimationActor;
 import com.google.collinsmith70.old.widget.AudibleButton;
