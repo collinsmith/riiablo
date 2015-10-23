@@ -1,5 +1,8 @@
 package com.google.collinsmith70.diablo.cvar;
 
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
 import java.util.Locale;
 
 public class Cvars {
@@ -24,9 +27,22 @@ public static class Client {
             //...
         }
 
-        public static final Cvar<String> ConsoleFont = new Cvar<String>(
+        public static final Cvar<AssetDescriptor<BitmapFont>> ConsoleFont
+                = new Cvar<AssetDescriptor<BitmapFont>>(
                 "Client.Overlay.ConsoleFont",
-                String.class, "default.fnt");
+                null,
+                new AssetDescriptor<BitmapFont>("default.fnt", BitmapFont.class),
+                "default.fnt",
+                new CvarLoadListener<AssetDescriptor<BitmapFont>>() {
+            @Override
+            public AssetDescriptor<BitmapFont> onCvarLoaded(String value) {
+                return new AssetDescriptor<BitmapFont>(value, BitmapFont.class);
+            }
+        });
+
+        public static final Cvar<Boolean> ShowFps = new Cvar<Boolean>(
+                "Client.Overlay.ShowFps",
+                Boolean.class, Boolean.FALSE);
 
         public static final Cvar<Boolean> VSyncEnabled = new Cvar<Boolean>(
                 "Client.Overlay.VSyncEnabled",

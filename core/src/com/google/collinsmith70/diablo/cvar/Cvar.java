@@ -5,7 +5,7 @@ import com.badlogic.gdx.Preferences;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Cvar<T> {
 private static final String TAG = Cvar.class.getSimpleName();
@@ -19,10 +19,10 @@ private T value;
 
 public Cvar(String key, Class<T> type, T defaultValue) {
     this.key = Objects.toString(key, "");
-    this.type = Objects.requireNonNull(type);
+    this.type = type != null ? type : (Class<T>)defaultValue.getClass();
     this.value = defaultValue;
 
-    this.changeListeners = new ConcurrentSkipListSet<CvarChangeListener<T>>();
+    this.changeListeners = new CopyOnWriteArraySet<CvarChangeListener<T>>();
 }
 
 public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
@@ -32,11 +32,12 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
 public Cvar(String key, Class<T> type, T defaultValue, String defaultStringValue, CvarLoadListener<T> l) {
     this(key, type, defaultValue);
     this.value = l.onCvarLoaded(CVARS.getString(getKey(), defaultStringValue));
-    Gdx.app.debug(TAG, String.format("Value loaded as (%s) %s", type.getName(), value));
+    Gdx.app.log(TAG, String.format("Value loaded as (%s) %s", getType().getName(), getValue()));
 }
 
 public void addCvarChangeListener(CvarChangeListener<T> l) {
     changeListeners.add(l);
+    l.onCvarChanged(this, null, this.value);
 }
 
 public boolean removeCvarChangeListener(CvarChangeListener<T> l) {
@@ -58,7 +59,7 @@ public T getValue() {
 public void setValue(T value) {
     T oldValue = this.value;
     this.value = value;
-    Gdx.app.debug(TAG, String.format("Value changed from %s to %s", oldValue, this.value));
+    Gdx.app.log(TAG, String.format("Value changed from %s to %s", oldValue, this.value));
     for (CvarChangeListener<T> l : changeListeners) {
         l.onCvarChanged(this, oldValue, this.value);
     }
