@@ -271,7 +271,7 @@ public class TernaryTrie<V> implements Trie<V> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Iterable<String> prefixMatch(String prefix) {
+	public Set<String> getKeysPrefixedWith(String prefix) {
         if (prefix.isEmpty()) {
             return keySet();
         }
