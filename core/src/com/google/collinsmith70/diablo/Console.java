@@ -34,10 +34,7 @@ private int caretPosition;
 public Console(Client client) {
     this.CLIENT = client;
     this.commandProcessors = new CopyOnWriteArraySet<CommandProcessor>();
-    this.consoleBuffer = new StringBuffer(CONSOLE_BUFFER_SIZE);
-    this.caretPosition = 0;
     this.isVisible = false;
-    this.showCaret = true;
 
     AssetDescriptor<BitmapFont> consoleFont = Cvars.Client.Overlay.ConsoleFont.getValue();
 
@@ -59,7 +56,8 @@ public Console(Client client) {
         }
     };
 
-    CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
+    clearBuffer();
+    updateCaret();
     CARET_TIMER.start();
 }
 
@@ -78,7 +76,7 @@ public boolean isVisible() {
 public void setVisible(boolean b) {
     this.isVisible = b;
     if (isVisible()) {
-        this.showCaret = true;
+        updateCaret();
     }
 }
 
@@ -128,6 +126,10 @@ public boolean keyDown(int keycode) {
 }
 
 private void updateCaret() {
+    if (CARET_BLINK_TASK == null) {
+
+    }
+
     CARET_BLINK_TASK.cancel();
     CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
     this.showCaret = true;
