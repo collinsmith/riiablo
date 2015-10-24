@@ -1,5 +1,6 @@
 package com.google.collinsmith70.diablo;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Timer;
+import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.Cvars;
 
 import java.util.Set;
@@ -118,6 +120,13 @@ public boolean keyDown(int keycode) {
             updateCaret();
             return true;
         case Input.Keys.TAB:
+            if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+             || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+                Gdx.app.log(TAG, "SHIFT + TAB");
+            } else {
+                Gdx.app.log(TAG, "TAB");
+            }
+
             updateCaret();
             return true;
         default:
@@ -133,6 +142,17 @@ private void updateCaret() {
     CARET_BLINK_TASK.cancel();
     CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
     this.showCaret = true;
+
+    if (caretPosition == consoleBuffer.length()) {
+        Gdx.app.log(TAG, "Ouputting keys:");
+        int i = 0;
+        for (String key : Cvar.lookup(getBuffer())) {
+            Gdx.app.log(TAG, key);
+            i++;
+        }
+
+        Gdx.app.log(TAG, i + " keys found");
+    }
 }
 
 public boolean keyTyped(char ch) {
@@ -170,7 +190,7 @@ public boolean keyTyped(char ch) {
         case 'A':case 'B':case 'C':case 'D':case 'E':case 'F':case 'G':case 'H':case 'I':case 'J':
         case 'K':case 'L':case 'M':case 'N':case 'O':case 'P':case 'Q':case 'R':case 'S':case 'T':
         case 'U':case 'V':case 'W':case 'X':case 'Y':case 'Z':
-        case '-':case '_':case ' ':
+        case '-':case '_':case '.':case '\"':case ' ':
             consoleBuffer.insert(caretPosition++, ch);
             updateCaret();
             return true;

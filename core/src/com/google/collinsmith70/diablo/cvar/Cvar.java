@@ -2,6 +2,8 @@ package com.google.collinsmith70.diablo.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.google.collinsmith70.util.TernaryTrie;
+import com.google.collinsmith70.util.Trie;
 
 import java.util.Objects;
 import java.util.Set;
@@ -9,7 +11,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Cvar<T> {
 private static final String TAG = Cvar.class.getSimpleName();
-private static final Preferences CVARS = Gdx.app.getPreferences(Cvar.class.getName());
+private static final Preferences PREFERENCES = Gdx.app.getPreferences(Cvar.class.getName());
+private static final Trie<Cvar<?>> CVARS = new TernaryTrie<Cvar<?>>();
+
+public static Iterable<String> lookup(String key) {
+    return CVARS.prefixMatch(key);
+}
 
 private final String key;
 private final Class<T> type;
@@ -23,6 +30,7 @@ public Cvar(String key, Class<T> type, T defaultValue) {
     this.value = defaultValue;
 
     this.changeListeners = new CopyOnWriteArraySet<CvarChangeListener<T>>();
+    CVARS.put(key, this); // potentially unsafe (technically object is not constructed yet)
 }
 
 public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
@@ -31,8 +39,9 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
 
 public Cvar(String key, Class<T> type, T defaultValue, String defaultStringValue, CvarLoadListener<T> l) {
     this(key, type, defaultValue);
-    this.value = l.onCvarLoaded(CVARS.getString(getKey(), defaultStringValue));
+    this.value = l.onCvarLoaded(PREFERENCES.getString(getKey(), defaultStringValue));
     Gdx.app.log(TAG, String.format("Value loaded as (%s) %s", getType().getName(), getValue()));
+    CVARS.put(key, this); // potentially unsafe (technically object is not constructed yet)
 }
 
 public void addCvarChangeListener(CvarChangeListener<T> l) {
