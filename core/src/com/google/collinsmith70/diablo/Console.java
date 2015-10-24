@@ -1,21 +1,74 @@
 package com.google.collinsmith70.diablo;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Timer;
+import com.google.collinsmith70.diablo.cvar.Cvars;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class Console {
+public class Console implements Disposable {
 private static final String TAG = Console.class.getSimpleName();
+private static final int CONSOLE_BUFFER_SIZE = 128;
+private static final float CARET_HOLD_DELAY = 1.0f;
+private static final float CARET_BLINK_DELAY = 0.5f;
 
+private final Client CLIENT;
 private final Set<CommandProcessor> commandProcessors;
+private final BitmapFont FONT;
+
+private final Timer CARET_TIMER;
+private final Timer.Task CARET_BLINK_TASK;
 
 private StringBuffer consoleBuffer;
 private boolean isVisible;
+private boolean showCaret;
+private int caretPosition;
 
-public Console() {
+public Console(Client client) {
+    this.CLIENT = client;
     this.commandProcessors = new CopyOnWriteArraySet<CommandProcessor>();
-    this.consoleBuffer = new StringBuffer(32);
+    this.consoleBuffer = new StringBuffer(CONSOLE_BUFFER_SIZE);
+    this.caretPosition = 0;
+    this.isVisible = false;
+    this.showCaret = true;
+
+    AssetDescriptor<BitmapFont> consoleFont = Cvars.Client.Overlay.ConsoleFont.getValue();
+
+    CLIENT.getAssetManager().load(consoleFont);
+    CLIENT.getAssetManager().finishLoading();
+
+    this.FONT = CLIENT.getAssetManager().get(consoleFont);
+    FONT.setColor(new Color(
+            Cvars.Client.Overlay.ConsoleFontColor.r.getValue(),
+            Cvars.Client.Overlay.ConsoleFontColor.g.getValue(),
+            Cvars.Client.Overlay.ConsoleFontColor.b.getValue(),
+            Cvars.Client.Overlay.ConsoleFontColor.a.getValue()));
+
+    CARET_TIMER = new Timer();
+    CARET_BLINK_TASK = new Timer.Task() {
+        @Override
+        public void run() {
+            Console.this.showCaret = !Console.this.showCaret;
+        }
+    };
+
+    CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
+    CARET_TIMER.start();
+}
+
+public Client getClient() {
+    return CLIENT;
+}
+
+public BitmapFont getFont() {
+    return FONT;
 }
 
 public boolean isVisible() {
@@ -24,6 +77,9 @@ public boolean isVisible() {
 
 public void setVisible(boolean b) {
     this.isVisible = b;
+    if (isVisible()) {
+        this.showCaret = true;
+    }
 }
 
 public void addCommandProcessor(CommandProcessor p) {
@@ -39,21 +95,53 @@ public boolean removeCommandProcessor(CommandProcessor p) {
 }
 
 public void clearBuffer() {
-    consoleBuffer = new StringBuffer(32);
+    consoleBuffer = new StringBuffer(CONSOLE_BUFFER_SIZE);
+    caretPosition = 0;
 }
 
 public String getBuffer() {
     return consoleBuffer.toString();
 }
 
+public boolean keyDown(int keycode) {
+    switch (keycode) {
+        case Input.Keys.LEFT:
+            caretPosition = Math.max(caretPosition - 1, 0);
+            updateCaret();
+            return true;
+        case Input.Keys.RIGHT:
+            caretPosition = Math.min(caretPosition + 1, consoleBuffer.length());
+            updateCaret();
+            return true;
+        case Input.Keys.UP:
+            updateCaret();
+            return true;
+        case Input.Keys.DOWN:
+            updateCaret();
+            return true;
+        case Input.Keys.TAB:
+            updateCaret();
+            return true;
+        default:
+            return false;
+    }
+}
+
+private void updateCaret() {
+    CARET_BLINK_TASK.cancel();
+    CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
+    this.showCaret = true;
+}
+
 public boolean keyTyped(char ch) {
     switch (ch) {
         case '\b':
-            if (consoleBuffer.length() > 0) {
-                consoleBuffer.deleteCharAt(consoleBuffer.length() - 1);
+            if (caretPosition > 0) {
+                consoleBuffer.deleteCharAt(--caretPosition);
             }
 
-            break;
+            updateCaret();
+            return true;
         case '\r':
         case '\n':
             String command = consoleBuffer.toString();
@@ -64,14 +152,45 @@ public boolean keyTyped(char ch) {
             }
 
             clearBuffer();
+            updateCaret();
             // TODO: Output "Invalid command entered: %s"
-            break;
+            return true;
+        case 127:
+            if (caretPosition < consoleBuffer.length()) {
+                consoleBuffer.deleteCharAt(caretPosition);
+            }
+
+            updateCaret();
+            return true;
+        case 'a':case 'b':case 'c':case 'd':case 'e':case 'f':case 'g':case 'h':case 'i':case 'j':
+        case 'k':case 'l':case 'm':case 'n':case 'o':case 'p':case 'q':case 'r':case 's':case 't':
+        case 'u':case 'v':case 'w':case 'x':case 'y':case 'z':
+        case 'A':case 'B':case 'C':case 'D':case 'E':case 'F':case 'G':case 'H':case 'I':case 'J':
+        case 'K':case 'L':case 'M':case 'N':case 'O':case 'P':case 'Q':case 'R':case 'S':case 'T':
+        case 'U':case 'V':case 'W':case 'X':case 'Y':case 'Z':
+        case '-':case '_':case ' ':
+            consoleBuffer.insert(caretPosition++, ch);
+            updateCaret();
+            return true;
         default:
-            consoleBuffer.append(ch);
-            break;
+            return false;
+    }
+}
+
+public void render(Batch b) {
+    if (!isVisible()) {
+        return;
     }
 
-    Gdx.app.debug(TAG, "Command Buffer=" + getBuffer());
-    return false;
+    GlyphLayout glyphs = FONT.draw(b, getBuffer(), 0, getClient().getVirtualHeight());
+    if (showCaret) {
+        glyphs.setText(FONT, getBuffer().substring(0, caretPosition));
+        FONT.draw(b, "_", glyphs.width - 4, getClient().getVirtualHeight() - 1);
+    }
+}
+
+@Override
+public void dispose() {
+    FONT.dispose();
 }
 }

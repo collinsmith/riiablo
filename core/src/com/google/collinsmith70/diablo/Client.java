@@ -3,12 +3,9 @@ package com.google.collinsmith70.diablo;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -31,9 +28,6 @@ private ClientCommandProcessor COMMAND_PROCESSOR;
 private AssetManager ASSET_MANAGER;
 
 @EffectivelyFinal
-private BitmapFont CONSOLE_FONT;
-
-@EffectivelyFinal
 private Stage STAGE;
 
 @EffectivelyFinal
@@ -45,6 +39,14 @@ public Client(int virtualWidth, int virtualHeight) {
     this.VIRTUAL_WIDTH = virtualWidth;
     this.VIRTUAL_HEIGHT = virtualHeight;
     this.showFps = false;
+}
+
+public int getVirtualWidth() {
+    return VIRTUAL_WIDTH;
+}
+
+public int getVirtualHeight() {
+    return VIRTUAL_HEIGHT;
 }
 
 public ClientInputProcessor getInputProcessor() {
@@ -69,19 +71,6 @@ public void create() {
                 .run();
     }
 
-    AssetDescriptor<BitmapFont> consoleFont = Cvars.Client.Overlay.ConsoleFont.getValue();
-
-    ASSET_MANAGER = new AssetManager();
-    ASSET_MANAGER.load(consoleFont);
-    ASSET_MANAGER.finishLoading();
-
-    CONSOLE_FONT = ASSET_MANAGER.get(consoleFont);
-    CONSOLE_FONT.setColor(new Color(
-            Cvars.Client.Overlay.ConsoleFontColor.r.getValue(),
-            Cvars.Client.Overlay.ConsoleFontColor.g.getValue(),
-            Cvars.Client.Overlay.ConsoleFontColor.b.getValue(),
-            Cvars.Client.Overlay.ConsoleFontColor.a.getValue()));
-
     this.STAGE = new Stage();
     STAGE.setViewport(new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
 
@@ -94,7 +83,8 @@ public void create() {
 
     this.COMMAND_PROCESSOR = new ClientCommandProcessor(this);
 
-    this.CONSOLE = new Console();
+    this.ASSET_MANAGER = new AssetManager();
+    this.CONSOLE = new Console(this);
     CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
 
     this.INPUT_PROCESSOR = new ClientInputProcessor(this);
@@ -125,9 +115,10 @@ public void render() {
     Batch b = STAGE.getBatch();
     b.begin(); {
         if (CONSOLE.isVisible()) {
-            CONSOLE_FONT.draw(b, CONSOLE.getBuffer() + "_", 0, VIRTUAL_HEIGHT);
+            CONSOLE.render(b);
         } else if (showFps) {
-            CONSOLE_FONT.draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
+            CONSOLE.getFont()
+                    .draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
         }
     } b.end();
 }
@@ -156,6 +147,7 @@ public void resume() {
 @Override
 public void dispose() {
     STAGE.dispose();
+    CONSOLE.dispose();
     ASSET_MANAGER.dispose();
 }
 }

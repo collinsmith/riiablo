@@ -28,7 +28,18 @@ public Client getClient() {
  */
 @Override
 public boolean keyDown(int keycode) {
-    return false;
+    switch (keycode) {
+        case Input.Keys.LEFT:
+        case Input.Keys.RIGHT:
+        case Input.Keys.UP:
+        case Input.Keys.DOWN:
+        case Input.Keys.TAB:
+            if (CLIENT.getConsole().isVisible()) {
+                return CLIENT.getConsole().keyDown(keycode);
+            }
+        default:
+            return false;
+    }
 }
 
 /**
