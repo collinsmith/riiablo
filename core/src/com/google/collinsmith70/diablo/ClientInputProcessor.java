@@ -54,13 +54,13 @@ public boolean keyUp(int keycode) {
 public boolean keyTyped(char ch) {
     // TODO: Implement KeyMap structure similar to CVars
     if (ch == '`') {
-        CLIENT.setConsoleVisibility(!CLIENT.isConsoleVisible());
+        CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
         if (Gdx.app.getType() == Application.ApplicationType.Android) {
-            Gdx.input.setOnscreenKeyboardVisible(CLIENT.isConsoleVisible());
+            Gdx.input.setOnscreenKeyboardVisible(CLIENT.getConsole().isVisible());
         }
 
         return true;
-    } else if (CLIENT.isConsoleVisible()) {
+    } else if (CLIENT.getConsole().isVisible()) {
         CLIENT.getConsole().keyTyped(ch);
         return true;
     }

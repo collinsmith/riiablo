@@ -11,10 +11,19 @@ private static final String TAG = Console.class.getSimpleName();
 private final Set<CommandProcessor> commandProcessors;
 
 private StringBuffer consoleBuffer;
+private boolean isVisible;
 
 public Console() {
     this.commandProcessors = new CopyOnWriteArraySet<CommandProcessor>();
     this.consoleBuffer = new StringBuffer(32);
+}
+
+public boolean isVisible() {
+    return isVisible;
+}
+
+public void setVisible(boolean b) {
+    this.isVisible = b;
 }
 
 public void addCommandProcessor(CommandProcessor p) {

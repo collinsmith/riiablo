@@ -40,7 +40,6 @@ private Stage STAGE;
 private Console CONSOLE;
 
 private boolean showFps;
-private boolean showConsole;
 
 public Client(int virtualWidth, int virtualHeight) {
     this.VIRTUAL_WIDTH = virtualWidth;
@@ -58,14 +57,6 @@ public AssetManager getAssetManager() {
 
 public Console getConsole() {
     return CONSOLE;
-}
-
-public boolean isConsoleVisible() {
-    return showConsole;
-}
-
-public void setConsoleVisibility(boolean b) {
-    this.showConsole = b;
 }
 
 /**
@@ -133,7 +124,7 @@ public void render() {
     STAGE.draw();
     Batch b = STAGE.getBatch();
     b.begin(); {
-        if (showConsole) {
+        if (CONSOLE.isVisible()) {
             CONSOLE_FONT.draw(b, CONSOLE.getBuffer() + "_", 0, VIRTUAL_HEIGHT);
         } else if (showFps) {
             CONSOLE_FONT.draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
