@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Timer;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.Cvars;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -32,6 +33,9 @@ private StringBuffer consoleBuffer;
 private boolean isVisible;
 private boolean showCaret;
 private int caretPosition;
+
+private Iterator<String> prefixedCvars;
+private String currentlyReadCvar;
 
 public Console(Client client) {
     this.CLIENT = client;
@@ -120,14 +124,35 @@ public boolean keyDown(int keycode) {
             updateCaret();
             return true;
         case Input.Keys.TAB:
-            if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
-             || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
-                Gdx.app.log(TAG, "SHIFT + TAB");
+            if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+                if (consoleBuffer.length() != 0) {
+                    do {
+                        keyTyped('\b');
+                    } while (consoleBuffer.length() != 0
+                          && consoleBuffer.charAt(caretPosition-1) != '.');
+                }
+            } else if (prefixedCvars.hasNext() || currentlyReadCvar != null) {
+                if (currentlyReadCvar == null) {
+                    currentlyReadCvar = prefixedCvars.next();
+                    Gdx.app.log(TAG, "CURRENT = " + currentlyReadCvar);
+                }
+
+                clearBuffer();
+                for (char ch : currentlyReadCvar.toCharArray()) {
+                    keyTyped(ch, false);
+                    /*if (ch == '.') {
+                        break;
+                    }*/
+                }
+
+                if (caretPosition == currentlyReadCvar.length()) {
+                    Gdx.app.log(TAG, "SETTING TO NULL");
+                    currentlyReadCvar = null;
+                }
             } else {
-                Gdx.app.log(TAG, "TAB");
+                Gdx.app.log(TAG, "INVALID " + prefixedCvars.hasNext() + " " + currentlyReadCvar);
             }
 
-            updateCaret();
             return true;
         default:
             return false;
@@ -135,34 +160,40 @@ public boolean keyDown(int keycode) {
 }
 
 private void updateCaret() {
-    if (CARET_BLINK_TASK == null) {
+    updateCaret(true);
+}
 
-    }
-
+private void updateCaret(boolean updateLookup) {
     CARET_BLINK_TASK.cancel();
     CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
     this.showCaret = true;
 
-    if (caretPosition == consoleBuffer.length()) {
-        Gdx.app.log(TAG, "Ouputting keys:");
+    if (prefixedCvars == null || (updateLookup && caretPosition == consoleBuffer.length())) {
+        prefixedCvars = Cvar.lookup(getBuffer()).iterator();
+        currentlyReadCvar = prefixedCvars.hasNext() ? prefixedCvars.next() : null;
+        /*Gdx.app.log(TAG, "Ouputting keys:");
         int i = 0;
         for (String key : Cvar.lookup(getBuffer())) {
             Gdx.app.log(TAG, key);
             i++;
         }
 
-        Gdx.app.log(TAG, i + " keys found");
+        Gdx.app.log(TAG, i + " keys found");*/
     }
 }
 
 public boolean keyTyped(char ch) {
+    return keyTyped(ch, true);
+}
+
+public boolean keyTyped(char ch, boolean updateLookup) {
     switch (ch) {
         case '\b':
             if (caretPosition > 0) {
                 consoleBuffer.deleteCharAt(--caretPosition);
             }
 
-            updateCaret();
+            updateCaret(updateLookup);
             return true;
         case '\r':
         case '\n':
@@ -174,7 +205,7 @@ public boolean keyTyped(char ch) {
             }
 
             clearBuffer();
-            updateCaret();
+            updateCaret(updateLookup);
             // TODO: Output "Invalid command entered: %s"
             return true;
         case 127:
@@ -182,7 +213,7 @@ public boolean keyTyped(char ch) {
                 consoleBuffer.deleteCharAt(caretPosition);
             }
 
-            updateCaret();
+            updateCaret(updateLookup);
             return true;
         case 'a':case 'b':case 'c':case 'd':case 'e':case 'f':case 'g':case 'h':case 'i':case 'j':
         case 'k':case 'l':case 'm':case 'n':case 'o':case 'p':case 'q':case 'r':case 's':case 't':
@@ -192,7 +223,7 @@ public boolean keyTyped(char ch) {
         case 'U':case 'V':case 'W':case 'X':case 'Y':case 'Z':
         case '-':case '_':case '.':case '\"':case ' ':
             consoleBuffer.insert(caretPosition++, ch);
-            updateCaret();
+            updateCaret(updateLookup);
             return true;
         default:
             return false;
