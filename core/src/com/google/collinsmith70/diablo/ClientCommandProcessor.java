@@ -22,6 +22,12 @@ public boolean process(String command) {
     if (command.equals("exit")) {
         Gdx.app.exit();
         return true;
+    } else if (command.matches("list(\\s+commands)?")) {
+        // TODO: output list of all commands
+        return true;
+    } else if (command.matches("list\\s+cvars")) {
+        // TODO: output list of all cvars
+        return true;
     }
 
     String[] args = command.split("\\s+");
