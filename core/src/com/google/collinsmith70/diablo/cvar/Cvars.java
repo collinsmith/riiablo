@@ -22,6 +22,36 @@ public static class Client {
         }
     });
 
+    public static class Audio {
+        private Audio() {
+            //...
+        }
+
+        public static class Volume {
+            private Volume() {
+                //...
+            }
+
+            public static final Cvar<Float> Sfx = new Cvar<Float>(
+                    "Client.Audio.Volume.Sfx",
+                    Float.class, 1.0f);
+
+            public static final Cvar<Float> Music = new Cvar<Float>(
+                    "Client.Audio.Volume.Music",
+                    Float.class, 1.0f);
+        }
+    }
+
+    public static class Render {
+        private Render() {
+            //...
+        }
+
+        public static final Cvar<Boolean> Windowed = new Cvar<Boolean>(
+                "Client.Render.Windowed",
+                Boolean.class, Boolean.TRUE);
+    }
+
     public static class Overlay {
         private Overlay() {
             //...
