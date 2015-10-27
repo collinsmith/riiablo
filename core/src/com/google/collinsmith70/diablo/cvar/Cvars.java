@@ -22,22 +22,40 @@ public static class Client {
         }
     });
 
-    public static class Audio {
-        private Audio() {
+    public static class Sound {
+        private Sound() {
             //...
         }
 
-        public static class Volume {
-            private Volume() {
+        public static final Cvar<Boolean> Enabled = new Cvar<Boolean>(
+                "Client.Sound.Enabled",
+                Boolean.class, Boolean.TRUE);
+
+        public static class Sfx {
+            private Sfx() {
                 //...
             }
 
-            public static final Cvar<Float> Sfx = new Cvar<Float>(
-                    "Client.Audio.Volume.Sfx",
-                    Float.class, 1.0f);
+            public static final Cvar<Boolean> Enabled = new Cvar<Boolean>(
+                    "Client.Sound.Sfx.Enabled",
+                    Boolean.class, Boolean.TRUE);
 
-            public static final Cvar<Float> Music = new Cvar<Float>(
-                    "Client.Audio.Volume.Music",
+            public static final Cvar<Float> Volume = new Cvar<Float>(
+                    "Client.Sound.Sfx.Volume",
+                    Float.class, 1.0f);
+        }
+
+        public static class Music {
+            private Music() {
+                //...
+            }
+
+            public static final Cvar<Boolean> Enabled = new Cvar<Boolean>(
+                    "Client.Sound.Music.Enabled",
+                    Boolean.class, Boolean.TRUE);
+
+            public static final Cvar<Float> Volume = new Cvar<Float>(
+                    "Client.Sound.Music.Volume",
                     Float.class, 1.0f);
         }
     }
