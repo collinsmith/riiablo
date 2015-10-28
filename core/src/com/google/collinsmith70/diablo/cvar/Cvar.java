@@ -2,8 +2,8 @@ package com.google.collinsmith70.diablo.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.google.collinsmith70.util.TernaryTrie;
-import com.google.collinsmith70.util.Trie;
+import com.gmail.collinsmith70.util.TernaryTrie;
+import com.gmail.collinsmith70.util.Trie;
 
 import java.util.Objects;
 import java.util.Set;

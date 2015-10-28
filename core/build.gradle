@@ -9,3 +9,12 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 eclipse.project {
     name = appName + "-core"
 }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+    compile group: 'com.google.guava', name: 'guava', version: '19.0-rc2'
+}
