@@ -197,16 +197,21 @@ public boolean keyTyped(char ch, boolean updateLookup) {
             return true;
         case '\r':
         case '\n':
+            boolean commandHandled = false;
             String command = consoleBuffer.toString();
             for (CommandProcessor p : commandProcessors) {
                 if (p.process(command)) {
+                    commandHandled = true;
                     break;
                 }
             }
 
+            if (!commandHandled) {
+                Gdx.app.log(TAG, String.format("Unrecognized command: %s", command));
+            }
+
             clearBuffer();
             updateCaret(updateLookup);
-            // TODO: Output "Invalid command entered: %s"
             return true;
         case 127:
             if (caretPosition < consoleBuffer.length()) {

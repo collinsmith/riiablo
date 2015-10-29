@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 
 import java.util.Objects;
-import java.util.Set;
 
 public class ClientCommandProcessor implements CommandProcessor {
 private final Client CLIENT;
@@ -31,9 +30,12 @@ public boolean process(String command) {
     }
 
     String[] args = command.split("\\s+");
-    Set<String> cvarKeys = Cvar.search(args[0]);
-    if (!cvarKeys.isEmpty()) {
-        Cvar<?> cvar = Cvar.get(cvarKeys.iterator().next());
+    if (args != null && args.length > 0) {
+        Cvar<?> cvar = Cvar.get(args[0]);
+        if (cvar == null) {
+            return false;
+        }
+
         switch (args.length) {
             case 1:
                 Gdx.app.log("TEST", "GET " + cvar.getKey() + " = " + cvar.getValue());
@@ -43,7 +45,10 @@ public boolean process(String command) {
                 try {
                     cvar.setValue(args[1]);
                 } catch (NumberFormatException e) {
-                    Gdx.app.log("TEST", "Invalid value specified: " + args[1]);
+                    Gdx.app.log("TEST",
+                            String.format("Invalid value specified: \"%s\", Expected type: %s",
+                                    args[1],
+                                    cvar.getType().getName()));
                 }
                 return true;
             default:
