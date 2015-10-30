@@ -22,20 +22,30 @@ public static Cvar<?> get(String key) {
     return CVARS.get(key);
 }
 
-private final String key;
-private final Class<T> type;
-private CvarLoadListener<T> loadListener;
-private final Set<CvarChangeListener<T>> changeListeners;
+private static final Set<CvarChangeListener<Object>> GLOBAL_CHANGE_LISTENERES
+        = new CopyOnWriteArraySet<CvarChangeListener<Object>>();
+
+public static void addGlobalCvarChangeListener(CvarChangeListener<Object> l) {
+    GLOBAL_CHANGE_LISTENERES.add(l);
+}
+
+public static boolean containsGlobalCvarChangeListener(CvarChangeListener<Object> l) {
+    return GLOBAL_CHANGE_LISTENERES.contains(l);
+}
+
+public static boolean removeGlobalCvarChangeListener(CvarChangeListener<Object> l) {
+    return GLOBAL_CHANGE_LISTENERES.remove(l);
+}
+
+private final String KEY;
+private final Class<T> TYPE;
+private final CvarLoadListener<T> LOAD_LISTENER;
+private final Set<CvarChangeListener<T>> CHANGE_LISTENERS;
 
 private T value;
 
 public Cvar(String key, Class<T> type, T defaultValue) {
-    this.key = Objects.toString(key, "");
-    this.type = type != null ? type : (Class<T>)defaultValue.getClass();
-    this.value = defaultValue;
-
-    this.changeListeners = new CopyOnWriteArraySet<CvarChangeListener<T>>();
-    CVARS.put(key, this); // potentially unsafe (technically object is not constructed yet)
+    this(key, type, defaultValue, defaultValue.toString(), null);
 }
 
 public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
@@ -43,31 +53,42 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
 }
 
 public Cvar(String key, Class<T> type, T defaultValue, String defaultStringValue, CvarLoadListener<T> l) {
-    this(key, type, defaultValue);
-    this.loadListener = l;
-    this.value = loadListener.onCvarLoaded(PREFERENCES.getString(getKey(), defaultStringValue));
-    Gdx.app.log(TAG, String.format("Value loaded as (%s) %s", getType().getName(), getValue()));
+    this.KEY = Objects.toString(key, "");
+    this.TYPE = type != null ? type : (Class<T>)defaultValue.getClass();
+
+    this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
+    CVARS.put(key, this); // potentially unsafe (technically object is not constructed yet)
+
+    this.LOAD_LISTENER = l;
+    this.value = LOAD_LISTENER == null
+            ? defaultValue
+            : LOAD_LISTENER.onCvarLoaded(PREFERENCES.getString(getKey(), defaultStringValue));
+
+    Gdx.app.log(TAG, String.format("%s loaded as %s [%s]",
+            key,
+            getValue().toString().toUpperCase(),
+            getType().getName()));
 }
 
 public void addCvarChangeListener(CvarChangeListener<T> l) {
-    changeListeners.add(l);
+    CHANGE_LISTENERS.add(l);
     l.onCvarChanged(this, null, this.value);
 }
 
 public boolean containsCvarChangeListener(CvarChangeListener<T> l) {
-    return changeListeners.contains(l);
+    return CHANGE_LISTENERS.contains(l);
 }
 
 public boolean removeCvarChangeListener(CvarChangeListener<T> l) {
-    return changeListeners.remove(l);
+    return CHANGE_LISTENERS.remove(l);
 }
 
 public String getKey() {
-    return key;
+    return KEY;
 }
 
 public Class<T> getType() {
-    return type;
+    return TYPE;
 }
 
 public T getValue() {
@@ -78,14 +99,18 @@ public void setValue(T value) {
     T oldValue = this.value;
     this.value = value;
     Gdx.app.log(TAG, String.format("%s changed from %s to %s", getKey(), oldValue, getValue()));
-    for (CvarChangeListener<T> l : changeListeners) {
+    for (CvarChangeListener<T> l : CHANGE_LISTENERS) {
         l.onCvarChanged(this, oldValue, getValue());
+    }
+
+    for (CvarChangeListener<Object> l : GLOBAL_CHANGE_LISTENERES) {
+        l.onCvarChanged((Cvar<Object>)this, oldValue, getValue());
     }
 }
 
 public void setValue(String value) {
-    if (loadListener != null) {
-        setValue(loadListener.onCvarLoaded(PREFERENCES.getString(getKey(), value)));
+    if (LOAD_LISTENER != null) {
+        setValue(LOAD_LISTENER.onCvarLoaded(PREFERENCES.getString(getKey(), value)));
         return;
     }
 
@@ -112,6 +137,6 @@ public void setValue(String value) {
 
 @Override
 public String toString() {
-    return String.format("%s:%s=%s", type.getName(), getKey(), getValue());
+    return String.format("%s:%s=%s", TYPE.getName(), getKey(), getValue());
 }
 }
