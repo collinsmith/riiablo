@@ -38,7 +38,8 @@ public boolean process(String command) {
 
         switch (args.length) {
             case 1:
-                Gdx.app.log("TEST", "GET " + cvar.getKey() + " = " + cvar.getValue());
+
+                Gdx.app.log("TEST", "GET " + cvar.getKey() + " = " + cvar.getStringValue());
                 return true;
             case 2:
                 Gdx.app.log("TEST", "SET " + cvar.getKey() + " = " + args[1]);

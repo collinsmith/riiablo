@@ -15,6 +15,8 @@ import com.google.collinsmith70.diablo.cvar.Cvars;
 import com.google.collinsmith70.util.EffectivelyFinal;
 
 public class Client implements ApplicationListener {
+private static final String TAG = Client.class.getSimpleName();
+
 private final int VIRTUAL_WIDTH;
 private final int VIRTUAL_HEIGHT;
 
@@ -146,8 +148,12 @@ public void resume() {
  */
 @Override
 public void dispose() {
+    Cvar.saveAll();
+    Gdx.app.log(TAG, "Disposing stage...");
     STAGE.dispose();
+    Gdx.app.log(TAG, "Disposing console...");
     CONSOLE.dispose();
+    Gdx.app.log(TAG, "Disposing assets...");
     ASSET_MANAGER.dispose();
 }
 }

@@ -14,13 +14,17 @@ public static class Client {
     public static final Cvar<java.util.Locale> Locale = new Cvar<java.util.Locale>("Client.Locale",
             java.util.Locale.class,
             java.util.Locale.getDefault(),
-            java.util.Locale.getDefault().toLanguageTag(),
             new CvarLoadListener<java.util.Locale>() {
-        @Override
-        public Locale onCvarLoaded(String value) {
-            return java.util.Locale.forLanguageTag(value);
-        }
-    });
+                @Override
+                public Locale onCvarLoaded(String value) {
+                    return java.util.Locale.forLanguageTag(value);
+                }
+
+                @Override
+                public String toString(Locale locale) {
+                    return locale.toLanguageTag();
+                }
+            });
 
     public static class Sound {
         private Sound() {
@@ -80,13 +84,17 @@ public static class Client {
                 "Client.Overlay.ConsoleFont",
                 null,
                 new AssetDescriptor<BitmapFont>("default.fnt", BitmapFont.class),
-                "default.fnt",
                 new CvarLoadListener<AssetDescriptor<BitmapFont>>() {
-            @Override
-            public AssetDescriptor<BitmapFont> onCvarLoaded(String value) {
-                return new AssetDescriptor<BitmapFont>(value, BitmapFont.class);
-            }
-        });
+                    @Override
+                    public AssetDescriptor<BitmapFont> onCvarLoaded(String value) {
+                        return new AssetDescriptor<BitmapFont>(value, BitmapFont.class);
+                    }
+
+                    @Override
+                    public String toString(AssetDescriptor<BitmapFont> assetDescriptor) {
+                        return assetDescriptor.fileName;
+                    }
+                });
 
         public static final Cvar<Boolean> ShowFps = new Cvar<Boolean>(
                 "Client.Overlay.ShowFps",

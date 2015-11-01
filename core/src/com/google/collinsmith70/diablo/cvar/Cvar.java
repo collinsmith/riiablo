@@ -2,20 +2,36 @@ package com.google.collinsmith70.diablo.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.gmail.collinsmith70.util.TernaryTrie;
-import com.gmail.collinsmith70.util.Trie;
+import com.google.collinsmith70.diablo.cvar.listener.load.BooleanCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.listener.load.ByteCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.listener.load.DoubleCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.listener.load.FloatCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.listener.load.IntegerCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.listener.load.LongCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.listener.load.ShortCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.listener.load.StringCvarLoadListener;
+
+import org.apache.commons.collections4.Trie;
+import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Cvar<T> {
+
 private static final String TAG = Cvar.class.getSimpleName();
 private static final Preferences PREFERENCES = Gdx.app.getPreferences(Cvar.class.getName());
-private static final Trie<Cvar<?>> CVARS = new TernaryTrie<Cvar<?>>();
+private static final Trie<String, Cvar<?>> CVARS = new PatriciaTrie<Cvar<?>>();
 
-public static Set<String> search(String key) {
-    return CVARS.getKeysPrefixedWith(key);
+public static void saveAll() {
+    Gdx.app.log(TAG, "Saving Cvars...");
+    Cvar.PREFERENCES.flush();
+}
+
+public static SortedMap<String, Cvar<?>> search(String key) {
+    return CVARS.prefixMap(key);
 }
 
 public static Cvar<?> get(String key) {
@@ -45,29 +61,55 @@ private final Set<CvarChangeListener<T>> CHANGE_LISTENERS;
 private T value;
 
 public Cvar(String key, Class<T> type, T defaultValue) {
-    this(key, type, defaultValue, defaultValue.toString(), null);
+    this(key, type, defaultValue, null);
 }
 
 public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
-    this(key, type, defaultValue, defaultValue.toString(), l);
-}
-
-public Cvar(String key, Class<T> type, T defaultValue, String defaultStringValue, CvarLoadListener<T> l) {
     this.KEY = Objects.toString(key, "");
     this.TYPE = type != null ? type : (Class<T>)defaultValue.getClass();
-
     this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
     CVARS.put(key, this); // potentially unsafe (technically object is not constructed yet)
 
-    this.LOAD_LISTENER = l;
-    this.value = LOAD_LISTENER == null
-            ? defaultValue
-            : LOAD_LISTENER.onCvarLoaded(PREFERENCES.getString(getKey(), defaultStringValue));
+    if (l == null) {
+        if (getType().equals(String.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) StringCvarLoadListener.INSTANCE;
+        } else if (getType().equals(Boolean.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) BooleanCvarLoadListener.INSTANCE;
+        } else if (getType().equals(Float.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) FloatCvarLoadListener.INSTANCE;
+        } else if (getType().equals(Double.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) DoubleCvarLoadListener.INSTANCE;
+        } else if (getType().equals(Byte.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) ByteCvarLoadListener.INSTANCE;
+        } else if (getType().equals(Short.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) ShortCvarLoadListener.INSTANCE;
+        } else if (getType().equals(Integer.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) IntegerCvarLoadListener.INSTANCE;
+        } else if (getType().equals(Long.class)) {
+            this.LOAD_LISTENER = (CvarLoadListener<T>) LongCvarLoadListener.INSTANCE;
+        } else {
+            this.LOAD_LISTENER = null;
+            this.value = defaultValue;
+            Gdx.app.log(TAG, String.format(
+                    "%s defaulted to %s [%s]",
+                    getKey(),
+                    getValue().toString(),
+                    getType().getName()));
+        }
+    } else {
+        this.LOAD_LISTENER = l;
+    }
 
-    Gdx.app.log(TAG, String.format("%s loaded as %s [%s]",
-            key,
-            getValue().toString().toUpperCase(),
-            getType().getName()));
+    if (LOAD_LISTENER != null) {
+        String stringVal = LOAD_LISTENER.toString(defaultValue);
+        this.value = LOAD_LISTENER.onCvarLoaded(
+                PREFERENCES.getString(getKey(), stringVal));
+        Gdx.app.log(TAG, String.format(
+                "%s loaded as %s [%s]",
+                getKey(),
+                stringVal,
+                getType().getName()));
+    }
 }
 
 public void addCvarChangeListener(CvarChangeListener<T> l) {
@@ -95,10 +137,34 @@ public T getValue() {
     return value;
 }
 
+private static <T> String getStringValue(Cvar<T> cvar, T value) {
+    if (cvar.LOAD_LISTENER != null) {
+        return cvar.LOAD_LISTENER.toString(value);
+    }
+
+    return value.toString();
+}
+
+public String getStringValue() {
+    return getStringValue(this, this.getValue());
+}
+
 public void setValue(T value) {
+    if (this.value.equals(value)) {
+        return;
+    }
+
     T oldValue = this.value;
     this.value = value;
-    Gdx.app.log(TAG, String.format("%s changed from %s to %s", getKey(), oldValue, getValue()));
+    if (LOAD_LISTENER != null) {
+        Cvar.PREFERENCES.putString(getKey(), LOAD_LISTENER.toString(getValue()));
+    }
+
+    Gdx.app.log(TAG, String.format(
+            "%s changed from %s to %s",
+            getKey(),
+            getStringValue(this, oldValue),
+            getStringValue()));
     for (CvarChangeListener<T> l : CHANGE_LISTENERS) {
         l.onCvarChanged(this, oldValue, getValue());
     }
@@ -109,34 +175,18 @@ public void setValue(T value) {
 }
 
 public void setValue(String value) {
-    if (LOAD_LISTENER != null) {
-        setValue(LOAD_LISTENER.onCvarLoaded(PREFERENCES.getString(getKey(), value)));
-        return;
-    }
-
-    if (getType().equals(String.class)) {
-        setValue((T)value);
-    } else if (getType().equals(Boolean.class)) {
-        setValue((T)new Boolean(Boolean.parseBoolean(value)));
-    } else if (getType().equals(Float.class)) {
-        setValue((T)new Float(Float.parseFloat(value)));
-    } else if (getType().equals(Double.class)) {
-        setValue((T)new Double(Double.parseDouble(value)));
-    } else if (getType().equals(Byte.class)) {
-        setValue((T)new Byte(Byte.parseByte(value)));
-    } else if (getType().equals(Integer.class)) {
-        setValue((T)new Integer(Integer.parseInt(value)));
-    } else if (getType().equals(Long.class)) {
-        setValue((T)new Long(Long.parseLong(value)));
-    } else {
+    if (LOAD_LISTENER == null) {
         throw new IllegalStateException(String.format(
                 "No CvarLoadListener configured for this Cvar " +
                 "which can parse the given value \"%s\"", value));
     }
+
+    setValue(LOAD_LISTENER.onCvarLoaded(value));
 }
 
 @Override
 public String toString() {
-    return String.format("%s:%s=%s", TYPE.getName(), getKey(), getValue());
+    return String.format("%s:%s=%s", TYPE.getName(), getKey(), getStringValue());
 }
+
 }

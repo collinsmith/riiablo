@@ -3,17 +3,19 @@ package com.google.collinsmith70.diablo;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Timer;
 import com.google.collinsmith70.diablo.cvar.Cvar;
+import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Console implements Disposable {
@@ -24,7 +26,7 @@ private static final float CARET_BLINK_DELAY = 0.5f;
 
 private final Client CLIENT;
 private final Set<CommandProcessor> commandProcessors;
-private final BitmapFont FONT;
+private BitmapFont font;
 
 private final Timer CARET_TIMER;
 private final Timer.Task CARET_BLINK_TASK;
@@ -34,25 +36,43 @@ private boolean isVisible;
 private boolean showCaret;
 private int caretPosition;
 
-private Iterator<String> prefixedCvars;
-private String currentlyReadCvar;
+private SortedMap<String, Cvar<?>> prefixedCvars;
+private Iterator<Map.Entry<String, Cvar<?>>> prefixedCvarsIterator;
+private Map.Entry<String, Cvar<?>> currentlyReadCvar;
 
 public Console(Client client) {
     this.CLIENT = client;
     this.commandProcessors = new CopyOnWriteArraySet<CommandProcessor>();
     this.isVisible = false;
 
-    AssetDescriptor<BitmapFont> consoleFont = Cvars.Client.Overlay.ConsoleFont.getValue();
+    final CvarChangeListener<Float> consoleFontColorCvarListener = new CvarChangeListener<Float>() {
+        @Override
+        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
+            if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.a)) {
+                font.getColor().a = toValue;
+            } else if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.r)) {
+                font.getColor().r = toValue;
+            } else if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.g)) {
+                font.getColor().g = toValue;
+            } else if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.b)) {
+                font.getColor().b = toValue;
+            }
+        }
+    };
 
-    CLIENT.getAssetManager().load(consoleFont);
-    CLIENT.getAssetManager().finishLoading();
+    Cvars.Client.Overlay.ConsoleFont.addCvarChangeListener(new CvarChangeListener<AssetDescriptor<BitmapFont>>() {
+        @Override
+        public void onCvarChanged(Cvar<AssetDescriptor<BitmapFont>> cvar, AssetDescriptor<BitmapFont> fromValue, AssetDescriptor<BitmapFont> toValue) {
+            Console.this.getClient().getAssetManager().load(toValue);
+            Console.this.getClient().getAssetManager().finishLoading();
 
-    this.FONT = CLIENT.getAssetManager().get(consoleFont);
-    FONT.setColor(new Color(
-            Cvars.Client.Overlay.ConsoleFontColor.r.getValue(),
-            Cvars.Client.Overlay.ConsoleFontColor.g.getValue(),
-            Cvars.Client.Overlay.ConsoleFontColor.b.getValue(),
-            Cvars.Client.Overlay.ConsoleFontColor.a.getValue()));
+            Console.this.font = CLIENT.getAssetManager().get(Cvars.Client.Overlay.ConsoleFont.getValue());
+            Cvars.Client.Overlay.ConsoleFontColor.r.addCvarChangeListener(consoleFontColorCvarListener);
+            Cvars.Client.Overlay.ConsoleFontColor.g.addCvarChangeListener(consoleFontColorCvarListener);
+            Cvars.Client.Overlay.ConsoleFontColor.b.addCvarChangeListener(consoleFontColorCvarListener);
+            Cvars.Client.Overlay.ConsoleFontColor.a.addCvarChangeListener(consoleFontColorCvarListener);
+        }
+    });
 
     CARET_TIMER = new Timer();
     CARET_BLINK_TASK = new Timer.Task() {
@@ -72,7 +92,7 @@ public Client getClient() {
 }
 
 public BitmapFont getFont() {
-    return FONT;
+    return font;
 }
 
 public boolean isVisible() {
@@ -131,26 +151,29 @@ public boolean keyDown(int keycode) {
                     } while (consoleBuffer.length() != 0
                           && consoleBuffer.charAt(caretPosition-1) != '.');
                 }
-            } else if (prefixedCvars.hasNext() || currentlyReadCvar != null) {
+            } else if (prefixedCvarsIterator.hasNext() || currentlyReadCvar != null) {
                 if (currentlyReadCvar == null) {
-                    currentlyReadCvar = prefixedCvars.next();
-                    Gdx.app.log(TAG, "CURRENT = " + currentlyReadCvar);
+                    currentlyReadCvar = prefixedCvarsIterator.next();
+                    Gdx.app.log(TAG, "CURRENT = " + currentlyReadCvar.getKey());
                 }
 
                 clearBuffer();
-                for (char ch : currentlyReadCvar.toCharArray()) {
+                for (char ch : currentlyReadCvar.getKey().toCharArray()) {
                     keyTyped(ch, false);
                     /*if (ch == '.') {
                         break;
                     }*/
                 }
 
-                if (caretPosition == currentlyReadCvar.length()) {
+                if (caretPosition == currentlyReadCvar.getKey().length()) {
                     Gdx.app.log(TAG, "SETTING TO NULL");
                     currentlyReadCvar = null;
                 }
             } else {
-                Gdx.app.log(TAG, "INVALID " + prefixedCvars.hasNext() + " " + currentlyReadCvar);
+                prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
+                keyDown(Input.Keys.TAB);
+                Gdx.app.log(TAG, "RESETTING");
+                //Gdx.app.log(TAG, "INVALID " + prefixedCvarsIterator.hasNext() + " " + currentlyReadCvar);
             }
 
             return true;
@@ -169,8 +192,9 @@ private void updateCaret(boolean updateLookup) {
     this.showCaret = true;
 
     if (prefixedCvars == null || (updateLookup && caretPosition == consoleBuffer.length())) {
-        prefixedCvars = Cvar.search(getBuffer()).iterator();
-        currentlyReadCvar = prefixedCvars.hasNext() ? prefixedCvars.next() : null;
+        prefixedCvars = Cvar.search(getBuffer());
+        prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
+        currentlyReadCvar = prefixedCvarsIterator.hasNext() ? prefixedCvarsIterator.next() : null;
         /*Gdx.app.log(TAG, "Ouputting keys:");
         int i = 0;
         for (String key : Cvar.lookup(getBuffer())) {
@@ -241,15 +265,15 @@ public void render(Batch b) {
         return;
     }
 
-    GlyphLayout glyphs = FONT.draw(b, getBuffer(), 0, getClient().getVirtualHeight());
+    GlyphLayout glyphs = font.draw(b, getBuffer(), 0, getClient().getVirtualHeight());
     if (showCaret) {
-        glyphs.setText(FONT, getBuffer().substring(0, caretPosition));
-        FONT.draw(b, "_", glyphs.width - 4, getClient().getVirtualHeight() - 1);
+        glyphs.setText(font, getBuffer().substring(0, caretPosition));
+        font.draw(b, "_", glyphs.width - 4, getClient().getVirtualHeight() - 1);
     }
 }
 
 @Override
 public void dispose() {
-    FONT.dispose();
+    font.dispose();
 }
 }
