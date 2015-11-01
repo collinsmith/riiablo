@@ -6,6 +6,13 @@ import com.google.collinsmith70.diablo.cvar.Cvar;
 
 public class Commands {
 
+public static void loadAll() {
+    EXIT.load();
+    HELP.load();
+    CVARS.load();
+    RESET.load();
+}
+
 private static final String TAG = Commands.class.getSimpleName();
 
 public static final Command EXIT = new Command(

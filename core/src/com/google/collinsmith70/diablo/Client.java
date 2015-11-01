@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
@@ -68,6 +69,7 @@ public Console getConsole() {
  */
 @Override
 public void create() {
+    Commands.loadAll();
     Cvars.loadAll();
     if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
         Timer.schedule(new ControllerDetectorTask(), 1.0f, 1.0f)

@@ -77,8 +77,16 @@ private String getParametersHint() {
     return sb.toString().trim();
 }
 
+public void load() {
+    //...
+}
+
 @Override
 public String toString() {
+    if (getNumParamters() == 0) {
+        return getCommand();
+    }
+
     return String.format("%s %s", getCommand(), getParametersHint());
 }
 
