@@ -16,9 +16,14 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import javafx.geometry.VerticalDirection;
 
 public class Console implements Disposable {
 private static final String TAG = Console.class.getSimpleName();
@@ -40,6 +45,11 @@ private int caretPosition;
 
 private ListIterator<String> prefixedKeysIterator;
 private String currentlyReadKey;
+private VerticalDirection prefixedKeysIteratorMomentum;
+
+private final Deque<String> HISTORY = new ArrayDeque<String>(64);
+private ListIterator<String> historyIterator;
+private VerticalDirection historyIteratorMomentum;
 
 public Console(Client client) {
     this.CLIENT = client;
@@ -140,9 +150,33 @@ public boolean keyDown(int keycode) {
             updateCaret();
             return true;
         case Input.Keys.UP:
+            if (historyIterator != null) {
+                if (historyIteratorMomentum != VerticalDirection.UP) {
+                    historyIteratorMomentum = VerticalDirection.UP;
+                    resetListIterator(historyIterator);
+                }
+
+                clearBuffer();
+                for (char ch : resetListIterator(historyIterator).toCharArray()) {
+                    keyTyped(ch, false);
+                }
+            }
+
             updateCaret();
             return true;
         case Input.Keys.DOWN:
+            if (historyIterator != null) {
+                if (historyIteratorMomentum != VerticalDirection.DOWN) {
+                    historyIteratorMomentum = VerticalDirection.DOWN;
+                    advanceListIterator(historyIterator);
+                }
+
+                clearBuffer();
+                for (char ch : advanceListIterator(historyIterator).toCharArray()) {
+                    keyTyped(ch, false);
+                }
+            }
+
             updateCaret();
             return true;
         case Input.Keys.TAB:
@@ -150,15 +184,31 @@ public boolean keyDown(int keycode) {
                 Gdx.app.log(TAG, "INVALID");
             } else if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
                 resetToCarrot();
-                resetListIterator();
-                for (char ch : currentlyReadKey.toCharArray()) {
-                    keyTyped(ch, false);
+                try {
+                    if (prefixedKeysIteratorMomentum != VerticalDirection.UP) {
+                        prefixedKeysIteratorMomentum = VerticalDirection.UP;
+                        resetListIterator(prefixedKeysIterator);
+                    }
+
+                    currentlyReadKey = resetListIterator(prefixedKeysIterator);
+                    for (char ch : currentlyReadKey.toCharArray()) {
+                        keyTyped(ch, false);
+                    }
+                } catch (NoSuchElementException e) {
                 }
             } else {
                 resetToCarrot();
-                advanceListIterator();
-                for (char ch : currentlyReadKey.toCharArray()) {
-                    keyTyped(ch, false);
+                try {
+                    if (prefixedKeysIteratorMomentum != VerticalDirection.DOWN) {
+                        prefixedKeysIteratorMomentum = VerticalDirection.DOWN;
+                        advanceListIterator(prefixedKeysIterator);
+                    }
+
+                    currentlyReadKey = advanceListIterator(prefixedKeysIterator);
+                    for (char ch : currentlyReadKey.toCharArray()) {
+                        keyTyped(ch, false);
+                    }
+                } catch (NoSuchElementException e) {
                 }
             }
 
@@ -178,27 +228,37 @@ private void resetToCarrot() {
     }
 }
 
-private void resetListIterator() {
-    if (prefixedKeysIterator.hasNext()) {
-        currentlyReadKey = prefixedKeysIterator.next();
+private <E> E resetListIterator(ListIterator<E> l) throws NoSuchElementException {
+    if (l.hasPrevious()) {
+        E temp = l.previous();
+        Gdx.app.log(TAG, "up " + temp.toString());
+        return temp;
     } else {
-        while (prefixedKeysIterator.hasPrevious()) {
-            currentlyReadKey = prefixedKeysIterator.previous();
+        E start = null;
+        while (l.hasNext()) {
+            start = l.next();
         }
 
-        prefixedKeysIterator.next();
+        l.previous();
+        Gdx.app.log(TAG, "down " + start.toString());
+        return start;
     }
 }
 
-private void advanceListIterator() {
-    if (prefixedKeysIterator.hasNext()) {
-        currentlyReadKey = prefixedKeysIterator.next();
+private <E> E advanceListIterator(ListIterator<E> l) throws NoSuchElementException {
+    if (l.hasNext()) {
+        E temp = l.next();
+        Gdx.app.log(TAG, "down " + temp.toString());
+        return temp;
     } else {
-        while (prefixedKeysIterator.hasPrevious()) {
-            currentlyReadKey = prefixedKeysIterator.previous();
+        E start = null;
+        while (l.hasPrevious()) {
+            start = l.previous();
         }
 
-        prefixedKeysIterator.next();
+        l.next();
+        Gdx.app.log(TAG, "up " + start.toString());
+        return start;
     }
 }
 
@@ -241,27 +301,6 @@ private void updateCaret(boolean updateLookup) {
     }
 }
 
-/*private void updateCaret(boolean updateLookup) {
-    CARET_BLINK_TASK.cancel();
-    CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
-    this.showCaret = true;
-
-    if (prefixedCvars == null || updateLookup) {
-        int id = getBuffer().lastIndexOf(' ');
-        prefixedCvars = Cvar.search(getBuffer().substring(id + 1));
-        prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
-        currentlyReadCvar = prefixedCvarsIterator.hasNext() ? prefixedCvarsIterator.next() : null;
-        Gdx.app.log(TAG, "Ouputting keys: \"" + getBuffer().substring(id+1) + "\"");
-        int i = 0;
-        for (String key : prefixedCvars.keySet()) {
-            Gdx.app.log(TAG, key);
-            i++;
-        }
-
-        Gdx.app.log(TAG, i + " keys found");
-    }
-}*/
-
 public boolean keyTyped(char ch) {
     return keyTyped(ch, true);
 }
@@ -279,6 +318,8 @@ public boolean keyTyped(char ch, boolean updateLookup) {
         case '\n':
             boolean commandHandled = false;
             String command = consoleBuffer.toString();
+            HISTORY.addLast(command);
+            historyIterator = ImmutableList.copyOf(HISTORY).listIterator();
             for (CommandProcessor p : commandProcessors) {
                 if (p.process(command)) {
                     commandHandled = true;

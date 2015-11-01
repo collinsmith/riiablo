@@ -1,5 +1,6 @@
 package com.google.collinsmith70.diablo.command;
 
+import com.badlogic.gdx.Gdx;
 import com.google.common.base.MoreObjects;
 
 import org.apache.commons.collections4.Trie;
@@ -42,6 +43,7 @@ public Command(String command, Action action, ParameterResolver... resolvers) {
     this.RESOLVERS = resolvers;
 
     Command.COMMANDS.put(getCommand(), this); // potentially unsafe (technically object is not constructed yet)
+    Gdx.app.log(TAG, "Registered " + toString());
 }
 
 public String getCommand() {
