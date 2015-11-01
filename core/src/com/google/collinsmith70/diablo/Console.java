@@ -11,11 +11,13 @@ import com.badlogic.gdx.utils.Timer;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.common.collect.ImmutableList;
 
-import java.util.Iterator;
-import java.util.Map;
+import org.apache.commons.collections4.Trie;
+import org.apache.commons.collections4.trie.PatriciaTrie;
+
+import java.util.ListIterator;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Console implements Disposable {
@@ -36,9 +38,8 @@ private boolean isVisible;
 private boolean showCaret;
 private int caretPosition;
 
-private SortedMap<String, Cvar<?>> prefixedCvars;
-private Iterator<Map.Entry<String, Cvar<?>>> prefixedCvarsIterator;
-private Map.Entry<String, Cvar<?>> currentlyReadCvar;
+private ListIterator<String> prefixedKeysIterator;
+private String currentlyReadKey;
 
 public Console(Client client) {
     this.CLIENT = client;
@@ -145,51 +146,59 @@ public boolean keyDown(int keycode) {
             updateCaret();
             return true;
         case Input.Keys.TAB:
-            if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-                if (consoleBuffer.length() != 0) {
-                    do {
-                        keyTyped('\b');
-                    } while (consoleBuffer.length() != 0
-                          && consoleBuffer.charAt(caretPosition-1) != '.'
-                          && consoleBuffer.charAt(caretPosition-1) != ' ');
-                }
-            } else if (prefixedCvarsIterator == null) {
+            if (prefixedKeysIterator == null) {
                 Gdx.app.log(TAG, "INVALID");
-            } else if (prefixedCvarsIterator.hasNext()) {
-                //if (currentlyReadCvar == null) {
-                    currentlyReadCvar = prefixedCvarsIterator.next();
-                    Gdx.app.log(TAG, "CURRENT = " + currentlyReadCvar.getKey());
-                //}
-
-                //clearBuffer();
-                while (consoleBuffer.length() != 0
-                    && consoleBuffer.charAt(caretPosition-1) != ' ') {
-                    keyTyped('\b', false);
-                }
-
-                Gdx.app.log(TAG, "CONTENT before = \"" + consoleBuffer.toString() + "\"");
-                for (char ch : currentlyReadCvar.getKey().toCharArray()) {
+            } else if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+                resetToCarrot();
+                resetListIterator();
+                for (char ch : currentlyReadKey.toCharArray()) {
                     keyTyped(ch, false);
-                    /*if (ch == '.') {
-                        break;
-                    }*/
-                }
-
-                Gdx.app.log(TAG, "CONTENT after = \"" + consoleBuffer.toString() + "\"");
-
-                if (caretPosition == currentlyReadCvar.getKey().length()) {
-                    Gdx.app.log(TAG, "SETTING TO NULL");
-                    currentlyReadCvar = null;
                 }
             } else {
-                prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
-                keyDown(Input.Keys.TAB);
-                Gdx.app.log(TAG, "RESETTING");
+                resetToCarrot();
+                advanceListIterator();
+                for (char ch : currentlyReadKey.toCharArray()) {
+                    keyTyped(ch, false);
+                }
             }
 
             return true;
         default:
             return false;
+    }
+}
+
+private void resetToCarrot() {
+    if (currentlyReadKey == null) {
+        return;
+    }
+
+    for (int i = currentlyReadKey.length(); i > 0; i--) {
+        keyTyped('\b', false);
+    }
+}
+
+private void resetListIterator() {
+    if (prefixedKeysIterator.hasNext()) {
+        currentlyReadKey = prefixedKeysIterator.next();
+    } else {
+        while (prefixedKeysIterator.hasPrevious()) {
+            currentlyReadKey = prefixedKeysIterator.previous();
+        }
+
+        prefixedKeysIterator.next();
+    }
+}
+
+private void advanceListIterator() {
+    if (prefixedKeysIterator.hasNext()) {
+        currentlyReadKey = prefixedKeysIterator.next();
+    } else {
+        while (prefixedKeysIterator.hasPrevious()) {
+            currentlyReadKey = prefixedKeysIterator.previous();
+        }
+
+        prefixedKeysIterator.next();
     }
 }
 
@@ -202,21 +211,56 @@ private void updateCaret(boolean updateLookup) {
     CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
     this.showCaret = true;
 
-    if (prefixedCvars == null || (updateLookup/* && caretPosition == consoleBuffer.length()*/)) {
+    if (prefixedKeysIterator == null || updateLookup) {
+        String buffer = getBuffer();
+        int start = buffer.lastIndexOf(' ', caretPosition-1)+1;
+        int end = buffer.indexOf(' ', caretPosition);
+        if (end == -1) {
+            end = caretPosition;
+        } else {
+            end = Math.min(caretPosition, end);
+        }
+
+        Trie<String, Void> autoComplete = new PatriciaTrie<Void>();
+        String arg = buffer.substring(start, end);
+        for (String key : Cvar.search(arg).keySet()) {
+            key = key.substring(end - start);
+            int stop = key.indexOf('.');
+            if (stop == -1) {
+                stop = key.length();
+            } else {
+                stop = Math.min(key.length(), stop);
+            }
+
+            key = key.substring(0, stop);
+            autoComplete.put(key, null);
+        }
+
+        prefixedKeysIterator = ImmutableList.copyOf(autoComplete.keySet()).listIterator();
+        currentlyReadKey = null;
+    }
+}
+
+/*private void updateCaret(boolean updateLookup) {
+    CARET_BLINK_TASK.cancel();
+    CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
+    this.showCaret = true;
+
+    if (prefixedCvars == null || updateLookup) {
         int id = getBuffer().lastIndexOf(' ');
         prefixedCvars = Cvar.search(getBuffer().substring(id + 1));
         prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
         currentlyReadCvar = prefixedCvarsIterator.hasNext() ? prefixedCvarsIterator.next() : null;
-        /*Gdx.app.log(TAG, "Ouputting keys: \"" + getBuffer().substring(id+1) + "\"");
+        Gdx.app.log(TAG, "Ouputting keys: \"" + getBuffer().substring(id+1) + "\"");
         int i = 0;
         for (String key : prefixedCvars.keySet()) {
             Gdx.app.log(TAG, key);
             i++;
         }
 
-        Gdx.app.log(TAG, i + " keys found");*/
+        Gdx.app.log(TAG, i + " keys found");
     }
-}
+}*/
 
 public boolean keyTyped(char ch) {
     return keyTyped(ch, true);

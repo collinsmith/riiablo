@@ -6,7 +6,29 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import java.util.Locale;
 
 public class Cvars {
+
+public static void loadAll() {
+    Client.Locale.load();
+
+    Client.Sound.Enabled.load();
+    Client.Sound.Sfx.Enabled.load();
+    Client.Sound.Sfx.Volume.load();
+    Client.Sound.Music.Enabled.load();
+    Client.Sound.Music.Volume.load();
+
+    Client.Overlay.ShowFps.load();
+    Client.Overlay.ConsoleFont.load();
+    Client.Overlay.VSyncEnabled.load();
+    Client.Overlay.ConsoleFontColor.a.load();
+    Client.Overlay.ConsoleFontColor.r.load();
+    Client.Overlay.ConsoleFontColor.g.load();
+    Client.Overlay.ConsoleFontColor.b.load();
+
+    Client.Render.Windowed.load();
+}
+
 public static class Client {
+
     private Client() {
         //...
     }

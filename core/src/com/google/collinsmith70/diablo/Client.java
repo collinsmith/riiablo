@@ -68,6 +68,7 @@ public Console getConsole() {
  */
 @Override
 public void create() {
+    Cvars.loadAll();
     if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
         Timer.schedule(new ControllerDetectorTask(), 1.0f, 1.0f)
                 .run();

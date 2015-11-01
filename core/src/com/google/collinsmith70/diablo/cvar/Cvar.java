@@ -201,6 +201,10 @@ public void reset() {
     setValue(getDefaultValue());
 }
 
+public void load() {
+    //...
+}
+
 @Override
 public String toString() {
     return String.format("%s:%s=%s", TYPE.getName(), getKey(), getStringValue());
