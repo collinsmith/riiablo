@@ -89,6 +89,8 @@ public void create() {
     this.CONSOLE = new Console(this);
     CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
 
+    Gdx.input.setCatchMenuKey(true);
+    Gdx.input.setCatchBackKey(true);
     this.INPUT_PROCESSOR = new ClientInputProcessor(this);
     Gdx.input.setInputProcessor(INPUT_PROCESSOR);
 }

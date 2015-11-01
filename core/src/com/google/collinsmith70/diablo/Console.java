@@ -101,6 +101,7 @@ public boolean isVisible() {
 
 public void setVisible(boolean b) {
     this.isVisible = b;
+    Gdx.input.setOnscreenKeyboardVisible(isVisible());
     if (isVisible()) {
         updateCaret();
     }

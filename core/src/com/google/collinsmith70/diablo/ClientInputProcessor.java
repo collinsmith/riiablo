@@ -37,6 +37,18 @@ public boolean keyDown(int keycode) {
             if (CLIENT.getConsole().isVisible()) {
                 return CLIENT.getConsole().keyDown(keycode);
             }
+        case Input.Keys.MENU:
+            CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
+            return true;
+        case Input.Keys.ESCAPE:
+        case Input.Keys.BACK:
+            if (CLIENT.getConsole().isVisible()) {
+                CLIENT.getConsole().setVisible(false);
+                return true;
+            }
+
+            // TODO: propagate upnativation so that actions can be taken if pressed during stages
+            return false;
         default:
             return false;
     }
@@ -92,6 +104,11 @@ public boolean keyTyped(char ch) {
  */
 @Override
 public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    if (CLIENT.getConsole().isVisible()) {
+        Gdx.input.setOnscreenKeyboardVisible(true);
+        return true;
+    }
+
     return false;
 }
 
