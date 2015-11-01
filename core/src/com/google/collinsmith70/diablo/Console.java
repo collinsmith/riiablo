@@ -150,21 +150,32 @@ public boolean keyDown(int keycode) {
                     do {
                         keyTyped('\b');
                     } while (consoleBuffer.length() != 0
-                          && consoleBuffer.charAt(caretPosition-1) != '.');
+                          && consoleBuffer.charAt(caretPosition-1) != '.'
+                          && consoleBuffer.charAt(caretPosition-1) != ' ');
                 }
-            } else if (prefixedCvarsIterator.hasNext() || currentlyReadCvar != null) {
-                if (currentlyReadCvar == null) {
+            } else if (prefixedCvarsIterator == null) {
+                Gdx.app.log(TAG, "INVALID");
+            } else if (prefixedCvarsIterator.hasNext()) {
+                //if (currentlyReadCvar == null) {
                     currentlyReadCvar = prefixedCvarsIterator.next();
                     Gdx.app.log(TAG, "CURRENT = " + currentlyReadCvar.getKey());
+                //}
+
+                //clearBuffer();
+                while (consoleBuffer.length() != 0
+                    && consoleBuffer.charAt(caretPosition-1) != ' ') {
+                    keyTyped('\b', false);
                 }
 
-                clearBuffer();
+                Gdx.app.log(TAG, "CONTENT before = \"" + consoleBuffer.toString() + "\"");
                 for (char ch : currentlyReadCvar.getKey().toCharArray()) {
                     keyTyped(ch, false);
                     /*if (ch == '.') {
                         break;
                     }*/
                 }
+
+                Gdx.app.log(TAG, "CONTENT after = \"" + consoleBuffer.toString() + "\"");
 
                 if (caretPosition == currentlyReadCvar.getKey().length()) {
                     Gdx.app.log(TAG, "SETTING TO NULL");
@@ -174,7 +185,6 @@ public boolean keyDown(int keycode) {
                 prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
                 keyDown(Input.Keys.TAB);
                 Gdx.app.log(TAG, "RESETTING");
-                //Gdx.app.log(TAG, "INVALID " + prefixedCvarsIterator.hasNext() + " " + currentlyReadCvar);
             }
 
             return true;
@@ -192,18 +202,19 @@ private void updateCaret(boolean updateLookup) {
     CARET_TIMER.schedule(CARET_BLINK_TASK, CARET_HOLD_DELAY, CARET_BLINK_DELAY);
     this.showCaret = true;
 
-    if (prefixedCvars == null || (updateLookup && caretPosition == consoleBuffer.length())) {
-        prefixedCvars = Cvar.search(getBuffer());
+    if (prefixedCvars == null || (updateLookup/* && caretPosition == consoleBuffer.length()*/)) {
+        int id = getBuffer().lastIndexOf(' ');
+        prefixedCvars = Cvar.search(getBuffer().substring(id + 1));
         prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
         currentlyReadCvar = prefixedCvarsIterator.hasNext() ? prefixedCvarsIterator.next() : null;
-        /*Gdx.app.log(TAG, "Ouputting keys:");
+        Gdx.app.log(TAG, "Ouputting keys: \"" + getBuffer().substring(id+1) + "\"");
         int i = 0;
-        for (String key : Cvar.lookup(getBuffer())) {
+        for (String key : prefixedCvars.keySet()) {
             Gdx.app.log(TAG, key);
             i++;
         }
 
-        Gdx.app.log(TAG, i + " keys found");*/
+        Gdx.app.log(TAG, i + " keys found");
     }
 }
 

@@ -55,6 +55,7 @@ public static boolean removeGlobalCvarChangeListener(CvarChangeListener<Object> 
 
 private final String KEY;
 private final Class<T> TYPE;
+private final T DEFAULT_VALUE;
 private final CvarLoadListener<T> LOAD_LISTENER;
 private final Set<CvarChangeListener<T>> CHANGE_LISTENERS;
 
@@ -66,9 +67,9 @@ public Cvar(String key, Class<T> type, T defaultValue) {
 
 public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
     this.KEY = Objects.toString(key, "");
-    this.TYPE = type != null ? type : (Class<T>)defaultValue.getClass();
+    this.DEFAULT_VALUE = defaultValue;
+    this.TYPE = type != null ? type : (Class<T>)getDefaultValue().getClass();
     this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
-    CVARS.put(key, this); // potentially unsafe (technically object is not constructed yet)
 
     if (l == null) {
         if (getType().equals(String.class)) {
@@ -89,7 +90,7 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
             this.LOAD_LISTENER = (CvarLoadListener<T>) LongCvarLoadListener.INSTANCE;
         } else {
             this.LOAD_LISTENER = null;
-            this.value = defaultValue;
+            this.value = getDefaultValue();
             Gdx.app.log(TAG, String.format(
                     "%s defaulted to %s [%s]",
                     getKey(),
@@ -101,7 +102,7 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
     }
 
     if (LOAD_LISTENER != null) {
-        String stringVal = LOAD_LISTENER.toString(defaultValue);
+        String stringVal = LOAD_LISTENER.toString(getDefaultValue());
         this.value = LOAD_LISTENER.onCvarLoaded(
                 PREFERENCES.getString(getKey(), stringVal));
         Gdx.app.log(TAG, String.format(
@@ -110,6 +111,8 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
                 stringVal,
                 getType().getName()));
     }
+
+    Cvar.CVARS.put(getKey(), this); // potentially unsafe (technically object is not constructed yet)
 }
 
 public void addCvarChangeListener(CvarChangeListener<T> l) {
@@ -149,6 +152,10 @@ public String getStringValue() {
     return getStringValue(this, this.getValue());
 }
 
+public T getDefaultValue() {
+    return DEFAULT_VALUE;
+}
+
 public void setValue(T value) {
     if (this.value.equals(value)) {
         return;
@@ -182,6 +189,11 @@ public void setValue(String value) {
     }
 
     setValue(LOAD_LISTENER.onCvarLoaded(value));
+}
+
+
+public void reset() {
+    setValue(getDefaultValue());
 }
 
 @Override
