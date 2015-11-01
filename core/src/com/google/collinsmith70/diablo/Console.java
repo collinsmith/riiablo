@@ -207,14 +207,14 @@ private void updateCaret(boolean updateLookup) {
         prefixedCvars = Cvar.search(getBuffer().substring(id + 1));
         prefixedCvarsIterator = prefixedCvars.entrySet().iterator();
         currentlyReadCvar = prefixedCvarsIterator.hasNext() ? prefixedCvarsIterator.next() : null;
-        Gdx.app.log(TAG, "Ouputting keys: \"" + getBuffer().substring(id+1) + "\"");
+        /*Gdx.app.log(TAG, "Ouputting keys: \"" + getBuffer().substring(id+1) + "\"");
         int i = 0;
         for (String key : prefixedCvars.keySet()) {
             Gdx.app.log(TAG, key);
             i++;
         }
 
-        Gdx.app.log(TAG, i + " keys found");
+        Gdx.app.log(TAG, i + " keys found");*/
     }
 }
 
@@ -243,7 +243,7 @@ public boolean keyTyped(char ch, boolean updateLookup) {
             }
 
             if (!commandHandled) {
-                Gdx.app.log(TAG, String.format("Unrecognized command: %s", command));
+                Gdx.app.log(TAG, String.format("Unrecognized command: \"%s\"", command));
             }
 
             clearBuffer();

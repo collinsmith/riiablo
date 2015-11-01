@@ -14,6 +14,7 @@ import com.google.collinsmith70.diablo.cvar.listener.load.StringCvarLoadListener
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
@@ -36,6 +37,10 @@ public static SortedMap<String, Cvar<?>> search(String key) {
 
 public static Cvar<?> get(String key) {
     return CVARS.get(key);
+}
+
+public static Collection<Cvar<?>> getCvars() {
+    return CVARS.values();
 }
 
 private static final Set<CvarChangeListener<Object>> GLOBAL_CHANGE_LISTENERES

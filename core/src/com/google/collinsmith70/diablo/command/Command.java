@@ -48,11 +48,15 @@ public String getCommand() {
     return COMMAND;
 }
 
-public Action getAction() {
-    return ACTION;
+public void execute(String[] args) {
+    for (int i = 1; i <= getNumParamters(); i++) {
+        getResolver(i-1).resolve(args[i]);
+    }
+
+    ACTION.onActionExecuted();
 }
 
-public int getNumResolvers() {
+public int getNumParamters() {
     return getResolvers().length;
 }
 
