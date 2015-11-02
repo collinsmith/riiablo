@@ -1,6 +1,7 @@
 package com.google.collinsmith70.diablo.command;
 
 import com.badlogic.gdx.Gdx;
+import com.google.collinsmith70.diablo.Client;
 import com.google.common.base.MoreObjects;
 
 import org.apache.commons.collections4.Trie;
@@ -50,12 +51,12 @@ public String getCommand() {
     return COMMAND;
 }
 
-public void execute(String[] args) {
+public void execute(Client client, String[] args) {
     for (int i = 1; i <= getNumParamters(); i++) {
         getResolver(i-1).resolve(args[i]);
     }
 
-    ACTION.onActionExecuted();
+    ACTION.onActionExecuted(client, args);
 }
 
 public int getNumParamters() {

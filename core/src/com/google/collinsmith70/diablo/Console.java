@@ -18,6 +18,7 @@ import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -42,6 +43,7 @@ private StringBuffer consoleBuffer;
 private boolean isVisible;
 private boolean showCaret;
 private int caretPosition;
+private String commandPrefix;
 
 private ListIterator<String> prefixedKeysIterator;
 private String currentlyReadKey;
@@ -50,6 +52,8 @@ private VerticalDirection prefixedKeysIteratorMomentum;
 private final Deque<String> HISTORY = new ArrayDeque<String>(64);
 private ListIterator<String> historyIterator;
 private VerticalDirection historyIteratorMomentum;
+
+private final Deque<String> OUTPUT = new LinkedList<String>();
 
 public Console(Client client) {
     this.CLIENT = client;
@@ -82,6 +86,13 @@ public Console(Client client) {
             Cvars.Client.Overlay.ConsoleFontColor.g.addCvarChangeListener(consoleFontColorCvarListener);
             Cvars.Client.Overlay.ConsoleFontColor.b.addCvarChangeListener(consoleFontColorCvarListener);
             Cvars.Client.Overlay.ConsoleFontColor.a.addCvarChangeListener(consoleFontColorCvarListener);
+        }
+    });
+
+    Cvars.Client.Overlay.CommandPrefix.addCvarChangeListener(new CvarChangeListener<String>() {
+        @Override
+        public void onCvarChanged(Cvar<String> cvar, String fromValue, String toValue) {
+            Console.this.commandPrefix = toValue;
         }
     });
 
@@ -181,7 +192,7 @@ public boolean keyDown(int keycode) {
             return true;
         case Input.Keys.TAB:
             if (prefixedKeysIterator == null) {
-                Gdx.app.log(TAG, "INVALID");
+                // INVALID
             } else if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
                 resetToCarrot();
                 try {
@@ -231,7 +242,6 @@ private void resetToCarrot() {
 private <E> E resetListIterator(ListIterator<E> l) throws NoSuchElementException {
     if (l.hasPrevious()) {
         E temp = l.previous();
-        Gdx.app.log(TAG, "up " + temp.toString());
         return temp;
     } else {
         E start = null;
@@ -240,7 +250,6 @@ private <E> E resetListIterator(ListIterator<E> l) throws NoSuchElementException
         }
 
         l.previous();
-        Gdx.app.log(TAG, "down " + start.toString());
         return start;
     }
 }
@@ -248,7 +257,6 @@ private <E> E resetListIterator(ListIterator<E> l) throws NoSuchElementException
 private <E> E advanceListIterator(ListIterator<E> l) throws NoSuchElementException {
     if (l.hasNext()) {
         E temp = l.next();
-        Gdx.app.log(TAG, "down " + temp.toString());
         return temp;
     } else {
         E start = null;
@@ -257,7 +265,6 @@ private <E> E advanceListIterator(ListIterator<E> l) throws NoSuchElementExcepti
         }
 
         l.next();
-        Gdx.app.log(TAG, "up " + start.toString());
         return start;
     }
 }
@@ -318,7 +325,12 @@ public boolean keyTyped(char ch, boolean updateLookup) {
         case '\n':
             boolean commandHandled = false;
             String command = consoleBuffer.toString();
+            if (command.isEmpty()) {
+                return true;
+            }
+
             HISTORY.addLast(command);
+            log(commandPrefix + command);
             historyIterator = ImmutableList.copyOf(HISTORY).listIterator();
             for (CommandProcessor p : commandProcessors) {
                 if (p.process(command)) {
@@ -348,7 +360,7 @@ public boolean keyTyped(char ch, boolean updateLookup) {
         case 'K':case 'L':case 'M':case 'N':case 'O':case 'P':case 'Q':case 'R':case 'S':case 'T':
         case 'U':case 'V':case 'W':case 'X':case 'Y':case 'Z':
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
-        case '-':case '_':case '.':case '\"':case ' ':
+        case '-':case '_':case '.':case ' ':case '>':case '<':case '\"':
             consoleBuffer.insert(caretPosition++, ch);
             updateCaret(updateLookup);
             return true;
@@ -357,15 +369,40 @@ public boolean keyTyped(char ch, boolean updateLookup) {
     }
 }
 
+public void log(String message) {
+    Gdx.app.log(TAG, message);
+    OUTPUT.addFirst(message);
+}
+
+public void clear() {
+    OUTPUT.clear();
+}
+
 public void render(Batch b) {
     if (!isVisible()) {
         return;
     }
 
-    GlyphLayout glyphs = font.draw(b, getBuffer(), 0, getClient().getVirtualHeight());
+    GlyphLayout glyphs = font.draw(b, commandPrefix + getBuffer(), 0, getClient().getVirtualHeight());
     if (showCaret) {
-        glyphs.setText(font, getBuffer().substring(0, caretPosition));
+        glyphs.setText(font, commandPrefix + getBuffer().substring(0, caretPosition));
         font.draw(b, "_", glyphs.width - 4, getClient().getVirtualHeight() - 1);
+    }
+
+    float position;
+    if (font.getLineHeight()*OUTPUT.size() >= getClient().getVirtualHeight()) {
+        position = font.getLineHeight();
+    } else {
+        position = getClient().getVirtualHeight() - font.getLineHeight()*OUTPUT.size();
+    }
+
+    for (String line : OUTPUT) {
+        if (position >= getClient().getVirtualHeight()) {
+            break;
+        }
+
+        font.draw(b, line, 0, position);
+        position += font.getLineHeight();
     }
 }
 
@@ -373,4 +410,5 @@ public void render(Batch b) {
 public void dispose() {
     font.dispose();
 }
+
 }

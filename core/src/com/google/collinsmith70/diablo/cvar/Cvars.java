@@ -101,6 +101,11 @@ public static class Client {
             //...
         }
 
+        public static final Cvar<String> CommandPrefix
+                = new Cvar<String>(
+                "Client.Overlay.CommandPrefix",
+                String.class, ">");
+
         public static final Cvar<AssetDescriptor<BitmapFont>> ConsoleFont
                 = new Cvar<AssetDescriptor<BitmapFont>>(
                 "Client.Overlay.ConsoleFont",
