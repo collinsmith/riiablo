@@ -160,6 +160,11 @@ public boolean mouseMoved(int screenX, int screenY) {
  */
 @Override
 public boolean scrolled(int amount) {
+    if (CLIENT.getConsole().isVisible()) {
+        return CLIENT.getConsole().scrolled(amount);
+    }
+
     return false;
 }
+
 }

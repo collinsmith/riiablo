@@ -54,6 +54,7 @@ private ListIterator<String> historyIterator;
 private VerticalDirection historyIteratorMomentum;
 
 private final Deque<String> OUTPUT = new LinkedList<String>();
+private float outputOffset;
 
 public Console(Client client) {
     this.CLIENT = client;
@@ -308,6 +309,23 @@ private void updateCaret(boolean updateLookup) {
     }
 }
 
+public boolean scrolled(int amount) {
+    switch (amount) {
+        case -1:
+            outputOffset = Math.min(
+                    outputOffset + font.getLineHeight(),
+                    getClient().getVirtualHeight() - 2*font.getLineHeight());
+            break;
+        case 1:
+            outputOffset = Math.max(
+                    outputOffset - font.getLineHeight(),
+                    getClient().getVirtualHeight() - (OUTPUT.size() * font.getLineHeight()));
+            break;
+    }
+
+    return true;
+}
+
 public boolean keyTyped(char ch) {
     return keyTyped(ch, true);
 }
@@ -392,6 +410,7 @@ public void render(Batch b) {
     float position;
     if (font.getLineHeight()*OUTPUT.size() >= getClient().getVirtualHeight()) {
         position = font.getLineHeight();
+        position += outputOffset;
     } else {
         position = getClient().getVirtualHeight() - font.getLineHeight()*OUTPUT.size();
     }
