@@ -37,6 +37,8 @@ public boolean keyDown(int keycode) {
             if (CLIENT.getConsole().isVisible()) {
                 return CLIENT.getConsole().keyDown(keycode);
             }
+
+            return false;
         case Input.Keys.MENU:
             CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
             return true;
@@ -48,6 +50,11 @@ public boolean keyDown(int keycode) {
             }
 
             // TODO: propagate upnativation so that actions can be taken if pressed during stages
+            //if (!Gdx.input.isKeyPressed(Input.Keys.BACK)) {
+            //    Gdx.app.exit();
+            //    return true;
+            //}
+
             return false;
         default:
             return false;
