@@ -330,7 +330,7 @@ public boolean keyTyped(char ch, boolean updateLookup) {
             }
 
             HISTORY.addLast(command);
-            log(commandPrefix + command);
+            log(commandPrefix + " " + command);
             historyIterator = ImmutableList.copyOf(HISTORY).listIterator();
             for (CommandProcessor p : commandProcessors) {
                 if (p.process(command)) {
@@ -383,9 +383,9 @@ public void render(Batch b) {
         return;
     }
 
-    GlyphLayout glyphs = font.draw(b, commandPrefix + getBuffer(), 0, getClient().getVirtualHeight());
+    GlyphLayout glyphs = font.draw(b, commandPrefix + " " + getBuffer(), 0, getClient().getVirtualHeight());
     if (showCaret) {
-        glyphs.setText(font, commandPrefix + getBuffer().substring(0, caretPosition));
+        glyphs.setText(font, commandPrefix + " " + getBuffer().substring(0, caretPosition));
         font.draw(b, "_", glyphs.width - 4, getClient().getVirtualHeight() - 1);
     }
 
