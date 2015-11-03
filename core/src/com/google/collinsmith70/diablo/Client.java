@@ -13,6 +13,8 @@ import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.collinsmith70.diablo.scene.AbstractScene;
+import com.google.collinsmith70.diablo.scene.SplashScene;
 import com.google.collinsmith70.util.EffectivelyFinal;
 
 public class Client implements ApplicationListener {
@@ -36,6 +38,8 @@ private Stage STAGE;
 @EffectivelyFinal
 private Console CONSOLE;
 
+private AbstractScene scene;
+
 private boolean showFps;
 
 public Client(int virtualWidth, int virtualHeight) {
@@ -50,6 +54,23 @@ public int getVirtualWidth() {
 
 public int getVirtualHeight() {
     return VIRTUAL_HEIGHT;
+}
+
+public void setScene(AbstractScene scene) {
+    AbstractScene oldScene = this.scene;
+    this.scene = scene;
+    STAGE.clear();
+    STAGE.addActor(this.scene);
+    //STAGE.setKeyboardFocus(this.scene);
+    //Gdx.input.setInputProcessor(STAGE);
+    this.scene.create();
+    if (oldScene != null) {
+        oldScene.dispose();
+    }
+}
+
+public AbstractScene getScene() {
+    return scene;
 }
 
 public ClientInputProcessor getInputProcessor() {
@@ -96,6 +117,8 @@ public void create() {
     Gdx.input.setCatchBackKey(true);
     this.INPUT_PROCESSOR = new ClientInputProcessor(this);
     Gdx.input.setInputProcessor(INPUT_PROCESSOR);
+
+    setScene(new SplashScene(this));
 }
 
 /**
@@ -108,6 +131,9 @@ public void create() {
 @Override
 public void resize(int width, int height) {
     STAGE.getViewport().update(width, height, true);
+    if (getScene() != null) {
+        getScene().resize(width, height);
+    }
 }
 
 /**
@@ -136,7 +162,9 @@ public void render() {
  */
 @Override
 public void pause() {
-
+    if (getScene() != null) {
+        getScene().pause();
+    }
 }
 
 /**
@@ -145,7 +173,9 @@ public void pause() {
  */
 @Override
 public void resume() {
-
+    if (getScene() != null) {
+        getScene().resume();
+    }
 }
 
 /**
@@ -154,6 +184,8 @@ public void resume() {
 @Override
 public void dispose() {
     Cvar.saveAll();
+    Gdx.app.log(TAG, "Disposing scene...");
+    getScene().dispose();
     Gdx.app.log(TAG, "Disposing stage...");
     STAGE.dispose();
     Gdx.app.log(TAG, "Disposing console...");
