@@ -49,7 +49,10 @@ public static final Command CVARS = new Command("cvars",
             @Override
             public void onActionExecuted(Client client, String[] args) {
                 for (Cvar<?> cvar : Cvar.getCvars()) {
-                    client.getConsole().log(cvar.toString());
+                    client.getConsole().log(String.format("%s \"%s\" [%s]",
+                            cvar.getKey(),
+                            cvar.getStringValue(),
+                            cvar.getType().getSimpleName()));
                 }
             }
         });
