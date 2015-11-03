@@ -42,10 +42,15 @@ private AbstractScene scene;
 
 private boolean showFps;
 
+private float sfxVolume;
+private float musicVolume;
+
 public Client(int virtualWidth, int virtualHeight) {
     this.VIRTUAL_WIDTH = virtualWidth;
     this.VIRTUAL_HEIGHT = virtualHeight;
     this.showFps = false;
+    this.sfxVolume = 1.0f;
+    this.musicVolume = 1.0f;
 }
 
 public int getVirtualWidth() {
@@ -54,6 +59,14 @@ public int getVirtualWidth() {
 
 public int getVirtualHeight() {
     return VIRTUAL_HEIGHT;
+}
+
+public float getSfxVolume() {
+    return sfxVolume;
+}
+
+public float getMusicVolume() {
+    return musicVolume;
 }
 
 public void setScene(AbstractScene scene) {
@@ -104,6 +117,20 @@ public void create() {
         @Override
         public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
             Client.this.showFps = toValue;
+        }
+    });
+
+    Cvars.Client.Sound.Sfx.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
+        @Override
+        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
+            Client.this.sfxVolume = toValue;
+        }
+    });
+
+    Cvars.Client.Sound.Music.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
+        @Override
+        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
+            Client.this.musicVolume = toValue;
         }
     });
 

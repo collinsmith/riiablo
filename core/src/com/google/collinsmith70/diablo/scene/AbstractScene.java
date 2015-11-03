@@ -39,6 +39,14 @@ protected void drawBackground(Batch batch) {
     //...
 }
 
+public void loadAssets(AssetManager assetManager) {
+
+}
+
+public void disposeAssets(AssetManager assetManager) {
+
+}
+
 /**
  * Called when the {@link Application} is first created.
  */
@@ -49,8 +57,12 @@ public void create() {
     assetManager.finishLoading();
 }
 
-public void loadAssets(AssetManager assetManager) {
-
+/**
+ * Called when the {@link Application} is destroyed. Preceded by a call to {@link #pause()}.
+ */
+@Override
+public void dispose() {
+    disposeAssets(getClient().getAssetManager());
 }
 
 /**
@@ -88,14 +100,6 @@ public void pause() {
  */
 @Override
 public void resume() {
-    //...
-}
-
-/**
- * Called when the {@link Application} is destroyed. Preceded by a call to {@link #pause()}.
- */
-@Override
-public void dispose() {
     //...
 }
 
