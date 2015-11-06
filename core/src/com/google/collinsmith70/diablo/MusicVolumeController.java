@@ -17,10 +17,28 @@ private static final String TAG = MusicVolumeController.class.getSimpleName();
 
 private Collection<WeakReference<Music>> managedMusic;
 
+private boolean globalSoundEnabled;
+private boolean musicEnabled;
 private float musicVolume;
 
 public MusicVolumeController() {
     this.managedMusic = new CopyOnWriteArrayList<WeakReference<Music>>();
+
+    Cvars.Client.Sound.Enabled.addCvarChangeListener(new CvarChangeListener<Boolean>() {
+        @Override
+        public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
+            MusicVolumeController.this.globalSoundEnabled = toValue;
+            MusicVolumeController.this.refreshVolume();
+        }
+    });
+
+    Cvars.Client.Sound.Music.Enabled.addCvarChangeListener(new CvarChangeListener<Boolean>() {
+        @Override
+        public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
+            MusicVolumeController.this.setEnabled(toValue);
+        }
+    });
+
     Cvars.Client.Sound.Music.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
         @Override
         public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
@@ -30,7 +48,22 @@ public MusicVolumeController() {
 }
 
 @Override
+public boolean isEnabled() {
+    return musicEnabled;
+}
+
+@Override
+public void setEnabled(boolean enabled) {
+    this.musicEnabled = enabled;
+    Gdx.app.log(TAG, "Music " + (musicEnabled ? "enabled" : "disabled"));
+}
+
+@Override
 public float getVolume() {
+    if (!globalSoundEnabled || !isEnabled()) {
+        return 0.0f;
+    }
+
     return musicVolume;
 }
 
@@ -38,6 +71,11 @@ public float getVolume() {
 public void setVolume(float volume) {
     Gdx.app.log(TAG, "Updating music volume to " + volume);
     this.musicVolume = volume;
+    refreshVolume();
+}
+
+private void refreshVolume() {
+    float volume = getVolume();
     for (WeakReference<Music> container : managedMusic) {
         Music musicReference = container.get();
         if (musicReference == null) {
@@ -45,7 +83,7 @@ public void setVolume(float volume) {
             continue;
         }
 
-        musicReference.setVolume(volume);
+        musicReference.setVolume(getVolume());
     }
 }
 
