@@ -141,7 +141,16 @@ public void create() {
                 Gdx.graphics.setDisplayMode(
                         Gdx.graphics.getWidth(),
                         Gdx.graphics.getHeight(),
-                        toValue);
+                        !toValue);
+            }
+        });
+    }
+
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+        Cvars.Client.Render.VSync.addCvarChangeListener(new CvarChangeListener<Boolean>() {
+            @Override
+            public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
+                Gdx.graphics.setVSync(toValue);
             }
         });
     }

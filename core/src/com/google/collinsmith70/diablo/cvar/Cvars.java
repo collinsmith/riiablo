@@ -18,13 +18,13 @@ public static void loadAll() {
 
     Client.Overlay.ShowFps.load();
     Client.Overlay.ConsoleFont.load();
-    Client.Overlay.VSyncEnabled.load();
     Client.Overlay.ConsoleFontColor.a.load();
     Client.Overlay.ConsoleFontColor.r.load();
     Client.Overlay.ConsoleFontColor.g.load();
     Client.Overlay.ConsoleFontColor.b.load();
 
     Client.Render.Windowed.load();
+    Client.Render.VSync.load();
 }
 
 public static class Client {
@@ -93,7 +93,11 @@ public static class Client {
 
         public static final Cvar<Boolean> Windowed = new Cvar<Boolean>(
                 "Client.Render.Windowed",
-                Boolean.class, Boolean.TRUE);
+                Boolean.class, Boolean.FALSE);
+
+        public static final Cvar<Boolean> VSync = new Cvar<Boolean>(
+                "Client.Render.VSync",
+                Boolean.class, Boolean.FALSE);
     }
 
     public static class Overlay {
@@ -125,10 +129,6 @@ public static class Client {
 
         public static final Cvar<Boolean> ShowFps = new Cvar<Boolean>(
                 "Client.Overlay.ShowFps",
-                Boolean.class, Boolean.FALSE);
-
-        public static final Cvar<Boolean> VSyncEnabled = new Cvar<Boolean>(
-                "Client.Overlay.VSyncEnabled",
                 Boolean.class, Boolean.FALSE);
 
         public static class ConsoleFontColor {
