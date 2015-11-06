@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.loader;
+package com.google.collinsmith70.diablo.audio;
 
 public interface VolumeControlled<T> {
 

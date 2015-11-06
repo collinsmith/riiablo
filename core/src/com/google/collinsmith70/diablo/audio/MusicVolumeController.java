@@ -1,11 +1,10 @@
-package com.google.collinsmith70.diablo;
+package com.google.collinsmith70.diablo.audio;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
-import com.google.collinsmith70.diablo.loader.VolumeController;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;

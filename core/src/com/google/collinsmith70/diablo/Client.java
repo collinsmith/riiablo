@@ -13,13 +13,13 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.google.collinsmith70.diablo.audio.*;
 import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
 import com.google.collinsmith70.diablo.loader.VolumeControlledMusicLoader;
 import com.google.collinsmith70.diablo.loader.VolumeControlledSoundLoader;
-import com.google.collinsmith70.diablo.loader.VolumeController;
 import com.google.collinsmith70.diablo.scene.AbstractScene;
 import com.google.collinsmith70.diablo.scene.SplashScene;
 import com.google.collinsmith70.util.EffectivelyFinal;
@@ -138,7 +138,7 @@ public void create() {
             Sound.class,
             new VolumeControlledSoundLoader(resolver, soundVolumeController));
 
-    musicVolumeController = new MusicVolumeController();
+    musicVolumeController = new com.google.collinsmith70.diablo.audio.MusicVolumeController();
     ASSET_MANAGER.setLoader(
             Music.class,
             new VolumeControlledMusicLoader(resolver, musicVolumeController));

@@ -6,31 +6,32 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.SoundLoader;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
+import com.google.collinsmith70.diablo.audio.VolumeController;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 
-public class VolumeControlledSoundLoader extends SoundLoader implements VolumeControlled<Sound> {
+public class VolumeControlledSoundLoader extends SoundLoader implements com.google.collinsmith70.diablo.audio.VolumeControlled<Sound> {
 
-private VolumeController<Sound> volumeController;
+private com.google.collinsmith70.diablo.audio.VolumeController<Sound> volumeController;
 private Sound sound;
 
 public VolumeControlledSoundLoader(FileHandleResolver resolver) {
     super(resolver);
 }
 
-public VolumeControlledSoundLoader(FileHandleResolver resolver, VolumeController<Sound> controller) {
+public VolumeControlledSoundLoader(FileHandleResolver resolver, com.google.collinsmith70.diablo.audio.VolumeController<Sound> controller) {
     super(resolver);
     setVolumeController(controller);
 }
 
 @Override
-public void setVolumeController(VolumeController<Sound> controller) {
+public void setVolumeController(com.google.collinsmith70.diablo.audio.VolumeController<Sound> controller) {
     this.volumeController = Objects.requireNonNull(controller);
 }
 
 @Override
-public VolumeController<Sound> getVolumeController() {
+public com.google.collinsmith70.diablo.audio.VolumeController<Sound> getVolumeController() {
     return volumeController;
 }
 
@@ -76,7 +77,7 @@ private static class VolumeManagedSoundWrapper implements Sound {
 
     @Override
     public long play(float volume, float pitch, float pan) {
-        VolumeController<?> volumeController = soundLoader.getVolumeController();
+        com.google.collinsmith70.diablo.audio.VolumeController<?> volumeController = soundLoader.getVolumeController();
         if (volumeController != null) {
             volume *= volumeController.getVolume();
         }

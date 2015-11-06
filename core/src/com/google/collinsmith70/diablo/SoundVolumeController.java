@@ -5,7 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
-import com.google.collinsmith70.diablo.loader.VolumeController;
+import com.google.collinsmith70.diablo.audio.VolumeController;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
