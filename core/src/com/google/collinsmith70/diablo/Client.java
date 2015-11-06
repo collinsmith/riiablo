@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.google.collinsmith70.diablo.audio.*;
+import com.google.collinsmith70.diablo.audio.SoundVolumeController;
 import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
