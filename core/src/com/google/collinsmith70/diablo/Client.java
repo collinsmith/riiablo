@@ -8,9 +8,11 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.google.collinsmith70.diablo.audio.*;
@@ -19,11 +21,14 @@ import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.collinsmith70.diablo.lang.Langs;
 import com.google.collinsmith70.diablo.loader.VolumeControlledMusicLoader;
 import com.google.collinsmith70.diablo.loader.VolumeControlledSoundLoader;
 import com.google.collinsmith70.diablo.scene.AbstractScene;
 import com.google.collinsmith70.diablo.scene.SplashScene;
 import com.google.collinsmith70.util.EffectivelyFinal;
+
+import java.util.Locale;
 
 public class Client implements ApplicationListener {
 private static final String TAG = Client.class.getSimpleName();
@@ -51,6 +56,7 @@ private Console CONSOLE;
 private AbstractScene scene;
 
 private boolean showFps;
+private I18NBundle i18nBundle;
 
 private VolumeController<Sound> soundVolumeController;
 private VolumeController<Music> musicVolumeController;
@@ -112,6 +118,10 @@ public Console getConsole() {
     return CONSOLE;
 }
 
+public I18NBundle getI18NBundle() {
+    return i18nBundle;
+}
+
 /**
  * Called when the {@link Application} is first created.
  */
@@ -154,6 +164,16 @@ public void create() {
             }
         });
     }
+
+    Cvars.Client.Locale.addCvarChangeListener(new CvarChangeListener<Locale>() {
+        @Override
+        public void onCvarChanged(Cvar<Locale> cvar, Locale fromValue, Locale toValue) {
+            Gdx.app.log(TAG, "Client language changed to " + cvar.getStringValue());
+            FileHandle i18nBundleFileHandle = Gdx.files.internal("lang/Client");
+            Client.this.i18nBundle = I18NBundle.createBundle(i18nBundleFileHandle, toValue);
+            Gdx.graphics.setTitle(Client.this.getI18NBundle().get(Langs.Client.diablo));
+        }
+    });
 
     this.COMMAND_PROCESSOR = new ClientCommandProcessor(this);
 

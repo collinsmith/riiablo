@@ -7,6 +7,10 @@ import java.util.Locale;
 
 public class Cvars {
 
+private Cvars() {
+    //...
+}
+
 public static void loadAll() {
     Client.Locale.load();
 

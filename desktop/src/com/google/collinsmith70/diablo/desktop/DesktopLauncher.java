@@ -6,7 +6,15 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.google.collinsmith70.diablo.Client;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
+	public static void main (String[] args) {
+        boolean forceWindowed = false;
+        for (String arg : args) {
+            if ((arg.equalsIgnoreCase("-windowed")
+              || arg.equalsIgnoreCase("-w"))) {
+                forceWindowed = true;
+            }
+        }
+
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.resizable = false;
         config.width = 1280;
@@ -17,6 +25,6 @@ public class DesktopLauncher {
 		config.addIcon("ic_launcher_128.png", Files.FileType.Internal);
 		config.addIcon("ic_launcher_32.png", Files.FileType.Internal);
 		config.addIcon("ic_launcher_16.png", Files.FileType.Internal);
-		new LwjglApplication(new Client(1280, 720), config);
+		new LwjglApplication(new Client(1280, 720, forceWindowed), config);
 	}
 }
