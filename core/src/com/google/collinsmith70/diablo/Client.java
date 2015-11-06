@@ -4,6 +4,10 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.FileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -13,6 +17,9 @@ import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.collinsmith70.diablo.loader.VolumeControlledMusicLoader;
+import com.google.collinsmith70.diablo.loader.VolumeControlledSoundLoader;
+import com.google.collinsmith70.diablo.loader.VolumeController;
 import com.google.collinsmith70.diablo.scene.AbstractScene;
 import com.google.collinsmith70.diablo.scene.SplashScene;
 import com.google.collinsmith70.util.EffectivelyFinal;
@@ -42,15 +49,13 @@ private AbstractScene scene;
 
 private boolean showFps;
 
-private float sfxVolume;
-private float musicVolume;
+private VolumeController<Sound> soundVolumeController;
+private VolumeController<Music> musicVolumeController;
 
 public Client(int virtualWidth, int virtualHeight) {
     this.VIRTUAL_WIDTH = virtualWidth;
     this.VIRTUAL_HEIGHT = virtualHeight;
     this.showFps = false;
-    this.sfxVolume = 1.0f;
-    this.musicVolume = 1.0f;
 }
 
 public int getVirtualWidth() {
@@ -61,12 +66,12 @@ public int getVirtualHeight() {
     return VIRTUAL_HEIGHT;
 }
 
-public float getSfxVolume() {
-    return sfxVolume;
+public VolumeController<Sound> getSoundVolumeController() {
+    return soundVolumeController;
 }
 
-public float getMusicVolume() {
-    return musicVolume;
+public VolumeController<Music> getMusicVolumeController() {
+    return musicVolumeController;
 }
 
 public void setScene(AbstractScene scene) {
@@ -120,23 +125,21 @@ public void create() {
         }
     });
 
-    Cvars.Client.Sound.Sfx.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
-        @Override
-        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
-            Client.this.sfxVolume = toValue;
-        }
-    });
-
-    Cvars.Client.Sound.Music.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
-        @Override
-        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
-            Client.this.musicVolume = toValue;
-        }
-    });
-
     this.COMMAND_PROCESSOR = new ClientCommandProcessor(this);
 
-    this.ASSET_MANAGER = new AssetManager();
+    FileHandleResolver resolver = new InternalFileHandleResolver();
+    this.ASSET_MANAGER = new AssetManager(resolver);
+
+    soundVolumeController = new SoundVolumeController();
+    ASSET_MANAGER.setLoader(
+            Sound.class,
+            new VolumeControlledSoundLoader(resolver, soundVolumeController));
+
+    musicVolumeController = new MusicVolumeController();
+    ASSET_MANAGER.setLoader(
+            Music.class,
+            new VolumeControlledMusicLoader(resolver, musicVolumeController));
+
     this.CONSOLE = new Console(this);
     CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
 

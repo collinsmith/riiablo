@@ -5,9 +5,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.google.collinsmith70.diablo.Client;
-import com.google.collinsmith70.diablo.cvar.Cvar;
-import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
-import com.google.collinsmith70.diablo.cvar.Cvars;
 
 public class SplashScene extends AbstractScene {
 
@@ -37,13 +34,6 @@ public void create() {
         }
     });
 
-    Cvars.Client.Sound.Music.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
-        @Override
-        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
-            SplashScene.this.introMusicAsset.setVolume(getClient().getMusicVolume());
-        }
-    });
-
     introMusicAsset.play();
 
     selectSoundAsset = assetManager.get(SELECT_SOUND_ASSET_DESCRIPTOR);
@@ -67,7 +57,7 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         return true;
     }
 
-    selectSoundAsset.play(getClient().getSfxVolume());
+    selectSoundAsset.play(getClient().getSoundVolumeController().getVolume());
     return true;
 }
 

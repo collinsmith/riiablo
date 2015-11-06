@@ -6,38 +6,41 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.MusicLoader;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import com.google.collinsmith70.diablo.VolumeController;
 
-import java.lang.ref.WeakReference;
-import java.util.Collection;
 import java.util.Objects;
 
-public class VolumeControlledMusicLoader extends MusicLoader {
+public class VolumeControlledMusicLoader extends MusicLoader implements VolumeControlled<Music> {
 
-private Collection<WeakReference<Music>> managedSounds;
-private VolumeController volumeController;
+private VolumeController<Music> volumeController;
 private Music music;
 
 public VolumeControlledMusicLoader(FileHandleResolver resolver) {
-    super(resolver);
+    this(resolver, null);
 }
 
-public void setVolumeController(VolumeController controller) {
+public VolumeControlledMusicLoader(FileHandleResolver resolver, VolumeController<Music> controller) {
+    super(resolver);
+    setVolumeController(controller);
+}
+
+@Override
+public void setVolumeController(VolumeController<Music> controller) {
     this.volumeController = Objects.requireNonNull(controller);
 }
 
-public VolumeController getVolumeController() {
+@Override
+public VolumeController<Music> getVolumeController() {
     return volumeController;
 }
 
 @Override
 public void loadAsync(AssetManager manager, String fileName, FileHandle file, MusicParameter parameter) {
+    //super.loadAsync(manager, fileName, file, parameter);
     music = Gdx.audio.newMusic(file);
-    if (volumeController != null) {
-        music.setVolume(volumeController.getVolume());
-    }
-
-    managedSounds.add(new WeakReference<Music>(music));
+    //if (volumeController != null) {
+    //    music.setVolume(volumeController.getVolume());
+    //    volumeController.addManagedSound(new WeakReference<Music>(music));
+    //}
 }
 
 }
