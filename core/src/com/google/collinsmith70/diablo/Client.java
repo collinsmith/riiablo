@@ -31,6 +31,8 @@ private static final String TAG = Client.class.getSimpleName();
 private final int VIRTUAL_WIDTH;
 private final int VIRTUAL_HEIGHT;
 
+private final boolean FORCE_WINDOWED;
+
 @EffectivelyFinal
 private ClientInputProcessor INPUT_PROCESSOR;
 
@@ -54,8 +56,13 @@ private VolumeController<Sound> soundVolumeController;
 private VolumeController<Music> musicVolumeController;
 
 public Client(int virtualWidth, int virtualHeight) {
+    this(virtualWidth, virtualHeight, false);
+}
+
+public Client(int virtualWidth, int virtualHeight, boolean forceWindowed) {
     this.VIRTUAL_WIDTH = virtualWidth;
     this.VIRTUAL_HEIGHT = virtualHeight;
+    this.FORCE_WINDOWED = forceWindowed;
     this.showFps = false;
 }
 
@@ -79,9 +86,7 @@ public void setScene(AbstractScene scene) {
     scene.create();
 
     STAGE.clear();
-    //STAGE.addActor(scene);
-    //STAGE.setKeyboardFocus(scene);
-    //Gdx.input.setInputProcessor(STAGE);
+    STAGE.addActor(scene);
 
     AbstractScene oldScene = this.scene;
     if (oldScene != null) {
@@ -128,6 +133,18 @@ public void create() {
             Client.this.showFps = toValue;
         }
     });
+
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop && !FORCE_WINDOWED) {
+        Cvars.Client.Render.Windowed.addCvarChangeListener(new CvarChangeListener<Boolean>() {
+            @Override
+            public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
+                Gdx.graphics.setDisplayMode(
+                        Gdx.graphics.getWidth(),
+                        Gdx.graphics.getHeight(),
+                        toValue);
+            }
+        });
+    }
 
     this.COMMAND_PROCESSOR = new ClientCommandProcessor(this);
 

@@ -17,7 +17,7 @@ public void run() {
     int count = 0;
     reloadControllers();
     for (Controller c : Controllers.getControllers()) {
-        Gdx.app.log("TEST", String.format("[%d] %s %s", count++, c.getName(), System.identityHashCode(c)));
+        Gdx.app.log("TEST", String.format("[%d] %s %d", count++, c.getName(), c.hashCode()));
     }
 
     Gdx.app.log("TEST", String.format("%d controllers", count));
