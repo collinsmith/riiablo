@@ -75,16 +75,19 @@ public VolumeController<Music> getMusicVolumeController() {
 }
 
 public void setScene(AbstractScene scene) {
-    AbstractScene oldScene = this.scene;
-    this.scene = scene;
+    scene.create();
+
     STAGE.clear();
-    STAGE.addActor(this.scene);
-    //STAGE.setKeyboardFocus(this.scene);
+    //STAGE.addActor(scene);
+    //STAGE.setKeyboardFocus(scene);
     //Gdx.input.setInputProcessor(STAGE);
-    this.scene.create();
+
+    AbstractScene oldScene = this.scene;
     if (oldScene != null) {
         oldScene.dispose();
     }
+
+    this.scene = scene;
 }
 
 public AbstractScene getScene() {

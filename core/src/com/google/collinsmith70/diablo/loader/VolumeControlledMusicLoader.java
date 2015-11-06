@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.loaders.MusicLoader;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 
 public class VolumeControlledMusicLoader extends MusicLoader implements VolumeControlled<Music> {
@@ -37,10 +38,17 @@ public VolumeController<Music> getVolumeController() {
 public void loadAsync(AssetManager manager, String fileName, FileHandle file, MusicParameter parameter) {
     //super.loadAsync(manager, fileName, file, parameter);
     music = Gdx.audio.newMusic(file);
-    //if (volumeController != null) {
-    //    music.setVolume(volumeController.getVolume());
-    //    volumeController.addManagedSound(new WeakReference<Music>(music));
-    //}
+    if (volumeController != null) {
+        music.setVolume(volumeController.getVolume());
+        volumeController.addManagedSound(new WeakReference<Music>(music));
+    }
+}
+
+@Override
+public Music loadSync(AssetManager manager, String fileName, FileHandle file, MusicParameter parameter) {
+    Music music = this.music;
+    this.music = null;
+    return music;
 }
 
 }

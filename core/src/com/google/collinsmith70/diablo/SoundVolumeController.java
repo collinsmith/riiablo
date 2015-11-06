@@ -1,5 +1,6 @@
 package com.google.collinsmith70.diablo;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
@@ -11,6 +12,8 @@ import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SoundVolumeController implements VolumeController<Sound> {
+
+private static final String TAG = SoundVolumeController.class.getSimpleName();
 
 private final Collection<WeakReference<Sound>> managedSounds;
 
@@ -33,6 +36,7 @@ public float getVolume() {
 
 @Override
 public void setVolume(float volume) {
+    Gdx.app.log(TAG, "Updating sound volume to " + volume);
     this.soundVolume = volume;
 }
 

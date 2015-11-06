@@ -1,5 +1,6 @@
 package com.google.collinsmith70.diablo;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
@@ -12,13 +13,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MusicVolumeController implements VolumeController<Music> {
 
+private static final String TAG = MusicVolumeController.class.getSimpleName();
+
 private Collection<WeakReference<Music>> managedMusic;
 
 private float musicVolume;
 
 public MusicVolumeController() {
     this.managedMusic = new CopyOnWriteArrayList<WeakReference<Music>>();
-    Cvars.Client.Sound.Sfx.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
+    Cvars.Client.Sound.Music.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
         @Override
         public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
             MusicVolumeController.this.setVolume(toValue);
@@ -33,6 +36,7 @@ public float getVolume() {
 
 @Override
 public void setVolume(float volume) {
+    Gdx.app.log(TAG, "Updating music volume to " + volume);
     this.musicVolume = volume;
     for (WeakReference<Music> container : managedMusic) {
         Music musicReference = container.get();

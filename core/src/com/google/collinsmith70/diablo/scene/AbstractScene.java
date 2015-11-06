@@ -40,11 +40,11 @@ protected void drawBackground(Batch batch) {
 }
 
 public void loadAssets(AssetManager assetManager) {
-
+    //...
 }
 
 public void disposeAssets(AssetManager assetManager) {
-
+    //...
 }
 
 /**
@@ -52,9 +52,7 @@ public void disposeAssets(AssetManager assetManager) {
  */
 @Override
 public void create() {
-    AssetManager assetManager = getClient().getAssetManager();
-    loadAssets(assetManager);
-    assetManager.finishLoading();
+    loadAssets(getClient().getAssetManager());
 }
 
 /**

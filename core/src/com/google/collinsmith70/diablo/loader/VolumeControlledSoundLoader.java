@@ -37,10 +37,131 @@ public VolumeController<Sound> getVolumeController() {
 @Override
 public void loadAsync(AssetManager manager, String fileName, FileHandle file, SoundParameter parameter) {
     //super.loadAsync(manager, fileName, file, parameter);
-    sound = Gdx.audio.newSound(file);
+    sound = VolumeManagedSoundWrapper.wrap(this, Gdx.audio.newSound(file));
     if (volumeController != null) {
-        //sound.setVolume(0, volumeController.getVolume());
         volumeController.addManagedSound(new WeakReference<Sound>(sound));
+    }
+}
+
+@Override
+public Sound loadSync(AssetManager manager, String fileName, FileHandle file, SoundParameter parameter) {
+    Sound sound = this.sound;
+    this.sound = null;
+    return sound;
+}
+
+private static class VolumeManagedSoundWrapper implements Sound {
+
+    private final VolumeControlledSoundLoader soundLoader;
+    private final Sound parent;
+
+    static Sound wrap(VolumeControlledSoundLoader soundLoader, Sound sound) {
+        return new VolumeManagedSoundWrapper(soundLoader, sound);
+    }
+
+    VolumeManagedSoundWrapper(VolumeControlledSoundLoader soundLoader, Sound sound) {
+        this.soundLoader = soundLoader;
+        this.parent = sound;
+    }
+
+    @Override
+    public long play() {
+        return play(1.0f);
+    }
+
+    @Override
+    public long play(float volume) {
+        return play(1.0f, 1.0f, 0.0f);
+    }
+
+    @Override
+    public long play(float volume, float pitch, float pan) {
+        VolumeController<?> volumeController = soundLoader.getVolumeController();
+        if (volumeController != null) {
+            volume *= volumeController.getVolume();
+        }
+
+        return parent.play(volume, pitch, pan);
+    }
+
+    @Override
+    public long loop() {
+        return parent.loop(1.0f);
+    }
+
+    @Override
+    public long loop(float volume) {
+        return parent.loop(1.0f, 1.0f, 0.0f);
+    }
+
+    @Override
+    public long loop(float volume, float pitch, float pan) {
+        VolumeController<?> volumeController = soundLoader.getVolumeController();
+        if (volumeController != null) {
+            volume *= volumeController.getVolume();
+        }
+
+        return parent.loop(volume, pitch, pan);
+    }
+
+    @Override
+    public void stop() {
+        parent.stop();
+    }
+
+    @Override
+    public void pause() {
+        parent.pause();
+    }
+
+    @Override
+    public void resume() {
+        parent.resume();
+    }
+
+    @Override
+    public void dispose() {
+        parent.dispose();
+    }
+
+    @Override
+    public void stop(long soundId) {
+        parent.stop();
+    }
+
+    @Override
+    public void pause(long soundId) {
+        parent.pause(soundId);
+    }
+
+    @Override
+    public void resume(long soundId) {
+        parent.resume(soundId);
+    }
+
+    @Override
+    public void setLooping(long soundId, boolean looping) {
+        parent.setLooping(soundId, looping);
+    }
+
+    @Override
+    public void setPitch(long soundId, float pitch) {
+        parent.setPitch(soundId, pitch);
+    }
+
+    @Override
+    public void setVolume(long soundId, float volume) {
+        parent.setVolume(soundId, volume);
+    }
+
+    @Override
+    public void setPan(long soundId, float pan, float volume) {
+        parent.setPan(soundId, pan, volume);
+    }
+
+    @Override
+    public void setPriority(long soundId, int priority) {
+        parent.setPriority(soundId, priority);
     }
 }
 
