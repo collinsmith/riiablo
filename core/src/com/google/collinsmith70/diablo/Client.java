@@ -16,8 +16,6 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.google.collinsmith70.diablo.asset.Assets;
-import com.google.collinsmith70.diablo.asset.TextureAtlasedBitmapFont;
-import com.google.collinsmith70.diablo.asset.loader.TextureAtlasedBitmapFontLoader;
 import com.google.collinsmith70.diablo.asset.loader.VolumeControlledMusicLoader;
 import com.google.collinsmith70.diablo.asset.loader.VolumeControlledSoundLoader;
 import com.google.collinsmith70.diablo.audio.SoundVolumeController;
@@ -29,7 +27,6 @@ import com.google.collinsmith70.diablo.cvar.Cvars;
 import com.google.collinsmith70.diablo.lang.Langs;
 import com.google.collinsmith70.diablo.scene.AbstractScene;
 import com.google.collinsmith70.diablo.scene.SplashScene;
-import com.google.collinsmith70.util.EffectivelyFinal;
 
 import java.util.Locale;
 
@@ -41,22 +38,11 @@ private final int VIRTUAL_HEIGHT;
 
 private final boolean FORCE_WINDOWED;
 
-@EffectivelyFinal
 private ClientInputProcessor INPUT_PROCESSOR;
-
-@EffectivelyFinal
 private ClientCommandProcessor COMMAND_PROCESSOR;
-
-@EffectivelyFinal
 private AssetManager ASSET_MANAGER;
-
-@EffectivelyFinal
 private Stage STAGE;
-
-@EffectivelyFinal
 private Console CONSOLE;
-
-@EffectivelyFinal
 private MusicController MUSIC_CONTROLLER;
 
 private AbstractScene scene;
@@ -84,6 +70,10 @@ public int getVirtualWidth() {
 
 public int getVirtualHeight() {
     return VIRTUAL_HEIGHT;
+}
+
+public Stage getStage() {
+    return STAGE;
 }
 
 public VolumeController<Sound> getSoundVolumeController() {
@@ -208,11 +198,6 @@ public void create() {
 private void setAssetLoaders(FileHandleResolver resolver) {
     Gdx.app.log(TAG, "Setting asset loaders...");
 
-    Gdx.app.log(TAG, String.format("%s loader set to %s",
-            TextureAtlasedBitmapFont.class.getSimpleName(),
-            TextureAtlasedBitmapFontLoader.class.getSimpleName()));
-    ASSET_MANAGER.setLoader(TextureAtlasedBitmapFont.class, new TextureAtlasedBitmapFontLoader(resolver));
-
     soundVolumeController = new SoundVolumeController();
     Gdx.app.log(TAG, String.format("%s loader set to %s",
             Sound.class.getSimpleName(),
@@ -242,6 +227,8 @@ private void loadCommonAssets() {
 
     Gdx.app.log(TAG, "Loading sound: " + Assets.Client.Sound.SELECT.fileName);
     ASSET_MANAGER.load(Assets.Client.Sound.SELECT);
+    Gdx.app.log(TAG, "Loading sound: " + Assets.Client.Sound.BUTTON.fileName);
+    ASSET_MANAGER.load(Assets.Client.Sound.BUTTON);
 
     ASSET_MANAGER.finishLoading();
 }

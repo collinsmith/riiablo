@@ -19,4 +19,15 @@ public static class Client {
 
 }
 
+public static class MenuScene {
+
+    private MenuScene() {
+        //...
+    }
+
+    public static final String play_single_player = "play_single_player";
+    public static final String exit_diablo = "exit_diablo";
+
+}
+
 }

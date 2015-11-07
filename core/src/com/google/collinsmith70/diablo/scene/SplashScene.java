@@ -9,11 +9,11 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.google.collinsmith70.diablo.Client;
 import com.google.collinsmith70.diablo.asset.Assets;
-import com.google.collinsmith70.diablo.asset.TextureAtlasedBitmapFont;
 import com.google.collinsmith70.diablo.lang.Langs;
 import com.google.collinsmith70.diablo.widget.ActorUtils;
 import com.google.collinsmith70.diablo.widget.AnimatedActor;
@@ -69,7 +69,7 @@ public void create() {
         }
     }
 
-    TextureAtlasedBitmapFont exocet = assetManager.get(Assets.Client.Font.Exocet._16);
+    BitmapFont exocet = assetManager.get(Assets.Client.Font.Exocet._16);
     Label.LabelStyle labelStyle = new Label.LabelStyle(exocet, Color.WHITE);
     labelPressToContinue = new StrobingLabel(
             press_to_continue,

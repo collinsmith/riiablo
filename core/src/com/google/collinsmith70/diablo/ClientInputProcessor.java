@@ -65,8 +65,8 @@ public boolean keyDown(int keycode) {
             break;
     }
 
-    if (getClient().getScene() != null) {
-        return getClient().getScene().keyDown(keycode);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().keyDown(keycode);
     }
 
     return false;
@@ -81,8 +81,8 @@ public boolean keyDown(int keycode) {
  */
 @Override
 public boolean keyUp(int keycode) {
-    if (getClient().getScene() != null) {
-        return getClient().getScene().keyUp(keycode);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().keyUp(keycode);
     }
 
     return false;
@@ -105,8 +105,8 @@ public boolean keyTyped(char ch) {
         return true;
     }
 
-    if (getClient().getScene() != null) {
-        return getClient().getScene().keyTyped(ch);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().keyTyped(ch);
     }
 
     return false;
@@ -130,8 +130,8 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         return true;
     }
 
-    if (getClient().getScene() != null) {
-        return getClient().getScene().touchDown(screenX, screenY, pointer, button);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().touchDown(screenX, screenY, pointer, button);
     }
 
     return false;
@@ -148,8 +148,8 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
  */
 @Override
 public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-    if (getClient().getScene() != null) {
-        return getClient().getScene().touchUp(screenX, screenY, pointer, button);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().touchUp(screenX, screenY, pointer, button);
     }
 
     return false;
@@ -164,8 +164,8 @@ public boolean touchUp(int screenX, int screenY, int pointer, int button) {
  */
 @Override
 public boolean touchDragged(int screenX, int screenY, int pointer) {
-    if (getClient().getScene() != null) {
-        return getClient().getScene().touchDragged(screenX, screenY, pointer);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().touchDragged(screenX, screenY, pointer);
     }
 
     return false;
@@ -181,8 +181,8 @@ public boolean touchDragged(int screenX, int screenY, int pointer) {
  */
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
-    if (getClient().getScene() != null) {
-        return getClient().getScene().mouseMoved(screenX, screenY);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().mouseMoved(screenX, screenY);
     }
 
     return false;
@@ -201,8 +201,8 @@ public boolean scrolled(int amount) {
         return CLIENT.getConsole().scrolled(amount);
     }
 
-    if (getClient().getScene() != null) {
-        return getClient().getScene().scrolled(amount);
+    if (getClient().getStage() != null) {
+        return getClient().getStage().scrolled(amount);
     }
 
     return false;
