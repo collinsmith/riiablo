@@ -401,7 +401,7 @@ public void render(Batch b) {
         return;
     }
 
-    b.setColor(0.5f, 0.5f, 0.5f, 1.0f);
+    //b.setColor(0.5f, 0.5f, 0.5f, 1.0f);
     GlyphLayout glyphs = font.draw(b, commandPrefix + " " + getBuffer(), 0, getClient().getVirtualHeight());
     if (showCaret) {
         glyphs.setText(font, commandPrefix + " " + getBuffer().substring(0, caretPosition));

@@ -15,15 +15,18 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.google.collinsmith70.diablo.audio.*;
+import com.google.collinsmith70.diablo.asset.Assets;
+import com.google.collinsmith70.diablo.asset.TextureAtlasedBitmapFont;
+import com.google.collinsmith70.diablo.asset.loader.TextureAtlasedBitmapFontLoader;
+import com.google.collinsmith70.diablo.asset.loader.VolumeControlledMusicLoader;
+import com.google.collinsmith70.diablo.asset.loader.VolumeControlledSoundLoader;
 import com.google.collinsmith70.diablo.audio.SoundVolumeController;
+import com.google.collinsmith70.diablo.audio.VolumeController;
 import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
 import com.google.collinsmith70.diablo.lang.Langs;
-import com.google.collinsmith70.diablo.loader.VolumeControlledMusicLoader;
-import com.google.collinsmith70.diablo.loader.VolumeControlledSoundLoader;
 import com.google.collinsmith70.diablo.scene.AbstractScene;
 import com.google.collinsmith70.diablo.scene.SplashScene;
 import com.google.collinsmith70.util.EffectivelyFinal;
@@ -186,16 +189,8 @@ public void create() {
 
     FileHandleResolver resolver = new InternalFileHandleResolver();
     this.ASSET_MANAGER = new AssetManager(resolver);
-
-    soundVolumeController = new SoundVolumeController();
-    ASSET_MANAGER.setLoader(
-            Sound.class,
-            new VolumeControlledSoundLoader(resolver, soundVolumeController));
-
-    musicVolumeController = new com.google.collinsmith70.diablo.audio.MusicVolumeController();
-    ASSET_MANAGER.setLoader(
-            Music.class,
-            new VolumeControlledMusicLoader(resolver, musicVolumeController));
+    setAssetLoaders(resolver);
+    loadCommonAssets();
 
     this.CONSOLE = new Console(this);
     CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
@@ -208,6 +203,47 @@ public void create() {
     Gdx.input.setInputProcessor(INPUT_PROCESSOR);
 
     setScene(new SplashScene(this));
+}
+
+private void setAssetLoaders(FileHandleResolver resolver) {
+    Gdx.app.log(TAG, "Setting asset loaders...");
+
+    Gdx.app.log(TAG, String.format("%s loader set to %s",
+            TextureAtlasedBitmapFont.class.getSimpleName(),
+            TextureAtlasedBitmapFontLoader.class.getSimpleName()));
+    ASSET_MANAGER.setLoader(TextureAtlasedBitmapFont.class, new TextureAtlasedBitmapFontLoader(resolver));
+
+    soundVolumeController = new SoundVolumeController();
+    Gdx.app.log(TAG, String.format("%s loader set to %s",
+            Sound.class.getSimpleName(),
+            VolumeControlledSoundLoader.class.getSimpleName()));
+    ASSET_MANAGER.setLoader(Sound.class, new VolumeControlledSoundLoader(resolver, soundVolumeController));
+
+    musicVolumeController = new com.google.collinsmith70.diablo.audio.MusicVolumeController();
+    Gdx.app.log(TAG, String.format("%s loader set to %s",
+            Music.class.getSimpleName(),
+            VolumeControlledMusicLoader.class.getSimpleName()));
+    ASSET_MANAGER.setLoader(
+            Music.class,
+            new VolumeControlledMusicLoader(resolver, musicVolumeController));
+}
+
+private void loadCommonAssets() {
+    Gdx.app.log(TAG, "Loading common assets...");
+
+    Gdx.app.log(TAG, "Loading font: " + Assets.Client.Font.Exocet._16.fileName);
+    ASSET_MANAGER.load(Assets.Client.Font.Exocet._16);
+    Gdx.app.log(TAG, "Loading font: " + Assets.Client.Font.Exocet._24.fileName);
+    ASSET_MANAGER.load(Assets.Client.Font.Exocet._24);
+    Gdx.app.log(TAG, "Loading font: " + Assets.Client.Font.Exocet._32.fileName);
+    ASSET_MANAGER.load(Assets.Client.Font.Exocet._32);
+    Gdx.app.log(TAG, "Loading font: " + Assets.Client.Font.Exocet._42.fileName);
+    ASSET_MANAGER.load(Assets.Client.Font.Exocet._42);
+
+    Gdx.app.log(TAG, "Loading sound: " + Assets.Client.Sound.SELECT.fileName);
+    ASSET_MANAGER.load(Assets.Client.Sound.SELECT);
+
+    ASSET_MANAGER.finishLoading();
 }
 
 /**

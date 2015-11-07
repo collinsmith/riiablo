@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.loader;
+package com.google.collinsmith70.diablo.asset.loader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;

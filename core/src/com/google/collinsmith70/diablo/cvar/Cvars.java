@@ -29,6 +29,7 @@ public static void loadAll() {
 
     Client.Render.Windowed.load();
     Client.Render.VSync.load();
+    Client.Render.AnimationBounds.load();
 }
 
 public static class Client {
@@ -101,6 +102,10 @@ public static class Client {
 
         public static final Cvar<Boolean> VSync = new Cvar<Boolean>(
                 "Client.Render.VSync",
+                Boolean.class, Boolean.FALSE);
+
+        public static final Cvar<Boolean> AnimationBounds = new Cvar<Boolean>(
+                "Client.Render.AnimationBounds",
                 Boolean.class, Boolean.FALSE);
     }
 

@@ -29,6 +29,13 @@ public Client getClient() {
 @Override
 public boolean keyDown(int keycode) {
     switch (keycode) {
+        case Input.Keys.GRAVE:
+            CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
+            if (Gdx.app.getType() == Application.ApplicationType.Android) {
+                Gdx.input.setOnscreenKeyboardVisible(CLIENT.getConsole().isVisible());
+            }
+
+            return true;
         case Input.Keys.LEFT:
         case Input.Keys.RIGHT:
         case Input.Keys.UP:
@@ -92,11 +99,6 @@ public boolean keyUp(int keycode) {
 public boolean keyTyped(char ch) {
     // TODO: Implement KeyMap structure similar to CVars
     if (ch == '`') {
-        CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
-        if (Gdx.app.getType() == Application.ApplicationType.Android) {
-            Gdx.input.setOnscreenKeyboardVisible(CLIENT.getConsole().isVisible());
-        }
-
         return true;
     } else if (CLIENT.getConsole().isVisible()) {
         CLIENT.getConsole().keyTyped(ch);
