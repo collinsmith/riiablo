@@ -4,17 +4,23 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
 import com.google.collinsmith70.diablo.Client;
+import com.google.collinsmith70.diablo.widget.AnimatedActor;
 
 public class SplashScene extends AbstractScene {
 
 private static final AssetDescriptor<Music> INTRO_MUSIC_ASSET_DESCRIPTOR
         = new AssetDescriptor("audio/music/intro.ogg", Music.class);
-private Music introMusicAsset;
 
 private static final AssetDescriptor<Sound> SELECT_SOUND_ASSET_DESCRIPTOR
         = new AssetDescriptor("audio/cursor/select.wav", Sound.class);
 private Sound selectSoundAsset;
+
+private static final AssetDescriptor<Texture> LOGO_ANIMATION_TEXTURE_DESCRIPTOR
+        = new AssetDescriptor<Texture>("animations/logo.png", Texture.class);
+private Texture logoAnimationTextureAsset;
+private AnimatedActor logoAnimatedActor;
 
 public SplashScene(Client client) {
     super(client);
@@ -25,24 +31,23 @@ public void create() {
     super.create();
     AssetManager assetManager = getClient().getAssetManager();
 
-    introMusicAsset = assetManager.get(INTRO_MUSIC_ASSET_DESCRIPTOR);
-    introMusicAsset.setOnCompletionListener(new Music.OnCompletionListener() {
-        @Override
-        public void onCompletion(Music music) {
-            SplashScene.this.getClient().getAssetManager().unload(INTRO_MUSIC_ASSET_DESCRIPTOR.fileName);
-            music.dispose();
-        }
-    });
-
-    introMusicAsset.play();
+    getClient().getMusicController().enqueue(INTRO_MUSIC_ASSET_DESCRIPTOR);
 
     selectSoundAsset = assetManager.get(SELECT_SOUND_ASSET_DESCRIPTOR);
+
+    logoAnimationTextureAsset = assetManager.get(LOGO_ANIMATION_TEXTURE_DESCRIPTOR);
+    logoAnimatedActor = new AnimatedActor(logoAnimationTextureAsset, 30, 374, 170, 1/30.0f);
+    logoAnimatedActor.setScale(
+            getClient().getVirtualWidth() / 1280.0f,
+            getClient().getVirtualHeight() / 720.0f);
+    logoAnimatedActor.setPosition((getClient().getVirtualWidth() - logoAnimatedActor.getWidth() * logoAnimatedActor.getScaleX()) / 2 - 3, (getClient().getVirtualHeight() - logoAnimatedActor.getHeight() * logoAnimatedActor.getScaleY()));
+    addActor(logoAnimatedActor);
 }
 
 @Override
 public void loadAssets(AssetManager assetManager) {
-    assetManager.load(INTRO_MUSIC_ASSET_DESCRIPTOR);
     assetManager.load(SELECT_SOUND_ASSET_DESCRIPTOR);
+    assetManager.load(LOGO_ANIMATION_TEXTURE_DESCRIPTOR);
     assetManager.finishLoading();
 }
 
