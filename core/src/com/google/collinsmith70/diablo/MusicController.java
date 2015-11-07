@@ -5,11 +5,14 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.utils.Disposable;
 
+import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class MusicController implements Disposable, Music.OnCompletionListener {
 
+private final Collection<MusicControllerListener> LISTENERS;
 private final AssetManager ASSET_MANAGER;
 private final Deque<AssetDescriptor<Music>> QUEUE;
 
@@ -17,8 +20,21 @@ private AssetDescriptor<Music> asset;
 private Music track;
 
 public MusicController(AssetManager assetManager) {
+    this.LISTENERS = new CopyOnWriteArraySet<MusicControllerListener>();
     this.ASSET_MANAGER = assetManager;
     this.QUEUE = new LinkedList<AssetDescriptor<Music>>();
+}
+
+public void addMusicControllerListener(MusicControllerListener l) {
+    LISTENERS.add(l);
+}
+
+public boolean containsMusicControllerListener(MusicControllerListener l) {
+    return LISTENERS.contains(l);
+}
+
+public boolean removeMusicControllerListener(MusicControllerListener l) {
+    return LISTENERS.remove(l);
 }
 
 public int size() {
@@ -80,6 +96,9 @@ public void next() {
     track = ASSET_MANAGER.get(asset);
     track.play();
     track.setOnCompletionListener(this);
+    for (MusicControllerListener l : LISTENERS) {
+        l.onTrackChanged(track);
+    }
 }
 
 @Override
