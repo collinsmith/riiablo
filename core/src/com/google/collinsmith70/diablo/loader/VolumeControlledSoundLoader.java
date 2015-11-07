@@ -56,11 +56,11 @@ private static class VolumeManagedSoundWrapper implements Sound {
     private final VolumeControlledSoundLoader soundLoader;
     private final Sound parent;
 
-    static Sound wrap(VolumeControlledSoundLoader soundLoader, Sound sound) {
+    private static Sound wrap(VolumeControlledSoundLoader soundLoader, Sound sound) {
         return new VolumeManagedSoundWrapper(soundLoader, sound);
     }
 
-    VolumeManagedSoundWrapper(VolumeControlledSoundLoader soundLoader, Sound sound) {
+    private VolumeManagedSoundWrapper(VolumeControlledSoundLoader soundLoader, Sound sound) {
         this.soundLoader = soundLoader;
         this.parent = sound;
     }
@@ -77,7 +77,7 @@ private static class VolumeManagedSoundWrapper implements Sound {
 
     @Override
     public long play(float volume, float pitch, float pan) {
-        com.google.collinsmith70.diablo.audio.VolumeController<?> volumeController = soundLoader.getVolumeController();
+        VolumeController<?> volumeController = soundLoader.getVolumeController();
         if (volumeController != null) {
             volume *= volumeController.getVolume();
         }

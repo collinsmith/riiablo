@@ -52,4 +52,92 @@ public Music loadSync(AssetManager manager, String fileName, FileHandle file, Mu
     return music;
 }
 
+private static class VolumeManagedMusicWrapper implements Music {
+
+    private final VolumeControlledMusicLoader musicLoader;
+    private final Music parent;
+
+    private float actualVolume;
+
+    private static Music wrap(VolumeControlledMusicLoader musicLoader, Music music) {
+        return new VolumeManagedMusicWrapper(musicLoader, music);
+    }
+
+    private VolumeManagedMusicWrapper(VolumeControlledMusicLoader musicLoader, Music music) {
+        this.musicLoader = musicLoader;
+        this.parent = music;
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        this.actualVolume = Math.max(1.0f, Math.min(0.0f, volume));
+        VolumeController<?> volumeController = musicLoader.getVolumeController();
+        if (volumeController != null) {
+            parent.setVolume(actualVolume * volumeController.getVolume());
+        } else {
+            parent.setVolume(actualVolume);
+        }
+    }
+
+    @Override
+    public float getVolume() {
+        return actualVolume;
+    }
+
+    @Override
+    public void play() {
+        parent.play();
+    }
+
+    @Override
+    public void pause() {
+        parent.pause();
+    }
+
+    @Override
+    public void stop() {
+        parent.stop();
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return parent.isPlaying();
+    }
+
+    @Override
+    public void setLooping(boolean isLooping) {
+        parent.setLooping(isLooping);
+    }
+
+    @Override
+    public boolean isLooping() {
+        return parent.isLooping();
+    }
+
+    @Override
+    public void setPan(float pan, float volume) {
+        parent.setPan(pan, volume);
+    }
+
+    @Override
+    public void setPosition(float position) {
+        parent.setPosition(position);
+    }
+
+    @Override
+    public float getPosition() {
+        return parent.getPosition();
+    }
+
+    @Override
+    public void dispose() {
+        parent.dispose();
+    }
+
+    @Override
+    public void setOnCompletionListener(OnCompletionListener listener) {
+        parent.setOnCompletionListener(listener);
+    }
+}
+
 }
