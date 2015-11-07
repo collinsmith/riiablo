@@ -1,7 +1,5 @@
 package com.google.collinsmith70.diablo.scene;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
@@ -43,7 +41,6 @@ public void create() {
 
 @Override
 public void loadAssets(AssetManager assetManager) {
-    Gdx.app.setLogLevel(Application.LOG_DEBUG);
     assetManager.load(INTRO_MUSIC_ASSET_DESCRIPTOR);
     assetManager.load(SELECT_SOUND_ASSET_DESCRIPTOR);
     assetManager.finishLoading();
@@ -51,10 +48,6 @@ public void loadAssets(AssetManager assetManager) {
 
 @Override
 public void disposeAssets(AssetManager assetManager) {
-    if (assetManager.containsAsset(INTRO_MUSIC_ASSET_DESCRIPTOR)) {
-        assetManager.unload(INTRO_MUSIC_ASSET_DESCRIPTOR.fileName);
-    }
-
     assetManager.unload(SELECT_SOUND_ASSET_DESCRIPTOR.fileName);
 }
 
