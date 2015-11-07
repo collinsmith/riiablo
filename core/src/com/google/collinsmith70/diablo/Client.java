@@ -53,6 +53,9 @@ private Stage STAGE;
 @EffectivelyFinal
 private Console CONSOLE;
 
+@EffectivelyFinal
+private MusicController MUSIC_CONTROLLER;
+
 private AbstractScene scene;
 
 private boolean showFps;
@@ -86,6 +89,10 @@ public VolumeController<Sound> getSoundVolumeController() {
 
 public VolumeController<Music> getMusicVolumeController() {
     return musicVolumeController;
+}
+
+public MusicController getMusicController() {
+    return MUSIC_CONTROLLER;
 }
 
 public void setScene(AbstractScene scene) {
@@ -192,6 +199,8 @@ public void create() {
 
     this.CONSOLE = new Console(this);
     CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
+
+    this.MUSIC_CONTROLLER = new MusicController(getAssetManager());
 
     Gdx.input.setCatchMenuKey(true);
     Gdx.input.setCatchBackKey(true);
