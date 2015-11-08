@@ -3,6 +3,8 @@ package com.google.collinsmith70.diablo;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -56,10 +58,19 @@ private VerticalDirection historyIteratorMomentum;
 private final Deque<String> OUTPUT = new LinkedList<String>();
 private float outputOffset;
 
+private Texture modelBackgroundTexture;
+
 public Console(Client client) {
     this.CLIENT = client;
     this.commandProcessors = new CopyOnWriteArraySet<CommandProcessor>();
     this.isVisible = false;
+
+    Pixmap solidColorPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+    solidColorPixmap.setColor(0.0f, 0.0f, 0.0f, 0.5f);
+    solidColorPixmap.fill();
+    modelBackgroundTexture = new Texture(solidColorPixmap);
+    solidColorPixmap.dispose();
+    solidColorPixmap = null;
 
     final CvarChangeListener<Float> consoleFontColorCvarListener = new CvarChangeListener<Float>() {
         @Override
@@ -378,7 +389,7 @@ public boolean keyTyped(char ch, boolean updateLookup) {
         case 'K':case 'L':case 'M':case 'N':case 'O':case 'P':case 'Q':case 'R':case 'S':case 'T':
         case 'U':case 'V':case 'W':case 'X':case 'Y':case 'Z':
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
-        case '-':case '_':case '.':case ' ':case '>':case '<':case '\"':
+        case '-':case '_':case '.':case ' ':case '>':case '<':case '?':case '\"':
             consoleBuffer.insert(caretPosition++, ch);
             updateCaret(updateLookup);
             return true;
@@ -401,7 +412,8 @@ public void render(Batch b) {
         return;
     }
 
-    //b.setColor(0.5f, 0.5f, 0.5f, 1.0f);
+    b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), getClient().getVirtualHeight());
+
     GlyphLayout glyphs = font.draw(b, commandPrefix + " " + getBuffer(), 0, getClient().getVirtualHeight());
     if (showCaret) {
         glyphs.setText(font, commandPrefix + " " + getBuffer().substring(0, caretPosition));
