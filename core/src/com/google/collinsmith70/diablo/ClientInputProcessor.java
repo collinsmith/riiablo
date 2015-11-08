@@ -56,12 +56,6 @@ public boolean keyDown(int keycode) {
                 return true;
             }
 
-            // TODO: propagate upnativation so that actions can be taken if pressed during stages
-            //if (!Gdx.input.isKeyPressed(Input.Keys.BACK)) {
-            //    Gdx.app.exit();
-            //    return true;
-            //}
-
             break;
     }
 
