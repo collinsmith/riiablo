@@ -28,27 +28,36 @@ public static Collection<Command> getCommands() {
     return Command.COMMANDS.values();
 }
 
-private final String COMMAND;
+private final String ALIAS;
 private final ParameterResolver[] RESOLVERS;
 private final Action ACTION;
 
-public Command(String command, Action action, ParameterResolver... resolvers) {
-    if (command == null) {
-        throw new IllegalArgumentException("Command should not be null");
-    } else if (command.isEmpty()) {
-        throw new IllegalArgumentException("Command should not be empty");
-    }
-
-    this.COMMAND = command;
+public Command(String alias, Action action, ParameterResolver... resolvers) {
+    this.ALIAS = alias;
     this.ACTION = MoreObjects.firstNonNull(action, Action.EMPTY_ACTION);
     this.RESOLVERS = resolvers;
 
-    Command.COMMANDS.put(getCommand(), this); // potentially unsafe (technically object is not constructed yet)
+    addAlias(getCommand()); // potentially unsafe (technically object is not constructed yet)
     Gdx.app.log(TAG, "Registered " + toString());
 }
 
+public Command addAlias(String alias) {
+    if (alias == null) {
+        throw new IllegalArgumentException("Command alias should not be null");
+    } else if (alias.isEmpty()) {
+        throw new IllegalArgumentException("Command alias should not be empty");
+    }
+
+    Command.COMMANDS.put(alias, this);
+    return this;
+}
+
+public String getAlias() {
+    return ALIAS;
+}
+
 public String getCommand() {
-    return COMMAND;
+    return getAlias();
 }
 
 public void execute(Client client, String[] args) {
