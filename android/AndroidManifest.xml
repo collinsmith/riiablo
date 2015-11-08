@@ -16,7 +16,7 @@
         <activity
             android:name="com.google.collinsmith70.diablo.android.AndroidLauncher"
             android:label="@string/app_name" 
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
