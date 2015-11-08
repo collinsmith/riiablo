@@ -17,8 +17,7 @@ public static void loadAll() {
 
 private static final String TAG = Commands.class.getSimpleName();
 
-public static final Command EXIT = new Command(
-        "exit",
+public static final Command EXIT = new Command("exit",
         new Action() {
             @Override
             public void onActionExecuted(Client client, String[] args) {
@@ -32,7 +31,8 @@ public static final Command CLEAR = new Command("clear",
             public void onActionExecuted(Client client, String[] args) {
                 client.getConsole().clear();
             }
-        });
+        })
+        .addAlias("cls");
 
 public static final Command HELP = new Command("help",
         new Action() {
@@ -42,7 +42,8 @@ public static final Command HELP = new Command("help",
                     client.getConsole().log(cmd.toString());
                 }
             }
-        });
+        })
+        .addAlias("?");
 
 public static final Command CVARS = new Command("cvars",
         new Action() {
@@ -57,8 +58,7 @@ public static final Command CVARS = new Command("cvars",
             }
         });
 
-public static final Command RESET = new Command(
-        "reset",
+public static final Command RESET = new Command("reset",
         new Action() {
             @Override
             public void onActionExecuted(Client client, String[] args) {
