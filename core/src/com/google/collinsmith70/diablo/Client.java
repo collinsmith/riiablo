@@ -47,6 +47,7 @@ private MusicController MUSIC_CONTROLLER;
 
 private AbstractScene scene;
 
+private boolean vibratingEnabled;
 private boolean showFps;
 private I18NBundle i18nBundle;
 
@@ -62,6 +63,7 @@ public Client(int virtualWidth, int virtualHeight, boolean forceWindowed) {
     this.VIRTUAL_HEIGHT = virtualHeight;
     this.FORCE_WINDOWED = forceWindowed;
     this.showFps = false;
+    this.vibratingEnabled = true;
 }
 
 public int getVirtualWidth() {
@@ -122,6 +124,10 @@ public I18NBundle getI18NBundle() {
     return i18nBundle;
 }
 
+public boolean isVibratingEnabled() {
+    return vibratingEnabled;
+}
+
 /**
  * Called when the {@link Application} is first created.
  */
@@ -141,6 +147,13 @@ public void create() {
         @Override
         public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
             Client.this.showFps = toValue;
+        }
+    });
+
+    Cvars.Client.Input.Vibrations.addCvarChangeListener(new CvarChangeListener<Boolean>() {
+        @Override
+        public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
+            Client.this.vibratingEnabled = toValue;
         }
     });
 

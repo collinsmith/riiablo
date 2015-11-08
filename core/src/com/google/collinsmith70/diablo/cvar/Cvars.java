@@ -30,6 +30,8 @@ public static void loadAll() {
     Client.Render.Windowed.load();
     Client.Render.VSync.load();
     Client.Render.AnimationBounds.load();
+
+    Client.Input.Vibrations.load();
 }
 
 public static class Client {
@@ -154,6 +156,13 @@ public static class Client {
             public static final Cvar<Float> a = new Cvar<Float>("Client.Overlay.ConsoleFontColor.a",
                     Float.class, 1.0f);
         }
+    }
+
+    public static class Input {
+        public static final Cvar<Boolean> Vibrations
+                = new Cvar<Boolean>(
+                "Client.Input.Vibrations",
+                Boolean.class, Boolean.TRUE);
     }
 }
 }
