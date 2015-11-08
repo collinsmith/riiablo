@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.google.collinsmith70.diablo.Client;
 
@@ -110,6 +111,12 @@ public void resume() {
  */
 @Override
 public boolean keyDown (int keycode) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).keyDown(keycode)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -122,6 +129,12 @@ public boolean keyDown (int keycode) {
  */
 @Override
 public boolean keyUp (int keycode) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).keyUp(keycode)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -134,6 +147,12 @@ public boolean keyUp (int keycode) {
  * */
 @Override
 public boolean keyTyped(char character) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).keyTyped(character)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -150,6 +169,12 @@ public boolean keyTyped(char character) {
  */
 @Override
 public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).touchDown(screenX, screenY, pointer, button)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -164,6 +189,12 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
  */
 @Override
 public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).touchUp(screenX, screenY, pointer, button)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -176,6 +207,12 @@ public boolean touchUp(int screenX, int screenY, int pointer, int button) {
  */
 @Override
 public boolean touchDragged(int screenX, int screenY, int pointer) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).touchDragged(screenX, screenY, pointer)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -186,6 +223,12 @@ public boolean touchDragged(int screenX, int screenY, int pointer) {
  */
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).mouseMoved(screenX, screenY)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -198,6 +241,12 @@ public boolean mouseMoved(int screenX, int screenY) {
  */
 @Override
 public boolean scrolled(int amount) {
+    for (Actor childActor : this.getChildren()) {
+        if (childActor instanceof InputProcessor && ((InputProcessor)childActor).scrolled(amount)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
