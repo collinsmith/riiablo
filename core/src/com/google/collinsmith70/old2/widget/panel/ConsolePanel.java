@@ -1,18 +1,7 @@
 package com.google.collinsmith70.old2.widget.panel;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.google.collinsmith70.old2.Assets;
-import com.google.collinsmith70.old2.Client;
-import com.google.collinsmith70.util.EffectivelyFinal;
-
-public class ConsolePanel extends AbstractPanel {
-    @EffectivelyFinal
+public class ConsolePanel {
+    /*@EffectivelyFinal
     private TextureAtlas CONSOLE_ATLAS;
     @EffectivelyFinal
     private BitmapFont CONSOLE;
@@ -132,5 +121,5 @@ public class ConsolePanel extends AbstractPanel {
     }
     @Override public boolean scrolled(int amount) {
         return true;
-    }
+    }*/
 }

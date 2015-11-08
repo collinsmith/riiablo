@@ -1,32 +1,8 @@
 package com.google.collinsmith70.old2.widget.panel;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.google.collinsmith70.old2.Actors;
-import com.google.collinsmith70.old2.Assets;
-import com.google.collinsmith70.old2.Client;
-import com.google.collinsmith70.old2.widget.AudibleButton;
-import com.google.collinsmith70.util.EffectivelyFinal;
-
-public class OptionsPanel extends AbstractPanel {
+public class OptionsPanel {
 //	public static final String PANEL_PATH = "textures/options_panel.pack";
-	@EffectivelyFinal
+	/*@EffectivelyFinal
 	private TextureAtlas PANEL_ATLAS;
 	@EffectivelyFinal
 	private Skin PANEL_SKIN;
@@ -215,5 +191,5 @@ public class OptionsPanel extends AbstractPanel {
 	@Override
 	public boolean scrolled(int amount) {
 		return true;
-	}
+	}*/
 }

@@ -1,16 +1,7 @@
 package com.google.collinsmith70.old2.widget.panel;
 
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.google.collinsmith70.old2.Client;
-import com.google.collinsmith70.old2.scene.BackgroundedScene;
-
-public abstract class AbstractPanel extends BackgroundedScene {
-	private final Texture MODAL_BACKGROUND;
+public abstract class AbstractPanel {
+	/*private final Texture MODAL_BACKGROUND;
 	private boolean modal;
 	
 	private Label title;
@@ -70,5 +61,5 @@ public abstract class AbstractPanel extends BackgroundedScene {
 	
 	public boolean isModal() {
 		return modal;
-	}
+	}*/
 }
