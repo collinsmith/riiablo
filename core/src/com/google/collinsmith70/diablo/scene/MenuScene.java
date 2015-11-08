@@ -1,6 +1,7 @@
 package com.google.collinsmith70.diablo.scene;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
@@ -21,15 +22,13 @@ import com.google.collinsmith70.diablo.lang.Langs;
 import com.google.collinsmith70.diablo.widget.ActorUtils;
 import com.google.collinsmith70.diablo.widget.AnimatedActor;
 import com.google.collinsmith70.diablo.widget.ButtonUtils;
+import com.google.collinsmith70.diablo.widget.panel.OptionsPanel;
 
 import java.util.Locale;
 
 public class MenuScene extends AbstractScene {
 
 private AnimatedActor logoAnimatedActor;
-
-private TextureAtlas exocetTextureAtlas;
-private BitmapFont exocetBitmapFont;
 
 private static final AssetDescriptor<TextureAtlas> BUTTONS_TEXTURE_ATLAS_ASSET_DESCRIPTOR
         = new AssetDescriptor<TextureAtlas>("textures/buttons.pack", TextureAtlas.class);
@@ -39,6 +38,7 @@ private Skin buttonsSkin;
 private Sound buttonSoundAsset;
 
 private TextButton btnPlaySinglePlayer;
+private TextButton btnShowOptions;
 private TextButton btnExitGame;
 
 public MenuScene(Client client, AnimatedActor logoAnimatedActor) {
@@ -88,8 +88,24 @@ public void create() {
         }
     });
     addActor(btnExitGame);
-
     final float yAdjust = btnExitGame.getHeight()+2;
+    yPos += yAdjust;
+
+    btnShowOptions = new TextButton(
+            Langs.MenuScene.display_options,
+            buttonsSkin, "wide");
+    btnShowOptions.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+            OptionsPanel optionsPanel = new OptionsPanel(MenuScene.this.getClient());
+            optionsPanel.create();
+
+            MenuScene.this.addActor(optionsPanel);
+        }
+    });
+    ButtonUtils.playSoundOnClicked(btnShowOptions, buttonSoundAsset);
+    ActorUtils.centerAt(btnShowOptions, xPos, yPos);
+    addActor(btnShowOptions);
     yPos += yAdjust;
 
     btnPlaySinglePlayer = new TextButton(
@@ -106,9 +122,25 @@ public void create() {
             I18NBundle i18nBundle = I18NBundle.createBundle(i18nBundleFileHandle, toValue);
 
             MenuScene.this.btnPlaySinglePlayer.setText(i18nBundle.get(Langs.MenuScene.play_single_player));
+            MenuScene.this.btnShowOptions.setText(i18nBundle.get(Langs.MenuScene.display_options));
             MenuScene.this.btnExitGame.setText(i18nBundle.get(Langs.MenuScene.exit_diablo));
         }
     });
+}
+
+@Override
+public boolean keyDown(int keycode) {
+    if (super.keyDown(keycode)) {
+        return true;
+    }
+
+    switch (keycode) {
+        case Input.Keys.ESCAPE:
+            closeApplication();
+            return true;
+        default:
+            return false;
+    }
 }
 
 private void closeApplication() {
