@@ -2,6 +2,7 @@ package com.google.collinsmith70.diablo.scene;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
@@ -53,7 +54,7 @@ public void create() {
             getClient().getVirtualWidth() / 1280.0f,
             getClient().getVirtualHeight() / 720.0f);
     logoAnimatedActor.setPosition(
-            (getClient().getVirtualWidth() - logoAnimatedActor.getWidth() * logoAnimatedActor.getScaleX()) / 2 - 3,
+            (getClient().getVirtualWidth() - logoAnimatedActor.getWidth() * logoAnimatedActor.getScaleX()) / 2 + 3,
             (getClient().getVirtualHeight() - logoAnimatedActor.getHeight() * logoAnimatedActor.getScaleY()));
     addActor(logoAnimatedActor);
 
@@ -101,7 +102,10 @@ private boolean pressToContinue() {
     }
 
     selectSoundAsset.play();
-    Gdx.input.vibrate(25);
+    if (getClient().isVibratingEnabled()) {
+        Gdx.input.vibrate(25);
+    }
+
     pressedContinue = true;
     getClient().setScene(new MenuScene(getClient(), logoAnimatedActor));
     return true;
@@ -117,8 +121,10 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 }
 
 @Override
-public boolean keyTyped(char ch) {
-    if (super.keyTyped(ch)) {
+public boolean keyDown(int keycode) {
+    if (super.keyDown(keycode)) {
+        return true;
+    } else if (keycode == Input.Keys.BACK || keycode == Input.Keys.ESCAPE) {
         return true;
     }
 
