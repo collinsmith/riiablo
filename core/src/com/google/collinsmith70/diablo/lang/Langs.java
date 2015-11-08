@@ -31,4 +31,15 @@ public static class MenuScene {
 
 }
 
+public static class OptionsPanel {
+
+    private OptionsPanel() {
+        //...
+    }
+
+    public static final String tab_general = "tab_general";
+    public static final String tab_graphics = "tab_graphics";
+    public static final String tab_sound = "tab_sound";
+}
+
 }
