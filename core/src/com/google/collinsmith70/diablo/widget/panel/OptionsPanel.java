@@ -6,11 +6,15 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.google.collinsmith70.diablo.Client;
 import com.google.collinsmith70.diablo.asset.Assets;
@@ -36,6 +40,8 @@ private ButtonGroup<TextButton> tabsButtonGroup;
 private TextButton btnTabGeneral;
 private TextButton btnTabGraphics;
 private TextButton btnTabSound;
+
+private Slider soundVolumeSlider;
 
 public OptionsPanel(Client client) {
     super(client);
@@ -112,6 +118,26 @@ public void create() {
             OptionsPanel.this.btnTabSound.setText(i18nBundle.get(Langs.OptionsPanel.tab_sound));
         }
     });
+
+    Skin sliderSkin = new Skin();
+    sliderSkin.add("background", new Texture(Gdx.files.internal("textures/sliderBackground.png")));
+    sliderSkin.add("knob", new Texture(Gdx.files.internal("textures/sliderSelector.png")));
+    Slider.SliderStyle sliderStyle = new Slider.SliderStyle();
+    sliderStyle.background = sliderSkin.getDrawable("background");
+    sliderStyle.knob = sliderSkin.getDrawable("knob");
+
+    soundVolumeSlider = new Slider(0.0f, 1.0f, 0.01f, false, sliderStyle);
+    soundVolumeSlider.setWidth(290.0f);
+    soundVolumeSlider.setValue(Cvars.Client.Sound.Music.Volume.getValue());
+    soundVolumeSlider.addListener(new ChangeListener() {
+        @Override
+        public void changed(ChangeEvent event, Actor actor) {
+            Cvars.Client.Sound.Music.Volume.setValue(soundVolumeSlider.getValue());
+        }
+    });
+    ActorUtils.centerAt(soundVolumeSlider, getClient().getVirtualWidth()/2, getClient().getVirtualHeight()/2);
+    addActor(soundVolumeSlider);
+
 }
 
 @Override
