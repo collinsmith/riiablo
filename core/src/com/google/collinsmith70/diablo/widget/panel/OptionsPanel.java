@@ -6,10 +6,13 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -42,6 +45,7 @@ private TextButton btnTabGraphics;
 private TextButton btnTabSound;
 
 private Slider soundVolumeSlider;
+private Actor currentFocus;
 
 public OptionsPanel(Client client) {
     super(client);
@@ -119,12 +123,21 @@ public void create() {
         }
     });
 
+    Pixmap solidColorPixmap = new Pixmap(1, 28, Pixmap.Format.RGBA8888);
+    solidColorPixmap.setColor(0.75f, 0.0f, 0.0f, 0.5f);
+    solidColorPixmap.fill();
+
     Skin sliderSkin = new Skin();
     sliderSkin.add("background", new Texture(Gdx.files.internal("textures/sliderBackground.png")));
     sliderSkin.add("knob", new Texture(Gdx.files.internal("textures/sliderSelector.png")));
+    sliderSkin.add("knobBefore", new Texture(solidColorPixmap));
     Slider.SliderStyle sliderStyle = new Slider.SliderStyle();
-    sliderStyle.background = sliderSkin.getDrawable("background");
     sliderStyle.knob = sliderSkin.getDrawable("knob");
+    sliderStyle.knobBefore = sliderSkin.getDrawable("knobBefore");
+    sliderStyle.background = sliderSkin.getDrawable("background");
+
+    solidColorPixmap.dispose();
+    solidColorPixmap = null;
 
     soundVolumeSlider = new Slider(0.0f, 1.0f, 0.01f, false, sliderStyle);
     soundVolumeSlider.setWidth(290.0f);
@@ -135,7 +148,18 @@ public void create() {
             Cvars.Client.Sound.Music.Volume.setValue(soundVolumeSlider.getValue());
         }
     });
-    ActorUtils.centerAt(soundVolumeSlider, getClient().getVirtualWidth()/2, getClient().getVirtualHeight()/2);
+    soundVolumeSlider.addListener(new InputListener() {
+        @Override
+        public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            currentFocus = soundVolumeSlider;
+        }
+
+        @Override
+        public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            currentFocus = null;
+        }
+    });
+    ActorUtils.centerAt(soundVolumeSlider, getClient().getVirtualWidth() / 2, getClient().getVirtualHeight() / 2);
     addActor(soundVolumeSlider);
 
 }
@@ -152,4 +176,21 @@ public boolean keyDown(int keycode) {
     }
 }
 
+@Override
+public boolean scrolled(int amount) {
+    if (soundVolumeSlider.equals(currentFocus)) {
+        switch (amount) {
+            case -1:
+                soundVolumeSlider.setValue(soundVolumeSlider.getValue()+soundVolumeSlider.getStepSize());
+                break;
+            case 1:
+                soundVolumeSlider.setValue(soundVolumeSlider.getValue()-soundVolumeSlider.getStepSize());
+                break;
+        }
+
+        return true;
+    }
+
+    return super.scrolled(amount);
+}
 }
