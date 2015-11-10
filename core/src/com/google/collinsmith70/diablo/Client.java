@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.I18NBundle;
-import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.google.collinsmith70.diablo.asset.Assets;
 import com.google.collinsmith70.diablo.asset.loader.VolumeControlledMusicLoader;
@@ -136,8 +135,8 @@ public void create() {
     Commands.loadAll();
     Cvars.loadAll();
     if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
-        Timer.schedule(new ControllerDetectorTask(), 1.0f, 1.0f)
-                .run();
+        //Timer.schedule(new ControllerDetectorTask(), 1.0f, 1.0f)
+        //        .run();
     }
 
     this.STAGE = new Stage();
