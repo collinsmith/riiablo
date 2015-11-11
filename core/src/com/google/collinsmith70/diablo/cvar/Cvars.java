@@ -109,6 +109,10 @@ public static class Client {
         public static final Cvar<Boolean> AnimationBounds = new Cvar<Boolean>(
                 "Client.Render.AnimationBounds",
                 Boolean.class, Boolean.FALSE);
+
+        public static final Cvar<Float> Scale = new Cvar<Float>(
+                "Client.Render.Scale",
+                Float.class, 1.0f);
     }
 
     public static class Overlay {
