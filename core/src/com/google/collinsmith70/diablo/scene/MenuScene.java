@@ -126,6 +126,23 @@ public void create() {
             MenuScene.this.btnExitGame.setText(i18nBundle.get(Langs.MenuScene.exit_diablo));
         }
     });
+
+    Cvars.Client.Render.Scale.addCvarChangeListener(new CvarChangeListener<Float>() {
+        @Override
+        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
+            final float xPos = getClient().getVirtualWidth()/2;
+            float yPos = getClient().getVirtualHeight()/4;
+            btnExitGame.setSize(btnExitGame.getWidth()*toValue, btnExitGame.getHeight()*toValue);
+            ActorUtils.centerAt(btnExitGame, xPos, yPos);
+            final float yAdjust = btnExitGame.getHeight()+2;
+            yPos += yAdjust;
+            btnShowOptions.setSize(btnShowOptions.getWidth() * toValue, btnShowOptions.getHeight() * toValue);
+            ActorUtils.centerAt(btnShowOptions, xPos, yPos);
+            yPos += yAdjust;
+            btnPlaySinglePlayer.setSize(btnPlaySinglePlayer.getWidth() * toValue, btnPlaySinglePlayer.getHeight() * toValue);
+            ActorUtils.centerAt(btnPlaySinglePlayer, xPos, yPos);
+        }
+    });
 }
 
 @Override
