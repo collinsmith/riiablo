@@ -14,6 +14,6 @@ public class AndroidLauncher extends AndroidApplication {
         config.numSamples = 2;
         config.useAccelerometer = false;
         config.useCompass = false;
-		initialize(new Client(1280/2, 720/2), config);
+		initialize(new Client(1280, 720), config);
 	}
 }
