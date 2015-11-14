@@ -6,32 +6,33 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.SoundLoader;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
+import com.google.collinsmith70.diablo.audio.VolumeControlled;
 import com.google.collinsmith70.diablo.audio.VolumeController;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 
-public class VolumeControlledSoundLoader extends SoundLoader implements com.google.collinsmith70.diablo.audio.VolumeControlled<Sound> {
+public class VolumeControlledSoundLoader extends SoundLoader implements VolumeControlled<Sound> {
 
-private com.google.collinsmith70.diablo.audio.VolumeController<Sound> volumeController;
+private VolumeController<Sound> volumeController;
 private Sound sound;
 
 public VolumeControlledSoundLoader(FileHandleResolver resolver) {
     super(resolver);
 }
 
-public VolumeControlledSoundLoader(FileHandleResolver resolver, com.google.collinsmith70.diablo.audio.VolumeController<Sound> controller) {
+public VolumeControlledSoundLoader(FileHandleResolver resolver, VolumeController<Sound> controller) {
     super(resolver);
     setVolumeController(controller);
 }
 
 @Override
-public void setVolumeController(com.google.collinsmith70.diablo.audio.VolumeController<Sound> controller) {
+public void setVolumeController(VolumeController<Sound> controller) {
     this.volumeController = Objects.requireNonNull(controller);
 }
 
 @Override
-public com.google.collinsmith70.diablo.audio.VolumeController<Sound> getVolumeController() {
+public VolumeController<Sound> getVolumeController() {
     return volumeController;
 }
 
