@@ -30,6 +30,7 @@ public static void loadAll() {
     Client.Render.Windowed.load();
     Client.Render.VSync.load();
     Client.Render.AnimationBounds.load();
+    Client.Render.Scale.load();
 
     Client.Input.Vibrations.load();
 }
