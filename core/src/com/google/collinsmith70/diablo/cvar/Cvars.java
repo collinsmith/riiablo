@@ -3,6 +3,7 @@ package com.google.collinsmith70.diablo.cvar;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class Cvars {
@@ -12,29 +13,18 @@ private Cvars() {
 }
 
 public static void loadAll() {
-    Client.Locale.load();
+    init(Cvars.class);
+}
 
-    Client.Sound.Enabled.load();
-    Client.Sound.Sfx.Enabled.load();
-    Client.Sound.Sfx.Volume.load();
-    Client.Sound.Music.Enabled.load();
-    Client.Sound.Music.Volume.load();
+public static void init(Class<?> clazz) {
+    // Hack to instantiate all Cvars
+    for (Field field : clazz.getFields()) {
+        //...
+    }
 
-    Client.Overlay.ShowFps.load();
-    Client.Overlay.ConsoleFont.load();
-    Client.Overlay.ConsoleFontColor.a.load();
-    Client.Overlay.ConsoleFontColor.r.load();
-    Client.Overlay.ConsoleFontColor.g.load();
-    Client.Overlay.ConsoleFontColor.b.load();
-
-    Client.Render.Windowed.load();
-    Client.Render.VSync.load();
-    Client.Render.AnimationBounds.load();
-    Client.Render.Scale.load();
-    Client.Render.Gamma.load();
-    Client.Render.Brightness.load();
-
-    Client.Input.Vibrations.load();
+    for (Class subclass : clazz.getClasses()) {
+        init(subclass);
+    }
 }
 
 public static class Client {
