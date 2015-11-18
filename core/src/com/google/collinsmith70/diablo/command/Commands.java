@@ -5,14 +5,23 @@ import com.google.collinsmith70.diablo.Client;
 import com.google.collinsmith70.diablo.command.resolver.CvarParameterResolver;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 
+import java.lang.reflect.Field;
+
 public class Commands {
 
 public static void loadAll() {
-    EXIT.load();
-    CLEAR.load();
-    HELP.load();
-    CVARS.load();
-    RESET.load();
+    init(Commands.class);
+}
+
+public static void init(Class<?> clazz) {
+    // Hack to instantiate all Cvars
+    for (Field field : clazz.getFields()) {
+        //...
+    }
+
+    for (Class subclass : clazz.getClasses()) {
+        init(subclass);
+    }
 }
 
 private static final String TAG = Commands.class.getSimpleName();
