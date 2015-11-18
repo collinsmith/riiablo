@@ -31,6 +31,8 @@ public static void loadAll() {
     Client.Render.VSync.load();
     Client.Render.AnimationBounds.load();
     Client.Render.Scale.load();
+    Client.Render.Gamma.load();
+    Client.Render.Brightness.load();
 
     Client.Input.Vibrations.load();
 }
@@ -113,6 +115,14 @@ public static class Client {
 
         public static final Cvar<Float> Scale = new Cvar<Float>(
                 "Client.Render.Scale",
+                Float.class, 1.0f);
+
+        public static final Cvar<Float> Gamma = new Cvar<Float>(
+                "Client.Render.Gamma",
+                Float.class, 1.0f);
+
+        public static final Cvar<Float> Brightness = new Cvar<Float>(
+                "Client.Render.Brightness",
                 Float.class, 1.0f);
     }
 
