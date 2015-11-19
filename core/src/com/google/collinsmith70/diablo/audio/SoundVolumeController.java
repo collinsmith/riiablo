@@ -31,14 +31,14 @@ public SoundVolumeController() {
         }
     });
 
-    Cvars.Client.Sound.Sfx.Enabled.addCvarChangeListener(new CvarChangeListener<Boolean>() {
+    Cvars.Client.Sound.Effects.Enabled.addCvarChangeListener(new CvarChangeListener<Boolean>() {
         @Override
         public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
             SoundVolumeController.this.setEnabled(toValue);
         }
     });
 
-    Cvars.Client.Sound.Sfx.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
+    Cvars.Client.Sound.Effects.Volume.addCvarChangeListener(new CvarChangeListener<Float>() {
         @Override
         public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
             SoundVolumeController.this.setVolume(toValue);

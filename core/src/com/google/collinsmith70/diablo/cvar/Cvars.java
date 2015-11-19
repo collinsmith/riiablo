@@ -57,17 +57,31 @@ public static class Client {
                 "Client.Sound.Enabled",
                 Boolean.class, Boolean.TRUE);
 
-        public static class Sfx {
-            private Sfx() {
+        public static class Effects {
+            private Effects() {
                 //...
             }
 
             public static final Cvar<Boolean> Enabled = new Cvar<Boolean>(
-                    "Client.Sound.Sfx.Enabled",
+                    "Client.Sound.Effects.Enabled",
                     Boolean.class, Boolean.TRUE);
 
             public static final Cvar<Float> Volume = new Cvar<Float>(
-                    "Client.Sound.Sfx.Volume",
+                    "Client.Sound.Effects.Volume",
+                    Float.class, 1.0f);
+        }
+
+        public static class Environment {
+            private Environment() {
+                //...
+            }
+
+            public static final Cvar<Boolean> Enabled = new Cvar<Boolean>(
+                    "Client.Sound.Environment.Enabled",
+                    Boolean.class, Boolean.TRUE);
+
+            public static final Cvar<Float> Volume = new Cvar<Float>(
+                    "Client.Sound.Environment.Volume",
                     Float.class, 1.0f);
         }
 
