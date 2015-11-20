@@ -187,6 +187,20 @@ public void create() {
         }
     });
 
+    Cvars.Client.Render.Brightness.addCvarChangeListener(new CvarChangeListener<Float>() {
+        @Override
+        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
+            //...
+        }
+    });
+
+    Cvars.Client.Render.Gamma.addCvarChangeListener(new CvarChangeListener<Float>() {
+        @Override
+        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
+            //...
+        }
+    });
+
     this.COMMAND_PROCESSOR = new ClientCommandProcessor(this);
 
     FileHandleResolver resolver = new InternalFileHandleResolver();
