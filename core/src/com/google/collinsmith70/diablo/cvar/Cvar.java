@@ -15,7 +15,6 @@ import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -36,7 +35,7 @@ public static SortedMap<String, Cvar<?>> search(String key) {
 }
 
 public static Cvar<?> get(String key) {
-    return CVARS.get(key);
+    return CVARS.get(key.toLowerCase());
 }
 
 public static Collection<Cvar<?>> getCvars() {
@@ -71,7 +70,17 @@ public Cvar(String key, Class<T> type, T defaultValue) {
 }
 
 public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
-    this.KEY = Objects.toString(key, "");
+    this.KEY = key;
+    if (getKey() == null) {
+        throw new IllegalArgumentException("Key aliases cannot be null");
+    } else if (getKey().isEmpty()) {
+        throw new IllegalArgumentException("Key aliases cannot be empty");
+    } else if (Cvar.CVARS.containsKey(getKey())) {
+        throw new IllegalArgumentException(String.format(
+                "Cvar %s already exists. Cvar keys must be unique!",
+                getKey()));
+    }
+
     this.DEFAULT_VALUE = defaultValue;
     this.TYPE = type != null ? type : (Class<T>)getDefaultValue().getClass();
     this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
@@ -117,7 +126,7 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
                 getType().getName()));
     }
 
-    Cvar.CVARS.put(getKey(), this); // potentially unsafe (technically object is not constructed yet)
+    Cvar.CVARS.put(getKey().toLowerCase(), this); // potentially unsafe (technically object is not constructed yet)
 }
 
 public void addCvarChangeListener(CvarChangeListener<T> l) {
