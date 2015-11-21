@@ -23,6 +23,7 @@ import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.collinsmith70.diablo.key.Keys;
 import com.google.collinsmith70.diablo.lang.Langs;
 import com.google.collinsmith70.diablo.scene.AbstractScene;
 import com.google.collinsmith70.diablo.scene.SplashScene;
@@ -134,6 +135,7 @@ public boolean isVibratingEnabled() {
 public void create() {
     Commands.loadAll();
     Cvars.loadAll();
+    Keys.loadAll();
     if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
         //Timer.schedule(new ControllerDetectorTask(), 1.0f, 1.0f)
         //        .run();
