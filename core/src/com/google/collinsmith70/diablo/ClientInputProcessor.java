@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
+import com.google.collinsmith70.diablo.key.Keys;
 
 import java.util.Objects;
 
@@ -28,6 +29,15 @@ public Client getClient() {
  */
 @Override
 public boolean keyDown(int keycode) {
+    if (Keys.CONSOLE.containsKey(keycode)) {
+        CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
+        if (Gdx.app.getType() == Application.ApplicationType.Android) {
+            Gdx.input.setOnscreenKeyboardVisible(CLIENT.getConsole().isVisible());
+        }
+
+        return true;
+    }
+
     switch (keycode) {
         case Input.Keys.GRAVE:
             CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
@@ -95,8 +105,7 @@ public boolean keyUp(int keycode) {
  */
 @Override
 public boolean keyTyped(char ch) {
-    // TODO: Implement KeyMap structure similar to CVars
-    if (ch == '`') {
+    if (Keys.CONSOLE.containsKey(ch)) {
         return true;
     } else if (CLIENT.getConsole().isVisible()) {
         CLIENT.getConsole().keyTyped(ch);
