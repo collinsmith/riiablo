@@ -25,7 +25,7 @@ public boolean process(String command) {
     String[] args = command.split("\\s+");
     Command cmd = Command.get(args[0]);
     if (cmd != null) {
-        if (cmd.getNumParamters() == args.length-1) {
+        if (cmd.getNumRequiredParameters() <= args.length-1) {
             cmd.execute(getClient(), args);
         } else {
             getClient().getConsole().log(String.format("Bad syntax, expected \"%s\"", cmd));
