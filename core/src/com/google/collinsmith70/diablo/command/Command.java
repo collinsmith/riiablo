@@ -61,15 +61,22 @@ public String getCommand() {
 }
 
 public void execute(Client client, String[] args) {
-    for (int i = 1; i <= getNumParamters(); i++) {
+    for (int i = 1; i <= getNumRequiredParameters(); i++) {
         getResolver(i-1).resolve(args[i]);
     }
 
     ACTION.onActionExecuted(client, args);
 }
 
-public int getNumParamters() {
-    return getResolvers().length;
+public int getNumRequiredParameters() {
+    int requiredParameters = 0;
+    for (ParameterResolver pr : getResolvers()) {
+        if (!(pr instanceof OptionalParameterResolver)) {
+            requiredParameters++;
+        }
+    }
+
+    return requiredParameters;
 }
 
 public ParameterResolver getResolver(int i) {
@@ -83,7 +90,11 @@ private ParameterResolver[] getResolvers() {
 private String getParametersHint() {
     StringBuilder sb = new StringBuilder();
     for (ParameterResolver pr : getResolvers()) {
-        sb.append(String.format("<%s> ", pr));
+        if (pr instanceof OptionalParameterResolver) {
+            sb.append(String.format("[%s] ", pr));
+        } else {
+            sb.append(String.format("<%s> ", pr));
+        }
     }
 
     return sb.toString().trim();
@@ -95,7 +106,7 @@ public void load() {
 
 @Override
 public String toString() {
-    if (getNumParamters() == 0) {
+    if (getNumRequiredParameters() == 0) {
         return getCommand();
     }
 
