@@ -38,35 +38,32 @@ public boolean keyDown(int keycode) {
         return true;
     }
 
-    switch (keycode) {
-        case Input.Keys.GRAVE:
-            CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
-            if (Gdx.app.getType() == Application.ApplicationType.Android) {
-                Gdx.input.setOnscreenKeyboardVisible(CLIENT.getConsole().isVisible());
-            }
+    if (CLIENT.getConsole().isVisible()) {
+        switch (keycode) {
+            case Input.Keys.LEFT:
+            case Input.Keys.RIGHT:
+            case Input.Keys.UP:
+            case Input.Keys.DOWN:
+            case Input.Keys.TAB:
+                if (CLIENT.getConsole().isVisible()) {
+                    return CLIENT.getConsole().keyDown(keycode);
+                }
 
-            return true;
-        case Input.Keys.LEFT:
-        case Input.Keys.RIGHT:
-        case Input.Keys.UP:
-        case Input.Keys.DOWN:
-        case Input.Keys.TAB:
-            if (CLIENT.getConsole().isVisible()) {
-                return CLIENT.getConsole().keyDown(keycode);
-            }
+                break;
+            case Input.Keys.MENU:
+                CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
+                break;
+            case Input.Keys.ESCAPE:
+            case Input.Keys.BACK:
+                if (CLIENT.getConsole().isVisible()) {
+                    CLIENT.getConsole().setVisible(false);
+                    return true;
+                }
 
-            break;
-        case Input.Keys.MENU:
-            CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
-            break;
-        case Input.Keys.ESCAPE:
-        case Input.Keys.BACK:
-            if (CLIENT.getConsole().isVisible()) {
-                CLIENT.getConsole().setVisible(false);
+                break;
+            default:
                 return true;
-            }
-
-            break;
+        }
     }
 
     if (getClient().getStage() != null && getClient().getStage().keyDown(keycode)) {
