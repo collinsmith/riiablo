@@ -84,6 +84,10 @@ public boolean keyDown(int keycode) {
  */
 @Override
 public boolean keyUp(int keycode) {
+    if (CLIENT.getConsole().isVisible()) {
+        return true;
+    }
+
     if (getClient().getStage() != null && getClient().getStage().keyUp(keycode)) {
         return true;
     } else if (getClient().getScene() != null && getClient().getScene().keyUp(keycode)) {
@@ -156,6 +160,10 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
  */
 @Override
 public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    if (CLIENT.getConsole().isVisible()) {
+        return true;
+    }
+
     if (getClient().getStage() != null && getClient().getStage().touchUp(screenX, screenY, pointer, button)) {
         return true;
     } else if (getClient().getScene() != null && getClient().getScene().touchUp(screenX, screenY, pointer, button)) {
@@ -174,6 +182,10 @@ public boolean touchUp(int screenX, int screenY, int pointer, int button) {
  */
 @Override
 public boolean touchDragged(int screenX, int screenY, int pointer) {
+    if (CLIENT.getConsole().isVisible()) {
+        return true;
+    }
+
     if (getClient().getStage() != null && getClient().getStage().touchDragged(screenX, screenY, pointer)) {
         return true;
     } else if (getClient().getScene() != null && getClient().getScene().touchDragged(screenX, screenY, pointer)) {
@@ -193,6 +205,10 @@ public boolean touchDragged(int screenX, int screenY, int pointer) {
  */
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
+    if (CLIENT.getConsole().isVisible()) {
+        return true;
+    }
+
     if (getClient().getStage() != null && getClient().getStage().mouseMoved(screenX, screenY)) {
         return true;
     } else if (getClient().getScene() != null && getClient().getScene().mouseMoved(screenX, screenY)) {
