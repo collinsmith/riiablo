@@ -353,23 +353,26 @@ public boolean keyTyped(char ch, boolean updateLookup) {
         case '\r':
         case '\n':
             boolean commandHandled = false;
-            String command = consoleBuffer.toString();
-            if (command.isEmpty()) {
+            String bufferContents = consoleBuffer.toString();
+            if (bufferContents.isEmpty()) {
                 return true;
             }
 
-            HISTORY.addLast(command);
-            log(commandPrefix + " " + command);
-            historyIterator = ImmutableList.copyOf(HISTORY).listIterator();
-            for (CommandProcessor p : commandProcessors) {
-                if (p.process(command)) {
-                    commandHandled = true;
-                    break;
+            HISTORY.addLast(bufferContents);
+            String[] commands = bufferContents.split(";");
+            for (String command : commands) {
+                log(commandPrefix + " " + command);
+                historyIterator = ImmutableList.copyOf(HISTORY).listIterator();
+                for (CommandProcessor p : commandProcessors) {
+                    if (p.process(command)) {
+                        commandHandled = true;
+                        break;
+                    }
                 }
-            }
 
-            if (!commandHandled) {
-                Gdx.app.log(TAG, String.format("Unrecognized command: \"%s\"", command));
+                if (!commandHandled) {
+                    Gdx.app.log(TAG, String.format("Unrecognized command: \"%s\"", command));
+                }
             }
 
             clearBuffer();
@@ -389,7 +392,7 @@ public boolean keyTyped(char ch, boolean updateLookup) {
         case 'K':case 'L':case 'M':case 'N':case 'O':case 'P':case 'Q':case 'R':case 'S':case 'T':
         case 'U':case 'V':case 'W':case 'X':case 'Y':case 'Z':
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
-        case '-':case '_':case '.':case ' ':case '>':case '<':case '?':case '\"':
+        case '-':case '_':case '.':case ' ':case '>':case '<':case '?':case ';':case '\"':
             consoleBuffer.insert(caretPosition++, ch);
             updateCaret(updateLookup);
             return true;
