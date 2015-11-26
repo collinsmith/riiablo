@@ -39,9 +39,8 @@ public boolean keyDown(int keycode) {
     }
 
     if (CLIENT.getConsole().isVisible()) {
-        if (CLIENT.getConsole().keyDown(keycode)) {
-            return true;
-        }
+        CLIENT.getConsole().keyDown(keycode);
+        return true;
     }
 
     switch (keycode) {
