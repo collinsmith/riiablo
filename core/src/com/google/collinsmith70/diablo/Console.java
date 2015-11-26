@@ -164,6 +164,11 @@ public String getBuffer() {
 
 public boolean keyDown(int keycode) {
     switch (keycode) {
+        case Input.Keys.MENU:
+        case Input.Keys.ESCAPE:
+        case Input.Keys.BACK:
+            setVisible(false);
+            return true;
         case Input.Keys.LEFT:
             caretPosition = Math.max(caretPosition - 1, 0);
             updateCaret();
