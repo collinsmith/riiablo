@@ -59,4 +59,8 @@ public String getBuffer() {
     return buffer.toString();
 }
 
+public String[] split() {
+    return buffer.toString().split(";");
+}
+
 }
