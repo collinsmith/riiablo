@@ -111,6 +111,10 @@ public boolean containsKey(int keycode) {
     return VALUES.contains(keycode);
 }
 
+public boolean containsKey(char ch) {
+    return containsKey(Input.Keys.valueOf(Character.toString(ch)));
+}
+
 @Override
 public String toString() {
     return String.format("%s = %s", getAlias(), getKeysString());
