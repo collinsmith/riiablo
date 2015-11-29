@@ -209,6 +209,7 @@ private static class Caret {
             return;
         }
 
+        // TODO: underscore should match width of above character
         font.draw(batch, "_", glyphs.width - 4, height);
     }
 
