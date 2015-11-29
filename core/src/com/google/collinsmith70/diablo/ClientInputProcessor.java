@@ -1,10 +1,8 @@
 package com.google.collinsmith70.diablo;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.InputProcessor;
 import com.google.collinsmith70.diablo.key.Keys;
 
 import java.util.Objects;
@@ -31,16 +29,16 @@ public Client getClient() {
 public boolean keyDown(int keycode) {
     if (Keys.CONSOLE.containsKey(keycode)) {
         CLIENT.getConsole().setVisible(!CLIENT.getConsole().isVisible());
-        if (Gdx.app.getType() == Application.ApplicationType.Android) {
-            Gdx.input.setOnscreenKeyboardVisible(CLIENT.getConsole().isVisible());
+        return true;
+    } else if (CLIENT.getConsole().isVisible()) {
+        switch (keycode) {
+            case Input.Keys.BACK:
+                CLIENT.getConsole().setVisible(false);
+                return true;
+            default:
+                CLIENT.getConsole().keyDown(keycode);
+                return true;
         }
-
-        return true;
-    }
-
-    if (CLIENT.getConsole().isVisible()) {
-        CLIENT.getConsole().keyDown(keycode);
-        return true;
     }
 
     switch (keycode) {
@@ -70,6 +68,7 @@ public boolean keyDown(int keycode) {
 @Override
 public boolean keyUp(int keycode) {
     if (CLIENT.getConsole().isVisible()) {
+        CLIENT.getConsole().keyUp(keycode);
         return true;
     }
 
@@ -78,6 +77,7 @@ public boolean keyUp(int keycode) {
     } else if (getClient().getScene() != null && getClient().getScene().keyUp(keycode)) {
         return true;
     }
+
 
     return false;
 }
@@ -121,7 +121,7 @@ public boolean keyTyped(char ch) {
 @Override
 public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     if (CLIENT.getConsole().isVisible()) {
-        Gdx.input.setOnscreenKeyboardVisible(true);
+        CLIENT.getConsole().touchDown(screenX, screenY, pointer, button);
         return true;
     }
 
@@ -146,6 +146,7 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 @Override
 public boolean touchUp(int screenX, int screenY, int pointer, int button) {
     if (CLIENT.getConsole().isVisible()) {
+        CLIENT.getConsole().touchUp(screenX, screenY, pointer, button);
         return true;
     }
 
@@ -168,6 +169,7 @@ public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 @Override
 public boolean touchDragged(int screenX, int screenY, int pointer) {
     if (CLIENT.getConsole().isVisible()) {
+        CLIENT.getConsole().touchDragged(screenX, screenY, pointer);
         return true;
     }
 
@@ -191,6 +193,7 @@ public boolean touchDragged(int screenX, int screenY, int pointer) {
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
     if (CLIENT.getConsole().isVisible()) {
+        CLIENT.getConsole().mouseMoved(screenX, screenY);
         return true;
     }
 
@@ -213,7 +216,8 @@ public boolean mouseMoved(int screenX, int screenY) {
 @Override
 public boolean scrolled(int amount) {
     if (CLIENT.getConsole().isVisible()) {
-        return CLIENT.getConsole().scrolled(amount);
+        CLIENT.getConsole().scrolled(amount);
+        return true;
     }
 
     if (getClient().getStage() != null && getClient().getStage().scrolled(amount)) {
