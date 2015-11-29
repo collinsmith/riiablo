@@ -42,7 +42,7 @@ private ClientInputProcessor INPUT_PROCESSOR;
 private ClientCommandProcessor COMMAND_PROCESSOR;
 private AssetManager ASSET_MANAGER;
 private Stage STAGE;
-private Console CONSOLE;
+private ConsoleView CONSOLE;
 private MusicController MUSIC_CONTROLLER;
 
 private AbstractScene scene;
@@ -116,7 +116,7 @@ public AssetManager getAssetManager() {
     return ASSET_MANAGER;
 }
 
-public Console getConsole() {
+public ConsoleView getConsole() {
     return CONSOLE;
 }
 
@@ -210,7 +210,7 @@ public void create() {
     setAssetLoaders(resolver);
     loadCommonAssets();
 
-    this.CONSOLE = new Console(this);
+    this.CONSOLE = new ConsoleView(this);
     CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
 
     this.MUSIC_CONTROLLER = new MusicController(getAssetManager());
