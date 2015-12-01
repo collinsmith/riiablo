@@ -7,8 +7,10 @@ import com.badlogic.gdx.utils.StringBuilder;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.collinsmith70.diablo.util.FixedArrayCache;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -19,6 +21,7 @@ private static final int CONSOLE_BUFFER_SIZE = 256;
 
 private final Client CLIENT;
 private final PrintStream OUTPUT_STREAM;
+private final Collection<String> OUTPUT;
 private final Set<CommandProcessor> COMMAND_PROCESSORS;
 
 private StringBuilder buffer;
@@ -32,8 +35,18 @@ public Console(Client client) {
 
 public Console(Client client, PrintStream outputStream) {
     this.CLIENT = client;
-    this.OUTPUT_STREAM = outputStream;
     this.COMMAND_PROCESSORS = new CopyOnWriteArraySet<CommandProcessor>();
+    this.OUTPUT = new FixedArrayCache<String>(1024);
+    this.OUTPUT_STREAM = new PrintStream(outputStream, true) {
+        @Override
+        public void println(String x) {
+            super.println(x);
+            Console.this.OUTPUT.add(x);
+            for (String str : Console.this.OUTPUT) {
+                Gdx.app.log("TEST", str);
+            }
+        }
+    };
 
     Cvars.Client.Overlay.CommandPrefix.addCvarChangeListener(new CvarChangeListener<String>() {
         @Override
@@ -51,6 +64,10 @@ public Client getClient() {
 
 public PrintStream getOutputStream() {
     return OUTPUT_STREAM;
+}
+
+public Collection<String> getOutput() {
+    return OUTPUT;
 }
 
 public String getBufferPrefix() {
