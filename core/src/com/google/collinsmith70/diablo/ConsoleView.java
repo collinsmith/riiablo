@@ -14,6 +14,8 @@ import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
 
+import java.io.PrintStream;
+
 public class ConsoleView extends Console implements Disposable {
 
 private final Caret CARET;
@@ -21,10 +23,16 @@ private final Texture modelBackgroundTexture;
 
 private boolean isVisible;
 private BitmapFont font;
-private float outputOffset;
+private int outputOffset;
+
+private float height;
 
 public ConsoleView(Client client) {
-    super(client);
+    this(client, System.out);
+}
+
+public ConsoleView(Client client, PrintStream outputStream) {
+    super(client, outputStream);
     this.isVisible = false;
 
     this.CARET = new Caret();
@@ -105,6 +113,18 @@ public void render(Batch b) {
 
     glyphs.setText(font, getBufferPrefix() + " " + getBuffer().substring(0, getPosition()));
     CARET.render(b, font, glyphs, getClient().getVirtualHeight() - 1);
+
+    float position = font.getLineHeight();
+    int skip = outputOffset;
+    for (String line : getOutput()) {
+        if (skip >= 0) {
+            skip--;
+            continue;
+        }
+
+        font.draw(b, line, 0.0f, position);
+        position += font.getLineHeight();
+    }
 }
 
 @Override
@@ -116,14 +136,14 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 public boolean scrolled(int amount) {
     switch (amount) {
         case -1:
-            //outputOffset = Math.min(
-            //        outputOffset + font.getLineHeight(),
-            //        getClient().getVirtualHeight() - 2*font.getLineHeight());
+            outputOffset = Math.min(
+                    outputOffset + 1,
+                    getOutput().size());
             break;
         case 1:
-            //outputOffset = Math.max(
-            //        outputOffset - font.getLineHeight(),
-            //        getClient().getVirtualHeight() - (getOutputStream() * font.getLineHeight()));
+            outputOffset = Math.max(
+                    outputOffset - 1,
+                    0);
             break;
     }
 
