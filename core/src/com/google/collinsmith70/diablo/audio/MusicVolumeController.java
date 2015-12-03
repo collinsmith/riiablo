@@ -1,6 +1,5 @@
 package com.google.collinsmith70.diablo.audio;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
@@ -54,7 +53,8 @@ public boolean isEnabled() {
 @Override
 public void setEnabled(boolean enabled) {
     this.musicEnabled = enabled;
-    Gdx.app.log(TAG, "Music " + (musicEnabled ? "enabled" : "disabled"));
+    refreshVolume();
+    //Gdx.app.log(TAG, "Music " + (musicEnabled ? "enabled" : "disabled"));
 }
 
 @Override
@@ -68,7 +68,7 @@ public float getVolume() {
 
 @Override
 public void setVolume(float volume) {
-    Gdx.app.log(TAG, "Updating music volume to " + volume);
+    //Gdx.app.log(TAG, "Updating music volume to " + volume);
     this.musicVolume = volume;
     refreshVolume();
 }

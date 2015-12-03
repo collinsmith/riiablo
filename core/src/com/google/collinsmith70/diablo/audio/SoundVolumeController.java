@@ -1,6 +1,5 @@
 package com.google.collinsmith70.diablo.audio;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
@@ -54,7 +53,8 @@ public boolean isEnabled() {
 @Override
 public void setEnabled(boolean enabled) {
     this.soundEnabled = enabled;
-    Gdx.app.log(TAG, "Sound " + (soundEnabled ? "enabled" : "disabled"));
+    refreshVolume();
+    //Gdx.app.log(TAG, "Sound " + (soundEnabled ? "enabled" : "disabled"));
 }
 
 @Override
@@ -68,7 +68,7 @@ public float getVolume() {
 
 @Override
 public void setVolume(float volume) {
-    Gdx.app.log(TAG, "Updating sound volume to " + volume);
+    //Gdx.app.log(TAG, "Updating sound volume to " + volume);
     this.soundVolume = volume;
     refreshVolume();
 }
@@ -79,12 +79,12 @@ private void refreshVolume() {
 
 @Override
 public void addManagedSound(WeakReference<Sound> sound) {
-managedSounds.add(sound);
+    managedSounds.add(sound);
 }
 
 @Override
 public boolean removeManagedSound(Object o) {
-return managedSounds.remove(o);
+    return managedSounds.remove(o);
 }
 
 }
