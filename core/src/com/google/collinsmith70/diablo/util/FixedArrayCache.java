@@ -50,6 +50,7 @@ public void push(V obj) {
     size = Math.min(data.length, size + 1);
 }
 
+@SuppressWarnings("unchecked")
 protected V get(int i) {
     return (V)data[i];
 }
@@ -97,7 +98,7 @@ public Iterator<V> iterator() {
 
 @Override
 public boolean contains(Object o) {
-    return false;
+    throw new UnsupportedOperationException("Not supported.");
 }
 
 @Override
@@ -106,7 +107,9 @@ public Object[] toArray() {
 }
 
 @Override
+@SuppressWarnings("unchecked")
 public <T> T[] toArray(T[] a) {
+    // TODO: validate that a is a superclass of "V"
     return Arrays.copyOf((T[])data, data.length);
 }
 
