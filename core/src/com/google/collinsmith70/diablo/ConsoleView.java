@@ -109,12 +109,12 @@ public void render(Batch b) {
     }
 
     b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), getClient().getVirtualHeight());
-    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, getClient().getVirtualHeight());
+    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, font.getLineHeight());
 
     glyphs.setText(font, getBufferPrefix() + " " + getBuffer().substring(0, getPosition()));
-    CARET.render(b, font, glyphs, getClient().getVirtualHeight() - 1);
+    CARET.render(b, font, glyphs, font.getLineHeight() - 1);
 
-    float position = font.getLineHeight();
+    float position = font.getLineHeight() * 2;
     int skip = outputOffset;
     for (String line : getOutput()) {
         if (skip >= 0) {
