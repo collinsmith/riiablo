@@ -130,19 +130,19 @@ public static class Client {
                 Float.class, 1.0f);
     }
 
-    public static class Overlay {
-        private Overlay() {
+    public static class Console {
+        private Console() {
             //...
         }
 
         public static final Cvar<String> CommandPrefix
                 = new Cvar<String>(
-                "Client.Overlay.CommandPrefix",
+                "Client.Console.CommandPrefix",
                 String.class, ">");
 
-        public static final Cvar<AssetDescriptor<BitmapFont>> ConsoleFont
+        public static final Cvar<AssetDescriptor<BitmapFont>> Font
                 = new Cvar<AssetDescriptor<BitmapFont>>(
-                "Client.Overlay.ConsoleFont",
+                "Client.Console.Font",
                 null,
                 new AssetDescriptor<BitmapFont>("default.fnt", BitmapFont.class),
                 new CvarLoadListener<AssetDescriptor<BitmapFont>>() {
@@ -157,24 +157,38 @@ public static class Client {
                     }
                 });
 
-        public static final Cvar<Boolean> ShowFps = new Cvar<Boolean>(
-                "Client.Overlay.ShowFps",
-                Boolean.class, Boolean.FALSE);
+        public static final Cvar<Float> Height = new Cvar<Float>(
+                "Client.Console.Height",
+                Float.class, 1.0f);
 
-        public static class ConsoleFontColor {
-            private ConsoleFontColor() {
+        public static class Color {
+            private Color() {
                 //...
             }
 
-            public static final Cvar<Float> r = new Cvar<Float>("Client.Overlay.ConsoleFontColor.r",
+            public static final Cvar<Float> r = new Cvar<Float>(
+                    "Client.Console.Color.r",
                     Float.class, 1.0f);
-            public static final Cvar<Float> g = new Cvar<Float>("Client.Overlay.ConsoleFontColor.g",
+            public static final Cvar<Float> g = new Cvar<Float>(
+                    "Client.Console.Color.g",
                     Float.class, 1.0f);
-            public static final Cvar<Float> b = new Cvar<Float>("Client.Overlay.ConsoleFontColor.b",
+            public static final Cvar<Float> b = new Cvar<Float>(
+                    "Client.Console.Color.b",
                     Float.class, 1.0f);
-            public static final Cvar<Float> a = new Cvar<Float>("Client.Overlay.ConsoleFontColor.a",
+            public static final Cvar<Float> a = new Cvar<Float>(
+                    "Client.Console.Color.a",
                     Float.class, 1.0f);
         }
+    }
+
+    public static class Overlay {
+        private Overlay() {
+            //...
+        }
+
+        public static final Cvar<Boolean> ShowFps = new Cvar<Boolean>(
+                "Client.Overlay.ShowFps",
+                Boolean.class, Boolean.FALSE);
     }
 
     public static class Input {

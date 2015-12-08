@@ -85,33 +85,33 @@ public Console2(Client client) {
     final CvarChangeListener<Float> consoleFontColorCvarListener = new CvarChangeListener<Float>() {
         @Override
         public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
-            if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.a)) {
+            if (cvar.equals(Cvars.Client.Console.Color.a)) {
                 font.getColor().a = toValue;
-            } else if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.r)) {
+            } else if (cvar.equals(Cvars.Client.Console.Color.r)) {
                 font.getColor().r = toValue;
-            } else if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.g)) {
+            } else if (cvar.equals(Cvars.Client.Console.Color.g)) {
                 font.getColor().g = toValue;
-            } else if (cvar.equals(Cvars.Client.Overlay.ConsoleFontColor.b)) {
+            } else if (cvar.equals(Cvars.Client.Console.Color.b)) {
                 font.getColor().b = toValue;
             }
         }
     };
 
-    Cvars.Client.Overlay.ConsoleFont.addCvarChangeListener(new CvarChangeListener<AssetDescriptor<BitmapFont>>() {
+    Cvars.Client.Console.Font.addCvarChangeListener(new CvarChangeListener<AssetDescriptor<BitmapFont>>() {
         @Override
         public void onCvarChanged(Cvar<AssetDescriptor<BitmapFont>> cvar, AssetDescriptor<BitmapFont> fromValue, AssetDescriptor<BitmapFont> toValue) {
             Console2.this.getClient().getAssetManager().load(toValue);
             Console2.this.getClient().getAssetManager().finishLoading();
 
-            Console2.this.font = CLIENT.getAssetManager().get(Cvars.Client.Overlay.ConsoleFont.getValue());
-            Cvars.Client.Overlay.ConsoleFontColor.r.addCvarChangeListener(consoleFontColorCvarListener);
-            Cvars.Client.Overlay.ConsoleFontColor.g.addCvarChangeListener(consoleFontColorCvarListener);
-            Cvars.Client.Overlay.ConsoleFontColor.b.addCvarChangeListener(consoleFontColorCvarListener);
-            Cvars.Client.Overlay.ConsoleFontColor.a.addCvarChangeListener(consoleFontColorCvarListener);
+            Console2.this.font = CLIENT.getAssetManager().get(Cvars.Client.Console.Font.getValue());
+            Cvars.Client.Console.Color.r.addCvarChangeListener(consoleFontColorCvarListener);
+            Cvars.Client.Console.Color.g.addCvarChangeListener(consoleFontColorCvarListener);
+            Cvars.Client.Console.Color.b.addCvarChangeListener(consoleFontColorCvarListener);
+            Cvars.Client.Console.Color.a.addCvarChangeListener(consoleFontColorCvarListener);
         }
     });
 
-    Cvars.Client.Overlay.CommandPrefix.addCvarChangeListener(new CvarChangeListener<String>() {
+    Cvars.Client.Console.CommandPrefix.addCvarChangeListener(new CvarChangeListener<String>() {
         @Override
         public void onCvarChanged(Cvar<String> cvar, String fromValue, String toValue) {
             Console2.this.commandPrefix = toValue;

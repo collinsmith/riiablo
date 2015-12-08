@@ -48,7 +48,7 @@ public Console(Client client, PrintStream outputStream) {
         }
     };
 
-    Cvars.Client.Overlay.CommandPrefix.addCvarChangeListener(new CvarChangeListener<String>() {
+    Cvars.Client.Console.CommandPrefix.addCvarChangeListener(new CvarChangeListener<String>() {
         @Override
         public void onCvarChanged(Cvar<String> cvar, String fromValue, String toValue) {
             Console.this.bufferPrefix = toValue;
