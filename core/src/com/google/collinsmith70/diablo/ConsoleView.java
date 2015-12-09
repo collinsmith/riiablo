@@ -117,7 +117,7 @@ public void render(Batch b) {
     float position = font.getLineHeight() * 2;
     int skip = outputOffset;
     for (String line : getOutput()) {
-        if (skip >= 0) {
+        if (skip > 0) {
             skip--;
             continue;
         }
