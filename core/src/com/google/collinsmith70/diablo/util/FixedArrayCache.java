@@ -11,6 +11,7 @@ private static final int DEFAULT_SIZE = 1<<8;
 private Object[] data;
 private int head;
 private int size;
+private int pushes;
 
 public FixedArrayCache() {
     this(DEFAULT_SIZE);
@@ -33,6 +34,14 @@ public boolean isEmpty() {
     return size() != 0;
 }
 
+public int pushes() {
+    return pushes;
+}
+
+public int limit() {
+    return data.length;
+}
+
 public void clear() {
     clear(data.length);
 }
@@ -42,12 +51,18 @@ private void clear(int size) {
     this.data = new Object[size];
     this.head = 0;
     this.size = 0;
+    this.pushes = 0;
 }
 
 public void push(V obj) {
     data[head] = obj;
     head = increment(head);
-    size = Math.min(data.length, size + 1);
+    pushes++;
+    size = Math.min(limit(), pushes);
+}
+
+public V head() {
+    return get(decrement(head));
 }
 
 @SuppressWarnings("unchecked")
@@ -93,14 +108,22 @@ public Iterator<V> iterator() {
             return data;
         }
 
-        // TODO: add test cases to validate
-
     };
 }
 
 @Override
 public boolean contains(Object o) {
-    throw new UnsupportedOperationException("Not supported.");
+    if (o == null) {
+        return false;
+    }
+
+    for (Object obj : data) {
+        if (obj.equals(o)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 @Override
@@ -128,7 +151,13 @@ public boolean remove(Object o) {
 
 @Override
 public boolean containsAll(Collection<?> c) {
-    throw new UnsupportedOperationException("Not supported.");
+    for (Object obj : c) {
+        if (!contains(obj)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 @Override
