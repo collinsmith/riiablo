@@ -77,7 +77,13 @@ public ConsoleView(Client client, PrintStream outputStream) {
     Cvars.Client.Console.Height.addCvarChangeListener(new CvarChangeListener<Float>() {
         @Override
         public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
-            ConsoleView.this.height = ConsoleView.this.getClient().getVirtualHeight()*toValue;
+            if (toValue == 0.0f) {
+                ConsoleView.this.height = 0.0f;
+            } else if (toValue == 1.0f) {
+                ConsoleView.this.height = ConsoleView.this.getClient().getVirtualHeight() - font.getLineHeight();
+            } else {
+                ConsoleView.this.height = ConsoleView.this.getClient().getVirtualHeight()*toValue;
+            }
         }
     });
 }
@@ -116,10 +122,10 @@ public void render(Batch b) {
     }
 
     b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), height);
-    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, getClient().getVirtualHeight()-height+font.getLineHeight());
+    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, height + font.getLineHeight());
 
     glyphs.setText(font, getBufferPrefix() + " " + getBuffer().substring(0, getPosition()));
-    CARET.render(b, font, glyphs, font.getLineHeight() - 1);
+    CARET.render(b, font, glyphs, height + font.getLineHeight() - 1);
 
     float position = font.getLineHeight() * 2;
     int skip = outputOffset;
