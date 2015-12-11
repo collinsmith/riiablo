@@ -73,6 +73,13 @@ public ConsoleView(Client client, PrintStream outputStream) {
             Cvars.Client.Console.Color.a.addCvarChangeListener(consoleFontColorCvarListener);
         }
     });
+
+    Cvars.Client.Console.Height.addCvarChangeListener(new CvarChangeListener<Float>() {
+        @Override
+        public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
+            ConsoleView.this.height = ConsoleView.this.getClient().getVirtualHeight()*toValue;
+        }
+    });
 }
 
 public boolean isVisible() {
@@ -108,8 +115,8 @@ public void render(Batch b) {
         return;
     }
 
-    b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), getClient().getVirtualHeight());
-    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, font.getLineHeight());
+    b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), height);
+    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, getClient().getVirtualHeight()-height+font.getLineHeight());
 
     glyphs.setText(font, getBufferPrefix() + " " + getBuffer().substring(0, getPosition()));
     CARET.render(b, font, glyphs, font.getLineHeight() - 1);
