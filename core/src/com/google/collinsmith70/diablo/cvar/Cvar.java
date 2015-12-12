@@ -31,11 +31,15 @@ public static void saveAll() {
 }
 
 public static SortedMap<String, Cvar<?>> search(String key) {
+    key = key.toLowerCase().replaceAll("\0", "");;
     return CVARS.prefixMap(key);
 }
 
 public static Cvar<?> get(String key) {
-    return CVARS.get(key.toLowerCase());
+    Gdx.app.log("TEST@", "before " + key.length());
+    key = key.toLowerCase().replaceAll("\0", "");
+    Gdx.app.log("TEST@", "after " + key.length());
+    return CVARS.get(key);
 }
 
 public static Collection<Cvar<?>> getCvars() {
@@ -126,7 +130,7 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
                 getType().getName()));
     }
 
-    Cvar.CVARS.put(getKey().toLowerCase(), this); // potentially unsafe (technically object is not constructed yet)
+    Cvar.CVARS.put(getKey().toLowerCase().replaceAll("\0", ""), this); // potentially unsafe (technically object is not constructed yet)
 }
 
 public void addCvarChangeListener(CvarChangeListener<T> l) {

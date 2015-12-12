@@ -78,11 +78,11 @@ public ConsoleView(Client client, PrintStream outputStream) {
         @Override
         public void onCvarChanged(Cvar<Float> cvar, Float fromValue, Float toValue) {
             if (toValue == 0.0f) {
-                ConsoleView.this.height = 0.0f;
-            } else if (toValue == 1.0f) {
                 ConsoleView.this.height = ConsoleView.this.getClient().getVirtualHeight() - font.getLineHeight();
+            } else if (toValue == 1.0f) {
+                ConsoleView.this.height = 0.0f;
             } else {
-                ConsoleView.this.height = ConsoleView.this.getClient().getVirtualHeight()*toValue;
+                ConsoleView.this.height = ConsoleView.this.getClient().getVirtualHeight()*(1.0f - toValue);
             }
         }
     });
@@ -155,8 +155,7 @@ public boolean scrolled(int amount) {
             break;
         case 1:
             outputOffset = Math.max(
-                    outputOffset - 1,
-                    0);
+                    outputOffset - 1, 0);
             break;
     }
 

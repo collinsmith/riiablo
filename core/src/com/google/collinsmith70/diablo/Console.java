@@ -42,9 +42,6 @@ public Console(Client client, PrintStream outputStream) {
         public void println(String x) {
             super.println(x);
             Console.this.OUTPUT.add(x);
-            for (String str : Console.this.OUTPUT) {
-                Gdx.app.log("TEST", str);
-            }
         }
     };
 
@@ -227,7 +224,7 @@ public boolean scrolled(int amount) {
 }
 
 public void log(String message) {
-    Gdx.app.log(TAG, message);
+    //Gdx.app.log(TAG, message);
     OUTPUT_STREAM.println(message);
 }
 
