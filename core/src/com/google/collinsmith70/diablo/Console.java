@@ -100,6 +100,10 @@ public int getBufferLength() {
     return buffer.length();
 }
 
+public boolean isBufferEmpty() {
+    return getBufferLength() == 0;
+}
+
 public int getPosition() {
     return position;
 }
