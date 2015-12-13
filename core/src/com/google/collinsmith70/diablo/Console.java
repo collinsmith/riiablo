@@ -96,6 +96,10 @@ public String getBuffer() {
     return buffer.toString();
 }
 
+public int getBufferLength() {
+    return buffer.length();
+}
+
 public int getPosition() {
     return position;
 }
