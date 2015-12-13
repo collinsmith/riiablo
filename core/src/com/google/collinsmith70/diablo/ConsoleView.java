@@ -121,15 +121,30 @@ public void render(Batch b) {
         return;
     }
 
-    b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), height);
+    if (Cvars.Client.Console.Height.getValue() == 0.0f) {
+        b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), getClient().getVirtualHeight());
+    } else {
+        b.draw(modelBackgroundTexture, 0.0f, height, getClient().getVirtualWidth(), getClient().getVirtualHeight() - height);
+    }
+
     GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, height + font.getLineHeight());
 
     glyphs.setText(font, getBufferPrefix() + " " + getBuffer().substring(0, getPosition()));
     CARET.render(b, font, glyphs, height + font.getLineHeight() - 1);
 
-    float position = font.getLineHeight() * 2;
+    float position;
+    if (Cvars.Client.Console.Height.getValue() == 0.0f) {
+        position = font.getLineHeight();
+    } else {
+        position = height + (font.getLineHeight() * 2);
+    }
     int skip = outputOffset;
     for (String line : getOutput()) {
+        if (Cvars.Client.Console.Height.getValue() == 0.0f
+                && position >= height + font.getLineHeight()) {
+            break;
+        }
+
         if (skip > 0) {
             skip--;
             continue;
