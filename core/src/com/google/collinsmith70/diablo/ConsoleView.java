@@ -20,6 +20,7 @@ public class ConsoleView extends Console implements Disposable {
 
 private final Caret CARET;
 private final Texture modelBackgroundTexture;
+private final Texture underlineBackgroundTexture;
 
 private boolean isVisible;
 private BitmapFont font;
@@ -41,6 +42,13 @@ public ConsoleView(Client client, PrintStream outputStream) {
     solidColorPixmap.setColor(0.0f, 0.0f, 0.0f, 0.5f);
     solidColorPixmap.fill();
     modelBackgroundTexture = new Texture(solidColorPixmap);
+    solidColorPixmap.dispose();
+    solidColorPixmap = null;
+
+    solidColorPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+    solidColorPixmap.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+    solidColorPixmap.fill();
+    underlineBackgroundTexture = new Texture(solidColorPixmap);
     solidColorPixmap.dispose();
     solidColorPixmap = null;
 
@@ -123,14 +131,31 @@ public void render(Batch b) {
 
     if (Cvars.Client.Console.Height.getValue() == 0.0f) {
         b.draw(modelBackgroundTexture, 0.0f, 0.0f, getClient().getVirtualWidth(), getClient().getVirtualHeight());
+        b.draw(underlineBackgroundTexture, 0.0f, height, getClient().getVirtualWidth(), 2.0f);
     } else {
         b.draw(modelBackgroundTexture, 0.0f, height, getClient().getVirtualWidth(), getClient().getVirtualHeight() - height);
+        b.draw(underlineBackgroundTexture, 0.0f, height + font.getLineHeight(), getClient().getVirtualWidth(), 2.0f);
     }
 
     GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, height + font.getLineHeight());
 
     glyphs.setText(font, getBufferPrefix() + " " + getBuffer().substring(0, getPosition()));
-    CARET.render(b, font, glyphs, height + font.getLineHeight() - 1);
+    float x = glyphs.width;
+
+    float width;
+    if (!isBufferEmpty() && getPosition() < getBufferLength()) {
+        char c = getBuffer().charAt(getPosition());
+        if (Character.isSpaceChar(c)) {
+            width = font.getSpaceWidth();
+        } else {
+            glyphs.setText(font, Character.toString(c));
+            width = glyphs.width - 4;
+        }
+    } else {
+        width = font.getSpaceWidth();
+    }
+
+    CARET.render(b, font, glyphs, x, height + 4, width, 1.0f);
 
     float position;
     if (Cvars.Client.Console.Height.getValue() == 0.0f) {
@@ -190,6 +215,8 @@ private static class Caret {
     final Timer TIMER;
     final Timer.Task BLINK_TASK;
 
+    final Texture underlineBackgroundTexture;
+
     float holdDelay;
     float blinkDelay;
 
@@ -207,6 +234,14 @@ private static class Caret {
         if (blinkDelay < 0.1f) {
             throw new IllegalArgumentException("blinkDelay should be >= 0.1f");
         }
+
+
+        Pixmap solidColorPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        solidColorPixmap.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+        solidColorPixmap.fill();
+        underlineBackgroundTexture = new Texture(solidColorPixmap);
+        solidColorPixmap.dispose();
+        solidColorPixmap = null;
 
         this.holdDelay = holdDelay;
         this.blinkDelay = blinkDelay;
@@ -251,13 +286,13 @@ private static class Caret {
         this.blinkDelay = blinkDelay;
     }
 
-    void render(Batch batch, BitmapFont font, GlyphLayout glyphs, float height) {
+    void render(Batch batch, BitmapFont font, GlyphLayout glyphs, float x, float y, float width, float height) {
         if (!isVisible()) {
             return;
         }
 
-        // TODO: underscore should match width of above character
-        font.draw(batch, "_", glyphs.width - 4, height);
+        //font.draw(batch, "_", glyphs.width - 4, height);
+        batch.draw(underlineBackgroundTexture, x, y, width, height);
     }
 
 }
