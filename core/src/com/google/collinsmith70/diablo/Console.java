@@ -150,6 +150,8 @@ public boolean keyUp(int keycode) {
 public boolean keyTyped(char ch) {
     int position = getPosition();
     switch (ch) {
+        case '\0':
+            return true;
         case '\b':
             if (position > 0) {
                 buffer.deleteCharAt(position - 1);
