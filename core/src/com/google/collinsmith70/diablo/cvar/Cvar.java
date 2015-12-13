@@ -36,9 +36,7 @@ public static SortedMap<String, Cvar<?>> search(String key) {
 }
 
 public static Cvar<?> get(String key) {
-    Gdx.app.log("TEST@", "before " + key.length());
     key = key.toLowerCase().replaceAll("\0", "");
-    Gdx.app.log("TEST@", "after " + key.length());
     return CVARS.get(key);
 }
 
