@@ -212,6 +212,7 @@ public void create() {
 
     this.CONSOLE = new ConsoleView(this);
     CONSOLE.addCommandProcessor(COMMAND_PROCESSOR);
+    CONSOLE.addBufferListener(COMMAND_PROCESSOR);
 
     this.MUSIC_CONTROLLER = new MusicController(getAssetManager());
 

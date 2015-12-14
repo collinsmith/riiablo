@@ -6,7 +6,7 @@ import com.google.collinsmith70.diablo.cvar.Cvar;
 
 import java.util.Objects;
 
-public class ClientCommandProcessor implements CommandProcessor {
+public class ClientCommandProcessor implements CommandProcessor, BufferListener {
 
 private static final String TAG = ClientCommandProcessor.class.getSimpleName();
 
@@ -18,6 +18,11 @@ public ClientCommandProcessor(Client client) {
 
 public Client getClient() {
     return CLIENT;
+}
+
+@Override
+public void bufferModified(CharSequence buffer) {
+
 }
 
 @Override
