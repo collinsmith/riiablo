@@ -8,6 +8,7 @@ import com.google.collinsmith70.diablo.command.resolver.KeyAliasParameterResolve
 import com.google.collinsmith70.diablo.command.resolver.KeyParameterResolver;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.key.Key;
+import com.google.common.collect.ImmutableSet;
 
 import java.lang.reflect.Field;
 
@@ -51,8 +52,7 @@ public static final Command HELP = new Command("help",
         new Action() {
             @Override
             public void onActionExecuted(Client client, String[] args) {
-
-                for (Command cmd : Command.getCommands()) {
+                for (Command cmd : ImmutableSet.copyOf(Command.getCommands())) {
                     client.getConsole().log(cmd.toString());
                 }
             }
