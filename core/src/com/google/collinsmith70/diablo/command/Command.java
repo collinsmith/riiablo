@@ -135,10 +135,10 @@ public void load() {
 @Override
 public String toString() {
     if (getNumRequiredParameters() == 0) {
-        return getAliases().iterator().next();
+        return getAlias();
     }
 
-    return String.format("%s %s", getAliases().iterator().next(), getParametersHint());
+    return String.format("%s %s", getAlias(), getParametersHint());
 }
 
 }
