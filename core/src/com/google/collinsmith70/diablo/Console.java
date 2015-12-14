@@ -22,6 +22,7 @@ private static final int CONSOLE_BUFFER_SIZE = 256;
 private final Client CLIENT;
 private final PrintStream OUTPUT_STREAM;
 private final Collection<String> OUTPUT;
+private final Collection<BufferListener> BUFFER_LISTENERS;
 private final Set<CommandProcessor> COMMAND_PROCESSORS;
 
 private StringBuilder buffer;
@@ -35,6 +36,7 @@ public Console(Client client) {
 
 public Console(Client client, PrintStream outputStream) {
     this.CLIENT = client;
+    this.BUFFER_LISTENERS = new CopyOnWriteArraySet<BufferListener>();
     this.COMMAND_PROCESSORS = new CopyOnWriteArraySet<CommandProcessor>();
     this.OUTPUT = new FixedArrayCache<String>(1024);
     this.OUTPUT_STREAM = new PrintStream(outputStream, true) {
@@ -53,6 +55,24 @@ public Console(Client client, PrintStream outputStream) {
     });
 
     clearBuffer();
+}
+
+public void addBufferListener(BufferListener l) {
+    BUFFER_LISTENERS.add(l);
+}
+
+public boolean containsBufferListener(BufferListener l) {
+    return BUFFER_LISTENERS.contains(l);
+}
+
+public boolean removeBufferListener(BufferListener l) {
+    return BUFFER_LISTENERS.remove(l);
+}
+
+private void bufferModified() {
+    for (BufferListener l : BUFFER_LISTENERS) {
+        l.bufferModified(buffer);
+    }
 }
 
 public Client getClient() {
@@ -110,6 +130,7 @@ public int getPosition() {
 
 public void setPosition(int position) {
     if (this.position == position) {
+        bufferModified();
         return;
     } else if (position < 0) {
         position = 0;
@@ -118,6 +139,7 @@ public void setPosition(int position) {
     }
 
     this.position = position;
+    bufferModified();
 }
 
 public static String[] splitBuffer(String buffer) {
