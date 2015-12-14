@@ -15,6 +15,8 @@ import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
 
 import java.io.PrintStream;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ConsoleView extends Console implements Disposable {
 
@@ -137,14 +139,15 @@ public void render(Batch b) {
         b.draw(underlineBackgroundTexture, 0.0f, height + font.getLineHeight() + 2.0f, getClient().getVirtualWidth(), 2.0f);
     }
 
-    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, height + font.getLineHeight());
+    String bufferSnapshot = getBuffer();
+    GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + bufferSnapshot, 0, height + font.getLineHeight());
 
-    glyphs.setText(font, getBufferPrefix() + " " + getBuffer().substring(0, getPosition()));
+    glyphs.setText(font, getBufferPrefix() + " " + bufferSnapshot.substring(0, getPosition()));
     float x = glyphs.width;
 
     float width;
     if (!isBufferEmpty() && getPosition() < getBufferLength()) {
-        char c = getBuffer().charAt(getPosition());
+        char c = bufferSnapshot.charAt(getPosition());
         if (Character.isSpaceChar(c)) {
             width = font.getSpaceWidth();
         } else {
@@ -157,16 +160,16 @@ public void render(Batch b) {
 
     CARET.render(b, font, glyphs, x, height + 4, width, 1.0f);
 
-    float position;
+    float lineY;
     if (Cvars.Client.Console.Height.getValue() == 0.0f) {
-        position = font.getLineHeight();
+        lineY = font.getLineHeight();
     } else {
-        position = height + 4.0f + (font.getLineHeight() * 2);
+        lineY = height + 4.0f + (font.getLineHeight() * 2);
     }
     int skip = outputOffset;
     for (String line : getOutput()) {
         if (Cvars.Client.Console.Height.getValue() == 0.0f
-                && position >= height + font.getLineHeight()) {
+                && lineY >= height + font.getLineHeight()) {
             break;
         }
 
@@ -175,8 +178,20 @@ public void render(Batch b) {
             continue;
         }
 
-        font.draw(b, line, 0.0f, position);
-        position += font.getLineHeight();
+        font.draw(b, line, 0.0f, lineY);
+        lineY += font.getLineHeight();
+    }
+
+    int position = getPosition();
+    Set<String> suggestions = new TreeSet<String>();
+    for (CommandProcessor commandProcessor : getCommandProcessors()) {
+        suggestions.addAll(commandProcessor.getSuggestions(bufferSnapshot, position));
+    }
+
+    if (!suggestions.isEmpty()) {
+        for (String suggestion : suggestions) {
+            Gdx.app.log("SUGGESTION", suggestion);
+        }
     }
 }
 

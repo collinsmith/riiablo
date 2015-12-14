@@ -1,11 +1,10 @@
 package com.google.collinsmith70.diablo;
 
-import com.badlogic.gdx.Gdx;
 import com.google.collinsmith70.diablo.command.Command;
 import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 
-import java.util.Map;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,6 +13,8 @@ public class ClientCommandProcessor implements CommandProcessor {
 private static final String TAG = ClientCommandProcessor.class.getSimpleName();
 
 private final Client CLIENT;
+
+private Set<String> suggestions;
 
 public ClientCommandProcessor(Client client) {
     this.CLIENT = Objects.requireNonNull(client);
@@ -30,16 +31,16 @@ public void bufferModified(CharSequence buffer) {
     }
 
     String[] args = buffer.toString().split("\\s+");
-    Map<String, Command> prefixMax = Command.search(args[0]);
-    Gdx.app.log("TEST", "listing possabilities:");
-    for (String s : prefixMax.keySet()) {
-        Gdx.app.log("TEST", s);
-    }
+    suggestions = Command.search(args[0]).keySet();
 }
 
 @Override
 public Set<String> getSuggestions(String command, int position) {
-    return null;
+    if (suggestions == null) {
+        return Collections.EMPTY_SET;
+    }
+
+    return suggestions;
 }
 
 @Override
