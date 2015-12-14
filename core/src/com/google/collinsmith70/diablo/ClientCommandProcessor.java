@@ -1,9 +1,11 @@
 package com.google.collinsmith70.diablo;
 
+import com.badlogic.gdx.Gdx;
 import com.google.collinsmith70.diablo.command.Command;
 import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class ClientCommandProcessor implements CommandProcessor, BufferListener {
@@ -22,7 +24,16 @@ public Client getClient() {
 
 @Override
 public void bufferModified(CharSequence buffer) {
+    if (buffer.length() < 2) {
+        return;
+    }
 
+    String[] args = buffer.toString().split("\\s+");
+    Map<String, Command> prefixMax = Command.search(args[0]);
+    Gdx.app.log("TEST", "listing possabilities:");
+    for (String s : prefixMax.keySet()) {
+        Gdx.app.log("TEST", s);
+    }
 }
 
 @Override
@@ -62,7 +73,7 @@ public boolean process(String command) {
     getClient().getConsole().log(String.format(
             "Unrecognized command \"%s\". To see available commands, type \"%s\"",
             command,
-            Commands.HELP.getCommand()));
+            Commands.HELP.getAlias()));
 
     return false;
 }
