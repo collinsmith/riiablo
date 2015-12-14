@@ -56,7 +56,7 @@ public Command addAlias(String alias) {
     Command previous = Command.COMMANDS.get(alias);
     if (previous != null) {
         previous.ALIASES.remove(alias);
-        if (previous.alias.equals(alias)) {
+        if (alias.equals(previous.alias)) {
             previous.alias = null;
             for (String possibleAlias : previous.ALIASES) {
                 previous.alias = possibleAlias;
