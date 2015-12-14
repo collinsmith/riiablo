@@ -134,7 +134,7 @@ public void render(Batch b) {
         b.draw(underlineBackgroundTexture, 0.0f, height, getClient().getVirtualWidth(), 2.0f);
     } else {
         b.draw(modelBackgroundTexture, 0.0f, height, getClient().getVirtualWidth(), getClient().getVirtualHeight() - height);
-        b.draw(underlineBackgroundTexture, 0.0f, height + font.getLineHeight(), getClient().getVirtualWidth(), 2.0f);
+        b.draw(underlineBackgroundTexture, 0.0f, height + font.getLineHeight() + 2.0f, getClient().getVirtualWidth(), 2.0f);
     }
 
     GlyphLayout glyphs = font.draw(b, getBufferPrefix() + " " + getBuffer(), 0, height + font.getLineHeight());
@@ -161,7 +161,7 @@ public void render(Batch b) {
     if (Cvars.Client.Console.Height.getValue() == 0.0f) {
         position = font.getLineHeight();
     } else {
-        position = height + (font.getLineHeight() * 2);
+        position = height + 4.0f + (font.getLineHeight() * 2);
     }
     int skip = outputOffset;
     for (String line : getOutput()) {
