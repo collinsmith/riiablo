@@ -7,8 +7,9 @@ import com.google.collinsmith70.diablo.cvar.Cvar;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-public class ClientCommandProcessor implements CommandProcessor, BufferListener {
+public class ClientCommandProcessor implements CommandProcessor {
 
 private static final String TAG = ClientCommandProcessor.class.getSimpleName();
 
@@ -34,6 +35,11 @@ public void bufferModified(CharSequence buffer) {
     for (String s : prefixMax.keySet()) {
         Gdx.app.log("TEST", s);
     }
+}
+
+@Override
+public Set<String> getSuggestions(String command, int position) {
+    return null;
 }
 
 @Override
