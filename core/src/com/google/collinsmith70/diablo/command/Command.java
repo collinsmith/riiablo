@@ -110,7 +110,7 @@ public String toString() {
         return getCommand();
     }
 
-    return String.format("%s %s", getCommand(), getParametersHint());
+    return String.format("%s %s", getAlias(), getParametersHint());
 }
 
 }
