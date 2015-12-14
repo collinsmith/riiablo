@@ -53,6 +53,10 @@ public static final Command HELP = new Command("help",
             @Override
             public void onActionExecuted(Client client, String[] args) {
                 for (Command cmd : ImmutableSet.copyOf(Command.getCommands())) {
+                    if (cmd.getAlias() == null) {
+                        continue;
+                    }
+
                     client.getConsole().log(cmd.toString());
                 }
             }
