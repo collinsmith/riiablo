@@ -107,6 +107,10 @@ public boolean removeCommandProcessor(CommandProcessor p) {
     return COMMAND_PROCESSORS.remove(p);
 }
 
+protected Set<CommandProcessor> getCommandProcessors() {
+    return COMMAND_PROCESSORS;
+}
+
 public void clearBuffer() {
     buffer = new StringBuilder(CONSOLE_BUFFER_SIZE);
     setPosition(0);
