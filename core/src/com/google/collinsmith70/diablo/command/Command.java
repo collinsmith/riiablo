@@ -5,10 +5,13 @@ import com.google.collinsmith70.diablo.Client;
 import com.google.common.base.MoreObjects;
 
 import org.apache.commons.collections4.Trie;
+import org.apache.commons.collections4.set.UnmodifiableSet;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Command {
 
@@ -28,16 +31,16 @@ public static Collection<Command> getCommands() {
     return Command.COMMANDS.values();
 }
 
-private final String ALIAS;
+private final Set<String> ALIASES;
 private final ParameterResolver[] RESOLVERS;
 private final Action ACTION;
 
 public Command(String alias, Action action, ParameterResolver... resolvers) {
-    this.ALIAS = alias;
+    this.ALIASES = new CopyOnWriteArraySet<String>();
     this.ACTION = MoreObjects.firstNonNull(action, Action.EMPTY_ACTION);
     this.RESOLVERS = resolvers;
 
-    addAlias(getCommand()); // potentially unsafe (technically object is not constructed yet)
+    addAlias(alias);
     Gdx.app.log(TAG, "Registered " + toString());
 }
 
@@ -48,16 +51,21 @@ public Command addAlias(String alias) {
         throw new IllegalArgumentException("Command alias should not be empty");
     }
 
+    if (Command.COMMANDS.containsKey(alias)) {
+        Command.COMMANDS.get(alias).ALIASES.remove(alias);
+    }
+
     Command.COMMANDS.put(alias, this);
+    ALIASES.add(alias);
     return this;
 }
 
-public String getAlias() {
-    return ALIAS;
+public Set<String> getAliases() {
+    return UnmodifiableSet.unmodifiableSet(ALIASES);
 }
 
-public String getCommand() {
-    return getAlias();
+public boolean isAlias(String alias) {
+    return ALIASES.contains(alias);
 }
 
 public void execute(Client client, String[] args) {
@@ -107,10 +115,10 @@ public void load() {
 @Override
 public String toString() {
     if (getNumRequiredParameters() == 0) {
-        return getCommand();
+        return getAliases().iterator().next();
     }
 
-    return String.format("%s %s", getAlias(), getParametersHint());
+    return String.format("%s %s", getAliases().iterator().next(), getParametersHint());
 }
 
 }
