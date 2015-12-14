@@ -51,6 +51,7 @@ public static final Command HELP = new Command("help",
         new Action() {
             @Override
             public void onActionExecuted(Client client, String[] args) {
+
                 for (Command cmd : Command.getCommands()) {
                     client.getConsole().log(cmd.toString());
                 }
@@ -71,6 +72,19 @@ public static final Command CVARS = new Command("cvars",
             }
         });
 
+public static final Command ALIASES = new Command("aliases",
+        new Action() {
+            @Override
+            public void onActionExecuted(Client client, String[] args) {
+
+                Command command = Command.get(args[1]);
+                for (String alias : command.getAliases()) {
+                    client.getConsole().log(alias);
+                }
+
+            }
+        });
+
 public static final Command RESET = new Command("reset",
         new Action() {
             @Override
@@ -81,7 +95,7 @@ public static final Command RESET = new Command("reset",
                         client.getConsole().log(String.format(
                                 "Unrecognized cvar \"%s\". To see available cvars, type \"%s\"",
                                 args[i],
-                                Commands.CVARS.getCommand()));
+                                Commands.CVARS.getAlias()));
                         continue;
                     }
 
@@ -104,7 +118,7 @@ public static final Command BIND = new Command("bind",
                             client.getConsole().log(String.format(
                                     "Unrecognized key alias \"%s\". To see available key aliases, type \"%s\"",
                                     args[1],
-                                    Commands.BINDS.getCommand()));
+                                    Commands.BINDS.getAlias()));
                             break;
                         }
 
@@ -116,7 +130,7 @@ public static final Command BIND = new Command("bind",
                             client.getConsole().log(String.format(
                                     "Unrecognized key alias \"%s\". To see available key aliases, type \"%s\"",
                                     args[1],
-                                    Commands.BINDS.getCommand()));
+                                    Commands.BINDS.getAlias()));
                             break;
                         }
 
