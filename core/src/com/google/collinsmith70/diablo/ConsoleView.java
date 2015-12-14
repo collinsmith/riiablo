@@ -113,7 +113,7 @@ public BitmapFont getFont() {
 }
 
 public void clear() {
-    // TODO: add abstraction to clear the console (which is separate from stream)
+    getOutput().clear();
 }
 
 @Override
