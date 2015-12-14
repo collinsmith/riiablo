@@ -35,6 +35,8 @@ private final Set<String> ALIASES;
 private final ParameterResolver[] RESOLVERS;
 private final Action ACTION;
 
+private String alias;
+
 public Command(String alias, Action action, ParameterResolver... resolvers) {
     this.ALIASES = new CopyOnWriteArraySet<String>();
     this.ACTION = MoreObjects.firstNonNull(action, Action.EMPTY_ACTION);
@@ -51,17 +53,35 @@ public Command addAlias(String alias) {
         throw new IllegalArgumentException("Command alias should not be empty");
     }
 
-    if (Command.COMMANDS.containsKey(alias)) {
-        Command.COMMANDS.get(alias).ALIASES.remove(alias);
+    Command previous = Command.COMMANDS.get(alias);
+    if (previous != null) {
+        previous.ALIASES.remove(alias);
+        if (previous.alias.equals(alias)) {
+            previous.alias = null;
+            for (String possibleAlias : previous.ALIASES) {
+                previous.alias = possibleAlias;
+                break;
+            }
+        }
+
+        previous = null;
     }
 
     Command.COMMANDS.put(alias, this);
+    if (this.alias == null) {
+        this.alias = alias;
+    }
+
     ALIASES.add(alias);
     return this;
 }
 
 public Set<String> getAliases() {
     return UnmodifiableSet.unmodifiableSet(ALIASES);
+}
+
+public String getAlias() {
+    return alias;
 }
 
 public boolean isAlias(String alias) {
