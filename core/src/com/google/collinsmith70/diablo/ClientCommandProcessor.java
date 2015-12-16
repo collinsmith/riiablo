@@ -3,6 +3,8 @@ package com.google.collinsmith70.diablo;
 import com.google.collinsmith70.diablo.command.Command;
 import com.google.collinsmith70.diablo.command.Commands;
 import com.google.collinsmith70.diablo.cvar.Cvar;
+import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
+import com.google.collinsmith70.diablo.cvar.Cvars;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -14,10 +16,18 @@ private static final String TAG = ClientCommandProcessor.class.getSimpleName();
 
 private final Client CLIENT;
 
+private int suggestChars;
 private Set<String> suggestions;
 
 public ClientCommandProcessor(Client client) {
     this.CLIENT = Objects.requireNonNull(client);
+
+    Cvars.Client.Console.SuggestChars.addCvarChangeListener(new CvarChangeListener<Integer>() {
+        @Override
+        public void onCvarChanged(Cvar<Integer> cvar, Integer fromValue, Integer toValue) {
+            ClientCommandProcessor.this.suggestChars = toValue;
+        }
+    });
 }
 
 public Client getClient() {
@@ -26,7 +36,8 @@ public Client getClient() {
 
 @Override
 public void bufferModified(CharSequence buffer) {
-    if (buffer.length() < 2) {
+    if (buffer.length() < suggestChars) {
+        suggestions = Collections.EMPTY_SET;
         return;
     }
 
