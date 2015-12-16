@@ -189,8 +189,12 @@ public void render(Batch b) {
     }
 
     if (!suggestions.isEmpty()) {
+        glyphs.setText(font, getBufferPrefix() + " ");
+        x = glyphs.width;
+        float y = height;
         for (String suggestion : suggestions) {
-            Gdx.app.log("SUGGESTION", suggestion);
+            font.draw(b, suggestion, x, y);
+            y -= font.getLineHeight();
         }
     }
 }
