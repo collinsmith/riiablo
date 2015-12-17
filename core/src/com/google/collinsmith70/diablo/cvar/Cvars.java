@@ -140,7 +140,9 @@ public static class Client {
                 "Client.Console.CommandPrefix",
                 String.class, ">");
 
-        public static final Cvar<Integer> SuggestChars = new Cvar<Integer>("", Integer.class, 2);
+        public static final Cvar<Integer> SuggestChars = new Cvar<Integer>(
+                "Client.Console.SuggestChars",
+                Integer.class, 2);
 
         public static final Cvar<AssetDescriptor<BitmapFont>> Font
                 = new Cvar<AssetDescriptor<BitmapFont>>(
