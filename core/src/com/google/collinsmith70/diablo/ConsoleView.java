@@ -23,6 +23,7 @@ public class ConsoleView extends Console implements Disposable {
 private final Caret CARET;
 private final Texture modelBackgroundTexture;
 private final Texture underlineBackgroundTexture;
+private final Texture suggestionBackgroundTexture;
 
 private boolean isVisible;
 private BitmapFont font;
@@ -51,6 +52,13 @@ public ConsoleView(Client client, PrintStream outputStream) {
     solidColorPixmap.setColor(1.0f, 1.0f, 1.0f, 1.0f);
     solidColorPixmap.fill();
     underlineBackgroundTexture = new Texture(solidColorPixmap);
+    solidColorPixmap.dispose();
+    solidColorPixmap = null;
+
+    solidColorPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+    solidColorPixmap.setColor(0.0f, 0.0f, 1.0f, 1.0f);
+    solidColorPixmap.fill();
+    suggestionBackgroundTexture = new Texture(solidColorPixmap);
     solidColorPixmap.dispose();
     solidColorPixmap = null;
 
@@ -189,9 +197,17 @@ public void render(Batch b) {
     }
 
     if (!suggestions.isEmpty()) {
-        glyphs.setText(font, getBufferPrefix() + " ");
+        glyphs.setText(font, getBufferPrefix() + " " + bufferSnapshot.substring(0, getPosition()));
         x = glyphs.width;
         float y = height;
+        float maxWidth = 0.0f;
+        for (String suggestion : suggestions) {
+            glyphs.setText(font, suggestion);
+            maxWidth = Math.max(maxWidth, glyphs.width);
+        }
+
+        b.draw(suggestionBackgroundTexture, x, y-suggestions.size()*font.getLineHeight(), maxWidth, suggestions.size()*font.getLineHeight());
+
         for (String suggestion : suggestions) {
             font.draw(b, suggestion, x, y);
             y -= font.getLineHeight();
