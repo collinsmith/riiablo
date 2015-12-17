@@ -200,6 +200,9 @@ public void render(Batch b) {
         glyphs.setText(font, getBufferPrefix() + " " + bufferSnapshot.substring(0, getPosition()));
         x = glyphs.width;
         float y = height;
+        if (Cvars.Client.Console.Height.getValue() == 1.0f) {
+            y += suggestions.size()*font.getLineHeight()+font.getLineHeight();
+        }
         float maxWidth = 0.0f;
         for (String suggestion : suggestions) {
             glyphs.setText(font, suggestion);
