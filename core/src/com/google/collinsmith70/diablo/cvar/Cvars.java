@@ -144,6 +144,10 @@ public static class Client {
                 "Client.Console.SuggestChars",
                 Integer.class, 2);
 
+        public static final Cvar<Integer> HistoryBuffer = new Cvar<Integer>(
+                "Client.Console.HistoryBuffer",
+                Integer.class, 64);
+
         public static final Cvar<AssetDescriptor<BitmapFont>> Font
                 = new Cvar<AssetDescriptor<BitmapFont>>(
                 "Client.Console.Font",
