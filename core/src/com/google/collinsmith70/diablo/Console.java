@@ -1,7 +1,6 @@
 package com.google.collinsmith70.diablo;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.google.collinsmith70.diablo.cvar.Cvar;
@@ -156,23 +155,7 @@ public String[] splitBuffer() {
 
 @Override
 public boolean keyDown(int keycode) {
-    switch (keycode) {
-        // TODO: Keys.Console should trigger this as well
-        case Input.Keys.LEFT:
-            setPosition(getPosition() - 1);
-            return true;
-        case Input.Keys.RIGHT:
-            setPosition(getPosition() + 1);
-            return true;
-        case Input.Keys.UP:
-            return true;
-        case Input.Keys.DOWN:
-            return true;
-        case Input.Keys.TAB:
-            return true;
-        default:
-            return false;
-    }
+    return false;
 }
 
 @Override
@@ -201,11 +184,13 @@ public boolean keyTyped(char ch) {
             }
 
             log(bufferPrefix + " " + bufferContents);
+            onEnter(bufferContents);
 
             boolean handled;
             for (String command : Console.splitBuffer(bufferContents)) {
                 handled = false;
                 Gdx.app.log(TAG, bufferPrefix + " " + command);
+                onCommand(command);
                 for (CommandProcessor p : COMMAND_PROCESSORS) {
                     if (p.process(command)) {
                         handled = true;
@@ -232,6 +217,14 @@ public boolean keyTyped(char ch) {
             setPosition(position + 1);
             return true;
     }
+}
+
+protected void onEnter(String bufferContents) {
+    //...
+}
+
+protected void onCommand(String command) {
+    //...
 }
 
 @Override
