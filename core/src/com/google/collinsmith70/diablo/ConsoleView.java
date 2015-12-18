@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Timer;
+import com.google.collinsmith70.diablo.command.Command;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
@@ -224,7 +225,9 @@ public void render(Batch b) {
     int position = getPosition();
     Set<String> suggestions = new TreeSet<String>();
     for (CommandProcessor commandProcessor : getCommandProcessors()) {
-        suggestions.addAll(commandProcessor.getSuggestions(bufferSnapshot, position));
+        for (Command command : commandProcessor.getSuggestions(bufferSnapshot, position)) {
+            suggestions.add(command.toString());
+        }
     }
 
     if (!suggestions.isEmpty()) {
