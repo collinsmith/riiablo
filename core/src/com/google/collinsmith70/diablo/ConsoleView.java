@@ -1,6 +1,7 @@
 package com.google.collinsmith70.diablo;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -13,10 +14,17 @@ import com.badlogic.gdx.utils.Timer;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
 import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.collinsmith70.diablo.util.FixedArrayCache;
+import com.google.common.collect.ImmutableList;
 
 import java.io.PrintStream;
+import java.util.Collection;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javafx.geometry.VerticalDirection;
 
 public class ConsoleView extends Console implements Disposable {
 
@@ -24,6 +32,10 @@ private final Caret CARET;
 private final Texture modelBackgroundTexture;
 private final Texture underlineBackgroundTexture;
 private final Texture suggestionBackgroundTexture;
+
+private Collection<String> bufferHistory;
+private ListIterator<String> historyIterator;
+private VerticalDirection historyIteratorMomentum;
 
 private boolean isVisible;
 private BitmapFont font;
@@ -38,6 +50,18 @@ public ConsoleView(Client client) {
 public ConsoleView(Client client, PrintStream outputStream) {
     super(client, outputStream);
     this.isVisible = false;
+
+    Cvars.Client.Console.HistoryBuffer.addCvarChangeListener(new CvarChangeListener<Integer>() {
+        @Override
+        public void onCvarChanged(Cvar<Integer> cvar, Integer fromValue, Integer toValue) {
+            Collection<String> bufferHistory = new FixedArrayCache<String>(toValue);
+            if (ConsoleView.this.bufferHistory != null) {
+                bufferHistory.addAll(ConsoleView.this.bufferHistory);
+            }
+
+            ConsoleView.this.bufferHistory = bufferHistory;
+        }
+    });
 
     this.CARET = new Caret();
 
@@ -134,6 +158,13 @@ public void setPosition(int position) {
     }
 }
 
+@Override
+protected void onEnter(String bufferContents) {
+    super.onEnter(bufferContents);
+    bufferHistory.add(bufferContents);
+    historyIterator = ImmutableList.copyOf(bufferHistory).listIterator();
+}
+
 public void render(Batch b) {
     if (!isVisible()) {
         return;
@@ -215,6 +246,87 @@ public void render(Batch b) {
             font.draw(b, suggestion, x, y);
             y -= font.getLineHeight();
         }
+    }
+}
+
+@Override
+public boolean keyDown(int keycode) {
+    if (super.keyDown(keycode)) {
+        return true;
+    }
+
+    switch (keycode) {
+        // TODO: Keys.Console should trigger this as well
+        case Input.Keys.LEFT:
+            setPosition(getPosition() - 1);
+            return true;
+        case Input.Keys.RIGHT:
+            setPosition(getPosition() + 1);
+            return true;
+        case Input.Keys.UP:
+            if (historyIterator != null) {
+                if (historyIteratorMomentum != VerticalDirection.UP) {
+                    historyIteratorMomentum = VerticalDirection.UP;
+                    resetListIterator(historyIterator);
+                }
+
+                clearBuffer();
+                for (char ch : resetListIterator(historyIterator).toCharArray()) {
+                    keyTyped(ch);
+                }
+            }
+
+            setPosition(getPosition());
+            return true;
+        case Input.Keys.DOWN:
+            if (historyIterator != null) {
+                if (historyIteratorMomentum != VerticalDirection.DOWN) {
+                    historyIteratorMomentum = VerticalDirection.DOWN;
+                    advanceListIterator(historyIterator);
+                }
+
+                clearBuffer();
+                for (char ch : advanceListIterator(historyIterator).toCharArray()) {
+                    keyTyped(ch);
+                }
+            }
+
+            setPosition(getPosition());
+            return true;
+        case Input.Keys.TAB:
+            return true;
+        default:
+            return false;
+    }
+}
+
+private <E> E resetListIterator(ListIterator<E> l) throws NoSuchElementException {
+    if (l.hasPrevious()) {
+        E temp = l.previous();
+        return temp;
+    } else {
+        E start = null;
+        while (l.hasNext()) {
+            start = l.next();
+        }
+
+        l.previous();
+        return start;
+    }
+}
+
+private <E> E advanceListIterator(ListIterator<E> l) throws NoSuchElementException {
+    if (l.hasNext()) {
+        E temp = l.next();
+        return temp;
+    } else {
+        E start = null;
+        while (l.hasPrevious()) {
+            start = l.previous();
+        }
+
+        l.next();
+        return start;
     }
 }
 
