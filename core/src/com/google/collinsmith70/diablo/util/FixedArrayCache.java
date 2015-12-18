@@ -128,14 +128,14 @@ public boolean contains(Object o) {
 
 @Override
 public Object[] toArray() {
-    return Arrays.copyOf(data, data.length);
+    return Arrays.copyOf(data, size());
 }
 
 @Override
 @SuppressWarnings("unchecked")
 public <T> T[] toArray(T[] a) {
     // TODO: validate that a is a superclass of "V"
-    return Arrays.copyOf((T[])data, data.length);
+    return Arrays.copyOf((T[])data, size());
 }
 
 @Override
