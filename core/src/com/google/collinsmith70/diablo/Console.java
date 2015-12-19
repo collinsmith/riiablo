@@ -146,7 +146,12 @@ public void setPosition(int position) {
 }
 
 public static String[] splitBuffer(String buffer) {
-    return buffer.split(";");
+    String[] commands = buffer.split(";");
+    for (int i = 0; i < commands.length; i++) {
+        commands[i] = commands[i].trim();
+    }
+
+    return commands;
 }
 
 public String[] splitBuffer() {
