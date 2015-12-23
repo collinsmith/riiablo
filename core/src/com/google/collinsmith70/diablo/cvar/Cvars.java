@@ -121,6 +121,21 @@ public static class Client {
                 "Client.Render.Scale",
                 Float.class, 1.0f);
 
+        public static class Bounds {
+            private Bounds() {
+                //...
+            }
+
+            public static final Cvar<Float> x = new Cvar<Float>(
+                    "Client.Render.Bounds.x",
+                    Float.class, 1.0f);
+
+            public static final Cvar<Float> y = new Cvar<Float>(
+                    "Client.Render.Bounds.y",
+                    Float.class, 1.0f);
+
+        }
+
         public static final Cvar<Float> Gamma = new Cvar<Float>(
                 "Client.Render.Gamma",
                 Float.class, 1.0f);
