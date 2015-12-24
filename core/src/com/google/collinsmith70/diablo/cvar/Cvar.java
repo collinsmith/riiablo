@@ -64,6 +64,7 @@ private final Class<T> TYPE;
 private final T DEFAULT_VALUE;
 private final CvarLoadListener<T> LOAD_LISTENER;
 private final Set<CvarChangeListener<T>> CHANGE_LISTENERS;
+private final CvarValueValidator<T> VALUE_VALIDATOR;
 
 private T value;
 
@@ -72,6 +73,11 @@ public Cvar(String key, Class<T> type, T defaultValue) {
 }
 
 public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
+    this(key, type, defaultValue, null, null);
+}
+
+
+public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l, CvarValueValidator<T> v) {
     this.KEY = key;
     if (getKey() == null) {
         throw new IllegalArgumentException("Key aliases cannot be null");
@@ -128,6 +134,11 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l) {
                 getType().getName()));
     }
 
+    this.VALUE_VALIDATOR = v;
+    if (VALUE_VALIDATOR != null) {
+        this.value = VALUE_VALIDATOR.onValidateValue(this, DEFAULT_VALUE, value);
+    }
+
     Cvar.CVARS.put(getKey().toLowerCase().replaceAll("\0", ""), this); // potentially unsafe (technically object is not constructed yet)
 }
 
@@ -178,7 +189,12 @@ public void setValue(T value) {
     }
 
     T oldValue = this.value;
-    this.value = value;
+    if (VALUE_VALIDATOR != null) {
+        this.value = VALUE_VALIDATOR.onValidateValue(this, oldValue, value);
+    } else {
+        this.value = value;
+    }
+
     if (LOAD_LISTENER != null) {
         Cvar.PREFERENCES.putString(getKey(), LOAD_LISTENER.toString(getValue()));
     }
