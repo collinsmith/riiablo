@@ -2,6 +2,7 @@ package com.google.collinsmith70.diablo.cvar;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.google.collinsmith70.diablo.cvar.listener.validator.FloatValueValidator;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
@@ -119,6 +120,16 @@ public static class Client {
 
         public static final Cvar<Float> Scale = new Cvar<Float>(
                 "Client.Render.Scale",
+                Float.class, 1.0f,
+                null,
+                new FloatValueValidator(0.5f, 10.0f));
+
+        public static final Cvar<Float> Gamma = new Cvar<Float>(
+                "Client.Render.Gamma",
+                Float.class, 1.0f);
+
+        public static final Cvar<Float> Brightness = new Cvar<Float>(
+                "Client.Render.Brightness",
                 Float.class, 1.0f);
 
         public static class Bounds {
@@ -128,21 +139,17 @@ public static class Client {
 
             public static final Cvar<Float> x = new Cvar<Float>(
                     "Client.Render.Bounds.x",
-                    Float.class, 1.0f);
+                    Float.class, 1.0f,
+                    null,
+                    new FloatValueValidator(0.5f, 1.0f));
 
             public static final Cvar<Float> y = new Cvar<Float>(
                     "Client.Render.Bounds.y",
-                    Float.class, 1.0f);
+                    Float.class, 1.0f,
+                    null,
+                    new FloatValueValidator(0.5f, 1.0f));
 
         }
-
-        public static final Cvar<Float> Gamma = new Cvar<Float>(
-                "Client.Render.Gamma",
-                Float.class, 1.0f);
-
-        public static final Cvar<Float> Brightness = new Cvar<Float>(
-                "Client.Render.Brightness",
-                Float.class, 1.0f);
     }
 
     public static class Console {
