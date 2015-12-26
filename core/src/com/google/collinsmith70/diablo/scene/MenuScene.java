@@ -73,8 +73,10 @@ public void create() {
     TextButton.TextButtonStyle textButtonStyle = buttonsSkin.get("wide", TextButton.TextButtonStyle.class);
     textButtonStyle.font = exocetBitmapFont;
 
-    final float xPos = getClient().getVirtualWidth()/2;
-    float yPos = getClient().getVirtualHeight()/4;
+    float width = getClient().getVirtualWidth() * Cvars.Client.Render.Bounds.x.getValue();
+    float height = getClient().getVirtualHeight() * Cvars.Client.Render.Bounds.y.getValue();
+    final float xPos = width/2;
+    float yPos = height/4;
 
     btnExitGame = new TextButton(
             Langs.MenuScene.exit_diablo,
