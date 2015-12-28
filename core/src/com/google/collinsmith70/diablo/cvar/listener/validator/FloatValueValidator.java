@@ -16,6 +16,11 @@ public FloatValueValidator(float min, float max) {
     this.max = max;
 }
 
+public FloatValueValidator(float min) {
+    this.min = min;
+    this.max = Float.MAX_VALUE;
+}
+
 @Override
 public Float onValidateValue(Cvar<Float> cvar, Float fromValue, Float toValue) {
     if (toValue < min) {
