@@ -16,9 +16,8 @@ public FloatValueValidator(float min, float max) {
     this.max = max;
 }
 
-public FloatValueValidator(float min) {
-    this.min = min;
-    this.max = Float.MAX_VALUE;
+public FloatValueValidator(float max) {
+    this(0, max);
 }
 
 @Override

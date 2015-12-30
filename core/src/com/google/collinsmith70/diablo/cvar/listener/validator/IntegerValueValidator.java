@@ -16,9 +16,8 @@ public IntegerValueValidator(int min, int max) {
     this.max = max;
 }
 
-public IntegerValueValidator(int min) {
-    this.min = min;
-    this.max = Integer.MAX_VALUE;
+public IntegerValueValidator(int max) {
+    this(0, max);
 }
 
 @Override
