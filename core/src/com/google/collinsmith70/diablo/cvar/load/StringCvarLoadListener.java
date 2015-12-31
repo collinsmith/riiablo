@@ -1,4 +1,4 @@
-package com.google.collinsmith70.diablo.cvar.listener.load;
+package com.google.collinsmith70.diablo.cvar.load;
 
 import com.google.collinsmith70.diablo.cvar.CvarLoadListener;
 

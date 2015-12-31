@@ -1,37 +1,37 @@
-package com.google.collinsmith70.diablo.cvar.listener.validator;
+package com.google.collinsmith70.diablo.cvar.validator;
 
 import com.badlogic.gdx.Gdx;
 import com.google.collinsmith70.diablo.cvar.Cvar;
 import com.google.collinsmith70.diablo.cvar.CvarValueValidator;
 
-public class IntegerValueValidator implements CvarValueValidator<Integer> {
+public class FloatValueValidator implements CvarValueValidator<Float> {
 
 private static final String TAG = FloatValueValidator.class.getSimpleName();
 
-private final int min;
-private final int max;
+private final float min;
+private final float max;
 
-public IntegerValueValidator(int min, int max) {
+public FloatValueValidator(float min, float max) {
     this.min = min;
     this.max = max;
 }
 
-public IntegerValueValidator(int max) {
+public FloatValueValidator(float max) {
     this(0, max);
 }
 
 @Override
-public Integer onValidateValue(Cvar<Integer> cvar, Integer fromValue, Integer toValue) {
+public Float onValidateValue(Cvar<Float> cvar, Float fromValue, Float toValue) {
     if (toValue < min) {
         Gdx.app.log(TAG, String.format(
-                "%s casted from %d to %d",
+                "%s casted from %f to %f",
                 cvar.getKey(),
                 toValue,
                 min));
         return min;
     } else if (toValue > max) {
         Gdx.app.log(TAG, String.format(
-                "%s casted from %d to %d",
+                "%s casted from %f to %f",
                 cvar.getKey(),
                 toValue,
                 max));

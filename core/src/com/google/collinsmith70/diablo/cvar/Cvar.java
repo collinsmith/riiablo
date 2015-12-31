@@ -2,14 +2,14 @@ package com.google.collinsmith70.diablo.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.google.collinsmith70.diablo.cvar.listener.load.BooleanCvarLoadListener;
-import com.google.collinsmith70.diablo.cvar.listener.load.ByteCvarLoadListener;
-import com.google.collinsmith70.diablo.cvar.listener.load.DoubleCvarLoadListener;
-import com.google.collinsmith70.diablo.cvar.listener.load.FloatCvarLoadListener;
-import com.google.collinsmith70.diablo.cvar.listener.load.IntegerCvarLoadListener;
-import com.google.collinsmith70.diablo.cvar.listener.load.LongCvarLoadListener;
-import com.google.collinsmith70.diablo.cvar.listener.load.ShortCvarLoadListener;
-import com.google.collinsmith70.diablo.cvar.listener.load.StringCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.BooleanCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.ByteCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.DoubleCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.FloatCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.IntegerCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.LongCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.ShortCvarLoadListener;
+import com.google.collinsmith70.diablo.cvar.load.StringCvarLoadListener;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
