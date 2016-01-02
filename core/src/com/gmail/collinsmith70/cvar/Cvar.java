@@ -2,12 +2,14 @@ package com.gmail.collinsmith70.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.gmail.collinsmith70.cvar.checker.NullBoundsChecker;
 import com.gmail.collinsmith70.cvar.serializer.ObjectSerializer;
 import com.google.common.base.Preconditions;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,12 +35,24 @@ public static <T> void setSerializer(Class<T> type, Serializer<T, String> serial
     SERIALIZERS.put(type, serializer);
 }
 
+private static boolean autosave = true;
+
+public static boolean isAutosaving() {
+    return autosave;
+}
+
+public static void setAutosave(boolean b) {
+    Cvar.autosave = b;
+}
+
 private final String ALIAS;
 private final T DEFAULT_VALUE;
 private final Class<T> TYPE;
 private final Serializer<T, String> SERIALIZER;
 private final BoundsChecker<T> BOUNDS_CHECKER;
 private final Set<CvarChangeListener<T>> CHANGE_LISTENERS;
+
+private PrintStream out;
 
 private T value;
 
@@ -63,24 +77,36 @@ public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> s
             "Cvar default values cannot be null");
     this.TYPE = Preconditions.checkNotNull(type, "Cvar types cannot be null");
     this.SERIALIZER = serializer;
-    this.BOUNDS_CHECKER = boundsChecker;
+    this.BOUNDS_CHECKER = boundsChecker == null ? NullBoundsChecker.INSTANCE : boundsChecker;
 
     this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
 
+    this.out = System.out;
     this.value = DEFAULT_VALUE;
     if (SERIALIZER == null) {
-        // log warning that Cvar cannot be serialized and saved/loaded
-        //setValue(defaultValue);
+        out.printf("Cvar '%s' cannot be saved or loaded because no serializer has been set%n",
+                ALIAS);
     } else {
         String serializedValue = PREFERENCES.getString(ALIAS);
         if (serializedValue == null) {
-            setValue(defaultValue);
+            serializedValue = SERIALIZER.serialize(defaultValue);
         } else {
             setValue(SERIALIZER.deserialize(serializedValue));
         }
 
-        // log info that Cvar has been loaded
+        out.printf("%s loaded as %s [%s]%n",
+                ALIAS,
+                serializedValue,
+                TYPE.getName());
     }
+}
+
+public PrintStream getOut() {
+    return out;
+}
+
+public void setOut(PrintStream out) {
+    this.out = out;
 }
 
 public String getAlias() {
@@ -108,7 +134,44 @@ public T getValue() {
 }
 
 public void setValue(T value) {
+    if (this.value.equals(value)) {
+        return;
+    }
 
+    if (!BOUNDS_CHECKER.isWithinBounds(value)) {
+        out.printf("failed to change %s from %s to %s%n",
+                ALIAS,
+                this.value,
+                value);
+        return;
+    } else {
+        out.printf("changing %s from %s to %s%n",
+                ALIAS,
+                this.value,
+                value);
+    }
+
+    T oldValue = this.value;
+    this.value = value;
+    if (Cvar.autosave && SERIALIZER != null) {
+        save();
+    }
+
+    for (CvarChangeListener<T> l : CHANGE_LISTENERS) {
+        l.onCvarChanged(this, oldValue, this.value);
+    }
+}
+
+public String getSerializedValue() {
+    return SERIALIZER.serialize(value);
+}
+
+public void save() {
+    Cvar.PREFERENCES.putString(ALIAS, SERIALIZER.serialize(value));
+}
+
+public void load() {
+    throw new UnsupportedOperationException("Not supported yet!");
 }
 
 }
