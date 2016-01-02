@@ -1,13 +1,13 @@
 package com.gmail.collinsmith70.cvar.checker;
 
-import com.gmail.collinsmith70.cvar.BoundedRangeChecker;
+import com.gmail.collinsmith70.cvar.RangeValueValidator;
 
-public class IntegerBoundsChecker implements BoundedRangeChecker<Integer> {
+public class IntegerRangeValueValidator implements RangeValueValidator<Integer> {
 
 private final int MIN;
 private final int MAX;
 
-public IntegerBoundsChecker(int min, int max) {
+public IntegerRangeValueValidator(int min, int max) {
     if (max < min) {
         throw new IllegalArgumentException("min should be <= max");
     }
@@ -16,12 +16,12 @@ public IntegerBoundsChecker(int min, int max) {
     this.MAX = max;
 }
 
-public IntegerBoundsChecker(int fixedValue) {
+public IntegerRangeValueValidator(int fixedValue) {
     this(fixedValue, fixedValue);
 }
 
 @Override
-public boolean isWithinBounds(Integer obj) {
+public boolean isValid(Integer obj) {
     return MIN <= obj && obj <= MAX;
 }
 

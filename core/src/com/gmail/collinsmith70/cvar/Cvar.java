@@ -2,7 +2,7 @@ package com.gmail.collinsmith70.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.gmail.collinsmith70.cvar.checker.NullBoundsChecker;
+import com.gmail.collinsmith70.cvar.checker.NullValueValidator;
 import com.gmail.collinsmith70.cvar.serializer.ObjectSerializer;
 import com.google.common.base.Preconditions;
 
@@ -49,7 +49,7 @@ private final String ALIAS;
 private final T DEFAULT_VALUE;
 private final Class<T> TYPE;
 private final Serializer<T, String> SERIALIZER;
-private final BoundsChecker<T> BOUNDS_CHECKER;
+private final ValueValidator<T> VALUE_VALIDATOR;
 private final Set<CvarChangeListener<T>> CHANGE_LISTENERS;
 
 private PrintStream out;
@@ -65,7 +65,7 @@ public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> s
 }
 
 public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> serializer,
-            BoundsChecker<T> boundsChecker) {
+            ValueValidator<T> valueValidator) {
     if (alias == null) {
         throw new NullPointerException("Cvar aliases cannot be null");
     } else if (alias.isEmpty()) {
@@ -77,7 +77,7 @@ public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> s
             "Cvar default values cannot be null");
     this.TYPE = Preconditions.checkNotNull(type, "Cvar types cannot be null");
     this.SERIALIZER = serializer;
-    this.BOUNDS_CHECKER = boundsChecker == null ? NullBoundsChecker.INSTANCE : boundsChecker;
+    this.VALUE_VALIDATOR = valueValidator == null ? NullValueValidator.INSTANCE : valueValidator;
 
     this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
 
@@ -125,8 +125,8 @@ public Serializer<T, String> getSerializer() {
     return SERIALIZER;
 }
 
-public BoundsChecker<T> getBoundsChecker() {
-    return BOUNDS_CHECKER;
+public ValueValidator<T> getBoundsChecker() {
+    return VALUE_VALIDATOR;
 }
 
 public T getValue() {
@@ -138,7 +138,7 @@ public void setValue(T value) {
         return;
     }
 
-    if (!BOUNDS_CHECKER.isWithinBounds(value)) {
+    if (!VALUE_VALIDATOR.isValid(value)) {
         out.printf("failed to change %s from %s to %s%n",
                 ALIAS,
                 this.value,
