@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.cvar.checker;
+package com.gmail.collinsmith70.cvar.validator;
 
 public class PositiveIntegerRangeValueValidator extends IntegerRangeValueValidator {
 

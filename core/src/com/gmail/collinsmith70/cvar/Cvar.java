@@ -2,7 +2,7 @@ package com.gmail.collinsmith70.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.gmail.collinsmith70.cvar.checker.NullValueValidator;
+import com.gmail.collinsmith70.cvar.validator.NullValueValidator;
 import com.gmail.collinsmith70.cvar.serializer.ObjectSerializer;
 import com.google.common.base.Preconditions;
 
