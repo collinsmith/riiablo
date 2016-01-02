@@ -10,4 +10,9 @@ public boolean isValid(Object obj) {
     return true;
 }
 
+@Override
+public Object getValidatedValue(Object obj) {
+    return obj;
+}
+
 }
