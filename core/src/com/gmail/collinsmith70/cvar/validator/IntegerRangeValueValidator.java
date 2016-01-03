@@ -7,7 +7,7 @@ public class IntegerRangeValueValidator implements RangeValueValidator<Integer> 
 private final int MIN;
 private final int MAX;
 
-private boolean softlyBound;
+private Boundedness boundedness;
 
 public IntegerRangeValueValidator(int min, int max) {
     if (max < min) {
@@ -16,7 +16,7 @@ public IntegerRangeValueValidator(int min, int max) {
 
     this.MIN = min;
     this.MAX = max;
-    this.softlyBound = false;
+    this.boundedness = Boundedness.HARD;
 }
 
 public IntegerRangeValueValidator(int fixedValue) {
@@ -30,7 +30,7 @@ public boolean isValid(Integer obj) {
 
 @Override
 public Integer getValidatedValue(Integer obj) {
-    if (softlyBound) {
+    if (boundedness.equals(Boundedness.SOFT)) {
         if (obj < MIN) {
             return MIN;
         } else if (obj > MAX) {
@@ -46,7 +46,7 @@ public Integer getValidatedValue(Integer obj) {
                 MIN,
                 MAX));
     }
-    
+
     return obj;
 }
 
@@ -61,13 +61,13 @@ public Integer getMax() {
 }
 
 @Override
-public void setSoftlyBound(boolean b) {
-    this.softlyBound = b;
+public void setBoundedness(Boundedness r) {
+    this.boundedness = r;
 }
 
 @Override
-public boolean isSoftlyBound() {
-    return softlyBound;
+public Boundedness getBoundedness() {
+    return boundedness;
 }
 
 }

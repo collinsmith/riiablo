@@ -1,6 +1,6 @@
 package com.gmail.collinsmith70.cvar.serializer;
 
-import com.gmail.collinsmith70.cvar.Serializer;
+import com.gmail.collinsmith70.util.Serializer;
 
 /**
  * Serializer which (de)serializes an {@link Object} into its {@link String} representation.

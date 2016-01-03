@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.util;
 
 /**
  * Abstract representation of a <a href="https://en.wikipedia.org/wiki/Serialization">Serializor</a>

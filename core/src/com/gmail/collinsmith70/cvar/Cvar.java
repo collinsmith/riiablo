@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.gmail.collinsmith70.cvar.validator.NullValueValidator;
 import com.gmail.collinsmith70.cvar.serializer.ObjectSerializer;
+import com.gmail.collinsmith70.util.Serializer;
 import com.google.common.base.Preconditions;
 
 import org.apache.commons.collections4.Trie;
