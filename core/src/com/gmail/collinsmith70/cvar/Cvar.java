@@ -83,23 +83,8 @@ public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> s
     this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
 
     this.out = System.out;
-    this.value = DEFAULT_VALUE;
-    if (SERIALIZER == null) {
-        out.printf("Cvar '%s' cannot be saved or loaded because no serializer has been set%n",
-                ALIAS);
-    } else {
-        String serializedValue = PREFERENCES.getString(ALIAS);
-        if (serializedValue == null) {
-            serializedValue = SERIALIZER.serialize(defaultValue);
-        } else {
-            setValue(SERIALIZER.deserialize(serializedValue));
-        }
-
-        out.printf("%s loaded as %s [%s]%n",
-                ALIAS,
-                serializedValue,
-                TYPE.getName());
-    }
+    reset();
+    load();
 }
 
 public PrintStream getOut() {
@@ -163,6 +148,15 @@ public void setValue(T value) {
     }
 }
 
+public void setValue(String serializedValue) {
+    if (SERIALIZER == null) {
+        throw new NullPointerException(String.format("Cvar '%s' does not have a serializer set",
+                ALIAS));
+    }
+
+    setValue(SERIALIZER.deserialize(serializedValue));
+}
+
 public String getSerializedValue() {
     return SERIALIZER.serialize(value);
 }
@@ -172,7 +166,29 @@ public void save() {
 }
 
 public void load() {
-    throw new UnsupportedOperationException("Not supported yet!");
+    if (SERIALIZER == null) {
+        out.printf("Cvar '%s' cannot be saved or loaded because no serializer has been set%n",
+                ALIAS);
+        return;
+    }
+
+    String serializedValue = Cvar.PREFERENCES.getString(ALIAS);
+    if (serializedValue == null) {
+        serializedValue = SERIALIZER.serialize(DEFAULT_VALUE);
+    } else {
+        setValue(SERIALIZER.deserialize(serializedValue));
+    }
+
+    out.printf("%s loaded as %s [%s]%n", ALIAS, serializedValue, TYPE.getName());
+}
+
+public void reset() {
+    this.value = DEFAULT_VALUE;
+}
+
+@Override
+public String toString() {
+    return String.format("%s:%s=%s", TYPE.getName(), ALIAS, getSerializedValue());
 }
 
 }
