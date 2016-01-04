@@ -32,7 +32,7 @@ public NumberRangeValueValidator(Number min, Number max) {
     this.boundedness = Boundedness.HARD;
 }
 
-public NumberRangeValueValidator(int fixedValue) {
+public NumberRangeValueValidator(Number fixedValue) {
     this(fixedValue, fixedValue);
 }
 
