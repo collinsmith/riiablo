@@ -14,7 +14,9 @@ public static class Client {
         //...
     }
 
-    public static final Cvar<Boolean> Test = new Cvar<Boolean>();
+    public static final Cvar<Double> Scale = new Cvar<Double>(
+            "Client.Scale",
+            Double.class, 1.0);
 
 }
 

@@ -2,6 +2,9 @@ package com.gmail.collinsmith70.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.gmail.collinsmith70.cvar.serializer.BooleanSerializer;
+import com.gmail.collinsmith70.cvar.serializer.DoubleSerializer;
+import com.gmail.collinsmith70.cvar.serializer.IntegerSerializer;
 import com.gmail.collinsmith70.cvar.validator.NullValueValidator;
 import com.gmail.collinsmith70.cvar.serializer.ObjectSerializer;
 import com.gmail.collinsmith70.util.Serializer;
@@ -26,6 +29,9 @@ private static final Map<Class<?>, Serializer<?, String>> SERIALIZERS;
 static {
     SERIALIZERS = new ConcurrentHashMap<Class<?>, Serializer<?, String>>();
     SERIALIZERS.put(String.class, ObjectSerializer.INSTANCE);
+    SERIALIZERS.put(Boolean.class, BooleanSerializer.INSTANCE);
+    SERIALIZERS.put(Integer.class, IntegerSerializer.INSTANCE);
+    SERIALIZERS.put(Double.class, DoubleSerializer.INSTANCE);
 }
 
 public static <T> Serializer<T, String> getSerializer(Class<T> type) {
@@ -73,11 +79,11 @@ private PrintStream out;
 private T value;
 
 public Cvar(String alias, Class<T> type, T defaultValue) {
-    this(alias, type, defaultValue, getSerializer(type));
+    this(alias, type, defaultValue, getSerializer(type), null);
 }
 
-public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> serializer) {
-    this(alias, type, defaultValue, serializer, null);
+public Cvar(String alias, Class<T> type, T defaultValue, ValueValidator<T> valueValidator) {
+    this(alias, type, defaultValue, getSerializer(type), valueValidator);
 }
 
 public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> serializer,
