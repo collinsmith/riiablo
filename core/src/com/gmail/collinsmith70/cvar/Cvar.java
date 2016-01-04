@@ -46,6 +46,21 @@ public static void setAutosave(boolean b) {
     Cvar.autosave = b;
 }
 
+private static final Set<CvarChangeListener> CHANGE_LISTENERES
+        = new CopyOnWriteArraySet<CvarChangeListener>();
+
+public static void addGlobalCvarChangeListener(CvarChangeListener<?> l) {
+    Cvar.CHANGE_LISTENERES.add(l);
+}
+
+public static boolean containsGlobalCvarChangeListener(CvarChangeListener<?> l) {
+    return Cvar.CHANGE_LISTENERES.contains(l);
+}
+
+public static boolean removeGlobalCvarChangeListener(CvarChangeListener<?> l) {
+    return Cvar.CHANGE_LISTENERES.remove(l);
+}
+
 private final String ALIAS;
 private final T DEFAULT_VALUE;
 private final Class<T> TYPE;
@@ -146,6 +161,10 @@ public void setValue(T value) {
     for (CvarChangeListener<T> l : CHANGE_LISTENERS) {
         l.onCvarChanged(this, oldValue, this.value);
     }
+
+    for (CvarChangeListener l : Cvar.CHANGE_LISTENERES) {
+        l.onCvarChanged(this, oldValue, this.value);
+    }
 }
 
 public void setValue(String serializedValue) {
@@ -189,6 +208,19 @@ public void reset() {
 @Override
 public String toString() {
     return String.format("%s:%s=%s", TYPE.getName(), ALIAS, getSerializedValue());
+}
+
+public void addCvarChangeListener(CvarChangeListener<T> l) {
+    CHANGE_LISTENERS.add(l);
+    l.onCvarChanged(this, value, value);
+}
+
+public boolean containsCvarChangeListener(CvarChangeListener<T> l) {
+    return CHANGE_LISTENERS.contains(l);
+}
+
+public boolean removeCvarChangeListener(CvarChangeListener<T> l) {
+    return CHANGE_LISTENERS.remove(l);
 }
 
 }
