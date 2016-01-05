@@ -5,7 +5,7 @@ import com.gmail.collinsmith70.cvar.RangeValueValidator;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
-public class NumberRangeValueValidator implements RangeValueValidator<Number> {
+public class NumberRangeValueValidator<T extends Number> implements RangeValueValidator<T> {
 
 private static enum NumberComparator implements Comparator<Number> {
     INSTANCE;
@@ -17,12 +17,12 @@ private static enum NumberComparator implements Comparator<Number> {
 
 }
 
-private final Number MIN;
-private final Number MAX;
+private final T MIN;
+private final T MAX;
 
 private Boundedness boundedness;
 
-public NumberRangeValueValidator(Number min, Number max) {
+public NumberRangeValueValidator(T min, T max) {
     if (NumberComparator.INSTANCE.compare(min, max) > 0) {
         throw new IllegalArgumentException("min should be <= max");
     }
@@ -32,7 +32,7 @@ public NumberRangeValueValidator(Number min, Number max) {
     this.boundedness = Boundedness.HARD;
 }
 
-public NumberRangeValueValidator(Number fixedValue) {
+public NumberRangeValueValidator(T fixedValue) {
     this(fixedValue, fixedValue);
 }
 
@@ -65,12 +65,12 @@ public Number getValidatedValue(Number obj) {
 }
 
 @Override
-public Number getMin() {
+public T getMin() {
     return MIN;
 }
 
 @Override
-public Number getMax() {
+public T getMax() {
     return MAX;
 }
 
