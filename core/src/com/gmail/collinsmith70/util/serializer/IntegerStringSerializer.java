@@ -1,13 +1,13 @@
-package com.gmail.collinsmith70.cvar.serializer;
+package com.gmail.collinsmith70.util.serializer;
 
-import com.gmail.collinsmith70.util.Serializer;
+import com.gmail.collinsmith70.util.StringSerializer;
 
 /**
  * Serializer which (de)serializes a {@link Integer} object into its {@link String} representation.
  */
-public enum IntegerSerializer implements Serializer<Integer, String> {
+public enum IntegerStringSerializer implements StringSerializer<Integer> {
 /**
- * @see IntegerSerializer
+ * @see IntegerStringSerializer
  */
 INSTANCE;
 

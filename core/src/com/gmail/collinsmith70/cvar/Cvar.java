@@ -2,11 +2,11 @@ package com.gmail.collinsmith70.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.gmail.collinsmith70.cvar.serializer.BooleanSerializer;
-import com.gmail.collinsmith70.cvar.serializer.DoubleSerializer;
-import com.gmail.collinsmith70.cvar.serializer.IntegerSerializer;
+import com.gmail.collinsmith70.util.serializer.BooleanStringSerializer;
+import com.gmail.collinsmith70.util.serializer.DoubleStringSerializer;
+import com.gmail.collinsmith70.util.serializer.IntegerStringSerializer;
 import com.gmail.collinsmith70.cvar.validator.NullValueValidator;
-import com.gmail.collinsmith70.cvar.serializer.ObjectSerializer;
+import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
 import com.gmail.collinsmith70.util.Serializer;
 import com.google.common.base.Preconditions;
 
@@ -28,10 +28,10 @@ private static final Trie<String, Cvar<?>> CVARS = new PatriciaTrie<Cvar<?>>();
 private static final Map<Class<?>, Serializer<?, String>> SERIALIZERS;
 static {
     SERIALIZERS = new ConcurrentHashMap<Class<?>, Serializer<?, String>>();
-    SERIALIZERS.put(String.class, ObjectSerializer.INSTANCE);
-    SERIALIZERS.put(Boolean.class, BooleanSerializer.INSTANCE);
-    SERIALIZERS.put(Integer.class, IntegerSerializer.INSTANCE);
-    SERIALIZERS.put(Double.class, DoubleSerializer.INSTANCE);
+    SERIALIZERS.put(String.class, ObjectStringSerializer.INSTANCE);
+    SERIALIZERS.put(Boolean.class, BooleanStringSerializer.INSTANCE);
+    SERIALIZERS.put(Integer.class, IntegerStringSerializer.INSTANCE);
+    SERIALIZERS.put(Double.class, DoubleStringSerializer.INSTANCE);
 }
 
 public static <T> Serializer<T, String> getSerializer(Class<T> type) {

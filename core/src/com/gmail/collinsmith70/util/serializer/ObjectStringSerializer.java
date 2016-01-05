@@ -1,13 +1,13 @@
-package com.gmail.collinsmith70.cvar.serializer;
+package com.gmail.collinsmith70.util.serializer;
 
-import com.gmail.collinsmith70.util.Serializer;
+import com.gmail.collinsmith70.util.StringSerializer;
 
 /**
  * Serializer which (de)serializes an {@link Object} into its {@link String} representation.
  */
-public enum ObjectSerializer implements Serializer<Object, String> {
+public enum ObjectStringSerializer implements StringSerializer<Object> {
 /**
- * @see ObjectSerializer
+ * @see ObjectStringSerializer
  */
 INSTANCE;
 
