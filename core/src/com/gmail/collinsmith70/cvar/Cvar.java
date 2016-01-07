@@ -2,20 +2,22 @@ package com.gmail.collinsmith70.cvar;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.gmail.collinsmith70.cvar.validator.NullValueValidator;
+import com.gmail.collinsmith70.util.Serializer;
 import com.gmail.collinsmith70.util.serializer.BooleanStringSerializer;
 import com.gmail.collinsmith70.util.serializer.DoubleStringSerializer;
 import com.gmail.collinsmith70.util.serializer.IntegerStringSerializer;
-import com.gmail.collinsmith70.cvar.validator.NullValueValidator;
 import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
-import com.gmail.collinsmith70.util.Serializer;
 import com.google.common.base.Preconditions;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -29,6 +31,27 @@ public class Cvar<T> {
 private static final String TAG = Cvar.class.getSimpleName();
 private static final Preferences PREFERENCES = Gdx.app.getPreferences(Cvar.class.getName());
 private static final Trie<String, Cvar<?>> CVARS = new PatriciaTrie<Cvar<?>>();
+
+public static void saveAll() {
+    Cvar.out.println("Saving CVARs...");
+    Cvar.PREFERENCES.flush();
+}
+
+public static SortedMap<String, Cvar<?>> search(String key) {
+    key = key.toLowerCase();
+    return CVARS.prefixMap(key);
+}
+
+public static Cvar<?> get(String key) {
+    key = key.toLowerCase();
+    return CVARS.get(key);
+}
+
+public static Collection<Cvar<?>> getCvars() {
+    return CVARS.values();
+}
+
+/**************************************************************************************************/
 
 private static final Map<Class<?>, Serializer<?, String>> SERIALIZERS;
 static {
@@ -47,25 +70,31 @@ public static <T> void setSerializer(Class<T> type, Serializer<T, String> serial
     SERIALIZERS.put(type, serializer);
 }
 
+/**************************************************************************************************/
+
 private static PrintStream out = System.out;
 
 public static PrintStream getOut() {
-    return out;
+    return Cvar.out;
 }
 
 public static void setOut(PrintStream out) {
     Cvar.out = out;
 }
 
+/**************************************************************************************************/
+
 private static boolean autosave = true;
 
 public static boolean isAutosaving() {
-    return autosave;
+    return Cvar.autosave;
 }
 
 public static void setAutosave(boolean b) {
     Cvar.autosave = b;
 }
+
+/**************************************************************************************************/
 
 private static final Set<CvarChangeListener> CHANGE_LISTENERES
         = new CopyOnWriteArraySet<CvarChangeListener>();
@@ -81,6 +110,8 @@ public static boolean containsGlobalCvarChangeListener(CvarChangeListener<?> l) 
 public static boolean removeGlobalCvarChangeListener(CvarChangeListener<?> l) {
     return Cvar.CHANGE_LISTENERES.remove(l);
 }
+
+/**************************************************************************************************/
 
 private final String ALIAS;
 private final T DEFAULT_VALUE;
@@ -150,13 +181,13 @@ public void setValue(T value) {
     }
 
     if (!VALUE_VALIDATOR.isValid(value)) {
-        out.printf("failed to change %s from %s to %s%n",
+        Cvar.out.printf("failed to change %s from %s to %s%n",
                 ALIAS,
                 this.value,
                 value);
         return;
     } else {
-        out.printf("changing %s from %s to %s%n",
+        Cvar.out.printf("changing %s from %s to %s%n",
                 ALIAS,
                 this.value,
                 value);
@@ -196,7 +227,7 @@ public void save() {
 
 public void load() {
     if (SERIALIZER == null) {
-        out.printf("Cvar '%s' cannot be saved or loaded because no serializer has been set%n",
+        Cvar.out.printf("Cvar '%s' cannot be saved or loaded because no serializer has been set%n",
                 ALIAS);
         return;
     }
@@ -208,7 +239,7 @@ public void load() {
         setValue(SERIALIZER.deserialize(serializedValue));
     }
 
-    out.printf("%s loaded as %s [%s]%n", ALIAS, serializedValue, TYPE.getName());
+    Cvar.out.printf("%s loaded as %s [%s]%n", ALIAS, serializedValue, TYPE.getName());
 }
 
 public void reset() {
