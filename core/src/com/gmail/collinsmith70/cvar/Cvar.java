@@ -19,6 +19,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * Representation used for <a href="https://en.wikipedia.org/wiki/CVAR">CVAR</a>
+ *
+ * @param <T>
+ */
 public class Cvar<T> {
 
 private static final String TAG = Cvar.class.getSimpleName();
@@ -40,6 +45,16 @@ public static <T> Serializer<T, String> getSerializer(Class<T> type) {
 
 public static <T> void setSerializer(Class<T> type, Serializer<T, String> serializer) {
     SERIALIZERS.put(type, serializer);
+}
+
+private static PrintStream out = System.out;
+
+public static PrintStream getOut() {
+    return out;
+}
+
+public static void setOut(PrintStream out) {
+    Cvar.out = out;
 }
 
 private static boolean autosave = true;
@@ -74,8 +89,6 @@ private final Serializer<T, String> SERIALIZER;
 private final ValueValidator<T> VALUE_VALIDATOR;
 private final Set<CvarChangeListener<T>> CHANGE_LISTENERS;
 
-private PrintStream out;
-
 private T value;
 
 public Cvar(String alias, Class<T> type, T defaultValue) {
@@ -103,17 +116,8 @@ public Cvar(String alias, Class<T> type, T defaultValue, Serializer<T, String> s
 
     this.CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
 
-    this.out = System.out;
     reset();
     load();
-}
-
-public PrintStream getOut() {
-    return out;
-}
-
-public void setOut(PrintStream out) {
-    this.out = out;
 }
 
 public String getAlias() {
