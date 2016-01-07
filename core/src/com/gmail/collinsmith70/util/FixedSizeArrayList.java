@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class FixedArrayList<V> implements Collection<V> {
+public class FixedSizeArrayList<V> implements Collection<V> {
 
 private static final int DEFAULT_SIZE = 1<<8;
 
@@ -13,11 +13,11 @@ private int head;
 private int size;
 private int pushes;
 
-public FixedArrayList() {
+public FixedSizeArrayList() {
     this(DEFAULT_SIZE);
 }
 
-public FixedArrayList(int size) {
+public FixedSizeArrayList(int size) {
     if (size < 0) {
         throw new IllegalArgumentException(
                 "size must be a positive integer");
@@ -90,20 +90,20 @@ private int decrement(int i) {
 public Iterator<V> iterator() {
     return new Iterator<V>() {
 
-        private int head = FixedArrayList.this.decrement(
-                FixedArrayList.this.head);
+        private int head = FixedSizeArrayList.this.decrement(
+                FixedSizeArrayList.this.head);
         private int iterations = 0;
 
         @Override
         public boolean hasNext() {
-            return iterations < FixedArrayList.this.size()
-                    && FixedArrayList.this.get(head) != null;
+            return iterations < FixedSizeArrayList.this.size()
+                    && FixedSizeArrayList.this.get(head) != null;
         }
 
         @Override
         public V next() {
-            V data = FixedArrayList.this.get(head);
-            head = FixedArrayList.this.decrement(head);
+            V data = FixedSizeArrayList.this.get(head);
+            head = FixedSizeArrayList.this.decrement(head);
             iterations++;
             return data;
         }
