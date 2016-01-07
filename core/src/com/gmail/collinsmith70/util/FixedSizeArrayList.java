@@ -140,7 +140,10 @@ public Object[] toArray() {
 @Override
 @SuppressWarnings("unchecked")
 public <T> T[] toArray(T[] a) {
-    // TODO: validate that a is a superclass of "E"
+    if (!a.getClass().isAssignableFrom(data.getClass())) {
+        throw new ClassCastException("passed array should be a superclass of " + data.getClass().getName());
+    }
+
     return Arrays.copyOf((T[])data, size());
 }
 
