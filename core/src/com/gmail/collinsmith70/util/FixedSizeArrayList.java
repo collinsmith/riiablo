@@ -4,7 +4,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class FixedSizeArrayList<V> implements Collection<V> {
+/**
+ * Implementation of a {@link Collection} which stores a fixed number of values and when a new
+ * element is added once the {@linkplain Collection} is full, the oldest element is replaced.
+ *
+ * @param <E> class type which is stored within this {@linkplain FixedSizeArrayList}
+ */
+public class FixedSizeArrayList<E> implements Collection<E> {
 
 private static final int DEFAULT_SIZE = 1<<8;
 
@@ -54,20 +60,20 @@ private void clear(int size) {
     this.pushes = 0;
 }
 
-public void push(V obj) {
+public void push(E obj) {
     data[head] = obj;
     head = increment(head);
     pushes++;
     size = Math.min(limit(), pushes);
 }
 
-public V head() {
+public E head() {
     return get(decrement(head));
 }
 
 @SuppressWarnings("unchecked")
-protected V get(int i) {
-    return (V)data[i];
+protected E get(int i) {
+    return (E)data[i];
 }
 
 private int increment(int i) {
@@ -87,8 +93,8 @@ private int decrement(int i) {
 }
 
 @Override
-public Iterator<V> iterator() {
-    return new Iterator<V>() {
+public Iterator<E> iterator() {
+    return new Iterator<E>() {
 
         private int head = FixedSizeArrayList.this.decrement(
                 FixedSizeArrayList.this.head);
@@ -101,8 +107,8 @@ public Iterator<V> iterator() {
         }
 
         @Override
-        public V next() {
-            V data = FixedSizeArrayList.this.get(head);
+        public E next() {
+            E data = FixedSizeArrayList.this.get(head);
             head = FixedSizeArrayList.this.decrement(head);
             iterations++;
             return data;
@@ -134,13 +140,13 @@ public Object[] toArray() {
 @Override
 @SuppressWarnings("unchecked")
 public <T> T[] toArray(T[] a) {
-    // TODO: validate that a is a superclass of "V"
+    // TODO: validate that a is a superclass of "E"
     return Arrays.copyOf((T[])data, size());
 }
 
 @Override
-public boolean add(V v) {
-    push(v);
+public boolean add(E e) {
+    push(e);
     return true;
 }
 
@@ -161,8 +167,8 @@ public boolean containsAll(Collection<?> c) {
 }
 
 @Override
-public boolean addAll(Collection<? extends V> c) {
-    for (V obj : c) {
+public boolean addAll(Collection<? extends E> c) {
+    for (E obj : c) {
         add(obj);
     }
 
