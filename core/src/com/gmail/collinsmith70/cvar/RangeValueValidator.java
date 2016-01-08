@@ -2,7 +2,7 @@ package com.gmail.collinsmith70.cvar;
 
 /**
  * Interface for representing a {@link ValueValidator} which specifically validates that values lie
- * within some arbitrary range.
+ * within some arbitrary {@linkplain Number} range.
  *
  * @param <T> type of the object to be validated
  */
