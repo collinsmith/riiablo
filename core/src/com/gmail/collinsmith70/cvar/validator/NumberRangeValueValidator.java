@@ -5,6 +5,12 @@ import com.gmail.collinsmith70.cvar.RangeValueValidator;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
+/**
+ * A {@linkplain NumberRangeValueValidator} is a {@link RangeValueValidator} designed to validate
+ * generic {@link Number} ranges.
+ *
+ * @param <T> type of {@link Number} which this {@linkplain NumberRangeValueValidator} validates
+ */
 public class NumberRangeValueValidator<T extends Number> implements RangeValueValidator<T> {
 
 private static enum NumberComparator implements Comparator<Number> {
@@ -22,6 +28,14 @@ private final T MAX;
 
 private Boundedness boundedness;
 
+/**
+ * Constructs a {@linkplain NumberRangeValueValidator} with a minimum and maximum value.
+ *
+ * @note min and max should both validate as {@literal true}
+ *
+ * @param min minimum value
+ * @param max maximum value
+ */
 public NumberRangeValueValidator(T min, T max) {
     if (NumberComparator.INSTANCE.compare(min, max) > 0) {
         throw new IllegalArgumentException("min should be <= max");
@@ -32,6 +46,11 @@ public NumberRangeValueValidator(T min, T max) {
     this.boundedness = Boundedness.HARD;
 }
 
+/**
+ * Constructs a {@linkplain NumberRangeValueValidator} intended to validate a single value.
+ *
+ * @param fixedValue the only value which the {@linkplain NumberRangeValueValidator} accepts
+ */
 public NumberRangeValueValidator(T fixedValue) {
     this(fixedValue, fixedValue);
 }
