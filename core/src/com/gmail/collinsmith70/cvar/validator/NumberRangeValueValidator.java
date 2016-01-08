@@ -1,6 +1,7 @@
 package com.gmail.collinsmith70.cvar.validator;
 
 import com.gmail.collinsmith70.cvar.RangeValueValidator;
+import com.google.common.base.Preconditions;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -37,22 +38,13 @@ private Boundedness boundedness;
  * @param max maximum value
  */
 public NumberRangeValueValidator(T min, T max) {
+    this.MIN = Preconditions.checkNotNull(min, "min should not be null");
+    this.MAX = Preconditions.checkNotNull(max, "max should not be null");
     if (NumberComparator.INSTANCE.compare(min, max) > 0) {
         throw new IllegalArgumentException("min should be <= max");
     }
 
-    this.MIN = min;
-    this.MAX = max;
     this.boundedness = Boundedness.HARD;
-}
-
-/**
- * Constructs a {@linkplain NumberRangeValueValidator} intended to validate a single value.
- *
- * @param fixedValue the only value which the {@linkplain NumberRangeValueValidator} accepts
- */
-public NumberRangeValueValidator(T fixedValue) {
-    this(fixedValue, fixedValue);
 }
 
 @Override
