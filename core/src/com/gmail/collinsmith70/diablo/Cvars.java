@@ -18,7 +18,7 @@ public static class Client {
     public static final Cvar<Double> Scale = new Cvar<Double>(
             "Client.Scale",
             Double.class, 1.0,
-            new NumberRangeValueValidator<Double>(1.0));
+            new NumberRangeValueValidator<Double>(0.0, 1.0));
 
 }
 

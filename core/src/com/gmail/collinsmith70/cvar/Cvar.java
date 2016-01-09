@@ -39,8 +39,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class Cvar<T> {
 
-private static final Preferences PREFERENCES = Gdx.app.getPreferences(Cvar.class.getName());
-private static final Trie<String, Cvar<?>> CVARS = new PatriciaTrie<Cvar<?>>();
+//private static final Preferences PREFERENCES = Gdx.app.getPreferences(Cvar.class.getName());
+//private static final Trie<String, Cvar<?>> CVARS = new PatriciaTrie<Cvar<?>>();
 
 /**
  * Commits all changes made to all registered {@linkplain Cvar}s. This is a manual operation
