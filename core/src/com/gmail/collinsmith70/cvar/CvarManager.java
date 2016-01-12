@@ -19,37 +19,37 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class CvarManager {
 
-private static boolean autosave = true;
+private boolean autosave = true;
 
 /**
  * Returns whether or not {@linkplain Cvar}s will automatically commit their changes to the backed
  * preferences instance. {@linkplain Cvar}s which do not automatically save must be saved using
- * {@link Cvar#commit()}.
+ * {@link CvarManager#commit()}.
  *
  * @return {@literal true} if {@linkplain Cvar}s automatically commit their changes, otherwise
  *         {@literal false}
  *
- * @see Cvar#commit()
+ * @see CvarManager#commit()
  */
-public static boolean isAutosaving() {
-    return Cvar.autosave;
+public boolean isAutosaving() {
+    return autosave;
 }
 
 /**
  * Controls whether or not {@linkplain Cvar}s will automatically commit their changes to the backed
  * preferences instance. {@linkplain Cvar}s which do not automatically save must be saved using
- * {@link Cvar#commit()}. If this value is changed to {@literal true}, then this implementation
- * will call {@link Cvar#commit()}, which will commit all changes made immediately.
+ * {@link CvarManager#commit()}. If this value is changed to {@literal true}, then this implementation
+ * will call {@link CvarManager#commit()}, which will commit all changes made immediately.
  *
  * @param b {@literal true} if {@linkplain Cvar}s should automatically commit their changes,
  *          otherwise {@literal false}
  *
- * @see Cvar#commit()
+ * @see CvarManager#commit()
  */
-public static void setAutosave(boolean b) {
-    Cvar.autosave = b;
-    if (Cvar.autosave) {
-        Cvar.commit();
+public void setAutosave(boolean b) {
+    this.autosave = b;
+    if (autosave) {
+        commit();
     }
 }
 
@@ -138,7 +138,7 @@ public SortedMap<String, Cvar<?>> search(String key) {
  * @return {@linkplain Cvar} with the specified alias, otherwise {@literal null} if no
  *         {@linklain Cvar} by that name has been registered.
  *
- * @see Cvar#get(String, Class)
+ * @see CvarManager#get(String, Class)
  */
 public Cvar<?> get(String key) {
     key = key.toLowerCase();
@@ -146,9 +146,9 @@ public Cvar<?> get(String key) {
 }
 
 /**
- * Specific implementation of {@link Cvar#get(String)} in which the expected type of the
+ * Specific implementation of {@link CvarManager#get(String)} in which the expected type of the
  * {@linkplain Cvar} can be passed (if known). If the type is not known (or required), then
- * {@link Cvar#get(String)} should be used instead.
+ * {@link CvarManager#get(String)} should be used instead.
  *
  * @param key  {@linkplain String} to search for. This value is interpreted as case-insensitive and
  *             the exact alias should be specified (i.e., no partial keys).
@@ -159,7 +159,7 @@ public Cvar<?> get(String key) {
  * @return {@linkplain Cvar} with the specified alias, otherwise {@literal null} if no
  *         {@linklain Cvar} by that name has been registered.
  *
- * @see Cvar#get(String)
+ * @see CvarManager#get(String)
  */
 public <T> Cvar<T> get(String key, Class<T> type) {
     if (type == null) {
@@ -167,7 +167,7 @@ public <T> Cvar<T> get(String key, Class<T> type) {
                 "type cannot be null, did you mean to use Cvar.get(String key) instead?");
     }
 
-    return (Cvar<T>)Cvar.get(key);
+    return (Cvar<T>)get(key);
 }
 
 /**
@@ -181,7 +181,7 @@ public Collection<Cvar<?>> getCvars() {
 
 /**
  * Registers a specified {@linkplain Cvar} into the statically accessible {@linkplain Cvar}
- * collection. Registered {@linkplain Cvar}s can be looked up via {@link Cvar#get(String)}
+ * collection. Registered {@linkplain Cvar}s can be looked up via {@link CvarManager#get(String)}
  *
  * @param cvar {@linkplain Cvar} to register
  * @param <T>  type which the value represented by the specified {@linkplain Cvar} represents
@@ -216,8 +216,9 @@ public <T> boolean unregister(Cvar<T> cvar) {
 
 /**
  * Commits all changes made to all registered {@linkplain Cvar}s. This is a manual operation
- * intended to be used in the case where {@link Cvar#isAutosaving()} is set to {@literal false},
- * which in turn implies that {@linkplain Cvar} values are not committed whenever they are changed.
+ * intended to be used in the case where {@link CvarManager#isAutosaving()} is set to
+ * {@literal false}, which in turn implies that {@linkplain Cvar} values are not committed whenever
+ * they are changed.
  */
 public void commit() {
     cvarManagerListener.onCommit();
@@ -230,6 +231,14 @@ public void save(Cvar cvar) {
 
 public void load(Cvar cvar) {
     cvarManagerListener.onLoad(cvar);
+}
+
+public <T> void onCvarChanged(Cvar<T> cvar, T from, T to) {
+    cvarManagerListener.onCvarChanged(cvar, from, to);
+}
+
+public <T> void onDefaultValueInvalidated(Cvar<T> cvar) {
+    cvarManagerListener.onDefaultValueInvalidated(cvar);
 }
 
 /**
