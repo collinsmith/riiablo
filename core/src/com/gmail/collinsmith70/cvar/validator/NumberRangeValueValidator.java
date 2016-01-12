@@ -1,6 +1,8 @@
 package com.gmail.collinsmith70.cvar.validator;
 
+import com.gmail.collinsmith70.cvar.RangeValueValidationException;
 import com.gmail.collinsmith70.cvar.RangeValueValidator;
+import com.gmail.collinsmith70.cvar.ValueValidationException;
 import com.google.common.base.Preconditions;
 
 import java.math.BigDecimal;
@@ -65,14 +67,17 @@ public Number getValidatedValue(Number obj) {
         return obj;
     }
 
-    if (!isValid(obj)) {
-        throw new IllegalArgumentException(String.format(
-                "value not within bounds (%s <= value <= %s)",
-                MIN,
-                MAX));
+    validate(obj);
+    return obj;
+}
+
+@Override
+public void validate(Number obj) throws ValueValidationException {
+    if (isValid(obj)) {
+        return;
     }
 
-    return obj;
+    throw new RangeValueValidationException(obj, MIN, MAX);
 }
 
 @Override
