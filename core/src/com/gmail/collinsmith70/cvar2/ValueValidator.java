@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.cvar2;
 
 /**
  * Interface for representing methods required by a ValueValidator. A ValueValidator should be able
@@ -36,7 +36,7 @@ T getValidatedValue(T obj);
 /**
  * Validates that a specified value is acceptable by the implementation and throws a
  * {@link ValueValidationException} if it is not
- * 
+ *
  * @throws ValueValidationException when the passed object is not accepted by the implementation
  */
 void validate(T obj) throws ValueValidationException;

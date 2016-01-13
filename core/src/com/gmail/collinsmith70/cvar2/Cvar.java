@@ -1,6 +1,6 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.cvar2;
 
-import com.gmail.collinsmith70.cvar.validator.AcceptAllValueValidator;
+import com.gmail.collinsmith70.cvar2.validator.AcceptAllValueValidator;
 import com.gmail.collinsmith70.util.Serializer;
 import com.gmail.collinsmith70.util.StringSerializer;
 import com.google.common.base.Preconditions;
@@ -219,6 +219,9 @@ public void setValue(T value) {
 
     for (CvarManager cvarManager : CVAR_MANAGERS) {
         cvarManager.onCvarChanged(this, oldValue, this.value);
+        if (cvarManager.isAutosaving()) {
+            cvarManager.save(this);
+        }
     }
 }
 

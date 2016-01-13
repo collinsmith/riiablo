@@ -1,7 +1,7 @@
-package com.gmail.collinsmith70.cvar.validator;
+package com.gmail.collinsmith70.cvar2.validator;
 
-import com.gmail.collinsmith70.cvar.ValueValidationException;
-import com.gmail.collinsmith70.cvar.ValueValidator;
+import com.gmail.collinsmith70.cvar2.ValueValidationException;
+import com.gmail.collinsmith70.cvar2.ValueValidator;
 
 /**
  * A {@linkplain AcceptAllValueValidator} is a {@link ValueValidator} which validates all values as

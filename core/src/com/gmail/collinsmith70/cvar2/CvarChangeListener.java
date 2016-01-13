@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.cvar2;
 
 /**
  * Functional interface for {@link #onCvarChanged(Cvar, Object, Object)} which will be called

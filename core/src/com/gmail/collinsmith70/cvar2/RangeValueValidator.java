@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.cvar2;
 
 /**
  * Interface for representing a {@link ValueValidator} which specifically validates that values lie

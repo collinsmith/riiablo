@@ -1,8 +1,8 @@
-package com.gmail.collinsmith70.cvar.validator;
+package com.gmail.collinsmith70.cvar2.validator;
 
-import com.gmail.collinsmith70.cvar.RangeValueValidationException;
-import com.gmail.collinsmith70.cvar.RangeValueValidator;
-import com.gmail.collinsmith70.cvar.ValueValidationException;
+import com.gmail.collinsmith70.cvar2.RangeValueValidationException;
+import com.gmail.collinsmith70.cvar2.RangeValueValidator;
+import com.gmail.collinsmith70.cvar2.ValueValidationException;
 import com.google.common.base.Preconditions;
 
 import java.math.BigDecimal;

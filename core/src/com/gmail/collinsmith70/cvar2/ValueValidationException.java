@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.cvar2;
 
 public class ValueValidationException extends RuntimeException {
 

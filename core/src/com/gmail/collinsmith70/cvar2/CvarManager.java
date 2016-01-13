@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.cvar2;
 
 import com.gmail.collinsmith70.util.StringSerializer;
 import com.gmail.collinsmith70.util.serializer.BooleanStringSerializer;
