@@ -1,7 +1,7 @@
 package com.gmail.collinsmith70.diablo;
 
 import com.gmail.collinsmith70.cvar.Cvar;
-import com.gmail.collinsmith70.cvar.validator.NumberRangeValueValidator;
+import com.gmail.collinsmith70.util.validator.NumberRangeValueValidator;
 
 public class Cvars {
 
