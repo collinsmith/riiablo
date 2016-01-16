@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.util;
+package com.gmail.collinsmith70.collection;
 
 import java.util.LinkedList;
 
