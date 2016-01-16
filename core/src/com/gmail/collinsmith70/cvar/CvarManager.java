@@ -10,8 +10,10 @@ import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CvarManager implements CvarChangeListener {
@@ -43,12 +45,12 @@ public void afterChanged(Cvar cvar, Object from, Object to) {
 
 }
 
-public <T> Cvar<T> create(String alias, Class<T> type, T defaultValue) {
-    return create(alias, type, defaultValue, Validator.ACCEPT_ALL);
+public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue) {
+    return create(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
 }
 
-public <T> Cvar<T> create(String alias, Class<T> type, T defaultValue, Validator<T> validator) {
-    Cvar<T> cvar = new Cvar<T>(alias, type, defaultValue, validator);
+public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue, Validator<T> validator) {
+    Cvar<T> cvar = new Cvar<T>(alias, description, type, defaultValue, validator);
     load(cvar);
     return add(cvar);
 }
@@ -58,7 +60,7 @@ public <T> Cvar<T> add(Cvar<T> cvar) {
         return cvar;
     } else if (containsAlias(cvar.getAlias())) {
         throw new DuplicateCvarException(cvar, String.format(
-                "A Cvar with the alias %s is already registered. Cvar aliases must be unique!",
+                "A cvar with the alias %s is already registered. Cvar aliases must be unique!",
                 cvar.getAlias()));
     }
 
@@ -73,6 +75,31 @@ public <T> boolean remove(Cvar<T> cvar) {
     }
 
     return CVARS.remove(cvar.getAlias().toLowerCase()) == null;
+}
+
+public Cvar<?> get(String alias) {
+    alias = alias.toLowerCase();
+    return CVARS.get(alias);
+}
+
+public <T> Cvar<T> get(String alias, Class<T> type) {
+    alias = alias.toLowerCase();
+    Cvar<?> cvar = get(alias);
+    if (!cvar.getType().isAssignableFrom(type)) {
+        throw new IllegalArgumentException(String.format(
+                "type should match cvar's type (%s)", cvar.getType().getName()));
+    }
+
+    return (Cvar<T>)cvar;
+}
+
+public SortedMap<String, Cvar<?>> search(String alias) {
+    alias = alias.toLowerCase();
+    return CVARS.prefixMap(alias);
+}
+
+public Collection<Cvar<?>> getCvars() {
+    return CVARS.values();
 }
 
 public <T> void load(Cvar<T> cvar) {

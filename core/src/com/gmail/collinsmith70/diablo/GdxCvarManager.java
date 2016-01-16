@@ -1,7 +1,9 @@
-package com.gmail.collinsmith70.cvar;
+package com.gmail.collinsmith70.diablo;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.gmail.collinsmith70.cvar.Cvar;
+import com.gmail.collinsmith70.cvar.CvarManager;
 import com.gmail.collinsmith70.cvar2.GdxCvarManagerListener;
 
 public class GdxCvarManager extends CvarManager {

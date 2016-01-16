@@ -1,6 +1,6 @@
 package com.gmail.collinsmith70.command;
 
-public interface ParameterResolver {
+public interface Parameter {
 
 String resolve(String str);
 

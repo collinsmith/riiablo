@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class Cvar<T> {
 
 private final String ALIAS;
+private final String DESCRIPTION;
 private final T DEFAULT_VALUE;
 private final Class<T> TYPE;
 private final Validator<T> VALIDATOR;
@@ -16,11 +17,11 @@ private final Set<CvarChangeListener<T>> CVAR_CHANGE_LISTENERS;
 
 private T value;
 
-public Cvar(String alias, Class<T> type, T defaultValue) {
-    this(alias, type, defaultValue, Validator.ACCEPT_ALL);
+public Cvar(String alias, String description, Class<T> type, T defaultValue) {
+    this(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
 }
 
-public Cvar(String alias, Class<T> type, T defaultValue, Validator<T> validator) {
+public Cvar(String alias, String description, Class<T> type, T defaultValue, Validator<T> validator) {
     if (alias == null) {
         throw new NullPointerException("Cvar aliases cannot be null");
     } else if (alias.isEmpty()) {
@@ -28,10 +29,11 @@ public Cvar(String alias, Class<T> type, T defaultValue, Validator<T> validator)
     }
 
     this.ALIAS = alias;
+    this.DESCRIPTION = description;
     this.DEFAULT_VALUE = Preconditions.checkNotNull(defaultValue,
             "Cvar default values cannot be null");
     this.TYPE = Preconditions.checkNotNull(type, "Cvar types cannot be null");
-    this.VALIDATOR = validator == null ? Validator.ACCEPT_ALL : validator;
+    this.VALIDATOR = validator == null ? Validator.ACCEPT_NON_NULL : validator;
 
     this.CVAR_CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
 
@@ -39,6 +41,7 @@ public Cvar(String alias, Class<T> type, T defaultValue, Validator<T> validator)
 }
 
 public String getAlias() { return ALIAS; }
+public String getDescription() { return DESCRIPTION; }
 public T getDefaultValue() { return DEFAULT_VALUE; }
 public Class<T> getType() { return TYPE; }
 public Validator<T> getValidator() { return VALIDATOR; }
