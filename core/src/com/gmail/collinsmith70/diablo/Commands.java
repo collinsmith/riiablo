@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 public class Commands {
 
 public static void addTo(CommandManager commandManager) {
-    addTo(commandManager, Cvars.class);
+    addTo(commandManager, Commands.class);
 }
 
 private static void addTo(CommandManager commandManager, Class<?> clazz) {
@@ -18,7 +18,7 @@ private static void addTo(CommandManager commandManager, Class<?> clazz) {
             try {
                 commandManager.add((Command)field.get(null));
             } catch (IllegalAccessException e) {
-                Gdx.app.log(Cvars.class.getSimpleName(), "Unable to access cvar: " + e.getMessage());
+                Gdx.app.log(Commands.class.getSimpleName(), "Unable to access command: " + e.getMessage());
             }
         }
     }
@@ -26,6 +26,10 @@ private static void addTo(CommandManager commandManager, Class<?> clazz) {
     for (Class<?> subclass : clazz.getClasses()) {
         addTo(commandManager, subclass);
     }
+}
+
+private Commands() {
+    //...
 }
 
 }

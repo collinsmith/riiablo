@@ -30,9 +30,28 @@ static {
 private final Trie<String, Cvar<?>> CVARS;
 private final Map<Class<?>, StringSerializer<?>> SERIALIZERS;
 
+private boolean autosave;
+
 public CvarManager() {
+    this(true);
+}
+
+public CvarManager(boolean autosave) {
+    this.autosave = autosave;
+
     this.CVARS = new PatriciaTrie<Cvar<?>>();
     this.SERIALIZERS = new ConcurrentHashMap<Class<?>, StringSerializer<?>>(DEFAULT_SERIALIZERS);
+}
+
+public void setAutosave(boolean b) {
+    this.autosave = b;
+    if (autosave) {
+        saveAll();
+    }
+}
+
+public boolean isAutosaving() {
+    return autosave;
 }
 
 @Override
@@ -42,7 +61,8 @@ public Object beforeChanged(Cvar cvar, Object from, Object to) {
 
 @Override
 public void afterChanged(Cvar cvar, Object from, Object to) {
-
+    save(cvar);
+    commit(cvar);
 }
 
 public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue) {
@@ -56,7 +76,7 @@ public <T> Cvar<T> create(String alias, String description, Class<T> type, T def
 }
 
 public <T> Cvar<T> add(Cvar<T> cvar) {
-    if (isManagingCvar(cvar)) {
+    if (isManaging(cvar)) {
         return cvar;
     } else if (containsAlias(cvar.getAlias())) {
         throw new DuplicateCvarException(cvar, String.format(
@@ -70,7 +90,7 @@ public <T> Cvar<T> add(Cvar<T> cvar) {
 }
 
 public <T> boolean remove(Cvar<T> cvar) {
-    if (!isManagingCvar(cvar)) {
+    if (!isManaging(cvar)) {
         return false;
     }
 
@@ -108,15 +128,21 @@ public <T> void load(Cvar<T> cvar) {
 
 public <T> void save(Cvar<T> cvar) {
     checkIfManaged(cvar);
-
+    commit(cvar);
 }
 
-public <T> void commit(Cvar<T> cvar) {
+public void saveAll() {
+    for (Cvar<?> cvar : CVARS.values()) {
+        save(cvar);
+    }
+}
+
+protected <T> void commit(Cvar<T> cvar) {
     checkIfManaged(cvar);
 }
 
 private <T> void checkIfManaged(Cvar<T> cvar) throws UnmanagedCvarException {
-    if (isManagingCvar(cvar)) {
+    if (isManaging(cvar)) {
         return;
     }
 
@@ -126,7 +152,7 @@ private <T> void checkIfManaged(Cvar<T> cvar) throws UnmanagedCvarException {
             getClass().getSimpleName()));
 }
 
-public <T> boolean isManagingCvar(Cvar<T> cvar) {
+public <T> boolean isManaging(Cvar<T> cvar) {
     Cvar value = CVARS.get(cvar.getAlias().toLowerCase());
     return cvar.equals(value);
 }

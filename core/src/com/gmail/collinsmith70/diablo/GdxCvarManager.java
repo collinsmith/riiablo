@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarManager;
-import com.gmail.collinsmith70.cvar2.GdxCvarManagerListener;
 
 public class GdxCvarManager extends CvarManager {
 
@@ -13,7 +12,7 @@ private static final String TAG = GdxCvarManager.class.getSimpleName();
 private final Preferences PREFERENCES;
 
 public GdxCvarManager() {
-    PREFERENCES = Gdx.app.getPreferences(GdxCvarManagerListener.class.getName());
+    PREFERENCES = Gdx.app.getPreferences(GdxCvarManager.class.getName());
 }
 
 @Override
