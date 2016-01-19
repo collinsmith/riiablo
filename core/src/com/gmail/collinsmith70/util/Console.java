@@ -18,8 +18,12 @@ public Console() {
     this(DEFAULT_BUFFER_CAPACITY);
 }
 
-public Console(int bufferLength) {
-    this(bufferLength, System.out);
+public Console(int initialBufferCapacity) {
+    this(initialBufferCapacity, System.out);
+}
+
+public Console(OutputStream out) {
+    this(DEFAULT_BUFFER_CAPACITY, out);
 }
 
 public Console(int initialBufferCapacity, OutputStream out) {

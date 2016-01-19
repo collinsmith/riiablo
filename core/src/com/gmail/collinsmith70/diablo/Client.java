@@ -2,29 +2,42 @@ package com.gmail.collinsmith70.diablo;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.gmail.collinsmith70.command.CommandManager;
-import com.gmail.collinsmith70.cvar.CvarManager;
-import com.gmail.collinsmith70.key.KeyManager;
 import com.gmail.collinsmith70.util.Console;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 public class Client implements ApplicationListener {
 
 private static final String TAG = Client.class.getSimpleName();
 
+private final PrintStream STDOUT;
+private final PrintStream STDERR;
 private Console CONSOLE;
 
 private CommandManager COMMAND_MANAGER;
-private CvarManager CVAR_MANAGER;
-private KeyManager<Integer> KEY_MANAGER;
+private GdxCvarManager CVAR_MANAGER;
+private GdxKeyManager KEY_MANAGER;
 
 public Client() {
-    this.CONSOLE = new Console() {};
+    this.STDOUT = System.out;
+    this.STDERR = System.err;
+
+    FileHandle consoleFileHandle = Gdx.files.local("console.out");
+    OutputStream consoleOut = consoleFileHandle.write(false);
+
+    this.CONSOLE = new Console(consoleOut) {};
     System.setOut(CONSOLE);
     System.setErr(CONSOLE);
 }
 
+public Console getConsole() { return CONSOLE; }
+
 public CommandManager getCommandManager() { return COMMAND_MANAGER; }
-public CvarManager getCvarManager() { return CVAR_MANAGER; }
+public GdxCvarManager getCvarManager() { return CVAR_MANAGER; }
+public GdxKeyManager getKeyManager() { return KEY_MANAGER; }
 
 @Override
 public void create() {
@@ -49,6 +62,12 @@ public void dispose() {
     this.KEY_MANAGER = null;
 
     this.COMMAND_MANAGER = null;
+
+    System.setOut(STDOUT);
+    System.setErr(STDERR);
+    CONSOLE.flush();
+    CONSOLE.close();
+    this.CONSOLE = null;
 }
 
 }
