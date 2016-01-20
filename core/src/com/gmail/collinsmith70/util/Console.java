@@ -7,41 +7,27 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public abstract class Console extends PrintStream {
 
-private static final int DEFAULT_BUFFER_CAPACITY = 128;
+private static final int INITIAL_BUFFER_CAPACITY = 128;
 
-private final int INITIAL_BUFFER_CAPACITY;
 private final Set<BufferListener> BUFFER_LISTENERS;
 
 private StringBuffer buffer;
 
 public Console() {
-    this(DEFAULT_BUFFER_CAPACITY);
-}
-
-public Console(int initialBufferCapacity) {
-    this(initialBufferCapacity, System.out);
+    this(null);
 }
 
 public Console(OutputStream out) {
-    this(DEFAULT_BUFFER_CAPACITY, out);
-}
-
-public Console(int initialBufferCapacity, OutputStream out) {
     super(out, true);
-    if (initialBufferCapacity < 0) {
-        throw new IllegalArgumentException(String.format(
-                "Invalid console initial buffer capacity given (%d). " +
-                "Console buffer size should be >= 0",
-                initialBufferCapacity));
-    }
-
-    this.INITIAL_BUFFER_CAPACITY = initialBufferCapacity;
     this.BUFFER_LISTENERS = new CopyOnWriteArraySet<BufferListener>();
 }
 
-@Override
-public void flush() {
-    super.flush();
+public void commitBuffer() {
+    println(getBufferContents());
+    clearBuffer();
+}
+
+public void clearBuffer() {
     this.buffer = new StringBuffer(INITIAL_BUFFER_CAPACITY);
 }
 

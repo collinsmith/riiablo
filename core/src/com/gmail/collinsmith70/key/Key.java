@@ -13,6 +13,9 @@ private final String ALIAS;
 private final Set<T> BINDINGS;
 
 private final Set<AddRemoveListener<Key<T>, T>> BIND_LISTENERS;
+private final Set<KeyStateListener<T>> STATE_LISTENERS;
+
+private boolean isPressed;
 
 public Key(String name, String alias, T... binds) {
     if (name == null) {
@@ -32,11 +35,29 @@ public Key(String name, String alias, T... binds) {
     this.BINDINGS = new CopyOnWriteArraySet<T>();
 
     this.BIND_LISTENERS = new CopyOnWriteArraySet<AddRemoveListener<Key<T>, T>>();
+    this.STATE_LISTENERS = new CopyOnWriteArraySet<KeyStateListener<T>>();
+
+    this.isPressed = false;
 }
 
 public String getName() { return NAME; }
 public String getAlias() { return ALIAS; }
 public Set<T> getBindings() { return ImmutableSet.copyOf(BINDINGS); }
+public boolean isPressed() { return isPressed; }
+public void setPressed(boolean b) { setPressed(b, null); }
+
+public void setPressed(boolean b, T binding) {
+    this.isPressed = b;
+    if (isPressed) {
+        for (KeyStateListener<T> keyStateListener : STATE_LISTENERS) {
+            keyStateListener.onPressed(this, binding);
+        }
+    } else {
+        for (KeyStateListener<T> keyStateListener : STATE_LISTENERS) {
+            keyStateListener.onDepressed(this, binding);
+        }
+    }
+}
 
 public Key<T> addBinding(T key) {
     if (key == null) {

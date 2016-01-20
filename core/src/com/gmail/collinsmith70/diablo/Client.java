@@ -15,7 +15,7 @@ private static final String TAG = Client.class.getSimpleName();
 
 private final PrintStream STDOUT;
 private final PrintStream STDERR;
-private Console CONSOLE;
+private ClientConsole CONSOLE;
 
 private CommandManager COMMAND_MANAGER;
 private GdxCvarManager CVAR_MANAGER;
@@ -28,13 +28,12 @@ public Client() {
     FileHandle consoleFileHandle = Gdx.files.local("console.out");
     OutputStream consoleOut = consoleFileHandle.write(false);
 
-    this.CONSOLE = new Console(consoleOut) {};
+    this.CONSOLE = new ClientConsole(consoleOut);
     System.setOut(CONSOLE);
     System.setErr(CONSOLE);
 }
 
-public Console getConsole() { return CONSOLE; }
-
+public ClientConsole getConsole() { return CONSOLE; }
 public CommandManager getCommandManager() { return COMMAND_MANAGER; }
 public GdxCvarManager getCvarManager() { return CVAR_MANAGER; }
 public GdxKeyManager getKeyManager() { return KEY_MANAGER; }
