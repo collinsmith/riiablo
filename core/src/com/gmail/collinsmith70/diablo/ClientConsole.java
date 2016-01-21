@@ -1,29 +1,21 @@
 package com.gmail.collinsmith70.diablo;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.gmail.collinsmith70.util.Console;
 
 import java.io.OutputStream;
 
-public class ClientConsole extends Console implements InputProcessor {
+public abstract class ClientConsole extends Console implements InputProcessor {
 
-private boolean isVisible;
 private int position;
 
 public ClientConsole() {
     super();
-    setVisible(false);
 }
 
 public ClientConsole(OutputStream out) {
     super(out);
-    setVisible(false);
 }
-
-public boolean isVisible() { return isVisible; }
-public void setVisible(boolean b) { this.isVisible = b; }
 
 public int getPosition() { return position; }
 public void setPosition(int i) {
@@ -50,6 +42,7 @@ public boolean keyTyped(char ch) {
         case '\b':
             if (position > 0) {
                 getBuffer().deleteCharAt(position - 1);
+                onBufferModified();
                 setPosition(position - 1);
             }
 
@@ -63,14 +56,51 @@ public boolean keyTyped(char ch) {
         case 127: // DEL
             if (position < getBuffer().length()) {
                 getBuffer().deleteCharAt(position);
+                onBufferModified();
             }
 
             return true;
         default:
             getBuffer().insert(position, ch);
             setPosition(position + 1);
+            onBufferModified();
             return true;
     }
+}
+
+@Override
+public boolean keyDown(int keycode) {
+    return false;
+}
+
+@Override
+public boolean keyUp(int keycode) {
+    return false;
+}
+
+@Override
+public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    return false;
+}
+
+@Override
+public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    return false;
+}
+
+@Override
+public boolean touchDragged(int screenX, int screenY, int pointer) {
+    return false;
+}
+
+@Override
+public boolean mouseMoved(int screenX, int screenY) {
+    return false;
+}
+
+@Override
+public boolean scrolled(int amount) {
+    return false;
 }
 
 }

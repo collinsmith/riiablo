@@ -22,9 +22,22 @@ public Console(OutputStream out) {
     this.BUFFER_LISTENERS = new CopyOnWriteArraySet<BufferListener>();
 }
 
+@Override
+public void flush() {
+    super.flush();
+    for (BufferListener bufferListener : BUFFER_LISTENERS) {
+        bufferListener.flush();
+    }
+}
+
 public void commitBuffer() {
-    println(getBufferContents());
+    String bufferContents = getBufferContents();
+    println(bufferContents);
     clearBuffer();
+
+    for (BufferListener bufferListener : BUFFER_LISTENERS) {
+        bufferListener.commit(bufferContents);
+    }
 }
 
 public void clearBuffer() {
@@ -33,6 +46,13 @@ public void clearBuffer() {
 
 public StringBuffer getBuffer() {
     return buffer;
+}
+
+protected void onBufferModified() {
+    String bufferContents = getBufferContents();
+    for (BufferListener bufferListener : BUFFER_LISTENERS) {
+        bufferListener.modified(bufferContents);
+    }
 }
 
 public String getBufferContents() {
