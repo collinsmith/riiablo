@@ -3,9 +3,12 @@ package com.gmail.collinsmith70.diablo;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.gmail.collinsmith70.command.CommandManager;
-import com.gmail.collinsmith70.util.Console;
+import com.gmail.collinsmith70.diablo.scene.HudedScene;
+import com.gmail.collinsmith70.util.ImmutableDimension;
 
+import java.awt.Dimension;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
@@ -13,30 +16,40 @@ public class Client implements ApplicationListener {
 
 private static final String TAG = Client.class.getSimpleName();
 
+private final Dimension RESOLUTION;
 private final PrintStream STDOUT;
 private final PrintStream STDERR;
-private ClientConsole CONSOLE;
 
+private ClientConsoleView CONSOLE;
 private CommandManager COMMAND_MANAGER;
 private GdxCvarManager CVAR_MANAGER;
 private GdxKeyManager KEY_MANAGER;
+private Stage STAGE;
+private HudedScene HUD;
 
-public Client() {
+public Client(int width, int height) {
+    this.RESOLUTION = new ImmutableDimension(width, height);
+
     this.STDOUT = System.out;
     this.STDERR = System.err;
 
     FileHandle consoleFileHandle = Gdx.files.local("console.out");
     OutputStream consoleOut = consoleFileHandle.write(false);
 
-    this.CONSOLE = new ClientConsole(consoleOut);
+    this.CONSOLE = new ClientConsoleView(consoleOut);
     System.setOut(CONSOLE);
     System.setErr(CONSOLE);
 }
 
-public ClientConsole getConsole() { return CONSOLE; }
+public Dimension getResolution() { return RESOLUTION; }
+public ClientConsoleView getConsole() { return CONSOLE; }
 public CommandManager getCommandManager() { return COMMAND_MANAGER; }
 public GdxCvarManager getCvarManager() { return CVAR_MANAGER; }
 public GdxKeyManager getKeyManager() { return KEY_MANAGER; }
+
+public void setScene() {
+
+}
 
 @Override
 public void create() {
