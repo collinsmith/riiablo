@@ -69,7 +69,7 @@ public <T> Cvar<T> create(String alias, String description, Class<T> type, T def
     return create(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
 }
 
-public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue, Validator<T> validator) {
+public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue, Validator<?> validator) {
     Cvar<T> cvar = new Cvar<T>(alias, description, type, defaultValue, validator);
     load(cvar);
     return add(cvar);

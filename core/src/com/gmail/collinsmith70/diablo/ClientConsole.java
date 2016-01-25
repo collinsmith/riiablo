@@ -5,7 +5,7 @@ import com.gmail.collinsmith70.util.Console;
 
 import java.io.OutputStream;
 
-public abstract class ClientConsole extends Console implements InputProcessor {
+public class ClientConsole extends Console implements InputProcessor {
 
 private int position;
 

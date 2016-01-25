@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.cvar;
 
+import com.gmail.collinsmith70.util.RangeValidator;
 import com.gmail.collinsmith70.util.Validator;
 import com.google.common.base.Preconditions;
 
@@ -12,7 +13,7 @@ private final String ALIAS;
 private final String DESCRIPTION;
 private final T DEFAULT_VALUE;
 private final Class<T> TYPE;
-private final Validator<T> VALIDATOR;
+private final Validator<?> VALIDATOR;
 private final Set<CvarChangeListener<T>> CVAR_CHANGE_LISTENERS;
 
 private T value;
@@ -21,7 +22,7 @@ public Cvar(String alias, String description, Class<T> type, T defaultValue) {
     this(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
 }
 
-public Cvar(String alias, String description, Class<T> type, T defaultValue, Validator<T> validator) {
+public Cvar(String alias, String description, Class<T> type, T defaultValue, Validator<?> validator) {
     if (alias == null) {
         throw new NullPointerException("Cvar aliases cannot be null");
     } else if (alias.isEmpty()) {
@@ -44,8 +45,12 @@ public String getAlias() { return ALIAS; }
 public String getDescription() { return DESCRIPTION; }
 public T getDefaultValue() { return DEFAULT_VALUE; }
 public Class<T> getType() { return TYPE; }
-public Validator<T> getValidator() { return VALIDATOR; }
+public Validator<?> getValidator() { return VALIDATOR; }
 public T getValue() { return value; }
+
+public boolean isRangeValidator() {
+    return VALIDATOR instanceof RangeValidator;
+}
 
 public boolean setValue(T value) {
     if (this.value.equals(value)) {
@@ -58,6 +63,10 @@ public boolean setValue(T value) {
 
     for (CvarChangeListener<T> cvarChangeListener : CVAR_CHANGE_LISTENERS) {
         value = cvarChangeListener.beforeChanged(this, this.value, value);
+    }
+
+    if (this.value.equals(value)) {
+        return true;
     }
 
     changeValue(value);

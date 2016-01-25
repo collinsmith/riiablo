@@ -1,10 +1,13 @@
 package com.gmail.collinsmith70.diablo;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarManager;
 import com.gmail.collinsmith70.util.Validator;
 import com.gmail.collinsmith70.util.validator.NonNullSubclassValidator;
+import com.gmail.collinsmith70.util.validator.NumberRangeValidator;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
@@ -31,15 +34,11 @@ private static void addTo(CvarManager cvarManager, Class<?> clazz) {
     }
 }
 
-private Cvars() {
-    //...
-}
+private Cvars() {}
 
 public static class Client {
 
-    private Client() {
-        //...
-    }
+    private Client() {}
 
     public static final Cvar<Locale> Locale = new Cvar<Locale>(
             "Client.Locale",
@@ -50,9 +49,7 @@ public static class Client {
 
     public static class Console {
 
-        private Console() {
-            //...
-        }
+        private Console() {}
 
         public static final Cvar<String> Prefix = new Cvar<String>(
                 "Client.Console.Prefix",
@@ -60,6 +57,12 @@ public static class Client {
                 String.class,
                 ">",
                 Validator.ACCEPT_NON_NULL_NON_EMPTY_STRING);
+
+        public static final Cvar<AssetDescriptor<BitmapFont>> Font = new Cvar<AssetDescriptor<BitmapFont>>(
+                "Client.Console.Font",
+                "Font for the in-game console output stream",
+                null,
+                new AssetDescriptor<BitmapFont>("default.fnt", BitmapFont.class));
 
     }
 
@@ -136,6 +139,20 @@ public static class Client {
                     1.0f);
 
         }
+    }
+
+    public static class Render {
+
+        private Render() {}
+
+        public static final Cvar<Byte> ShowFPS = new Cvar<Byte>(
+                "Client.Render.ShowFPS",
+                "Whether or not to draw the current FPS. " +
+                        "0-Off, 1-Top Left, 2-Top Right, 3-Bottom Left, 4-Bottom Right",
+                Byte.class,
+                (byte)0,
+                new NumberRangeValidator<Byte>((byte)0, (byte)4));
+
     }
 }
 

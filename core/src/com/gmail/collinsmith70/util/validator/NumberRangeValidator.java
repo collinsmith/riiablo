@@ -1,14 +1,14 @@
 package com.gmail.collinsmith70.util.validator;
 
-import com.gmail.collinsmith70.util.RangeValueValidator;
+import com.gmail.collinsmith70.util.RangeValidator;
 
-public class NumberRangeValueValidator<T extends Number & Comparable<? super T>>
-        implements RangeValueValidator<T> {
+public class NumberRangeValidator<T extends Number & Comparable<? super T>>
+        implements RangeValidator<T> {
 
 private final T MIN;
 private final T MAX;
 
-public NumberRangeValueValidator(T min, T max) {
+public NumberRangeValidator(T min, T max) {
     this.MIN = min;
     this.MAX = max;
 }

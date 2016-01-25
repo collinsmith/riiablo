@@ -4,15 +4,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarManager;
+import com.gmail.collinsmith70.diablo.serializer.AssetDescriptorStringSerializer;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GdxCvarManager extends CvarManager {
 
 private static final String TAG = GdxCvarManager.class.getSimpleName();
 
 private final Preferences PREFERENCES;
+private final Map<Class<?>, AssetDescriptorStringSerializer<?>> ASSET_DESCRIPTOR_SERIALIZERS;
 
 public GdxCvarManager() {
-    PREFERENCES = Gdx.app.getPreferences(GdxCvarManager.class.getName());
+    super();
+    this.PREFERENCES = Gdx.app.getPreferences(GdxCvarManager.class.getName());
+    this.ASSET_DESCRIPTOR_SERIALIZERS = new ConcurrentHashMap<Class<?>, AssetDescriptorStringSerializer<?>>();
 }
 
 @Override
@@ -55,6 +62,14 @@ public void afterChanged(Cvar cvar, Object from, Object to) {
             cvar.getAlias(),
             from,
             to));
+}
+
+public <T> AssetDescriptorStringSerializer<T> getAssetSerializer(Class<T> type) {
+    return (AssetDescriptorStringSerializer<T>)ASSET_DESCRIPTOR_SERIALIZERS.get(type);
+}
+
+public <T> void putAssetSerializer(Class<T> type, AssetDescriptorStringSerializer<T> serializer) {
+    ASSET_DESCRIPTOR_SERIALIZERS.put(type, serializer);
 }
 
 }
