@@ -31,6 +31,7 @@ public void setAutosave(boolean b) {
 public boolean isAutosaving() {
     return autosave;
 }
+
 @Override
 public void onAdded(T binding, Key<T> key) {
     KEYS.put(binding, key);
@@ -38,7 +39,7 @@ public void onAdded(T binding, Key<T> key) {
 
 @Override
 public void onRemoved(T binding, Key<T> key) {
-    KEYS.remove(binding);
+    KEYS.remove(binding, key);
 }
 
 public Key<T> add(Key<T> key) {
@@ -115,15 +116,15 @@ public boolean containsBinding(T binding) {
     return KEYS.containsKey(binding);
 }
 
-public abstract class KeyException extends RuntimeException {
+public static abstract class KeyException extends RuntimeException {
 
-    public final Key<T> KEY;
+    public final Key<?> KEY;
 
     private KeyException() {
         this(null, null);
     }
 
-    private KeyException(Key<T> key) {
+    private KeyException(Key<?> key) {
         this(key, null);
     }
 
@@ -131,24 +132,24 @@ public abstract class KeyException extends RuntimeException {
         this(null, message);
     }
 
-    private KeyException(Key<T> key, String message) {
+    private KeyException(Key<?> key, String message) {
         super(message);
         this.KEY = key;
     }
 
-    private Key<T> getKey() {
+    private Key<?> getKey() {
         return KEY;
     }
 
 }
 
-public class DuplicateKeyException extends KeyException {
+public static class DuplicateKeyException extends KeyException {
 
     private DuplicateKeyException() {
         this(null, null);
     }
 
-    private DuplicateKeyException(Key<T> key) {
+    private DuplicateKeyException(Key<?> key) {
         this(key, null);
     }
 
@@ -156,19 +157,19 @@ public class DuplicateKeyException extends KeyException {
         this(null, message);
     }
 
-    private DuplicateKeyException(Key<T> key, String message) {
+    private DuplicateKeyException(Key<?> key, String message) {
         super(key, message);
     }
 
 }
 
-public class UnmanagedKeyException extends KeyException {
+public static class UnmanagedKeyException extends KeyException {
 
     private UnmanagedKeyException() {
         this(null, null);
     }
 
-    private UnmanagedKeyException(Key<T> key) {
+    private UnmanagedKeyException(Key<?> key) {
         this(key, null);
     }
 
@@ -176,7 +177,7 @@ public class UnmanagedKeyException extends KeyException {
         this(null, message);
     }
 
-    private UnmanagedKeyException(Key<T> key, String message) {
+    private UnmanagedKeyException(Key<?> key, String message) {
         super(key, message);
     }
 

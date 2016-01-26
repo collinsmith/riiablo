@@ -17,7 +17,7 @@ private final Set<KeyStateListener<T>> STATE_LISTENERS;
 
 private boolean isPressed;
 
-public Key(String name, String alias, T... binds) {
+public Key(String name, String alias, T... bindings) {
     if (name == null) {
         throw new NullPointerException("Key names cannot be null");
     } else if (name.isEmpty()) {
@@ -30,12 +30,16 @@ public Key(String name, String alias, T... binds) {
         throw new IllegalArgumentException("Key aliases cannot be empty");
     }
 
+    this.BIND_LISTENERS = new CopyOnWriteArraySet<AddRemoveListener<Key<T>, T>>();
+    this.STATE_LISTENERS = new CopyOnWriteArraySet<KeyStateListener<T>>();
+
     this.NAME = name;
     this.ALIAS = alias;
     this.BINDINGS = new CopyOnWriteArraySet<T>();
-
-    this.BIND_LISTENERS = new CopyOnWriteArraySet<AddRemoveListener<Key<T>, T>>();
-    this.STATE_LISTENERS = new CopyOnWriteArraySet<KeyStateListener<T>>();
+    bindings = bindings == null ? (T[])new Object[0] : bindings;
+    for (T binding : bindings) {
+        addBinding(binding);
+    }
 
     this.isPressed = false;
 }
@@ -59,28 +63,28 @@ public void setPressed(boolean b, T binding) {
     }
 }
 
-public Key<T> addBinding(T key) {
-    if (key == null) {
+public Key<T> addBinding(T binding) {
+    if (binding == null) {
         throw new NullPointerException("Key binds cannot not be null");
     }
 
-    BINDINGS.add(key);
+    BINDINGS.add(binding);
     for (AddRemoveListener<Key<T>, T> bindListener : BIND_LISTENERS) {
-        bindListener.onAdded(key, this);
+        bindListener.onAdded(binding, this);
     }
 
     return this;
 }
 
-public boolean containsBinding(T key) {
-    return BINDINGS.contains(key);
+public boolean containsBinding(T binding) {
+    return BINDINGS.contains(binding);
 }
 
-public boolean removeBinding(T key) {
-    boolean removed = BINDINGS.remove(key);
+public boolean removeBinding(T binding) {
+    boolean removed = BINDINGS.remove(binding);
     if (removed) {
         for (AddRemoveListener<Key<T>, T> bindListener : BIND_LISTENERS) {
-            bindListener.onRemoved(key, this);
+            bindListener.onRemoved(binding, this);
         }
     }
 
@@ -100,6 +104,18 @@ public boolean containsBindingListener(AddRemoveListener<Key<T>, T> l) {
 
 public boolean removeBindingListener(AddRemoveListener<Key<T>, T> l) {
     return BIND_LISTENERS.remove(l);
+}
+
+public void addStateListener(KeyStateListener<T> l) {
+    STATE_LISTENERS.add(l);
+}
+
+public boolean containsStateListener(KeyStateListener<T> l) {
+    return STATE_LISTENERS.contains(l);
+}
+
+public boolean removeStateListener(KeyStateListener<T> l) {
+    return STATE_LISTENERS.remove(l);
 }
 
 }
