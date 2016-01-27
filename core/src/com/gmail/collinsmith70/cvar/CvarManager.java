@@ -86,7 +86,6 @@ public <T> Cvar<T> create(String alias, String description, Class<T> type, T def
 
 public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue, Validator<?> validator) {
     Cvar<T> cvar = new Cvar<T>(alias, description, type, defaultValue, validator);
-    cvar.load(load(cvar));
     return add(cvar);
 }
 
@@ -100,6 +99,7 @@ public <T> Cvar<T> add(Cvar<T> cvar) {
     }
 
     CVARS.put(cvar.getAlias().toLowerCase(), cvar);
+    cvar.load(load(cvar));
     cvar.addCvarChangeListener(this);
     return cvar;
 }
