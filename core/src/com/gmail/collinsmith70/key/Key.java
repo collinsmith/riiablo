@@ -36,7 +36,6 @@ public Key(String name, String alias, T... bindings) {
     this.NAME = name;
     this.ALIAS = alias;
     this.BINDINGS = new CopyOnWriteArraySet<T>();
-    bindings = bindings == null ? (T[])new Object[0] : bindings;
     for (T binding : bindings) {
         addBinding(binding);
     }
