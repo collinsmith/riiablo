@@ -12,4 +12,9 @@ public void onRemoved(T obj, C instance) {
 
 }
 
+@Override
+public void onLoad(T obj, C instance) {
+    onAdded(obj, instance);
+}
+
 }

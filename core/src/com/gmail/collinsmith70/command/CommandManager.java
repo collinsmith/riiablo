@@ -1,6 +1,6 @@
 package com.gmail.collinsmith70.command;
 
-import com.gmail.collinsmith70.util.AddRemoveStringListener;
+import com.gmail.collinsmith70.util.AddRemoveStringAdapter;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -36,7 +36,7 @@ public <T> Command<T> add(Command<T> command) {
         }
     }
 
-    command.addAliasListener(new AddRemoveStringListener<Command<T>>() {
+    command.addAliasListener(new AddRemoveStringAdapter<Command<T>>() {
         @Override
         public void onAdded(String alias, Command<T> command) {
             COMMANDS.put(alias.toLowerCase(), command);

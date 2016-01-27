@@ -13,4 +13,9 @@ public void onRemoved(String alias, T instance) {
 
 }
 
+@Override
+public void onLoad(String alias, T instance) {
+    onAdded(alias, instance);
+}
+
 }

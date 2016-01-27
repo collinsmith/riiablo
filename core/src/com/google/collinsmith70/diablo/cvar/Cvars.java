@@ -2,7 +2,7 @@ package com.google.collinsmith70.diablo.cvar;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.google.collinsmith70.diablo.cvar.listener.validator.FloatValueValidator;
+import com.google.collinsmith70.diablo.cvar.validator.FloatValueValidator;
 
 import java.lang.reflect.Field;
 import java.util.Locale;

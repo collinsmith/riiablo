@@ -4,6 +4,7 @@ import com.gmail.collinsmith70.util.AddRemoveListener;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class KeyManager<T> implements AddRemoveListener<Key<T>, T> {
@@ -42,12 +43,18 @@ public void onRemoved(T binding, Key<T> key) {
     KEYS.remove(binding, key);
 }
 
+@Override
+public void onLoad(T binding, Key<T> key) {
+    onAdded(binding, key);
+}
+
 public Key<T> add(Key<T> key) {
     if (isManaging(key)) {
         return key;
     }
 
     key.addBindingListener(this);
+    key.load(load(key));
     return key;
 }
 
@@ -82,18 +89,19 @@ public boolean isManaging(Key<?> key) {
 }
 
 
-public void load(Key<T> key) {
+public Set<T> load(Key<T> key) {
     checkIfManaged(key);
+    return null;
 }
 
 public void save(Key<T> key) {
     checkIfManaged(key);
-    commit(key);
 }
 
 public void saveAll() {
     for (Key<T> key : KEYS.values()) {
         save(key);
+        commit(key);
     }
 }
 

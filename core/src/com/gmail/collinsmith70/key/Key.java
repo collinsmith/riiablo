@@ -1,6 +1,7 @@
 package com.gmail.collinsmith70.key;
 
 import com.gmail.collinsmith70.util.AddRemoveListener;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
@@ -75,6 +76,13 @@ public Key<T> addBinding(T binding) {
     return this;
 }
 
+void load(Set<T> bindings) {
+    BINDINGS.clear();
+    for (T binding : bindings) {
+        BINDINGS.add(Preconditions.checkNotNull(binding));
+    }
+}
+
 public boolean containsBinding(T binding) {
     return BINDINGS.contains(binding);
 }
@@ -93,7 +101,7 @@ public boolean removeBinding(T binding) {
 public void addBindingListener(AddRemoveListener<Key<T>, T> l) {
     BIND_LISTENERS.add(l);
     for (T binding : BINDINGS) {
-        l.onAdded(binding, this);
+        l.onLoad(binding, this);
     }
 }
 
