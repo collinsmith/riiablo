@@ -12,4 +12,9 @@ public void afterChanged(Cvar<T> cvar, T from, T to) {
     //...
 }
 
+@Override
+public void onLoad(Cvar<T> cvar, T to) {
+    afterChanged(cvar, null, to);
+}
+
 }

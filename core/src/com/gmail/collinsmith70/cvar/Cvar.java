@@ -86,9 +86,16 @@ private void changeValue(T value) {
     }
 }
 
+void load(T value) {
+    this.value = value;
+    for (CvarChangeListener<T> cvarChangeListener : CVAR_CHANGE_LISTENERS) {
+        cvarChangeListener.onLoad(this, this.value);
+    }
+}
+
 public void addCvarChangeListener(CvarChangeListener<T> l) {
     CVAR_CHANGE_LISTENERS.add(l);
-    l.afterChanged(this, value, value);
+    l.onLoad(this, value);
 }
 
 public boolean containsCvarChangeListener(CvarChangeListener<T> l) {

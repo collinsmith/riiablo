@@ -3,9 +3,14 @@ package com.gmail.collinsmith70.cvar;
 import com.gmail.collinsmith70.util.StringSerializer;
 import com.gmail.collinsmith70.util.Validator;
 import com.gmail.collinsmith70.util.serializer.BooleanStringSerializer;
+import com.gmail.collinsmith70.util.serializer.ByteStringSerializer;
+import com.gmail.collinsmith70.util.serializer.CharacterStringSerializer;
 import com.gmail.collinsmith70.util.serializer.DoubleStringSerializer;
+import com.gmail.collinsmith70.util.serializer.FloatStringSerializer;
 import com.gmail.collinsmith70.util.serializer.IntegerStringSerializer;
+import com.gmail.collinsmith70.util.serializer.LongStringSerializer;
 import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
+import com.gmail.collinsmith70.util.serializer.ShortStringSerializer;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -16,14 +21,19 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class CvarManager implements CvarChangeListener {
+public class CvarManager implements CvarChangeListener {
 
 private static final Map<Class<?>, StringSerializer<?>> DEFAULT_SERIALIZERS;
 static {
     DEFAULT_SERIALIZERS = new HashMap<Class<?>, StringSerializer<?>>();
+    DEFAULT_SERIALIZERS.put(Character.class, CharacterStringSerializer.INSTANCE);
     DEFAULT_SERIALIZERS.put(String.class, ObjectStringSerializer.INSTANCE);
     DEFAULT_SERIALIZERS.put(Boolean.class, BooleanStringSerializer.INSTANCE);
+    DEFAULT_SERIALIZERS.put(Byte.class, ByteStringSerializer.INSTANCE);
+    DEFAULT_SERIALIZERS.put(Short.class, ShortStringSerializer.INSTANCE);
     DEFAULT_SERIALIZERS.put(Integer.class, IntegerStringSerializer.INSTANCE);
+    DEFAULT_SERIALIZERS.put(Long.class, LongStringSerializer.INSTANCE);
+    DEFAULT_SERIALIZERS.put(Float.class, FloatStringSerializer.INSTANCE);
     DEFAULT_SERIALIZERS.put(Double.class, DoubleStringSerializer.INSTANCE);
 }
 
@@ -65,13 +75,18 @@ public void afterChanged(Cvar cvar, Object from, Object to) {
     commit(cvar);
 }
 
+@Override
+public void onLoad(Cvar cvar, Object to) {
+    //...
+}
+
 public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue) {
     return create(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
 }
 
 public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue, Validator<?> validator) {
     Cvar<T> cvar = new Cvar<T>(alias, description, type, defaultValue, validator);
-    load(cvar);
+    cvar.load(load(cvar));
     return add(cvar);
 }
 
@@ -122,8 +137,9 @@ public Collection<Cvar<?>> getCvars() {
     return CVARS.values();
 }
 
-public <T> void load(Cvar<T> cvar) {
+public <T> T load(Cvar<T> cvar) {
     checkIfManaged(cvar);
+    return cvar.getDefaultValue();
 }
 
 public <T> void save(Cvar<T> cvar) {
