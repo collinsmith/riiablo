@@ -1,8 +1,6 @@
 package com.gmail.collinsmith70.diablo;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarManager;
 import com.gmail.collinsmith70.util.Validator;
@@ -47,6 +45,14 @@ public static class Client {
             java.util.Locale.getDefault(),
             new NonNullSubclassValidator<Locale>(Locale.class));
 
+    public static final Cvar<Boolean> Windowed = new Cvar<Boolean>(
+            "Client.Windowed",
+            "Whether or not the client is in windowed mode. " +
+                    "Note: This cvar is ignored when the client " +
+                    "is started with the -windowed option",
+            Boolean.class,
+            Boolean.FALSE);
+
     public static class Console {
 
         private Console() {}
@@ -58,11 +64,12 @@ public static class Client {
                 ">",
                 Validator.ACCEPT_NON_NULL_NON_EMPTY_STRING);
 
-        public static final Cvar<AssetDescriptor<BitmapFont>> Font = new Cvar<AssetDescriptor<BitmapFont>>(
+        public static final Cvar<String> Font = new Cvar<String>(
                 "Client.Console.Font",
                 "Font for the in-game console output stream",
-                null,
-                new AssetDescriptor<BitmapFont>("default.fnt", BitmapFont.class));
+                String.class,
+                "default.fnt",
+                Validator.ACCEPT_NON_NULL_NON_EMPTY_STRING);
 
     }
 

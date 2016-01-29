@@ -6,6 +6,8 @@ import com.google.common.base.Preconditions;
 
 public class ClientInputProcessor implements InputProcessor {
 
+private static final String TAG = ClientInputProcessor.class.getSimpleName();
+
 private final Client CLIENT;
 private final GdxKeyManager KEY_MANAGER;
 private final InputProcessor PROPAGATING;
@@ -29,7 +31,7 @@ public boolean keyDown(int keycode) {
         key.setPressed(true, keycode);
     }
 
-    return false;
+    return PROPAGATING.keyDown(keycode);
 }
 
 @Override
@@ -39,37 +41,37 @@ public boolean keyUp(int keycode) {
         key.setPressed(false, keycode);
     }
 
-    return false;
+    return PROPAGATING.keyUp(keycode);
 }
 
 @Override
-public boolean keyTyped(char character) {
-    return false;
+public boolean keyTyped(char ch) {
+    return PROPAGATING.keyTyped(ch);
 }
 
 @Override
 public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-    return false;
+    return PROPAGATING.touchDown(screenX, screenY, pointer, button);
 }
 
 @Override
 public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-    return false;
+    return PROPAGATING.touchUp(screenX, screenY, pointer, button);
 }
 
 @Override
 public boolean touchDragged(int screenX, int screenY, int pointer) {
-    return false;
+    return PROPAGATING.touchDragged(screenX, screenY, pointer);
 }
 
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
-    return false;
+    return PROPAGATING.mouseMoved(screenX, screenY);
 }
 
 @Override
 public boolean scrolled(int amount) {
-    return false;
+    return PROPAGATING.scrolled(amount);
 }
 
 }

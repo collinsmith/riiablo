@@ -12,7 +12,7 @@ private final Hud HUD;
 
 public HudedScene(Client client) {
     this.CLIENT = Preconditions.checkNotNull(client, "Client cannot be null");
-    this.HUD = new Hud();
+    this.HUD = new Hud(client);
     addActor(HUD);
 }
 

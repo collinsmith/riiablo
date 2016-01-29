@@ -2,26 +2,33 @@ package com.gmail.collinsmith70.diablo;
 
 import com.badlogic.gdx.InputProcessor;
 import com.gmail.collinsmith70.util.Console;
+import com.google.common.base.Preconditions;
 
 import java.io.OutputStream;
 
 public class ClientConsole extends Console implements InputProcessor {
 
+private final Client CLIENT;
+
 private int position;
 
-public ClientConsole() {
+public ClientConsole(Client client) {
     super();
+    this.CLIENT = Preconditions.checkNotNull(client);
 }
 
-public ClientConsole(OutputStream out) {
+public ClientConsole(Client client, OutputStream out) {
     super(out);
+    this.CLIENT = Preconditions.checkNotNull(client);
 }
+
+public Client getClient() { return CLIENT; }
 
 public int getPosition() { return position; }
 public void setPosition(int i) {
     if (i < 0) {
         throw new IllegalArgumentException("position should be positive");
-    } else if (i >= getBuffer().length()) {
+    } else if (i > getBuffer().length()) {
         throw new IllegalArgumentException("position should less than buffer length: " + getBuffer().length());
     }
 

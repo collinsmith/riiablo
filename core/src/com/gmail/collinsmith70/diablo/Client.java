@@ -1,27 +1,31 @@
 package com.gmail.collinsmith70.diablo;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.gmail.collinsmith70.command.CommandManager;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarChangeAdapter;
 import com.gmail.collinsmith70.diablo.scene.HudedScene;
-import com.gmail.collinsmith70.diablo.serializer.AssetDescriptorStringSerializer;
 import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
+import com.gmail.collinsmith70.key.Key;
+import com.gmail.collinsmith70.key.KeyStateAdapter;
 import com.gmail.collinsmith70.util.ImmutableDimension;
+import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 
 import java.awt.Dimension;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Locale;
 
 public class Client implements ApplicationListener {
 
@@ -31,8 +35,12 @@ private final Dimension RESOLUTION;
 private final PrintStream STDOUT;
 private final PrintStream STDERR;
 
+private final boolean FORCE_WINDOWED;
+
 private ClientConsole CONSOLE;
 private ClientConsoleWidget CONSOLE_WIDGET;
+
+private ClientInputProcessor INPUT_PROCESSOR;
 
 private CommandManager COMMAND_MANAGER;
 private GdxCvarManager CVAR_MANAGER;
@@ -44,29 +52,35 @@ private Stage STAGE;
 private HudedScene scene;
 
 private byte pCvar_showFps;
+private boolean pCvar_Windowed;
 
 private BitmapFont font;
 
 public Client(int width, int height) {
+    this(width, height, false);
+}
+
+public Client(int width, int height, boolean forceWindowed) {
     this.RESOLUTION = new ImmutableDimension(width, height);
+    this.FORCE_WINDOWED = forceWindowed;
 
     this.STDOUT = System.out;
     this.STDERR = System.err;
-
-    FileHandle consoleFileHandle = Gdx.files.local("console.out");
-    OutputStream consoleOut = consoleFileHandle.write(false);
-
-    this.CONSOLE = new ClientConsole(consoleOut);
-    System.setOut(CONSOLE);
-    System.setErr(CONSOLE);
 }
 
 @Override
 public void create() {
+    //FileHandle consoleFileHandle = Gdx.files.local("console.out");
+    //OutputStream consoleOut = consoleFileHandle.write(false);
+    OutputStream consoleOut = System.out;
+
+    this.CONSOLE = new ClientConsole(this, consoleOut);
+    System.setOut(CONSOLE);
+    System.setErr(CONSOLE);
+
     this.CVAR_MANAGER = new GdxCvarManager();
     setSerializers();
     Cvars.addTo(CVAR_MANAGER);
-    initPCvars();
 
     this.COMMAND_MANAGER = new CommandManager();
     Commands.addTo(COMMAND_MANAGER);
@@ -77,44 +91,75 @@ public void create() {
     FileHandleResolver fhResolver = new InternalFileHandleResolver();
     this.ASSET_MANAGER = new AssetManager(fhResolver);
     setAssetLoaders(fhResolver);
+    initPCvars();
     loadCommonAssets();
 
     this.CONSOLE_WIDGET = new ClientConsoleWidget(CONSOLE);
 
     this.STAGE = new Stage();
     STAGE.setViewport(new FitViewport(RESOLUTION.width, RESOLUTION.height));
+    STAGE.setDebugAll(true);
 
+    Gdx.input.setCatchBackKey(true);
+    Gdx.input.setCatchMenuKey(true);
+    this.INPUT_PROCESSOR = new ClientInputProcessor(this, STAGE);
+    Gdx.input.setInputProcessor(INPUT_PROCESSOR);
+
+    Keys.Console.addStateListener(new KeyStateAdapter<Integer>() {
+        @Override
+        public void onPressed(Key<Integer> key, Integer binding) {
+            CONSOLE_WIDGET.setVisible(!CONSOLE_WIDGET.isVisible());
+            Gdx.app.log(TAG, "Console visible = " + CONSOLE_WIDGET.isVisible());
+        }
+    });
+
+    setScene(new HudedScene(this));
+}
+
+private void setSerializers() {
+    Gdx.app.log(TAG, "Setting serializers...");
+
+    CVAR_MANAGER.putSerializer(Locale.class, LocaleStringSerializer.INSTANCE);
 }
 
 private void initPCvars() {
+    Cvars.Client.Windowed.addCvarChangeListener(new CvarChangeAdapter<Boolean>() {
+        @Override
+        public void afterChanged(Cvar<Boolean> cvar, Boolean from, Boolean to) {
+            Client.this.pCvar_Windowed = to;
+            if (Gdx.app.getType() == Application.ApplicationType.Desktop
+                    && !Client.this.FORCE_WINDOWED) {
+                Gdx.graphics.setDisplayMode(
+                        Gdx.graphics.getWidth(),
+                        Gdx.graphics.getHeight(),
+                        !to);
+            }
+        }
+    });
+
     Cvars.Client.Render.ShowFPS.addCvarChangeListener(new CvarChangeAdapter<Byte>() {
         @Override
         public void afterChanged(Cvar<Byte> cvar, Byte from, Byte to) {
             Client.this.pCvar_showFps = to;
         }
     });
+
+    Cvars.Client.Console.Font.addCvarChangeListener(new CvarChangeAdapter<String>() {
+        @Override
+        public void afterChanged(Cvar<String> cvar, String from, String to) {
+            Client.this.ASSET_MANAGER.load(to, BitmapFont.class);
+            ASSET_MANAGER.finishLoading();
+            Client.this.font = Client.this.ASSET_MANAGER.get(to);
+        }
+    });
 }
-
-private void setSerializers() {
-    Gdx.app.log(TAG, "Setting serializers...");
-
-    CVAR_MANAGER.putAssetSerializer(
-            BitmapFont.class,
-            new AssetDescriptorStringSerializer<BitmapFont>(BitmapFont.class));
-}
-
 
 private void setAssetLoaders(FileHandleResolver resolver) {
     Gdx.app.log(TAG, "Setting asset loaders...");
-
-    CVAR_MANAGER.putAssetSerializer(
-            BitmapFont.class,
-            new AssetDescriptorStringSerializer<BitmapFont>(BitmapFont.class));
 }
 
 private void loadCommonAssets() {
     Gdx.app.log(TAG, "Loading common assets...");
-
 
 
     ASSET_MANAGER.finishLoading();
@@ -127,14 +172,28 @@ public AssetManager getAssetManager() { return ASSET_MANAGER; }
 public CommandManager getCommandManager() { return COMMAND_MANAGER; }
 public GdxCvarManager getCvarManager() { return CVAR_MANAGER; }
 public GdxKeyManager getKeyManager() { return KEY_MANAGER; }
+public BitmapFont getDefaultFont() { return font; }
 
-public void setScene() {
+public boolean isFullscreen() {
+    return !pCvar_Windowed && !FORCE_WINDOWED;
+}
 
+public void setScene(HudedScene scene) {
+    STAGE.clear();
+    STAGE.addActor(scene);
+    STAGE.addActor(CONSOLE_WIDGET);
+
+    HudedScene oldScene = this.scene;
+    if (oldScene != null) {
+        oldScene.dispose();
+    }
+
+    this.scene = scene;
 }
 
 @Override
 public void resize(int width, int height) {
-
+    STAGE.getViewport().update(width, height, true);
 }
 
 @Override
@@ -146,8 +205,32 @@ public void render() {
     Batch b = STAGE.getBatch();
     b.begin(); {
         if (pCvar_showFps > 0) {
-            //CONSOLE.getFont()
-            //        .draw(b, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, VIRTUAL_HEIGHT);
+            GlyphLayout fps = new GlyphLayout(
+                    font,
+                    Integer.toString(Gdx.graphics.getFramesPerSecond()));
+
+            float x = 0;
+            float y = 0;
+            switch (pCvar_showFps) {
+                case 1:
+                    x = 0;
+                    y = RESOLUTION.height;
+                    break;
+                case 2:
+                    x = RESOLUTION.width - fps.width;
+                    y = RESOLUTION.height;
+                    break;
+                case 3:
+                    x = 0;
+                    y = 0;
+                    break;
+                case 4:
+                    x = RESOLUTION.width - fps.width;
+                    y = 0;
+                    break;
+            }
+
+            font.draw(b, fps, x ,y);
         }
     } b.end();
 }
@@ -165,8 +248,11 @@ public void resume() {
 @Override
 public void dispose() {
     Gdx.app.log(TAG, "Disposing scene...");
-    scene.dispose();
-    this.scene = null;
+    if (scene != null) {
+        scene.dispose();
+        this.scene = null;
+    }
+
     Gdx.app.log(TAG, "Disposing stage...");
     STAGE.dispose();
     this.STAGE = null;
