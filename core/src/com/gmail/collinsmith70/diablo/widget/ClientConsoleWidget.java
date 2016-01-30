@@ -67,7 +67,7 @@ public ClientConsole getConsole() { return CONSOLE; }
 
 @Override
 public void onPrintln(String s) {
-    OUTPUT_TEXTAREA.setText(OUTPUT_TEXTAREA.getText() + s);
+    OUTPUT_TEXTAREA.setText(OUTPUT_TEXTAREA.getText() + s + '\n');
 }
 
 @Override
