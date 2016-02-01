@@ -65,12 +65,7 @@ public boolean isAutosaving() {
 }
 
 @Override
-public Object beforeChanged(Cvar cvar, Object from, Object to) {
-    return to;
-}
-
-@Override
-public void afterChanged(Cvar cvar, Object from, Object to) {
+public void onChanged(Cvar cvar, Object from, Object to) {
     save(cvar);
     commit(cvar);
 }
