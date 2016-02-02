@@ -1,6 +1,6 @@
 package com.gmail.collinsmith70.cvar;
 
-import com.gmail.collinsmith70.util.NotNull;
+import com.gmail.collinsmith70.util.annotation.NotNull;
 import com.gmail.collinsmith70.util.RangeValidator;
 import com.gmail.collinsmith70.util.ValidationException;
 import com.gmail.collinsmith70.util.Validator;

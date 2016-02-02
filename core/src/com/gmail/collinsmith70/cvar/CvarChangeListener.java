@@ -1,6 +1,6 @@
 package com.gmail.collinsmith70.cvar;
 
-import com.gmail.collinsmith70.util.NotNull;
+import com.gmail.collinsmith70.util.annotation.NotNull;
 
 /**
  * Abstraction enumerating the methods required to listen and receive callbacks from certain

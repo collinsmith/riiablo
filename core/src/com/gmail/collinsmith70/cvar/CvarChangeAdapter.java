@@ -1,6 +1,6 @@
 package com.gmail.collinsmith70.cvar;
 
-import com.gmail.collinsmith70.util.NotNull;
+import com.gmail.collinsmith70.util.annotation.NotNull;
 
 /**
  * Implementation of a {@link CvarChangeListener} which treats load events as change event from

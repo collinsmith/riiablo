@@ -4,7 +4,7 @@ import com.gmail.collinsmith70.util.RangeValidator;
 import com.gmail.collinsmith70.util.RangeValidationException;
 import com.gmail.collinsmith70.util.ValidationException;
 import com.google.common.base.Preconditions;
-import com.gmail.collinsmith70.util.NotNull;
+import com.gmail.collinsmith70.util.annotation.NotNull;
 
 /**
  * Implementation of a {@link RangeValidator} which validates that objects lie in some

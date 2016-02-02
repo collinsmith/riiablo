@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.util;
+package com.gmail.collinsmith70.util.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
