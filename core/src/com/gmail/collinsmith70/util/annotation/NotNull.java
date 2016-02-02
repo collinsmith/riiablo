@@ -12,7 +12,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- *
+ * The annotated element must not be {@code null}. Accepts any type.
  */
 @Target(value={METHOD,FIELD,ANNOTATION_TYPE,CONSTRUCTOR,PARAMETER})
 @Retention(value=RUNTIME)
