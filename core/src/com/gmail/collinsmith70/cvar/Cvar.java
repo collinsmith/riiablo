@@ -185,10 +185,7 @@ public boolean setValue(T value) {
         return true;
     }
 
-    if (!VALIDATOR.isValid(value)) {
-        return false;
-    }
-
+    VALIDATOR.validate(value);
     changeValue(value);
     return true;
 }
