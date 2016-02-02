@@ -1,16 +1,14 @@
 package com.gmail.collinsmith70.util.validator;
 
-import com.gmail.collinsmith70.util.Validator;
+import com.gmail.collinsmith70.util.ValidatorException;
 
-public class NonNullValidator<T> implements Validator<T> {
+public class NonNullValidator<T> extends SimpleValidator<T> {
 
 @Override
-public boolean isValid(Object obj) {
+public void validate(Object obj) {
     if (obj == null) {
-        return false;
+        throw new ValidatorException("passed reference cannot be null");
     }
-
-    return true;
 }
 
 }

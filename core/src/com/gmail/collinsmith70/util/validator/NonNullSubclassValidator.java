@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.util.validator;
 
+import com.gmail.collinsmith70.util.ValidatorException;
 import com.google.common.base.Preconditions;
 
 public class NonNullSubclassValidator<T> extends NonNullValidator<T> {
@@ -11,16 +12,11 @@ public NonNullSubclassValidator(Class<T> type) {
 }
 
 @Override
-public boolean isValid(Object obj) {
-    if (!super.isValid(obj)) {
-        return false;
-    }
-
+public void validate(Object obj) {
+    super.validate(obj);
     if (!TYPE.isAssignableFrom(obj.getClass())) {
-        return false;
+        throw new ValidatorException("passed reference is not a subclass of " + TYPE.getName());
     }
-
-    return true;
 }
 
 }

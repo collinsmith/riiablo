@@ -11,5 +11,6 @@ static Validator<?> ACCEPT_NON_NULL = new NonNullValidator();
 static Validator<String> ACCEPT_NON_NULL_NON_EMPTY_STRING = new NonNullNonEmptyStringValidator();
 
 boolean isValid(Object obj);
+void validate(Object obj);
 
 }
