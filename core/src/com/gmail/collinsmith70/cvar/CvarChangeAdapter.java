@@ -1,5 +1,7 @@
 package com.gmail.collinsmith70.cvar;
 
+import com.sun.istack.internal.NotNull;
+
 /**
  * Implementation of a {@link CvarChangeListener} which treats load events as change event from
  * {@literal null} to the current value.
@@ -16,7 +18,7 @@ public class CvarChangeAdapter<T> implements CvarChangeListener<T> {
  * @param to   value of the {@linkplain Cvar}
  */
 @Override
-public void onChanged(Cvar<T> cvar, T from, T to) {}
+public void onChanged(@NotNull Cvar<T> cvar, T from, @NotNull T to) {}
 
 /**
  * Called when a {@linkplain Cvar} is loaded and propagates that callback to
@@ -27,7 +29,7 @@ public void onChanged(Cvar<T> cvar, T from, T to) {}
  * @param to   value of the {@linkplain Cvar}
  */
 @Override
-public void onLoad(Cvar<T> cvar, T to) {
+public void onLoad(@NotNull Cvar<T> cvar, @NotNull T to) {
     onChanged(cvar, null, to);
 }
 

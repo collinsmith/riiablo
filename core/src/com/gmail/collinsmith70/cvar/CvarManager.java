@@ -123,7 +123,7 @@ public boolean isAutosaving() {
  * {@inheritDoc}
  */
 @Override
-public void onChanged(Cvar cvar, Object from, Object to) {
+public void onChanged(@NotNull Cvar cvar, Object from, @NotNull Object to) {
     save(cvar);
 }
 
@@ -131,9 +131,7 @@ public void onChanged(Cvar cvar, Object from, Object to) {
  * {@inheritDoc}
  */
 @Override
-public void onLoad(Cvar cvar, Object to) {
-    //...
-}
+public void onLoad(Cvar cvar, @NotNull Object to) {}
 
 /**
  * Creates a new {@link Cvar} instance and adds it to this {@linkplain CvarManager} with its
@@ -150,7 +148,8 @@ public void onLoad(Cvar cvar, Object to) {
  * @throws DuplicateCvarException if there is already a {@link Cvar} instance added to this
  *                                {@linkplain CvarManager} with the given {@code alias}
  */
-public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue) {
+public <T> Cvar<T> create(@NotNull String alias, String description, @NotNull Class<T> type,
+                          @NotNull T defaultValue) {
     return create(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
 }
 
@@ -169,7 +168,8 @@ public <T> Cvar<T> create(String alias, String description, Class<T> type, T def
  * @throws DuplicateCvarException if there is already a {@link Cvar} instance added to this
  *                                {@linkplain CvarManager} with the given {@code alias}
  */
-public <T> Cvar<T> create(String alias, String description, Class<T> type, T defaultValue, Validator<?> validator) {
+public <T> Cvar<T> create(@NotNull String alias, String description, @NotNull Class<T> type,
+                          @NotNull T defaultValue, Validator<?> validator) {
     Cvar<T> cvar = new Cvar<T>(alias, description, type, defaultValue, validator);
     add(cvar);
     return cvar;
@@ -185,7 +185,7 @@ public <T> Cvar<T> create(String alias, String description, Class<T> type, T def
  * @throws DuplicateCvarException if there is already a {@link Cvar} instance added to this
  *                                {@linkplain CvarManager} with the given {@code alias}
  */
-public <T> CvarManager add(Cvar<T> cvar) {
+public <T> CvarManager add(@NotNull Cvar<T> cvar) {
     if (isManaging(cvar)) {
         return this;
     } else if (containsAlias(cvar.getAlias())) {
@@ -207,7 +207,7 @@ public <T> CvarManager add(Cvar<T> cvar) {
  *         {@linkplain CvarManager}, otherwise {@literal false} if the {@linkplain Cvar} is
  *         not managed by this {@linkplain CvarManager} and could not be removed
  */
-public boolean remove(Cvar<?> cvar) {
+public boolean remove(@NotNull Cvar<?> cvar) {
     if (!isManaging(cvar)) {
         return false;
     }
@@ -228,7 +228,7 @@ public boolean remove(Cvar<?> cvar) {
  *
  * @see Cvar#getAlias()
  */
-public <T> Cvar<T> get(String alias) {
+public <T> Cvar<T> get(@NotNull String alias) {
     alias = alias.toLowerCase();
     return (Cvar<T>)CVARS.get(alias);
 }
@@ -242,7 +242,7 @@ public <T> Cvar<T> get(String alias) {
  * @return {@link SortedMap} containing the results of the query sorted lexicographically according
  *         to the {@linkplain Cvar#getAlias() alias}
  */
-public SortedMap<String, Cvar<?>> search(String alias) {
+public SortedMap<String, Cvar<?>> search(@NotNull String alias) {
     alias = alias.toLowerCase();
     return CVARS.prefixMap(alias);
 }
@@ -262,7 +262,7 @@ public Collection<Cvar<?>> getCvars() {
  *
  * @return value which was stored
  */
-public abstract <T> T load(Cvar<T> cvar);
+public abstract <T> T load(@NotNull Cvar<T> cvar);
 
 /**
  * Saves the specified {@link Cvar}
@@ -270,7 +270,7 @@ public abstract <T> T load(Cvar<T> cvar);
  * @param cvar {@link Cvar} to attempt to {@linkplain StringSerializer#serialize(Object) serialize}
  *             and save
  */
-public abstract <T> void save(Cvar<T> cvar);
+public abstract <T> void save(@NotNull Cvar<T> cvar);
 
 /**
  * Macro version of {@link #save(Cvar)} which attempts to save all {@link Cvar} instances managed
@@ -288,7 +288,7 @@ public void saveAll() {
  * @return {@code true} if the specified {@link Cvar} is being managed by this
  *         {@linkplain CvarManager}, otherwise {@code false}
  */
-public <T> boolean isManaging(Cvar<T> cvar) {
+public <T> boolean isManaging(@NotNull Cvar<T> cvar) {
     Cvar value = CVARS.get(cvar.getAlias().toLowerCase());
     return cvar.equals(value);
 }
@@ -299,7 +299,7 @@ public <T> boolean isManaging(Cvar<T> cvar) {
  * @return {@code true} if this {@linkplain CvarManager} is managing a {@link Cvar} with the given
  *         {@linkplain Cvar#getAlias() alias}, otherwise {@code false}
  */
-public boolean containsAlias(String alias) {
+public boolean containsAlias(@NotNull String alias) {
     return CVARS.containsKey(alias.toLowerCase());
 }
 
@@ -309,7 +309,7 @@ public boolean containsAlias(String alias) {
  *         {@link Cvar} instances with the given type, otherwise {@code null} if no
  *         {@link StringSerializer} has been set for that {@code type} yet
  */
-public <T> StringSerializer<T> getSerializer(Class<T> type) {
+public <T> StringSerializer<T> getSerializer(@NotNull Class<T> type) {
     return (StringSerializer<T>)SERIALIZERS.get(type);
 }
 
@@ -318,7 +318,7 @@ public <T> StringSerializer<T> getSerializer(Class<T> type) {
  * @return the {@link StringSerializer} which will be used for that {@link Cvar}, otherwise
  *         {@code null} if none has been set yet
  */
-public <T> StringSerializer<T> getSerializer(Cvar<T> cvar) {
+public <T> StringSerializer<T> getSerializer(@NotNull Cvar<T> cvar) {
     return getSerializer(cvar.getType());
 }
 
@@ -326,7 +326,7 @@ public <T> StringSerializer<T> getSerializer(Cvar<T> cvar) {
  * @param type       {@linkplain Class type} reference to assign the {@link StringSerializer} to
  * @param serializer {@link StringSerializer} to assign
  */
-public <T> void putSerializer(Class<T> type, StringSerializer<T> serializer) {
+public <T> void putSerializer(@NotNull Class<T> type, @NotNull StringSerializer<T> serializer) {
     SERIALIZERS.put(type, serializer);
 }
 

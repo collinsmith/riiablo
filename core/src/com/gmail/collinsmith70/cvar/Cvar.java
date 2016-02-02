@@ -83,7 +83,8 @@ private boolean isLoaded;
  * @param defaultValue value to be assigned to this CVAR by default and which no validation is
  *                     performed
  */
-public Cvar(String alias, String description, Class<T> type, T defaultValue) {
+public Cvar(@NotNull String alias, String description, @NotNull Class<T> type,
+            @NotNull T defaultValue) {
     this(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
 }
 
@@ -97,7 +98,8 @@ public Cvar(String alias, String description, Class<T> type, T defaultValue) {
  *                     performed
  * @param validator    {@link Validator} to be used when checking value changes of this CVAR
  */
-public Cvar(String alias, String description, Class<T> type, T defaultValue, Validator<?> validator) {
+public Cvar(@NotNull String alias, String description, @NotNull Class<T> type,
+            @NotNull T defaultValue, Validator<?> validator) {
     if (alias == null) {
         throw new NullPointerException("Cvar aliases cannot be null");
     } else if (alias.isEmpty()) {
@@ -180,7 +182,7 @@ public boolean isRangeValidator() {
  * @return {@code true} if the value changed as a result of this action,
  *         otherwise {@code false}
  */
-public boolean setValue(T value) {
+public boolean setValue(@NotNull T value) {
     if (this.value.equals(value)) {
         return true;
     }
@@ -214,7 +216,7 @@ public void reset() {
  *
  * @param value value to change this CVAR to
  */
-private void changeValue(T value) {
+private void changeValue(@NotNull T value) {
     assert value != null;
     T oldValue = this.value;
     this.value = value;
@@ -238,7 +240,7 @@ private void changeValue(T value) {
  *
  * @param l {@linkplain CvarChangeListener} instance to register
  */
-public void addCvarChangeListener(CvarChangeListener<T> l) {
+public void addCvarChangeListener(@NotNull CvarChangeListener<T> l) {
     CVAR_CHANGE_LISTENERS.add(l);
     l.onLoad(this, value);
 }

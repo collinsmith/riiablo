@@ -1,5 +1,7 @@
 package com.gmail.collinsmith70.cvar;
 
+import com.sun.istack.internal.NotNull;
+
 /**
  * Abstraction enumerating the methods required to listen and receive callbacks from certain
  * {@link Cvar} state transitions.
@@ -18,7 +20,7 @@ public interface CvarChangeListener<T> {
  * @param from previous value of the {@linkplain Cvar}
  * @param to   value of the {@linkplain Cvar}
  */
-void onChanged(Cvar<T> cvar, T from, T to);
+void onChanged(@NotNull Cvar<T> cvar, T from, @NotNull T to);
 
 /**
  * Called when a {@linkplain Cvar} is loaded.
@@ -26,6 +28,6 @@ void onChanged(Cvar<T> cvar, T from, T to);
  * @param cvar {@linkplain Cvar} whose state is transitioning
  * @param to   value of the {@linkplain Cvar}
  */
-void onLoad(Cvar<T> cvar, T to);
+void onLoad(@NotNull Cvar<T> cvar, @NotNull T to);
 
 }
