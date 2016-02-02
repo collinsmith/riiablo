@@ -11,6 +11,7 @@ import com.gmail.collinsmith70.util.serializer.IntegerStringSerializer;
 import com.gmail.collinsmith70.util.serializer.LongStringSerializer;
 import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
 import com.gmail.collinsmith70.util.serializer.ShortStringSerializer;
+import com.google.common.base.Strings;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -325,67 +326,141 @@ public <T> void putSerializer(Class<T> type, StringSerializer<T> serializer) {
     SERIALIZERS.put(type, serializer);
 }
 
-public static abstract class CvarException extends RuntimeException {
+/**
+ * Abstraction to represent a {@link RuntimeException} for {@link CvarManager} events.
+ */
+public static abstract class CvarManagerException extends RuntimeException {
 
+    /**
+     * Reference to the {@link Cvar} causing the exception
+     */
     public final Cvar CVAR;
 
-    public CvarException() {
+    /**
+     * Constructs a new {@linkplain CvarManagerException} with a {@code null} {@link Cvar}
+     * and message
+     */
+    public CvarManagerException() {
         this(null, null);
     }
 
-    public CvarException(Cvar cvar) {
+    /**
+     * Constructs a new {@linkplain CvarManagerException} with a {@code null} message
+     *
+     * @param cvar {@link Cvar} causing the exception
+     */
+    public CvarManagerException(Cvar cvar) {
         this(cvar, null);
     }
 
-    public CvarException(String message) {
+    /**
+     * Constructs a new {@linkplain CvarManagerException} with a {@code null} {@link Cvar}
+     *
+     * @param message {@linkplain String} describing the cause
+     */
+    public CvarManagerException(String message) {
         this(null, message);
     }
 
-    public CvarException(Cvar cvar, String message) {
-        super(message);
+    /**
+     * Constructs a new {@linkplain CvarManagerException} instance
+     *
+     * @param cvar
+     * @param message
+     */
+    public CvarManagerException(Cvar cvar, String message) {
+        super(Strings.nullToEmpty(message));
         this.CVAR = cvar;
     }
 
-    private Cvar getCvar() {
+    /**
+     * @return {@link Cvar} causing the exception
+     */
+    public Cvar getCvar() {
         return CVAR;
     }
 
 }
 
-public static class DuplicateCvarException extends CvarException {
+/**
+ * A {@link CvarManagerException} to be thrown when duplicate {@link Cvar}s are detected, typically
+ * thrown when a {@link Cvar} is attempted to be added to a {@link CvarManager} who already has
+ * a {@link Cvar} at that {@linkplain Cvar#getAlias() alias}.
+ */
+public static class DuplicateCvarException extends CvarManagerException {
 
+    /**
+     * Constructs a new {@linkplain DuplicateCvarException} with a {@code null} {@link Cvar}
+     * and message
+     */
     public DuplicateCvarException() {
         this(null, null);
     }
 
+    /**
+     * Constructs a new {@linkplain DuplicateCvarException} with a {@code null} message
+     *
+     * @param cvar {@link Cvar} causing the exception
+     */
     public DuplicateCvarException(Cvar cvar) {
         this(cvar, null);
     }
 
+    /**
+     * Constructs a new {@linkplain DuplicateCvarException} with a {@code null} {@link Cvar}
+     *
+     * @param message {@linkplain String} describing the cause
+     */
     public DuplicateCvarException(String message) {
         this(null, message);
     }
 
+    /**
+     * Constructs a new {@linkplain DuplicateCvarException} instance
+     *
+     * @param cvar
+     * @param message
+     */
     public DuplicateCvarException(Cvar cvar, String message) {
         super(cvar, message);
     }
 
 }
 
-public static class UnmanagedCvarException extends CvarException {
+public static class UnmanagedCvarException extends CvarManagerException {
 
+    /**
+     * Constructs a new {@linkplain UnmanagedCvarException} with a {@code null} {@link Cvar}
+     * and message
+     */
     public UnmanagedCvarException() {
         this(null, null);
     }
 
+    /**
+     * Constructs a new {@linkplain UnmanagedCvarException} with a {@code null} message
+     *
+     * @param cvar {@link Cvar} causing the exception
+     */
     public UnmanagedCvarException(Cvar cvar) {
         this(cvar, null);
     }
 
+    /**
+     * Constructs a new {@linkplain UnmanagedCvarException} with a {@code null} {@link Cvar}
+     *
+     * @param message {@linkplain String} describing the cause
+     */
     public UnmanagedCvarException(String message) {
         this(null, message);
     }
 
+    /**
+     * Constructs a new {@linkplain UnmanagedCvarException} instance
+     *
+     * @param cvar
+     * @param message
+     */
     public UnmanagedCvarException(Cvar cvar, String message) {
         super(cvar, message);
     }
