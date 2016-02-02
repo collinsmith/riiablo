@@ -12,6 +12,7 @@ import com.gmail.collinsmith70.util.serializer.LongStringSerializer;
 import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
 import com.gmail.collinsmith70.util.serializer.ShortStringSerializer;
 import com.google.common.base.Strings;
+import com.sun.istack.internal.NotNull;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -35,6 +36,7 @@ public abstract class CvarManager implements CvarChangeListener {
  * {@linkplain StringSerializer} instances which will be used to (de)serialize {@link Cvar}
  * instances of that {@linkplain Class}.
  */
+@NotNull
 private static final Map<Class<?>, StringSerializer<?>> DEFAULT_SERIALIZERS
         = new HashMap<Class<?>, StringSerializer<?>>();
 static {
@@ -53,12 +55,14 @@ static {
  * {@linkplain Trie} containing a mapping of {@link Cvar} instances, accessible using their
  * aliases.
  */
+@NotNull
 private final Trie<String, Cvar<?>> CVARS;
 
 /**
  * {@linkplain Map} which stores a mapping of {@linkplain Class}es to {@linkplain StringSerializer}
  * instances which will be used to (de)serialize {@link Cvar} instances of that {@linkplain Class}.
  */
+@NotNull
 private final Map<Class<?>, StringSerializer<?>> SERIALIZERS;
 
 /**
