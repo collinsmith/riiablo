@@ -11,11 +11,17 @@ public enum FloatStringSerializer implements StringSerializer<Float> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Float obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Float deserialize(String obj) {
     return Float.parseFloat(obj);

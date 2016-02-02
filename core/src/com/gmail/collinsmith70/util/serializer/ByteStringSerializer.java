@@ -11,11 +11,17 @@ public enum ByteStringSerializer implements StringSerializer<Byte> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Byte obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Byte deserialize(String obj) {
     return Byte.parseByte(obj);

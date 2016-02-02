@@ -11,11 +11,17 @@ public enum BooleanStringSerializer implements StringSerializer<Boolean> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Boolean obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Boolean deserialize(String obj) {
     if (obj.equalsIgnoreCase("true")) {

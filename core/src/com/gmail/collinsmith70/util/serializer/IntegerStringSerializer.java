@@ -11,11 +11,17 @@ public enum IntegerStringSerializer implements StringSerializer<Integer> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Integer obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Integer deserialize(String obj) {
     return Integer.parseInt(obj);

@@ -11,11 +11,17 @@ public enum LongStringSerializer implements StringSerializer<Long> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Long obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Long deserialize(String obj) {
     return Long.parseLong(obj);

@@ -11,11 +11,17 @@ public enum ShortStringSerializer implements StringSerializer<Short> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Short obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Short deserialize(String obj) {
     return Short.parseShort(obj);

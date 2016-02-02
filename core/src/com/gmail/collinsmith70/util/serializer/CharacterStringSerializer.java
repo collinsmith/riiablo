@@ -11,11 +11,17 @@ public enum CharacterStringSerializer implements StringSerializer<Character> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Character obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Character deserialize(String obj) {
     if (obj.length() != 1) {

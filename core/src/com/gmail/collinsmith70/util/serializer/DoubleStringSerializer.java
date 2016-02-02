@@ -11,11 +11,17 @@ public enum DoubleStringSerializer implements StringSerializer<Double> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Double obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Double deserialize(String obj) {
     return Double.parseDouble(obj);

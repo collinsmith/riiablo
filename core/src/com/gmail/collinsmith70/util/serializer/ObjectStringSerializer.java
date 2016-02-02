@@ -11,11 +11,17 @@ public enum ObjectStringSerializer implements StringSerializer<Object> {
  */
 INSTANCE;
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public String serialize(Object obj) {
     return obj.toString();
 }
 
+/**
+ * {@inheritDoc}
+ */
 @Override
 public Object deserialize(String obj) {
     return obj;
