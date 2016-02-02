@@ -158,16 +158,16 @@ public T getValue() {
 }
 
 /**
- * @return {@literal true} if this CVAR has had its value loaded or set at least once,
- *         otherwise {@literal false}
+ * @return {@code true} if this CVAR has had its value loaded or set at least once,
+ *         otherwise {@code false}
  */
 public boolean isLoaded() {
     return isLoaded;
 }
 
 /**
- * @return {@literal true} if the {@link Validator} used by this CVAR is a subclass of
- *         {@link RangeValidator}, otherwise {@literal false}
+ * @return {@code true} if the {@link Validator} used by this CVAR is a subclass of
+ *         {@link RangeValidator}, otherwise {@code false}
  */
 public boolean isRangeValidator() {
     return VALIDATOR instanceof RangeValidator;
@@ -177,8 +177,8 @@ public boolean isRangeValidator() {
  * @param value reference to attempt to assign this CVAR to, so long as the {@link Validator} used
  *              accepts it
  *
- * @return {@literal true} if the value changed as a result of this action,
- *         otherwise {@literal false}
+ * @return {@code true} if the value changed as a result of this action,
+ *         otherwise {@code false}
  */
 public boolean setValue(T value) {
     if (this.value.equals(value)) {
@@ -195,8 +195,8 @@ public boolean setValue(T value) {
 
 /**
  * @param o object to check
- * @return {@literal true} if the passed object is considered a valid value for this CVAR,
- *         otherwise {@literal false}
+ * @return {@code true} if the passed object is considered a valid value for this CVAR,
+ *         otherwise {@code false}
  */
 public boolean isValid(Object o) {
     return VALIDATOR.isValid(o);
@@ -205,7 +205,7 @@ public boolean isValid(Object o) {
 /**
  * Resets this CVAR to its default value
  *
- * {@see #getDefaultValue}
+ * @see #getDefaultValue()
  */
 public void reset() {
     changeValue(DEFAULT_VALUE);
@@ -248,8 +248,8 @@ public void addCvarChangeListener(CvarChangeListener<T> l) {
 
 /**
  * @param l {@linkplain CvarChangeListener} to check
- * @return {@literal true} if the passed {@linkplain CvarChangeListener} will receive callbacks
- *         regarding changes made to the state of this CVAR, otherwise {@literal false}
+ * @return {@code true} if the passed {@linkplain CvarChangeListener} will receive callbacks
+ *         regarding changes made to the state of this CVAR, otherwise {@code false}
  */
 public boolean containsCvarChangeListener(CvarChangeListener<T> l) {
     return CVAR_CHANGE_LISTENERS.contains(l);
@@ -257,8 +257,8 @@ public boolean containsCvarChangeListener(CvarChangeListener<T> l) {
 
 /**
  * @param l {@linkplain CvarChangeListener} to remove
- * @return {@literal true} if the passed {@linkplain CvarChangeListener} was removed, otherwise
- *         {@literal false} if it was not receiving callbacks
+ * @return {@code true} if the passed {@linkplain CvarChangeListener} was removed, otherwise
+ *         {@code false} if it was not receiving callbacks
  */
 public boolean removeCvarChangeListener(CvarChangeListener<T> l) {
     return CVAR_CHANGE_LISTENERS.remove(l);

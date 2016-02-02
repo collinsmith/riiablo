@@ -17,14 +17,14 @@ public GdxCvarManager() {
 }
 
 @Override
-public <T> void commit(Cvar<T> cvar) {
-    super.commit(cvar);
-    PREFERENCES.flush();
-}
-
-@Override
 public <T> void save(Cvar<T> cvar) {
-    super.save(cvar);
+    if (!isManaging(cvar)) {
+        throw new UnmanagedCvarException(cvar, String.format(
+                "Cvar %s is not managed by this %s",
+                cvar.getAlias(),
+                getClass().getSimpleName()));
+    }
+
     if (getSerializer(cvar) == null) {
         Gdx.app.log(TAG, String.format(
                 "Cvar %s cannot be saved (no serializer found)",
@@ -33,6 +33,7 @@ public <T> void save(Cvar<T> cvar) {
     }
 
     PREFERENCES.putString(cvar.getAlias(), getSerializer(cvar).serialize(cvar.getValue()));
+    PREFERENCES.flush();
     Gdx.app.log(TAG, String.format(
             "%s saved as %s [%s]",
             cvar.getAlias(),
@@ -42,7 +43,13 @@ public <T> void save(Cvar<T> cvar) {
 
 @Override
 public <T> T load(Cvar<T> cvar) {
-    super.load(cvar);
+    if (!isManaging(cvar)) {
+        throw new UnmanagedCvarException(cvar, String.format(
+                "Cvar %s is not managed by this %s",
+                cvar.getAlias(),
+                getClass().getSimpleName()));
+    }
+
     String serializedValue = PREFERENCES.getString(cvar.getAlias());
     if (serializedValue == null) {
         serializedValue = getSerializer(cvar).serialize(cvar.getDefaultValue());
@@ -58,8 +65,8 @@ public <T> T load(Cvar<T> cvar) {
 }
 
 @Override
-public void afterChanged(Cvar cvar, Object from, Object to) {
-    super.afterChanged(cvar, from, to);
+public void onChanged(Cvar cvar, Object from, Object to) {
+    super.onChanged(cvar, from, to);
     Gdx.app.log(TAG, String.format("changed %s from %s to %s",
             cvar.getAlias(),
             from,
