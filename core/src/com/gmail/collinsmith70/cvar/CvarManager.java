@@ -94,7 +94,7 @@ public <T> Cvar<T> add(Cvar<T> cvar) {
     }
 
     CVARS.put(cvar.getAlias().toLowerCase(), cvar);
-    cvar.load(load(cvar));
+    cvar.setValue(load(cvar));
     cvar.addCvarChangeListener(this);
     return cvar;
 }
