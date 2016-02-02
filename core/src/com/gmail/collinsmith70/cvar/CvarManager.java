@@ -12,7 +12,7 @@ import com.gmail.collinsmith70.util.serializer.LongStringSerializer;
 import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
 import com.gmail.collinsmith70.util.serializer.ShortStringSerializer;
 import com.google.common.base.Strings;
-import com.sun.istack.internal.NotNull;
+import com.gmail.collinsmith70.util.NotNull;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;

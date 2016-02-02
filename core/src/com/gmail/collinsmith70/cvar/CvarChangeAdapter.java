@@ -1,6 +1,6 @@
 package com.gmail.collinsmith70.cvar;
 
-import com.sun.istack.internal.NotNull;
+import com.gmail.collinsmith70.util.NotNull;
 
 /**
  * Implementation of a {@link CvarChangeListener} which treats load events as change event from

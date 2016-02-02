@@ -1,10 +1,11 @@
 package com.gmail.collinsmith70.cvar;
 
+import com.gmail.collinsmith70.util.NotNull;
 import com.gmail.collinsmith70.util.RangeValidator;
+import com.gmail.collinsmith70.util.ValidationException;
 import com.gmail.collinsmith70.util.Validator;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.sun.istack.internal.NotNull;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -179,17 +180,16 @@ public boolean isRangeValidator() {
  * @param value reference to attempt to assign this CVAR to, so long as the {@link Validator} used
  *              accepts it
  *
- * @return {@code true} if the value changed as a result of this action,
- *         otherwise {@code false}
+ * @throws ValidationException if the specified value is invalidated by the
+ *                             {@linkplain #isValid(Object) validator}
  */
-public boolean setValue(@NotNull T value) {
+public void setValue(@NotNull T value) {
     if (this.value.equals(value)) {
-        return true;
+        return;
     }
 
     VALIDATOR.validate(value);
     changeValue(value);
-    return true;
 }
 
 /**
