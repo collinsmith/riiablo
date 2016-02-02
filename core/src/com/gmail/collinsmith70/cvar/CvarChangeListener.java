@@ -21,7 +21,7 @@ public interface CvarChangeListener<T> {
 void onChanged(Cvar<T> cvar, T from, T to);
 
 /**
- * Called when a {@linkplain Cvar} is loaded
+ * Called when a {@linkplain Cvar} is loaded.
  *
  * @param cvar {@linkplain Cvar} whose state is transitioning
  * @param to   value of the {@linkplain Cvar}
