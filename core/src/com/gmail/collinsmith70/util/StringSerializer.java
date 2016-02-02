@@ -6,5 +6,4 @@ package com.gmail.collinsmith70.util;
  *
  * @param <T> type of object which this StringSerializer accepts
  */
-public interface StringSerializer<T> extends Serializer<T, String> {
-}
+public interface StringSerializer<T> extends Serializer<T, String> {}
