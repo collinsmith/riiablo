@@ -11,7 +11,7 @@ import com.gmail.collinsmith70.util.validator.RejectAllValidator;
  *
  * @param <T> type of object which this {@linkplain Validator} is specifically designed to validate
  */
-public interface Validator<T> {
+public interface Validator<T> extends Validatable<T> {
 
 /**
  * Constant reference to a {@linkplain Validator} which accepts all values
@@ -33,12 +33,6 @@ static Validator<?> ACCEPT_NON_NULL = new NonNullValidator();
  * both non-null and {@linkplain String#isEmpty() non-empty}
  */
 static Validator<String> ACCEPT_NON_NULL_NON_EMPTY_STRING = new NonNullNonEmptyStringValidator();
-
-/**
- * @param obj object to validate
- * @return {@code true} if the object is valid, otherwise {@code false}
- */
-boolean isValid(Object obj);
 
 /**
  * Validates the specified object and throws a {@link ValidationException} with a reason if it is
