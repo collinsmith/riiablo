@@ -15,7 +15,7 @@ import com.google.common.base.Preconditions;
  * @param <T> {@linkplain Class type} of the {@linkplain #getValue variable} which this SimpleCvar
  *            represents
  */
-public class ValidatableCvar<T> extends SimpleCvar<T> implements Validatable<T> {
+public class ValidatableCvar<T> extends SimpleCvar<T> implements Validatable {
 
 /**
  * {@link Validator} used to validate values of this {@link Cvar} when {@linkplain #setValue

@@ -11,7 +11,7 @@ import com.gmail.collinsmith70.util.validator.RejectAllValidator;
  *
  * @param <T> type of object which this {@linkplain Validator} is specifically designed to validate
  */
-public interface Validator<T> extends Validatable<T> {
+public interface Validator<T> extends Validatable {
 
 /**
  * Constant reference to a {@linkplain Validator} which accepts all values
