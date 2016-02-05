@@ -5,8 +5,7 @@ public class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
 public void addWidget(Widget child) { throw new UnsupportedOperationException(); }
 public boolean containsWidget(Widget child) { throw new UnsupportedOperationException(); }
 public boolean removeWidget(Widget child) { throw new UnsupportedOperationException(); }
-
-public int getChildCount() { throw new UnsupportedOperationException(); }
+public int getNumWidgets() { throw new UnsupportedOperationException(); }
 
 public int getMarginBottom() { throw new UnsupportedOperationException(); }
 public int getMarginLeft() { throw new UnsupportedOperationException(); }

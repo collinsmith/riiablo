@@ -1,5 +1,5 @@
 package com.gmail.collinsmith70.unifi.widget;
 
-public class LinearLayout {
+public class Button extends Widget {
 
 }
