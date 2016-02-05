@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.gmail.collinsmith70.command.CommandManager;
 import com.gmail.collinsmith70.cvar.Cvar;
-import com.gmail.collinsmith70.cvar.CvarChangeAdapter;
+import com.gmail.collinsmith70.cvar.CvarStateAdapter;
 import com.gmail.collinsmith70.diablo.scene.HudedScene;
 import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
@@ -123,7 +123,7 @@ private void setSerializers() {
 }
 
 private void initPCvars() {
-    Cvars.Client.Windowed.addCvarChangeListener(new CvarChangeAdapter<Boolean>() {
+    Cvars.Client.Windowed.addStateListener(new CvarStateAdapter<Boolean>() {
         @Override
         public void onChanged(Cvar<Boolean> cvar, Boolean from, Boolean to) {
             Client.this.pCvar_Windowed = to;
@@ -137,14 +137,14 @@ private void initPCvars() {
         }
     });
 
-    Cvars.Client.Render.ShowFPS.addCvarChangeListener(new CvarChangeAdapter<Byte>() {
+    Cvars.Client.Render.ShowFPS.addStateListener(new CvarStateAdapter<Byte>() {
         @Override
         public void onChanged(Cvar<Byte> cvar, Byte from, Byte to) {
             Client.this.pCvar_showFps = to;
         }
     });
 
-    Cvars.Client.Console.Font.addCvarChangeListener(new CvarChangeAdapter<String>() {
+    Cvars.Client.Console.Font.addStateListener(new CvarStateAdapter<String>() {
         @Override
         public void onChanged(Cvar<String> cvar, String from, String to) {
             Client.this.ASSET_MANAGER.load(to, BitmapFont.class);

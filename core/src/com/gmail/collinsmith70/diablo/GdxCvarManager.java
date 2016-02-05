@@ -3,9 +3,9 @@ package com.gmail.collinsmith70.diablo;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.gmail.collinsmith70.cvar.Cvar;
-import com.gmail.collinsmith70.cvar.CvarManager;
+import com.gmail.collinsmith70.cvar.SaveableCvarManager;
 
-public class GdxCvarManager extends CvarManager {
+public class GdxCvarManager extends SaveableCvarManager {
 
 private static final String TAG = GdxCvarManager.class.getSimpleName();
 
@@ -19,13 +19,13 @@ public GdxCvarManager() {
 @Override
 public <T> void save(Cvar<T> cvar) {
     if (!isManaging(cvar)) {
-        throw new UnmanagedCvarException(cvar, String.format(
+        throw new IllegalArgumentException(String.format(
                 "Cvar %s is not managed by this %s",
                 cvar.getAlias(),
                 getClass().getSimpleName()));
     }
 
-    if (getSerializer(cvar) == null) {
+    if (containsSerializer(cvar)) {
         Gdx.app.log(TAG, String.format(
                 "Cvar %s cannot be saved (no serializer found)",
                 cvar.getAlias()));
@@ -44,7 +44,7 @@ public <T> void save(Cvar<T> cvar) {
 @Override
 public <T> T load(Cvar<T> cvar) {
     if (!isManaging(cvar)) {
-        throw new UnmanagedCvarException(cvar, String.format(
+        throw new IllegalArgumentException(String.format(
                 "Cvar %s is not managed by this %s",
                 cvar.getAlias(),
                 getClass().getSimpleName()));

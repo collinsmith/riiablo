@@ -5,17 +5,18 @@ sourceCompatibility = 1.6
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
-
 eclipse.project {
     name = appName + "-core"
 }
 
 repositories {
     mavenCentral()
+    maven { url 'C:/android/extras/android/m2repository' }
 }
 
 dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '19.+'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.+'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.+'
+    compile group: 'com.android.support', name: 'support-annotations', version: '22.2.0'
 }

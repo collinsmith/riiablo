@@ -1,274 +1,166 @@
 package com.gmail.collinsmith70.cvar;
 
-import com.gmail.collinsmith70.util.annotation.NotNull;
-import com.gmail.collinsmith70.util.RangeValidator;
-import com.gmail.collinsmith70.util.ValidationException;
-import com.gmail.collinsmith70.util.Validator;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 /**
- * A <a href="https://en.wikipedia.org/wiki/CVAR">CVAR</a> is a variable used for configuring some
- * part of a game client. Typically, a CVAR is a representation for a value of some arbitrary type,
- * {@link T}, which has a default value and has changes to that value checked via its
- * {@link Validator}. Additionally, CVARs support sending out callbacks when their values change via
- * {@link CvarChangeListener} instances.
+ * <a href="https://en.wikipedia.org/wiki/CVAR">CVAR</a>s are representations for variables which
+ * are used for configuring some part of a client, specifically in game applications. Additionally,
+ * CVARs support {@linkplain StateListener callbacks} when certain state transitions occur.
  *
- * @param <T> type of the value which this CVAR represents
- */
-public class Cvar<T> {
-
-/**
- * {@linkplain String} representation for the alias, or key, of this CVAR
- */
-@NotNull
-private final String ALIAS;
-
-/**
- * Brief description of this CVAR which should tell what it does and the kinds of values it accepts
- */
-@NotNull
-private final String DESCRIPTION;
-
-/**
- * Default value of this CVAR set when this CVAR is constructed and which can be reset to at any
- * time via {@link #reset()} which will bypass the {@link Validator} as this default value is
- * asserted to be valid.
- */
-@NotNull
-private final T DEFAULT_VALUE;
-
-/**
- * Reference to the {@linkplain Class} for value which this CVAR represents.
- */
-@NotNull
-private final Class<T> TYPE;
-
-/**
- * {@linkplain Validator} to use when checking whether or not objects passed into
- * {@link #setValue(Object)} are valid.
- */
-@NotNull
-private final Validator<?> VALIDATOR;
-
-/**
- * {@linkplain Set} of {@link CvarChangeListener} instances which should be called back upon
- * certain events in this CVAR's lifetime.
- */
-@NotNull
-private final Set<CvarChangeListener<T>> CVAR_CHANGE_LISTENERS;
-
-/**
- * Raw value represented by this CVAR.
- */
-@NotNull
-private T value;
-
-/**
- * Determines whether or not this CVAR has had a value loaded to it. CVARs are marked as loaded
- * as soon as their value changes the first time. Calling {@link #setValue(Object)} makes loading
- * impossible as a value has already been set.
- */
-private boolean isLoaded;
-
-/**
- * Constructs a new {@linkplain Cvar} instance with its {@link Validator} set to
- * {@link Validator#ACCEPT_NON_NULL}.
+ * @param <T> {@linkplain Class type} of the {@linkplain #getValue variable} which this CVAR
+ *            represents
  *
- * @param alias        key to be used when representing the name of this CVAR
- * @param description  brief description of this CVAR and the kinds of values it expects
- * @param type         reference to the class type of the value this CVAR represents
- * @param defaultValue value to be assigned to this CVAR by default and which no validation is
- *                     performed
+ * @see <a href="https://en.wikipedia.org/wiki/CVAR">Wikipedia article on CVARs</a>
  */
-public Cvar(@NotNull String alias, String description, @NotNull Class<T> type,
-            @NotNull T defaultValue) {
-    this(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
-}
+public interface Cvar<T> {
 
 /**
- * Constructs a new {@linkplain Cvar} instance.
+ * @return {@link String} representation for the <a href="https://en.wikipedia.org/wiki/Attribute%E2%80%93value_pair">
+ *         key</a> of this {@link Cvar}, or {@code null} if no alias has been set
  *
- * @param alias        key to be used when representing the name of this CVAR
- * @param description  brief description of this CVAR and the kinds of values it expects
- * @param type         reference to the class type of the value this CVAR represents
- * @param defaultValue value to be assigned to this CVAR by default and which no validation is
- *                     performed
- * @param validator    {@link Validator} to be used when checking value changes of this CVAR
+ * @see <a href="https://en.wikipedia.org/wiki/Attribute%E2%80%93value_pair">
+ *      Wikipedia article on key-value pairs</a>
  */
-public Cvar(@NotNull String alias, String description, @NotNull Class<T> type,
-            @NotNull T defaultValue, Validator<?> validator) {
-    if (alias == null) {
-        throw new NullPointerException("Cvar aliases cannot be null");
-    } else if (alias.isEmpty()) {
-        throw new IllegalArgumentException("Cvar aliases cannot be empty");
-    }
-
-    this.ALIAS = alias;
-    this.DESCRIPTION = Strings.nullToEmpty(description);
-    this.DEFAULT_VALUE = Preconditions.checkNotNull(defaultValue,
-            "Cvar default values cannot be null");
-    this.TYPE = Preconditions.checkNotNull(type, "Cvar types cannot be null");
-    this.VALIDATOR = validator == null ? Validator.ACCEPT_NON_NULL : validator;
-
-    this.CVAR_CHANGE_LISTENERS = new CopyOnWriteArraySet<CvarChangeListener<T>>();
-
-    reset();
-    this.isLoaded = false;
-}
+@Nullable
+String getAlias();
 
 /**
- * @return key which represents the name of this CVAR
+ * @return default value of this {@link Cvar}, which is assigned upon instantiation and when this
+ *         {@link Cvar} is {@linkplain #reset reset}, or {@code null} if there is no default value
+ *
+ * @see #reset()
  */
-@NotNull
-public String getAlias() {
-    return ALIAS;
-}
+@Nullable
+T getDefaultValue();
 
 /**
- * @return brief description of this CVAR and the kinds of values it expects
+ * @return brief {@linkplain String description} explaining the function of this {@link Cvar} and
+ *         the values it expects, or <a href="https://en.wikipedia.org/wiki/Empty_string">
+ *         empty string</a> if no description was given
  */
-@NotNull
-public String getDescription() {
-    return DESCRIPTION;
-}
+@NonNull
+String getDescription();
 
 /**
- * @return value which is assigned to this CVAR by default and which no validation is performed
+ * @return {@link Class} instance for the {@linkplain T type} of the {@linkplain #getValue variable}
+ *         which this {@link Cvar} represents
  */
-@NotNull
-public T getDefaultValue() {
-    return DEFAULT_VALUE;
-}
+@NonNull
+Class<T> getType();
 
 /**
- * @return reference to the class type of the value this CVAR represents
+ * @return value of the variable represented by this {@link Cvar}, or {@code null} if no value has
+ *         been set
  */
-@NotNull
-public Class<T> getType() {
-    return TYPE;
-}
+@Nullable
+T getValue();
 
 /**
- * @return value represented by this CVAR
- */
-@NotNull
-public T getValue() {
-    return value;
-}
-
-/**
- * @return {@code true} if this CVAR has had its value loaded or set at least once,
+ * @return {@code true} if the {@linkplain #getValue value} of this {@link Cvar} is {@code null},
  *         otherwise {@code false}
  */
-public boolean isLoaded() {
-    return isLoaded;
-}
+boolean isEmpty();
 
 /**
- * @return {@code true} if the {@link Validator} used by this CVAR is a subclass of
- *         {@link RangeValidator}, otherwise {@code false}
- */
-public boolean isRangeValidator() {
-    return VALIDATOR instanceof RangeValidator;
-}
-
-/**
- * @param value reference to attempt to assign this CVAR to, so long as the {@link Validator} used
- *              accepts it
- *
- * @throws ValidationException if the specified value is invalidated by the
- *                             {@linkplain #isValid(Object) validator}
- */
-public void setValue(@NotNull T value) {
-    if (this.value.equals(value)) {
-        return;
-    }
-
-    VALIDATOR.validate(value);
-    changeValue(value);
-}
-
-/**
- * @param o object to check
- * @return {@code true} if the passed object is considered a valid value for this CVAR,
+ * @return {@code true} if this {@link Cvar} has had its first {@linkplain #setValue assignment},
  *         otherwise {@code false}
  */
-public boolean isValid(Object o) {
-    return VALIDATOR.isValid(o);
-}
+boolean isLoaded();
 
 /**
- * Resets this CVAR to its default value
+ * Resets this {@link Cvar} to its {@linkplain #getDefaultValue default value}.
+ * <p>
+ * Note: Calling this method does not set the state of this {@link Cvar} as {@linkplain #isLoaded
+ *       loaded}
+ * </p>
  *
  * @see #getDefaultValue()
  */
-public void reset() {
-    changeValue(DEFAULT_VALUE);
-}
+void reset();
 
 /**
- * Changes the value of this CVAR to the one specified and notifies all registered listeners of
- * the change.
+ * Note: Setting the value of this {@link Cvar} to {@code null} will not change the state of this
+ *       {@link Cvar} to {@linkplain #isLoaded unloaded}
+ * <p>
+ * Note: Calling this method will invoke either {@link Cvar.StateListener#onChanged} or
+ *       {@link Cvar.StateListener#onLoaded} depending on whether or not this {@link Cvar} has
+ *       been {@linkplain #isLoaded loaded}
+ * </p>
  *
- * @param value value to change this CVAR to
+ * @param value value to change the variable represented by this {@link Cvar} to, or {@code null} to
+ *              mark this {@link Cvar} as having no value
  */
-private void changeValue(@NotNull T value) {
-    assert value != null;
-    T oldValue = this.value;
-    this.value = value;
-
-    if (!isLoaded) {
-        for (CvarChangeListener<T> cvarChangeListener : CVAR_CHANGE_LISTENERS) {
-            cvarChangeListener.onLoad(this, this.value);
-        }
-
-        this.isLoaded = true;
-    } else {
-        for (CvarChangeListener<T> cvarChangeListener : CVAR_CHANGE_LISTENERS) {
-            cvarChangeListener.onChanged(this, oldValue, this.value);
-        }
-    }
-}
+void setValue(@Nullable final T value);
 
 /**
- * Registers a {@linkplain CvarChangeListener} instance so that it will receive callbacks from
- * state change events regarding this CVAR.
+ * @param l {@link Cvar.StateListener} to add
  *
- * @param l {@linkplain CvarChangeListener} instance to register
+ * @see #containsStateListener(StateListener)
+ * @see #removeStateListener(StateListener)
  */
-public void addCvarChangeListener(@NotNull CvarChangeListener<T> l) {
-    CVAR_CHANGE_LISTENERS.add(l);
-    l.onLoad(this, value);
-}
+void addStateListener(@NonNull final StateListener<T> l);
 
 /**
- * @param l {@linkplain CvarChangeListener} to check
- * @return {@code true} if the passed {@linkplain CvarChangeListener} will receive callbacks
- *         regarding changes made to the state of this CVAR, otherwise {@code false}
+ * Note: If the passed reference is {@code null}, {@code false} will be returned.
+ *
+ * @param l {@link Cvar.StateListener} to check
+ *
+ * @return {@code true} if the passed {@link Cvar.StateListener} is receiving callbacks for state
+ *         changes of this {@link Cvar}, otherwise {@code false}
+ *
+ * @see #addStateListener(StateListener)
+ * @see #removeStateListener(StateListener)
  */
-public boolean containsCvarChangeListener(CvarChangeListener<T> l) {
-    return CVAR_CHANGE_LISTENERS.contains(l);
-}
+boolean containsStateListener(@Nullable final StateListener<T> l);
 
 /**
- * @param l {@linkplain CvarChangeListener} to remove
- * @return {@code true} if the passed {@linkplain CvarChangeListener} was removed, otherwise
- *         {@code false} if it was not receiving callbacks
+ * Note: If the passed reference is {@code null}, {@code false} will be returned.
+ *
+ * @param l {@link Cvar.StateListener} to remove
+ *
+ * @return {@code true} if the passed {@link Cvar.StateListener} was removed by this operation,
+ *         otherwise {@code false} if it is not receiving callbacks from this {@link Cvar}
+ *
+ * @see #addStateListener(StateListener)
+ * @see #containsStateListener(StateListener)
  */
-public boolean removeCvarChangeListener(CvarChangeListener<T> l) {
-    return CVAR_CHANGE_LISTENERS.remove(l);
-}
+boolean removeStateListener(@Nullable final StateListener<T> l);
 
 /**
- * @return {@linkplain String} representation of the value of this CVAR
+ * Interface for representing the various <a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)">
+ * callbacks</a> {@link Cvar} instances will give during state transitions.
+ *
+ * @param <T> {@linkplain Class type} of the {@linkplain #getValue variable} which the CVAR
+ *            represents
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)">
+ *      Wikipedia article on callbacks</a>
  */
-@Override
-public String toString() {
-    return value.toString();
+interface StateListener<T> {
+
+    /**
+     * Called synchronously when the value of a {@link Cvar} changes.
+     * <p>
+     * Note: This callback may not be called when a {@link Cvar} is {@linkplain #isLoaded loaded},
+     *       as {@link #onLoaded(Cvar, Object)} is designed specifically for that purpose and this
+     *       callback may not apply in all cases.
+     * </p>
+     *
+     * @param cvar {@link Cvar} where the event occurred
+     * @param from previous value of the {@link Cvar}
+     * @param to   current value of the {@link Cvar}
+     */
+    void onChanged(@NonNull final Cvar<T> cvar, @Nullable final T from, @Nullable final T to);
+
+    /**
+     * Called synchronously when a {@link Cvar} is {@linkplain #isLoaded loaded}.
+     *
+     * @param cvar {@link Cvar} where the event occurred
+     * @param to   current value of the {@link Cvar}
+     */
+    void onLoaded(@NonNull final Cvar<T> cvar, @Nullable final T to);
+
 }
 
 }

@@ -1,474 +1,281 @@
 package com.gmail.collinsmith70.cvar;
 
-import com.gmail.collinsmith70.util.StringSerializer;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.gmail.collinsmith70.util.Validator;
-import com.gmail.collinsmith70.util.serializer.BooleanStringSerializer;
-import com.gmail.collinsmith70.util.serializer.ByteStringSerializer;
-import com.gmail.collinsmith70.util.serializer.CharacterStringSerializer;
-import com.gmail.collinsmith70.util.serializer.DoubleStringSerializer;
-import com.gmail.collinsmith70.util.serializer.FloatStringSerializer;
-import com.gmail.collinsmith70.util.serializer.IntegerStringSerializer;
-import com.gmail.collinsmith70.util.serializer.LongStringSerializer;
-import com.gmail.collinsmith70.util.serializer.ObjectStringSerializer;
-import com.gmail.collinsmith70.util.serializer.ShortStringSerializer;
-import com.google.common.base.Strings;
-import com.gmail.collinsmith70.util.annotation.NotNull;
 
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
 
 /**
- * Abstraction which manages {@link Cvar} instances (specifically querying, saving and loading) and
- * contains serializers for their values. This class is intended to be subclassed with specific
- * implementations regarding how {@linkplain Cvar} instances should be saved and loaded so that
- * their values can persist after run time.
+ * A <a href="https://en.wikipedia.org/wiki/Factory_method_pattern">factory</a> class for creating
+ * and managing arbitrary {@link Cvar} instances.
  */
-public abstract class CvarManager implements CvarChangeListener {
+public class CvarManager implements Cvar.StateListener {
 
 /**
- * Data structure which contains a default mapping of {@linkplain Class}es to
- * {@linkplain StringSerializer} instances which will be used to (de)serialize {@link Cvar}
- * instances of that {@linkplain Class}.
+ * {@link Trie} mapping {@link Cvar} {@linkplain Cvar#getAlias() aliases} to themselves. This
+ * mapping is necessary to maintain which {@link Cvar} instances are managed by this
+ * {@link CvarManager}, and implies that no two managed {@link Cvar} instances can have the same
+ * {@linkplain Cvar#getAlias() alias}. In this implementation, {@link Cvar}
+ * {@linkplain Cvar#getAlias() aliases} are to be stored {@linkplain String#toLowerCase()
+ * case-insensitively}.
  */
-@NotNull
-private static final Map<Class<?>, StringSerializer<?>> DEFAULT_SERIALIZERS
-        = new HashMap<Class<?>, StringSerializer<?>>();
-static {
-    DEFAULT_SERIALIZERS.put(Character.class, CharacterStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(String.class, ObjectStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(Boolean.class, BooleanStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(Byte.class, ByteStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(Short.class, ShortStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(Integer.class, IntegerStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(Long.class, LongStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(Float.class, FloatStringSerializer.INSTANCE);
-    DEFAULT_SERIALIZERS.put(Double.class, DoubleStringSerializer.INSTANCE);
-}
+@NonNull
+private final Trie<String, Cvar> CVARS;
 
 /**
- * {@linkplain Trie} containing a mapping of {@link Cvar} instances, accessible using their
- * aliases.
- */
-@NotNull
-private final Trie<String, Cvar<?>> CVARS;
-
-/**
- * {@linkplain Map} which stores a mapping of {@linkplain Class}es to {@linkplain StringSerializer}
- * instances which will be used to (de)serialize {@link Cvar} instances of that {@linkplain Class}.
- */
-@NotNull
-private final Map<Class<?>, StringSerializer<?>> SERIALIZERS;
-
-/**
- * Determines whether or not {@link Cvar} instances will automatically save and commit their
- * changes whenever they are modified.
- */
-private boolean isAutosaving;
-
-/**
- * Constructs a new CvarManager instance with auto-saving enabled.
- *
- * @see #setAutosave(boolean)
+ * Constructs a new {@link CvarManager} instance.
  */
 public CvarManager() {
-    this(true);
+    this.CVARS = new PatriciaTrie<Cvar>();
 }
 
 /**
- * Constructs a new CvarManager instance.
- *
- * @param autosave {@code true} to enable auto-saving, otherwise {@code false}
+ * @return {@link Collection} of all {@link Cvar} instances {@linkplain #isManaging managed} by this
+ *         {@link CvarManager}
  */
-public CvarManager(boolean autosave) {
-    this.isAutosaving = autosave;
-
-    this.CVARS = new PatriciaTrie<Cvar<?>>();
-    this.SERIALIZERS = new ConcurrentHashMap<Class<?>, StringSerializer<?>>(DEFAULT_SERIALIZERS);
+@NonNull
+public Collection<Cvar> getCvars() {
+    return CVARS.values();
 }
 
 /**
- * Controls whether or not auto-saving of {@link Cvar} instances managed by this
- * {@linkplain CvarManager} will have their values saved and committed whenever they are modified.
- * If auto-saving is disabled, then {@linkplain Cvar} instances can be saved manually by calling
- * either {@link #save(Cvar)} or {@link #saveAll()}
+ * Constructs and {@linkplain #add adds} a {@link Cvar} with the specified arguments to this
+ * {@link CvarManager}.
  *
- * @param autosave {@code true} to enable auto-saving, otherwise {@code false}
+ * @param <T>          {@linkplain Class type} of the {@linkplain Cvar#getValue variable} which the
+ *                     {@link Cvar} represents
+ * @param alias        {@link String} representation of the {@linkplain Cvar#getAlias name}
+ * @param description  Brief {@linkplain Cvar#getDescription description} explaining the function
+ *                     and values it expects
+ * @param type         {@link Class} instance for the {@linkplain T type} of the {@linkplain
+ *                     Cvar#getValue variable}
+ * @param defaultValue {@linkplain Cvar#getDefaultValue Default value} which will be assigned to the
+ *                     {@link Cvar} now and whenever it is {@linkplain Cvar#reset reset}.
+ *
+ * @return reference to the created {@link Cvar}
+ *
+ * @see SimpleCvar#SimpleCvar
+ * @see #add
+ * @see #remove
  */
-public void setAutosave(boolean autosave) {
-    if (isAutosaving == autosave) {
-        return;
-    }
-
-    this.isAutosaving = autosave;
-    if (isAutosaving) {
-        saveAll();
-    }
-}
-
-/**
- * @return {@code true} if auto-saving on {@link Cvar} change is enabled,
- *         otherwise {@code false}
- */
-public boolean isAutosaving() {
-    return isAutosaving;
-}
-
-/**
- * {@inheritDoc}
- */
-@Override
-public void onChanged(@NotNull Cvar cvar, Object from, @NotNull Object to) {
-    save(cvar);
-}
-
-/**
- * {@inheritDoc}
- */
-@Override
-public void onLoad(Cvar cvar, @NotNull Object to) {}
-
-/**
- * Creates a new {@link Cvar} instance and adds it to this {@linkplain CvarManager} with its
- * {@link Validator} set to {@link Validator#ACCEPT_NON_NULL}.
- *
- * @param alias        key to be used when representing the name of the CVAR
- * @param description  brief description of the CVAR and the kinds of values it expects
- * @param type         reference to the class type of the value the CVAR represents
- * @param defaultValue value to be assigned to the CVAR by default and which no validation is
- *                     performed
- *
- * @return the created {@link Cvar} instance
- *
- * @throws DuplicateCvarException if there is already a {@link Cvar} instance added to this
- *                                {@linkplain CvarManager} with the given {@code alias}
- */
-public <T> Cvar<T> create(@NotNull String alias, String description, @NotNull Class<T> type,
-                          @NotNull T defaultValue) {
-    return create(alias, description, type, defaultValue, Validator.ACCEPT_NON_NULL);
-}
-
-/**
- * Creates a new {@link Cvar} instance and adds it to this {@linkplain CvarManager}.
- *
- * @param alias        key to be used when representing the name of the CVAR
- * @param description  brief description of the CVAR and the kinds of values it expects
- * @param type         reference to the class type of the value the CVAR represents
- * @param defaultValue value to be assigned to the CVAR by default and which no validation is
- *                     performed
- * @param validator    {@link Validator} to be used when checking value changes of this CVAR
- *
- * @return the created {@link Cvar} instance
- *
- * @throws DuplicateCvarException if there is already a {@link Cvar} instance added to this
- *                                {@linkplain CvarManager} with the given {@code alias}
- */
-public <T> Cvar<T> create(@NotNull String alias, String description, @NotNull Class<T> type,
-                          @NotNull T defaultValue, Validator<?> validator) {
-    Cvar<T> cvar = new Cvar<T>(alias, description, type, defaultValue, validator);
+@NonNull
+public <T> Cvar<T> create(@Nullable final String alias, @Nullable final String description,
+                          @NonNull final Class<T> type, @Nullable final T defaultValue) {
+    Cvar<T> cvar = new SimpleCvar<T>(alias, description, type, defaultValue);
     add(cvar);
     return cvar;
 }
 
 /**
- * Adds the given {@link Cvar} instance to this {@linkplain CvarManager} supporting method chaining.
+ * Constructs and {@linkplain #add adds} a {@link ValidatableCvar} with the specified arguments to
+ * this {@link CvarManager}.
  *
- * @param cvar {@linkplain Cvar} instance to add
+ * @param <T>          {@linkplain Class type} of the {@linkplain ValidatableCvar#getValue variable}
+ *                     which the {@link ValidatableCvar} represents
+ * @param alias        {@link String} representation of the {@linkplain ValidatableCvar#getAlias
+ *                     name}
+ * @param description  Brief {@linkplain ValidatableCvar#getDescription description} explaining the
+ *                     function and values it expects
+ * @param type         {@link Class} instance for the {@linkplain T type} of the {@linkplain
+ *                     ValidatableCvar#getValue variable}
+ * @param defaultValue {@linkplain ValidatableCvar#getDefaultValue Default value} which will be
+ *                     assigned to the {@link Cvar} now and whenever it is
+ *                     {@linkplain ValidatableCvar#reset reset}. This value will not be validated
+ *                     when {@linkplain ValidatableCvar#reset resetting} the {@link Cvar}
+ * @param validator    {@link Validator} to use when performing {@linkplain ValidatableCvar#isValid
+ *                     validations} on {@linkplain ValidatableCvar#setValue assignments}
  *
- * @return reference to this {@linkplain CvarManager}
+ * @return reference to the created {@link ValidatableCvar}
  *
- * @throws DuplicateCvarException if there is already a {@link Cvar} instance added to this
- *                                {@linkplain CvarManager} with the given {@code alias}
+ * @see ValidatableCvar#ValidatableCvar(String, String, Class, Object, Validator)
+ * @see #add
+ * @see #remove
  */
-public <T> CvarManager add(@NotNull Cvar<T> cvar) {
+@NonNull
+public <T> ValidatableCvar<T> create(@Nullable final String alias,
+                                     @Nullable final String description,
+                                     @NonNull final Class<T> type,
+                                     @Nullable final T defaultValue,
+                                     @NonNull final Validator validator) {
+    ValidatableCvar<T> cvar
+            = new ValidatableCvar<T>(alias, description, type, defaultValue, validator);
+    add(cvar);
+    return cvar;
+}
+
+/**
+ * Adds the specified {@link Cvar} to this {@link CvarManager}.
+ * <p>
+ * Note: Duplicate {@linkplain Cvar#getAlias aliases} are not allowed.
+ * </p>
+ *
+ * @param <T>  {@linkplain Class type} of the {@linkplain Cvar#getValue variable} which the
+ *             {@link Cvar} represents
+ * @param cvar {@link Cvar} instance to add
+ *
+ * @throws IllegalArgumentException if there is already a {@link Cvar} instance being
+ *                                  {@linkplain #isManaging managed} by this {@link CvarManager}
+ *
+ * @see #create(String, String, Class, Object)
+ * @see #create(String, String, Class, Object, Validator)
+ * @see #remove(Cvar)
+ */
+public <T> void add(@NonNull final Cvar<T> cvar) {
     if (isManaging(cvar)) {
-        return this;
+        return;
     } else if (containsAlias(cvar.getAlias())) {
-        throw new DuplicateCvarException(cvar, String.format(
-                "A cvar with the alias %s is already registered. Cvar aliases must be unique!",
+        throw new IllegalArgumentException(String.format(
+                "cvar with the alias %s is already being managed by this CvarManager",
                 cvar.getAlias()));
     }
 
-    CVARS.put(cvar.getAlias().toLowerCase(), cvar);
-    cvar.setValue(load(cvar));
-    cvar.addCvarChangeListener(this);
-    return this;
+    CVARS.put(getKey(cvar), cvar);
+    cvar.addStateListener(this);
 }
 
 /**
- * @param cvar {@linkplain Cvar} instance to remove
+ * Removes the specified {@link Cvar} from this {@link CvarManager}.
  *
- * @return {@literal true} if the {@link Cvar} was removed and is now no longer managed by this
- *         {@linkplain CvarManager}, otherwise {@literal false} if the {@linkplain Cvar} is
- *         not managed by this {@linkplain CvarManager} and could not be removed
+ * @param cvar {@link Cvar} instance to remove
+ *
+ * @return {@code true} if the {@link Cvar} was removed by this operation, otherwise {@code false}
+ *         if the {@link Cvar} was not or if the passed {@link Cvar} reference was {@code null}
+ *
+ * @see #create(String, String, Class, Object)
+ * @see #create(String, String, Class, Object, Validator)
+ * @see #add
  */
-public boolean remove(@NotNull Cvar<?> cvar) {
-    if (!isManaging(cvar)) {
-        return false;
+public boolean remove(@Nullable final Cvar cvar) {
+    return isManaging(cvar) && CVARS.remove(getKey(cvar)) == null;
+}
+
+/**
+ * Searches for all {@link Cvar} the instances {@linkplain #isManaging managed} by this
+ * {@link CvarManager} with the specified {@link String} in part of their
+ * {@linkplain Cvar#getAlias() alias} (i.e., partial matches are valid and expected)
+ * <p>
+ * Note: This operation is performed case-insensitively.
+ * </p>
+ * <p>
+ * Note: If a {@code null} {@linkplain Cvar#getAlias() alias} is passed, then an empty
+ *       {@link Collection} will be returned.
+ * </p>
+ * <p>
+ * Note: If the exact {@linkplain Cvar#getAlias() alias} is known and only one result is expected,
+ *       use {@link #get} instead
+ * </p>
+ *
+ * @param alias partial or exact {@link Cvar} {@linkplain Cvar#getAlias() alias} to search for
+ *
+ * @return {@link Collection} of all {@link Cvar} instances with the specified {@link String} in
+ *         part of its {@linkplain Cvar#getAlias() alias}
+ *
+ * @see #get
+ */
+@NonNull
+public Collection<Cvar> search(@Nullable final String alias) {
+    if (alias == null) {
+        return Collections.EMPTY_LIST;
     }
 
-    return CVARS.remove(cvar.getAlias().toLowerCase()) == null;
+    return CVARS.prefixMap(getCaseInsensitiveKey(alias)).values();
 }
 
 /**
- * Searches case-insensitively for a {@link Cvar} managed by this {@linkplain CvarManager} using its
- * alias.
+ * Searches for a {@link Cvar} instance {@linkplain #isManaging managed} by this {@link CvarManager}
+ * with the specified {@linkplain Cvar#getAlias() alias}.
+ * <p>
+ * Note: This operation is performed case-insensitively, however there must be an exact character
+ *       match with some {@link Cvar} for it to be returned by this operation. If only a partial
+ *       {@linkplain Cvar#getAlias() alias} is known, then {@link #search} may be a better option.
+ * </p>
  *
- * @note This method requires a perfect character-for-character match with the passed alias and
- *       the {@linkplain Cvar}'s alias.
+ * @param <T>   {@linkplain Class type} of the {@linkplain Cvar#getValue variable} which the
+ *              {@link Cvar} represents
+ * @param alias exact {@link Cvar} {@linkplain Cvar#getAlias() alias} to search for
  *
- * @param alias alias to search for (interpreted case-insensitively)
+ * @return {@link Cvar} instance with the specified {@linkplain Cvar#getAlias() alias}, otherwise
+ *         {@code null} if no {@link Cvar} with that {@linkplain Cvar#getAlias() alias} is being
+ *         managed by this {@link CvarManager} or if the passed {@linkplain Cvar#getAlias() alias}
+ *         is {@code null}
  *
- * @return reference to the {@linkplain Cvar} if it is found, otherwise {@code null}
- *
- * @see Cvar#getAlias()
+ * @see #search
  */
-public <T> Cvar<T> get(@NotNull String alias) {
-    alias = alias.toLowerCase();
-    return (Cvar<T>)CVARS.get(alias);
-}
-
-/**
- * Queries and returns a {@link SortedMap} of {@link Cvar} instances with the given
- * {@linkplain String} as part of their name. This operation is performed case-insensitively.
- *
- * @param alias alias to search for (interpreted case-insensitively)
- *
- * @return {@link SortedMap} containing the results of the query sorted lexicographically according
- *         to the {@linkplain Cvar#getAlias() alias}
- */
-public SortedMap<String, Cvar<?>> search(@NotNull String alias) {
-    alias = alias.toLowerCase();
-    return CVARS.prefixMap(alias);
-}
-
-/**
- * @return {@link Collection} of all {@link Cvar} instances managed by this {@linkplain CvarManager}
- */
-public Collection<Cvar<?>> getCvars() {
-    return CVARS.values();
-}
-
-/**
- * Loads the specified {@link Cvar}.
- *
- * @param cvar {@link Cvar} to attempt to {@linkplain StringSerializer#deserialize(Object)
- *             deserialize} and load
- *
- * @return value which was stored
- */
-public abstract <T> T load(@NotNull Cvar<T> cvar);
-
-/**
- * Saves the specified {@link Cvar}
- *
- * @param cvar {@link Cvar} to attempt to {@linkplain StringSerializer#serialize(Object) serialize}
- *             and save
- */
-public abstract <T> void save(@NotNull Cvar<T> cvar);
-
-/**
- * Macro version of {@link #save(Cvar)} which attempts to save all {@link Cvar} instances managed
- * by this {@linkplain CvarManager}
- */
-public void saveAll() {
-    for (Cvar<?> cvar : CVARS.values()) {
-        save(cvar);
+@Nullable
+public <T> Cvar<T> get(@Nullable final String alias) {
+    if (alias == null) {
+        return null;
     }
+
+    return (Cvar<T>)CVARS.get(getCaseInsensitiveKey(alias));
 }
 
 /**
  * @param cvar {@link Cvar} to check
  *
- * @return {@code true} if the specified {@link Cvar} is being managed by this
- *         {@linkplain CvarManager}, otherwise {@code false}
+ * @return {@code true} if the specified {@link Cvar} is being managed by this {@link CvarManager},
+ *         otherwise {@code false} if it is not or if the passed {@link Cvar} reference was
+ *         {@code null}
  */
-public <T> boolean isManaging(@NotNull Cvar<T> cvar) {
-    Cvar value = CVARS.get(cvar.getAlias().toLowerCase());
-    return cvar.equals(value);
+public boolean isManaging(@Nullable final Cvar cvar) {
+    if (cvar == null) {
+        return false;
+    }
+
+    Cvar queriedCvar = CVARS.get(getKey(cvar));
+    return cvar.equals(queriedCvar);
 }
 
 /**
- * @param alias {@linkplain String} to check (case-insensitively)
+ * <p>
+ * Note: This operation is performed case-insensitively, however there must be an exact character
+ *       match with some {@link Cvar} for {@code true} to be returned by this operation.
+ * </p>
  *
- * @return {@code true} if this {@linkplain CvarManager} is managing a {@link Cvar} with the given
- *         {@linkplain Cvar#getAlias() alias}, otherwise {@code false}
+ * @param alias {@link String} representation of the {@linkplain Cvar#getAlias name} of the
+ *              {@link Cvar} to check
+ *
+ * @return {@code true} if this {@link CvarManager} contains a mapping to the specified
+ *         {@linkplain Cvar#getAlias alias}, otherwise {@code false} if it does not or if the passed
+ *         {@linkplain Cvar#getAlias alias} is {@code null}
+ *
+ * @see #get
  */
-public boolean containsAlias(@NotNull String alias) {
-    return CVARS.containsKey(alias.toLowerCase());
+public boolean containsAlias(@Nullable final String alias) {
+    return alias != null && CVARS.containsKey(getCaseInsensitiveKey(alias));
 }
 
 /**
- * @param type {@linkplain Class} reference to search for
- * @return {@link StringSerializer} used by this {@linkplain CvarManager} to (de)serialize
- *         {@link Cvar} instances with the given type, otherwise {@code null} if no
- *         {@link StringSerializer} has been set for that {@code type} yet
+ * @param cvar {@link Cvar} to return a key for
+ *
+ * @return {@link String} representation for the key of the {@link Cvar}
  */
-public <T> StringSerializer<T> getSerializer(@NotNull Class<T> type) {
-    return (StringSerializer<T>)SERIALIZERS.get(type);
+@NonNull
+private static String getKey(@NonNull final Cvar cvar) {
+    return getCaseInsensitiveKey(cvar.getAlias());
 }
 
 /**
- * @param cvar {@link Cvar} to retrieve the {@link StringSerializer} for
- * @return the {@link StringSerializer} which will be used for that {@link Cvar}, otherwise
- *         {@code null} if none has been set yet
+ * @param alias {@linkplain Cvar#getAlias alias} to transform into a mappable key
+ *
+ * @return case-insensitive transformation of the {@linkplain Cvar#getAlias alias}
  */
-public <T> StringSerializer<T> getSerializer(@NotNull Cvar<T> cvar) {
-    return getSerializer(cvar.getType());
+@NonNull
+private static String getCaseInsensitiveKey(@NonNull final String alias) {
+    return alias.toLowerCase();
 }
 
-/**
- * @param type       {@linkplain Class type} reference to assign the {@link StringSerializer} to
- * @param serializer {@link StringSerializer} to assign
- */
-public <T> void putSerializer(@NotNull Class<T> type, @NotNull StringSerializer<T> serializer) {
-    SERIALIZERS.put(type, serializer);
-}
+@Override
+public void onChanged(@NonNull final Cvar cvar, @Nullable final Object from,
+                      @Nullable final Object to) {}
 
-/**
- * Abstraction to represent a {@link RuntimeException} for {@link CvarManager} events.
- */
-public static abstract class CvarManagerException extends RuntimeException {
-
-    /**
-     * Reference to the {@link Cvar} causing the exception
-     */
-    public final Cvar CVAR;
-
-    /**
-     * Constructs a new {@linkplain CvarManagerException} with a {@code null} {@link Cvar}
-     * and message
-     */
-    public CvarManagerException() {
-        this(null, null);
-    }
-
-    /**
-     * Constructs a new {@linkplain CvarManagerException} with a {@code null} message
-     *
-     * @param cvar {@link Cvar} causing the exception
-     */
-    public CvarManagerException(Cvar cvar) {
-        this(cvar, null);
-    }
-
-    /**
-     * Constructs a new {@linkplain CvarManagerException} with a {@code null} {@link Cvar}
-     *
-     * @param message {@linkplain String} describing the cause
-     */
-    public CvarManagerException(String message) {
-        this(null, message);
-    }
-
-    /**
-     * Constructs a new {@linkplain CvarManagerException} instance
-     *
-     * @param cvar
-     * @param message
-     */
-    public CvarManagerException(Cvar cvar, String message) {
-        super(Strings.nullToEmpty(message));
-        this.CVAR = cvar;
-    }
-
-    /**
-     * @return {@link Cvar} causing the exception
-     */
-    public Cvar getCvar() {
-        return CVAR;
-    }
-
-}
-
-/**
- * A {@link CvarManagerException} to be thrown when duplicate {@link Cvar}s are detected, typically
- * thrown when a {@link Cvar} is attempted to be added to a {@link CvarManager} who already has
- * a {@link Cvar} at that {@linkplain Cvar#getAlias() alias}.
- */
-public static class DuplicateCvarException extends CvarManagerException {
-
-    /**
-     * Constructs a new {@linkplain DuplicateCvarException} with a {@code null} {@link Cvar}
-     * and message
-     */
-    public DuplicateCvarException() {
-        this(null, null);
-    }
-
-    /**
-     * Constructs a new {@linkplain DuplicateCvarException} with a {@code null} message
-     *
-     * @param cvar {@link Cvar} causing the exception
-     */
-    public DuplicateCvarException(Cvar cvar) {
-        this(cvar, null);
-    }
-
-    /**
-     * Constructs a new {@linkplain DuplicateCvarException} with a {@code null} {@link Cvar}
-     *
-     * @param message {@linkplain String} describing the cause
-     */
-    public DuplicateCvarException(String message) {
-        this(null, message);
-    }
-
-    /**
-     * Constructs a new {@linkplain DuplicateCvarException} instance
-     *
-     * @param cvar
-     * @param message
-     */
-    public DuplicateCvarException(Cvar cvar, String message) {
-        super(cvar, message);
-    }
-
-}
-
-public static class UnmanagedCvarException extends CvarManagerException {
-
-    /**
-     * Constructs a new {@linkplain UnmanagedCvarException} with a {@code null} {@link Cvar}
-     * and message
-     */
-    public UnmanagedCvarException() {
-        this(null, null);
-    }
-
-    /**
-     * Constructs a new {@linkplain UnmanagedCvarException} with a {@code null} message
-     *
-     * @param cvar {@link Cvar} causing the exception
-     */
-    public UnmanagedCvarException(Cvar cvar) {
-        this(cvar, null);
-    }
-
-    /**
-     * Constructs a new {@linkplain UnmanagedCvarException} with a {@code null} {@link Cvar}
-     *
-     * @param message {@linkplain String} describing the cause
-     */
-    public UnmanagedCvarException(String message) {
-        this(null, message);
-    }
-
-    /**
-     * Constructs a new {@linkplain UnmanagedCvarException} instance
-     *
-     * @param cvar
-     * @param message
-     */
-    public UnmanagedCvarException(Cvar cvar, String message) {
-        super(cvar, message);
-    }
-
-}
+@Override
+public void onLoaded(@NonNull final Cvar cvar, @Nullable final Object to) {}
 
 }
