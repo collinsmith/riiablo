@@ -7,7 +7,7 @@ package com.gmail.collinsmith70.util;
  * @param <T> type of object which this {@linkplain RangeValidator} is specifically designed to
  *            validate
  */
-public interface RangeValidator<T extends Comparable<? super T>> extends Validator<T> {
+public interface RangeValidator<T extends Comparable<? super T>> extends Validator {
 
 /**
  * @return minimum of the {@link RangeValidator}

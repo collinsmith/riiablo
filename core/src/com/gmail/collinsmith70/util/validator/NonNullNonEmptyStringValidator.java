@@ -2,7 +2,7 @@ package com.gmail.collinsmith70.util.validator;
 
 import com.gmail.collinsmith70.util.ValidationException;
 
-public class NonNullNonEmptyStringValidator extends NonNullValidator<String> {
+public class NonNullNonEmptyStringValidator extends NonNullValidator {
 
 @Override
 public void validate(Object obj) {

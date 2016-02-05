@@ -8,9 +8,9 @@ import com.google.common.base.Preconditions;
  * of {@link T}
  *
  * @param <T> type of object which this {@linkplain NonNullSubclassValidator} is specifically
- *            designed to validate
+ *            designed to validate as a subclass of
  */
-public class NonNullSubclassValidator<T> extends NonNullValidator<T> {
+public class NonNullSubclassValidator<T> extends NonNullValidator {
 
 /**
  * Reference the {@linkplain Class} this {@linkplain NonNullSubclassValidator} is basing its

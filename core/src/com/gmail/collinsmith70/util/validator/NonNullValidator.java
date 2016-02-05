@@ -4,11 +4,8 @@ import com.gmail.collinsmith70.util.ValidationException;
 
 /**
  * A {@link SimpleValidator} which validates whether or not the passed reference is non-null.
- *
- * @param <T> type of object which this {@linkplain NonNullValidator} is specifically designed
- *            to validate
  */
-public class NonNullValidator<T> extends SimpleValidator<T> {
+public class NonNullValidator extends SimpleValidator {
 
 /**
  * Validates that the passed object is not null

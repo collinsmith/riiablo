@@ -1,10 +1,11 @@
 package com.gmail.collinsmith70.util.validator;
 
-import com.gmail.collinsmith70.util.RangeValidator;
+import android.support.annotation.NonNull;
+
 import com.gmail.collinsmith70.util.RangeValidationException;
+import com.gmail.collinsmith70.util.RangeValidator;
 import com.gmail.collinsmith70.util.ValidationException;
 import com.google.common.base.Preconditions;
-import com.gmail.collinsmith70.util.annotation.NotNull;
 
 /**
  * Implementation of a {@link RangeValidator} which validates that objects lie in some
@@ -31,7 +32,7 @@ private final T MAX;
  * @param min minimum value
  * @param max maximum value
  */
-public NumberRangeValidator(@NotNull T min, @NotNull T max) {
+public NumberRangeValidator(@NonNull T min, @NonNull T max) {
     this.MIN = Preconditions.checkNotNull(min);
     this.MAX = Preconditions.checkNotNull(max);
 }

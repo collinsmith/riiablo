@@ -1,7 +1,8 @@
 package com.gmail.collinsmith70.util;
 
+import android.support.annotation.NonNull;
+
 import com.google.common.base.Preconditions;
-import com.sun.istack.internal.NotNull;
 
 /**
  * A {@link ValidationException} which is thrown when a {@link RangeValidator} invalidates that an
@@ -37,7 +38,7 @@ public RangeValidationException(String reason) {
  * @param min arbitrary minimum of the {@link RangeValidator}
  * @param max arbitrary maximum of the {@link RangeValidator}
  */
-public RangeValidationException(@NotNull Object min, @NotNull Object max) {
+public RangeValidationException(@NonNull Object min, @NonNull Object max) {
     super(String.format("passed reference must lie between %s and %s (inclusive)", min, max));
     this.MIN = Preconditions.checkNotNull(min);
     this.MAX = Preconditions.checkNotNull(max);

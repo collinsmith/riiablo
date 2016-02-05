@@ -7,11 +7,8 @@ import com.gmail.collinsmith70.util.ValidationException;
  * Abstract partial implementation of a {@link Validator} which determines the return value of
  * {@link #isValid(Object)} by checking whether or not {@link #validate(Object)} threw an
  * exception.
- *
- * @param <T> type of object which this {@linkplain SimpleValidator} is specifically designed to
- *            validate
  */
-public abstract class SimpleValidator<T> implements Validator<T> {
+public abstract class SimpleValidator implements Validator {
 
 /**
  * @param obj object to validate
