@@ -5,6 +5,16 @@ import android.support.annotation.NonNull;
 public abstract class Widget {
 
 /**
+ * {@link Widget} will be sized large enough to fit all of its components
+ */
+public static final int WRAP_CONTENT = 0;
+
+/**
+ * {@link Widget} will be sized as large as the {@linkplain #getParent() parent} allows
+ */
+public static final int FILL_PARENT = -1;
+
+/**
  * {@code true} implies that this {@link Widget} is enabled, while {@code false} implies that it is
  * not. Interpretation on what exactly enabled means varies by subclass, but generally this effects
  * whether or not the state of the {@link Widget} is mutable.
