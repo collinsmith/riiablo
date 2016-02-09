@@ -31,7 +31,7 @@ public <T> Command<T> add(Command<T> command) {
             }
 
             throw new DuplicateCommandException(command, String.format(
-                    "A command with the alias %s is already registered. Cvar aliases must be unique!",
+                    "A command with the alias %s is already registered. Command aliases must be unique!",
                     command.getAlias()));
         }
     }
