@@ -5,6 +5,11 @@ import android.support.annotation.NonNull;
 public abstract class Widget {
 
 /**
+ * Reference to the {@linkplain WidgetParent parent} of this {@link Widget}
+ */
+private WidgetParent parent;
+
+/**
  * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@link Widget} may have.
  */
 public enum Visibility {
@@ -79,16 +84,34 @@ public void setVisibility(@NonNull Visibility visibility) {
     this.visibility = visibility;
 }
 
+public final WidgetParent getParent() {
+    return parent;
+}
+
+final void setParent(WidgetParent parent) {
+    this.parent = parent;
+}
+
 public boolean hasFocus() { throw new UnsupportedOperationException(); }
 public boolean hasFocusable() { throw new UnsupportedOperationException(); }
 
 public boolean isFocused() { throw new UnsupportedOperationException(); }
 public final boolean isFocusable() { throw new UnsupportedOperationException(); }
 
-public final Window getWindow() { throw new UnsupportedOperationException(); }
+public final Window getWindow() {
+    WidgetParent parent = getParent();
+    while (parent != null) {
+        if (parent instanceof Window) {
+            return (Window)parent;
+        }
+
+        parent = getParent();
+    }
+
+    return null;
+}
 
 public Object getTag() { throw new UnsupportedOperationException(); }
-public final WidgetParent getParent() { throw new UnsupportedOperationException(); }
 public Widget getRootWidget() { throw new UnsupportedOperationException(); }
 
 public float getX() { throw new UnsupportedOperationException(); }
