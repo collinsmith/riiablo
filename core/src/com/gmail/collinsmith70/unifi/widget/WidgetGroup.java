@@ -1,6 +1,7 @@
 package com.gmail.collinsmith70.unifi.widget;
 
 import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 
 public class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
 
@@ -40,8 +41,9 @@ public void requestLayout() { throw new UnsupportedOperationException(); }
 public static class LayoutParams {
 
     /**
-     * {@link LayoutParams} {@linkplain #width width} symbolizing that the {@linkplain Widget
-     * component} wants to be as big as its {@linkplain #getParent parent} (minus padding).
+     * {@link LayoutParams} {@linkplain #width width} of {@value} symbolizing that the
+     * {@linkplain Widget component} wants to be as big as its {@linkplain #getParent parent}
+     * (minus padding).
      *
      * @see #setWidth(int)
      * @see #setHeight(int)
@@ -49,8 +51,9 @@ public static class LayoutParams {
     public static final int FILL_PARENT = -1;
 
     /**
-     * {@link LayoutParams} {@linkplain #height height} symbolizing that the {@linkplain Widget
-     * component} wants to be just big enough to enclose its content (plus padding).
+     * {@link LayoutParams} {@linkplain #height height} of {@value} symbolizing that the
+     * {@linkplain Widget component} wants to be just big enough to enclose its content
+     * (plus padding).
      *
      * @see #setWidth(int)
      * @see #setHeight(int)
@@ -59,12 +62,20 @@ public static class LayoutParams {
 
     /**
      * Information about how wide the {@link WidgetGroup} wants to be
+     *
+     * @see #getWidth()
+     * @see #setWidth(int)
      */
+    @IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE)
     private int width;
 
     /**
      * Information about how tall the {@link WidgetGroup} wants to be
+     *
+     * @see #getHeight()
+     * @see #setHeight(int)
      */
+    @IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE)
     private int height;
 
     /**
@@ -75,7 +86,8 @@ public static class LayoutParams {
      * @param height the height, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT}, or a fixed size
      *               in pixels
      */
-    public LayoutParams(int width, int height) {
+    public LayoutParams(@IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int width,
+                        @IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int height) {
         setWidth(width);
         setHeight(height);
     }
@@ -87,7 +99,7 @@ public static class LayoutParams {
      *
      * @param source layout params to copy from
      */
-    public LayoutParams(LayoutParams source) {
+    public LayoutParams(@NonNull LayoutParams source) {
         this(source.width, source.height);
     }
 
@@ -95,6 +107,7 @@ public static class LayoutParams {
      * @return width this component wants to be, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT},
      *         or a fixed size in pixels
      */
+    @IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE)
     public int getWidth() {
         return width;
     }
@@ -105,8 +118,7 @@ public static class LayoutParams {
      *              {@linkplain WidgetParent#requestLayout() layout} of the
      *              {@linkplain #getParent()} of this {@link LayoutParams}.
      */
-    @IntRange(from=FILL_PARENT)
-    public void setWidth(int width) {
+    public void setWidth(@IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE) int width) {
         if (width < FILL_PARENT) {
             throw new IllegalArgumentException(
                     "width should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
@@ -122,6 +134,7 @@ public static class LayoutParams {
      * @return height this component wants to be, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT},
      *         or a fixed size in pixels
      */
+    @IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE)
     public int getHeight() {
         return height;
     }
@@ -132,8 +145,7 @@ public static class LayoutParams {
      *              {@linkplain WidgetParent#requestLayout() layout} of the
      *              {@linkplain #getParent()} of this {@link LayoutParams}.
      */
-    @IntRange(from=FILL_PARENT)
-    public void setHeight(int height) {
+    public void setHeight(@IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE) int height) {
         if (height < FILL_PARENT) {
             throw new IllegalArgumentException(
                     "height should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
@@ -143,6 +155,101 @@ public static class LayoutParams {
          *       should height be assigned at all? Height in this sense is a disjoint boolean variable,
          *       and not a literal assignment of the height of this component (i.e., a suggestion for
          *       the parent container of this Widget). */
+    }
+
+}
+
+public static class MarginLayoutParams extends LayoutParams {
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    private int bottom;
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    private int left;
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    private int right;
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    private int top;
+
+    public MarginLayoutParams(int width, int height) {
+        super(width, height);
+    }
+
+    public MarginLayoutParams(@NonNull LayoutParams source) {
+        super(source);
+    }
+
+    public MarginLayoutParams(@NonNull MarginLayoutParams source) {
+        super(source);
+        setMargins(
+                source.getLeft(),
+                source.getTop(),
+                source.getRight(),
+                source.getBottom());
+    }
+
+    public void setMargins(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
+                           @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
+                           @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
+                           @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+        setLeft(left);
+        setTop(top);
+        setRight(right);
+        setBottom(bottom);
+    }
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    public int getBottom() {
+        return bottom;
+    }
+
+    public void setBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+        if (bottom < 0) {
+            throw new IllegalArgumentException("bottom should be greater than or equal to 0");
+        }
+
+        this.bottom = bottom;
+    }
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    public int getLeft() {
+        return left;
+    }
+
+    public void setLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
+        if (left < 0) {
+            throw new IllegalArgumentException("left should be greater than or equal to 0");
+        }
+
+        this.left = left;
+    }
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    public int getRight() {
+        return right;
+    }
+
+    public void setRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
+        if (right < 0) {
+            throw new IllegalArgumentException("right should be greater than or equal to 0");
+        }
+
+        this.right = right;
+    }
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    public int getTop() {
+        return top;
+    }
+
+    public void setTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
+        if (top < 0) {
+            throw new IllegalArgumentException("top should be greater than or equal to 0");
+        }
+
+        this.top = top;
     }
 
 }
