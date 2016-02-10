@@ -85,6 +85,9 @@ public static class LayoutParams {
      *               in pixels
      * @param height the height, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT}, or a fixed size
      *               in pixels
+     *
+     * @see #setWidth(int)
+     * @see #setHeight(int)
      */
     public LayoutParams(@IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int width,
                         @IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int height) {
@@ -159,28 +162,84 @@ public static class LayoutParams {
 
 }
 
+/**
+ * Implementation of {@link WidgetGroup.LayoutParams} which adds <a href="https://en.wikipedia.org/wiki/Margin_(typography)">
+ * margins</a>. Margins define spacing on the inside of a {@linkplain Widget component} and its
+ * edges.
+ */
 public static class MarginLayoutParams extends LayoutParams {
 
+    /**
+     * Bottom margin of this {@link WidgetGroup}
+     *
+     * @see #setBottom(int)
+     * @see #getBottom()
+     */
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     private int bottom;
 
+    /**
+     * Left margin of this {@link WidgetGroup}
+     *
+     * @see #setLeft(int)
+     * @see #getLeft()
+     */
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     private int left;
 
+    /**
+     * Right margin of this {@link WidgetGroup}
+     *
+     * @see #setRight(int)
+     * @see #getRight()
+     */
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     private int right;
 
+    /**
+     * Top margin of this {@link WidgetGroup}
+     *
+     * @see #setTop(int)
+     * @see #getTop()
+     */
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     private int top;
 
+    /**
+     * Constructs a new {@link MarginLayoutParams} instance.
+     *
+     * @param width  the width, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT}, or a fixed size
+     *               in pixels
+     * @param height the height, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT}, or a fixed size
+     *               in pixels
+     */
     public MarginLayoutParams(int width, int height) {
         super(width, height);
     }
 
+    /**
+     * Copy constructor which constructs a new {@link MarginLayoutParams} instance using the
+     * {@linkplain LayoutParams#getWidth() width} and {@linkplain LayoutParams#getHeight() height}
+     * values from a {@linkplain LayoutParams source} object.
+     * <p>
+     * Note: The margins on all sides of the created instance will be {@code 0}.
+     * </p>
+     *
+     * @param source layout params to copy from
+     */
     public MarginLayoutParams(@NonNull LayoutParams source) {
         super(source);
     }
 
+    /**
+     * Copy constructor which constructs a new {@link MarginLayoutParams} instance using the
+     * {@linkplain LayoutParams#getWidth() width}, {@linkplain LayoutParams#getHeight() height}
+     * and margins from a {@linkplain LayoutParams source} object.
+     *
+     * @param source
+     *
+     * @see #setMargins(int, int, int, int)
+     */
     public MarginLayoutParams(@NonNull MarginLayoutParams source) {
         super(source);
         setMargins(
@@ -190,6 +249,17 @@ public static class MarginLayoutParams extends LayoutParams {
                 source.getBottom());
     }
 
+    /**
+     * @param left   Specifies extra space on the left side of this {@link Widget}
+     * @param top    Specifies extra space on the top side of this {@link Widget}
+     * @param right  Specifies extra space on the right side of this {@link Widget}
+     * @param bottom Specifies extra space on the bottom side of this {@link Widget}
+     *
+     * @see #setLeft(int)
+     * @see #setTop(int)
+     * @see #setRight(int)
+     * @see #setBottom(int)
+     */
     public void setMargins(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
                            @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
                            @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
