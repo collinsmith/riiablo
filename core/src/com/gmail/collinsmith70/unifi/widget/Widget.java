@@ -1,13 +1,9 @@
 package com.gmail.collinsmith70.unifi.widget;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public abstract class Widget {
-
-/**
- * Reference to the {@linkplain WidgetParent parent} of this {@link Widget}
- */
-private WidgetParent parent;
 
 /**
  * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@link Widget} may have.
@@ -20,6 +16,11 @@ public enum Visibility {
     /** {@link Widget} will neither be laid out or drawn (as if it is not even present) */
     GONE
 }
+
+/**
+ * Reference to the {@linkplain WidgetParent parent} of this {@link Widget}
+ */
+private WidgetParent parent;
 
 /**
  * {@code true} implies that this {@link Widget} is enabled, while {@code false} implies that it is
@@ -40,6 +41,15 @@ private boolean enabled;
  */
 @NonNull
 private Visibility visibility;
+
+/**
+ * {@link WidgetGroup.LayoutParams} instance containing arguments associated with laying out this
+ * {@link Widget}.
+ *
+ * @see #getLayoutParams()
+ */
+@Nullable
+private WidgetGroup.LayoutParams layoutParams;
 
 public Widget() {
     setEnabled(true);
@@ -109,6 +119,41 @@ public final Window getWindow() {
     }
 
     return null;
+}
+
+/**
+ * Get the {@link WidgetGroup.LayoutParams} associated with this {@link Widget}. All widgets should
+ * have layout parameters. These supply parameters to the {@linkplain #getParent() parent} of this
+ * widget specifying how it should be arranged. There are many subclasses of
+ * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
+ * {@link WidgetGroup} that are responsible for arranging their children. This method may return
+ * {@code null} if this {@link Widget} is not attached to a parent {@link WidgetGroup} or
+ * {@link #setLayoutParams(WidgetGroup.LayoutParams)} was not invoked successfully. When a
+ * {@link Widget} is attached to a parent {@link WidgetGroup}, this method must not return
+ * {@code null}.
+ *
+ * @return {@link WidgetGroup.LayoutParams} instance associated with this {@link Widget},
+ *         or {@code null} if no parameters have been set yet
+ */
+@Nullable
+public WidgetGroup.LayoutParams getLayoutParams() {
+    return layoutParams;
+}
+
+/**
+ * Sets the layout parameters associated with this view. These supply parameters to the parent of
+ * this view specifying how it should be arranged. There are many subclasses of
+ * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
+ * {@link WidgetGroup} that are responsible for arranging their children.
+ *
+ * @param params layout parameters for this {@link Widget}, cannot be {@code null}
+ */
+public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
+    if (params == null) {
+        throw new IllegalArgumentException("params cannot be null");
+    }
+
+    this.layoutParams = params;
 }
 
 public Object getTag() { throw new UnsupportedOperationException(); }
