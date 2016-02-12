@@ -3,6 +3,8 @@ package com.gmail.collinsmith70.unifi.widget;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gmail.collinsmith70.unifi.util.Drawable;
+
 public abstract class Widget {
 
 /**
@@ -47,9 +49,19 @@ private Visibility visibility;
  * {@link Widget}.
  *
  * @see #getLayoutParams()
+ * @see #setLayoutParams(WidgetGroup.LayoutParams)
  */
 @Nullable
 private WidgetGroup.LayoutParams layoutParams;
+
+/**
+ * {@link Drawable} rendered behind this {@link Widget}.
+ *
+ * @see #getBackground()
+ * @see #setBackground(Drawable)
+ */
+@Nullable
+private Drawable background;
 
 public Widget() {
     setEnabled(true);
@@ -94,6 +106,27 @@ public void setVisibility(@NonNull Visibility visibility) {
     this.visibility = visibility;
 }
 
+/**
+ * @return {@link Drawable} rendered behind this {@link Widget}
+ */
+@Nullable
+public Drawable getBackground() {
+    return background;
+}
+
+/**
+ * Sets the background to a given {@link Drawable}, or removes the background in the case which
+ * a {@code null} reference is passed. If the background has padding, this
+ * {@linkplain Widget widget}'s padding is set to the background's padding. However, when a
+ * background is removed, this {@linkplain Widget widget}'s padding isn't touched. If setting the
+ * padding is desired, please use setPadding(int, int, int, int).
+ *
+ * @param background {@link Drawable} to render behind this {@link Widget}.
+ */
+public void setBackground(@Nullable Drawable background) {
+    throw new UnsupportedOperationException();
+}
+
 public final WidgetParent getParent() {
     return parent;
 }
@@ -108,6 +141,9 @@ public boolean hasFocusable() { throw new UnsupportedOperationException(); }
 public boolean isFocused() { throw new UnsupportedOperationException(); }
 public final boolean isFocusable() { throw new UnsupportedOperationException(); }
 
+/**
+ * @return {@link Window} containing this {@link Widget}
+ */
 public final Window getWindow() {
     WidgetParent parent = getParent();
     while (parent != null) {
