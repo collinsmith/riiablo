@@ -3,7 +3,11 @@ package com.gmail.collinsmith70.unifi.widget;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.util.Drawable;
+
+import java.util.Random;
 
 public abstract class Widget {
 
@@ -20,8 +24,14 @@ public enum Visibility {
 }
 
 /**
- * Reference to the {@linkplain WidgetParent parent} of this {@link Widget}
+ * Reference to the {@linkplain WidgetParent parent} of this {@link Widget}, or {@code null} if no
+ * parent is set. This typically occurs when the {@link Widget} has been constructed, but has not
+ * yet been added to a {@linkplain WidgetParent container}.
+ *
+ * @see #getParent()
+ * @see #setParent(WidgetParent)
  */
+@Nullable
 private WidgetParent parent;
 
 /**
@@ -66,6 +76,28 @@ private Drawable background;
 public Widget() {
     setEnabled(true);
     setVisibility(Visibility.VISIBLE);
+}
+
+final void draw(Batch batch) {
+    onDrawBackground(batch);
+    onDraw(batch);
+    onDrawDebug(batch);
+}
+
+public void onDrawBackground(Batch batch) {}
+
+public void onDraw(Batch batch) {}
+
+public void onDrawDebug(Batch batch) {
+    ShapeRenderer shapeRenderer = new ShapeRenderer();
+    shapeRenderer.begin();
+    shapeRenderer.rectLine(0, 0, getWidth(), getHeight(), 1);
+
+    Random random = new Random();
+    shapeRenderer.setColor(random.nextInt(256), random.nextInt(256), random.nextInt(256), 255);
+
+    shapeRenderer.end();
+    shapeRenderer.dispose();
 }
 
 /**
@@ -127,10 +159,18 @@ public void setBackground(@Nullable Drawable background) {
     throw new UnsupportedOperationException();
 }
 
+/**
+ * @return {@linkplain WidgetParent parent} containing this {@link Widget}, or {@code null} if no
+ *         parent is set
+ */
+@Nullable
 public final WidgetParent getParent() {
     return parent;
 }
 
+/**
+ * @param parent {@linkplain WidgetParent parent} container of this {@link Widget}
+ */
 final void setParent(WidgetParent parent) {
     this.parent = parent;
 }
