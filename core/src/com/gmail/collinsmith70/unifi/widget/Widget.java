@@ -6,10 +6,11 @@ import android.support.annotation.Nullable;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.util.Drawable;
+import com.gmail.collinsmith70.unifi.util.Enableable;
 
 import java.util.Random;
 
-public abstract class Widget {
+public abstract class Widget implements Enableable {
 
 /**
  * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@link Widget} may have.
@@ -45,6 +46,13 @@ private WidgetParent parent;
 private boolean enabled;
 
 /**
+ * {@code true} implies that this {@link Widget} is in {@linkplain #isDebugging() debug} mode and will
+ * have {@link #onDrawDebug(Batch)} called on every {@linkplain #draw(Batch) draw}, otherwise
+ * {@code false} implies that this {@link Widget} should behave normally.
+ */
+private boolean debugging;
+
+/**
  * {@link Visibility} of this {@link Widget}. This effects how the component behaves when rendering
  * and additionally when being laid out.
  *
@@ -78,16 +86,49 @@ public Widget() {
     setVisibility(Visibility.VISIBLE);
 }
 
+/**
+ * Draws this {@link Widget} onto the given {@link Batch}.
+ *
+ * @param batch {@link Batch} to draw this {@link Widget} onto
+ *
+ * @see #onDrawBackground(Batch)
+ * @see #onDraw(Batch)
+ * @see #onDrawDebug(Batch)
+ */
 final void draw(Batch batch) {
     onDrawBackground(batch);
     onDraw(batch);
-    onDrawDebug(batch);
+    if (isDebugging()) {
+        onDrawDebug(batch);
+    }
 }
 
-public void onDrawBackground(Batch batch) {}
+/**
+ * Called when the {@linkplain Drawable background} of this {@link Widget} should be drawn.
+ *
+ * @param batch {@link Batch} to draw onto
+ */
+public void onDrawBackground(Batch batch) {
+    if (getBackground() == null) {
+        return;
+    }
 
+    getBackground().draw(batch);
+}
+
+/**
+ * Called when the foreground of this {@link Widget} should be drawn.
+ *
+ * @param batch {@link Batch} to draw onto
+ */
 public void onDraw(Batch batch) {}
 
+/**
+ * Called when {@link #onDraw(Batch) drawing} this widget when it is in
+ * {@linkplain #isDebugging() debug} mode.
+ *
+ * @param batch {@link Batch} to draw debug information onto
+ */
 public void onDrawDebug(Batch batch) {
     ShapeRenderer shapeRenderer = new ShapeRenderer();
     shapeRenderer.begin();
@@ -101,10 +142,27 @@ public void onDrawDebug(Batch batch) {
 }
 
 /**
+ * @return {@code true} if this {@link Widget} is in debug mode and will {@link #onDrawDebug(Batch)}
+ *         called after every {@linkplain #onDraw(Batch) draw}, otherwise {@code false}
+ */
+public boolean isDebugging() {
+    return debugging;
+}
+
+/**
+ * @param debugging {@code true} to enable {@linkplain #isDebugging() debugging} for this
+ *        {@link Widget}, otherwise {@code false}
+ */
+public void setDebugging(boolean debugging) {
+    this.debugging = debugging;
+}
+
+/**
  * @return {@code true} if this {@link Widget} is enabled. Interpretation varies by subclass.
  *
  * @see #setEnabled(boolean)
  */
+@Override
 public boolean isEnabled() {
     return enabled;
 }
@@ -115,6 +173,7 @@ public boolean isEnabled() {
  *
  * @see #isEnabled()
  */
+@Override
 public void setEnabled(boolean enabled) {
     this.enabled = enabled;
 }
@@ -243,16 +302,5 @@ public void setY(float y) { throw new UnsupportedOperationException(); }
 
 public final int getWidth() { throw new UnsupportedOperationException(); }
 public final int getHeight() { throw new UnsupportedOperationException(); }
-
-public final int getBottom() { throw new UnsupportedOperationException(); }
-public final int getLeft() { throw new UnsupportedOperationException(); }
-public final int getRight() { throw new UnsupportedOperationException(); }
-public final int getTop() { throw new UnsupportedOperationException(); }
-
-public int getPaddingBottom() { throw new UnsupportedOperationException(); }
-public int getPaddingLeft() { throw new UnsupportedOperationException(); }
-public int getPaddingRight() { throw new UnsupportedOperationException(); }
-public int getPaddingTop() { throw new UnsupportedOperationException(); }
-public void setPadding(int left, int top, int right, int bottom) { throw new UnsupportedOperationException(); }
 
 }
