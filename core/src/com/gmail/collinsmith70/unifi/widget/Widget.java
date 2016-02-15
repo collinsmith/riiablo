@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.widget;
 
+import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -81,7 +82,15 @@ private WidgetGroup.LayoutParams layoutParams;
 @Nullable
 private Drawable background;
 
+/**
+ * Floating-point representation of the z-axis location of this {@link Widget}, used to determine
+ * height of a component relative to its {@linkplain #getParent() parent}.
+ */
+@FloatRange(from = 0.0, to = Float.MAX_VALUE)
+private float elevation;
+
 public Widget() {
+    setDebugging(false);
     setEnabled(true);
     setVisibility(Visibility.VISIBLE);
 }
@@ -234,12 +243,6 @@ final void setParent(WidgetParent parent) {
     this.parent = parent;
 }
 
-public boolean hasFocus() { throw new UnsupportedOperationException(); }
-public boolean hasFocusable() { throw new UnsupportedOperationException(); }
-
-public boolean isFocused() { throw new UnsupportedOperationException(); }
-public final boolean isFocusable() { throw new UnsupportedOperationException(); }
-
 /**
  * @return {@link Window} containing this {@link Widget}
  */
@@ -289,6 +292,29 @@ public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
     }
 
     this.layoutParams = params;
+}
+
+/**
+ * @return Floating-point representation of the z-axis location of this {@link Widget}, used to
+ *         determine height of a component relative to its {@linkplain #getParent() parent}.
+ */
+@FloatRange(from = 0.0, to = Float.MAX_VALUE)
+public float getElevation() {
+    return elevation;
+}
+
+/**
+ * @param elevation Floating-point representation for the {@linkplain #getElevation() elevation} of
+ *                  this {@link Widget}, used to determine height of a component relative to its
+ *                  {@linkplain #getParent() parent}.
+ */
+public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float elevation) {
+    if (elevation < 0.0f) {
+        throw new IllegalArgumentException(
+                "elevation must be between 0.0 and " + Float.MAX_VALUE + " (inclusive)");
+    }
+
+    this.elevation = elevation;
 }
 
 public Object getTag() { throw new UnsupportedOperationException(); }
