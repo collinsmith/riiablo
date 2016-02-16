@@ -14,24 +14,24 @@ package com.gmail.collinsmith70.unifi.util;
 public enum LengthUnit {
 
 MILLIMETERS {
-    @Override public long toMillimeters(long x) { return x; }
-    @Override public long toCentimeters(long x) { return x/(C1/C0); }
-    @Override public long toMeters(long x)      { return x/(C2/C0); }
-    @Override public long convert(long x, LengthUnit u) { return u.toMillimeters(x); }
+    @Override public long toMillimeters(long l)         { return l; }
+    @Override public long toCentimeters(long l)         { return l/(C1/C0); }
+    @Override public long toMeters(long l)              { return l/(C2/C0); }
+    @Override public long convert(long l, LengthUnit u) { return u.toMillimeters(l); }
 },
 
 CENTIMETERS {
-    @Override public long toMillimeters(long x) { return x(x, C1/C0, MAX/(C1/C0)); }
-    @Override public long toCentimeters(long x) { return x; }
-    @Override public long toMeters(long x)      { return x/(C2/C1); }
-    @Override public long convert(long x, LengthUnit u) { return u.toCentimeters(x); }
+    @Override public long toMillimeters(long l)         { return x(l, C1/C0, MAX/(C1/C0)); }
+    @Override public long toCentimeters(long l)         { return l; }
+    @Override public long toMeters(long l)              { return l/(C2/C1); }
+    @Override public long convert(long l, LengthUnit u) { return u.toCentimeters(l); }
 },
 
 METERS {
-    @Override public long toMillimeters(long x) { return x(x, C2/C0, MAX/(C2/C0)); }
-    @Override public long toCentimeters(long x) { return x(x, C2/C1, MAX/(C2/C1)); }
-    @Override public long toMeters(long x)      { return x; }
-    @Override public long convert(long x, LengthUnit u) { return u.toMeters(x); }
+    @Override public long toMillimeters(long l)         { return x(l, C2/C0, MAX/(C2/C0)); }
+    @Override public long toCentimeters(long l)         { return x(l, C2/C1, MAX/(C2/C1)); }
+    @Override public long toMeters(long l)              { return l; }
+    @Override public long convert(long l, LengthUnit u) { return u.toMeters(l); }
 };
 
 private static final long C0 = 1L;
@@ -41,17 +41,17 @@ private static final long C2 = C0 * 1000L;
 private static final long MAX = Long.MAX_VALUE;
 
 /**
- * Scale d by m, checking for overflow. This has a short name to make above code more readable.
+ * Scale l by m, checking for overflow. This has a short name to make above code more readable.
  * <p>Note: Taken from {@link java.util.concurrent.TimeUnit#x(long, long, long)}</p>
  */
-static long x(long d, long m, long over) {
-    if (d > over) {
+static long x(long l, long m, long over) {
+    if (l > over) {
         return Long.MAX_VALUE;
-    } else if (d < -over) {
+    } else if (l < -over) {
         return Long.MIN_VALUE;
     }
 
-    return d * m;
+    return l * m;
 }
 
 /**
