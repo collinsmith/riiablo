@@ -11,7 +11,7 @@ import com.gmail.collinsmith70.unifi.util.Enableable;
 
 import java.util.Random;
 
-public abstract class Widget implements Enableable {
+public abstract class Widget implements Comparable<Widget>, Enableable {
 
 /**
  * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@link Widget} may have.
@@ -315,6 +315,17 @@ public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float ele
     }
 
     this.elevation = elevation;
+}
+
+/**
+ * Implementation of {@link Comparable#compareTo(Object)} which compares {@link Widget} instances
+ * based on their {@linkplain #getElevation() elevation}.
+ *
+ * {@inheritDoc}
+ */
+@Override
+public int compareTo(Widget other) {
+    return Float.compare(this.getElevation(), other.getElevation());
 }
 
 public Object getTag() { throw new UnsupportedOperationException(); }
