@@ -5,6 +5,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.util.Drawable;
@@ -14,7 +15,7 @@ import java.util.EnumSet;
 import java.util.Random;
 import java.util.Set;
 
-public abstract class Widget implements Comparable<Widget>, Enableable {
+public abstract class Widget implements Comparable<Widget>, Enableable, InputProcessor {
 
 /**
  * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@link Widget} may have.
@@ -472,6 +473,14 @@ public final int getWidth() {
 @IntRange(from = 0, to = Integer.MAX_VALUE)
 public final int getHeight() {
     return getBottom() - getTop();
+}
+
+@Override
+public boolean mouseMoved(int screenX, int screenY) {
+    // TODO: Check and see if this will interfere with input events being passed to children (which
+    //       this object does not keep references to.
+    return getLeft() <= screenX && screenX <= getRight()
+            && getTop() <= screenY && screenY <= getBottom();
 }
 
 }
