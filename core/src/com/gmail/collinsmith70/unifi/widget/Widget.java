@@ -141,7 +141,12 @@ private enum Flag {
      * have {@link #onDrawDebug(Batch)} called on every {@linkplain #draw(Batch) draw}, otherwise
      * {@code false} implies that this {@link Widget} should behave normally.
      */
-    DEBUGGING
+    DEBUGGING,
+    /**
+     * {@code true} implies that this {@link Widget} has an input device over it (i.e., mouse
+     * cursor), otherwise {@code false}.
+     */
+    HOVERING
 }
 
 public Widget() {
@@ -475,12 +480,40 @@ public final int getHeight() {
     return getBottom() - getTop();
 }
 
+/**
+ * @return {@code true} if this {@link Widget} has an input cursor hovering above it (e.g., mouse
+ *         cursor), otherwise {@code false}
+ */
+public boolean isHovering() {
+    return FLAGS.contains(Flag.ENABLED);
+
+}
+
+/**
+ * @param hovering {@code true} to enable the {@linkplain #isHovering() hovering} state for this
+ *                 {@link Widget}, otherwise {@code false}.
+ *
+ * @see #isHovering()
+ */
+private void setHovering(boolean hovering) {
+    if (hovering) {
+        FLAGS.add(Flag.HOVERING);
+    } else {
+        FLAGS.remove(Flag.HOVERING);
+    }
+}
+
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
-    // TODO: Check and see if this will interfere with input events being passed to children (which
-    //       this object does not keep references to.
-    return getLeft() <= screenX && screenX <= getRight()
-            && getTop() <= screenY && screenY <= getBottom();
+    boolean inBounds = getLeft() <= screenX && screenX <= getRight()
+                    && getTop() <= screenY && screenY <= getBottom();
+
+    setHovering(inBounds);
+    if (inBounds) {
+        // TODO: Propagate to children, likely through WidgetGroup impl
+    }
+
+    return inBounds;
 }
 
 }
