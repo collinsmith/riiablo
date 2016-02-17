@@ -1,5 +1,8 @@
 package com.gmail.collinsmith70.unifi.widget;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.badlogic.gdx.InputProcessor;
 
 import java.awt.Dimension;
@@ -26,11 +29,32 @@ public Window(int width, int height) {
 @Override public boolean mouseMoved(int screenX, int screenY) { return false; }
 @Override public boolean scrolled(int amount) { return false; }
 
-@Override public WidgetManager addWidget(Widget child) { CHILDREN.add(child); return this; }
-@Override public boolean containsWidget(Widget child) { return CHILDREN.contains(child); }
-@Override public boolean removeWidget(Widget child) { return CHILDREN.remove(child); }
-@Override public int getNumWidgets() { return CHILDREN.size(); }
-
 @Override public void requestLayout() { throw new UnsupportedOperationException(); }
+
+@NonNull
+@Override
+public WidgetManager addWidget(@NonNull Widget child) {
+    if (child == null) {
+        throw new IllegalArgumentException("child widget cannot be null");
+    }
+
+    CHILDREN.add(child);
+    return this;
+}
+
+@Override
+public boolean containsWidget(@Nullable Widget child) {
+    return child != null && CHILDREN.contains(child);
+}
+
+@Override
+public boolean removeWidget(@Nullable Widget child) {
+    return child != null && CHILDREN.remove(child);
+}
+
+@Override
+public int getNumWidgets() {
+    return CHILDREN.size();
+}
 
 }
