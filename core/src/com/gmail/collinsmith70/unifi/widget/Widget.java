@@ -1,6 +1,7 @@
 package com.gmail.collinsmith70.unifi.widget;
 
 import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -9,7 +10,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.util.Drawable;
 import com.gmail.collinsmith70.unifi.util.Enableable;
 
+import java.util.EnumSet;
 import java.util.Random;
+import java.util.Set;
 
 public abstract class Widget implements Comparable<Widget>, Enableable {
 
@@ -35,23 +38,6 @@ public enum Visibility {
  */
 @Nullable
 private WidgetParent parent;
-
-/**
- * {@code true} implies that this {@link Widget} is enabled, while {@code false} implies that it is
- * not. Interpretation on what exactly enabled means varies by subclass, but generally this effects
- * whether or not the state of the {@link Widget} is mutable.
- *
- * @see #isEnabled()
- * @see #setEnabled(boolean)
- */
-private boolean enabled;
-
-/**
- * {@code true} implies that this {@link Widget} is in {@linkplain #isDebugging() debug} mode and will
- * have {@link #onDrawDebug(Batch)} called on every {@linkplain #draw(Batch) draw}, otherwise
- * {@code false} implies that this {@link Widget} should behave normally.
- */
-private boolean debugging;
 
 /**
  * {@link Visibility} of this {@link Widget}. This effects how the component behaves when rendering
@@ -89,7 +75,77 @@ private Drawable background;
 @FloatRange(from = 0.0, to = Float.MAX_VALUE)
 private float elevation;
 
+/**
+ * Number of pixels from the top of the {@linkplain #getParent() parent} of this {@link Widget} to
+ * the bottom of this {@link Widget}.
+ *
+ * @see #getBottom()
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+private int bottom;
+
+/**
+ * Number of pixels from the left of the {@linkplain #getParent() parent} of this {@link Widget} to
+ * the left of this {@link Widget}.
+ *
+ * @see #getLeft()
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+private int left;
+
+/**
+ * Number of pixels from the left of the {@linkplain #getParent() parent} of this {@link Widget} to
+ * the right of this {@link Widget}.
+ *
+ * @see #getRight()
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+private int right;
+
+/**
+ * Number of pixels from the top of the {@linkplain #getParent() parent} of this {@link Widget} to
+ * the top of this {@link Widget}.
+ *
+ * @see #getTop()
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+private int top;
+
+/**
+ * Abstract {@code Object} associated with this {@link Widget}.
+ */
+@Nullable
+private Object tag;
+
+/**
+ * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@link Widget}.
+ */
+private final Set<Flag> FLAGS;
+
+/**
+ * {@linkplain Enum Enumeration} of all boolean state fields for a {@link Widget}.
+ */
+private enum Flag {
+    /**
+     * {@code true} implies that this {@link Widget} is enabled, while {@code false} implies that it is
+     * not. Interpretation on what exactly enabled means varies by subclass, but generally this effects
+     * whether or not the state of the {@link Widget} is mutable.
+     *
+     * @see #isEnabled()
+     * @see #setEnabled(boolean)
+     */
+    ENABLED,
+    /**
+     * {@code true} implies that this {@link Widget} is in {@linkplain #isDebugging() debug} mode and will
+     * have {@link #onDrawDebug(Batch)} called on every {@linkplain #draw(Batch) draw}, otherwise
+     * {@code false} implies that this {@link Widget} should behave normally.
+     */
+    DEBUGGING
+}
+
 public Widget() {
+    this.FLAGS = EnumSet.noneOf(Flag.class);
+
     setDebugging(false);
     setEnabled(true);
     setVisibility(Visibility.VISIBLE);
@@ -155,7 +211,7 @@ public void onDrawDebug(Batch batch) {
  *         called after every {@linkplain #onDraw(Batch) draw}, otherwise {@code false}
  */
 public boolean isDebugging() {
-    return debugging;
+    return FLAGS.contains(Flag.DEBUGGING);
 }
 
 /**
@@ -163,7 +219,11 @@ public boolean isDebugging() {
  *        {@link Widget}, otherwise {@code false}
  */
 public void setDebugging(boolean debugging) {
-    this.debugging = debugging;
+    if (debugging) {
+        FLAGS.add(Flag.DEBUGGING);
+    } else {
+        FLAGS.remove(Flag.DEBUGGING);
+    }
 }
 
 /**
@@ -173,7 +233,8 @@ public void setDebugging(boolean debugging) {
  */
 @Override
 public boolean isEnabled() {
-    return enabled;
+    return FLAGS.contains(Flag.ENABLED);
+
 }
 
 /**
@@ -184,7 +245,11 @@ public boolean isEnabled() {
  */
 @Override
 public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+    if (enabled) {
+        FLAGS.add(Flag.ENABLED);
+    } else {
+        FLAGS.remove(Flag.ENABLED);
+    }
 }
 
 /**
@@ -324,20 +389,89 @@ public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float ele
  * {@inheritDoc}
  */
 @Override
+@IntRange(from = -1, to = 1)
 public int compareTo(Widget other) {
     return Float.compare(this.getElevation(), other.getElevation());
 }
 
-public Object getTag() { throw new UnsupportedOperationException(); }
-public Widget getRootWidget() { throw new UnsupportedOperationException(); }
+/**
+ * @return abstract {@code Object} associated with this {@link Widget}, or {@code null} if no object
+ *         is associated with it
+ */
+@Nullable
+public Object getTag() {
+    return tag;
+}
 
-public float getX() { throw new UnsupportedOperationException(); }
-public void setX(float x) { throw new UnsupportedOperationException(); }
+/**
+ * @param tag abstract {@code Object} to associate with this {@link Widget}, or {@code null} to
+ *            disassociate the currently {@linkplain #getTag() tagged object}
+ */
+public void setTag(@Nullable final Object tag) {
+    this.tag = tag;
+}
 
-public float getY() { throw new UnsupportedOperationException(); }
-public void setY(float y) { throw new UnsupportedOperationException(); }
+/**
+ * @return topmost {@link Widget} {@linkplain #getParent() containing} this {@link Widget}
+ */
+@Nullable
+public Widget getRootWidget() {
+    Widget root = null;
+    for (WidgetParent parent = getParent();
+         parent != null && parent instanceof Widget;
+         parent = getParent()) {
+        root = (Widget)parent;
+    }
 
-public final int getWidth() { throw new UnsupportedOperationException(); }
-public final int getHeight() { throw new UnsupportedOperationException(); }
+    return root;
+}
+
+/**
+ * @return bottom of this view, in pixels, relative to its {@linkplain #getParent() parent}.
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+private int getBottom() {
+    return bottom;
+}
+
+/**
+ * @return left of this view, in pixels, relative to its {@linkplain #getParent() parent}.
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+private int getLeft() {
+    return left;
+}
+
+/**
+ * @return right of this view, in pixels, relative to its {@linkplain #getParent() parent}.
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+public int getRight() {
+    return right;
+}
+
+/**
+ * @return top of this view, in pixels, relative to its {@linkplain #getParent() parent}.
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+public int getTop() {
+    return top;
+}
+
+/**
+ * @return width of this {@link Widget} in pixels
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+public final int getWidth() {
+    return getRight() - getLeft();
+}
+
+/**
+ * @return height of this {@link Widget} in pixels
+ */
+@IntRange(from = 0, to = Integer.MAX_VALUE)
+public final int getHeight() {
+    return getBottom() - getTop();
+}
 
 }
