@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 public class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
 
-public void addWidget(Widget child) { throw new UnsupportedOperationException(); }
+public WidgetManager addWidget(Widget child) { throw new UnsupportedOperationException(); }
 public boolean containsWidget(Widget child) { throw new UnsupportedOperationException(); }
 public boolean removeWidget(Widget child) { throw new UnsupportedOperationException(); }
 public int getNumWidgets() { throw new UnsupportedOperationException(); }
