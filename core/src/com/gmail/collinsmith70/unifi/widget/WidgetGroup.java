@@ -3,7 +3,7 @@ package com.gmail.collinsmith70.unifi.widget;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
-public class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
+public abstract class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
 
 public WidgetManager addWidget(Widget child) { throw new UnsupportedOperationException(); }
 public boolean containsWidget(Widget child) { throw new UnsupportedOperationException(); }
@@ -16,6 +16,20 @@ public int getMarginRight() { throw new UnsupportedOperationException(); }
 public int getMarginTop() { throw new UnsupportedOperationException(); }
 
 public void requestLayout() { throw new UnsupportedOperationException(); }
+
+@Override
+public boolean mouseMoved(int screenX, int screenY) {
+    boolean inBounds = super.mouseMoved(screenX, screenY);
+    if (inBounds) {
+        /*
+        for (Widget child : CHILDREN) {
+            child.mouseMoved(screenX, screenY);
+        }
+        */
+    }
+
+    return inBounds;
+}
 
 /**
  * LayoutParams are used by views to tell their parents how they want to be laid out.

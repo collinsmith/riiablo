@@ -509,10 +509,6 @@ public boolean mouseMoved(int screenX, int screenY) {
                     && getTop() <= screenY && screenY <= getBottom();
 
     setHovering(inBounds);
-    if (inBounds) {
-        // TODO: Propagate to children, likely through WidgetGroup impl
-    }
-
     return inBounds;
 }
 
