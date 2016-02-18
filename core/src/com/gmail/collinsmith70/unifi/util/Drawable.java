@@ -19,15 +19,51 @@ public void draw(Batch batch) {
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int width;
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int height;
 
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getX() { throw new UnsupportedOperationException(); }
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getY() { throw new UnsupportedOperationException(); }
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getWidth() { throw new UnsupportedOperationException(); }
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getHeight() { throw new UnsupportedOperationException(); }
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getX() {
+    return x;
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getY() {
+    return y;
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getWidth() {
+    return width;
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getHeight() {
+    return height;
+}
 
-public void setX(@IntRange(from = 0, to = Integer.MAX_VALUE) int x) { throw new UnsupportedOperationException(); }
-public void setY(@IntRange(from = 0, to = Integer.MAX_VALUE) int y) { throw new UnsupportedOperationException(); }
-public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) { throw new UnsupportedOperationException(); }
-public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) { throw new UnsupportedOperationException(); }
+public void setX(@IntRange(from = 0, to = Integer.MAX_VALUE) int x) {
+    if (x < 0) {
+        throw new IllegalArgumentException(
+                "x must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.x = x;
+}
+public void setY(@IntRange(from = 0, to = Integer.MAX_VALUE) int y) {
+    if (y < 0) {
+        throw new IllegalArgumentException(
+                "y must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.y = y;
+}
+public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
+    if (width < 0) {
+        throw new IllegalArgumentException(
+                "width must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.width = width;
+}
+public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    if (height < 0) {
+        throw new IllegalArgumentException(
+                "height must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.height = height;
+}
 
 @IntRange(from = 0, to = Integer.MAX_VALUE) public int getBottom() {
     return getTop() + getHeight();
@@ -93,8 +129,8 @@ public void setTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
 
 public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
                       @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
-                      @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom,
-                      @IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
+                      @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
+                      @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
     if (right < left) {
         throw new IllegalArgumentException("right edge should be larger than the left edge");
     } else if (bottom < top) {
@@ -105,6 +141,67 @@ public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
     setY(top);
     setWidth(right - left);
     setHeight(bottom - top);
+}
+
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingBottom;
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingLeft;
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingRight;
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingTop;
+
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getPaddingBottom() {
+    return paddingBottom;
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getPaddingLeft() {
+    return paddingLeft;
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getPaddingRight() {
+    return paddingRight;
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getPaddingTop() {
+    return paddingTop;
+}
+
+public void setPaddingBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int paddingBottom) {
+    if (paddingBottom < 0) {
+        throw new IllegalArgumentException(
+                "paddingBottom must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.paddingBottom = paddingBottom;
+}
+public void setPaddingLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int paddingLeft) {
+    if (paddingLeft < 0) {
+        throw new IllegalArgumentException(
+                "paddingLeft must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.paddingBottom = paddingLeft;
+}
+public void setPaddingRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int paddingRight) {
+    if (paddingRight < 0) {
+        throw new IllegalArgumentException(
+                "paddingRight must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.paddingBottom = paddingRight;
+}
+public void setPaddingTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int paddingTop) {
+    if (paddingTop < 0) {
+        throw new IllegalArgumentException(
+                "paddingTop must be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.paddingBottom = paddingTop;
+}
+
+public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
+                       @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
+                       @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
+                       @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+    setPaddingLeft(left);
+    setPaddingRight(right);
+    setPaddingTop(top);
+    setPaddingBottom(bottom);
 }
 
 }
