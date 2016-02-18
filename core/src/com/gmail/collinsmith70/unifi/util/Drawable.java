@@ -15,7 +15,6 @@ public void draw(Batch batch) {
 
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int x;
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int y;
-
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int width;
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int height;
 
@@ -143,6 +142,11 @@ public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
     setHeight(bottom - top);
 }
 
+public boolean hasSize() {
+    return getTop() != getBottom()
+            && getLeft() != getRight();
+}
+
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingBottom;
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingLeft;
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingRight;
@@ -202,6 +206,11 @@ public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
     setPaddingRight(right);
     setPaddingTop(top);
     setPaddingBottom(bottom);
+}
+
+public boolean hasPadding() {
+    return getPaddingBottom() > 0 && getPaddingLeft() > 0
+            && getPaddingRight() > 0 && getPaddingTop() > 0;
 }
 
 }
