@@ -6,6 +6,12 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 project.ext.mainClassName = "com.google.collinsmith70.diablo.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../android/assets");
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'C:/android/extras/android/m2repository' }
+}
+
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath

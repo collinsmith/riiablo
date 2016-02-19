@@ -10,13 +10,14 @@ eclipse.project {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url 'C:/android/extras/android/m2repository' }
 }
 
 dependencies {
-    compile group: 'com.google.guava', name: 'guava', version: '19.+'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.+'
-    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.+'
-    compile group: 'com.android.support', name: 'support-annotations', version: '22.2.0'
+    compile 'com.google.guava:guava:19.+'
+    compile 'org.apache.commons:commons-lang3:3.+'
+    compile 'org.apache.commons:commons-collections4:4.+'
+    compile 'com.android.support:support-annotations:23.1.1'
 }
