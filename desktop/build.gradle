@@ -7,7 +7,6 @@ project.ext.mainClassName = "com.google.collinsmith70.diablo.desktop.DesktopLaun
 project.ext.assetsDir = new File("../android/assets");
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url 'C:/android/extras/android/m2repository' }
 }

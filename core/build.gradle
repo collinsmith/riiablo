@@ -10,7 +10,6 @@ eclipse.project {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url 'C:/android/extras/android/m2repository' }
 }
