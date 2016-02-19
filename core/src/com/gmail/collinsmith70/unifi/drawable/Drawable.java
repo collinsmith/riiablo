@@ -1,6 +1,7 @@
-package com.gmail.collinsmith70.unifi.util;
+package com.gmail.collinsmith70.unifi.drawable;
 
 import android.support.annotation.IntRange;
+import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 
@@ -9,13 +10,56 @@ import com.badlogic.gdx.graphics.g2d.Batch;
  */
 public abstract class Drawable {
 
-public void draw(Batch batch) {
-
+public Drawable() {
+    setBounds(0, 0, 0, 0);
+    setPadding(0, 0, 0, 0);
 }
 
+public void draw(Batch batch) {
+    onDraw(batch);
+}
+
+public abstract void onDraw(Batch batch);
+
+@Nullable private DrawableParent parent;
+
+@Nullable public DrawableParent getParent() {
+    return parent;
+}
+public void setParent(@Nullable DrawableParent parent) {
+    this.parent = parent;
+}
+public boolean hasParent() {
+    return getParent() != null;
+}
+
+/**
+ * x-coordinate for the location of this {@code Drawable} within its parent {@link Batch}.
+ *
+ * @see #getX()
+ * @see #setX(int)
+ */
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int x;
+/**
+ * y-coordinate for the location of this {@code Drawable} within its {@link Batch}.
+ *
+ * @see #getY()
+ * @see #setY(int)
+ */
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int y;
+/**
+ * width of this {@code Drawable}.
+ *
+ * @see #getWidth()
+ * @see #setWidth(int)
+ */
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int width;
+/**
+ * height of this {@code Drawable}.
+ *
+ * @see #getHeight()
+ * @see #setHeight(int)
+ */
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int height;
 
 @IntRange(from = 0, to = Integer.MAX_VALUE) public int getX() {
@@ -126,6 +170,20 @@ public void setTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
     setY(top);
 }
 
+/**
+ * Sets the bounds of this {@code Drawable} by specifying the left, right, top, and bottom edges,
+ * relative to the left and top sides of the parent canvas.
+ *
+ * @param left   left edge
+ * @param right  right edge
+ * @param top    top edge
+ * @param bottom bottom edge
+ *
+ * @see #setLeft(int)
+ * @see #setRight(int)
+ * @see #setTop(int)
+ * @see #setBottom(int)
+ */
 public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
                       @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
                       @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
@@ -142,6 +200,9 @@ public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
     setHeight(bottom - top);
 }
 
+/**
+ * @return {@code true} if the area of this {@code Drawable} is non-zero, otherwise {@code false}
+ */
 public boolean hasSize() {
     return getTop() != getBottom()
             && getLeft() != getRight();
@@ -208,6 +269,10 @@ public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
     setPaddingBottom(bottom);
 }
 
+/**
+ * @return {@code true} if the padding of this {@code Drawable} is non-zero on at least one side,
+ *         otherwise {@code false}
+ */
 public boolean hasPadding() {
     return getPaddingBottom() > 0 && getPaddingLeft() > 0
             && getPaddingRight() > 0 && getPaddingTop() > 0;

@@ -2,33 +2,78 @@ package com.gmail.collinsmith70.unifi.widget;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public abstract class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
 
-public WidgetManager addWidget(Widget child) { throw new UnsupportedOperationException(); }
-public boolean containsWidget(Widget child) { throw new UnsupportedOperationException(); }
-public boolean removeWidget(Widget child) { throw new UnsupportedOperationException(); }
-public int getNumWidgets() { throw new UnsupportedOperationException(); }
+private final Collection<Widget> CHILDREN;
+
+public WidgetGroup() {
+    this.CHILDREN = new CopyOnWriteArraySet<Widget>();
+}
 
 public int getMarginBottom() { throw new UnsupportedOperationException(); }
 public int getMarginLeft() { throw new UnsupportedOperationException(); }
 public int getMarginRight() { throw new UnsupportedOperationException(); }
 public int getMarginTop() { throw new UnsupportedOperationException(); }
 
-public void requestLayout() { throw new UnsupportedOperationException(); }
+public Collection<Widget> getChildren() {
+    return ImmutableSet.copyOf(CHILDREN);
+}
+
+@NonNull
+@Override
+public WidgetManager addWidget(@NonNull Widget child) {
+    if (child == null) {
+        throw new IllegalArgumentException("child widget cannot be null");
+    }
+
+    CHILDREN.add(child);
+    return this;
+}
+
+@Override
+public boolean containsWidget(@Nullable Widget child) {
+    return child != null && CHILDREN.contains(child);
+}
+
+@Override
+public boolean removeWidget(@Nullable Widget child) {
+    return child != null && CHILDREN.remove(child);
+}
+
+@Override
+public int getNumWidgets() {
+    return CHILDREN.size();
+}
 
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
     boolean inBounds = super.mouseMoved(screenX, screenY);
     if (inBounds) {
-        /*
         for (Widget child : CHILDREN) {
             child.mouseMoved(screenX, screenY);
         }
-        */
     }
 
     return inBounds;
+}
+
+@Override
+public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    boolean inBounds = super.mouseMoved(screenX, screenY);
+    if (inBounds) {
+        for (Widget child : CHILDREN) {
+            child.touchDown(screenX, screenY, pointer, button);
+        }
+    }
+
+    return false;
 }
 
 /**

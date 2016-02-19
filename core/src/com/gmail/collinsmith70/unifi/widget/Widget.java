@@ -6,16 +6,18 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.gmail.collinsmith70.unifi.util.Drawable;
+import com.gmail.collinsmith70.unifi.drawable.Drawable;
+import com.gmail.collinsmith70.unifi.drawable.DrawableParent;
 import com.gmail.collinsmith70.unifi.util.Enableable;
 
 import java.util.EnumSet;
-import java.util.Random;
 import java.util.Set;
 
-public abstract class Widget implements Comparable<Widget>, Enableable, InputProcessor {
+public abstract class Widget
+        implements Comparable<Widget>, DrawableParent, Enableable, InputProcessor {
 
 /**
  * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@link Widget} may have.
@@ -37,8 +39,7 @@ public enum Visibility {
  * @see #getParent()
  * @see #setParent(WidgetParent)
  */
-@Nullable
-private WidgetParent parent;
+@Nullable private WidgetParent parent;
 
 /**
  * {@link Visibility} of this {@link Widget}. This effects how the component behaves when rendering
@@ -47,8 +48,7 @@ private WidgetParent parent;
  * @see #getVisibility()
  * @see #setVisibility(Visibility)
  */
-@NonNull
-private Visibility visibility;
+@NonNull private Visibility visibility;
 
 /**
  * {@link WidgetGroup.LayoutParams} instance containing arguments associated with laying out this
@@ -57,8 +57,7 @@ private Visibility visibility;
  * @see #getLayoutParams()
  * @see #setLayoutParams(WidgetGroup.LayoutParams)
  */
-@Nullable
-private WidgetGroup.LayoutParams layoutParams;
+@Nullable private WidgetGroup.LayoutParams layoutParams;
 
 /**
  * {@link Drawable} rendered behind this {@link Widget}.
@@ -66,51 +65,26 @@ private WidgetGroup.LayoutParams layoutParams;
  * @see #getBackground()
  * @see #setBackground(Drawable)
  */
-@Nullable
-private Drawable background;
+@Nullable private Drawable background;
+
+/**
+ * {@link Drawable} rendered in the foreground of this {@link Widget}.
+ *
+ * @see #getForeground()
+ * @see #setForeground(Drawable)
+ */
+@Nullable private Drawable foreground;
 
 /**
  * Floating-point representation of the z-axis location of this {@link Widget}, used to determine
  * height of a component relative to its {@linkplain #getParent() parent}.
  */
-@FloatRange(from = 0.0, to = Float.MAX_VALUE)
-private float elevation;
+@FloatRange(from = 0.0, to = Float.MAX_VALUE) private float elevation;
 
-/**
- * Number of pixels from the top of the {@linkplain #getParent() parent} of this {@link Widget} to
- * the bottom of this {@link Widget}.
- *
- * @see #getBottom()
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-private int bottom;
-
-/**
- * Number of pixels from the left of the {@linkplain #getParent() parent} of this {@link Widget} to
- * the left of this {@link Widget}.
- *
- * @see #getLeft()
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-private int left;
-
-/**
- * Number of pixels from the left of the {@linkplain #getParent() parent} of this {@link Widget} to
- * the right of this {@link Widget}.
- *
- * @see #getRight()
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-private int right;
-
-/**
- * Number of pixels from the top of the {@linkplain #getParent() parent} of this {@link Widget} to
- * the top of this {@link Widget}.
- *
- * @see #getTop()
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-private int top;
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int bottom;
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int left;
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int right;
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int top;
 
 /**
  * Abstract {@code Object} associated with this {@link Widget}.
@@ -150,6 +124,8 @@ private enum Flag {
 }
 
 public Widget() {
+    super();
+
     this.FLAGS = EnumSet.noneOf(Flag.class);
 
     setDebugging(false);
@@ -166,14 +142,13 @@ public Widget() {
  * @see #onDraw(Batch)
  * @see #onDrawDebug(Batch)
  */
-final void draw(Batch batch) {
+protected void draw(Batch batch) {
     onDrawBackground(batch);
     onDraw(batch);
     if (isDebugging()) {
         onDrawDebug(batch);
     }
 }
-
 /**
  * Called when the {@linkplain Drawable background} of this {@link Widget} should be drawn.
  *
@@ -186,14 +161,18 @@ public void onDrawBackground(Batch batch) {
 
     getBackground().draw(batch);
 }
-
 /**
  * Called when the foreground of this {@link Widget} should be drawn.
  *
  * @param batch {@link Batch} to draw onto
  */
-public void onDraw(Batch batch) {}
+public void onDraw(Batch batch) {
+    if (getForeground() == null) {
+        return;
+    }
 
+    getForeground().draw(batch);
+}
 /**
  * Called when {@link #onDraw(Batch) drawing} this widget when it is in
  * {@linkplain #isDebugging() debug} mode.
@@ -202,13 +181,17 @@ public void onDraw(Batch batch) {}
  */
 public void onDrawDebug(Batch batch) {
     ShapeRenderer shapeRenderer = new ShapeRenderer();
-    shapeRenderer.begin();
-    shapeRenderer.rectLine(0, 0, getWidth(), getHeight(), 1);
+    shapeRenderer.begin(); {
+        Color color = Color.BLACK;
+        if (!isEnabled()) {
+            color = Color.LIGHT_GRAY;
+        } else if (isHovering()) {
+            color = Color.GREEN;
+        }
 
-    Random random = new Random();
-    shapeRenderer.setColor(random.nextInt(256), random.nextInt(256), random.nextInt(256), 255);
-
-    shapeRenderer.end();
+        shapeRenderer.setColor(color);
+        shapeRenderer.rectLine(0, 0, getWidth(), getHeight(), 1);
+    } shapeRenderer.end();
     shapeRenderer.dispose();
 }
 
@@ -219,7 +202,6 @@ public void onDrawDebug(Batch batch) {
 public boolean isDebugging() {
     return FLAGS.contains(Flag.DEBUGGING);
 }
-
 /**
  * @param debugging {@code true} to enable {@linkplain #isDebugging() debugging} for this
  *        {@link Widget}, otherwise {@code false}
@@ -242,15 +224,13 @@ public boolean isEnabled() {
     return FLAGS.contains(Flag.ENABLED);
 
 }
-
 /**
  * @param enabled {@code true} to enable this {@link Widget}, otherwise {@code false}.
  *                Interpretation varies by subclass.
  *
  * @see #isEnabled()
  */
-@Override
-public void setEnabled(boolean enabled) {
+@Override public void setEnabled(boolean enabled) {
     if (enabled) {
         FLAGS.add(Flag.ENABLED);
     } else {
@@ -261,11 +241,9 @@ public void setEnabled(boolean enabled) {
 /**
  * @return {@link Visibility} constant of this {@link Widget}
  */
-@NonNull
-public Visibility getVisibility() {
+@NonNull public Visibility getVisibility() {
     return visibility;
 }
-
 /**
  * @param visibility {@link Visibility} constant to apply to this {@link Widget}
  */
@@ -280,11 +258,9 @@ public void setVisibility(@NonNull Visibility visibility) {
 /**
  * @return {@link Drawable} rendered behind this {@link Widget}
  */
-@Nullable
-public Drawable getBackground() {
+@Nullable public Drawable getBackground() {
     return background;
 }
-
 /**
  * Sets the background to a given {@link Drawable}, or removes the background in the case which
  * a {@code null} reference is passed. If the background has padding, this
@@ -295,18 +271,48 @@ public Drawable getBackground() {
  * @param background {@link Drawable} to render behind this {@link Widget}.
  */
 public void setBackground(@Nullable Drawable background) {
-    throw new UnsupportedOperationException();
+    if (this.background != null) {
+        this.background.setParent(null);
+    }
+
+    this.background = background;
+    this.background.setParent(this);
+    if (this.background.hasPadding()) {
+        // TODO: Copy padding from background Drawable
+    }
+}
+
+/**
+ * @return {@link Drawable} rendered as the foreground of this {@link Widget}
+ */
+@Nullable public Drawable getForeground() {
+    return foreground;
+}
+/**
+ * Sets the foreground to a given {@link Drawable}, or removes the foreground in the case which
+ * a {@code null} reference is passed.
+ * <p>
+ * Note: This method does not effect the padding
+ * </p>
+ *
+ * @param foreground {@link Drawable} to render as the foreground of this {@link Widget}.
+ */
+public void setForeground(@Nullable Drawable foreground) {
+    if (this.foreground != null) {
+        this.foreground.setParent(null);
+    }
+
+    this.foreground = foreground;
+    this.foreground.setParent(this);
 }
 
 /**
  * @return {@linkplain WidgetParent parent} containing this {@link Widget}, or {@code null} if no
  *         parent is set
  */
-@Nullable
-public final WidgetParent getParent() {
+@Nullable public final WidgetParent getParent() {
     return parent;
 }
-
 /**
  * @param parent {@linkplain WidgetParent parent} container of this {@link Widget}
  */
@@ -344,11 +350,9 @@ public final Window getWindow() {
  * @return {@link WidgetGroup.LayoutParams} instance associated with this {@link Widget},
  *         or {@code null} if no parameters have been set yet
  */
-@Nullable
-public WidgetGroup.LayoutParams getLayoutParams() {
+@Nullable public WidgetGroup.LayoutParams getLayoutParams() {
     return layoutParams;
 }
-
 /**
  * Sets the layout parameters associated with this view. These supply parameters to the parent of
  * this view specifying how it should be arranged. There are many subclasses of
@@ -369,11 +373,9 @@ public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
  * @return Floating-point representation of the z-axis location of this {@link Widget}, used to
  *         determine height of a component relative to its {@linkplain #getParent() parent}.
  */
-@FloatRange(from = 0.0, to = Float.MAX_VALUE)
-public float getElevation() {
+@FloatRange(from = 0.0, to = Float.MAX_VALUE) public float getElevation() {
     return elevation;
 }
-
 /**
  * @param elevation Floating-point representation for the {@linkplain #getElevation() elevation} of
  *                  this {@link Widget}, used to determine height of a component relative to its
@@ -395,8 +397,7 @@ public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float ele
  * {@inheritDoc}
  */
 @Override
-@IntRange(from = -1, to = 1)
-public int compareTo(Widget other) {
+@IntRange(from = -1, to = 1) public int compareTo(Widget other) {
     return Float.compare(this.getElevation(), other.getElevation());
 }
 
@@ -404,11 +405,9 @@ public int compareTo(Widget other) {
  * @return abstract {@code Object} associated with this {@link Widget}, or {@code null} if no object
  *         is associated with it
  */
-@Nullable
-public Object getTag() {
+@Nullable public Object getTag() {
     return tag;
 }
-
 /**
  * @param tag abstract {@code Object} to associate with this {@link Widget}, or {@code null} to
  *            disassociate the currently {@linkplain #getTag() tagged object}
@@ -420,8 +419,7 @@ public void setTag(@Nullable final Object tag) {
 /**
  * @return topmost {@link Widget} {@linkplain #getParent() containing} this {@link Widget}
  */
-@Nullable
-public Widget getRootWidget() {
+@Nullable public Widget getRootWidget() {
     Widget root = null;
     for (WidgetParent parent = getParent();
          parent != null && parent instanceof Widget;
@@ -432,51 +430,93 @@ public Widget getRootWidget() {
     return root;
 }
 
+@Override public int getX() {
+    return getLeft();
+}
+@Override public int getY() {
+    return getTop();
+}
+
 /**
  * @return bottom of this view, in pixels, relative to its {@linkplain #getParent() parent}.
  */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-private int getBottom() {
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getBottom() {
     return bottom;
+}
+public void setBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+    if (bottom < 0) {
+        throw new IllegalArgumentException(
+                "bottom should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.bottom = bottom;
 }
 
 /**
  * @return left of this view, in pixels, relative to its {@linkplain #getParent() parent}.
  */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-private int getLeft() {
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getLeft() {
     return left;
+}
+public void setLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
+    if (left < 0) {
+        throw new IllegalArgumentException(
+                "left should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.left = left;
 }
 
 /**
  * @return right of this view, in pixels, relative to its {@linkplain #getParent() parent}.
  */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-public int getRight() {
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getRight() {
     return right;
+}
+public void setRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
+    if (right < 0) {
+        throw new IllegalArgumentException(
+                "right should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.right = right;
 }
 
 /**
  * @return top of this view, in pixels, relative to its {@linkplain #getParent() parent}.
  */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-public int getTop() {
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getTop() {
     return top;
+}
+public void setTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
+    if (top < 0) {
+        throw new IllegalArgumentException(
+                "top should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    this.top = top;
+}
+
+public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom,
+                      @IntRange(from = 0, to = Integer.MAX_VALUE) int left,
+                      @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
+                      @IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
+    setBottom(bottom);
+    setLeft(left);
+    setRight(right);
+    setTop(top);
 }
 
 /**
  * @return width of this {@link Widget} in pixels
  */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-public final int getWidth() {
+@IntRange(from = 0, to = Integer.MAX_VALUE) public final int getWidth() {
     return getRight() - getLeft();
 }
-
 /**
  * @return height of this {@link Widget} in pixels
  */
-@IntRange(from = 0, to = Integer.MAX_VALUE)
-public final int getHeight() {
+@IntRange(from = 0, to = Integer.MAX_VALUE) public final int getHeight() {
     return getBottom() - getTop();
 }
 
