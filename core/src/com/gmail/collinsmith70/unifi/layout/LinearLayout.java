@@ -65,13 +65,9 @@ public enum Orientation {
     abstract void layout(LinearLayout linearLayout);
 }
 
-@NonNull private Orientation orientation;
+@NonNull private Orientation orientation = Orientation.HORIZONTAL;
 
 @NonNull public Orientation getOrientation() {
-    if (orientation == null) {
-        setOrientation(Orientation.HORIZONTAL);
-    }
-
     return orientation;
 }
 public void setOrientation(@NonNull Orientation orientation) {
@@ -83,12 +79,8 @@ public void setOrientation(@NonNull Orientation orientation) {
     requestLayout();
 }
 
-@NonNull private Direction direction;
+@NonNull private Direction direction = Direction.START_TO_END;
 @NonNull public Direction getDirection() {
-    if (direction == null) {
-        setDirection(Direction.START_TO_END);
-    }
-
     return direction;
 }
 public void setDirection(@NonNull Direction direction) {
