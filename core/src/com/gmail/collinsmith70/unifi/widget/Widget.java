@@ -16,7 +16,7 @@ import com.gmail.collinsmith70.unifi.util.Enableable;
 import java.util.EnumSet;
 import java.util.Set;
 
-public abstract class Widget
+public abstract class Widget extends Boundary
         implements Comparable<Widget>, DrawableParent, Enableable, InputProcessor {
 
 /**
@@ -81,11 +81,6 @@ public enum Visibility {
  */
 @FloatRange(from = 0.0, to = Float.MAX_VALUE) private float elevation;
 
-@IntRange(from = 0, to = Integer.MAX_VALUE) private int bottom;
-@IntRange(from = 0, to = Integer.MAX_VALUE) private int left;
-@IntRange(from = 0, to = Integer.MAX_VALUE) private int right;
-@IntRange(from = 0, to = Integer.MAX_VALUE) private int top;
-
 /**
  * Abstract {@code Object} associated with this {@link Widget}.
  */
@@ -130,6 +125,7 @@ public Widget() {
 
     setDebugging(false);
     setEnabled(true);
+    setHovering(false);
     setVisibility(Visibility.VISIBLE);
 }
 
@@ -180,9 +176,9 @@ public void onDraw(Batch batch) {
  * @param batch {@link Batch} to draw debug information onto
  */
 public void onDrawDebug(Batch batch) {
-    ShapeRenderer shapeRenderer = new ShapeRenderer();
-    shapeRenderer.begin(); {
-        Color color = Color.BLACK;
+    final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
+        Color color = Color.RED;
         if (!isEnabled()) {
             color = Color.LIGHT_GRAY;
         } else if (isHovering()) {
@@ -190,7 +186,10 @@ public void onDrawDebug(Batch batch) {
         }
 
         shapeRenderer.setColor(color);
-        shapeRenderer.rectLine(0, 0, getWidth(), getHeight(), 1);
+        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
+        System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
+                getX(), getY(), getWidth(), getHeight(),
+                getLeft(), getRight(), getTop(), getBottom());
     } shapeRenderer.end();
     shapeRenderer.dispose();
 }
@@ -319,18 +318,21 @@ public void setForeground(@Nullable Drawable foreground) {
 final void setParent(WidgetParent parent) {
     this.parent = parent;
 }
+public final boolean hasParent() {
+    return getParent() != null;
+}
 
 /**
  * @return {@link Window} containing this {@link Widget}
  */
-public final Window getWindow() {
+@Nullable public final Window getWindow() {
     WidgetParent parent = getParent();
     while (parent != null) {
         if (parent instanceof Window) {
             return (Window)parent;
         }
 
-        parent = getParent();
+        parent = parent.getParent();
     }
 
     return null;
@@ -366,7 +368,39 @@ public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
         throw new IllegalArgumentException("params cannot be null");
     }
 
+    System.out.printf("setLayoutParams (%d, %d)%n",
+            params.getWidth(), params.getHeight());
+
     this.layoutParams = params;
+    switch (this.layoutParams.getWidth()) {
+        case WidgetGroup.LayoutParams.FILL_PARENT:
+            if (!hasParent()) {
+                throw new IllegalArgumentException("FILL_PARENT specified without parent");
+            }
+
+            setLeft(getParent().getLeft());
+            setRight(getParent().getRight());
+            break;
+        case WidgetGroup.LayoutParams.WRAP_CONTENT:
+            break;
+        default:
+            setWidth(this.layoutParams.getWidth());
+    }
+
+    switch (this.layoutParams.getHeight()) {
+        case WidgetGroup.LayoutParams.FILL_PARENT:
+            if (!hasParent()) {
+                throw new IllegalArgumentException("FILL_PARENT specified without parent");
+            }
+
+            setTop(getParent().getTop());
+            setBottom(getParent().getBottom());
+            break;
+        case WidgetGroup.LayoutParams.WRAP_CONTENT:
+            break;
+        default:
+            setHeight(this.layoutParams.getHeight());
+    }
 }
 
 /**
@@ -422,102 +456,12 @@ public void setTag(@Nullable final Object tag) {
 @Nullable public Widget getRootWidget() {
     Widget root = null;
     for (WidgetParent parent = getParent();
-         parent != null && parent instanceof Widget;
-         parent = getParent()) {
+        parent != null && parent instanceof Widget;
+        parent = getParent()) {
         root = (Widget)parent;
     }
 
     return root;
-}
-
-@Override public int getX() {
-    return getLeft();
-}
-@Override public int getY() {
-    return getTop();
-}
-
-/**
- * @return bottom of this view, in pixels, relative to its {@linkplain #getParent() parent}.
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getBottom() {
-    return bottom;
-}
-public void setBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
-    if (bottom < 0) {
-        throw new IllegalArgumentException(
-                "bottom should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
-    }
-
-    this.bottom = bottom;
-}
-
-/**
- * @return left of this view, in pixels, relative to its {@linkplain #getParent() parent}.
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getLeft() {
-    return left;
-}
-public void setLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
-    if (left < 0) {
-        throw new IllegalArgumentException(
-                "left should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
-    }
-
-    this.left = left;
-}
-
-/**
- * @return right of this view, in pixels, relative to its {@linkplain #getParent() parent}.
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getRight() {
-    return right;
-}
-public void setRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
-    if (right < 0) {
-        throw new IllegalArgumentException(
-                "right should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
-    }
-
-    this.right = right;
-}
-
-/**
- * @return top of this view, in pixels, relative to its {@linkplain #getParent() parent}.
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getTop() {
-    return top;
-}
-public void setTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
-    if (top < 0) {
-        throw new IllegalArgumentException(
-                "top should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
-    }
-
-    this.top = top;
-}
-
-public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom,
-                      @IntRange(from = 0, to = Integer.MAX_VALUE) int left,
-                      @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
-                      @IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
-    setBottom(bottom);
-    setLeft(left);
-    setRight(right);
-    setTop(top);
-}
-
-/**
- * @return width of this {@link Widget} in pixels
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE) public final int getWidth() {
-    return getRight() - getLeft();
-}
-/**
- * @return height of this {@link Widget} in pixels
- */
-@IntRange(from = 0, to = Integer.MAX_VALUE) public final int getHeight() {
-    return getBottom() - getTop();
 }
 
 /**
@@ -525,7 +469,7 @@ public void setBounds(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom,
  *         cursor), otherwise {@code false}
  */
 public boolean isHovering() {
-    return FLAGS.contains(Flag.ENABLED);
+    return FLAGS.contains(Flag.HOVERING);
 
 }
 
@@ -545,11 +489,45 @@ private void setHovering(boolean hovering) {
 
 @Override
 public boolean mouseMoved(int screenX, int screenY) {
-    boolean inBounds = getLeft() <= screenX && screenX <= getRight()
-                    && getTop() <= screenY && screenY <= getBottom();
-
+    boolean inBounds = inBounds(screenX, screenY);
     setHovering(inBounds);
+    //System.out.printf("moving (%d, %d)%n", screenX, screenY);
     return inBounds;
+}
+
+@Override
+public boolean keyDown(int keycode) {
+    return false;
+}
+
+@Override
+public boolean keyUp(int keycode) {
+    return false;
+}
+
+@Override
+public boolean keyTyped(char character) {
+    return false;
+}
+
+@Override
+public boolean scrolled(int amount) {
+    return false;
+}
+
+@Override
+public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    return false;
+}
+
+@Override
+public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    return false;
+}
+
+@Override
+public boolean touchDragged(int screenX, int screenY, int pointer) {
+    return false;
 }
 
 }

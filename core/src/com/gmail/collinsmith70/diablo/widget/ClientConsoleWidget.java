@@ -60,7 +60,12 @@ public ClientConsoleWidget(ClientConsole console) {
     setVisible(false);
 
     setFillParent(true);
+    setLayoutEnabled(true);
+    vg.setLayoutEnabled(true);
     vg.setFillParent(true);
+    OUTPUT_TEXTAREA.setBounds(0,0,800,600);
+    invalidateHierarchy();
+    validate();
 }
 
 public ClientConsole getConsole() { return CONSOLE; }

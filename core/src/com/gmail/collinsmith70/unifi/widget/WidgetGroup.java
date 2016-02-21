@@ -4,17 +4,18 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.google.common.collect.ImmutableSet;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
 
 private final Collection<Widget> CHILDREN;
 
 public WidgetGroup() {
-    this.CHILDREN = new CopyOnWriteArraySet<Widget>();
+    this.CHILDREN = new CopyOnWriteArrayList<Widget>();
 }
 
 public int getMarginBottom() { throw new UnsupportedOperationException(); }
@@ -23,7 +24,19 @@ public int getMarginRight() { throw new UnsupportedOperationException(); }
 public int getMarginTop() { throw new UnsupportedOperationException(); }
 
 public Collection<Widget> getChildren() {
-    return ImmutableSet.copyOf(CHILDREN);
+    return ImmutableList.copyOf(CHILDREN);
+}
+
+@Override
+public void setDebugging(boolean debugging) {
+    if (debugging == isDebugging()) {
+        return;
+    }
+
+    super.setDebugging(debugging);
+    for (Widget child : CHILDREN) {
+        child.setDebugging(true);
+    }
 }
 
 @NonNull
@@ -34,6 +47,7 @@ public WidgetManager addWidget(@NonNull Widget child) {
     }
 
     CHILDREN.add(child);
+    child.setParent(this);
     return this;
 }
 
@@ -44,7 +58,15 @@ public boolean containsWidget(@Nullable Widget child) {
 
 @Override
 public boolean removeWidget(@Nullable Widget child) {
-    return child != null && CHILDREN.remove(child);
+    if (child == null) {
+        return false;
+    }
+
+    if (child.getParent() == this) {
+        child.setParent(null);
+    }
+
+    return CHILDREN.remove(child);
 }
 
 @Override
@@ -74,6 +96,17 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     }
 
     return false;
+}
+
+@Override
+public void onDraw(Batch batch) {
+    drawChildren(batch);
+}
+
+public void drawChildren(Batch batch) {
+    for (Widget child : CHILDREN) {
+        child.draw(batch);
+    }
 }
 
 /**
@@ -186,6 +219,7 @@ public static class LayoutParams {
                     "width should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
         }
 
+        this.width = width;
         /* TODO: Assign width flag if equal to {@link #FILL_PARENT} or {@link #WRAP_CONTENT}, otherwise
          *       should width be assigned at all? Width in this sense is a disjoint boolean variable,
          *       and not a literal assignment of the width of this component (i.e., a suggestion for the
@@ -213,6 +247,7 @@ public static class LayoutParams {
                     "height should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
         }
 
+        this.height = height;
         /* TODO: Assign height flag if equal to {@link #FILL_PARENT} or {@link #WRAP_CONTENT}, otherwise
          *       should height be assigned at all? Height in this sense is a disjoint boolean variable,
          *       and not a literal assignment of the height of this component (i.e., a suggestion for

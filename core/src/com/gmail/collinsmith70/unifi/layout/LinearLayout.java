@@ -4,28 +4,60 @@ import android.support.annotation.NonNull;
 
 import com.gmail.collinsmith70.unifi.widget.Widget;
 import com.gmail.collinsmith70.unifi.widget.WidgetGroup;
+import com.gmail.collinsmith70.unifi.widget.WidgetManager;
 
 public class LinearLayout extends WidgetGroup {
+
+public enum Direction { START_TO_END, END_TO_START }
 
 public enum Orientation {
     HORIZONTAL {
         @Override
         void layout(LinearLayout linearLayout) {
-            int left = linearLayout.getLeft();
-            for (Widget child : linearLayout.getChildren()) {
-                child.setTop(linearLayout.getTop());
-                child.setLeft(left);
-                left += child.getWidth();
+            switch (linearLayout.getDirection()) {
+                case START_TO_END:
+                    int left = linearLayout.getLeft();
+                    for (Widget child : linearLayout.getChildren()) {
+                        child.moveTop(linearLayout.getTop());
+                        child.moveLeft(left);
+                        left += child.getWidth();
+                    }
+                    break;
+                case END_TO_START:
+                    int right = linearLayout.getRight();
+                    for (Widget child : linearLayout.getChildren()) {
+                        child.moveTop(linearLayout.getTop());
+                        child.moveRight(right);
+                        right -= child.getWidth();
+                    }
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
             }
         }
     },
     VERTICAL {
         @Override
-        void layout(LinearLayout linearLayout) {int top = linearLayout.getTop();
-            for (Widget child : linearLayout.getChildren()) {
-                child.setTop(top);
-                child.setLeft(linearLayout.getLeft());
-                top += child.getHeight();
+        void layout(LinearLayout linearLayout) {
+            switch (linearLayout.getDirection()) {
+                case START_TO_END:
+                    int top = linearLayout.getTop();
+                    for (Widget child : linearLayout.getChildren()) {
+                        child.moveLeft(linearLayout.getLeft());
+                        child.moveTop(top);
+                        top -= child.getHeight();
+                    }
+                    break;
+                case END_TO_START:
+                    int bottom = linearLayout.getBottom();
+                    for (Widget child : linearLayout.getChildren()) {
+                        child.moveLeft(linearLayout.getLeft());
+                        child.moveBottom(bottom);
+                        bottom += child.getHeight();
+                    }
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
             }
         }
     };
@@ -36,6 +68,10 @@ public enum Orientation {
 @NonNull private Orientation orientation;
 
 @NonNull public Orientation getOrientation() {
+    if (orientation == null) {
+        setOrientation(Orientation.HORIZONTAL);
+    }
+
     return orientation;
 }
 public void setOrientation(@NonNull Orientation orientation) {
@@ -44,6 +80,32 @@ public void setOrientation(@NonNull Orientation orientation) {
     }
 
     this.orientation = orientation;
+    requestLayout();
+}
+
+@NonNull private Direction direction;
+@NonNull public Direction getDirection() {
+    if (direction == null) {
+        setDirection(Direction.START_TO_END);
+    }
+
+    return direction;
+}
+public void setDirection(@NonNull Direction direction) {
+    if (direction == null) {
+        throw new IllegalArgumentException("direction cannot be null");
+    }
+
+    this.direction = direction;
+    requestLayout();
+}
+
+@NonNull
+@Override
+public WidgetManager addWidget(@NonNull Widget child) {
+    WidgetManager widgetManager = super.addWidget(child);
+    requestLayout();
+    return widgetManager;
 }
 
 public LinearLayout() {
@@ -51,6 +113,11 @@ public LinearLayout() {
 }
 
 public LinearLayout(Orientation orientation) {
+    this(orientation, Direction.START_TO_END);
+}
+
+public LinearLayout(Orientation orientation, Direction direction) {
+    setDirection(direction);
     setOrientation(orientation);
 }
 

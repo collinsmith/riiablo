@@ -10,8 +10,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.gmail.collinsmith70.command.CommandManager;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarStateAdapter;
@@ -19,6 +18,11 @@ import com.gmail.collinsmith70.diablo.scene.HudedScene;
 import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
 import com.gmail.collinsmith70.key.KeyStateAdapter;
+import com.gmail.collinsmith70.unifi.layout.LinearLayout;
+import com.gmail.collinsmith70.unifi.widget.Button;
+import com.gmail.collinsmith70.unifi.widget.Widget;
+import com.gmail.collinsmith70.unifi.widget.WidgetGroup;
+import com.gmail.collinsmith70.unifi.widget.Window;
 import com.gmail.collinsmith70.util.ImmutableDimension;
 import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 
@@ -47,7 +51,10 @@ private GdxCvarManager CVAR_MANAGER;
 private GdxKeyManager KEY_MANAGER;
 private AssetManager ASSET_MANAGER;
 
-private Stage STAGE;
+//private Stage STAGE;
+
+private Window WINDOW;
+private Batch BATCH;
 
 private HudedScene scene;
 
@@ -96,13 +103,37 @@ public void create() {
 
     this.CONSOLE_WIDGET = new ClientConsoleWidget(CONSOLE);
 
-    this.STAGE = new Stage();
-    STAGE.setViewport(new FitViewport(RESOLUTION.width, RESOLUTION.height));
-    STAGE.setDebugAll(true);
+    //this.STAGE = new Stage();
+    //STAGE.setViewport(new FitViewport(RESOLUTION.width, RESOLUTION.height));
+    //STAGE.setDebugAll(true);
+
+    Widget button1 = new Button();
+    button1.setSize(128, 128);
+    Widget button2 = new Button();
+    button2.setSize(256, 256);
+    Widget button3 = new Button();
+    button3.setSize(256, 128);
+
+    WidgetGroup ll1 = new LinearLayout(LinearLayout.Orientation.VERTICAL);
+    ll1.setSize(512, 512);
+    ll1.addWidget(button1).addWidget(button2);
+
+    WidgetGroup ll2 = new LinearLayout(LinearLayout.Orientation.HORIZONTAL);
+    ll2.addWidget(ll1).addWidget(button3);
+
+    this.BATCH = new SpriteBatch(1024);
+    this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
+    this.WINDOW.addWidget(ll1);
+    this.WINDOW.setDebugging(true);
+
+    ll1.setLayoutParams(new WidgetGroup.LayoutParams(
+            WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.FILL_PARENT));
+    WINDOW.requestLayout();
 
     Gdx.input.setCatchBackKey(true);
     Gdx.input.setCatchMenuKey(true);
-    this.INPUT_PROCESSOR = new ClientInputProcessor(this, STAGE);
+    //this.INPUT_PROCESSOR = new ClientInputProcessor(this, STAGE);
+    this.INPUT_PROCESSOR = new ClientInputProcessor(this, WINDOW);
     Gdx.input.setInputProcessor(INPUT_PROCESSOR);
 
     Keys.Console.addStateListener(new KeyStateAdapter<Integer>() {
@@ -166,7 +197,8 @@ private void loadCommonAssets() {
 }
 
 public Dimension getResolution() { return RESOLUTION; }
-public Stage getStage() { return STAGE; }
+//public Stage getStage() { return STAGE; }
+public Window getWindow() { return WINDOW; }
 public ClientConsole getConsole() { return CONSOLE; }
 public AssetManager getAssetManager() { return ASSET_MANAGER; }
 public CommandManager getCommandManager() { return COMMAND_MANAGER; }
@@ -179,9 +211,9 @@ public boolean isFullscreen() {
 }
 
 public void setScene(HudedScene scene) {
-    STAGE.clear();
-    STAGE.addActor(scene);
-    STAGE.addActor(CONSOLE_WIDGET);
+    //STAGE.clear();
+    //STAGE.addActor(scene);
+    //STAGE.addActor(CONSOLE_WIDGET);
 
     HudedScene oldScene = this.scene;
     if (oldScene != null) {
@@ -193,17 +225,19 @@ public void setScene(HudedScene scene) {
 
 @Override
 public void resize(int width, int height) {
-    STAGE.getViewport().update(width, height, true);
+    //STAGE.getViewport().update(width, height, true);
 }
 
 @Override
 public void render() {
     Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    STAGE.act(Gdx.graphics.getDeltaTime());
-    STAGE.draw();
-    Batch b = STAGE.getBatch();
+    //STAGE.act(Gdx.graphics.getDeltaTime());
+    //STAGE.draw();
+    //Batch b = STAGE.getBatch();
+    Batch b = BATCH;
     b.begin(); {
+        WINDOW.draw(b);
         if (pCvar_showFps > 0) {
             GlyphLayout fps = new GlyphLayout(
                     font,
@@ -254,8 +288,12 @@ public void dispose() {
     }
 
     Gdx.app.log(TAG, "Disposing stage...");
-    STAGE.dispose();
-    this.STAGE = null;
+    //STAGE.dispose();
+    //this.STAGE = null;
+    getWindow().dispose();
+    this.WINDOW = null;
+    this.BATCH.dispose();
+    this.BATCH = null;
 
     Gdx.app.log(TAG, "Saving cvars...");
     CVAR_MANAGER.saveAll();
