@@ -123,12 +123,13 @@ public void create() {
 
     this.BATCH = new SpriteBatch(1024);
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
-    this.WINDOW.addWidget(ll1);
+    this.WINDOW.addWidget(ll2);
     this.WINDOW.setDebugging(true);
 
-    ll1.setLayoutParams(new WidgetGroup.LayoutParams(
+    ll2.setLayoutParams(new WidgetGroup.LayoutParams(
             WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.FILL_PARENT));
     WINDOW.requestLayout();
+    ll1.requestLayout();
 
     Gdx.input.setCatchBackKey(true);
     Gdx.input.setCatchMenuKey(true);

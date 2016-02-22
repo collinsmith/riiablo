@@ -10,366 +10,170 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.drawable.Drawable;
-import com.gmail.collinsmith70.unifi.drawable.DrawableParent;
-import com.gmail.collinsmith70.unifi.util.Enableable;
 
 import java.util.EnumSet;
 import java.util.Set;
 
-public abstract class Widget extends Boundary
-        implements Comparable<Widget>, DrawableParent, Enableable, InputProcessor {
+public class Widget
+        implements Comparable<Widget>, InputProcessor {
 
 /**
- * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@link Widget} may have.
- */
-public enum Visibility {
-    /** {@link Widget} will be laid out and rendered normally */
-    VISIBLE,
-    /** {@link Widget} will be laid out normally, however it will not be drawn */
-    INVISIBLE,
-    /** {@link Widget} will neither be laid out or drawn (as if it is not even present) */
-    GONE
-}
-
+ * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@code Widget}.
+ */ private final Set<Flag> FLAGS;
 /**
- * Reference to the {@linkplain WidgetParent parent} of this {@link Widget}, or {@code null} if no
- * parent is set. This typically occurs when the {@link Widget} has been constructed, but has not
- * yet been added to a {@linkplain WidgetParent container}.
- *
- * @see #getParent()
- * @see #setParent(WidgetParent)
- */
-@Nullable private WidgetParent parent;
-
-/**
- * {@link Visibility} of this {@link Widget}. This effects how the component behaves when rendering
- * and additionally when being laid out.
- *
- * @see #getVisibility()
- * @see #setVisibility(Visibility)
- */
-@NonNull private Visibility visibility;
-
-/**
- * {@link WidgetGroup.LayoutParams} instance containing arguments associated with laying out this
- * {@link Widget}.
- *
- * @see #getLayoutParams()
- * @see #setLayoutParams(WidgetGroup.LayoutParams)
- */
-@Nullable private WidgetGroup.LayoutParams layoutParams;
-
-/**
- * {@link Drawable} rendered behind this {@link Widget}.
- *
- * @see #getBackground()
- * @see #setBackground(Drawable)
- */
-@Nullable private Drawable background;
-
-/**
- * {@link Drawable} rendered in the foreground of this {@link Widget}.
- *
- * @see #getForeground()
- * @see #setForeground(Drawable)
- */
-@Nullable private Drawable foreground;
-
-/**
- * Floating-point representation of the z-axis location of this {@link Widget}, used to determine
- * height of a component relative to its {@linkplain #getParent() parent}.
- */
-@FloatRange(from = 0.0, to = Float.MAX_VALUE) private float elevation;
-
-/**
- * Abstract {@code Object} associated with this {@link Widget}.
- */
-@Nullable
-private Object tag;
-
-/**
- * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@link Widget}.
- */
-private final Set<Flag> FLAGS;
-
-/**
- * {@linkplain Enum Enumeration} of all boolean state fields for a {@link Widget}.
- */
-private enum Flag {
+ * Enumeration of all boolean state fields for a {@code Widget}.
+ */ private enum Flag {
     /**
-     * {@code true} implies that this {@link Widget} is enabled, while {@code false} implies that it is
+     * {@code true} implies that this {@code Widget} is enabled, while {@code false} implies that it is
      * not. Interpretation on what exactly enabled means varies by subclass, but generally this effects
-     * whether or not the state of the {@link Widget} is mutable.
+     * whether or not the state of the {@code Widget} is mutable.
      *
      * @see #isEnabled()
      * @see #setEnabled(boolean)
      */
     ENABLED,
     /**
-     * {@code true} implies that this {@link Widget} is in {@linkplain #isDebugging() debug} mode and will
+     * {@code true} implies that this {@code Widget} is in {@linkplain #isDebugging() debug} mode and will
      * have {@link #onDrawDebug(Batch)} called on every {@linkplain #draw(Batch) draw}, otherwise
-     * {@code false} implies that this {@link Widget} should behave normally.
+     * {@code false} implies that this {@code Widget} should behave normally.
      */
     DEBUGGING,
     /**
-     * {@code true} implies that this {@link Widget} has an input device over it (i.e., mouse
+     * {@code true} implies that this {@code Widget} has an input device over it (i.e., mouse
      * cursor), otherwise {@code false}.
      */
     HOVERING
 }
 
 public Widget() {
-    super();
-
     this.FLAGS = EnumSet.noneOf(Flag.class);
 
     setDebugging(false);
     setEnabled(true);
     setHovering(false);
+    setParent(null);
+    setTag(null);
     setVisibility(Visibility.VISIBLE);
 }
 
 /**
- * Draws this {@link Widget} onto the given {@link Batch}.
+ * @return {@code true} if this {@code Widget} is in debug mode and will have
+ *         {@link #onDrawDebug(Batch)} called after every {@linkplain #onDraw(Batch) draw},
+ *         otherwise {@code false}
  *
- * @param batch {@link Batch} to draw this {@link Widget} onto
- *
- * @see #onDrawBackground(Batch)
- * @see #onDraw(Batch)
- * @see #onDrawDebug(Batch)
- */
-protected void draw(Batch batch) {
-    onDrawBackground(batch);
-    onDraw(batch);
-    if (isDebugging()) {
-        onDrawDebug(batch);
-    }
-}
-/**
- * Called when the {@linkplain Drawable background} of this {@link Widget} should be drawn.
- *
- * @param batch {@link Batch} to draw onto
- */
-public void onDrawBackground(Batch batch) {
-    if (getBackground() == null) {
-        return;
-    }
-
-    getBackground().draw(batch);
-}
-/**
- * Called when the foreground of this {@link Widget} should be drawn.
- *
- * @param batch {@link Batch} to draw onto
- */
-public void onDraw(Batch batch) {
-    if (getForeground() == null) {
-        return;
-    }
-
-    getForeground().draw(batch);
-}
-/**
- * Called when {@link #onDraw(Batch) drawing} this widget when it is in
- * {@linkplain #isDebugging() debug} mode.
- *
- * @param batch {@link Batch} to draw debug information onto
- */
-public void onDrawDebug(Batch batch) {
-    final ShapeRenderer shapeRenderer = new ShapeRenderer();
-    shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
-        Color color = Color.RED;
-        if (!isEnabled()) {
-            color = Color.LIGHT_GRAY;
-        } else if (isHovering()) {
-            color = Color.GREEN;
-        }
-
-        shapeRenderer.setColor(color);
-        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
-        System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
-                getX(), getY(), getWidth(), getHeight(),
-                getLeft(), getRight(), getTop(), getBottom());
-    } shapeRenderer.end();
-    shapeRenderer.dispose();
-}
-
-/**
- * @return {@code true} if this {@link Widget} is in debug mode and will {@link #onDrawDebug(Batch)}
- *         called after every {@linkplain #onDraw(Batch) draw}, otherwise {@code false}
- */
-public boolean isDebugging() {
+ * @see #setDebugging(boolean)
+ */ public boolean isDebugging() {
     return FLAGS.contains(Flag.DEBUGGING);
 }
 /**
  * @param debugging {@code true} to enable {@linkplain #isDebugging() debugging} for this
- *        {@link Widget}, otherwise {@code false}
- */
-public void setDebugging(boolean debugging) {
+ *                  {@code Widget}, otherwise {@code false}
+ *
+ * @see #isDebugging()
+ */ public void setDebugging(boolean debugging) {
     if (debugging) {
         FLAGS.add(Flag.DEBUGGING);
     } else {
         FLAGS.remove(Flag.DEBUGGING);
     }
 }
-
 /**
- * @return {@code true} if this {@link Widget} is enabled. Interpretation varies by subclass.
+ * @return {@code true} if this {@code Widget} is enabled. Interpretation varies by subclass.
  *
  * @see #setEnabled(boolean)
- */
-@Override
-public boolean isEnabled() {
+ */ public boolean isEnabled() {
     return FLAGS.contains(Flag.ENABLED);
 
 }
 /**
- * @param enabled {@code true} to enable this {@link Widget}, otherwise {@code false}.
+ * @param enabled {@code true} to enable this {@code Widget}, otherwise {@code false}.
  *                Interpretation varies by subclass.
  *
  * @see #isEnabled()
- */
-@Override public void setEnabled(boolean enabled) {
+ */ public void setEnabled(boolean enabled) {
     if (enabled) {
         FLAGS.add(Flag.ENABLED);
     } else {
         FLAGS.remove(Flag.ENABLED);
     }
 }
-
 /**
- * @return {@link Visibility} constant of this {@link Widget}
- */
-@NonNull public Visibility getVisibility() {
-    return visibility;
+ * @return {@code true} if this {@code Widget} has an input cursor hovering above it (e.g., mouse
+ *         cursor), otherwise {@code false}
+ */ public boolean isHovering() {
+    return FLAGS.contains(Flag.HOVERING);
+
 }
 /**
- * @param visibility {@link Visibility} constant to apply to this {@link Widget}
- */
-public void setVisibility(@NonNull Visibility visibility) {
-    if (visibility == null) {
-        throw new IllegalArgumentException("visibility cannot be null");
-    }
-
-    this.visibility = visibility;
-}
-
-/**
- * @return {@link Drawable} rendered behind this {@link Widget}
- */
-@Nullable public Drawable getBackground() {
-    return background;
-}
-/**
- * Sets the background to a given {@link Drawable}, or removes the background in the case which
- * a {@code null} reference is passed. If the background has padding, this
- * {@linkplain Widget widget}'s padding is set to the background's padding. However, when a
- * background is removed, this {@linkplain Widget widget}'s padding isn't touched. If setting the
- * padding is desired, please use setPadding(int, int, int, int).
+ * @param hovering {@code true} to enable the {@linkplain #isHovering() hovering} state for this
+ *                 {@code Widget}, otherwise {@code false}.
  *
- * @param background {@link Drawable} to render behind this {@link Widget}.
- */
-public void setBackground(@Nullable Drawable background) {
-    if (this.background != null) {
-        this.background.setParent(null);
-    }
-
-    this.background = background;
-    this.background.setParent(this);
-    if (this.background.hasPadding()) {
-        // TODO: Copy padding from background Drawable
+ * @see #isHovering()
+ */ private void setHovering(boolean hovering) {
+    if (hovering) {
+        FLAGS.add(Flag.HOVERING);
+    } else {
+        FLAGS.remove(Flag.HOVERING);
     }
 }
 
 /**
- * @return {@link Drawable} rendered as the foreground of this {@link Widget}
- */
-@Nullable public Drawable getForeground() {
-    return foreground;
+ * Floating-point representation of the z-axis location of this {@code Widget}, used to determine
+ * height of a component relative to its {@linkplain #getParent() parent}.
+ */ @FloatRange(from = 0.0, to = Float.MAX_VALUE) private float elevation;
+/**
+ * @return Floating-point representation of the z-axis location of this {@code Widget}, used to
+ *         determine height of a component relative to its {@linkplain #getParent() parent}.
+ */ @FloatRange(from = 0.0, to = Float.MAX_VALUE) public float getElevation() {
+    return elevation;
 }
 /**
- * Sets the foreground to a given {@link Drawable}, or removes the foreground in the case which
- * a {@code null} reference is passed.
- * <p>
- * Note: This method does not effect the padding
- * </p>
+ * @param elevation Floating-point representation for the {@linkplain #getElevation() elevation} of
+ *                  this {@code Widget}, used to determine height of a component relative to its
+ *                  {@linkplain #getParent() parent}.
+ */ public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float elevation) {
+    if (elevation < 0.0f) {
+        throw new IllegalArgumentException(
+                "elevation must be between 0.0 and " + Float.MAX_VALUE + " (inclusive)");
+    }
+
+    this.elevation = elevation;
+}
+
+/**
+ * {@link WidgetGroup.LayoutParams} instance containing arguments associated with laying out this
+ * {@code Widget}.
  *
- * @param foreground {@link Drawable} to render as the foreground of this {@link Widget}.
- */
-public void setForeground(@Nullable Drawable foreground) {
-    if (this.foreground != null) {
-        this.foreground.setParent(null);
-    }
-
-    this.foreground = foreground;
-    this.foreground.setParent(this);
-}
-
+ * @see #getLayoutParams()
+ * @see #setLayoutParams(WidgetGroup.LayoutParams)
+ */ @Nullable private WidgetGroup.LayoutParams layoutParams;
 /**
- * @return {@linkplain WidgetParent parent} containing this {@link Widget}, or {@code null} if no
- *         parent is set
- */
-@Nullable public final WidgetParent getParent() {
-    return parent;
-}
-/**
- * @param parent {@linkplain WidgetParent parent} container of this {@link Widget}
- */
-final void setParent(WidgetParent parent) {
-    this.parent = parent;
-}
-public final boolean hasParent() {
-    return getParent() != null;
-}
-
-/**
- * @return {@link Window} containing this {@link Widget}
- */
-@Nullable public final Window getWindow() {
-    WidgetParent parent = getParent();
-    while (parent != null) {
-        if (parent instanceof Window) {
-            return (Window)parent;
-        }
-
-        parent = parent.getParent();
-    }
-
-    return null;
-}
-
-/**
- * Get the {@link WidgetGroup.LayoutParams} associated with this {@link Widget}. All widgets should
+ * Get the {@link WidgetGroup.LayoutParams} associated with this {@code Widget}. All widgets should
  * have layout parameters. These supply parameters to the {@linkplain #getParent() parent} of this
  * widget specifying how it should be arranged. There are many subclasses of
  * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
  * {@link WidgetGroup} that are responsible for arranging their children. This method may return
- * {@code null} if this {@link Widget} is not attached to a parent {@link WidgetGroup} or
+ * {@code null} if this {@code Widget} is not attached to a parent {@link WidgetGroup} or
  * {@link #setLayoutParams(WidgetGroup.LayoutParams)} was not invoked successfully. When a
- * {@link Widget} is attached to a parent {@link WidgetGroup}, this method must not return
+ * {@code Widget} is attached to a parent {@link WidgetGroup}, this method must not return
  * {@code null}.
  *
- * @return {@link WidgetGroup.LayoutParams} instance associated with this {@link Widget},
+ * @return {@link WidgetGroup.LayoutParams} instance associated with this {@code Widget},
  *         or {@code null} if no parameters have been set yet
- */
-@Nullable public WidgetGroup.LayoutParams getLayoutParams() {
+ */ @Nullable public WidgetGroup.LayoutParams getLayoutParams() {
     return layoutParams;
 }
 /**
  * Sets the layout parameters associated with this view. These supply parameters to the parent of
- * this view specifying how it should be arranged. There are many subclasses of
+ * this {@code Widget} specifying how it should be arranged. There are many subclasses of
  * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
  * {@link WidgetGroup} that are responsible for arranging their children.
  *
- * @param params layout parameters for this {@link Widget}, cannot be {@code null}
- */
-public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
+ * @param params layout parameters for this {@code Widget}, cannot be {@code null}
+ */ public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
     if (params == null) {
         throw new IllegalArgumentException("params cannot be null");
     }
-
-    System.out.printf("setLayoutParams (%d, %d)%n",
-            params.getWidth(), params.getHeight());
 
     this.layoutParams = params;
     switch (this.layoutParams.getWidth()) {
@@ -404,56 +208,118 @@ public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
 }
 
 /**
- * @return Floating-point representation of the z-axis location of this {@link Widget}, used to
- *         determine height of a component relative to its {@linkplain #getParent() parent}.
- */
-@FloatRange(from = 0.0, to = Float.MAX_VALUE) public float getElevation() {
-    return elevation;
+ * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@code Widget} may have.
+ */ public enum Visibility {
+    /** {@code Widget} will be laid out and rendered normally */
+    VISIBLE,
+    /** {@code Widget} will be laid out normally, however it will not be drawn */
+    INVISIBLE,
+    /** {@code Widget} will neither be laid out or drawn (as if it is not even present) */
+    GONE
 }
 /**
- * @param elevation Floating-point representation for the {@linkplain #getElevation() elevation} of
- *                  this {@link Widget}, used to determine height of a component relative to its
- *                  {@linkplain #getParent() parent}.
- */
-public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float elevation) {
-    if (elevation < 0.0f) {
-        throw new IllegalArgumentException(
-                "elevation must be between 0.0 and " + Float.MAX_VALUE + " (inclusive)");
+ * {@link Visibility} of this {@code Widget}. This effects how the component behaves when rendering
+ * and additionally when being laid out.
+ *
+ * @see #getVisibility()
+ * @see #setVisibility(Visibility)
+ */ @NonNull private Visibility visibility;
+/**
+ * @return {@link Visibility} constant of this {@code Widget}
+ */ @NonNull public Visibility getVisibility() {
+    return visibility;
+}
+/**
+ * @param visibility {@link Visibility} constant to apply to this {@code Widget}
+ */ public void setVisibility(@NonNull Visibility visibility) {
+    if (visibility == null) {
+        throw new IllegalArgumentException("visibility cannot be null");
     }
 
-    this.elevation = elevation;
+    this.visibility = visibility;
 }
 
 /**
- * Implementation of {@link Comparable#compareTo(Object)} which compares {@link Widget} instances
- * based on their {@linkplain #getElevation() elevation}.
+ * Draws this {@code Widget} onto the given {@link Batch}.
  *
- * {@inheritDoc}
- */
-@Override
-@IntRange(from = -1, to = 1) public int compareTo(Widget other) {
-    return Float.compare(this.getElevation(), other.getElevation());
+ * @param batch {@link Batch} to draw this {@code Widget} onto
+ *
+ * @see #onDrawBackground(Batch)
+ * @see #onDraw(Batch)
+ * @see #onDrawDebug(Batch)
+ */ protected void draw(@NonNull Batch batch) {
+    assert batch != null : "batch should never be null";
+    onDrawBackground(batch);
+    onDraw(batch);
+    if (isDebugging()) {
+        onDrawDebug(batch);
+    }
+}
+/**
+ * Called when the {@linkplain Drawable background} of this {@code Widget} should be drawn.
+ *
+ * @param batch {@link Batch} to draw onto
+ */ public void onDrawBackground(@NonNull Batch batch) {
+    if (batch == null) {
+        throw new IllegalArgumentException("batch should never be null");
+    }
+}
+/**
+ * Called when the foreground of this {@code Widget} should be drawn.
+ *
+ * @param batch {@link Batch} to draw onto
+ */ public void onDraw(@NonNull Batch batch) {
+    if (batch == null) {
+        throw new IllegalArgumentException("batch should never be null");
+    }
+}
+/**
+ * Called when {@link #onDraw(Batch) drawing} this widget when it is in
+ * {@linkplain #isDebugging() debug} mode.
+ *
+ * @param batch {@link Batch} to draw debug information onto
+ */ public void onDrawDebug(@NonNull Batch batch) {
+    if (batch == null) {
+        throw new IllegalArgumentException("batch should never be null");
+    }
+
+    final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
+        Color color = Color.RED;
+        if (!isEnabled()) {
+            color = Color.LIGHT_GRAY;
+        } else if (isHovering()) {
+            color = Color.GREEN;
+        }
+
+        shapeRenderer.setColor(color);
+        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
+        System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
+                getX(), getY(), getWidth(), getHeight(),
+                getRelativeLeft(), getRelativeRight(), getRelativeTop(), getRelativeBottom());
+    } shapeRenderer.end();
+    shapeRenderer.dispose();
 }
 
 /**
- * @return abstract {@code Object} associated with this {@link Widget}, or {@code null} if no object
+ * Abstract {@code Object} associated with this {@code Widget}.
+ */ @Nullable private Object tag;
+/**
+ * @return abstract {@code Object} associated with this {@code Widget}, or {@code null} if no object
  *         is associated with it
- */
-@Nullable public Object getTag() {
+ */ @Nullable public Object getTag() {
     return tag;
 }
 /**
- * @param tag abstract {@code Object} to associate with this {@link Widget}, or {@code null} to
+ * @param tag abstract {@code Object} to associate with this {@code Widget}, or {@code null} to
  *            disassociate the currently {@linkplain #getTag() tagged object}
- */
-public void setTag(@Nullable final Object tag) {
+ */ public void setTag(@Nullable final Object tag) {
     this.tag = tag;
 }
 
 /**
- * @return topmost {@link Widget} {@linkplain #getParent() containing} this {@link Widget}
- */
-@Nullable public Widget getRootWidget() {
+ * @return topmost {@code Widget} {@linkplain #getParent() containing} this {@code Widget}
+ */ @Nullable public Widget getRootWidget() {
     Widget root = null;
     for (WidgetParent parent = getParent();
         parent != null && parent instanceof Widget;
@@ -463,70 +329,307 @@ public void setTag(@Nullable final Object tag) {
 
     return root;
 }
-
 /**
- * @return {@code true} if this {@link Widget} has an input cursor hovering above it (e.g., mouse
- *         cursor), otherwise {@code false}
- */
-public boolean isHovering() {
-    return FLAGS.contains(Flag.HOVERING);
+ * @return {@link Window} containing this {@code Widget}
+ */ @Nullable public final Window getWindow() {
+    WidgetParent parent = getParent();
+    while (parent != null) {
+        if (parent instanceof Window) {
+            return (Window)parent;
+        }
 
-}
-
-/**
- * @param hovering {@code true} to enable the {@linkplain #isHovering() hovering} state for this
- *                 {@link Widget}, otherwise {@code false}.
- *
- * @see #isHovering()
- */
-private void setHovering(boolean hovering) {
-    if (hovering) {
-        FLAGS.add(Flag.HOVERING);
-    } else {
-        FLAGS.remove(Flag.HOVERING);
+        parent = parent.getParent();
     }
+
+    return null;
 }
 
-@Override
-public boolean mouseMoved(int screenX, int screenY) {
+/**
+ * Implementation of {@link Comparable#compareTo(Object)} which compares {@code Widget} instances
+ * based on their {@linkplain #getElevation() elevation} (low to high).
+ *
+ * {@inheritDoc}
+ */ @Override
+@IntRange(from = -1, to = 1) public int compareTo(Widget other) {
+    return Float.compare(this.getElevation(), other.getElevation());
+}
+
+@Nullable private WidgetParent parent;
+@Nullable public WidgetParent getParent() {
+    return parent;
+}
+public void setParent(@Nullable WidgetParent parent) {
+    this.parent = parent;
+}
+public boolean hasParent() {
+    return getParent() != null;
+}
+
+private int bottom;
+private int left;
+private int right;
+private int top;
+
+public int getRelativeBottom() {
+    return bottom;
+}
+public int getRelativeLeft() {
+    return left;
+}
+public int getRelativeRight() {
+    return right;
+}
+public int getRelativeTop() {
+    return top;
+}
+
+public void setRelativeBottom(int bottom) {
+    if (bottom > getRelativeTop()) {
+        setRelativeTop(bottom);
+    }
+
+    this.bottom = bottom;
+}
+public void setRelativeLeft(int left) {
+    if (left > getRelativeRight()) {
+        setRelativeRight(left);
+    }
+
+    this.left = left;
+}
+public void setRelativeRight(int right) {
+    if (right < getRelativeLeft()) {
+        setRelativeLeft(right);
+    }
+
+    this.right = right;
+}
+public void setRelativeTop(int top) {
+    if (top < getRelativeBottom()) {
+        setRelativeBottom(top);
+    }
+
+    this.top = top;
+}
+
+public int getBottom() {
+    if (hasParent()) {
+        return getParent().getBottom() + getRelativeBottom();
+    }
+
+    return getRelativeBottom();
+}
+public int getLeft() {
+    if (hasParent()) {
+        return getParent().getLeft() + getRelativeLeft();
+    }
+
+    return getRelativeLeft();
+}
+public int getRight() {
+    if (hasParent()) {
+        return getParent().getLeft() + getRelativeRight();
+    }
+
+    return getRelativeRight();
+}
+public int getTop() {
+    if (hasParent()) {
+        return getParent().getBottom() + getRelativeTop();
+    }
+
+    return getRelativeTop();
+}
+
+public void setBottom(int bottom) {
+    if (hasParent()) {
+        setRelativeBottom(bottom - getParent().getBottom());
+        return;
+    }
+
+    setRelativeBottom(bottom);
+}
+public void setLeft(int left) {
+    if (hasParent()) {
+        setRelativeLeft(left - getParent().getLeft());
+        return;
+    }
+
+    setRelativeLeft(left);
+}
+public void setRight(int right) {
+    if (hasParent()) {
+        setRelativeRight(right - getParent().getLeft());
+        return;
+    }
+
+    setRelativeRight(right);
+}
+public void setTop(int top) {
+    if (hasParent()) {
+        setRelativeTop(top - getParent().getBottom());
+        return;
+    }
+
+    setRelativeTop(top);
+}
+
+public void moveRelativeBottom(int bottom) {
+    if (hasParent()) {
+        moveBottom(getParent().getBottom() + bottom);
+        return;
+    }
+
+    moveBottom(bottom);
+}
+public void moveRelativeLeft(int left) {
+    if (hasParent()) {
+        moveLeft(getParent().getLeft() + left);
+        return;
+    }
+
+    moveLeft(left);
+}
+public void moveRelativeRight(int right) {
+    if (hasParent()) {
+        moveRight(getParent().getLeft() + right);
+        return;
+    }
+
+    moveRight(right);
+}
+public void moveRelativeTop(int top) {
+    if (hasParent()) {
+        moveTop(getParent().getBottom() + top);
+        return;
+    }
+
+    moveTop(top);
+}
+
+public void moveBottom(int bottom) {
+    setY(bottom);
+}
+public void moveLeft(int left) {
+    setX(left);
+}
+public void moveRight(int right) {
+    setX(right - getWidth());
+}
+public void moveTop(int top) {
+    setY(top - getHeight());
+}
+
+public int getX() {
+    return getLeft();
+}
+public int getY() {
+    return getBottom();
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getWidth() {
+    return getRight() - getLeft();
+}
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getHeight() {
+    return getTop() - getBottom();
+}
+
+public void setX(int x) {
+    final int width = getWidth();
+    setLeft(x);
+    setWidth(width);
+}
+public void setY(int y) {
+    final int height = getHeight();
+    setBottom(y);
+    setHeight(height);
+}
+public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
+    if (width < 0) {
+        throw new IllegalArgumentException(
+                "width should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    setRight(getLeft() + width);
+}
+public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    if (height < 0) {
+        throw new IllegalArgumentException(
+                "height should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+    }
+
+    setTop(getBottom() + height);
+}
+
+public void setBounds(int left, int right, int top, int bottom) {
+    if (right > left) {
+        throw new IllegalArgumentException(
+                "left should be less than or equal to right (" + right + ")");
+    } else if (bottom > top) {
+        throw new IllegalArgumentException(
+                "bottom should be less than or equal to top (" + top + ")");
+    }
+
+    setLeft(left);
+    setRight(right);
+    setTop(top);
+    setBottom(bottom);
+}
+public void setRelativeBounds(int left, int right, int top, int bottom) {
+    if (right > left) {
+        throw new IllegalArgumentException(
+            "left should be less than or equal to right (" + right + ")");
+    } else if (bottom > top) {
+        throw new IllegalArgumentException(
+                "bottom should be less than or equal to top (" + top + ")");
+    }
+
+    setRelativeLeft(left);
+    setRelativeRight(right);
+    setRelativeTop(top);
+    setRelativeBottom(bottom);
+}
+public boolean inBounds(int x, int y) {
+    return getLeft() <= x && x <= getRight()
+            && getBottom() <= y && y <= getTop();
+}
+public boolean hasSize() {
+    return getRelativeRight() > getRelativeLeft() && getRelativeTop() > getRelativeBottom();
+}
+public void setPosition(int x, int y) {
+    setX(x);
+    setY(y);
+}
+public void setSize(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
+                    @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    setWidth(width);
+    setHeight(height);
+}
+
+@Override public boolean mouseMoved(int screenX, int screenY) {
     boolean inBounds = inBounds(screenX, screenY);
     setHovering(inBounds);
     //System.out.printf("moving (%d, %d)%n", screenX, screenY);
     return inBounds;
 }
-
-@Override
-public boolean keyDown(int keycode) {
+@Override public boolean keyDown(int keycode) {
     return false;
 }
-
-@Override
-public boolean keyUp(int keycode) {
+@Override public boolean keyUp(int keycode) {
     return false;
 }
-
-@Override
-public boolean keyTyped(char character) {
+@Override public boolean keyTyped(char character) {
     return false;
 }
-
-@Override
-public boolean scrolled(int amount) {
+@Override public boolean scrolled(int amount) {
     return false;
 }
-
-@Override
-public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+@Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     return false;
 }
-
-@Override
-public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+@Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
     return false;
 }
-
-@Override
-public boolean touchDragged(int screenX, int screenY, int pointer) {
+@Override public boolean touchDragged(int screenX, int screenY, int pointer) {
     return false;
 }
 

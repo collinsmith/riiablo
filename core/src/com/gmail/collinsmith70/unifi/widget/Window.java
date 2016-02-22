@@ -24,12 +24,10 @@ public Window(int width, int height) {
 }
 
 @Override
-public WidgetParent getParent() {
+@Nullable public WidgetParent getParent() {
     return null;
 }
-
-@Override
-public boolean hasParent() {
+@Override public boolean hasParent() {
     return false;
 }
 
@@ -107,8 +105,7 @@ public void setHeight(int height) {
 }
 
 @NonNull
-@Override
-public WidgetManager addWidget(@NonNull Widget child) {
+@Override public WidgetManager addWidget(@NonNull Widget child) {
     if (child == null) {
         throw new IllegalArgumentException("child widget cannot be null");
     }
@@ -117,14 +114,10 @@ public WidgetManager addWidget(@NonNull Widget child) {
     child.setParent(this);
     return this;
 }
-
-@Override
-public boolean containsWidget(@Nullable Widget child) {
+@Override public boolean containsWidget(@Nullable Widget child) {
     return child != null && CHILDREN.contains(child);
 }
-
-@Override
-public boolean removeWidget(@Nullable Widget child) {
+@Override public boolean removeWidget(@Nullable Widget child) {
     if (child == null) {
         return false;
     }
@@ -135,25 +128,20 @@ public boolean removeWidget(@Nullable Widget child) {
 
     return CHILDREN.remove(child);
 }
-
-@Override
-public int getNumWidgets() {
+@Override public int getNumWidgets() {
     return CHILDREN.size();
 }
 
 public void clear() {
     CHILDREN.clear();
 }
-
-@Override
-public void dispose() {
+@Override public void dispose() {
     clear();
 }
 
 public void draw(Batch batch) {
     drawChildren(batch);
 }
-
 public void drawChildren(Batch batch) {
     for (Widget child : CHILDREN) {
         child.draw(batch);

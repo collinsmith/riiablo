@@ -16,18 +16,18 @@ public enum Orientation {
         void layout(LinearLayout linearLayout) {
             switch (linearLayout.getDirection()) {
                 case START_TO_END:
-                    int left = linearLayout.getLeft();
-                    for (Widget child : linearLayout.getChildren()) {
-                        child.moveTop(linearLayout.getTop());
-                        child.moveLeft(left);
+                    int left = 0;
+                    for (Widget child : linearLayout) {
+                        child.moveRelativeTop(linearLayout.getHeight());
+                        child.moveRelativeLeft(left);
                         left += child.getWidth();
                     }
                     break;
                 case END_TO_START:
-                    int right = linearLayout.getRight();
-                    for (Widget child : linearLayout.getChildren()) {
-                        child.moveTop(linearLayout.getTop());
-                        child.moveRight(right);
+                    int right = linearLayout.getWidth();
+                    for (Widget child : linearLayout) {
+                        child.moveRelativeTop(linearLayout.getHeight());
+                        child.moveRelativeRight(right);
                         right -= child.getWidth();
                     }
                     break;
@@ -41,18 +41,18 @@ public enum Orientation {
         void layout(LinearLayout linearLayout) {
             switch (linearLayout.getDirection()) {
                 case START_TO_END:
-                    int top = linearLayout.getTop();
-                    for (Widget child : linearLayout.getChildren()) {
-                        child.moveLeft(linearLayout.getLeft());
-                        child.moveTop(top);
+                    int top = linearLayout.getHeight();
+                    for (Widget child : linearLayout) {
+                        child.moveRelativeLeft(0);
+                        child.moveRelativeTop(top);
                         top -= child.getHeight();
                     }
                     break;
                 case END_TO_START:
-                    int bottom = linearLayout.getBottom();
-                    for (Widget child : linearLayout.getChildren()) {
-                        child.moveLeft(linearLayout.getLeft());
-                        child.moveBottom(bottom);
+                    int bottom = 0;
+                    for (Widget child : linearLayout) {
+                        child.moveRelativeLeft(0);
+                        child.moveRelativeBottom(bottom);
                         bottom += child.getHeight();
                     }
                     break;

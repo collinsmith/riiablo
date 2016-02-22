@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public abstract class WidgetGroup extends Widget implements WidgetParent, WidgetManager {
+public abstract class WidgetGroup extends Widget
+        implements WidgetParent, WidgetManager, Iterable<Widget> {
 
 private final Collection<Widget> CHILDREN;
 
@@ -107,6 +109,11 @@ public void drawChildren(Batch batch) {
     for (Widget child : CHILDREN) {
         child.draw(batch);
     }
+}
+
+@Override
+public Iterator<Widget> iterator() {
+    return getChildren().iterator();
 }
 
 /**
