@@ -8,8 +8,6 @@ import com.gmail.collinsmith70.unifi.widget.WidgetManager;
 
 public class LinearLayout extends WidgetGroup {
 
-public enum Direction { START_TO_END, END_TO_START }
-
 public enum Orientation {
     HORIZONTAL {
         @Override
@@ -21,7 +19,11 @@ public enum Orientation {
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeLeft(left);
                         left += child.getWidth();
+                        linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
+                                child.getHeight()));
                     }
+
+                    linearLayout.setMinWidth(left);
                     break;
                 case END_TO_START:
                     int right = linearLayout.getWidth();
@@ -29,7 +31,11 @@ public enum Orientation {
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeRight(right);
                         right -= child.getWidth();
+                        linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
+                                child.getHeight()));
                     }
+
+                    linearLayout.setMinWidth(linearLayout.getWidth() - right);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -46,7 +52,12 @@ public enum Orientation {
                         child.moveRelativeLeft(0);
                         child.moveRelativeTop(top);
                         top -= child.getHeight();
+                        linearLayout.setMinWidth(Math.max(linearLayout.getMinWidth(),
+                                child.getWidth()));
                     }
+
+                    linearLayout.setMinHeight(linearLayout.getHeight() - top);
+                    System.out.println("getMinHeight = " + linearLayout.getMinHeight());
                     break;
                 case END_TO_START:
                     int bottom = 0;
@@ -54,7 +65,11 @@ public enum Orientation {
                         child.moveRelativeLeft(0);
                         child.moveRelativeBottom(bottom);
                         bottom += child.getHeight();
+                        linearLayout.setMinWidth(Math.max(linearLayout.getMinWidth(),
+                                child.getWidth()));
                     }
+
+                    linearLayout.setMinHeight(bottom);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -64,9 +79,7 @@ public enum Orientation {
 
     abstract void layout(LinearLayout linearLayout);
 }
-
 @NonNull private Orientation orientation = Orientation.HORIZONTAL;
-
 @NonNull public Orientation getOrientation() {
     return orientation;
 }
@@ -79,6 +92,7 @@ public void setOrientation(@NonNull Orientation orientation) {
     requestLayout();
 }
 
+public enum Direction { START_TO_END, END_TO_START }
 @NonNull private Direction direction = Direction.START_TO_END;
 @NonNull public Direction getDirection() {
     return direction;
@@ -92,60 +106,45 @@ public void setDirection(@NonNull Direction direction) {
     requestLayout();
 }
 
-@NonNull
-@Override
-public WidgetManager addWidget(@NonNull Widget child) {
-    WidgetManager widgetManager = super.addWidget(child);
-    requestLayout();
-    return widgetManager;
-}
-
 public LinearLayout() {
     this(Orientation.HORIZONTAL);
 }
-
 public LinearLayout(Orientation orientation) {
     this(orientation, Direction.START_TO_END);
 }
-
 public LinearLayout(Orientation orientation, Direction direction) {
     setDirection(direction);
     setOrientation(orientation);
 }
 
-@Override
-public boolean keyDown(int keycode) {
-    return false;
+@NonNull
+@Override public WidgetManager addWidget(@NonNull Widget child) {
+    WidgetManager widgetManager = super.addWidget(child);
+    requestLayout();
+    return widgetManager;
 }
 
-@Override
-public boolean keyUp(int keycode) {
-    return false;
-}
-
-@Override
-public boolean keyTyped(char character) {
-    return false;
-}
-
-@Override
-public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-    return false;
-}
-
-@Override
-public boolean touchDragged(int screenX, int screenY, int pointer) {
-    return false;
-}
-
-@Override
-public boolean scrolled(int amount) {
-    return false;
-}
-
-@Override
-public void requestLayout() {
+@Override public void requestLayout() {
     getOrientation().layout(this);
+}
+
+@Override public boolean keyDown(int keycode) {
+    return false;
+}
+@Override public boolean keyUp(int keycode) {
+    return false;
+}
+@Override public boolean keyTyped(char character) {
+    return false;
+}
+@Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    return false;
+}
+@Override public boolean touchDragged(int screenX, int screenY, int pointer) {
+    return false;
+}
+@Override public boolean scrolled(int amount) {
+    return false;
 }
 
 }

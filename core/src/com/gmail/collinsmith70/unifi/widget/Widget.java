@@ -186,6 +186,13 @@ public Widget() {
             setRight(getParent().getRight());
             break;
         case WidgetGroup.LayoutParams.WRAP_CONTENT:
+            if (!(this instanceof WidgetGroup)) {
+                throw new UnsupportedOperationException(
+                        "Widget must be an instance of WidgetGroup to wrap size to content");
+            }
+
+            WidgetGroup widgetGroup = (WidgetGroup)this;
+            widgetGroup.setWidth(widgetGroup.getMinWidth());
             break;
         default:
             setWidth(this.layoutParams.getWidth());
@@ -201,6 +208,13 @@ public Widget() {
             setBottom(getParent().getBottom());
             break;
         case WidgetGroup.LayoutParams.WRAP_CONTENT:
+            if (!(this instanceof WidgetGroup)) {
+                throw new UnsupportedOperationException(
+                        "Widget must be an instance of WidgetGroup to wrap size to content");
+            }
+
+            WidgetGroup widgetGroup = (WidgetGroup)this;
+            widgetGroup.setHeight(widgetGroup.getMinHeight());
             break;
         default:
             setHeight(this.layoutParams.getHeight());
@@ -294,9 +308,9 @@ public Widget() {
 
         shapeRenderer.setColor(color);
         shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
-        System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
-                getX(), getY(), getWidth(), getHeight(),
-                getRelativeLeft(), getRelativeRight(), getRelativeTop(), getRelativeBottom());
+        //System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
+        //        getX(), getY(), getWidth(), getHeight(),
+        //        getRelativeLeft(), getRelativeRight(), getRelativeTop(), getRelativeBottom());
     } shapeRenderer.end();
     shapeRenderer.dispose();
 }

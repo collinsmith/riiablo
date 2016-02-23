@@ -117,6 +117,8 @@ public void create() {
     WidgetGroup ll1 = new LinearLayout(LinearLayout.Orientation.VERTICAL);
     ll1.setSize(512, 512);
     ll1.addWidget(button1).addWidget(button2);
+    ll1.setLayoutParams(new WidgetGroup.LayoutParams(
+            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
 
     WidgetGroup ll2 = new LinearLayout(LinearLayout.Orientation.HORIZONTAL);
     ll2.addWidget(ll1).addWidget(button3);

@@ -29,6 +29,30 @@ public Collection<Widget> getChildren() {
     return ImmutableList.copyOf(CHILDREN);
 }
 
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int minWidth;
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getMinWidth() {
+    return minWidth;
+}
+public void setMinWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
+    if (width < 0) {
+        throw new IllegalArgumentException("height should be greater than 0");
+    }
+
+    this.minWidth = width;
+}
+
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int minHeight;
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getMinHeight() {
+    return minHeight;
+}
+public void setMinHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    if (height < 0) {
+        throw new IllegalArgumentException("height should be greater than 0");
+    }
+
+    this.minHeight = height;
+}
+
 @Override
 public void setDebugging(boolean debugging) {
     if (debugging == isDebugging()) {
