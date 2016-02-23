@@ -179,7 +179,8 @@ public Widget() {
     switch (this.layoutParams.getWidth()) {
         case WidgetGroup.LayoutParams.FILL_PARENT:
             if (!hasParent()) {
-                throw new IllegalArgumentException("FILL_PARENT specified without parent");
+                //throw new IllegalArgumentException("FILL_PARENT specified without parent");
+                break;
             }
 
             setLeft(getParent().getLeft());
@@ -201,7 +202,8 @@ public Widget() {
     switch (this.layoutParams.getHeight()) {
         case WidgetGroup.LayoutParams.FILL_PARENT:
             if (!hasParent()) {
-                throw new IllegalArgumentException("FILL_PARENT specified without parent");
+                //throw new IllegalArgumentException("FILL_PARENT specified without parent");
+                break;
             }
 
             setTop(getParent().getTop());
@@ -218,6 +220,10 @@ public Widget() {
             break;
         default:
             setHeight(this.layoutParams.getHeight());
+    }
+
+    if (hasParent()) {
+        getParent().requestLayout();
     }
 }
 

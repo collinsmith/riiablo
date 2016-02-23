@@ -66,8 +66,7 @@ public void setDebugging(boolean debugging) {
 }
 
 @NonNull
-@Override
-public WidgetManager addWidget(@NonNull Widget child) {
+@Override public WidgetManager addWidget(@NonNull Widget child) {
     if (child == null) {
         throw new IllegalArgumentException("child widget cannot be null");
     }
@@ -76,14 +75,10 @@ public WidgetManager addWidget(@NonNull Widget child) {
     child.setParent(this);
     return this;
 }
-
-@Override
-public boolean containsWidget(@Nullable Widget child) {
+@Override public boolean containsWidget(@Nullable Widget child) {
     return child != null && CHILDREN.contains(child);
 }
-
-@Override
-public boolean removeWidget(@Nullable Widget child) {
+@Override public boolean removeWidget(@Nullable Widget child) {
     if (child == null) {
         return false;
     }
@@ -94,14 +89,11 @@ public boolean removeWidget(@Nullable Widget child) {
 
     return CHILDREN.remove(child);
 }
-
-@Override
-public int getNumWidgets() {
+@Override public int getNumWidgets() {
     return CHILDREN.size();
 }
 
-@Override
-public boolean mouseMoved(int screenX, int screenY) {
+@Override public boolean mouseMoved(int screenX, int screenY) {
     boolean inBounds = super.mouseMoved(screenX, screenY);
     if (inBounds) {
         for (Widget child : CHILDREN) {
@@ -111,9 +103,7 @@ public boolean mouseMoved(int screenX, int screenY) {
 
     return inBounds;
 }
-
-@Override
-public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+@Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     boolean inBounds = super.mouseMoved(screenX, screenY);
     if (inBounds) {
         for (Widget child : CHILDREN) {
@@ -124,19 +114,16 @@ public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     return false;
 }
 
-@Override
-public void onDraw(Batch batch) {
+@Override public void onDraw(Batch batch) {
     drawChildren(batch);
 }
-
 public void drawChildren(Batch batch) {
     for (Widget child : CHILDREN) {
         child.draw(batch);
     }
 }
 
-@Override
-public Iterator<Widget> iterator() {
+@Override public Iterator<Widget> iterator() {
     return getChildren().iterator();
 }
 
@@ -160,8 +147,7 @@ public Iterator<Widget> iterator() {
  *         </li>
  *     </ul>
  * </p>
- */
-public static class LayoutParams {
+ */ public static class LayoutParams {
 
     /**
      * {@link LayoutParams} {@linkplain #width width} of {@value} symbolizing that the
@@ -286,13 +272,11 @@ public static class LayoutParams {
     }
 
 }
-
 /**
  * Implementation of {@link WidgetGroup.LayoutParams} which adds <a href="https://en.wikipedia.org/wiki/Margin_(typography)">
  * margins</a>. Margins define spacing on the inside of a {@linkplain Widget component} and its
  * edges.
- */
-public static class MarginLayoutParams extends LayoutParams {
+ */ public static class MarginLayoutParams extends LayoutParams {
 
     /**
      * Bottom margin of this {@link WidgetGroup}

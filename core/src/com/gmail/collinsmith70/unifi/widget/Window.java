@@ -112,6 +112,7 @@ public void setHeight(int height) {
 
     CHILDREN.add(child);
     child.setParent(this);
+    requestLayout();
     return this;
 }
 @Override public boolean containsWidget(@Nullable Widget child) {

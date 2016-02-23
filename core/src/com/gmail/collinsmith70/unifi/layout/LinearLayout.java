@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.gmail.collinsmith70.unifi.widget.Widget;
 import com.gmail.collinsmith70.unifi.widget.WidgetGroup;
 import com.gmail.collinsmith70.unifi.widget.WidgetManager;
+import com.gmail.collinsmith70.unifi.widget.WidgetParent;
 
 public class LinearLayout extends WidgetGroup {
 
@@ -16,6 +17,10 @@ public enum Orientation {
                 case START_TO_END:
                     int left = 0;
                     for (Widget child : linearLayout) {
+                        if (child instanceof WidgetParent) {
+                            ((WidgetParent)child).requestLayout();
+                        }
+
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeLeft(left);
                         left += child.getWidth();
@@ -28,6 +33,10 @@ public enum Orientation {
                 case END_TO_START:
                     int right = linearLayout.getWidth();
                     for (Widget child : linearLayout) {
+                        if (child instanceof WidgetParent) {
+                            ((WidgetParent)child).requestLayout();
+                        }
+
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeRight(right);
                         right -= child.getWidth();
@@ -49,6 +58,10 @@ public enum Orientation {
                 case START_TO_END:
                     int top = linearLayout.getHeight();
                     for (Widget child : linearLayout) {
+                        if (child instanceof WidgetParent) {
+                            ((WidgetParent)child).requestLayout();
+                        }
+
                         child.moveRelativeLeft(0);
                         child.moveRelativeTop(top);
                         top -= child.getHeight();
@@ -57,11 +70,14 @@ public enum Orientation {
                     }
 
                     linearLayout.setMinHeight(linearLayout.getHeight() - top);
-                    System.out.println("getMinHeight = " + linearLayout.getMinHeight());
                     break;
                 case END_TO_START:
                     int bottom = 0;
                     for (Widget child : linearLayout) {
+                        if (child instanceof WidgetParent) {
+                            ((WidgetParent)child).requestLayout();
+                        }
+
                         child.moveRelativeLeft(0);
                         child.moveRelativeBottom(bottom);
                         bottom += child.getHeight();
@@ -117,8 +133,7 @@ public LinearLayout(Orientation orientation, Direction direction) {
     setOrientation(orientation);
 }
 
-@NonNull
-@Override public WidgetManager addWidget(@NonNull Widget child) {
+@NonNull @Override public WidgetManager addWidget(@NonNull Widget child) {
     WidgetManager widgetManager = super.addWidget(child);
     requestLayout();
     return widgetManager;

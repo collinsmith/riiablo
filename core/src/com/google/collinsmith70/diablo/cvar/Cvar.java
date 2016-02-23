@@ -85,7 +85,7 @@ public Cvar(String key, Class<T> type, T defaultValue, CvarLoadListener<T> l, Cv
         throw new IllegalArgumentException("Key aliases cannot be empty");
     } else if (Cvar.CVARS.containsKey(getKey())) {
         throw new IllegalArgumentException(String.format(
-                "Cvar %s already exists. Cvar keys must be unique!",
+                "CvarUnannotated %s already exists. CvarUnannotated keys must be unique!",
                 getKey()));
     }
 
@@ -216,7 +216,7 @@ public void setValue(T value) {
 public void setValue(String value) {
     if (LOAD_LISTENER == null) {
         throw new IllegalStateException(String.format(
-                "No CvarLoadListener configured for this Cvar " +
+                "No CvarLoadListener configured for this CvarUnannotated " +
                 "which can parse the given value \"%s\"", value));
     }
 

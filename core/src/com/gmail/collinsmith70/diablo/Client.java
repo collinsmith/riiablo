@@ -129,9 +129,7 @@ public void create() {
     this.WINDOW.setDebugging(true);
 
     ll2.setLayoutParams(new WidgetGroup.LayoutParams(
-            WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.FILL_PARENT));
-    WINDOW.requestLayout();
-    ll1.requestLayout();
+            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
 
     Gdx.input.setCatchBackKey(true);
     Gdx.input.setCatchMenuKey(true);
