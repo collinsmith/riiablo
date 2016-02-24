@@ -25,6 +25,10 @@ public int getMarginLeft() { throw new UnsupportedOperationException(); }
 public int getMarginRight() { throw new UnsupportedOperationException(); }
 public int getMarginTop() { throw new UnsupportedOperationException(); }
 
+@Override public void onDrawDebug(@NonNull Batch batch) {
+    //super.onDrawDebug(batch);
+}
+
 public Collection<Widget> getChildren() {
     return ImmutableList.copyOf(CHILDREN);
 }
@@ -95,11 +99,11 @@ public void setDebugging(boolean debugging) {
 
 @Override public boolean mouseMoved(int screenX, int screenY) {
     boolean inBounds = super.mouseMoved(screenX, screenY);
-    if (inBounds) {
+    //if (inBounds) {
         for (Widget child : CHILDREN) {
             child.mouseMoved(screenX, screenY);
         }
-    }
+    //}
 
     return inBounds;
 }

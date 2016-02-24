@@ -86,13 +86,14 @@ public void setHeight(int height) {
 @Override public boolean mouseMoved(int screenX, int screenY) {
     // LibGDX is dumb and uses two different coordinate systems for rendering and input, so screenY
     // needs to be inverted in order for the correct screenY to be used for graphics
+    boolean handled = false;
     for (Widget child : CHILDREN) {
         if (child.mouseMoved(screenX, getHeight()-screenY)) {
-            return true;
+            handled = true;
         }
     }
 
-    return false;
+    return handled;
 }
 @Override public boolean scrolled(int amount) { return false; }
 
