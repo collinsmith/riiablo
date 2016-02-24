@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Disposable;
 
 import java.util.Collection;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Window implements WidgetParent, WidgetManager, InputProcessor, Disposable {
 
@@ -20,7 +20,7 @@ private int height;
 public Window(int width, int height) {
     setWidth(width);
     setHeight(height);
-    this.CHILDREN = new ConcurrentSkipListSet<Widget>();
+    this.CHILDREN = new CopyOnWriteArrayList<Widget>();
 }
 
 @Override
