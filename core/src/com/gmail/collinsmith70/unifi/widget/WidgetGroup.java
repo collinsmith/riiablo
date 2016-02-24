@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -18,6 +19,18 @@ private final Collection<Widget> CHILDREN;
 
 public WidgetGroup() {
     this.CHILDREN = new CopyOnWriteArrayList<Widget>();
+}
+
+@Override
+public void requestLayout() {
+    for (Widget child : this) {
+        if (!(child instanceof WidgetParent)) {
+            continue;
+        }
+
+        WidgetParent widgetParent = (WidgetParent)child;
+        widgetParent.requestLayout();
+    }
 }
 
 public int getMarginBottom() { throw new UnsupportedOperationException(); }
@@ -128,7 +141,7 @@ public void drawChildren(Batch batch) {
 }
 
 @Override public Iterator<Widget> iterator() {
-    return getChildren().iterator();
+    return Iterators.unmodifiableIterator(getChildren().iterator());
 }
 
 /**
