@@ -99,9 +99,12 @@ public void setHeight(int height) {
 
 @Override public void requestLayout() {
     for (Widget child : CHILDREN) {
-        if (child instanceof WidgetParent) {
-            ((WidgetParent)child).requestLayout();
+        if (!(child instanceof WidgetParent)) {
+            continue;
         }
+
+        WidgetParent widgetParent = (WidgetParent)child;
+        widgetParent.requestLayout();
     }
 }
 
