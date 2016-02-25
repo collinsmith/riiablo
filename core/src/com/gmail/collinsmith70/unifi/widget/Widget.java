@@ -16,7 +16,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public class Widget
-        implements InputProcessor {
+        implements Boundary, InputProcessor {
 
 private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>() {
     /**
@@ -393,41 +393,41 @@ private int left;
 private int right;
 private int top;
 
-public int getRelativeBottom() {
+@Override public int getRelativeBottom() {
     return bottom;
 }
-public int getRelativeLeft() {
+@Override public int getRelativeLeft() {
     return left;
 }
-public int getRelativeRight() {
+@Override public int getRelativeRight() {
     return right;
 }
-public int getRelativeTop() {
+@Override public int getRelativeTop() {
     return top;
 }
 
-public void setRelativeBottom(int bottom) {
+@Override public void setRelativeBottom(int bottom) {
     if (bottom > getRelativeTop()) {
         setRelativeTop(bottom);
     }
 
     this.bottom = bottom;
 }
-public void setRelativeLeft(int left) {
+@Override public void setRelativeLeft(int left) {
     if (left > getRelativeRight()) {
         setRelativeRight(left);
     }
 
     this.left = left;
 }
-public void setRelativeRight(int right) {
+@Override public void setRelativeRight(int right) {
     if (right < getRelativeLeft()) {
         setRelativeLeft(right);
     }
 
     this.right = right;
 }
-public void setRelativeTop(int top) {
+@Override public void setRelativeTop(int top) {
     if (top < getRelativeBottom()) {
         setRelativeBottom(top);
     }
@@ -435,69 +435,7 @@ public void setRelativeTop(int top) {
     this.top = top;
 }
 
-public int getBottom() {
-    if (hasParent()) {
-        return getParent().getBottom() + getRelativeBottom();
-    }
-
-    return getRelativeBottom();
-}
-public int getLeft() {
-    if (hasParent()) {
-        return getParent().getLeft() + getRelativeLeft();
-    }
-
-    return getRelativeLeft();
-}
-public int getRight() {
-    if (hasParent()) {
-        return getParent().getLeft() + getRelativeRight();
-    }
-
-    return getRelativeRight();
-}
-public int getTop() {
-    if (hasParent()) {
-        return getParent().getBottom() + getRelativeTop();
-    }
-
-    return getRelativeTop();
-}
-
-public void setBottom(int bottom) {
-    if (hasParent()) {
-        setRelativeBottom(bottom - getParent().getBottom());
-        return;
-    }
-
-    setRelativeBottom(bottom);
-}
-public void setLeft(int left) {
-    if (hasParent()) {
-        setRelativeLeft(left - getParent().getLeft());
-        return;
-    }
-
-    setRelativeLeft(left);
-}
-public void setRight(int right) {
-    if (hasParent()) {
-        setRelativeRight(right - getParent().getLeft());
-        return;
-    }
-
-    setRelativeRight(right);
-}
-public void setTop(int top) {
-    if (hasParent()) {
-        setRelativeTop(top - getParent().getBottom());
-        return;
-    }
-
-    setRelativeTop(top);
-}
-
-public void moveRelativeBottom(int bottom) {
+@Override public void moveRelativeBottom(int bottom) {
     if (hasParent()) {
         moveBottom(getParent().getBottom() + bottom);
         return;
@@ -505,7 +443,7 @@ public void moveRelativeBottom(int bottom) {
 
     moveBottom(bottom);
 }
-public void moveRelativeLeft(int left) {
+@Override public void moveRelativeLeft(int left) {
     if (hasParent()) {
         moveLeft(getParent().getLeft() + left);
         return;
@@ -513,7 +451,7 @@ public void moveRelativeLeft(int left) {
 
     moveLeft(left);
 }
-public void moveRelativeRight(int right) {
+@Override public void moveRelativeRight(int right) {
     if (hasParent()) {
         moveRight(getParent().getLeft() + right);
         return;
@@ -521,7 +459,7 @@ public void moveRelativeRight(int right) {
 
     moveRight(right);
 }
-public void moveRelativeTop(int top) {
+@Override public void moveRelativeTop(int top) {
     if (hasParent()) {
         moveTop(getParent().getBottom() + top);
         return;
@@ -530,43 +468,105 @@ public void moveRelativeTop(int top) {
     moveTop(top);
 }
 
-public void moveBottom(int bottom) {
+@Override public int getBottom() {
+    if (hasParent()) {
+        return getParent().getBottom() + getRelativeBottom();
+    }
+
+    return getRelativeBottom();
+}
+@Override public int getLeft() {
+    if (hasParent()) {
+        return getParent().getLeft() + getRelativeLeft();
+    }
+
+    return getRelativeLeft();
+}
+@Override public int getRight() {
+    if (hasParent()) {
+        return getParent().getLeft() + getRelativeRight();
+    }
+
+    return getRelativeRight();
+}
+@Override public int getTop() {
+    if (hasParent()) {
+        return getParent().getBottom() + getRelativeTop();
+    }
+
+    return getRelativeTop();
+}
+
+@Override public void setBottom(int bottom) {
+    if (hasParent()) {
+        setRelativeBottom(bottom - getParent().getBottom());
+        return;
+    }
+
+    setRelativeBottom(bottom);
+}
+@Override public void setLeft(int left) {
+    if (hasParent()) {
+        setRelativeLeft(left - getParent().getLeft());
+        return;
+    }
+
+    setRelativeLeft(left);
+}
+@Override public void setRight(int right) {
+    if (hasParent()) {
+        setRelativeRight(right - getParent().getLeft());
+        return;
+    }
+
+    setRelativeRight(right);
+}
+@Override public void setTop(int top) {
+    if (hasParent()) {
+        setRelativeTop(top - getParent().getBottom());
+        return;
+    }
+
+    setRelativeTop(top);
+}
+
+@Override public void moveBottom(int bottom) {
     setY(bottom);
 }
-public void moveLeft(int left) {
+@Override public void moveLeft(int left) {
     setX(left);
 }
-public void moveRight(int right) {
+@Override public void moveRight(int right) {
     setX(right - getWidth());
 }
-public void moveTop(int top) {
+@Override public void moveTop(int top) {
     setY(top - getHeight());
 }
 
-public int getX() {
+@Override public int getX() {
     return getLeft();
 }
-public int getY() {
+@Override public int getY() {
     return getBottom();
 }
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getWidth() {
+@Override @IntRange(from = 0, to = Integer.MAX_VALUE) public int getWidth() {
     return getRight() - getLeft();
 }
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getHeight() {
+@Override @IntRange(from = 0, to = Integer.MAX_VALUE) public int getHeight() {
     return getTop() - getBottom();
 }
 
-public void setX(int x) {
+@Override public void setX(int x) {
     final int width = getWidth();
     setLeft(x);
     setWidth(width);
 }
-public void setY(int y) {
+@Override public void setY(int y) {
     final int height = getHeight();
     setBottom(y);
     setHeight(height);
 }
-public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
+@Override public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
     if (width < 0) {
         throw new IllegalArgumentException(
                 "width should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
@@ -574,7 +574,7 @@ public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
 
     setRight(getLeft() + width);
 }
-public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+@Override public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     if (height < 0) {
         throw new IllegalArgumentException(
                 "height should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
@@ -583,7 +583,7 @@ public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     setTop(getBottom() + height);
 }
 
-public void setBounds(int left, int right, int top, int bottom) {
+@Override public void setBounds(int left, int right, int top, int bottom) {
     if (right > left) {
         throw new IllegalArgumentException(
                 "left should be less than or equal to right (" + right + ")");
@@ -597,7 +597,7 @@ public void setBounds(int left, int right, int top, int bottom) {
     setTop(top);
     setBottom(bottom);
 }
-public void setRelativeBounds(int left, int right, int top, int bottom) {
+@Override public void setRelativeBounds(int left, int right, int top, int bottom) {
     if (right > left) {
         throw new IllegalArgumentException(
             "left should be less than or equal to right (" + right + ")");
@@ -611,19 +611,19 @@ public void setRelativeBounds(int left, int right, int top, int bottom) {
     setRelativeTop(top);
     setRelativeBottom(bottom);
 }
-public boolean inBounds(int x, int y) {
+@Override public boolean inBounds(int x, int y) {
     return getLeft() <= x && x <= getRight()
             && getBottom() <= y && y <= getTop();
 }
-public boolean hasSize() {
+@Override public boolean hasSize() {
     return getRelativeRight() > getRelativeLeft() && getRelativeTop() > getRelativeBottom();
 }
-public void setPosition(int x, int y) {
+@Override public void setPosition(int x, int y) {
     setX(x);
     setY(y);
 }
-public void setSize(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
-                    @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+@Override public void setSize(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
+                              @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     setWidth(width);
     setHeight(height);
 }
