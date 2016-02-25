@@ -2,7 +2,7 @@ package com.gmail.collinsmith70.unifi.widget;
 
 import android.support.annotation.IntRange;
 
-public interface Boundary {
+public interface RelativeBoundary {
 
 int getRelativeBottom();
 int getRelativeLeft();

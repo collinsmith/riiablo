@@ -16,7 +16,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public class Widget
-        implements Boundary, InputProcessor {
+        implements RelativeBoundary, InputProcessor {
 
 private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>() {
     /**
