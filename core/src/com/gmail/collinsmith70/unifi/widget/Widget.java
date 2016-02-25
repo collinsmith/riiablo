@@ -11,11 +11,28 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.drawable.Drawable;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
 
 public class Widget
-        implements Comparable<Widget>, InputProcessor {
+        implements InputProcessor {
+
+private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>() {
+    /**
+     * Implementation of {@link Comparator#compare(Object, Object)} which compares {@code Widget}
+     * instances based on their {@linkplain Widget#getElevation() elevation} (low to high).
+     *
+     * {@inheritDoc}
+     */ @Override
+    @IntRange(from = -1, to = 1) public int compare(Widget o1, Widget o2) {
+        return Float.compare(o1.getElevation(), o2.getElevation());
+    }
+};
+
+public Comparator<Widget> getElevationComparator() {
+    return ELEVATION_COMPARATOR;
+}
 
 /**
  * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@code Widget}.
@@ -221,10 +238,6 @@ public Widget() {
         default:
             setHeight(this.layoutParams.getHeight());
     }
-
-    if (hasParent()) {
-        getParent().requestLayout();
-    }
 }
 
 /**
@@ -362,16 +375,6 @@ public Widget() {
     }
 
     return null;
-}
-
-/**
- * Implementation of {@link Comparable#compareTo(Object)} which compares {@code Widget} instances
- * based on their {@linkplain #getElevation() elevation} (low to high).
- *
- * {@inheritDoc}
- */ @Override
-@IntRange(from = -1, to = 1) public int compareTo(Widget other) {
-    return Float.compare(this.getElevation(), other.getElevation());
 }
 
 @Nullable private WidgetParent parent;
