@@ -6,11 +6,15 @@ import android.support.annotation.Nullable;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Disposable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Window implements WidgetParent, WidgetManager, InputProcessor, Disposable {
+public class Window
+        implements WidgetParent, WidgetManager, InputProcessor, Disposable {
 
 private final Collection<Widget> CHILDREN;
 
@@ -21,6 +25,13 @@ public Window(int width, int height) {
     setWidth(width);
     setHeight(height);
     this.CHILDREN = new CopyOnWriteArrayList<Widget>();
+}
+
+@Override public Collection<Widget> getChildren() {
+    return ImmutableList.copyOf(CHILDREN);
+}
+@Override public Iterator<Widget> iterator() {
+    return Iterators.unmodifiableIterator(CHILDREN.iterator());
 }
 
 @Override

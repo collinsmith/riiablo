@@ -42,8 +42,11 @@ public int getMarginTop() { throw new UnsupportedOperationException(); }
     //super.onDrawDebug(batch);
 }
 
-public Collection<Widget> getChildren() {
+@Override @NonNull public Collection<Widget> getChildren() {
     return ImmutableList.copyOf(CHILDREN);
+}
+@Override public Iterator<Widget> iterator() {
+    return Iterators.unmodifiableIterator(CHILDREN.iterator());
 }
 
 @IntRange(from = 0, to = Integer.MAX_VALUE) private int minWidth;
@@ -138,10 +141,6 @@ public void drawChildren(Batch batch) {
     for (Widget child : CHILDREN) {
         child.draw(batch);
     }
-}
-
-@Override public Iterator<Widget> iterator() {
-    return Iterators.unmodifiableIterator(getChildren().iterator());
 }
 
 /**
