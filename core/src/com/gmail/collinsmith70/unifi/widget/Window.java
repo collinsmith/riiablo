@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.widget;
 
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -61,15 +62,52 @@ public void setDebugging(boolean debugging) {
     return getHeight();
 }
 
+@Override public void setBottom(int bottom) {
+    throw new UnsupportedOperationException();
+}
+@Override public void setLeft(int left) {
+    throw new UnsupportedOperationException();
+}
+@Override public void setRight(int right) {
+    throw new UnsupportedOperationException();
+}
+@Override public void setTop(int top) {
+    throw new UnsupportedOperationException();
+}
+
+@Override public void moveBottom(int bottom) {
+    throw new UnsupportedOperationException();
+}
+@Override public void moveLeft(int left) {
+    throw new UnsupportedOperationException();
+}
+@Override public void moveRight(int right) {
+    throw new UnsupportedOperationException();
+}
+@Override public void moveTop(int top) {
+    throw new UnsupportedOperationException();
+}
+
 @Override public int getX() {
     return 0;
 }
 @Override public int getY() {
     return 0;
 }
+@Override public int getWidth() {
+    return width;
+}
+@Override public int getHeight() {
+    return height;
+}
 
-public int getWidth() { return width; }
-public void setWidth(int width) {
+@Override public void setX(int x) {
+    throw new UnsupportedOperationException();
+}
+@Override public void setY(int y) {
+    throw new UnsupportedOperationException();
+}
+@Override public void setWidth(int width) {
     if (width < 0) {
         throw new IllegalArgumentException(
                 "width should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
@@ -77,15 +115,33 @@ public void setWidth(int width) {
 
     this.width = width;
 }
-
-public int getHeight() { return height; }
-public void setHeight(int height) {
+@Override public void setHeight(int height) {
     if (height < 0) {
         throw new IllegalArgumentException(
                 "height should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
     }
 
     this.height = height;
+}
+
+@Override public void setBounds(int left, int right, int top, int bottom) {
+    throw new UnsupportedOperationException();
+}
+@Override public boolean inBounds(int x, int y) {
+    return getLeft() <= x && x <= getRight()
+            && getBottom() <= y && y <= getTop();
+}
+@Override public boolean hasSize() {
+    return getRight() > getLeft()
+            && getTop() > getBottom();
+}
+@Override public void setPosition(int x, int y) {
+    throw new UnsupportedOperationException();
+}
+@Override public void setSize(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
+                              @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    setWidth(width);
+    setHeight(height);
 }
 
 @Override public boolean keyDown(int keycode) { return false; }

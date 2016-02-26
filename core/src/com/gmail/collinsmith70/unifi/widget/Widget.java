@@ -393,6 +393,13 @@ private int left;
 private int right;
 private int top;
 
+@Override public Boundary getRelativeParent() {
+    return getParent();
+}
+public boolean hasRelativeParent() {
+    return hasParent();
+}
+
 @Override public int getRelativeBottom() {
     return bottom;
 }
@@ -436,32 +443,32 @@ private int top;
 }
 
 @Override public void moveRelativeBottom(int bottom) {
-    if (hasParent()) {
-        moveBottom(getParent().getBottom() + bottom);
+    if (hasRelativeParent()) {
+        moveBottom(getRelativeParent().getBottom() + bottom);
         return;
     }
 
     moveBottom(bottom);
 }
 @Override public void moveRelativeLeft(int left) {
-    if (hasParent()) {
-        moveLeft(getParent().getLeft() + left);
+    if (hasRelativeParent()) {
+        moveLeft(getRelativeParent().getLeft() + left);
         return;
     }
 
     moveLeft(left);
 }
 @Override public void moveRelativeRight(int right) {
-    if (hasParent()) {
-        moveRight(getParent().getLeft() + right);
+    if (hasRelativeParent()) {
+        moveRight(getRelativeParent().getLeft() + right);
         return;
     }
 
     moveRight(right);
 }
 @Override public void moveRelativeTop(int top) {
-    if (hasParent()) {
-        moveTop(getParent().getBottom() + top);
+    if (hasRelativeParent()) {
+        moveTop(getRelativeParent().getBottom() + top);
         return;
     }
 
@@ -469,61 +476,61 @@ private int top;
 }
 
 @Override public int getBottom() {
-    if (hasParent()) {
-        return getParent().getBottom() + getRelativeBottom();
+    if (hasRelativeParent()) {
+        return getRelativeParent().getBottom() + getRelativeBottom();
     }
 
     return getRelativeBottom();
 }
 @Override public int getLeft() {
-    if (hasParent()) {
-        return getParent().getLeft() + getRelativeLeft();
+    if (hasRelativeParent()) {
+        return getRelativeParent().getLeft() + getRelativeLeft();
     }
 
     return getRelativeLeft();
 }
 @Override public int getRight() {
-    if (hasParent()) {
-        return getParent().getLeft() + getRelativeRight();
+    if (hasRelativeParent()) {
+        return getRelativeParent().getLeft() + getRelativeRight();
     }
 
     return getRelativeRight();
 }
 @Override public int getTop() {
-    if (hasParent()) {
-        return getParent().getBottom() + getRelativeTop();
+    if (hasRelativeParent()) {
+        return getRelativeParent().getBottom() + getRelativeTop();
     }
 
     return getRelativeTop();
 }
 
 @Override public void setBottom(int bottom) {
-    if (hasParent()) {
-        setRelativeBottom(bottom - getParent().getBottom());
+    if (hasRelativeParent()) {
+        setRelativeBottom(bottom - getRelativeParent().getBottom());
         return;
     }
 
     setRelativeBottom(bottom);
 }
 @Override public void setLeft(int left) {
-    if (hasParent()) {
-        setRelativeLeft(left - getParent().getLeft());
+    if (hasRelativeParent()) {
+        setRelativeLeft(left - getRelativeParent().getLeft());
         return;
     }
 
     setRelativeLeft(left);
 }
 @Override public void setRight(int right) {
-    if (hasParent()) {
-        setRelativeRight(right - getParent().getLeft());
+    if (hasRelativeParent()) {
+        setRelativeRight(right - getRelativeParent().getLeft());
         return;
     }
 
     setRelativeRight(right);
 }
 @Override public void setTop(int top) {
-    if (hasParent()) {
-        setRelativeTop(top - getParent().getBottom());
+    if (hasRelativeParent()) {
+        setRelativeTop(top - getRelativeParent().getBottom());
         return;
     }
 
@@ -616,7 +623,8 @@ private int top;
             && getBottom() <= y && y <= getTop();
 }
 @Override public boolean hasSize() {
-    return getRelativeRight() > getRelativeLeft() && getRelativeTop() > getRelativeBottom();
+    return getRelativeRight() > getRelativeLeft()
+            && getRelativeTop() > getRelativeBottom();
 }
 @Override public void setPosition(int x, int y) {
     setX(x);

@@ -11,6 +11,10 @@ package com.gmail.collinsmith70.unifi.widget;
 public interface RelativeBoundary extends Boundary {
 
 /**
+ * @return {@code Boundary} of which this {@code RelativeBoundary} is relative to
+ */ Boundary getRelativeParent();
+
+/**
  * @return distance from the {@linkplain #getBottom() bottom} side of the parent to the bottom side
  *         of this {@code RelativeBoundary}
  *
