@@ -43,7 +43,7 @@ public Window(int width, int height) {
 }
 
 public void setDebugging(boolean debugging) {
-    for (Widget child : CHILDREN) {
+    for (Widget child : this) {
         child.setDebugging(true);
     }
 }
@@ -98,7 +98,7 @@ public void setHeight(int height) {
     // LibGDX is dumb and uses two different coordinate systems for rendering and input, so screenY
     // needs to be inverted in order for the correct screenY to be used for graphics
     boolean handled = false;
-    for (Widget child : CHILDREN) {
+    for (Widget child : this) {
         if (child.mouseMoved(screenX, getHeight()-screenY)) {
             handled = true;
         }
@@ -109,7 +109,7 @@ public void setHeight(int height) {
 @Override public boolean scrolled(int amount) { return false; }
 
 @Override public void requestLayout() {
-    for (Widget child : CHILDREN) {
+    for (Widget child : this) {
         if (!(child instanceof WidgetParent)) {
             continue;
         }
@@ -159,7 +159,7 @@ public void draw(Batch batch) {
     drawChildren(batch);
 }
 public void drawChildren(Batch batch) {
-    for (Widget child : CHILDREN) {
+    for (Widget child : this) {
         child.draw(batch);
     }
 }

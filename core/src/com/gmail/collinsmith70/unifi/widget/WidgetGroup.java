@@ -80,7 +80,7 @@ public void setDebugging(boolean debugging) {
     }
 
     super.setDebugging(debugging);
-    for (Widget child : CHILDREN) {
+    for (Widget child : this) {
         child.setDebugging(true);
     }
 }
@@ -116,7 +116,7 @@ public void setDebugging(boolean debugging) {
 @Override public boolean mouseMoved(int screenX, int screenY) {
     boolean inBounds = super.mouseMoved(screenX, screenY);
     //if (inBounds) {
-        for (Widget child : CHILDREN) {
+        for (Widget child : this) {
             child.mouseMoved(screenX, screenY);
         }
     //}
@@ -126,7 +126,7 @@ public void setDebugging(boolean debugging) {
 @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     boolean inBounds = super.mouseMoved(screenX, screenY);
     if (inBounds) {
-        for (Widget child : CHILDREN) {
+        for (Widget child : this) {
             child.touchDown(screenX, screenY, pointer, button);
         }
     }
@@ -138,7 +138,7 @@ public void setDebugging(boolean debugging) {
     drawChildren(batch);
 }
 public void drawChildren(Batch batch) {
-    for (Widget child : CHILDREN) {
+    for (Widget child : this) {
         child.draw(batch);
     }
 }
