@@ -21,8 +21,15 @@ public WidgetGroup() {
     this.CHILDREN = new CopyOnWriteArrayList<Widget>();
 }
 
-@Override
-public void requestLayout() {
+@Override public void requestLayout() {
+    if (getLayoutParams() == null) {
+        layoutChildren();
+        return;
+    }
+
+    layoutHorizontal();
+}
+protected void layoutChildren() {
     for (Widget child : this) {
         if (!(child instanceof WidgetParent)) {
             continue;
@@ -30,6 +37,50 @@ public void requestLayout() {
 
         WidgetParent widgetParent = (WidgetParent)child;
         widgetParent.requestLayout();
+    }
+}
+private void layoutHorizontal() {
+    assert getLayoutParams() != null : "LayoutParams should not be null";
+    final int width = getLayoutParams().getWidth();
+    switch (width) {
+        case LayoutParams.FILL_PARENT:
+            if (!hasParent()) {
+                break;
+            }
+
+            setWidth(getParent().getWidth());
+            setX(0);
+            layoutVertical();
+            break;
+        case LayoutParams.WRAP_CONTENT:
+            layoutVertical();
+            setWidth(getMinWidth());
+            break;
+        default:
+            setWidth(width);
+            layoutVertical();
+    }
+}
+private void layoutVertical() {
+    assert getLayoutParams() != null : "LayoutParams should not be null";
+    final int height = getLayoutParams().getHeight();
+    switch (height) {
+        case LayoutParams.FILL_PARENT:
+            if (!hasParent()) {
+                break;
+            }
+
+            setHeight(getParent().getHeight());
+            setY(0);
+            layoutChildren();
+            break;
+        case LayoutParams.WRAP_CONTENT:
+            layoutChildren();
+            setHeight(getMinHeight());
+            break;
+        default:
+            setHeight(height);
+            layoutChildren();
     }
 }
 
@@ -138,6 +189,7 @@ public void setDebugging(boolean debugging) {
     drawChildren(batch);
 }
 public void drawChildren(Batch batch) {
+    // TODO: Draw in order of z-index from low to high
     for (Widget child : this) {
         child.draw(batch);
     }

@@ -139,7 +139,7 @@ public LinearLayout(Orientation orientation, Direction direction) {
     return widgetManager;
 }
 
-@Override public void requestLayout() {
+@Override protected void layoutChildren() {
     getOrientation().layout(this);
 }
 
