@@ -56,10 +56,10 @@ public Comparator<Widget> getElevationComparator() {
      */
     DEBUGGING,
     /**
-     * {@code true} implies that this {@code Widget} has an input device over it (i.e., mouse
-     * cursor), otherwise {@code false}.
+     * {@code true} implies that this {@code Widget} has an input device hovering over it
+     * (i.e., the mouse cursor), otherwise {@code false}.
      */
-    HOVERING,
+    OVER,
     /**
      * {@code true} implies that this {@code Widget} is "on" and/or has an "on" input device over
      * it, otherwise {@code false}
@@ -72,7 +72,7 @@ public Widget() {
 
     setDebugging(false);
     setEnabled(true);
-    setHovering(false);
+    setOver(false);
     setParent(null);
     setPressed(false);
     setTag(null);
@@ -123,20 +123,20 @@ public Widget() {
 /**
  * @return {@code true} if this {@code Widget} has an input cursor hovering above it (e.g., mouse
  *         cursor), otherwise {@code false}
- */ public boolean isHovering() {
-    return FLAGS.contains(Flag.HOVERING);
+ */ public boolean isOver() {
+    return FLAGS.contains(Flag.OVER);
 
 }
 /**
- * @param hovering {@code true} to enable the {@linkplain #isHovering() hovering} state for this
- *                 {@code Widget}, otherwise {@code false}.
+ * @param over {@code true} to enable the {@linkplain #isOver() hovering} state for this
+ *             {@code Widget}, otherwise {@code false}.
  *
- * @see #isHovering()
- */ private void setHovering(boolean hovering) {
-    if (hovering) {
-        FLAGS.add(Flag.HOVERING);
+ * @see #isOver()
+ */ private void setOver(boolean over) {
+    if (over) {
+        FLAGS.add(Flag.OVER);
     } else {
-        FLAGS.remove(Flag.HOVERING);
+        FLAGS.remove(Flag.OVER);
     }
 }
 public boolean isPressed() {
@@ -337,9 +337,9 @@ public void setPressed(boolean pressed) {
         Color color = Color.RED;
         if (!isEnabled()) {
             color = Color.LIGHT_GRAY;
-        } else if (isPressed() && isHovering()) {
+        } else if (isPressed() && isOver()) {
             color = Color.GREEN;
-        } else if (isHovering()) {
+        } else if (isOver()) {
             color = Color.BLUE;
         }
 
@@ -656,7 +656,7 @@ public boolean hasRelativeParent() {
 
 @Override public boolean mouseMoved(int screenX, int screenY) {
     boolean inBounds = inBounds(screenX, screenY);
-    setHovering(inBounds);
+    setOver(inBounds);
     //System.out.printf("moving (%d, %d)%n", screenX, screenY);
     return inBounds;
 }
@@ -690,7 +690,7 @@ public boolean hasRelativeParent() {
 }
 @Override public boolean touchDragged(int screenX, int screenY, int pointer) {
     boolean inBounds = inBounds(screenX, screenY);
-    setHovering(inBounds);
+    setOver(inBounds);
     //System.out.printf("dragging (%d, %d)%n", screenX, screenY);
     return inBounds;
 }
