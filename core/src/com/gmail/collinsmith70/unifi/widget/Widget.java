@@ -352,6 +352,10 @@ public void setPressed(boolean pressed) {
     shapeRenderer.dispose();
 }
 
+public void onClick(int screenX, int screenY, int button, int pointer) {
+    System.out.println("onClick " + getClass().getSimpleName());
+}
+
 /**
  * Abstract {@code Object} associated with this {@code Widget}.
  */ @Nullable private Object tag;
@@ -683,6 +687,10 @@ public boolean hasRelativeParent() {
 @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
     if (isPressed()) {
         setPressed(false);
+        if (inBounds(screenX, screenY)) {
+            onClick(screenX, screenY, pointer, button);
+        }
+
         return true;
     }
 
