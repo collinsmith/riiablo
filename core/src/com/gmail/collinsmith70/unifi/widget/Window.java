@@ -147,9 +147,36 @@ public void setDebugging(boolean debugging) {
 @Override public boolean keyDown(int keycode) { return false; }
 @Override public boolean keyUp(int keycode) { return false; }
 @Override public boolean keyTyped(char character) { return false; }
-@Override public boolean touchDown(int screenX, int screenY, int pointer, int button) { return false; }
-@Override public boolean touchUp(int screenX, int screenY, int pointer, int button) { return false; }
-@Override public boolean touchDragged(int screenX, int screenY, int pointer) { return false; }
+@Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    boolean handled = false;
+    for (Widget child : this) {
+        if (child.touchDown(screenX, getHeight()-screenY, pointer, button)) {
+            handled = true;
+        }
+    }
+
+    return handled;
+}
+@Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    boolean handled = false;
+    for (Widget child : this) {
+        if (child.touchUp(screenX, getHeight()-screenY, pointer, button)) {
+            handled = true;
+        }
+    }
+
+    return handled;
+}
+@Override public boolean touchDragged(int screenX, int screenY, int pointer) {
+    boolean handled = false;
+    for (Widget child : this) {
+        if (child.touchDragged(screenX, getHeight()-screenY, pointer)) {
+            handled = true;
+        }
+    }
+
+    return handled;
+}
 @Override public boolean mouseMoved(int screenX, int screenY) {
     // LibGDX is dumb and uses two different coordinate systems for rendering and input, so screenY
     // needs to be inverted in order for the correct screenY to be used for graphics
