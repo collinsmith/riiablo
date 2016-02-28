@@ -61,10 +61,10 @@ public Comparator<Widget> getElevationComparator() {
      */
     OVER,
     /**
-     * {@code true} implies that this {@code Widget} is "on" and/or has an "on" input device over
-     * it, otherwise {@code false}
+     * {@code true} implies that this {@code Widget} is pressed and/or has a pressed input device
+     * over it, otherwise {@code false}
      */
-    PRESSED,
+    DOWN,
 }
 
 public Widget() {
@@ -74,7 +74,7 @@ public Widget() {
     setEnabled(true);
     setOver(false);
     setParent(null);
-    setPressed(false);
+    setDown(false);
     setTag(null);
     setVisibility(Visibility.VISIBLE);
 }
@@ -139,14 +139,14 @@ public Widget() {
         FLAGS.remove(Flag.OVER);
     }
 }
-public boolean isPressed() {
-    return FLAGS.contains(Flag.PRESSED);
+public boolean isDown() {
+    return FLAGS.contains(Flag.DOWN);
 }
-public void setPressed(boolean pressed) {
-    if (pressed) {
-        FLAGS.add(Flag.PRESSED);
+private void setDown(boolean down) {
+    if (down) {
+        FLAGS.add(Flag.DOWN);
     } else {
-        FLAGS.remove(Flag.PRESSED);
+        FLAGS.remove(Flag.DOWN);
     }
 }
 
@@ -337,7 +337,7 @@ public void setPressed(boolean pressed) {
         Color color = Color.RED;
         if (!isEnabled()) {
             color = Color.LIGHT_GRAY;
-        } else if (isPressed() && isOver()) {
+        } else if (isDown() && isOver()) {
             color = Color.GREEN;
         } else if (isOver()) {
             color = Color.BLUE;
@@ -679,14 +679,14 @@ public boolean hasRelativeParent() {
 @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     boolean inBounds = inBounds(screenX, screenY);
     if (inBounds) {
-        setPressed(true);
+        setDown(true);
     }
 
     return inBounds;
 }
 @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-    if (isPressed()) {
-        setPressed(false);
+    if (isDown()) {
+        setDown(false);
         if (inBounds(screenX, screenY)) {
             onTouch(screenX, screenY, pointer, button);
         }
