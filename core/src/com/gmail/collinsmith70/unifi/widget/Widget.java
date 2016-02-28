@@ -298,6 +298,10 @@ private void setDown(boolean down) {
  * @see #onDrawDebug(Batch)
  */ protected void draw(@NonNull Batch batch) {
     assert batch != null : "batch should never be null";
+    if (!getVisibility().equals(Visibility.VISIBLE)) {
+        return;
+    }
+
     onDrawBackground(batch);
     onDraw(batch);
     if (isDebugging()) {
