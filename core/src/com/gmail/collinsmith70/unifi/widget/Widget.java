@@ -352,8 +352,8 @@ public void setPressed(boolean pressed) {
     shapeRenderer.dispose();
 }
 
-public void onClick(int screenX, int screenY, int button, int pointer) {
-    System.out.println("onClick " + getClass().getSimpleName());
+public void onTouch(int screenX, int screenY, int button, int pointer) {
+    System.out.println("onTouch " + getClass().getSimpleName());
 }
 
 /**
@@ -688,7 +688,7 @@ public boolean hasRelativeParent() {
     if (isPressed()) {
         setPressed(false);
         if (inBounds(screenX, screenY)) {
-            onClick(screenX, screenY, pointer, button);
+            onTouch(screenX, screenY, pointer, button);
         }
 
         return true;
