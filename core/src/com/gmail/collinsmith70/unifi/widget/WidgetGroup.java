@@ -165,10 +165,6 @@ public void setDebugging(boolean debugging) {
 }
 
 @Override public boolean mouseMoved(int screenX, int screenY) {
-    if (!inBounds(screenX, screenY)) {
-        return false;
-    }
-
     boolean handled = false;
     for (Widget child : this) {
         if (child.mouseMoved(screenX, screenY)) {
