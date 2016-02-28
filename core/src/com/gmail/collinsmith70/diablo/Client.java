@@ -113,6 +113,8 @@ public void create() {
     button2.setSize(256, 256);
     Widget button3 = new Button();
     button3.setSize(256, 128);
+    Widget button4 = new Button();
+    button4.setSize(256, 128);
 
     WidgetGroup ll1 = new LinearLayout(LinearLayout.Orientation.VERTICAL);
     ll1.setSize(512, 512);
@@ -120,16 +122,21 @@ public void create() {
     ll1.setLayoutParams(new WidgetGroup.LayoutParams(
             WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
 
+    WidgetGroup ll3 = new LinearLayout(LinearLayout.Orientation.VERTICAL,
+            LinearLayout.Direction.END_TO_START);
+    ll3.addWidget(button4);
+    ll3.setLayoutParams(new WidgetGroup.LayoutParams(
+            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.FILL_PARENT));
+
     WidgetGroup ll2 = new LinearLayout(LinearLayout.Orientation.HORIZONTAL);
-    ll2.addWidget(ll1).addWidget(button3);
+    ll2.addWidget(ll1).addWidget(button3).addWidget(ll3);
+    ll2.setLayoutParams(new WidgetGroup.LayoutParams(
+            WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
 
     this.BATCH = new SpriteBatch(1024);
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
     this.WINDOW.addWidget(ll2);
     this.WINDOW.setDebugging(true);
-
-    ll2.setLayoutParams(new WidgetGroup.LayoutParams(
-            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
 
     Gdx.input.setCatchBackKey(true);
     Gdx.input.setCatchMenuKey(true);
