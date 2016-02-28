@@ -59,7 +59,12 @@ public Comparator<Widget> getElevationComparator() {
      * {@code true} implies that this {@code Widget} has an input device over it (i.e., mouse
      * cursor), otherwise {@code false}.
      */
-    HOVERING
+    HOVERING,
+    /**
+     * {@code true} implies that this {@code Widget} is "on" and/or has an "on" input device over
+     * it, otherwise {@code false}
+     */
+    PRESSED,
 }
 
 public Widget() {
@@ -69,6 +74,7 @@ public Widget() {
     setEnabled(true);
     setHovering(false);
     setParent(null);
+    setPressed(false);
     setTag(null);
     setVisibility(Visibility.VISIBLE);
 }
@@ -131,6 +137,16 @@ public Widget() {
         FLAGS.add(Flag.HOVERING);
     } else {
         FLAGS.remove(Flag.HOVERING);
+    }
+}
+public boolean isPressed() {
+    return FLAGS.contains(Flag.PRESSED);
+}
+public void setPressed(boolean pressed) {
+    if (pressed) {
+        FLAGS.add(Flag.PRESSED);
+    } else {
+        FLAGS.remove(Flag.PRESSED);
     }
 }
 
@@ -321,8 +337,10 @@ public Widget() {
         Color color = Color.RED;
         if (!isEnabled()) {
             color = Color.LIGHT_GRAY;
-        } else if (isHovering()) {
+        } else if (isPressed() && isHovering()) {
             color = Color.GREEN;
+        } else if (isHovering()) {
+            color = Color.BLUE;
         }
 
         shapeRenderer.setColor(color);
@@ -655,13 +673,26 @@ public boolean hasRelativeParent() {
     return false;
 }
 @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-    return false;
+    boolean inBounds = inBounds(screenX, screenY);
+    if (inBounds) {
+        setPressed(true);
+    }
+
+    return inBounds;
 }
 @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    if (isPressed()) {
+        setPressed(false);
+        return true;
+    }
+
     return false;
 }
 @Override public boolean touchDragged(int screenX, int screenY, int pointer) {
-    return false;
+    boolean inBounds = inBounds(screenX, screenY);
+    setHovering(inBounds);
+    //System.out.printf("dragging (%d, %d)%n", screenX, screenY);
+    return inBounds;
 }
 
 }

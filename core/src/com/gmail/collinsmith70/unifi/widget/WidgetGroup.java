@@ -175,14 +175,38 @@ public void setDebugging(boolean debugging) {
     return inBounds;
 }
 @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-    boolean inBounds = super.mouseMoved(screenX, screenY);
-    if (inBounds) {
-        for (Widget child : this) {
-            child.touchDown(screenX, screenY, pointer, button);
+    if (!inBounds(screenX, screenY)) {
+        return false;
+    }
+
+    boolean handled = false;
+    for (Widget child : this) {
+        if (child.touchDown(screenX, screenY, pointer, button)) {
+            handled = true;
         }
     }
 
-    return false;
+    return handled;
+}
+@Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    boolean handled = false;
+    for (Widget child : this) {
+        if (child.touchUp(screenX, screenY, pointer, button)) {
+            handled = true;
+        }
+    }
+
+    return handled;
+}
+@Override public boolean touchDragged(int screenX, int screenY, int pointer) {
+    boolean handled = false;
+    for (Widget child : this) {
+        if (child.touchDragged(screenX, screenY, pointer)) {
+            handled = true;
+        }
+    }
+
+    return handled;
 }
 
 @Override public void onDraw(Batch batch) {
