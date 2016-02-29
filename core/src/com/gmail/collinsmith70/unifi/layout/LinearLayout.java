@@ -17,7 +17,9 @@ public enum Orientation {
                 case START_TO_END:
                     int left = 0;
                     for (Widget child : linearLayout) {
-                        if (child instanceof WidgetParent) {
+                        if (child.getVisibility().equals(Visibility.GONE)) {
+                            continue;
+                        } else if (child instanceof WidgetParent) {
                             ((WidgetParent)child).requestLayout();
                         }
 
@@ -33,7 +35,9 @@ public enum Orientation {
                 case END_TO_START:
                     int right = linearLayout.getWidth();
                     for (Widget child : linearLayout) {
-                        if (child instanceof WidgetParent) {
+                        if (child.getVisibility().equals(Visibility.GONE)) {
+                            continue;
+                        } else if (child instanceof WidgetParent) {
                             ((WidgetParent)child).requestLayout();
                         }
 
@@ -58,7 +62,9 @@ public enum Orientation {
                 case START_TO_END:
                     int top = linearLayout.getHeight();
                     for (Widget child : linearLayout) {
-                        if (child instanceof WidgetParent) {
+                        if (child.getVisibility().equals(Visibility.GONE)) {
+                            continue;
+                        } else if (child instanceof WidgetParent) {
                             ((WidgetParent)child).requestLayout();
                         }
 
@@ -74,7 +80,9 @@ public enum Orientation {
                 case END_TO_START:
                     int bottom = 0;
                     for (Widget child : linearLayout) {
-                        if (child instanceof WidgetParent) {
+                        if (child.getVisibility().equals(Visibility.GONE)) {
+                            continue;
+                        } else if (child instanceof WidgetParent) {
                             ((WidgetParent)child).requestLayout();
                         }
 
