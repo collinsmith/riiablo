@@ -156,7 +156,6 @@ private void setDown(boolean down) {
     }
 }
 
-
 /**
  * Floating-point representation of the z-axis location of this {@code Widget}, used to determine
  * height of a component relative to its {@linkplain #getParent() parent}.
