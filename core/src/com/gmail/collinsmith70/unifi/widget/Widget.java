@@ -691,6 +691,10 @@ public boolean hasRelativeParent() {
 }
 
 @Override public boolean mouseMoved(int screenX, int screenY) {
+    if (!isEnabled() || !isFocusable()) {
+        return false;
+    }
+
     boolean inBounds = inBounds(screenX, screenY);
     setOver(inBounds);
     //System.out.printf("moving (%d, %d)%n", screenX, screenY);
@@ -709,7 +713,7 @@ public boolean hasRelativeParent() {
     return false;
 }
 @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-    if (!isEnabled()) {
+    if (!isEnabled() || !isFocusable()) {
         return false;
     }
 
@@ -721,7 +725,7 @@ public boolean hasRelativeParent() {
     return inBounds;
 }
 @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-    if (!isEnabled()) {
+    if (!isEnabled() || !isFocusable()) {
         return false;
     }
 
@@ -737,7 +741,7 @@ public boolean hasRelativeParent() {
     return false;
 }
 @Override public boolean touchDragged(int screenX, int screenY, int pointer) {
-    if (!isEnabled()) {
+    if (!isEnabled() || !isFocusable()) {
         return false;
     }
 
