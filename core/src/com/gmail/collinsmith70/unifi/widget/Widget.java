@@ -345,7 +345,7 @@ private void setDown(boolean down) {
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
     shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
         Color color = Color.RED;
-        if (!isEnabled()) {
+        if (!isEnabled() || !isFocusable()) {
             color = Color.LIGHT_GRAY;
         } else if (isDown() && isOver()) {
             color = Color.GREEN;
