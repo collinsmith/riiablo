@@ -117,7 +117,7 @@ public void create() {
     Widget button4 = new Button();
     button4.setSize(256, 128);
 
-    WidgetGroup ll1 = new LinearLayout(LinearLayout.Orientation.VERTICAL);
+    WidgetGroup ll1 = new LinearLayout(LinearLayout.Orientation.VERTICAL, 8);
     ll1.setSize(512, 512);
     ll1.addWidget(button1).addWidget(button2);
     ll1.setLayoutParams(new WidgetGroup.LayoutParams(

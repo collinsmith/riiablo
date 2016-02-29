@@ -14,6 +14,7 @@ public enum Orientation {
     HORIZONTAL {
         @Override
         void layout(LinearLayout linearLayout) {
+            final int spacing = linearLayout.getSpacing();
             switch (linearLayout.getDirection()) {
                 case START_TO_END:
                     int left = 0;
@@ -27,12 +28,13 @@ public enum Orientation {
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeLeft(left);
                         left += child.getWidth();
-                        left += linearLayout.getSpacing();
+                        left += spacing;
                         linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
                                 child.getHeight()));
                     }
 
-                    linearLayout.setMinWidth(left);
+                    int width = Math.max(0, left - spacing);
+                    linearLayout.setMinWidth(width);
                     break;
                 case END_TO_START:
                     int right = linearLayout.getWidth();
@@ -46,12 +48,13 @@ public enum Orientation {
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeRight(right);
                         right -= child.getWidth();
-                        right -= linearLayout.getSpacing();
+                        right -= spacing;
                         linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
                                 child.getHeight()));
                     }
 
-                    linearLayout.setMinWidth(linearLayout.getWidth() - right);
+                    width = Math.max(0, linearLayout.getWidth() - right - spacing);
+                    linearLayout.setMinWidth(width);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -61,6 +64,7 @@ public enum Orientation {
     VERTICAL {
         @Override
         void layout(LinearLayout linearLayout) {
+            final int spacing = linearLayout.getSpacing();
             switch (linearLayout.getDirection()) {
                 case START_TO_END:
                     int top = linearLayout.getHeight();
@@ -74,12 +78,14 @@ public enum Orientation {
                         child.moveRelativeLeft(0);
                         child.moveRelativeTop(top);
                         top -= child.getHeight();
-                        top -= linearLayout.getSpacing();
-                        linearLayout.setMinWidth(Math.max(linearLayout.getMinWidth(),
+                        top -= spacing;
+                        linearLayout.setMinWidth(Math.max(
+                                linearLayout.getMinWidth(),
                                 child.getWidth()));
                     }
 
-                    linearLayout.setMinHeight(linearLayout.getHeight() - top);
+                    int height = Math.max(0, linearLayout.getHeight() - top - spacing);
+                    linearLayout.setMinHeight(height);
                     break;
                 case END_TO_START:
                     int bottom = 0;
@@ -93,12 +99,14 @@ public enum Orientation {
                         child.moveRelativeLeft(0);
                         child.moveRelativeBottom(bottom);
                         bottom += child.getHeight();
-                        bottom += linearLayout.getSpacing();
-                        linearLayout.setMinWidth(Math.max(linearLayout.getMinWidth(),
+                        bottom += spacing;
+                        linearLayout.setMinWidth(Math.max(
+                                linearLayout.getMinWidth(),
                                 child.getWidth()));
                     }
 
-                    linearLayout.setMinHeight(bottom);
+                    height = Math.max(0, bottom - spacing);
+                    linearLayout.setMinHeight(height);
                     break;
                 default:
                     throw new UnsupportedOperationException();
