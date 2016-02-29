@@ -4,21 +4,41 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.gmail.collinsmith70.util.DottedShapeRenderer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, WidgetManager, Iterable<Widget> {
 
+private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>() {
+    /**
+     * Implementation of {@link Comparator#compare(Object, Object)} which compares {@code Widget}
+     * instances based on their {@linkplain Widget#getElevation() elevation} (low to high).
+     *
+     * {@inheritDoc}
+     */ @Override
+    @IntRange(from = -1, to = 1) public int compare(Widget o1, Widget o2) {
+        return Float.compare(o1.getElevation(), o2.getElevation());
+    }
+};
+
 private final Collection<Widget> CHILDREN;
+private final SortedSet<Widget> SORTED_CHILDREN;
 
 public WidgetGroup() {
     this.CHILDREN = new CopyOnWriteArrayList<Widget>();
+    this.SORTED_CHILDREN = new ConcurrentSkipListSet<Widget>(ELEVATION_COMPARATOR);
 }
 
 @Override public void requestLayout() {
@@ -93,6 +113,12 @@ public int getMarginTop() { throw new UnsupportedOperationException(); }
 
 @Override public void onDrawDebug(@NonNull Batch batch) {
     //super.onDrawDebug(batch);
+    final DottedShapeRenderer shapeRenderer = new DottedShapeRenderer();
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
+        shapeRenderer.setColor(Color.valueOf("404040FF"));
+        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight(), 8);
+    } shapeRenderer.end();
+    shapeRenderer.dispose();
 }
 
 @Override @NonNull public Collection<Widget> getChildren() {
@@ -145,6 +171,7 @@ public void setDebugging(boolean debugging) {
     }
 
     CHILDREN.add(child);
+    SORTED_CHILDREN.add(child);
     child.setParent(this);
     return this;
 }
@@ -160,6 +187,7 @@ public void setDebugging(boolean debugging) {
         child.setParent(null);
     }
 
+    SORTED_CHILDREN.remove(child);
     return CHILDREN.remove(child);
 }
 @Override public int getNumWidgets() {
@@ -215,8 +243,7 @@ public void setDebugging(boolean debugging) {
     drawChildren(batch);
 }
 public void drawChildren(Batch batch) {
-    // TODO: Draw in order of z-index from low to high
-    for (Widget child : this) {
+    for (Widget child : SORTED_CHILDREN) {
         child.draw(batch);
     }
 }
