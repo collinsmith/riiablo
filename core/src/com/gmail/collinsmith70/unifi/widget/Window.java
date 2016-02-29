@@ -247,4 +247,23 @@ public void drawChildren(Batch batch) {
     }
 }
 
+@Override public boolean hasFocus() {
+    return false;
+}
+@Override public boolean hasFocusable() {
+    for (Widget child : this) {
+        if (child.hasFocusable()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+@Override public boolean isFocusable() {
+    throw new UnsupportedOperationException();
+}
+@Override public void setFocusable(boolean focusable) {
+    throw new UnsupportedOperationException();
+}
+
 }
