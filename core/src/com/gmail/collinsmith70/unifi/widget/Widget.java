@@ -411,7 +411,7 @@ public void onTouch(int screenX, int screenY, int button, int pointer) {
 }
 
 @Override public boolean isFocusable() {
-    return FLAGS.contains(Flag.FOCUSABLE);
+    return FLAGS.contains(Flag.FOCUSABLE) && getVisibility().equals(Visibility.VISIBLE);
 }
 @Override public boolean hasFocus() {
     return false;
