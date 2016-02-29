@@ -78,6 +78,7 @@ public Widget() {
 
     setDebugging(false);
     setEnabled(true);
+    setFocusable(false);
     setOver(false);
     setParent(null);
     setDown(false);
