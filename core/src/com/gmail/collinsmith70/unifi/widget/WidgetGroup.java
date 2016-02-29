@@ -33,6 +33,8 @@ protected void layoutChildren() {
     for (Widget child : this) {
         if (!(child instanceof WidgetParent)) {
             continue;
+        } else if (child.getVisibility().equals(Visibility.GONE)) {
+            continue;
         }
 
         WidgetParent widgetParent = (WidgetParent)child;
