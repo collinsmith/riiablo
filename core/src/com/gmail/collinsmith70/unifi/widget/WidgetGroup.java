@@ -14,8 +14,8 @@ import com.google.common.collect.Iterators;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class WidgetGroup extends Widget
@@ -34,11 +34,11 @@ private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>()
 };
 
 private final Collection<Widget> CHILDREN;
-private final SortedSet<Widget> SORTED_CHILDREN;
+private final List<Widget> SORTED_CHILDREN;
 
 public WidgetGroup() {
     this.CHILDREN = new CopyOnWriteArrayList<Widget>();
-    this.SORTED_CHILDREN = new ConcurrentSkipListSet<Widget>(ELEVATION_COMPARATOR);
+    this.SORTED_CHILDREN = new LinkedList<Widget>();
 }
 
 @Override public void requestLayout() {
@@ -243,7 +243,11 @@ public void setDebugging(boolean debugging) {
     drawChildren(batch);
 }
 public void drawChildren(Batch batch) {
-    for (Widget child : SORTED_CHILDREN) {
+    // TODO: Come up with cleaner sorting algorithm which allows for duplicates, or override equals
+    // method in Widget
+
+    //Collections.sort(SORTED_CHILDREN, ELEVATION_COMPARATOR);
+    for (Widget child : this) {
         child.draw(batch);
     }
 }
