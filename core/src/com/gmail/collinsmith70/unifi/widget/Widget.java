@@ -709,6 +709,10 @@ public boolean hasRelativeParent() {
     return false;
 }
 @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    if (!isEnabled()) {
+        return false;
+    }
+
     boolean inBounds = inBounds(screenX, screenY);
     if (inBounds) {
         setDown(true);
@@ -717,6 +721,10 @@ public boolean hasRelativeParent() {
     return inBounds;
 }
 @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+    if (!isEnabled()) {
+        return false;
+    }
+
     if (isDown()) {
         setDown(false);
         if (inBounds(screenX, screenY)) {
@@ -729,6 +737,10 @@ public boolean hasRelativeParent() {
     return false;
 }
 @Override public boolean touchDragged(int screenX, int screenY, int pointer) {
+    if (!isEnabled()) {
+        return false;
+    }
+
     boolean inBounds = inBounds(screenX, screenY);
     setOver(inBounds);
     //System.out.printf("dragging (%d, %d)%n", screenX, screenY);
