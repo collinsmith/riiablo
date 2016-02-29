@@ -111,7 +111,7 @@ public void create() {
     button1.setSize(128, 128);
     Widget button2 = new Button();
     button2.setSize(256, 256);
-    button2.setFocusable(false);
+    button2.setVisibility(Widget.Visibility.INVISIBLE);
     Widget button3 = new Button();
     button3.setSize(256, 128);
     Widget button4 = new Button();

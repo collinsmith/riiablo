@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.drawable.Drawable;
 import com.gmail.collinsmith70.unifi.util.Focusable;
+import com.gmail.collinsmith70.util.DottedShapeRenderer;
 
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -305,14 +306,30 @@ private void setDown(boolean down) {
  * @see #onDrawDebug(Batch)
  */ protected void draw(@NonNull Batch batch) {
     assert batch != null : "batch should never be null";
-    if (!getVisibility().equals(Visibility.VISIBLE)) {
-        return;
-    }
+    switch (getVisibility()) {
+        case VISIBLE:
+            onDrawBackground(batch);
+            onDraw(batch);
+            if (isDebugging()) {
+                onDrawDebug(batch);
+            }
 
-    onDrawBackground(batch);
-    onDraw(batch);
-    if (isDebugging()) {
-        onDrawDebug(batch);
+            break;
+        case INVISIBLE:
+            if (!isDebugging()) {
+                break;
+            }
+
+            final ShapeRenderer shapeRenderer = new DottedShapeRenderer();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
+                shapeRenderer.setColor(Color.LIGHT_GRAY);
+                shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
+            } shapeRenderer.end();
+            shapeRenderer.dispose();
+            break;
+        case GONE:
+            break;
+        default:
     }
 }
 /**
@@ -357,7 +374,7 @@ private void setDown(boolean down) {
         }
 
         shapeRenderer.setColor(color);
-        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
+        shapeRenderer.rect(getX()+1, getY()+1, getWidth(), getHeight());
         //System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
         //        getX(), getY(), getWidth(), getHeight(),
         //        getRelativeLeft(), getRelativeRight(), getRelativeTop(), getRelativeBottom());
