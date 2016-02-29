@@ -11,17 +11,14 @@ public class DottedShapeRenderer extends ShapeRenderer {
 public DottedShapeRenderer() {
     super();
 }
-
 public DottedShapeRenderer(int maxVertices) {
     super(maxVertices);
 }
-
 public DottedShapeRenderer(int maxVertices, @Nullable ShaderProgram defaultShader) {
     super(maxVertices, defaultShader);
 }
 
-@Override
-public void rect(float x, float y, float width, float height) {
+@Override public void rect(float x, float y, float width, float height) {
     if (!getCurrentType().equals(ShapeType.Point)) {
         super.rect(x, y, width, height);
         return;
@@ -29,7 +26,6 @@ public void rect(float x, float y, float width, float height) {
 
     rect(x, y, width, height, 8);
 }
-
 public void rect(float x, float y, float width, float height, int dotDist) {
     if (!getCurrentType().equals(ShapeType.Point)) {
         super.rect(x, y, width, height);
