@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.layout;
 
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
 import com.gmail.collinsmith70.unifi.widget.Widget;
@@ -26,6 +27,7 @@ public enum Orientation {
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeLeft(left);
                         left += child.getWidth();
+                        left += linearLayout.getSpacing();
                         linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
                                 child.getHeight()));
                     }
@@ -44,6 +46,7 @@ public enum Orientation {
                         child.moveRelativeTop(linearLayout.getHeight());
                         child.moveRelativeRight(right);
                         right -= child.getWidth();
+                        right -= linearLayout.getSpacing();
                         linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
                                 child.getHeight()));
                     }
@@ -71,6 +74,7 @@ public enum Orientation {
                         child.moveRelativeLeft(0);
                         child.moveRelativeTop(top);
                         top -= child.getHeight();
+                        top -= linearLayout.getSpacing();
                         linearLayout.setMinWidth(Math.max(linearLayout.getMinWidth(),
                                 child.getWidth()));
                     }
@@ -89,6 +93,7 @@ public enum Orientation {
                         child.moveRelativeLeft(0);
                         child.moveRelativeBottom(bottom);
                         bottom += child.getHeight();
+                        bottom += linearLayout.getSpacing();
                         linearLayout.setMinWidth(Math.max(linearLayout.getMinWidth(),
                                 child.getWidth()));
                     }
@@ -130,15 +135,37 @@ public void setDirection(@NonNull Direction direction) {
     requestLayout();
 }
 
+@IntRange(from = 0, to = Integer.MAX_VALUE) private int spacing;
+@IntRange(from = 0, to = Integer.MAX_VALUE) public int getSpacing() {
+    return spacing;
+}
+public void setSpacing(@IntRange(from = 0, to = Integer.MAX_VALUE) int spacing) {
+    if (spacing < 0) {
+        throw new IllegalArgumentException("spacing should be greater than or equal to 0");
+    }
+
+    this.spacing = spacing;
+}
+
 public LinearLayout() {
     this(Orientation.HORIZONTAL);
+}
+public LinearLayout(int spacing) {
+    this(Orientation.HORIZONTAL, spacing);
 }
 public LinearLayout(Orientation orientation) {
     this(orientation, Direction.START_TO_END);
 }
+public LinearLayout(Orientation orientation, int spacing) {
+    this(orientation, Direction.START_TO_END, spacing);
+}
 public LinearLayout(Orientation orientation, Direction direction) {
+    this(orientation, direction, 0);
+}
+public LinearLayout(Orientation orientation, Direction direction, int spacing) {
     setDirection(direction);
     setOrientation(orientation);
+    setSpacing(spacing);
 }
 
 @NonNull @Override public WidgetManager addWidget(@NonNull Widget child) {
