@@ -10,13 +10,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.drawable.Drawable;
+import com.gmail.collinsmith70.unifi.util.Focusable;
 
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
 
 public class Widget
-        implements RelativeBoundary, InputProcessor {
+        implements RelativeBoundary, InputProcessor, Focusable {
 
 private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>() {
     /**
@@ -401,6 +402,19 @@ public void onTouch(int screenX, int screenY, int button, int pointer) {
     }
 
     return null;
+}
+
+@Override
+public boolean isFocusable() {
+    return false;
+}
+@Override
+public boolean hasFocus() {
+    return false;
+}
+@Override
+public boolean hasFocusable() {
+    return false;
 }
 
 @Nullable private WidgetParent parent;
