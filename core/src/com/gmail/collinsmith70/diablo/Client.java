@@ -19,6 +19,7 @@ import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
 import com.gmail.collinsmith70.key.KeyStateAdapter;
 import com.gmail.collinsmith70.unifi.layout.LinearLayout;
+import com.gmail.collinsmith70.unifi.layout.RelativeLayout;
 import com.gmail.collinsmith70.unifi.widget.Button;
 import com.gmail.collinsmith70.unifi.widget.Widget;
 import com.gmail.collinsmith70.unifi.widget.WidgetGroup;
@@ -29,6 +30,7 @@ import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 import java.awt.Dimension;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.EnumSet;
 import java.util.Locale;
 
 public class Client implements ApplicationListener {
@@ -114,6 +116,8 @@ public void create() {
     button2.setVisibility(Widget.Visibility.INVISIBLE);
     Widget button3 = new Button();
     button3.setSize(256, 128);
+    button3.put("relativeTo",
+            RelativeLayout.CENTERED);
     Widget button4 = new Button();
     button4.setSize(256, 128);
 
@@ -122,17 +126,21 @@ public void create() {
     ll1.addWidget(button1).addWidget(button2);
     ll1.setLayoutParams(new WidgetGroup.LayoutParams(
             WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
+    ll1.put("relativeTo",
+            EnumSet.of(RelativeLayout.RelativeTo.TOP, RelativeLayout.RelativeTo.LEFT));
 
     WidgetGroup ll3 = new LinearLayout(LinearLayout.Orientation.VERTICAL,
             LinearLayout.Direction.END_TO_START);
     ll3.addWidget(button4);
     ll3.setLayoutParams(new WidgetGroup.LayoutParams(
-            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.FILL_PARENT));
+            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
+    ll3.put("relativeTo",
+            EnumSet.of(RelativeLayout.RelativeTo.BOTTOM, RelativeLayout.RelativeTo.RIGHT));
 
-    WidgetGroup ll2 = new LinearLayout(LinearLayout.Orientation.HORIZONTAL);
+    WidgetGroup ll2 = new RelativeLayout();
     ll2.addWidget(ll1).addWidget(button3).addWidget(ll3);
     ll2.setLayoutParams(new WidgetGroup.LayoutParams(
-            WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
+            WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.FILL_PARENT));
 
     this.BATCH = new SpriteBatch(1024);
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
