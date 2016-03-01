@@ -14,7 +14,7 @@ public class RelativeLayout extends WidgetGroup implements WidgetGroup.LayoutPar
 @Override
 public void onChange(String param, Object value) {
     if (param.equals("relativeTo")) {
-
+        requestLayout();
     }
 }
 
@@ -38,12 +38,8 @@ public static final EnumSet<RelativeTo> CENTERED
 @NonNull public WidgetManager addWidget(@NonNull Widget child, EnumSet<RelativeTo> relativeTo) {
     super.addWidget(child);
     child.put("relativeTo", relativeTo);
-    if (hasParent()) {
-        getParent().requestLayout();
-    } else {
-        requestLayout();
-    }
-
+    child.addLayoutParamChangeListener(this);
+    requestLayout();
     return this;
 }
 
