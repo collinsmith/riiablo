@@ -252,6 +252,11 @@ public void drawChildren(Batch batch) {
     }
 }
 
+public interface LayoutParamChangeListener {
+
+    void onChange(String param, Object value);
+
+}
 /**
  * LayoutParams are used by views to tell their parents how they want to be laid out.
  * <p>

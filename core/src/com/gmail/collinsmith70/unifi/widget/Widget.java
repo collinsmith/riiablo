@@ -14,7 +14,10 @@ import com.gmail.collinsmith70.unifi.util.Focusable;
 import com.gmail.collinsmith70.util.DottedShapeRenderer;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Widget
         implements RelativeBoundary, InputProcessor, Focusable {
@@ -59,6 +62,9 @@ public class Widget
 
 public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
+    this.LAYOUT_PARAMS = new HashMap<String, Object>();
+    this.LAYOUT_PARAM_CHANGE_LISTENERS
+            = new CopyOnWriteArraySet<WidgetGroup.LayoutParamChangeListener>();
 
     setDebugging(false);
     setEnabled(true);
@@ -277,6 +283,37 @@ private void setDown(boolean down) {
     }
 
     this.visibility = visibility;
+}
+
+@NonNull private final Set<WidgetGroup.LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
+public void addLayoutParamChangeListener(@NonNull WidgetGroup.LayoutParamChangeListener l) {
+    if (l == null) {
+        throw new IllegalArgumentException("LayoutParamChangeListener cannot be null");
+    }
+
+    LAYOUT_PARAM_CHANGE_LISTENERS.add(l);
+}
+
+@NonNull private final Map<String, Object> LAYOUT_PARAMS;
+public void put(@NonNull String param, @Nullable Object value) {
+    if (param == null) {
+        throw new IllegalArgumentException("param cannot be null");
+    }
+
+    LAYOUT_PARAMS.put(param, value);
+    for (WidgetGroup.LayoutParamChangeListener l : LAYOUT_PARAM_CHANGE_LISTENERS) {
+        l.onChange(param, value);
+    }
+}
+@Nullable public <E> E get(@Nullable Object param) {
+    return (E)LAYOUT_PARAMS.get(param);
+}
+@Nullable public <E> E getOrDefault(@Nullable Object param, @Nullable E defaultValue) {
+    E value = (E)LAYOUT_PARAMS.get(param);
+    return value == null ? defaultValue : value;
+}
+public boolean containsKey(@Nullable Object param) {
+    return LAYOUT_PARAMS.containsKey(param);
 }
 
 /**
