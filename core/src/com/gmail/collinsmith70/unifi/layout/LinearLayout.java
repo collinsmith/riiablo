@@ -17,7 +17,7 @@ public enum Orientation {
             final int spacing = linearLayout.getSpacing();
             switch (linearLayout.getDirection()) {
                 case START_TO_END:
-                    int left = 0;
+                    int left = linearLayout.getPaddingLeft();
                     for (Widget child : linearLayout) {
                         if (child.getVisibility().equals(Visibility.GONE)) {
                             continue;
@@ -37,7 +37,7 @@ public enum Orientation {
                     linearLayout.setMinWidth(width);
                     break;
                 case END_TO_START:
-                    int right = linearLayout.getWidth();
+                    int right = linearLayout.getWidth() - linearLayout.getPaddingRight();
                     for (Widget child : linearLayout) {
                         if (child.getVisibility().equals(Visibility.GONE)) {
                             continue;
@@ -67,7 +67,7 @@ public enum Orientation {
             final int spacing = linearLayout.getSpacing();
             switch (linearLayout.getDirection()) {
                 case START_TO_END:
-                    int top = linearLayout.getHeight();
+                    int top = linearLayout.getHeight() - linearLayout.getPaddingTop();
                     for (Widget child : linearLayout) {
                         if (child.getVisibility().equals(Visibility.GONE)) {
                             continue;
@@ -88,7 +88,7 @@ public enum Orientation {
                     linearLayout.setMinHeight(height);
                     break;
                 case END_TO_START:
-                    int bottom = 0;
+                    int bottom = linearLayout.getPaddingBottom();
                     for (Widget child : linearLayout) {
                         if (child.getVisibility().equals(Visibility.GONE)) {
                             continue;
