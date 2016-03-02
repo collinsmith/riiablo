@@ -46,8 +46,7 @@ public void setFont(@NonNull BitmapFont font) {
     return text;
 }
 
-@Override
-public void onDraw(@NonNull Batch batch) {
+@Override public void onDraw(@NonNull Batch batch) {
     getFont().setColor(Color.GREEN);
     getFont().draw(batch, getText(), getX(), getY());
 }
