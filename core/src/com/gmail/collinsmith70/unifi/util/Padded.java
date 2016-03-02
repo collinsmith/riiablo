@@ -19,4 +19,6 @@ void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
                 @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
                 @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom);
 
+boolean hasPadding();
+
 }
