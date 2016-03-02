@@ -173,6 +173,7 @@ public void setDebugging(boolean debugging) {
     CHILDREN.add(child);
     SORTED_CHILDREN.add(child);
     child.setParent(this);
+    requestLayout();
     return this;
 }
 @Override public boolean containsWidget(@Nullable Widget child) {
