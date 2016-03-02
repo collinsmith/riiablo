@@ -113,6 +113,18 @@ public int getMarginTop() { throw new UnsupportedOperationException(); }
 
 @Override public void onDrawDebug(@NonNull Batch batch) {
     //super.onDrawDebug(batch);
+    if (hasPadding()) {
+        final DottedShapeRenderer shapeRenderer = new DottedShapeRenderer();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
+            shapeRenderer.setColor(Color.TEAL);
+            shapeRenderer.rect(getX()+getPaddingLeft(), getY()+getPaddingBottom(),
+                    getWidth()-getPaddingLeft()-getPaddingRight(),
+                    getHeight()-getPaddingTop()-getPaddingBottom(),
+                    8);
+        } shapeRenderer.end();
+        shapeRenderer.dispose();
+    }
+
     final DottedShapeRenderer shapeRenderer = new DottedShapeRenderer();
     shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
         shapeRenderer.setColor(Color.valueOf("404040FF"));

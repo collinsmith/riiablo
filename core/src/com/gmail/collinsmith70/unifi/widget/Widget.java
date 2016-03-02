@@ -380,6 +380,17 @@ public boolean containsKey(@Nullable Object param) {
         throw new IllegalArgumentException("batch should never be null");
     }
 
+    if (hasPadding()) {
+        final ShapeRenderer shapeRenderer = new DottedShapeRenderer();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
+            shapeRenderer.setColor(Color.TEAL);
+            shapeRenderer.rect(getX()+getPaddingLeft(), getY()+getPaddingBottom(),
+                    getWidth()-getPaddingLeft()-getPaddingRight(),
+                    getHeight()-getPaddingTop()-getPaddingBottom());
+        } shapeRenderer.end();
+        shapeRenderer.dispose();
+    }
+
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
     shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
         Color color = Color.RED;
@@ -745,6 +756,11 @@ private int paddingTop;
 }
 @Override public int getPaddingTop() {
     return paddingTop;
+}
+
+@Override public boolean hasPadding() {
+    return getPaddingBottom() > 0 || getPaddingLeft() > 0
+            || getPaddingRight() > 0 || getPaddingTop() > 0;
 }
 
 @Override public void setPaddingBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
