@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Widget
-        implements RelativeBoundary, InputProcessor, Focusable {
+        implements InputProcessor, RelativeBoundary, Padded, Focusable {
 
 /**
  * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@code Widget}.
@@ -727,6 +727,60 @@ public boolean hasRelativeParent() {
                               @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     setWidth(width);
     setHeight(height);
+}
+
+private int paddingBottom;
+private int paddingLeft;
+private int paddingRight;
+private int paddingTop;
+
+@Override public int getPaddingBottom() {
+    return paddingBottom;
+}
+@Override public int getPaddingLeft() {
+    return paddingLeft;
+}
+@Override public int getPaddingRight() {
+    return paddingRight;
+}
+@Override public int getPaddingTop() {
+    return paddingTop;
+}
+
+@Override public void setPaddingBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+    if (bottom < 0) {
+        throw new IllegalArgumentException("bottom should be greater than or equal to 0");
+    }
+
+    this.paddingBottom = bottom;
+}
+@Override public void setPaddingLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
+    if (left < 0) {
+        throw new IllegalArgumentException("left should be greater than or equal to 0");
+    }
+
+    this.paddingLeft = left;
+}
+@Override public void setPaddingRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
+    if (right < 0) {
+        throw new IllegalArgumentException("right should be greater than or equal to 0");
+    }
+
+    this.paddingRight = right;
+}
+@Override public void setPaddingTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
+    if (top < 0) {
+        throw new IllegalArgumentException("top should be greater than or equal to 0");
+    }
+
+    this.paddingTop = top;
+}
+
+@Override public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) int left, @IntRange(from = 0, to = Integer.MAX_VALUE) int top, @IntRange(from = 0, to = Integer.MAX_VALUE) int right, @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+    setPaddingBottom(bottom);
+    setPaddingLeft(left);
+    setPaddingRight(right);
+    setPaddingTop(top);
 }
 
 @Override public boolean mouseMoved(int screenX, int screenY) {
