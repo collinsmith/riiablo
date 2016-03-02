@@ -13,11 +13,7 @@ public Button() {
 }
 
 @Override
-public void onDrawDebug(@NonNull Batch batch) {
-    if (batch == null) {
-        throw new IllegalArgumentException("batch should never be null");
-    }
-
+public void onDrawBackground(@NonNull Batch batch) {
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled); {
         Color color = Color.RED;
@@ -35,8 +31,7 @@ public void onDrawDebug(@NonNull Batch batch) {
         shapeRenderer.rect(getX()+1, getY()+1, getWidth(), getHeight());
     } shapeRenderer.end();
     shapeRenderer.dispose();
-
-    super.onDrawDebug(batch);
+    super.onDrawBackground(batch);
 }
 
 }

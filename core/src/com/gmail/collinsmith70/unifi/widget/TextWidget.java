@@ -3,8 +3,10 @@ package com.gmail.collinsmith70.unifi.widget;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.google.common.base.Strings;
 
 public class TextWidget extends Widget {
@@ -23,6 +25,9 @@ public TextWidget(@NonNull BitmapFont font, @Nullable String text) {
 }
 public void setText(@Nullable String text) {
     this.text = Strings.nullToEmpty(text);
+    GlyphLayout glyphLayout = new GlyphLayout(font, getText());
+    setWidth((int)glyphLayout.width);
+    setHeight((int)glyphLayout.height);
 }
 
 @NonNull private BitmapFont font;
@@ -43,6 +48,7 @@ public void setFont(@NonNull BitmapFont font) {
 
 @Override
 public void onDraw(@NonNull Batch batch) {
+    getFont().setColor(Color.GREEN);
     getFont().draw(batch, getText(), getX(), getY());
 }
 

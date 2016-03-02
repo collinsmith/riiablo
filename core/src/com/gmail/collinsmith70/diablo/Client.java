@@ -22,6 +22,7 @@ import com.gmail.collinsmith70.unifi.layout.AnchoredLayout;
 import com.gmail.collinsmith70.unifi.layout.LinearLayout;
 import com.gmail.collinsmith70.unifi.layout.RelativeLayout;
 import com.gmail.collinsmith70.unifi.widget.Button;
+import com.gmail.collinsmith70.unifi.widget.TextWidget;
 import com.gmail.collinsmith70.unifi.widget.Widget;
 import com.gmail.collinsmith70.unifi.widget.WidgetGroup;
 import com.gmail.collinsmith70.unifi.widget.Window;
@@ -116,29 +117,29 @@ public void create() {
     button2.setVisibility(Widget.Visibility.INVISIBLE);
     Widget button3 = new Button();
     button3.setSize(256, 128);
-    button3.put("anchorDst",
-            AnchoredLayout.Anchor.CENTER);
+    button3.put("anchorDst", AnchoredLayout.Anchor.CENTER);
     Widget button4 = new Button();
     button4.setSize(256, 128);
+
+    TextWidget textWidget1 = new TextWidget(getDefaultFont(), "Hello World!");
+    textWidget1.put("anchorDst", AnchoredLayout.Anchor.TOP_RIGHT);
 
     WidgetGroup ll1 = new LinearLayout(LinearLayout.Orientation.VERTICAL, 8);
     ll1.setSize(512, 512);
     ll1.addWidget(button1).addWidget(button2);
     ll1.setLayoutParams(new WidgetGroup.LayoutParams(
             WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
-    ll1.put("anchorDst",
-            AnchoredLayout.Anchor.TOP_LEFT);
+    ll1.put("anchorDst", AnchoredLayout.Anchor.TOP_LEFT);
 
     WidgetGroup ll3 = new LinearLayout(LinearLayout.Orientation.VERTICAL,
             LinearLayout.Direction.END_TO_START);
     ll3.addWidget(button4);
     ll3.setLayoutParams(new WidgetGroup.LayoutParams(
             WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
-    ll3.put("anchorDst",
-            AnchoredLayout.Anchor.BOTTOM_RIGHT);
+    ll3.put("anchorDst", AnchoredLayout.Anchor.BOTTOM_RIGHT);
 
     WidgetGroup ll2 = new RelativeLayout();
-    ll2.addWidget(ll1).addWidget(button3).addWidget(ll3);
+    ll2.addWidget(ll1).addWidget(button3).addWidget(ll3).addWidget(textWidget1);
     ll2.setLayoutParams(new WidgetGroup.LayoutParams(
             WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.FILL_PARENT));
     ll2.setPadding(24, 24, 24, 24);
@@ -256,6 +257,7 @@ public void render() {
     Batch b = BATCH;
     b.begin(); {
         WINDOW.draw(b);
+        final BitmapFont font = getDefaultFont();
         if (pCvar_showFps > 0) {
             GlyphLayout fps = new GlyphLayout(
                     font,
