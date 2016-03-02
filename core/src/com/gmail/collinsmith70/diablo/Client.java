@@ -141,6 +141,7 @@ public void create() {
     ll2.addWidget(ll1).addWidget(button3).addWidget(ll3);
     ll2.setLayoutParams(new WidgetGroup.LayoutParams(
             WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.FILL_PARENT));
+    ll2.setPadding(24, 24, 24, 24);
 
     this.BATCH = new SpriteBatch(1024);
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
