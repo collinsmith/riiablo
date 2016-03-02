@@ -27,40 +27,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveTop(anchor.getTop());
-                    child.moveLeft(anchor.getLeft());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case TOP_CENTER:
-                    child.moveTop(anchor.getTop());
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveTop(anchor.getTop());
-                    child.moveLeft(anchor.getRight());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case CENTER_LEFT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case CENTER:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveLeft(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case BOTTOM_LEFT:
-                    child.moveTop(anchor.getBottom());
-                    child.moveLeft(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case BOTTOM_CENTER:
-                    child.moveTop(anchor.getBottom());
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveTop(anchor.getBottom());
-                    child.moveLeft(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 default:
             }
@@ -71,40 +71,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveTop(anchor.getTop());
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case TOP_CENTER:
-                    child.moveTop(anchor.getTop());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveTop(anchor.getTop());
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 case CENTER_LEFT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case CENTER:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 case BOTTOM_LEFT:
-                    child.moveTop(anchor.getBottom());
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case BOTTOM_CENTER:
-                    child.moveTop(anchor.getBottom());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveTop(anchor.getBottom());
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 default:
             }
@@ -115,40 +115,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveTop(anchor.getTop());
-                    child.moveRight(anchor.getLeft());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case TOP_CENTER:
-                    child.moveTop(anchor.getTop());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveTop(anchor.getTop());
-                    child.moveRight(anchor.getRight());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case CENTER_LEFT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case CENTER:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case BOTTOM_LEFT:
-                    child.moveTop(anchor.getBottom());
-                    child.moveRight(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case BOTTOM_CENTER:
-                    child.moveTop(anchor.getBottom());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveTop(anchor.getBottom());
-                    child.moveRight(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 default:
             }
@@ -160,40 +160,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case TOP_CENTER:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getRight());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case CENTER_LEFT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case CENTER:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case BOTTOM_LEFT:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case BOTTOM_CENTER:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveLeft(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 default:
             }
@@ -204,40 +204,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case TOP_CENTER:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 case CENTER_LEFT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case CENTER:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 case BOTTOM_LEFT:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case BOTTOM_CENTER:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 default:
             }
@@ -248,40 +248,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case TOP_CENTER:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveTop(anchor.getTop() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getRight());
+                    child.moveTop(anchor.getTop() - anchor.getPaddingTop() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case CENTER_LEFT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case CENTER:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveTop(anchor.getBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
-                    child.moveRight(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2) + (child.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case BOTTOM_LEFT:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case BOTTOM_CENTER:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveTop(anchor.getBottom() + (child.getHeight() / 2));
-                    child.moveRight(anchor.getRight());
+                    child.moveTop(anchor.getBottom() + anchor.getPaddingBottom() + (child.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 default:
             }
@@ -293,40 +293,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveBottom(anchor.getTop());
-                    child.moveLeft(anchor.getLeft());
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case TOP_CENTER:
-                    child.moveBottom(anchor.getTop());
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveBottom(anchor.getTop());
-                    child.moveLeft(anchor.getRight());
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case CENTER_LEFT:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case CENTER:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveLeft(anchor.getRight());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case BOTTOM_LEFT:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveLeft(anchor.getLeft());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case BOTTOM_CENTER:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveLeft(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveLeft(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveLeft(anchor.getRight());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveLeft(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 default:
             }
@@ -337,40 +337,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveBottom(anchor.getTop());
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case TOP_CENTER:
-                    child.moveBottom(anchor.getTop());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveBottom(anchor.getTop());
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 case CENTER_LEFT:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case CENTER:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 case BOTTOM_LEFT:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveRight(anchor.getLeft() + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (child.getWidth() / 2));
                     break;
                 case BOTTOM_CENTER:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2) + (child.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveRight(anchor.getRight() + (child.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight() + (child.getWidth() / 2));
                     break;
                 default:
             }
@@ -381,40 +381,40 @@ public enum Anchor {
         void layout(@NonNull Widget child, @NonNull Widget anchor, @NonNull Anchor anchorDst) {
             switch (anchorDst) {
                 case TOP_LEFT:
-                    child.moveBottom(anchor.getTop());
-                    child.moveRight(anchor.getLeft());
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case TOP_CENTER:
-                    child.moveBottom(anchor.getTop());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case TOP_RIGHT:
-                    child.moveBottom(anchor.getTop());
-                    child.moveRight(anchor.getRight());
+                    child.moveBottom(anchor.getTop() - anchor.getPaddingTop());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case CENTER_LEFT:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case CENTER:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case CENTER_RIGHT:
-                    child.moveBottom(anchor.getBottom() + (anchor.getHeight() / 2));
-                    child.moveRight(anchor.getRight());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom() + (anchor.getHeight() / 2));
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 case BOTTOM_LEFT:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveRight(anchor.getLeft());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft());
                     break;
                 case BOTTOM_CENTER:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveRight(anchor.getLeft() + (anchor.getWidth() / 2));
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getLeft() + anchor.getPaddingLeft() + (anchor.getWidth() / 2));
                     break;
                 case BOTTOM_RIGHT:
-                    child.moveBottom(anchor.getBottom());
-                    child.moveRight(anchor.getRight());
+                    child.moveBottom(anchor.getBottom() + anchor.getPaddingBottom());
+                    child.moveRight(anchor.getRight() - anchor.getPaddingRight());
                     break;
                 default:
             }
