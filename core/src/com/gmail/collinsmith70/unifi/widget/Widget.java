@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.drawable.Drawable;
-import com.gmail.collinsmith70.unifi.util.Focusable;
+import com.gmail.collinsmith70.unifi.util.*;
 import com.gmail.collinsmith70.util.DottedShapeRenderer;
 
 import java.util.EnumSet;
@@ -486,7 +486,7 @@ private int left;
 private int right;
 private int top;
 
-@Override public Boundary getRelativeParent() {
+@Override public com.gmail.collinsmith70.unifi.util.Boundary getRelativeParent() {
     return getParent();
 }
 public boolean hasRelativeParent() {

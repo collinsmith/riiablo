@@ -1,18 +1,18 @@
 package com.gmail.collinsmith70.unifi.widget;
 
 /**
- * Specialized implementation of a {@link Boundary} whose coordinates are specified in terms of
+ * Specialized implementation of a {@link com.gmail.collinsmith70.unifi.util.Boundary} whose coordinates are specified in terms of
  * relativity to its parent. In this implementation, global screen points can still be obtained
  * via recursive operations (e.g., get the parent's left side recursively and add the left offset
  * of this {@code RelativeBoundary} to it for the global {@linkplain #getLeft() left} side of this
  * {@code RelativeBoundary}). This type of implementation is useful in complex hierarchical layouts
- * where children are laid out based on their parents {@link Boundary} coordinates.
+ * where children are laid out based on their parents {@link com.gmail.collinsmith70.unifi.util.Boundary} coordinates.
  */
-public interface RelativeBoundary extends Boundary {
+public interface RelativeBoundary extends com.gmail.collinsmith70.unifi.util.Boundary {
 
 /**
  * @return {@code Boundary} of which this {@code RelativeBoundary} is relative to
- */ Boundary getRelativeParent();
+ */ com.gmail.collinsmith70.unifi.util.Boundary getRelativeParent();
 
 /**
  * @return distance from the {@linkplain #getBottom() bottom} side of the parent to the bottom side

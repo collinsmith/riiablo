@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.widget;
+package com.gmail.collinsmith70.unifi.util;
 
 import android.support.annotation.IntRange;
 
