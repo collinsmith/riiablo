@@ -173,7 +173,11 @@ public void setDebugging(boolean debugging) {
     CHILDREN.add(child);
     SORTED_CHILDREN.add(child);
     child.setParent(this);
-    requestLayout();
+    Window window = getWindow();
+    if (window != null) {
+        window.requestLayout();
+    }
+
     return this;
 }
 @Override public boolean containsWidget(@Nullable Widget child) {
@@ -189,7 +193,13 @@ public void setDebugging(boolean debugging) {
     }
 
     SORTED_CHILDREN.remove(child);
-    return CHILDREN.remove(child);
+    boolean removed = CHILDREN.remove(child);
+    Window window = getWindow();
+    if (removed && window != null) {
+        window.requestLayout();
+    }
+
+    return removed;
 }
 @Override public int getNumWidgets() {
     return CHILDREN.size();
