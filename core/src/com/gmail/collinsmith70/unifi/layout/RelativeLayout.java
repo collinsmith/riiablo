@@ -13,10 +13,6 @@ public class RelativeLayout extends AnchoredLayout {
         throw new IllegalArgumentException("child cannot be null");
     }
 
-    if (!child.containsKey(AnchoredLayout.anchorDst)) {
-        return addWidget(child, Anchor.CENTER);
-    }
-
     Anchor boxedValue = child.get(AnchoredLayout.anchorDst);
     return addWidget(child, boxedValue == null ? Anchor.CENTER : boxedValue);
 }
