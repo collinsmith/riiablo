@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.drawable.Drawable;
 import com.gmail.collinsmith70.unifi.util.*;
-import com.gmail.collinsmith70.unifi.util.RelativeBoundary;
+import com.gmail.collinsmith70.unifi.util.RelativeBounded;
 import com.gmail.collinsmith70.util.DottedShapeRenderer;
 
 import java.util.EnumSet;
@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Widget
-        implements InputProcessor, RelativeBoundary, Padded, Focusable {
+        implements InputProcessor, RelativeBounded, Padded, Focusable {
 
 /**
  * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@code Widget}.
@@ -498,7 +498,7 @@ private int left;
 private int right;
 private int top;
 
-@Override public com.gmail.collinsmith70.unifi.util.Boundary getRelativeParent() {
+@Override public Bounded getRelativeParent() {
     return getParent();
 }
 public boolean hasRelativeParent() {
