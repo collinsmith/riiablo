@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.drawable.Drawable;
 import com.gmail.collinsmith70.unifi.util.*;
+import com.gmail.collinsmith70.unifi.util.RelativeBoundary;
 import com.gmail.collinsmith70.util.DottedShapeRenderer;
 
 import java.util.EnumSet;

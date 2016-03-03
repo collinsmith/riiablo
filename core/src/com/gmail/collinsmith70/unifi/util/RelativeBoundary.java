@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.widget;
+package com.gmail.collinsmith70.unifi.util;
 
 /**
  * Specialized implementation of a {@link com.gmail.collinsmith70.unifi.util.Boundary} whose coordinates are specified in terms of
