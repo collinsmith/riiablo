@@ -1,6 +1,11 @@
 package com.gmail.collinsmith70.unifi.unifi.math;
 
+import android.support.annotation.NonNull;
+
 public class Point2D {
+
+  private int x;
+  private int y;
 
   public Point2D() {
     this(0, 0);
@@ -12,11 +17,9 @@ public class Point2D {
   }
 
   public Point2D(Point2D point) {
-    this.x = point.getX();
-    this.y = point.getY();
+    this.x = point.x;
+    this.y = point.y;
   }
-
-  private int x;
 
   public int getX() {
     return x;
@@ -25,8 +28,6 @@ public class Point2D {
   public void setX(int x) {
     this.x = x;
   }
-
-  private int y;
 
   public int getY() {
     return y;
@@ -41,9 +42,17 @@ public class Point2D {
     setY(y);
   }
 
+  public void set(@NonNull final Point2D src) {
+    if (src == null) {
+        throw new IllegalArgumentException("src point cannot be null");
+    }
+
+    set(src.x, src.y);
+  }
+
   @Override
   public String toString() {
-    return String.format("(%d, %d)", getX(), getY());
+    return String.format("(%d, %d)", x, y);
   }
 
 }

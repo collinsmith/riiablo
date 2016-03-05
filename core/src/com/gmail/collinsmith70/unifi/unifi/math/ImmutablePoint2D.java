@@ -20,9 +20,4 @@ public final class ImmutablePoint2D extends Point2D {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
-  @Override
-  public void set(int x, int y) {
-    throw new UnsupportedOperationException("this class' state is immutable");
-  }
-
 }

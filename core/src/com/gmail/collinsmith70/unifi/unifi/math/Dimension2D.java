@@ -1,6 +1,7 @@
 package com.gmail.collinsmith70.unifi.unifi.math;
 
 import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 
 public class Dimension2D {
 
@@ -19,11 +20,16 @@ public class Dimension2D {
     this.height = height;
   }
 
-  public Dimension2D(Dimension2D dimension) {
-    assert dimension.getWidth() >= 0;
-    assert dimension.getHeight() >= 0;
-    this.width = dimension.getWidth();
-    this.height = dimension.getHeight();
+  public Dimension2D(@NonNull final Dimension2D dimension) {
+    if (dimension == null) {
+      throw new IllegalArgumentException("src dimension cannnot be null");
+    }
+
+    assert dimension.width >= 0 : "src dimension width should be a natural number";
+    assert dimension.height >= 0 : "src dimension height should be a natural number";
+
+    this.width = dimension.width;
+    this.height = dimension.height;
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
@@ -63,8 +69,16 @@ public class Dimension2D {
     setHeight(height);
   }
 
+  public void set(@NonNull final Dimension2D src) {
+    if (src == null) {
+      throw new IllegalArgumentException("src dimension cannot be null");
+    }
+
+    set(src.width, src.height);
+  }
+
   @Override
   public String toString() {
-    return String.format("%d x %d", getWidth(), getHeight());
+    return String.format("%d x %d", width, height);
   }
 }

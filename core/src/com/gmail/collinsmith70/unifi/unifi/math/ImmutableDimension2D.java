@@ -20,9 +20,4 @@ public final class ImmutableDimension2D extends Dimension2D {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
-  @Override
-  public void set(int width, int height) {
-    throw new UnsupportedOperationException("this class' state is immutable");
-  }
-
 }

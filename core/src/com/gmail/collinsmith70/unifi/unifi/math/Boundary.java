@@ -1,5 +1,9 @@
 package com.gmail.collinsmith70.unifi.unifi.math;
 
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 public class Boundary {
 
   private int bottom;
@@ -18,11 +22,15 @@ public class Boundary {
     this.top = top;
   }
 
-  public Boundary(Boundary boundary) {
-    this.bottom = boundary.getBottom();
-    this.left = boundary.getLeft();
-    this.right = boundary.getRight();
-    this.top = boundary.getTop();
+  public Boundary(@NonNull final Boundary boundary) {
+    if (boundary == null) {
+      throw new IllegalArgumentException("src boundary cannot be null");
+    }
+
+    this.bottom = boundary.bottom;
+    this.left = boundary.left;
+    this.right = boundary.right;
+    this.top = boundary.top;
   }
 
   public int getBottom() {
@@ -57,6 +65,15 @@ public class Boundary {
     this.top = top;
   }
 
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getWidth() {
+    return Math.abs(left - right);
+  }
+
+  public int getHeight() {
+    return Math.abs(top - bottom);
+  }
+
   public void set(int left, int top, int right, int bottom) {
     setBottom(bottom);
     setLeft(left);
@@ -64,18 +81,36 @@ public class Boundary {
     setTop(top);
   }
 
-  public ImmutableDimension2D getSize() {
-    return new ImmutableDimension2D(Math.abs(getTop() - getBottom()),
-            Math.abs(getLeft() - getRight()));
+  public void set(final @NonNull Boundary src) {
+    if (src == null) {
+      throw new IllegalArgumentException("src boundary cannot be null");
+    }
+
+    set(src.left, src.top, src.right, src.bottom);
+  }
+
+  @NonNull
+  public Dimension2D getSize() {
+    return new Dimension2D(getWidth(), getHeight());
+  }
+
+  @NonNull
+  public Dimension2D getSize(@Nullable Dimension2D dst) {
+    if (dst == null) {
+      return getSize();
+    }
+
+    dst.set(getWidth(), getHeight());
+    return dst;
   }
 
   public boolean isEmpty() {
-    return getLeft() != getRight() && getBottom() != getTop();
+    return left != right && top != bottom;
   }
 
   @Override
   public String toString() {
-    return String.format("(%d, %d, %d, %d)", getLeft(), getTop(), getRight(), getBottom());
+    return String.format("(%d, %d, %d, %d)", left, top, right, bottom);
   }
 
 }
