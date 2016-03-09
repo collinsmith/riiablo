@@ -205,6 +205,8 @@ public abstract class WidgetGroup extends Widget
     if (widget == null) {
       return false;
     } else if (widget.getParent() != this) {
+      assert !containsWidget(widget)
+              : "widget parent is not this WidgetGroup, so this WidgetGroup should not contain it";
       return false;
     }
 
