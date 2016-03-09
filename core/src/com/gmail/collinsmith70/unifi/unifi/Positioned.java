@@ -3,18 +3,18 @@ package com.gmail.collinsmith70.unifi.unifi;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gmail.collinsmith70.unifi.unifi.math.IntPoint2D;
+import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
 
 public interface Positioned {
 
   void setPosition(int x, int y);
 
-  void setPosition(@NonNull final IntPoint2D src);
+  void setPosition(@NonNull final Point2D src);
 
   @NonNull
-  IntPoint2D getPosition();
+  Point2D getPosition();
 
   @NonNull
-  IntPoint2D getPosition(@Nullable IntPoint2D dst);
+  Point2D getPosition(@Nullable Point2D dst);
 
 }

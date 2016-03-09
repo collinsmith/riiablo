@@ -8,8 +8,7 @@ import java.util.Collection;
 
 public interface WidgetManager extends Iterable<Widget> {
 
-  @NonNull
-  WidgetManager addWidget(@NonNull Widget child);
+  void addWidget(@NonNull Widget child);
 
   boolean containsWidget(@Nullable Widget child);
 

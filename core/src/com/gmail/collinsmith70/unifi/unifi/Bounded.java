@@ -2,52 +2,46 @@ package com.gmail.collinsmith70.unifi.unifi;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.gmail.collinsmith70.unifi.unifi.math.ImmutableBoundary;
-import com.gmail.collinsmith70.unifi.unifi.math.ImmutableDimension2D;
-import com.gmail.collinsmith70.unifi.unifi.math.ImmutablePoint2D;
+import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
+import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
 
-public interface Bounded {
+public interface Bounded extends Positioned, Sized {
 
   int getBottom();
 
-  int getLeft();
-
-  int getRight();
-
-  int getTop();
-
   void setBottom(int bottom);
+
+  int getLeft();
 
   void setLeft(int left);
 
+  int getRight();
+
   void setRight(int right);
+
+  int getTop();
 
   void setTop(int top);
 
-  void setBounds(int left, int top, int right, int bottom);
+  @NonNull
+  Boundary getBoundary();
 
   @NonNull
-  ImmutableBoundary getBounds();
+  Boundary getBoundary(@Nullable Boundary dst);
 
-  boolean contains(int x, int y);
+  void setBoundary(int left, int top, int right, int bottom);
 
-  void setPosition(int x, int y);
-
-  @NonNull
-  ImmutablePoint2D getPosition();
-
-  void setSize(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
-               @IntRange(from = 0, to = Integer.MAX_VALUE) int height);
-
-  @NonNull
-  ImmutableDimension2D getSize();
-
-  boolean hasSize();
+  void setBoundary(@NonNull Boundary src);
 
   int getX();
 
+  void setX(int x);
+
   int getY();
+
+  void setY(int y);
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   int getWidth();
@@ -55,12 +49,8 @@ public interface Bounded {
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   int getHeight();
 
-  void setX(int x);
+  boolean contains(int x, int y);
 
-  void setY(int y);
-
-  void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width);
-
-  void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height);
+  boolean contains(Point2D point);
 
 }

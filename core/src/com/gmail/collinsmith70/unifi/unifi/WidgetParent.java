@@ -1,5 +1,14 @@
 package com.gmail.collinsmith70.unifi.unifi;
 
-public interface WidgetParent extends Bounded {
+import android.support.annotation.Nullable;
+
+public interface WidgetParent extends Bounded, WidgetManager {
+
+  @Nullable
+  WidgetParent getParent();
+
+  boolean hasParent();
+
+  void requestLayout();
 
 }
