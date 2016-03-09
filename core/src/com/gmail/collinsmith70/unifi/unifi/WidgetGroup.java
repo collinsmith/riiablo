@@ -16,8 +16,7 @@ import java.util.Iterator;
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, Marginable {
 
-  @NonNull
-  private final Collection<Widget> children;
+  @NonNull private final Collection<Widget> children;
 
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginBottom;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginLeft;
@@ -149,53 +148,89 @@ public abstract class WidgetGroup extends Widget
             || getMarginBottom() > 0 || getMarginTop() > 0;
   }
 
+  /**
+   * Immutable {@link Iterator} which iterates through each child {@link Widget} belonging to this
+   * {@code WidgetGroup}.
+   *
+   * @return Immutable {@code Iterator} which iterates through each child {@link Widget}
+   */
   @Override
   @NonNull
   public Iterator<Widget> iterator() {
     return Iterators.unmodifiableIterator(children.iterator());
   }
 
+  /**
+   * Adds the given {@link Widget} to this {@code WidgetGroup}, setting the {@linkplain #getParent
+   * parent} of that {@code Widget} to this and removing it from its current parent (if any).
+   *
+   * @param widget {@code Widget} to add to this {@code WidgetGroup} container
+   */
   @Override
   @CallSuper
-  public void addWidget(@NonNull Widget child) {
-    if (child == null) {
+  public void addWidget(@NonNull final Widget widget) {
+    if (widget == null) {
       throw new IllegalArgumentException("child widget cannot be null");
     }
 
-    if (child.hasParent()) {
-      WidgetParent parent = child.getParent();
-
-    }
-    child.setParent(this);
-    children.add(child);
+    children.add(widget);
+    widget.setParent(this);
   }
 
+  /**
+   * Checks whether or not the given {@link Widget} belongs to this {@code WidgetGroup}.
+   *
+   * @param widget {@code Widget} to check
+   *
+   * @return {@code true} if the given {@link Widget} belongs to this {@code WidgetGroup},
+   *         otherwise {@code false}
+   */
   @Override
   @CallSuper
-  public boolean containsWidget(@Nullable Widget child) {
-    return child != null && children.contains(child);
+  public boolean containsWidget(@Nullable Widget widget) {
+    assert !children.contains(widget) || widget.getParent() == this;
+    return widget != null && children.contains(widget);
   }
 
+  /**
+   * Removes the given {@link Widget} from this {@code WidgetGroup} if it belongs to it.
+   *
+   * @param widget {@code Widget} to remove from this {@code WidgetGroup} container
+   *
+   * @return {@code true} if the {@code Widget} was successfully removed, otherwise {@code false}
+   */
   @Override
   @CallSuper
-  public boolean removeWidget(@Nullable Widget child) {
-    if (child == null) {
+  public boolean removeWidget(@Nullable Widget widget) {
+    if (widget == null) {
+      return false;
+    } else if (widget.getParent() != this) {
       return false;
     }
 
-    if (child.getParent() == this) {
-      child.setParent(null);
-    }
-
-    return children.remove(child);
+    widget.setParent(null);
+    boolean removed = children.remove(widget);
+    assert removed : "widget parent was this WidgetGroup but was not a child";
+    return removed;
   }
 
+  /**
+   * Total number of {@link Widget} instances contained by this {@code WidgetGroup}.
+   *
+   * @return Number of child {@code Widget} instances contained by this {@code WidgetGroup}
+   */
   @Override
   @CallSuper
   public int getNumWidgets() {
     return children.size();
   }
 
+  /**
+   * Immutable view of all children {@link Widget} instances belonging to this {@code WidgetGroup}
+   * container.
+   *
+   * @return Immutable view of all children {@link Widget} instances
+   */
   @NonNull
   @CallSuper
   @Override
