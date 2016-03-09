@@ -581,7 +581,7 @@ public class Widget
    */
   @Override
   @NonNull
-  public Point2D getTranslation() {
+  public final Point2D getTranslation() {
     return new Point2D(getTranslationX(), getTranslationY());
   }
 
@@ -597,7 +597,7 @@ public class Widget
    */
   @Override
   @NonNull
-  public Point2D getTranslation(@Nullable final Point2D dst) {
+  public final Point2D getTranslation(@Nullable final Point2D dst) {
     if (dst == null) {
       return getTranslation();
     }
@@ -719,7 +719,7 @@ public class Widget
   @Override
   @NonNull
   @CallSuper
-  public Point2D getPosition() {
+  public final Point2D getPosition() {
     return new Point2D(getX(), getY());
   }
 
@@ -736,7 +736,7 @@ public class Widget
   @Override
   @NonNull
   @CallSuper
-  public Point2D getPosition(@Nullable Point2D dst) {
+  public final Point2D getPosition(@Nullable Point2D dst) {
     if (dst == null) {
       return getPosition();
     }
@@ -754,7 +754,7 @@ public class Widget
    */
   @Override
   @CallSuper
-  public void setPosition(final int x, final int y) {
+  public final void setPosition(final int x, final int y) {
     setX(x);
     setY(y);
   }
@@ -769,7 +769,7 @@ public class Widget
    */
   @Override
   @CallSuper
-  public void setPosition(@NonNull final Point2D src) {
+  public final void setPosition(@NonNull final Point2D src) {
     if (src == null) {
       throw new IllegalArgumentException("src cannot be null");
     }
@@ -893,7 +893,7 @@ public class Widget
    */
   @NonNull
   @CallSuper
-  public Boundary getPadding() {
+  public final Boundary getPadding() {
     return new Boundary(getLeft(), getTop(), getRight(), getBottom());
   }
 
@@ -909,7 +909,7 @@ public class Widget
    */
   @NonNull
   @CallSuper
-  public Boundary getPadding(@Nullable final Boundary dst) {
+  public final Boundary getPadding(@Nullable final Boundary dst) {
     if (dst == null) {
       return getPadding();
     }
@@ -928,7 +928,7 @@ public class Widget
    * @param paddingBottom Bottom padding, in pixels
    */
   @CallSuper
-  public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingLeft,
+  public final void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingLeft,
                          @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingTop,
                          @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingRight,
                          @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingBottom) {
@@ -949,7 +949,7 @@ public class Widget
    * @param src {@code Boundary} to copy the padding onto this {@code Widget}
    */
   @CallSuper
-  public void setPadding(@NonNull final Boundary src) {
+  public final void setPadding(@NonNull final Boundary src) {
     setPadding(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
   }
 
@@ -961,7 +961,7 @@ public class Widget
    * @param padding Padding, in pixels
    */
   @CallSuper
-  public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) final int padding) {
+  public final void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) final int padding) {
     setPadding(padding, padding, padding, padding);
   }
 
@@ -973,7 +973,7 @@ public class Widget
    *         otherwise {@code false}
    */
   @Override
-  public boolean hasPadding() {
+  public final boolean hasPadding() {
     return getPaddingLeft() > 0 || getPaddingTop() > 0
             || getPaddingRight() > 0 || getPaddingBottom() > 0;
   }

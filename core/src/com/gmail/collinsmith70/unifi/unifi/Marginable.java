@@ -18,6 +18,12 @@ public interface Marginable {
   void setMarginRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right);
   void setMarginTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top);
 
+  @NonNull
+  Boundary getMargin();
+
+  @NonNull
+  Boundary getMargin(@Nullable Boundary dst);
+
   void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
                  @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
                  @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
@@ -25,11 +31,7 @@ public interface Marginable {
 
   void setMargin(@NonNull final Boundary src);
 
-  @NonNull
-  Boundary getMargin();
-
-  @NonNull
-  Boundary getMargin(@Nullable Boundary dst);
+  void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) int margin);
 
   boolean hasMargin();
 

@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.unifi;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,83 +19,117 @@ public abstract class WidgetGroup extends Widget
   @NonNull
   private final Collection<Widget> children;
 
-  @NonNull
-  private final Boundary margin;
+  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginBottom;
+  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginLeft;
+  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
+  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
 
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
-    this.margin = new Boundary();
   }
 
   @Override
+  @CallSuper
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getMarginBottom() {
-    return margin.getBottom();
+    return marginBottom;
   }
 
   @Override
+  @CallSuper
+  public void setMarginBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
+    if (marginBottom < 0) {
+      throw new IllegalArgumentException("bottom margin should be positive");
+    }
+
+    this.marginBottom = marginBottom;
+  }
+
+  @Override
+  @CallSuper
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getMarginLeft() {
-    return margin.getLeft();
+    return marginLeft;
   }
 
   @Override
+  @CallSuper
+  public void setMarginLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginLeft) {
+    if (marginLeft < 0) {
+      throw new IllegalArgumentException("left margin should be positive");
+    }
+
+    this.marginLeft = marginLeft;
+  }
+
+  @Override
+  @CallSuper
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getMarginRight() {
-    return margin.getRight();
+    return marginRight;
   }
 
   @Override
+  @CallSuper
+  public void setMarginRight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight) {
+    if (marginRight < 0) {
+      throw new IllegalArgumentException("right margin should be positive");
+    }
+
+    this.marginRight = marginRight;
+  }
+
+  @Override
+  @CallSuper
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getMarginTop() {
-    return margin.getTop();
+    return marginTop;
   }
 
   @Override
-  public void setMarginBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
-    if (bottom < 0) {
-      throw new IllegalArgumentException("bottom margin should be a natural number");
+  @CallSuper
+  public void setMarginTop(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop) {
+    if (marginTop < 0) {
+      throw new IllegalArgumentException("marginTop margin should be positive");
     }
 
-    margin.setBottom(bottom);
+    this.marginTop = marginTop;
   }
 
   @Override
-  public void setMarginLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
-    if (left < 0) {
-      throw new IllegalArgumentException("left margin should be a natural number");
+  @CallSuper
+  @NonNull
+  public Boundary getMargin() {
+    return new Boundary(getMarginLeft(), getMarginTop(), getMarginRight(), getMarginBottom());
+  }
+
+  @NonNull
+  @CallSuper
+  @Override
+  public Boundary getMargin(@Nullable final Boundary dst) {
+    if (dst == null) {
+      return getMargin();
     }
 
-    margin.setLeft(left);
+    dst.set(getMarginLeft(), getMarginTop(), getMarginRight(), getMarginBottom());
+    return dst;
   }
 
   @Override
-  public void setMarginRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
-    if (right < 0) {
-      throw new IllegalArgumentException("right margin should be a natural number");
-    }
-
-    margin.setRight(right);
+  @CallSuper
+  public final void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginLeft,
+                        @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop,
+                        @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight,
+                        @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
+    setMarginLeft(marginLeft);
+    setMarginTop(marginTop);
+    setMarginRight(marginRight);
+    setMarginBottom(marginBottom);
   }
 
   @Override
-  public void setMarginTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
-    if (top < 0) {
-      throw new IllegalArgumentException("top margin should be a natural number");
-    }
-
-    margin.setTop(top);
-  }
-
-  @Override
-  public void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
-                        @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
-                        @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
-                        @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
-    setMarginBottom(bottom);
-    setMarginLeft(left);
-    setMarginRight(right);
-    setMarginTop(top);
-  }
-
-  @Override
-  public void setMargin(@NonNull final Boundary src) {
+  @CallSuper
+  public final void setMargin(@NonNull final Boundary src) {
     if (src == null) {
       throw new IllegalArgumentException("src margin cannot be null");
     }
@@ -103,46 +138,15 @@ public abstract class WidgetGroup extends Widget
   }
 
   @Override
-  @NonNull
-  public Boundary getMargin() {
-    return new Boundary(margin);
-  }
-
-  @NonNull
-  @Override
-  public Boundary getMargin(@Nullable Boundary dst) {
-    if (dst == null) {
-      return getMargin();
-    }
-
-    dst.set(margin);
-    return dst;
+  public final void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) final int margin) {
+    setMargin(margin, margin, margin, margin);
   }
 
   @Override
+  @CallSuper
   public boolean hasMargin() {
     return getMarginLeft() > 0 || getMarginRight() > 0
             || getMarginBottom() > 0 || getMarginTop() > 0;
-  }
-
-  @Override
-  public void setTranslationX(int x) {
-    super.setTranslationX(x);
-
-    x = getX();
-    for (Widget child : this) {
-      child.setTranslationX(x);
-    }
-  }
-
-  @Override
-  public void setTranslationY(int y) {
-    super.setTranslationY(y);
-
-    y = getY();
-    for (Widget child : this) {
-      child.setTranslationY(y);
-    }
   }
 
   @Override
@@ -152,6 +156,7 @@ public abstract class WidgetGroup extends Widget
   }
 
   @Override
+  @CallSuper
   public void addWidget(@NonNull Widget child) {
     if (child == null) {
       throw new IllegalArgumentException("child widget cannot be null");
@@ -166,11 +171,13 @@ public abstract class WidgetGroup extends Widget
   }
 
   @Override
+  @CallSuper
   public boolean containsWidget(@Nullable Widget child) {
     return child != null && children.contains(child);
   }
 
   @Override
+  @CallSuper
   public boolean removeWidget(@Nullable Widget child) {
     if (child == null) {
       return false;
@@ -184,11 +191,13 @@ public abstract class WidgetGroup extends Widget
   }
 
   @Override
+  @CallSuper
   public int getNumWidgets() {
     return children.size();
   }
 
   @NonNull
+  @CallSuper
   @Override
   public Collection<Widget> getChildren() {
     return Collections.unmodifiableCollection(children);
