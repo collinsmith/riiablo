@@ -70,6 +70,7 @@ public class Boundary {
     return Math.abs(left - right);
   }
 
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getHeight() {
     return Math.abs(top - bottom);
   }
