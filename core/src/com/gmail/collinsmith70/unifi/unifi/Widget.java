@@ -778,7 +778,8 @@ public class Widget
   }
 
   /**
-   * Bottom padding of this {@code Widget}.
+   * Bottom padding of this {@code Widget}. Padding is defined as the space between the edge of a
+   * {@code Widget} and its contents.
    *
    * @return Bottom padding, in pixels
    */
@@ -805,7 +806,8 @@ public class Widget
   }
 
   /**
-   * Left padding of this {@code Widget}.
+   * Left padding of this {@code Widget}. Padding is defined as the space between the edge of a
+   * {@code Widget} and its contents.
    *
    * @return Left padding, in pixels
    */
@@ -832,7 +834,8 @@ public class Widget
   }
 
   /**
-   * Right padding of this {@code Widget}.
+   * Right padding of this {@code Widget}. Padding is defined as the space between the edge of a
+   * {@code Widget} and its contents.
    *
    * @return Right padding, in pixels
    */
@@ -859,7 +862,8 @@ public class Widget
   }
 
   /**
-   * Top padding of this {@code Widget}.
+   * Top padding of this {@code Widget}. Padding is defined as the space between the edge of a
+   * {@code Widget} and its contents.
    *
    * @return Top padding, in pixels
    */
@@ -921,6 +925,10 @@ public class Widget
   /**
    * Sets the padding on all sides of this {@code Widget}. Padding is defined as the space between
    * the edge of a {@code Widget} and its contents.
+   * <p>
+   *   Precondition: {@code paddingLeft >= 0 AND paddingRight >= 0 AND paddingBottom >= 0
+   *                        AND paddingTop >= 0}
+   * </p>
    *
    * @param paddingLeft   Left padding, in pixels
    * @param paddingTop    Top padding, in pixels
@@ -929,9 +937,9 @@ public class Widget
    */
   @CallSuper
   public final void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingLeft,
-                         @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingTop,
-                         @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingRight,
-                         @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingBottom) {
+                               @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingTop,
+                               @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingRight,
+                               @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingBottom) {
     setPaddingLeft(paddingLeft);
     setPaddingTop(paddingTop);
     setPaddingRight(paddingRight);
