@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.unifi;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,18 +8,32 @@ import android.support.annotation.Nullable;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
+import com.google.common.collect.Iterators;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class Window
         implements WidgetParent {
 
-  private final Dimension2D dimension;
+  @NonNull private final Dimension2D dimension;
+
+  @NonNull private final Collection<Widget> children;
 
   public Window(int width, int height) {
     this.dimension = new Dimension2D(width, height);
+    this.children = new ArrayList<Widget>();
   }
 
   public void resize(int width, int height) {
     dimension.set(width, height);
+  }
+
+  @Override
+  public void requestLayout() {
+
   }
 
   @Nullable
@@ -141,6 +156,33 @@ public class Window
     throw new UnsupportedOperationException("Window does not support this operation");
   }
 
+  @NonNull
+  @Override
+  public Point2D getPosition() {
+    return new Point2D(getX(), getY());
+  }
+
+  @NonNull
+  @Override
+  public Point2D getPosition(@Nullable final Point2D dst) {
+    if (dst == null) {
+      return getPosition();
+    }
+
+    dst.set(getX(), getY());
+    return dst;
+  }
+
+  @Override
+  public void setPosition(final int x, final int y) {
+    throw new UnsupportedOperationException("Window does not support this operation");
+  }
+
+  @Override
+  public void setPosition(@NonNull final Point2D src) {
+    throw new UnsupportedOperationException("Window does not support this operation");
+  }
+
   @Override
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getWidth() {
@@ -166,6 +208,60 @@ public class Window
     }
 
     return contains(point.getX(), point.getY());
+  }
+
+  @Override
+  @NonNull
+  public Iterator<Widget> iterator() {
+    return Iterators.unmodifiableIterator(children.iterator());
+  }
+
+  @Override
+  @CallSuper
+  public void addWidget(@NonNull final Widget widget) {
+    if (widget == null) {
+      throw new IllegalArgumentException("child widget cannot be null");
+    }
+
+    children.add(widget);
+    widget.setParent(this);
+  }
+
+  @Override
+  @CallSuper
+  public boolean containsWidget(@Nullable Widget widget) {
+    assert !children.contains(widget) || widget.getParent() == this;
+    return widget != null && children.contains(widget);
+  }
+
+  @Override
+  @CallSuper
+  public boolean removeWidget(@Nullable Widget widget) {
+    if (widget == null) {
+      return false;
+    } else if (widget.getParent() != this) {
+      assert !containsWidget(widget)
+              : "widget parent is not this WidgetGroup, so this WidgetGroup should not contain it";
+      return false;
+    }
+
+    widget.setParent(null);
+    boolean removed = children.remove(widget);
+    assert removed : "widget parent was this WidgetGroup but was not a child";
+    return removed;
+  }
+
+  @Override
+  @CallSuper
+  public int getNumWidgets() {
+    return children.size();
+  }
+
+  @NonNull
+  @CallSuper
+  @Override
+  public Collection<Widget> getChildren() {
+    return Collections.unmodifiableCollection(children);
   }
 
 }
