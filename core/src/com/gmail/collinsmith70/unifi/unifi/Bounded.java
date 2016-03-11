@@ -51,6 +51,6 @@ public interface Bounded extends Positioned, Sized {
 
   boolean contains(int x, int y);
 
-  boolean contains(Point2D point);
+  boolean contains(@NonNull Point2D point);
 
 }
