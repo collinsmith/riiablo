@@ -5,6 +5,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.Pixmap;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.google.common.collect.Iterators;
 
@@ -22,6 +23,8 @@ public abstract class WidgetGroup extends Widget
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginLeft;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
+
+  private Pixmap buffer;
 
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
