@@ -268,6 +268,54 @@ public class Widget
   }
 
   /**
+   * Translates the location of this {@code Widget} so that the bottom edge is the specified value
+   * and the size of the {@code Widget} remains unchanged.
+   *
+   * @param bottom Bottom of this {@code Widget}, in pixels
+   */
+  void translateBottom(int bottom) {
+    final int height = getHeight();
+    this.bottom = bottom;
+    this.top = bottom + height;
+  }
+
+  /**
+   * Translates the location of this {@code Widget} so that the left edge is the specified value and
+   * the size of the {@code Widget} remains unchanged.
+   *
+   * @param left Left of this {@code Widget}, in pixels
+   */
+  void translateLeft(int left) {
+    final int width = getWidth();
+    this.left = left;
+    this.right = left + width;
+  }
+
+  /**
+   * Translates the location of this {@code Widget} so that the right edge is the specified value
+   * and the size of the {@code Widget} remains unchanged.
+   *
+   * @param right Right of this {@code Widget}, in pixels
+   */
+  void translateRight(int right) {
+    final int width = getWidth();
+    this.right = right;
+    this.left = right - width;
+  }
+
+  /**
+   * Translates the location of this {@code Widget} so that the top edge is the specified value and
+   * the size of the {@code Widget} remains unchanged.
+   *
+   * @param top Top of this {@code Widget}, in pixels
+   */
+  void translateTop(int top) {
+    final int height = getHeight();
+    this.top = top;
+    this.bottom = top - height;
+  }
+
+  /**
    * Bottom position of this {@code Widget} relative to its {@linkplain #getParent parent}.
    *
    * @return Bottom of this {@code Widget}, in pixels
