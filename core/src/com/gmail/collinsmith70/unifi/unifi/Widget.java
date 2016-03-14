@@ -273,7 +273,7 @@ public class Widget
    *
    * @param bottom Bottom of this {@code Widget}, in pixels
    */
-  void translateBottom(int bottom) {
+  final void translateBottom(int bottom) {
     final int height = getHeight();
     this.bottom = bottom;
     this.top = bottom + height;
@@ -285,7 +285,7 @@ public class Widget
    *
    * @param left Left of this {@code Widget}, in pixels
    */
-  void translateLeft(int left) {
+  final void translateLeft(int left) {
     final int width = getWidth();
     this.left = left;
     this.right = left + width;
@@ -297,7 +297,7 @@ public class Widget
    *
    * @param right Right of this {@code Widget}, in pixels
    */
-  void translateRight(int right) {
+  final void translateRight(int right) {
     final int width = getWidth();
     this.right = right;
     this.left = right - width;
@@ -309,7 +309,7 @@ public class Widget
    *
    * @param top Top of this {@code Widget}, in pixels
    */
-  void translateTop(int top) {
+  final void translateTop(int top) {
     final int height = getHeight();
     this.top = top;
     this.bottom = top - height;
