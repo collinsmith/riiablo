@@ -5,7 +5,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.badlogic.gdx.graphics.Pixmap;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.google.common.collect.Iterators;
 
@@ -17,6 +16,12 @@ import java.util.Iterator;
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, Marginable {
 
+  public enum Gravity {
+    TOP_LEFT, TOP_CENTER, TOP_RIGHT,
+    CENTER_LEFT, CENTER, CENTER_RIGHT,
+    BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
+  }
+
   @NonNull private final Collection<Widget> children;
 
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginBottom;
@@ -24,10 +29,35 @@ public abstract class WidgetGroup extends Widget
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
 
-  private Pixmap buffer;
+  @NonNull private Gravity gravity;
 
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
+  }
+
+  /**
+   * {@link Gravity} of this {@code WidgetGroup}, controlling how children are aligned in
+   * certain subclasses.
+   *
+   * @return {@code Gravity} of this {@code WidgetGroup}
+   */
+  @NonNull
+  public Gravity getGravity() {
+    return gravity;
+  }
+
+  /**
+   * Sets the {@link Gravity} of this {@code WidgetGroup} which controls how child {@link Widget}
+   * instances are aligned.
+   *
+   * @param gravity {@code Gravity} of this {@code WidgetGroup}
+   */
+  public void setGravity(@NonNull final Gravity gravity) {
+    if (gravity == null) {
+      throw new IllegalArgumentException("gravity cannot be null");
+    }
+
+    this.gravity = gravity;
   }
 
   /**
