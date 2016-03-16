@@ -1,6 +1,7 @@
 package com.gmail.collinsmith70.unifi.unifi;
 
 import android.support.annotation.CallSuper;
+import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,12 +17,6 @@ import java.util.Iterator;
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, Marginable {
 
-  public enum Gravity {
-    TOP_LEFT, TOP_CENTER, TOP_RIGHT,
-    CENTER_LEFT, CENTER, CENTER_RIGHT,
-    BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
-  }
-
   @NonNull private final Collection<Widget> children;
 
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginBottom;
@@ -29,34 +24,44 @@ public abstract class WidgetGroup extends Widget
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
 
-  @NonNull private Gravity gravity;
+  public static final class Gravities {
+    public static final int TOP = 1 << 0;
+    public static final int BOTTOM = 1 << 1;
+    public static final int LEFT = 1 << 2;
+    public static final int RIGHT = 1 << 3;
+    public static final int CENTER_VERTICAL = 1 << 4;
+    public static final int CENTER_HORIZONTAL = 1 << 5;
+    public static final int CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL;
+  }
+
+  @IntDef(flag = true,
+          value = { Gravities.TOP, Gravities.BOTTOM, Gravities.LEFT, Gravities.RIGHT,
+                    Gravities.CENTER_VERTICAL, Gravities.CENTER_HORIZONTAL })
+  public @interface Gravity {}
+
+  @Gravity private int gravity;
 
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
   }
 
   /**
-   * {@link Gravity} of this {@code WidgetGroup}, controlling how children are aligned in
-   * certain subclasses.
+   * Gravity of this {@code WidgetGroup}, controlling how children are aligned.
    *
-   * @return {@code Gravity} of this {@code WidgetGroup}
+   * @return Gravity of this {@code WidgetGroup}
    */
-  @NonNull
-  public Gravity getGravity() {
+  @Gravity
+  public int getGravity() {
     return gravity;
   }
 
   /**
-   * Sets the {@link Gravity} of this {@code WidgetGroup} which controls how child {@link Widget}
-   * instances are aligned.
+   * Sets the gravity of this {@code WidgetGroup} which controls how child {@link Widget} instances
+   * are aligned.
    *
-   * @param gravity {@code Gravity} of this {@code WidgetGroup}
+   * @param gravity Gravity of this {@code WidgetGroup}
    */
-  public void setGravity(@NonNull final Gravity gravity) {
-    if (gravity == null) {
-      throw new IllegalArgumentException("gravity cannot be null");
-    }
-
+  public void setGravity(@Gravity final int gravity) {
     this.gravity = gravity;
   }
 
