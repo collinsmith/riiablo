@@ -316,17 +316,41 @@ public class Widget
   }
 
   /**
+   * Translates the location of this {@code Widget} horizontally so that it is centered about the
+   * given point on the {@code x}-axis and the size of the {@code Widget} remains unchanged.
+   *
+   * @param x Visual {@code x} position to center this {@code Widget} at on its {@code x}-axis,
+   *          in pixels
+   */
+  public final void translateHorizontalCenter(final int x) {
+    final int width = getWidth();
+    translateLeft(x - (width / 2));
+  }
+
+  /**
+   * Translates the location of this {@code Widget} vertically so that it is centered about the
+   * given point on the {@code y}-axis and the size of the {@code Widget} remains unchanged.
+   *
+   * @param y Visual {@code y} position to center this {@code Widget} at on its {@code y}-axis,
+   *          in pixels
+   */
+  public final void translateVerticalCenter(final int y) {
+    final int height = getHeight();
+    translateBottom(y - (height / 2));
+  }
+
+  /**
    * Translates the location of this {@code Widget} so that it is centered about the given point
    * and the size of the {@code Widget} remains unchanged.
    *
-   * @param x Visual {@code x} position of this {@code Widget} relative to its parent, in pixels
-   * @param y Visual {@code y} position of this {@code Widget} relative to its parent, in pixels
+   * @param x Visual {@code x} position to center this {@code Widget} at on its {@code x}-axis,
+   *          in pixels
+   * @param y Visual {@code y} position to center this {@code Widget} at on its {@code y}-axis,
+   *          in pixels
    */
   public final void translateCenter(final int x, final int y) {
-    final int width = getWidth();
-    final int height = getHeight();
-    translateLeft(x - (width / 2));
-    translateBottom(y - (height / 2));
+    translateHorizontalCenter(x);
+    translateVerticalCenter(y);
   }
 
   /**
