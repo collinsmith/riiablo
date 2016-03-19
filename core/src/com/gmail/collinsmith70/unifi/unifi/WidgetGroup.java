@@ -24,19 +24,15 @@ public abstract class WidgetGroup extends Widget
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
 
-  public static final class Gravities {
-    public static final int TOP = 1 << 0;
-    public static final int BOTTOM = 1 << 1;
-    public static final int LEFT = 1 << 2;
-    public static final int RIGHT = 1 << 3;
-    public static final int CENTER_VERTICAL = 1 << 4;
-    public static final int CENTER_HORIZONTAL = 1 << 5;
-    public static final int CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL;
-  }
+  public static final int TOP = 1 << 0;
+  public static final int BOTTOM = 1 << 1;
+  public static final int LEFT = 1 << 2;
+  public static final int RIGHT = 1 << 3;
+  public static final int CENTER_VERTICAL = 1 << 4;
+  public static final int CENTER_HORIZONTAL = 1 << 5;
+  public static final int CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL;
 
-  @IntDef(flag = true,
-          value = { Gravities.TOP, Gravities.BOTTOM, Gravities.LEFT, Gravities.RIGHT,
-                    Gravities.CENTER_VERTICAL, Gravities.CENTER_HORIZONTAL })
+  @IntDef(flag = true, value = { TOP, BOTTOM, LEFT, RIGHT, CENTER_VERTICAL, CENTER_HORIZONTAL })
   public @interface Gravity {}
 
   @Gravity private int gravity;
