@@ -17,23 +17,56 @@ import java.util.Iterator;
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, Marginable {
 
+  /**
+   * Gravity flag for top/up on the {@code y}-axis
+   */
+  public static final int TOP = 1 << 0;
+
+  /**
+   * Gravity flag for bottom/down on the {@code y}-axis
+   */
+  public static final int BOTTOM = 1 << 1;
+
+  /**
+   * Gravity flag for left on the {@code x}-axis
+   */
+  public static final int LEFT = 1 << 2;
+
+  /**
+   * Gravity flag for right on the {@code x}-axis
+   */
+  public static final int RIGHT = 1 << 3;
+
+  /**
+   * Gravity flag for vertical center (middle of {@linkplain #TOP top} and
+   * {@linkplain #BOTTOM bottom) on the {@code y}-axis
+   */
+  public static final int CENTER_VERTICAL = 1 << 4;
+
+  /**
+   * Gravity flag for horizontal center (middle of {@linkplain #LEFT left} and
+   * {@linkplain #RIGHT right)) on the {@code x}-axis
+   */
+  public static final int CENTER_HORIZONTAL = 1 << 5;
+
+  /**
+   * Gravity constant representing both {@linkplain #CENTER_VERTICAL vertical} and
+   * {@linkplain #CENTER_HORIZONTAL horizontal} centers on the {@code x}- and {@code y}-axes
+   */
+  public static final int CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL;
+
+  /**
+   * Annotation used to mark integers which are {@code WidgetGroup} gravity constants.
+   */
+  @IntDef(flag = true, value = { TOP, BOTTOM, LEFT, RIGHT, CENTER_VERTICAL, CENTER_HORIZONTAL })
+  public @interface Gravity {}
+
   @NonNull private final Collection<Widget> children;
 
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginBottom;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginLeft;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
-
-  public static final int TOP = 1 << 0;
-  public static final int BOTTOM = 1 << 1;
-  public static final int LEFT = 1 << 2;
-  public static final int RIGHT = 1 << 3;
-  public static final int CENTER_VERTICAL = 1 << 4;
-  public static final int CENTER_HORIZONTAL = 1 << 5;
-  public static final int CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL;
-
-  @IntDef(flag = true, value = { TOP, BOTTOM, LEFT, RIGHT, CENTER_VERTICAL, CENTER_HORIZONTAL })
-  public @interface Gravity {}
 
   @Gravity private int gravity;
 
