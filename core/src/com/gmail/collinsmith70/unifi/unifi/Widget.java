@@ -20,6 +20,11 @@ public class Widget
    */
   private enum Flag {
     /**
+     * @see #isDebug()
+     */
+    DEBUG,
+
+    /**
      * @see #isDown()
      */
     DOWN,
@@ -83,6 +88,21 @@ public class Widget
 
     setEnabled(true);
     setVisibility(Visibility.VISIBLE);
+  }
+
+  protected void draw() {
+    drawBackground();
+    if (isDebug()) {
+      drawDebug();
+    }
+  }
+
+  protected void drawBackground() {
+
+  }
+
+  protected void drawDebug() {
+
   }
 
   /**
@@ -158,11 +178,38 @@ public class Widget
   }
 
   /**
+   * Checks whether or not this {@code Widget} is in a debug state and will log or draw additional
+   * information regarding its state.
+   *
+   * @return {@code true} if this {@code Widget} is in a debugging state, otherwise {@code false}
+   */
+  @CallSuper
+  public boolean isDebug() {
+    return FLAGS.contains(Flag.DEBUG);
+  }
+
+  /**
+   * Sets whether or not this {@code Widget} is in a debugging state and will log or draw additional
+   * information regarding its state.
+   *
+   * @param debug {@code true} to set this {@code Widget} in a debugging state,
+   *              otherwise {@code false}
+   */
+  @CallSuper
+  public void setDebug(final boolean debug) {
+    if (debug) {
+      FLAGS.add(Flag.DEBUG);
+    } else {
+      FLAGS.remove(Flag.DEBUG);
+    }
+  }
+
+  /**
    * Checks whether or not this {@code Widget} has an input device (e.g., mouse cursor) hovering
    * over it in a pressed state. If this methods returns {@code true}, then {@link #isOver()} must
    * also return {@code true}.
    *
-   * @return
+   * @return {@code true} if it is, otherwise {@code false}
    */
   @CallSuper
   boolean isDown() {
@@ -175,7 +222,7 @@ public class Widget
    * {@code true} is passed into this method, then {@link #setOver(boolean)} will also be set to
    * {@code true}.
    *
-   * @param down {@code true} if it does, otherwise {@code false}
+   * @param down {@code true} if it is, otherwise {@code false}
    */
   private void setDown(final boolean down) {
     if (down) {

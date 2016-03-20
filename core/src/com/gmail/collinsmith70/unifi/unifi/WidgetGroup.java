@@ -74,6 +74,21 @@ public abstract class WidgetGroup extends Widget
     this.children = new ArrayList<Widget>();
   }
 
+  @Override
+  protected void draw() {
+    drawBackground();
+    drawChildren();
+    if (isDebug()) {
+      drawDebug();
+    }
+  }
+
+  protected void drawChildren() {
+    for (Widget child : this) {
+      child.draw();
+    }
+  }
+
   /**
    * Gravity of this {@code WidgetGroup}, controlling how children are aligned.
    *
