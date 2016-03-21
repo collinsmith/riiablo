@@ -13,6 +13,8 @@ import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class Widget
@@ -86,8 +88,11 @@ public class Widget
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingRight;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingTop;
 
+  @NonNull private final Map<String, Object> LAYOUT_PARAMS;
+
   public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
+    this.LAYOUT_PARAMS = new HashMap<String, Object>();
 
     setEnabled(true);
     setVisibility(Visibility.VISIBLE);
@@ -117,6 +122,97 @@ public class Widget
               getWidth() - getPaddingLeft() - getPaddingRight(),
               getHeight() - getPaddingTop() - getPaddingBottom());
     } shapeRenderer.end();
+  }
+
+  /**
+   * Puts a value under the specified param. These parameters are used when laying out this
+   * {@code Widget}.
+   *
+   * @param param Key which the value should correspond with
+   * @param value Value to put at that key
+   */
+  public final void put(@NonNull final String param, @Nullable final Object value) {
+    if (param == null) {
+      throw new IllegalArgumentException("param cannot be null");
+    } else if (param.isEmpty()) {
+      throw new IllegalArgumentException("param cannot be empty");
+    }
+
+    LAYOUT_PARAMS.put(param, value);
+  }
+
+  /**
+   * Removes the mapping to the specified parameter key. These parameters are used when laying out
+   * this {@code Widget}.
+   *
+   * @param <E>   Type to cast the returned value to
+   * @param param Key to remove the mapping for
+   *
+   * @return Value which the specified parameter key was mapped to, otherwise {@code null} if there
+   *         was no mapping or if the mapping was to a {@code null} reference.
+   */
+  @Nullable
+  public final <E> E remove(@Nullable final String param) {
+    return (E)LAYOUT_PARAMS.remove(param);
+  }
+
+  /**
+   * Value casted to the specified type under the given parameter key. These parameters are used
+   * when laying out this {@code Widget}.
+   *
+   * @param <E>   Type to cast the returned value to
+   * @param param Key to search and return a value for
+   *
+   * @return Value under the specified parameter key, otherwise {@code null} if there is no value
+   *         under this key or if the value under the key is actually {@code null}.
+   *         {@link #containsKey} can be used to determine which is the case.
+   *
+   * @see #containsKey(String)
+   * @see #getOrDefault(String, Object)
+   */
+  @Nullable
+  public final <E> E get(@Nullable final String param) {
+    return (E)LAYOUT_PARAMS.get(param);
+  }
+
+  /**
+   * Value casted to the specified type under the given parameter key. If there is no mapping to the
+   * specified parameter key, then the default value specified is returned. These parameters are
+   * used when laying out this {@code Widget}.
+   *
+   * @param <E>          Type to cast the returned value to
+   * @param param        Key to search and return a value for
+   * @param defaultValue Default value to return in the case that no mapping to the specified
+   *                     parameter key exists
+   *
+   * @return Value under the specified parameter key, otherwise the default value given if there is
+   *         no mapping to that key.
+   *
+   * @see #get(String)
+   * @see #containsKey(String)
+   */
+  @Nullable
+  public final <E> E getOrDefault(@Nullable final String param, @Nullable final E defaultValue) {
+    if (containsKey(param)) {
+      return get(param);
+    }
+
+    return defaultValue;
+  }
+
+  /**
+   * Determines whether or not there exists a mapping between the specified parameter key and a
+   * value. This method can determine whether or not the return value of {@link #get} is valid, as
+   * {@code null} values are permitted.
+   *
+   * @param param Key to query and check if there exists a mapping for
+   *
+   * @return {@code true} if a mapping exists, otherwise {@code false}
+   *
+   * @see #getOrDefault(String, Object)
+   */
+  public final boolean containsKey(@Nullable final String param) {
+    return LAYOUT_PARAMS.containsKey(param);
   }
 
   /**
