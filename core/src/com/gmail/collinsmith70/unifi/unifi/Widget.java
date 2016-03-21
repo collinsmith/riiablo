@@ -5,6 +5,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
@@ -90,19 +91,20 @@ public class Widget
     setVisibility(Visibility.VISIBLE);
   }
 
-  protected void draw() {
-    drawBackground();
+  protected void draw(@NonNull final Batch batch) {
+    assert batch != null : "batch should not be null";
+    drawBackground(batch);
     if (isDebug()) {
-      drawDebug();
+      drawDebug(batch);
     }
   }
 
-  protected void drawBackground() {
-
+  protected void drawBackground(@NonNull final Batch batch) {
+    assert batch != null : "batch should not be null";
   }
 
-  protected void drawDebug() {
-
+  protected void drawDebug(@NonNull final Batch batch) {
+    assert batch != null : "batch should not be null";
   }
 
   /**

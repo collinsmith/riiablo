@@ -6,6 +6,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.google.common.collect.Iterators;
 
@@ -75,17 +76,19 @@ public abstract class WidgetGroup extends Widget
   }
 
   @Override
-  protected void draw() {
-    drawBackground();
-    drawChildren();
+  protected void draw(@NonNull final Batch batch) {
+    assert batch != null : "batch should not be null";
+    drawBackground(batch);
+    drawChildren(batch);
     if (isDebug()) {
-      drawDebug();
+      drawDebug(batch);
     }
   }
 
-  protected void drawChildren() {
+  protected void drawChildren(@NonNull final Batch batch) {
+    assert batch != null : "batch should not be null";
     for (Widget child : this) {
-      child.draw();
+      child.draw(batch);
     }
   }
 
