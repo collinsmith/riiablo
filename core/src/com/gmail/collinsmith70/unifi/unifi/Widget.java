@@ -5,7 +5,9 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
@@ -105,6 +107,16 @@ public class Widget
 
   protected void drawDebug(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
+    final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+    shapeRenderer.begin(); {
+      shapeRenderer.setColor(Color.DARK_GRAY);
+      shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
+      shapeRenderer.setColor(Color.LIGHT_GRAY);
+      shapeRenderer.rect(getX() + getPaddingLeft(), getY() + getPaddingBottom(),
+              getWidth() - getPaddingLeft() - getPaddingRight(),
+              getHeight() - getPaddingTop() - getPaddingBottom());
+    } shapeRenderer.end();
   }
 
   /**
