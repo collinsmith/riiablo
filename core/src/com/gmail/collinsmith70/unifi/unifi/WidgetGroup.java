@@ -1,66 +1,69 @@
 package com.gmail.collinsmith70.unifi.unifi;
 
 import android.support.annotation.CallSuper;
-import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, Marginable {
 
-  /**
-   * Gravity flag for top/up on the {@code y}-axis
-   */
-  public static final int TOP = 1 << 0;
+  public enum Gravity {
+    /**
+     * Gravity flag for top/up on the {@code y}-axis
+     */
+    TOP,
+
+    /**
+     * Gravity flag for bottom/down on the {@code y}-axis
+     */
+    BOTTOM,
+
+    /**
+     * Gravity flag for left on the {@code x}-axis
+     */
+    LEFT,
+
+    /**
+     * Gravity flag for right on the {@code x}-axis
+     */
+    RIGHT,
+
+    /**
+     * Gravity flag for vertical center (middle of {@linkplain #TOP top} and
+     * {@linkplain #BOTTOM bottom) on the {@code y}-axis
+     */
+    CENTER_VERTICAL,
+
+    /**
+     * Gravity flag for horizontal center (middle of {@linkplain #LEFT left} and
+     * {@linkplain #RIGHT right)) on the {@code x}-axis
+     */
+    CENTER_HORIZONTAL
+  }
 
   /**
-   * Gravity flag for bottom/down on the {@code y}-axis
+   * Gravity constant representing both {@linkplain Gravity#CENTER_VERTICAL vertical} and
+   * {@linkplain Gravity#CENTER_HORIZONTAL horizontal} centers on the {@code x}- and {@code y}-axes
    */
-  public static final int BOTTOM = 1 << 1;
+  public static final ImmutableSet<Gravity> CENTER
+          = Sets.immutableEnumSet(Gravity.CENTER_VERTICAL, Gravity.CENTER_HORIZONTAL);
 
-  /**
-   * Gravity flag for left on the {@code x}-axis
-   */
-  public static final int LEFT = 1 << 2;
-
-  /**
-   * Gravity flag for right on the {@code x}-axis
-   */
-  public static final int RIGHT = 1 << 3;
-
-  /**
-   * Gravity flag for vertical center (middle of {@linkplain #TOP top} and
-   * {@linkplain #BOTTOM bottom) on the {@code y}-axis
-   */
-  public static final int CENTER_VERTICAL = 1 << 4;
-
-  /**
-   * Gravity flag for horizontal center (middle of {@linkplain #LEFT left} and
-   * {@linkplain #RIGHT right)) on the {@code x}-axis
-   */
-  public static final int CENTER_HORIZONTAL = 1 << 5;
-
-  /**
-   * Gravity constant representing both {@linkplain #CENTER_VERTICAL vertical} and
-   * {@linkplain #CENTER_HORIZONTAL horizontal} centers on the {@code x}- and {@code y}-axes
-   */
-  public static final int CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL;
-
-  /**
-   * Annotation used to mark integers which are {@code WidgetGroup} gravity constants.
-   */
-  @IntDef(flag = true, value = { TOP, BOTTOM, LEFT, RIGHT, CENTER_VERTICAL, CENTER_HORIZONTAL })
-  public @interface Gravity {}
+  private static final ImmutableSet<Gravity> DEFAULT_GRAVITY
+          = ImmutableSet.of(Gravity.TOP, Gravity.LEFT);
 
   @NonNull private final Collection<Widget> children;
 
@@ -69,7 +72,7 @@ public abstract class WidgetGroup extends Widget
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
 
-  @Gravity private int gravity;
+  @Nullable private Set<Gravity> gravity;
 
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
@@ -97,9 +100,14 @@ public abstract class WidgetGroup extends Widget
    *
    * @return Gravity of this {@code WidgetGroup}
    */
-  @Gravity
-  public int getGravity() {
-    return gravity;
+  @NonNull
+  @CallSuper
+  public ImmutableSet<Gravity> getGravity() {
+    if (gravity == null) {
+      return DEFAULT_GRAVITY;
+    }
+
+    return ImmutableSet.copyOf(gravity);
   }
 
   /**
@@ -108,8 +116,26 @@ public abstract class WidgetGroup extends Widget
    *
    * @param gravity Gravity of this {@code WidgetGroup}
    */
-  public void setGravity(@Gravity final int gravity) {
+  @CallSuper
+  public void setGravity(@Nullable final Set<Gravity> gravity) {
     this.gravity = gravity;
+  }
+
+  /**
+   * Sets the gravity of this {@code WidgetGroup} which controls how child {@link Widget} instances
+   * are aligned.
+   *
+   * @param gravity   First gravity argument of this {@code WidgetGroup}
+   * @param gravities Remaining gravity arguments of this {@code WidgetGroup}
+   */
+  @CallSuper
+  public void setGravity(@NonNull final Gravity gravity, @NonNull final Gravity... gravities) {
+    if (gravity == null) {
+      throw new IllegalArgumentException("gravity cannot be null");
+    }
+
+    // EnumSet does not permit {@code null} elements, so no need to validate here
+    this.gravity = EnumSet.of(gravity, gravities);
   }
 
   /**
