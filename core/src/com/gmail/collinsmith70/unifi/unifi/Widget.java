@@ -4,6 +4,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -12,6 +13,9 @@ import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +23,11 @@ import java.util.Set;
 
 public class Widget
         implements Bounded, Paddable, Translateable {
+
+  @StringDef
+  @Documented
+  @Target({ ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE })
+  public @interface LayoutParam {}
 
   /**
    * Enumeration of all boolean state fields for a {@code Widget}.

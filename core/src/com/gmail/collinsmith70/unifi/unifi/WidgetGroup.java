@@ -21,6 +21,11 @@ import java.util.Set;
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, Marginable {
 
+  public static final class LayoutParams {
+    @LayoutParam public static final String layout_width = "layout_width";
+    @LayoutParam public static final String layout_height = "layout_height";
+  }
+
   public enum Gravity {
     /**
      * Gravity flag for top/up on the {@code y}-axis
