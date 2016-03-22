@@ -1,5 +1,7 @@
 package com.gmail.collinsmith70.unifi.unifi.util;
 
+import android.support.annotation.NonNull;
+
 import com.badlogic.gdx.Gdx;
 
 /**
@@ -41,6 +43,44 @@ public enum LengthUnit {
   private static final long C2 = C0 * 1000L;
 
   private static final long MAX = Long.MAX_VALUE;
+
+  public static long toPixels(@NonNull String value) {
+    if (value == null) {
+      throw new IllegalArgumentException("value cannot be null");
+    } else if (value.isEmpty()) {
+      throw new IllegalArgumentException("value cannot be empty");
+    } else if (!value.matches("[0-9]+\\w*(px|mm|cm|m)")) {
+      throw new IllegalArgumentException(
+              "value must be given as a number followed by either px, mm, cm, or m");
+    }
+
+    char ch;
+    long sourceLength = 0L;
+    for (int i = 0; i < value.length(); i++) {
+      ch = value.charAt(i);
+      switch (ch) {
+        case '0':case '1':case '2':case '3':case '4':
+        case '5':case '6':case '7':case '8':case '9':
+          sourceLength *= 10;
+          sourceLength += (ch - 48);
+        case 'c':
+          return toPixels(sourceLength, CENTIMETERS);
+        case 'm':
+          if (i == value.length()) {
+            return toPixels(sourceLength, METERS);
+          } else {
+            return toPixels(sourceLength, MILLIMETERS);
+          }
+        case 'p':
+          return sourceLength;
+        default:
+          throw new IllegalStateException(
+                  "statement has encountered an unexpected character: " + ch);
+      }
+    }
+
+    throw new IllegalStateException("failed to locate and return source unit");
+  }
 
   public static long toPixels(long sourceLength, LengthUnit sourceUnit) {
     return toPixelsX(sourceLength, sourceUnit);
