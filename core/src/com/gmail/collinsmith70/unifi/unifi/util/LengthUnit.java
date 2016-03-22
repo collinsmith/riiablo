@@ -18,24 +18,24 @@ import com.badlogic.gdx.Gdx;
 public enum LengthUnit {
 
   MILLIMETERS {
-    @Override public long toMillimeters(long l)         { return l; }
-    @Override public long toCentimeters(long l)         { return l/(C1/C0); }
-    @Override public long toMeters(long l)              { return l/(C2/C0); }
-    @Override public long convert(long l, LengthUnit u) { return u.toMillimeters(l); }
+    @Override public long toMillimeters(long l)                  { return l; }
+    @Override public long toCentimeters(long l)                  { return l/(C1/C0); }
+    @Override public long toMeters(long l)                       { return l/(C2/C0); }
+    @Override public long convert(long l, @NonNull LengthUnit u) { return u.toMillimeters(l); }
   },
 
   CENTIMETERS {
-    @Override public long toMillimeters(long l)         { return x(l, C1/C0, MAX/(C1/C0)); }
-    @Override public long toCentimeters(long l)         { return l; }
-    @Override public long toMeters(long l)              { return l/(C2/C1); }
-    @Override public long convert(long l, LengthUnit u) { return u.toCentimeters(l); }
+    @Override public long toMillimeters(long l)                  { return x(l, C1/C0, MAX/(C1/C0)); }
+    @Override public long toCentimeters(long l)                  { return l; }
+    @Override public long toMeters(long l)                       { return l/(C2/C1); }
+    @Override public long convert(long l, @NonNull LengthUnit u) { return u.toCentimeters(l); }
   },
 
   METERS {
-    @Override public long toMillimeters(long l)         { return x(l, C2/C0, MAX/(C2/C0)); }
-    @Override public long toCentimeters(long l)         { return x(l, C2/C1, MAX/(C2/C1)); }
-    @Override public long toMeters(long l)              { return l; }
-    @Override public long convert(long l, LengthUnit u) { return u.toMeters(l); }
+    @Override public long toMillimeters(long l)                  { return x(l, C2/C0, MAX/(C2/C0)); }
+    @Override public long toCentimeters(long l)                  { return x(l, C2/C1, MAX/(C2/C1)); }
+    @Override public long toMeters(long l)                       { return l; }
+    @Override public long convert(long l, @NonNull LengthUnit u) { return u.toMeters(l); }
   };
 
   private static final long C0 = 1L;
@@ -44,7 +44,7 @@ public enum LengthUnit {
 
   private static final long MAX = Long.MAX_VALUE;
 
-  public static long toPixels(@NonNull String value) {
+  public static long toPixels(@NonNull final String value) {
     if (value == null) {
       throw new IllegalArgumentException("value cannot be null");
     } else if (value.isEmpty()) {
@@ -155,6 +155,6 @@ public enum LengthUnit {
    * @return converted duration in this unit, or {@link Long#MIN_VALUE} if conversion would negatively
    * overflow, or {@link Long#MAX_VALUE} if it would positively overflow
    */
-  public abstract long convert(long sourceLength, LengthUnit sourceUnit);
+  public abstract long convert(long sourceLength, @NonNull LengthUnit sourceUnit);
 
 }
