@@ -63,9 +63,6 @@ public enum LengthUnit {
       throw new IllegalArgumentException("value cannot be null");
     } else if (value.isEmpty()) {
       throw new IllegalArgumentException("value cannot be empty");
-    } else if (!value.matches("[0-9]+\\w*(px|mm|cm|m)")) {
-      throw new IllegalArgumentException(
-              "value must be given as a number followed by either px, mm, cm, or m");
     }
 
     char ch;
@@ -94,35 +91,72 @@ public enum LengthUnit {
           }
           break;
         case 'c':
-          if (i + 1 >= value.length()) {
+          if (!digits) {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
+            throw new IllegalArgumentException(
+                    "expected number followed by either px, mm, cm, or m");
+          } else if (i + 1 >= value.length()) {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
             throw new IllegalArgumentException("expected m following c, but string ends at c");
           } else if (value.charAt(i + 1) != 'm') {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
             throw new IllegalArgumentException("expected m following c");
           }
 
+          assert value.matches("[0-9]+(px|mm|cm|m)")
+                  : "value must be given as a number followed by either px, mm, cm, or m";
           return toPixels(sourceLength, CENTIMETERS);
         case 'm':
-          if (i + 1 == value.length()) {
+          if (!digits) {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
+            throw new IllegalArgumentException(
+                    "expected number followed by either px, mm, cm, or m");
+          } else if (i + 1 == value.length()) {
+            assert value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
             return toPixels(sourceLength, METERS);
           } else if (value.charAt(i + 1) != 'm') {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
             throw new IllegalArgumentException("expected m following m");
           }
 
+          assert value.matches("[0-9]+(px|mm|cm|m)")
+                  : "value must be given as a number followed by either px, mm, cm, or m";
           return toPixels(sourceLength, MILLIMETERS);
         case 'p':
-          if (i + 1 >= value.length()) {
+          if (!digits) {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
+            throw new IllegalArgumentException(
+                    "expected number followed by either px, mm, cm, or m");
+          } else if (i + 1 >= value.length()) {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
             throw new IllegalArgumentException("expected x following p, but string ends at p");
           } else if (value.charAt(i + 1) != 'x') {
+            assert !value.matches("[0-9]+(px|mm|cm|m)")
+                    : "value must be given as a number followed by either px, mm, cm, or m";
             throw new IllegalArgumentException("expected x following p");
           }
 
+          assert value.matches("[0-9]+(px|mm|cm|m)")
+                  : "value must be given as a number followed by either px, mm, cm, or m";
           return sourceLength;
         default:
+          assert !value.matches("[0-9]+(px|mm|cm|m)")
+                  : "value must be given as a number followed by either px, mm, cm, or m";
           throw new IllegalStateException(
                   "statement has encountered an unexpected character: " + ch);
       }
     }
 
+    assert !value.matches("[0-9]+(px|mm|cm|m)")
+            : "value must be given as a number followed by either px, mm, cm, or m";
     throw new IllegalStateException("failed to locate and return source unit");
   }
 
