@@ -44,6 +44,20 @@ public enum LengthUnit {
 
   private static final long MAX = Long.MAX_VALUE;
 
+  /**
+   * Number of pixels on the screen which equals the corresponding length and {@code LengthUnit}.
+   * Value is expected in the given regular expression: {@code [0-9]+(px|mm|cm|m)}.
+   * <ul>
+   *   <li>px <i>(pixels)</i></li>
+   *   <li>mm <i>(millimeters)</i></li>
+   *   <li>cm <i>(centimeters)</i></li>
+   *   <li>m <i>(meters)</i></li>
+   * </ul>
+   *
+   * @param value String representation of the length and {@code LengthUnit} to translate
+   *
+   * @return Number of pixels corresponding with that length and unit
+   */
   public static long toPixels(@NonNull final String value) {
     if (value == null) {
       throw new IllegalArgumentException("value cannot be null");
@@ -55,23 +69,53 @@ public enum LengthUnit {
     }
 
     char ch;
+    boolean digits = false;
     long sourceLength = 0L;
-    for (int i = 0; i < value.length(); i++) {
+    changeState: for (int i = 0; i < value.length(); i++) {
       ch = value.charAt(i);
       switch (ch) {
         case '0':case '1':case '2':case '3':case '4':
         case '5':case '6':case '7':case '8':case '9':
+          digits = true;
           sourceLength *= 10;
           sourceLength += (ch - 48);
+          for (int j = i + 1; j < value.length(); j++) {
+            ch = value.charAt(j);
+            switch (ch) {
+              case '0':case '1':case '2':case '3':case '4':
+              case '5':case '6':case '7':case '8':case '9':
+                sourceLength *= 10;
+                sourceLength += (ch - 48);
+                i = j;
+                break;
+              default:
+                continue changeState;
+            }
+          }
+          break;
         case 'c':
+          if (i + 1 >= value.length()) {
+            throw new IllegalArgumentException("expected m following c, but string ends at c");
+          } else if (value.charAt(i + 1) != 'm') {
+            throw new IllegalArgumentException("expected m following c");
+          }
+
           return toPixels(sourceLength, CENTIMETERS);
         case 'm':
-          if (i == value.length()) {
+          if (i + 1 == value.length()) {
             return toPixels(sourceLength, METERS);
-          } else {
-            return toPixels(sourceLength, MILLIMETERS);
+          } else if (value.charAt(i + 1) != 'm') {
+            throw new IllegalArgumentException("expected m following m");
           }
+
+          return toPixels(sourceLength, MILLIMETERS);
         case 'p':
+          if (i + 1 >= value.length()) {
+            throw new IllegalArgumentException("expected x following p, but string ends at p");
+          } else if (value.charAt(i + 1) != 'x') {
+            throw new IllegalArgumentException("expected x following p");
+          }
+
           return sourceLength;
         default:
           throw new IllegalStateException(
@@ -82,15 +126,45 @@ public enum LengthUnit {
     throw new IllegalStateException("failed to locate and return source unit");
   }
 
+  /**
+   * Number of pixels on the screen which equals the corresponding length and {@code LengthUnit}.
+   *
+   * @param sourceLength Length of the measurement
+   * @param sourceUnit   Unit which the length was given
+   *
+   * @return Number of pixels corresponding with that length and unit
+   */
   public static long toPixels(long sourceLength, LengthUnit sourceUnit) {
     return toPixelsX(sourceLength, sourceUnit);
   }
 
+  /**
+   * Number of pixels on the {@code x}-axis of the screen which equals the corresponding length and
+   * {@code LengthUnit}.
+   *
+   * @param sourceLength Length of the measurement
+   * @param sourceUnit   Unit which the length was given
+   *
+   * @return Number of pixels corresponding with that length and unit
+   *
+   * @see #toPixelsY(long, LengthUnit)
+   */
   public static long toPixelsX(long sourceLength, LengthUnit sourceUnit) {
     long mms = sourceUnit.toMillimeters(sourceLength);
     return (long)(Gdx.graphics.getPpcX() * (double)mms/10);
   }
 
+  /**
+   * Number of pixels on the {@code y}-axis of the screen which equals the corresponding length and
+   * {@code LengthUnit}.
+   *
+   * @param sourceLength Length of the measurement
+   * @param sourceUnit   Unit which the length was given
+   *
+   * @return Number of pixels corresponding with that length and unit
+   *
+   * @see #toPixelsX(long, LengthUnit)
+   */
   public static long toPixelsY(long sourceLength, LengthUnit sourceUnit) {
     long mms = sourceUnit.toMillimeters(sourceLength);
     return (long)(Gdx.graphics.getPpcY() * (double)mms/10);
