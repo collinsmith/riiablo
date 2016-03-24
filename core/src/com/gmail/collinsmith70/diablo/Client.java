@@ -42,7 +42,8 @@ private final Dimension RESOLUTION;
 private final PrintStream STDOUT;
 private final PrintStream STDERR;
 
-private final boolean FORCE_WINDOWED;
+private boolean forcedWindowed;
+private boolean forcedDrawFps;
 
 private ClientConsole CONSOLE;
 private ClientConsoleWidget CONSOLE_WIDGET;
@@ -67,15 +68,18 @@ private boolean pCvar_Windowed;
 private BitmapFont font;
 
 public Client(int width, int height) {
-    this(width, height, false);
-}
-
-public Client(int width, int height, boolean forceWindowed) {
     this.RESOLUTION = new ImmutableDimension(width, height);
-    this.FORCE_WINDOWED = forceWindowed;
 
     this.STDOUT = System.out;
     this.STDERR = System.err;
+}
+
+public void setForcedWindowed(boolean windowed) {
+    this.forcedWindowed = windowed;
+}
+
+public void setForcedDrawFps(boolean drawFps) {
+    this.forcedDrawFps = drawFps;
 }
 
 @Override
@@ -163,7 +167,7 @@ private void initPCvars() {
         public void onChanged(Cvar<Boolean> cvar, Boolean from, Boolean to) {
             Client.this.pCvar_Windowed = to;
             if (Gdx.app.getType() == Application.ApplicationType.Desktop
-                    && !Client.this.FORCE_WINDOWED) {
+                    && !Client.this.forcedWindowed) {
                 Gdx.graphics.setDisplayMode(
                         Gdx.graphics.getWidth(),
                         Gdx.graphics.getHeight(),
@@ -211,7 +215,7 @@ public GdxKeyManager getKeyManager() { return KEY_MANAGER; }
 public BitmapFont getDefaultFont() { return font; }
 
 public boolean isFullscreen() {
-    return !pCvar_Windowed && !FORCE_WINDOWED;
+    return !pCvar_Windowed && !forcedWindowed;
 }
 
 public void setScene(HudedScene scene) {
@@ -243,14 +247,15 @@ public void render() {
     b.begin(); {
         WINDOW.draw(b);
         final BitmapFont font = getDefaultFont();
-        if (pCvar_showFps > 0) {
+        if (pCvar_showFps > 0 || forcedDrawFps) {
             GlyphLayout fps = new GlyphLayout(
                     font,
                     Integer.toString(Gdx.graphics.getFramesPerSecond()));
 
             float x = 0;
             float y = 0;
-            switch (pCvar_showFps) {
+            int resolvedShowFps = forcedDrawFps ? 1 : pCvar_showFps;
+            switch (resolvedShowFps) {
                 case 1:
                     x = 0;
                     y = RESOLUTION.height;
