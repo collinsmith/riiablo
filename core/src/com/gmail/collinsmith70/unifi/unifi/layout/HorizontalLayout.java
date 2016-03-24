@@ -8,8 +8,9 @@ public class HorizontalLayout extends LinearLayout {
 
   @Override
   public void requestLayout() {
-
+    int childrenWidth = 0;
     final Set<Gravity> gravity = getGravity();
+    final Direction direction = getDirection();
     for (Widget child : this) {
 
       if (gravity.contains(Gravity.CENTER_VERTICAL)) {
@@ -20,14 +21,40 @@ public class HorizontalLayout extends LinearLayout {
         child.translateTop(getHeight() - getPaddingTop());
       }
 
-      if (gravity.contains(Gravity.CENTER_HORIZONTAL)) {
-        child.translateHorizontalCenter((getWidth() - getPaddingLeft() - getPaddingRight()) / 2);
-      } else if (gravity.contains(Gravity.RIGHT)) {
-        child.translateRight(getWidth() - getPaddingRight());
-      } else {
-        child.translateLeft(getPaddingLeft());
+      childrenWidth += child.getWidth();
+
+    }
+
+    int offset = 0;
+    for (Widget child : this) {
+      switch (direction) {
+        case START_TO_END:
+          child.translateLeft(getPaddingLeft() + offset);
+          break;
+        case END_TO_START:
+          child.translateRight(getPaddingLeft() + childrenWidth - offset);
+          break;
+        default:
       }
 
+      offset += child.getWidth();
+
+    }
+
+    if (gravity.contains(Gravity.LEFT)) {
+      return;
+    }
+
+    if (gravity.contains(Gravity.CENTER_HORIZONTAL)) {
+      final int shift = getWidth() / 2 - childrenWidth / 2;
+      for (Widget child : this) {
+        child.translateLeft(child.getLeft() + shift);
+      }
+    } else if (gravity.contains(Gravity.RIGHT)) {
+      final int shift = getWidth() - getPaddingLeft() + childrenWidth;
+      for (Widget child : this) {
+        child.translateRight(child.getRight() + shift);
+      }
     }
   }
 
