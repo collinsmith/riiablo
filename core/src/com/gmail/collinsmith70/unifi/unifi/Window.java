@@ -5,6 +5,8 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
@@ -16,7 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 public class Window
-        implements WidgetParent {
+        implements WidgetParent, Disposable {
 
   @NonNull private final Dimension2D dimension;
 
@@ -27,6 +29,15 @@ public class Window
     this.children = new ArrayList<Widget>();
   }
 
+  public void draw(@NonNull final Batch batch) {
+    assert batch != null : "catch should not be null";
+  }
+
+  @Override
+  public void dispose() {
+
+  }
+
   public void resize(int width, int height) {
     dimension.set(width, height);
   }
@@ -34,6 +45,14 @@ public class Window
   @Override
   public void requestLayout() {
 
+  }
+
+  public void setDebugging(boolean debugging) {
+    System.setProperty(Window.class.getName() + "debugMode", Boolean.toString(debugging));
+  }
+
+  public boolean isDebugging() {
+    return Boolean.parseBoolean(System.getProperty(Window.class.getName() + "debugMode"));
   }
 
   @Nullable

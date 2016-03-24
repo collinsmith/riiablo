@@ -304,7 +304,7 @@ public class Widget
    */
   @CallSuper
   public boolean isDebug() {
-    return FLAGS.contains(Flag.DEBUG);
+    return FLAGS.contains(Flag.DEBUG) || getWindow().isDebugging();
   }
 
   /**

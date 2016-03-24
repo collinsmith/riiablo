@@ -19,13 +19,13 @@ import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
 import com.gmail.collinsmith70.key.KeyStateAdapter;
 import com.gmail.collinsmith70.unifi.layout.AnchoredLayout;
-import com.gmail.collinsmith70.unifi.layout.LinearLayout;
-import com.gmail.collinsmith70.unifi.layout.RelativeLayout;
-import com.gmail.collinsmith70.unifi.widget.Button;
-import com.gmail.collinsmith70.unifi.widget.TextWidget;
-import com.gmail.collinsmith70.unifi.widget.Widget;
-import com.gmail.collinsmith70.unifi.widget.WidgetGroup;
-import com.gmail.collinsmith70.unifi.widget.Window;
+import com.gmail.collinsmith70.unifi.unifi.Widget;
+import com.gmail.collinsmith70.unifi.unifi.WidgetGroup;
+import com.gmail.collinsmith70.unifi.unifi.Window;
+import com.gmail.collinsmith70.unifi.unifi.layout.HorizontalLayout;
+import com.gmail.collinsmith70.unifi.unifi.layout.LinearLayout;
+import com.gmail.collinsmith70.unifi.unifi.layout.VerticalLayout;
+import com.gmail.collinsmith70.unifi.unifi.widget.Button;
 import com.gmail.collinsmith70.util.ImmutableDimension;
 import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 
@@ -110,39 +110,24 @@ public void create() {
     //STAGE.setViewport(new FitViewport(RESOLUTION.width, RESOLUTION.height));
     //STAGE.setDebugAll(true);
 
-    Widget button1 = new Button();
-    button1.setSize(128, 128);
-    Widget button2 = new Button();
-    button2.setSize(256, 256);
+    Button button1 = new Button();
+    button1.put(WidgetGroup.LayoutParams.layout_width, "128px");
+    button1.put(WidgetGroup.LayoutParams.layout_height, "128px");
+    Button button2 = new Button();
+    button2.put(WidgetGroup.LayoutParams.layout_width, "256px");
+    button2.put(WidgetGroup.LayoutParams.layout_height, "256px");
     button2.setVisibility(Widget.Visibility.INVISIBLE);
-    Widget button3 = new Button();
-    button3.setSize(256, 128);
+    Button button3 = new Button();
+    button3.put(WidgetGroup.LayoutParams.layout_width, "256px");
+    button3.put(WidgetGroup.LayoutParams.layout_height, "128px");
     button3.put("anchorDst", AnchoredLayout.Anchor.CENTER);
-    Widget button4 = new Button();
-    button4.setSize(256, 128);
 
-    TextWidget textWidget1 = new TextWidget(getDefaultFont(), "Hello World!");
-    textWidget1.put("anchorDst", AnchoredLayout.Anchor.TOP_RIGHT);
-
-    WidgetGroup ll1 = new LinearLayout(LinearLayout.Orientation.VERTICAL, 8);
-    ll1.setSize(512, 512);
-    ll1.addWidget(button1).addWidget(button2);
-    ll1.setLayoutParams(new WidgetGroup.LayoutParams(
-            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
-    ll1.put("anchorDst", AnchoredLayout.Anchor.TOP_LEFT);
-
-    WidgetGroup ll3 = new LinearLayout(LinearLayout.Orientation.VERTICAL,
-            LinearLayout.Direction.END_TO_START);
-    ll3.addWidget(button4);
-    ll3.setLayoutParams(new WidgetGroup.LayoutParams(
-            WidgetGroup.LayoutParams.WRAP_CONTENT, WidgetGroup.LayoutParams.WRAP_CONTENT));
-    ll3.put("anchorDst", AnchoredLayout.Anchor.BOTTOM_RIGHT);
-
-    WidgetGroup ll2 = new RelativeLayout();
-    ll2.addWidget(ll1).addWidget(button3).addWidget(ll3).addWidget(textWidget1);
-    ll2.setLayoutParams(new WidgetGroup.LayoutParams(
-            WidgetGroup.LayoutParams.FILL_PARENT, WidgetGroup.LayoutParams.FILL_PARENT));
-    ll2.setPadding(24, 24, 24, 24);
+    LinearLayout ll1 = new VerticalLayout();
+    ll1.addWidget(button1);
+    ll1.addWidget(button2);
+    LinearLayout ll2 = new HorizontalLayout();
+    ll2.addWidget(ll1);
+    ll2.addWidget(button3);
 
     this.BATCH = new SpriteBatch(1024);
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
@@ -152,7 +137,7 @@ public void create() {
     Gdx.input.setCatchBackKey(true);
     Gdx.input.setCatchMenuKey(true);
     //this.INPUT_PROCESSOR = new ClientInputProcessor(this, STAGE);
-    this.INPUT_PROCESSOR = new ClientInputProcessor(this, WINDOW);
+    //this.INPUT_PROCESSOR = new ClientInputProcessor(this, WINDOW);
     Gdx.input.setInputProcessor(INPUT_PROCESSOR);
 
     Keys.Console.addStateListener(new KeyStateAdapter<Integer>() {
@@ -310,7 +295,7 @@ public void dispose() {
     Gdx.app.log(TAG, "Disposing stage...");
     //STAGE.dispose();
     //this.STAGE = null;
-    getWindow().dispose();
+    WINDOW.dispose();
     this.WINDOW = null;
     this.BATCH.dispose();
     this.BATCH = null;
