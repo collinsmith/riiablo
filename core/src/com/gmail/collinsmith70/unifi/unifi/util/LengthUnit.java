@@ -48,8 +48,7 @@ public enum LengthUnit {
     LOOKING_FOR_DIGITS,
     PARSING_DIGITS,
     PARSING_WHITESPACE,
-    PARSING_METRIC,
-    DONE
+    PARSING_METRIC
   }
 
   /**
