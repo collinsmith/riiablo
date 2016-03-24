@@ -170,37 +170,6 @@ public enum LengthUnit {
    * @return Number of pixels corresponding with that length and unit
    */
   public static int toPixels(double sourceLength, LengthUnit sourceUnit) {
-    return toPixelsX(sourceLength, sourceUnit);
-  }
-
-  /**
-   * Number of pixels on the {@code x}-axis of the screen which equals the corresponding length and
-   * {@code LengthUnit}.
-   *
-   * @param sourceLength Length of the measurement
-   * @param sourceUnit   Unit which the length was given
-   *
-   * @return Number of pixels corresponding with that length and unit
-   *
-   * @see #toPixelsY(double, LengthUnit)
-   */
-  public static int toPixelsX(double sourceLength, LengthUnit sourceUnit) {
-    double cms = sourceUnit.toCentimeters(sourceLength);
-    return (int)Math.round(PPC * cms);
-  }
-
-  /**
-   * Number of pixels on the {@code y}-axis of the screen which equals the corresponding length and
-   * {@code LengthUnit}.
-   *
-   * @param sourceLength Length of the measurement
-   * @param sourceUnit   Unit which the length was given
-   *
-   * @return Number of pixels corresponding with that length and unit
-   *
-   * @see #toPixelsX(double, LengthUnit)
-   */
-  public static int toPixelsY(double sourceLength, LengthUnit sourceUnit) {
     double cms = sourceUnit.toCentimeters(sourceLength);
     return (int)Math.round(PPC * cms);
   }
