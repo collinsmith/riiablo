@@ -8,9 +8,10 @@ public class HorizontalLayout extends LinearLayout {
 
   @Override
   public void requestLayout() {
-    int childrenWidth = 0;
+    final int spacing = getSpacing();
     final Set<Gravity> gravity = getGravity();
     final Direction direction = getDirection();
+    int childrenWidth = -spacing;
     for (Widget child : this) {
 
       if (gravity.contains(Gravity.CENTER_VERTICAL)) {
@@ -21,7 +22,7 @@ public class HorizontalLayout extends LinearLayout {
         child.translateTop(getHeight() - getPaddingTop());
       }
 
-      childrenWidth += child.getWidth();
+      childrenWidth += child.getWidth() + spacing;
 
     }
 
@@ -37,7 +38,7 @@ public class HorizontalLayout extends LinearLayout {
         default:
       }
 
-      offset += child.getWidth();
+      offset += child.getWidth() + spacing;
 
     }
 
