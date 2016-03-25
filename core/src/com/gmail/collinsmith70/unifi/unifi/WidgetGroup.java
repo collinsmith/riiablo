@@ -471,4 +471,11 @@ public abstract class WidgetGroup extends Widget
     return Collections.unmodifiableCollection(children);
   }
 
+  @Override
+  public void dispose() {
+    for (Widget child : this) {
+      child.dispose();
+    }
+  }
+
 }

@@ -9,6 +9,7 @@ import android.support.annotation.StringDef;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
@@ -22,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class Widget
-        implements Bounded, Paddable, Translateable {
+public abstract class Widget
+        implements Bounded, Paddable, Translateable, Disposable {
 
   @StringDef
   @Documented
