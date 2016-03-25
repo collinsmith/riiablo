@@ -201,9 +201,14 @@ public class Widget
       throw new IllegalArgumentException("param cannot be null");
     } else if (param.isEmpty()) {
       throw new IllegalArgumentException("param cannot be empty");
+    } else if (get(param).equals(value)) {
+      return;
     }
 
     LAYOUT_PARAMS.put(param, value);
+    for (LayoutParamChangeListener l : LAYOUT_PARAM_CHANGE_LISTENERS) {
+      l.onChanged(param, value);
+    }
   }
 
   /**
