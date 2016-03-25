@@ -1320,4 +1320,9 @@ public abstract class Widget
             || getPaddingRight() > 0 || getPaddingBottom() > 0;
   }
 
+  @Override
+  public void dispose() {
+
+  }
+
 }
