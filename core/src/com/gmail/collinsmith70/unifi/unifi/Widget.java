@@ -203,7 +203,7 @@ public class Widget
       throw new IllegalArgumentException("param cannot be empty");
     }
 
-    Object curValue = get(param);
+    final Object curValue = get(param);
     if (curValue == null && containsKey(param) && value == null) {
       return;
     } else if (curValue != null && curValue.equals(value)) {
