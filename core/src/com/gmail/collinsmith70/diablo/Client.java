@@ -127,9 +127,13 @@ public void create() {
     button3.put("anchorDst", AnchoredLayout.Anchor.CENTER);
 
     LinearLayout ll1 = new VerticalLayout();
+    ll1.put(WidgetGroup.LayoutParams.layout_width, "wrap_content");
+    ll1.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
     ll1.addWidget(button1);
     ll1.addWidget(button2);
     LinearLayout ll2 = new HorizontalLayout();
+    ll2.put(WidgetGroup.LayoutParams.layout_width, "wrap_content");
+    ll2.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
     ll2.addWidget(ll1);
     ll2.addWidget(button3);
 
