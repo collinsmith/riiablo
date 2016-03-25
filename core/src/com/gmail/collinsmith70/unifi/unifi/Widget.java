@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Widget
         implements Bounded, Paddable, Translateable {
@@ -28,6 +29,21 @@ public class Widget
   @Documented
   @Target({ ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE })
   public @interface LayoutParam {}
+
+  /**
+   * Interface containing methods which will be called for various layout param events.
+   */
+  public interface LayoutParamChangeListener {
+
+    /**
+     * Called when a layout param value is changed.
+     *
+     * @param param Layout param name
+     * @param to    Value which the layout param was changed to
+     */
+    void onChanged(@NonNull final String param, @Nullable final Object to);
+
+  }
 
   /**
    * Enumeration of all boolean state fields for a {@code Widget}.
@@ -98,10 +114,12 @@ public class Widget
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingTop;
 
   @NonNull private final Map<String, Object> LAYOUT_PARAMS;
+  @NonNull private final Set<LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
 
   public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
     this.LAYOUT_PARAMS = new HashMap<String, Object>();
+    this.LAYOUT_PARAM_CHANGE_LISTENERS = new CopyOnWriteArraySet<LayoutParamChangeListener>();
 
     setEnabled(true);
     setVisibility(Visibility.VISIBLE);
@@ -131,6 +149,44 @@ public class Widget
               getWidth() - getPaddingLeft() - getPaddingRight(),
               getHeight() - getPaddingTop() - getPaddingBottom());
     } shapeRenderer.end();
+  }
+
+  /**
+   * Adds a {@link LayoutParamChangeListener} to this {@code Widget}.
+   *
+   * @param l {@code LayoutParamChangeListener} to add
+   */
+  public void addLayoutParamChangeListener(@NonNull final LayoutParamChangeListener l) {
+    if (l == null) {
+      throw new IllegalArgumentException("l cannot be null");
+    }
+
+    LAYOUT_PARAM_CHANGE_LISTENERS.add(l);
+  }
+
+  /**
+   * Checks whether or not this {@code Widget} will send callbacks to the specified
+   * {@link LayoutParamChangeListener}.
+   *
+   * @param l {@code LayoutParamChangeListener} to check
+   *
+   * @return {@code true} if it is, otherwise {@code false} if it will not, or if the passed
+   *         {@code LayoutParamChangeListener} is {@code null}.
+   */
+  public boolean containsLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
+    return l != null && LAYOUT_PARAM_CHANGE_LISTENERS.contains(l);
+  }
+
+  /**
+   * Removes the specified {@link LayoutParamChangeListener} from this {@code Widget}.
+   *
+   * @param l {@code LayoutParamChangeListener} to remove
+   *
+   * @return {@code true} if it was removed, otherwise {@code false} if it did not belong to this
+   *         {@code Widget}, or if the passed {@code LayoutParamChangeListener} is {@code null}.
+   */
+  public boolean removeLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
+    return l != null && LAYOUT_PARAM_CHANGE_LISTENERS.remove(l);
   }
 
   /**
