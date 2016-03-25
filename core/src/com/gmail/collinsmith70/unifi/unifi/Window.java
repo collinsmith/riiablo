@@ -30,7 +30,7 @@ public class Window
   }
 
   public void draw(@NonNull final Batch batch) {
-    assert batch != null : "catch should not be null";
+    assert batch != null : "batch should not be null";
   }
 
   @Override
