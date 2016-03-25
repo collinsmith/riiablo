@@ -35,7 +35,9 @@ public class Window
 
   @Override
   public void dispose() {
-
+    for (Widget child : this) {
+      child.dispose();
+    }
   }
 
   public void resize(int width, int height) {
