@@ -57,6 +57,8 @@ public class VerticalLayout extends LinearLayout {
         child.translateBottom(child.getBottom() + shift);
       }
     }
+
+    super.requestLayout();
   }
 
 }

@@ -406,6 +406,7 @@ public abstract class WidgetGroup extends Widget
 
     children.add(widget);
     widget.setParent(this);
+    requestLayout();
   }
 
   /**
@@ -443,6 +444,7 @@ public abstract class WidgetGroup extends Widget
 
     widget.setParent(null);
     boolean removed = children.remove(widget);
+    requestLayout();
     assert removed : "widget parent was this WidgetGroup but was not a child";
     return removed;
   }
@@ -475,6 +477,17 @@ public abstract class WidgetGroup extends Widget
   public void dispose() {
     for (Widget child : this) {
       child.dispose();
+    }
+  }
+
+  @Override
+  public void requestLayout() {
+    for (Widget child : this) {
+      if (!(child instanceof WidgetParent)) {
+        continue;
+      }
+
+      ((WidgetParent)child).requestLayout();
     }
   }
 

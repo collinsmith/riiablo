@@ -46,7 +46,13 @@ public class Window
 
   @Override
   public void requestLayout() {
+    for (Widget child : this) {
+      if (!(child instanceof WidgetParent)) {
+        continue;
+      }
 
+      ((WidgetParent)child).requestLayout();
+    }
   }
 
   public void setDebugging(boolean debugging) {
@@ -246,6 +252,7 @@ public class Window
 
     children.add(widget);
     widget.setParent(this);
+    requestLayout();
   }
 
   @Override
@@ -268,6 +275,7 @@ public class Window
 
     widget.setParent(null);
     boolean removed = children.remove(widget);
+    requestLayout();
     assert removed : "widget parent was this WidgetGroup but was not a child";
     return removed;
   }

@@ -57,6 +57,8 @@ public class HorizontalLayout extends LinearLayout {
         child.translateRight(child.getRight() + shift);
       }
     }
+
+    super.requestLayout();
   }
 
 }
