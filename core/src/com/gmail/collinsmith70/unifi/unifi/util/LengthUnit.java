@@ -35,8 +35,8 @@ public enum LengthUnit {
 
   METERS {
     @Override public double toPixels(double l)                       { return PPC * toCentimeters(l); }
-    @Override public double toMillimeters(double l)                  { return l / 1000; }
-    @Override public double toCentimeters(double l)                  { return l / 10; }
+    @Override public double toMillimeters(double l)                  { return l * 1000; }
+    @Override public double toCentimeters(double l)                  { return l * 10; }
     @Override public double toMeters(double l)                       { return l; }
     @Override public double convert(double l, @NonNull LengthUnit u) { return u.toMeters(l); }
   };
