@@ -483,6 +483,14 @@ public abstract class WidgetGroup extends Widget
   @Override
   public void requestLayout() {
     for (Widget child : this) {
+      if (child.get(LayoutParams.layout_width).toString().equalsIgnoreCase("match_parent")) {
+        child.setLeft(getPaddingLeft());
+        child.setRight(getWidth() - getPaddingRight());
+      } else if (child.get(LayoutParams.layout_height).toString().equalsIgnoreCase("match_parent")) {
+        child.setBottom(getPaddingBottom());
+        child.setTop(getHeight() - getPaddingTop());
+      }
+
       if (!(child instanceof WidgetParent)) {
         continue;
       }
