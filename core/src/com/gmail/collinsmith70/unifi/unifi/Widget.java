@@ -109,6 +109,9 @@ public abstract class Widget
   private int right;
   private int top;
 
+  private int minWidth;
+  private int minHeight;
+
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingBottom;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingLeft;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingRight;
@@ -877,6 +880,60 @@ public abstract class Widget
   public final boolean hasSize() {
     return getRight() > getLeft()
             && getTop() > getBottom();
+  }
+
+  /**
+   * Minimum width of this {@code Widget}. This value is a guideline and not guaranteed, e.g., in
+   * the case that the {@linkplain #getParent parent} of this {@code Widget} has constraints which
+   * do not allow for it.
+   *
+   * @return Minimum width the {@code Widget} will try to be.
+   */
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public final int getMinWidth() {
+    return minWidth;
+  }
+
+  /**
+   * Sets the minimum width of this {@code Widget}. This value is a guideline and not guaranteed,
+   * e.g., in the case that the {@linkplain #getParent parent} of this {@code Widget} has
+   * constraints which do not allow for it.
+   *
+   * @param minWidth Minimum width the {@code Widget} will try to be.
+   */
+  public final void setMinWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int minWidth) {
+    if (minWidth < 0) {
+      throw new IllegalArgumentException("minWidth must be greater than or equal to 0");
+    }
+
+    this.minWidth = minWidth;
+  }
+
+  /**
+   * Minimum height of this {@code Widget}. This value is a guideline and not guaranteed, e.g., in
+   * the case that the {@linkplain #getParent parent} of this {@code Widget} has constraints which
+   * do not allow for it.
+   *
+   * @return Minimum height the {@code Widget} will try to be.
+   */
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public final int getMinHeight() {
+    return minHeight;
+  }
+
+  /**
+   * Sets the minimum height of this {@code Widget}. This value is a guideline and not guaranteed,
+   * e.g., in the case that the {@linkplain #getParent parent} of this {@code Widget} has
+   * constraints which do not allow for it.
+   *
+   * @param minHeight Minimum height the {@code Widget} will try to be.
+   */
+  public final void setMinHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int minHeight) {
+    if (minHeight < 0) {
+      throw new IllegalArgumentException("minHeight must be greater than or equal to 0");
+    }
+
+    this.minHeight = minHeight;
   }
 
   /**
