@@ -500,11 +500,11 @@ public abstract class WidgetGroup extends Widget
       ((WidgetParent)child).requestLayout();
 
       if (child.get(LayoutParams.layout_width).toString().equalsIgnoreCase("wrap_content")) {
-        child.setRight(child.getLeft() + child.getMinWidth());
+        child.setRight(child.getLeft() + Math.max(child.getPreferredWidth(), child.getMinWidth()));
       }
 
       if (child.get(LayoutParams.layout_height).toString().equalsIgnoreCase("wrap_content")) {
-        child.setBottom(child.getTop() - child.getMinHeight());
+        child.setBottom(child.getTop() - Math.max(child.getPreferredHeight(), child.getMinHeight()));
       }
     }
   }
