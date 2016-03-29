@@ -112,6 +112,9 @@ public abstract class Widget
   private int minWidth;
   private int minHeight;
 
+  private int preferredWidth;
+  private int preferredHeight;
+
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingBottom;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingLeft;
   @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingRight;
@@ -934,6 +937,60 @@ public abstract class Widget
     }
 
     this.minHeight = minHeight;
+  }
+
+  /**
+   * Preferred width of this {@code Widget}. This value is a guideline and not guaranteed, e.g., in
+   * the case that the {@linkplain #getParent parent} of this {@code Widget} has constraints which
+   * do not allow for it.
+   *
+   * @return Preferred width the {@code Widget} will try to be.
+   */
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public final int getPreferredWidth() {
+    return preferredWidth;
+  }
+
+  /**
+   * Sets the preferred width of this {@code Widget}. This value is a guideline and not guaranteed,
+   * e.g., in the case that the {@linkplain #getParent parent} of this {@code Widget} has
+   * constraints which do not allow for it.
+   *
+   * @param preferredWidth Preferred width the {@code Widget} will try to be.
+   */
+  public final void setPreferredWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int preferredWidth) {
+    if (preferredWidth < 0) {
+      throw new IllegalArgumentException("preferredWidth must be greater than or equal to 0");
+    }
+
+    this.preferredWidth = preferredWidth;
+  }
+
+  /**
+   * Preferred height of this {@code Widget}. This value is a guideline and not guaranteed, e.g., in
+   * the case that the {@linkplain #getParent parent} of this {@code Widget} has constraints which
+   * do not allow for it.
+   *
+   * @return Preferred height the {@code Widget} will try to be.
+   */
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public final int getPreferredHeight() {
+    return preferredHeight;
+  }
+
+  /**
+   * Sets the preferred height of this {@code Widget}. This value is a guideline and not guaranteed,
+   * e.g., in the case that the {@linkplain #getParent parent} of this {@code Widget} has
+   * constraints which do not allow for it.
+   *
+   * @param preferredHeight Preferred height the {@code Widget} will try to be.
+   */
+  public final void setPreferredHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int preferredHeight) {
+    if (preferredHeight < 0) {
+      throw new IllegalArgumentException("preferredHeight must be greater than or equal to 0");
+    }
+
+    this.preferredHeight = preferredHeight;
   }
 
   /**
