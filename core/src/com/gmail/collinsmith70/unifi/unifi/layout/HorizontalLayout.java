@@ -12,6 +12,7 @@ public class HorizontalLayout extends LinearLayout {
     final Set<Gravity> gravity = getGravity();
     final Direction direction = getDirection();
     int childrenWidth = -spacing;
+    int preferredHeight = 0;
     for (Widget child : this) {
 
       if (gravity.contains(Gravity.CENTER_VERTICAL)) {
@@ -23,8 +24,12 @@ public class HorizontalLayout extends LinearLayout {
       }
 
       childrenWidth += child.getWidth() + spacing;
+      preferredHeight = Math.max(preferredHeight, child.getHeight());
 
     }
+
+    setPreferredWidth(childrenWidth);
+    setPreferredHeight(preferredHeight);
 
     int offset = 0;
     for (Widget child : this) {
