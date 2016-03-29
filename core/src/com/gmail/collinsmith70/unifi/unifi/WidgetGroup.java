@@ -483,19 +483,29 @@ public abstract class WidgetGroup extends Widget
   @Override
   public void requestLayout() {
     for (Widget child : this) {
-      if (child.get(LayoutParams.layout_width).toString().equalsIgnoreCase("match_parent")) {
-        child.setLeft(getPaddingLeft());
-        child.setRight(getWidth() - getPaddingRight());
-      } else if (child.get(LayoutParams.layout_height).toString().equalsIgnoreCase("match_parent")) {
-        child.setBottom(getPaddingBottom());
-        child.setTop(getHeight() - getPaddingTop());
-      }
-
       if (!(child instanceof WidgetParent)) {
         continue;
       }
 
+      if (child.get(LayoutParams.layout_width).toString().equalsIgnoreCase("match_parent")) {
+        child.setLeft(getPaddingLeft());
+        child.setRight(getWidth() - getPaddingRight());
+      }
+
+      if (child.get(LayoutParams.layout_height).toString().equalsIgnoreCase("match_parent")) {
+        child.setBottom(getPaddingBottom());
+        child.setTop(getHeight() - getPaddingTop());
+      }
+
       ((WidgetParent)child).requestLayout();
+
+      if (child.get(LayoutParams.layout_width).toString().equalsIgnoreCase("wrap_content")) {
+        child.setRight(child.getLeft() + child.getMinWidth());
+      }
+
+      if (child.get(LayoutParams.layout_height).toString().equalsIgnoreCase("wrap_content")) {
+        child.setBottom(child.getTop() - child.getMinHeight());
+      }
     }
   }
 
