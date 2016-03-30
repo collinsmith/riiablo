@@ -42,7 +42,9 @@ public enum LengthUnit {
   };
 
   private static final double MAX = Double.MAX_VALUE;
-  private static final double PPC = Gdx.graphics.getDensity() * 2.54;
+  private static final double DENSITY = Gdx.graphics.getDensity();
+  private static final double PPC = DENSITY * 2.54;
+  private static final double DP_DIVIDEND = DENSITY / 160;
 
   private enum State {
     LOOKING_FOR_DIGITS,
@@ -53,9 +55,10 @@ public enum LengthUnit {
 
   /**
    * Number of pixels on the screen which equals the corresponding length and {@code LengthUnit}.
-   * Value is expected in the given regular expression: {@code [0-9]+\w*(px|mm|cm|m)}.
+   * Value is expected in the given regular expression: {@code [0-9]+\w*(px|dp|mm|cm|m)}.
    * <ul>
    *   <li>px <i>(pixels)</i></li>
+   *   <li>dp <i>(density-independent pixels)</i></li>
    *   <li>mm <i>(millimeters)</i></li>
    *   <li>cm <i>(centimeters)</i></li>
    *   <li>m <i>(meters)</i></li>
@@ -91,6 +94,7 @@ public enum LengthUnit {
             if (Character.isWhitespace(ch)) {
               state = State.PARSING_WHITESPACE;
             } else if (ch == 'c'
+                    || ch == 'd'
                     || ch == 'p'
                     || ch == 'm') {
               i--;
@@ -106,6 +110,7 @@ public enum LengthUnit {
         case PARSING_WHITESPACE:
           if (!Character.isWhitespace(ch)) {
             if (ch == 'c'
+             || ch == 'd'
              || ch == 'p'
              || ch == 'm') {
               i--;
@@ -126,6 +131,15 @@ public enum LengthUnit {
               if (i + 2 == value.length()
                && value.charAt(i+1) == 'm') {
                 return CENTIMETERS.toPixels(sourceLength);
+              }
+
+              throw new IllegalArgumentException(
+                      "value should match the following regular expression: " +
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
+            case 'd':
+              if (i + 2 == value.length()
+                      && value.charAt(i+1) == 'p') {
+                return sourceLength / DP_DIVIDEND;
               }
 
               throw new IllegalArgumentException(
