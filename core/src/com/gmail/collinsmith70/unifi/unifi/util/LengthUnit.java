@@ -80,7 +80,7 @@ public enum LengthUnit {
         case LOOKING_FOR_DIGITS:
           if (ch < '0' || '9' < ch) {
             throw new IllegalArgumentException(
-                    "value should match the following regular expression: [0-9]+\\w*(px|mm|cm|m)");
+                    "value should match the following regular expression: [0-9]+\\w*(px|dp|mm|cm|m)");
           }
 
           sourceLength = ch - 48;
@@ -113,7 +113,7 @@ public enum LengthUnit {
             } else {
               throw new IllegalArgumentException(
                       "value should match the following regular expression: " +
-                              "[0-9]+\\w*(px|mm|cm|m)");
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
             }
 
             break;
@@ -130,7 +130,7 @@ public enum LengthUnit {
 
               throw new IllegalArgumentException(
                       "value should match the following regular expression: " +
-                              "[0-9]+\\w*(px|mm|cm|m)");
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
             case 'm':
               if (i + 1 == value.length()) {
                 return METERS.toPixels(sourceLength);
@@ -141,7 +141,7 @@ public enum LengthUnit {
 
               throw new IllegalArgumentException(
                       "value should match the following regular expression: " +
-                              "[0-9]+\\w*(px|mm|cm|m)");
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
             case 'p':
               if (i + 2 == value.length()
                && value.charAt(i+1) == 'x') {
@@ -150,35 +150,22 @@ public enum LengthUnit {
 
               throw new IllegalArgumentException(
                       "value should match the following regular expression: " +
-                              "[0-9]+\\w*(px|mm|cm|m)");
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
             default:
               throw new IllegalArgumentException(
                       "value should match the following regular expression: " +
-                              "[0-9]+\\w*(px|mm|cm|m)");
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
           }
         default:
           throw new IllegalArgumentException(
                   "value should match the following regular expression: " +
-                          "[0-9]+\\w*(px|mm|cm|m)");
+                          "[0-9]+\\w*(px|dp|mm|cm|m)");
       }
     }
 
     throw new IllegalArgumentException(
             "value should match the following regular expression: " +
-                    "[0-9]+\\w*(px|mm|cm|m)");
-  }
-
-  /**
-   * Number of pixels on the screen which equals the corresponding length and {@code LengthUnit}.
-   *
-   * @param sourceLength Length of the measurement
-   * @param sourceUnit   Unit which the length was given
-   *
-   * @return Number of pixels corresponding with that length and unit
-   */
-  public static int toPixels(double sourceLength, LengthUnit sourceUnit) {
-    double cms = sourceUnit.toCentimeters(sourceLength);
-    return (int)Math.round(PPC * cms);
+                    "[0-9]+\\w*(px|dp|mm|cm|m)");
   }
 
   /**
