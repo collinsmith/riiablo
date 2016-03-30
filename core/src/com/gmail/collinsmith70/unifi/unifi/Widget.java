@@ -147,8 +147,7 @@ public abstract class Widget
   protected void drawDebug(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
-    shapeRenderer.set(ShapeRenderer.ShapeType.Line);
-    shapeRenderer.begin(); {
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
       shapeRenderer.setColor(Color.DARK_GRAY);
       shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
       shapeRenderer.setColor(Color.LIGHT_GRAY);
@@ -156,6 +155,10 @@ public abstract class Widget
               getWidth() - getPaddingLeft() - getPaddingRight(),
               getHeight() - getPaddingTop() - getPaddingBottom());
     } shapeRenderer.end();
+
+    System.out.printf("%s: %d %d %d %d%n",
+            getClass().getSimpleName(),
+            getX(), getY(), getWidth(), getHeight());
   }
 
   /**
