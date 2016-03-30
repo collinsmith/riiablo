@@ -8,6 +8,7 @@ public class HorizontalLayout extends LinearLayout {
 
   @Override
   public void requestLayout() {
+    super.requestLayout();
     final int spacing = getSpacing();
     final Set<Gravity> gravity = getGravity();
     final Direction direction = getDirection();
@@ -62,8 +63,6 @@ public class HorizontalLayout extends LinearLayout {
         child.translateRight(child.getRight() + shift);
       }
     }
-
-    super.requestLayout();
   }
 
 }

@@ -483,6 +483,7 @@ public abstract class WidgetGroup extends Widget
 
   @Override
   public void requestLayout() {
+    System.out.println("WidgetGroup#requestLayout();");
     for (Widget child : this) {
       if (!(child instanceof WidgetParent)) {
         continue;
@@ -495,6 +496,7 @@ public abstract class WidgetGroup extends Widget
         child.setLeft(getPaddingLeft());
         child.setRight(getWidth() - getPaddingRight());
       } else if (!layout_width.equalsIgnoreCase("wrap_content")) {
+        System.out.println("layout_width = " + LengthUnit.toPixels(layout_width));
         child.setRight(child.getLeft() + (int)LengthUnit.toPixels(layout_width));
       }
 
@@ -502,6 +504,7 @@ public abstract class WidgetGroup extends Widget
         child.setBottom(getPaddingBottom());
         child.setTop(getHeight() - getPaddingTop());
       } else if (!layout_height.toString().equalsIgnoreCase("wrap_content")) {
+        System.out.println("layout_height = " + LengthUnit.toPixels(layout_height));
         child.setBottom(child.getTop() - (int)LengthUnit.toPixels(layout_height));
       }
 

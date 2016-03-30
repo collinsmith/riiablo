@@ -46,6 +46,7 @@ public class Window
 
   @Override
   public void requestLayout() {
+    System.out.println("Window#requestLayout();");
     for (Widget child : this) {
       if (!(child instanceof WidgetParent)) {
         continue;
