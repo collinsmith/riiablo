@@ -6,13 +6,13 @@ package com.gmail.collinsmith70.util;
  */
 public class ValidationException extends RuntimeException {
 
-/**
- * Constructs a new {@linkplain ValidationException}.
- *
- * @param reason brief reason on why the object was invalidated
- */
-public ValidationException(String reason) {
+  /**
+   * Constructs a new {@linkplain ValidationException}.
+   *
+   * @param reason brief reason on why the object was invalidated
+   */
+  public ValidationException(String reason) {
     super(reason);
-}
+  }
 
 }

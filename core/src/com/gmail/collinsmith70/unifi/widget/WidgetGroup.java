@@ -21,165 +21,200 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public abstract class WidgetGroup extends Widget
         implements WidgetParent, WidgetManager, Iterable<Widget> {
 
-private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>() {
+  private final Comparator<Widget> ELEVATION_COMPARATOR = new Comparator<Widget>() {
     /**
      * Implementation of {@link Comparator#compare(Object, Object)} which compares {@code Widget}
      * instances based on their {@linkplain Widget#getElevation() elevation} (low to high).
      *
      * {@inheritDoc}
-     */ @Override
-    @IntRange(from = -1, to = 1) public int compare(Widget o1, Widget o2) {
-        return Float.compare(o1.getElevation(), o2.getElevation());
+     */
+    @Override
+    @IntRange(from = -1, to = 1)
+    public int compare(Widget o1, Widget o2) {
+      return Float.compare(o1.getElevation(), o2.getElevation());
     }
-};
+  };
 
-private final Collection<Widget> CHILDREN;
-private final List<Widget> SORTED_CHILDREN;
+  private final Collection<Widget> CHILDREN;
+  private final List<Widget> SORTED_CHILDREN;
 
-public WidgetGroup() {
+  public WidgetGroup() {
     this.CHILDREN = new CopyOnWriteArrayList<Widget>();
     this.SORTED_CHILDREN = new LinkedList<Widget>();
-}
+  }
 
-@Override public void requestLayout() {
+  @Override
+  public void requestLayout() {
     if (getLayoutParams() == null) {
-        layoutChildren();
-        return;
+      layoutChildren();
+      return;
     }
 
     layoutHorizontal();
-}
-protected void layoutChildren() {
-    for (Widget child : this) {
-        if (!(child instanceof WidgetParent)) {
-            continue;
-        } else if (child.getVisibility().equals(Visibility.GONE)) {
-            continue;
-        }
+  }
 
-        WidgetParent widgetParent = (WidgetParent)child;
-        widgetParent.requestLayout();
+  protected void layoutChildren() {
+    for (Widget child : this) {
+      if (!(child instanceof WidgetParent)) {
+        continue;
+      } else if (child.getVisibility().equals(Visibility.GONE)) {
+        continue;
+      }
+
+      WidgetParent widgetParent = (WidgetParent) child;
+      widgetParent.requestLayout();
     }
-}
-private void layoutHorizontal() {
+  }
+
+  private void layoutHorizontal() {
     assert getLayoutParams() != null : "LayoutParams should not be null";
     final int width = getLayoutParams().getWidth();
     switch (width) {
-        case LayoutParams.FILL_PARENT:
-            if (!hasParent()) {
-                break;
-            }
+      case LayoutParams.FILL_PARENT:
+        if (!hasParent()) {
+          break;
+        }
 
-            setWidth(getParent().getWidth());
-            setX(0);
-            layoutVertical();
-            break;
-        case LayoutParams.WRAP_CONTENT:
-            layoutVertical();
-            setWidth(getMinWidth());
-            break;
-        default:
-            setWidth(width);
-            layoutVertical();
+        setWidth(getParent().getWidth());
+        setX(0);
+        layoutVertical();
+        break;
+      case LayoutParams.WRAP_CONTENT:
+        layoutVertical();
+        setWidth(getMinWidth());
+        break;
+      default:
+        setWidth(width);
+        layoutVertical();
     }
-}
-private void layoutVertical() {
+  }
+
+  private void layoutVertical() {
     assert getLayoutParams() != null : "LayoutParams should not be null";
     final int height = getLayoutParams().getHeight();
     switch (height) {
-        case LayoutParams.FILL_PARENT:
-            if (!hasParent()) {
-                break;
-            }
+      case LayoutParams.FILL_PARENT:
+        if (!hasParent()) {
+          break;
+        }
 
-            setHeight(getParent().getHeight());
-            setY(0);
-            layoutChildren();
-            break;
-        case LayoutParams.WRAP_CONTENT:
-            layoutChildren();
-            setHeight(getMinHeight());
-            break;
-        default:
-            setHeight(height);
-            layoutChildren();
+        setHeight(getParent().getHeight());
+        setY(0);
+        layoutChildren();
+        break;
+      case LayoutParams.WRAP_CONTENT:
+        layoutChildren();
+        setHeight(getMinHeight());
+        break;
+      default:
+        setHeight(height);
+        layoutChildren();
     }
-}
+  }
 
-public int getMarginBottom() { throw new UnsupportedOperationException(); }
-public int getMarginLeft() { throw new UnsupportedOperationException(); }
-public int getMarginRight() { throw new UnsupportedOperationException(); }
-public int getMarginTop() { throw new UnsupportedOperationException(); }
+  public int getMarginBottom() {
+    throw new UnsupportedOperationException();
+  }
 
-@Override public void onDrawDebug(@NonNull Batch batch) {
+  public int getMarginLeft() {
+    throw new UnsupportedOperationException();
+  }
+
+  public int getMarginRight() {
+    throw new UnsupportedOperationException();
+  }
+
+  public int getMarginTop() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void onDrawDebug(@NonNull Batch batch) {
     //super.onDrawDebug(batch);
     if (hasPadding()) {
-        final DottedShapeRenderer shapeRenderer = new DottedShapeRenderer();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
-            shapeRenderer.setColor(Color.TEAL);
-            shapeRenderer.rect(getX()+getPaddingLeft(), getY()+getPaddingBottom(),
-                    getWidth()-getPaddingLeft()-getPaddingRight(),
-                    getHeight()-getPaddingTop()-getPaddingBottom(),
-                    8);
-        } shapeRenderer.end();
-        shapeRenderer.dispose();
+      final DottedShapeRenderer shapeRenderer = new DottedShapeRenderer();
+      shapeRenderer.begin(ShapeRenderer.ShapeType.Point);
+      {
+        shapeRenderer.setColor(Color.TEAL);
+        shapeRenderer.rect(getX() + getPaddingLeft(), getY() + getPaddingBottom(),
+                getWidth() - getPaddingLeft() - getPaddingRight(),
+                getHeight() - getPaddingTop() - getPaddingBottom(),
+                8);
+      }
+      shapeRenderer.end();
+      shapeRenderer.dispose();
     }
 
     final DottedShapeRenderer shapeRenderer = new DottedShapeRenderer();
-    shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
-        shapeRenderer.setColor(Color.valueOf("404040FF"));
-        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight(), 8);
-    } shapeRenderer.end();
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Point);
+    {
+      shapeRenderer.setColor(Color.valueOf("404040FF"));
+      shapeRenderer.rect(getX(), getY(), getWidth(), getHeight(), 8);
+    }
+    shapeRenderer.end();
     shapeRenderer.dispose();
-}
+  }
 
-@Override @NonNull public Collection<Widget> getChildren() {
+  @Override
+  @NonNull
+  public Collection<Widget> getChildren() {
     return ImmutableList.copyOf(CHILDREN);
-}
-@Override public Iterator<Widget> iterator() {
-    return Iterators.unmodifiableIterator(CHILDREN.iterator());
-}
+  }
 
-@IntRange(from = 0, to = Integer.MAX_VALUE) private int minWidth;
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getMinWidth() {
+  @Override
+  public Iterator<Widget> iterator() {
+    return Iterators.unmodifiableIterator(CHILDREN.iterator());
+  }
+
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int minWidth;
+
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getMinWidth() {
     return minWidth;
-}
-public void setMinWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
+  }
+
+  public void setMinWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
     if (width < 0) {
-        throw new IllegalArgumentException("height should be greater than 0");
+      throw new IllegalArgumentException("height should be greater than 0");
     }
 
     this.minWidth = width;
-}
+  }
 
-@IntRange(from = 0, to = Integer.MAX_VALUE) private int minHeight;
-@IntRange(from = 0, to = Integer.MAX_VALUE) public int getMinHeight() {
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int minHeight;
+
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getMinHeight() {
     return minHeight;
-}
-public void setMinHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+  }
+
+  public void setMinHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     if (height < 0) {
-        throw new IllegalArgumentException("height should be greater than 0");
+      throw new IllegalArgumentException("height should be greater than 0");
     }
 
     this.minHeight = height;
-}
+  }
 
-@Override
-public void setDebugging(boolean debugging) {
+  @Override
+  public void setDebugging(boolean debugging) {
     if (debugging == isDebugging()) {
-        return;
+      return;
     }
 
     super.setDebugging(debugging);
     for (Widget child : this) {
-        child.setDebugging(true);
+      child.setDebugging(true);
     }
-}
+  }
 
-@NonNull
-@Override public WidgetManager addWidget(@NonNull Widget child) {
+  @NonNull
+  @Override
+  public WidgetManager addWidget(@NonNull Widget child) {
     if (child == null) {
-        throw new IllegalArgumentException("child widget cannot be null");
+      throw new IllegalArgumentException("child widget cannot be null");
     }
 
     CHILDREN.add(child);
@@ -187,120 +222,137 @@ public void setDebugging(boolean debugging) {
     child.setParent(this);
     Window window = getWindow();
     if (window != null) {
-        window.requestLayout();
+      window.requestLayout();
     }
 
     return this;
-}
-@Override public boolean containsWidget(@Nullable Widget child) {
+  }
+
+  @Override
+  public boolean containsWidget(@Nullable Widget child) {
     return child != null && CHILDREN.contains(child);
-}
-@Override public boolean removeWidget(@Nullable Widget child) {
+  }
+
+  @Override
+  public boolean removeWidget(@Nullable Widget child) {
     if (child == null) {
-        return false;
+      return false;
     }
 
     if (child.getParent() == this) {
-        child.setParent(null);
+      child.setParent(null);
     }
 
     SORTED_CHILDREN.remove(child);
     boolean removed = CHILDREN.remove(child);
     Window window = getWindow();
     if (removed && window != null) {
-        window.requestLayout();
+      window.requestLayout();
     }
 
     return removed;
-}
-@Override public int getNumWidgets() {
+  }
+
+  @Override
+  public int getNumWidgets() {
     return CHILDREN.size();
-}
+  }
 
-@Override public boolean mouseMoved(int screenX, int screenY) {
+  @Override
+  public boolean mouseMoved(int screenX, int screenY) {
     boolean handled = false;
     for (Widget child : this) {
-        if (child.mouseMoved(screenX, screenY)) {
-            handled = true;
-        }
+      if (child.mouseMoved(screenX, screenY)) {
+        handled = true;
+      }
     }
 
     return handled;
-}
-@Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+  }
+
+  @Override
+  public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     if (!inBounds(screenX, screenY)) {
-        return false;
+      return false;
     }
 
     boolean handled = false;
     for (Widget child : this) {
-        if (child.touchDown(screenX, screenY, pointer, button)) {
-            handled = true;
-        }
+      if (child.touchDown(screenX, screenY, pointer, button)) {
+        handled = true;
+      }
     }
 
     return handled;
-}
-@Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+  }
+
+  @Override
+  public boolean touchUp(int screenX, int screenY, int pointer, int button) {
     boolean handled = false;
     for (Widget child : this) {
-        if (child.touchUp(screenX, screenY, pointer, button)) {
-            handled = true;
-        }
+      if (child.touchUp(screenX, screenY, pointer, button)) {
+        handled = true;
+      }
     }
 
     return handled;
-}
-@Override public boolean touchDragged(int screenX, int screenY, int pointer) {
+  }
+
+  @Override
+  public boolean touchDragged(int screenX, int screenY, int pointer) {
     boolean handled = false;
     for (Widget child : this) {
-        if (child.touchDragged(screenX, screenY, pointer)) {
-            handled = true;
-        }
+      if (child.touchDragged(screenX, screenY, pointer)) {
+        handled = true;
+      }
     }
 
     return handled;
-}
+  }
 
-@Override public void onDraw(Batch batch) {
+  @Override
+  public void onDraw(Batch batch) {
     drawChildren(batch);
-}
-public void drawChildren(Batch batch) {
+  }
+
+  public void drawChildren(Batch batch) {
     // TODO: Come up with cleaner sorting algorithm which allows for duplicates, or override equals
     // method in Widget
 
     //Collections.sort(SORTED_CHILDREN, ELEVATION_COMPARATOR);
     for (Widget child : this) {
-        child.draw(batch);
+      child.draw(batch);
     }
-}
+  }
 
-public interface LayoutParamChangeListener {
+  public interface LayoutParamChangeListener {
 
     void onChange(String param, Object value);
 
-}
-/**
- * LayoutParams are used by views to tell their parents how they want to be laid out.
- * <p>
- * The base LayoutParams class just describes how big the view wants to be for both width and
- * height.
- * </p>
- * <p>
- *     For each dimension, it can specify one of:
- *     <ul>
- *         <li>
- *         {@link #FILL_PARENT}, which means that the {@linkplain Widget} wants to be as big as its
- *         {@linkplain Widget#getParent() parent} (minus padding)
- *         </li>
- *
- *         <li>
- *         {@link #WRAP_CONTENT}, which means that the {@linkplain Widget} wants to be just big enough to
- *         enclose its content (plus padding) an exact number
- *         </li>
- *     </ul>
- * </p>
- */ public static class LayoutParams {
+  }
+
+  /**
+   * LayoutParams are used by views to tell their parents how they want to be laid out.
+   * <p>
+   * The base LayoutParams class just describes how big the view wants to be for both width and
+   * height.
+   * </p>
+   * <p>
+   * For each dimension, it can specify one of:
+   * <ul>
+   * <li>
+   * {@link #FILL_PARENT}, which means that the {@linkplain Widget} wants to be as big as its
+   * {@linkplain Widget#getParent() parent} (minus padding)
+   * </li>
+   * <p/>
+   * <li>
+   * {@link #WRAP_CONTENT}, which means that the {@linkplain Widget} wants to be just big enough to
+   * enclose its content (plus padding) an exact number
+   * </li>
+   * </ul>
+   * </p>
+   */
+  public static class LayoutParams {
 
     /**
      * {@link LayoutParams} {@linkplain #width width} of {@value} symbolizing that the
@@ -347,14 +399,13 @@ public interface LayoutParamChangeListener {
      *               in pixels
      * @param height the height, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT}, or a fixed size
      *               in pixels
-     *
      * @see #setWidth(int)
      * @see #setHeight(int)
      */
     public LayoutParams(@IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int width,
                         @IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int height) {
-        setWidth(width);
-        setHeight(height);
+      setWidth(width);
+      setHeight(height);
     }
 
     /**
@@ -365,16 +416,16 @@ public interface LayoutParamChangeListener {
      * @param source layout params to copy from
      */
     public LayoutParams(@NonNull LayoutParams source) {
-        this(source.width, source.height);
+      this(source.width, source.height);
     }
 
     /**
      * @return width this component wants to be, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT},
-     *         or a fixed size in pixels
+     * or a fixed size in pixels
      */
-    @IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE)
+    @IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE)
     public int getWidth() {
-        return width;
+      return width;
     }
 
     /**
@@ -383,13 +434,13 @@ public interface LayoutParamChangeListener {
      *              {@linkplain WidgetParent#requestLayout() layout} of the
      *              {@linkplain #getParent()} of this {@link LayoutParams}.
      */
-    public void setWidth(@IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE) int width) {
-        if (width < FILL_PARENT) {
-            throw new IllegalArgumentException(
-                    "width should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
-        }
+    public void setWidth(@IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int width) {
+      if (width < FILL_PARENT) {
+        throw new IllegalArgumentException(
+                "width should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
+      }
 
-        this.width = width;
+      this.width = width;
         /* TODO: Assign width flag if equal to {@link #FILL_PARENT} or {@link #WRAP_CONTENT}, otherwise
          *       should width be assigned at all? Width in this sense is a disjoint boolean variable,
          *       and not a literal assignment of the width of this component (i.e., a suggestion for the
@@ -398,38 +449,40 @@ public interface LayoutParamChangeListener {
 
     /**
      * @return height this component wants to be, either {@link #WRAP_CONTENT}, {@link #FILL_PARENT},
-     *         or a fixed size in pixels
+     * or a fixed size in pixels
      */
-    @IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE)
+    @IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE)
     public int getHeight() {
-        return height;
+      return height;
     }
 
     /**
      * @param height non-zero positive height of this {@link LayoutParams}, or {@link #FILL_PARENT}
      *               or {@link #WRAP_CONTENT} to represent a dynamic height which is assigned upon
-     *              {@linkplain WidgetParent#requestLayout() layout} of the
-     *              {@linkplain #getParent()} of this {@link LayoutParams}.
+     *               {@linkplain WidgetParent#requestLayout() layout} of the
+     *               {@linkplain #getParent()} of this {@link LayoutParams}.
      */
-    public void setHeight(@IntRange(from=FILL_PARENT, to = Integer.MAX_VALUE) int height) {
-        if (height < FILL_PARENT) {
-            throw new IllegalArgumentException(
-                    "height should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
-        }
+    public void setHeight(@IntRange(from = FILL_PARENT, to = Integer.MAX_VALUE) int height) {
+      if (height < FILL_PARENT) {
+        throw new IllegalArgumentException(
+                "height should range from " + FILL_PARENT + " to Integer.MAX_VALUE");
+      }
 
-        this.height = height;
+      this.height = height;
         /* TODO: Assign height flag if equal to {@link #FILL_PARENT} or {@link #WRAP_CONTENT}, otherwise
          *       should height be assigned at all? Height in this sense is a disjoint boolean variable,
          *       and not a literal assignment of the height of this component (i.e., a suggestion for
          *       the parent container of this Widget). */
     }
 
-}
-/**
- * Implementation of {@link WidgetGroup.LayoutParams} which adds <a href="https://en.wikipedia.org/wiki/Margin_(typography)">
- * margins</a>. Margins define spacing on the inside of a {@linkplain Widget component} and its
- * edges.
- */ public static class MarginLayoutParams extends LayoutParams {
+  }
+
+  /**
+   * Implementation of {@link WidgetGroup.LayoutParams} which adds <a href="https://en.wikipedia.org/wiki/Margin_(typography)">
+   * margins</a>. Margins define spacing on the inside of a {@linkplain Widget component} and its
+   * edges.
+   */
+  public static class MarginLayoutParams extends LayoutParams {
 
     /**
      * Bottom margin of this {@link WidgetGroup}
@@ -476,7 +529,7 @@ public interface LayoutParamChangeListener {
      *               in pixels
      */
     public MarginLayoutParams(int width, int height) {
-        super(width, height);
+      super(width, height);
     }
 
     /**
@@ -490,7 +543,7 @@ public interface LayoutParamChangeListener {
      * @param source layout params to copy from
      */
     public MarginLayoutParams(@NonNull LayoutParams source) {
-        super(source);
+      super(source);
     }
 
     /**
@@ -499,16 +552,15 @@ public interface LayoutParamChangeListener {
      * and margins from a {@linkplain LayoutParams source} object.
      *
      * @param source
-     *
      * @see #setMargins(int, int, int, int)
      */
     public MarginLayoutParams(@NonNull MarginLayoutParams source) {
-        super(source);
-        setMargins(
-                source.getLeft(),
-                source.getTop(),
-                source.getRight(),
-                source.getBottom());
+      super(source);
+      setMargins(
+              source.getLeft(),
+              source.getTop(),
+              source.getRight(),
+              source.getBottom());
     }
 
     /**
@@ -516,7 +568,6 @@ public interface LayoutParamChangeListener {
      * @param top    Specifies extra space on the top side of this {@link Widget}
      * @param right  Specifies extra space on the right side of this {@link Widget}
      * @param bottom Specifies extra space on the bottom side of this {@link Widget}
-     *
      * @see #setLeft(int)
      * @see #setTop(int)
      * @see #setRight(int)
@@ -526,64 +577,64 @@ public interface LayoutParamChangeListener {
                            @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
                            @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
                            @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
-        setLeft(left);
-        setTop(top);
-        setRight(right);
-        setBottom(bottom);
+      setLeft(left);
+      setTop(top);
+      setRight(right);
+      setBottom(bottom);
     }
 
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     public int getBottom() {
-        return bottom;
+      return bottom;
     }
 
     public void setBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
-        if (bottom < 0) {
-            throw new IllegalArgumentException("bottom should be greater than or equal to 0");
-        }
+      if (bottom < 0) {
+        throw new IllegalArgumentException("bottom should be greater than or equal to 0");
+      }
 
-        this.bottom = bottom;
+      this.bottom = bottom;
     }
 
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     public int getLeft() {
-        return left;
+      return left;
     }
 
     public void setLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
-        if (left < 0) {
-            throw new IllegalArgumentException("left should be greater than or equal to 0");
-        }
+      if (left < 0) {
+        throw new IllegalArgumentException("left should be greater than or equal to 0");
+      }
 
-        this.left = left;
+      this.left = left;
     }
 
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     public int getRight() {
-        return right;
+      return right;
     }
 
     public void setRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
-        if (right < 0) {
-            throw new IllegalArgumentException("right should be greater than or equal to 0");
-        }
+      if (right < 0) {
+        throw new IllegalArgumentException("right should be greater than or equal to 0");
+      }
 
-        this.right = right;
+      this.right = right;
     }
 
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     public int getTop() {
-        return top;
+      return top;
     }
 
     public void setTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
-        if (top < 0) {
-            throw new IllegalArgumentException("top should be greater than or equal to 0");
-        }
+      if (top < 0) {
+        throw new IllegalArgumentException("top should be greater than or equal to 0");
+      }
 
-        this.top = top;
+      this.top = top;
     }
 
-}
+  }
 
 }

@@ -7,16 +7,16 @@ import com.gmail.collinsmith70.util.ValidationException;
  */
 public class NonNullValidator extends SimpleValidator {
 
-/**
- * Validates that the passed object is not null
- *
- * @param obj object to validate
- */
-@Override
-public void validate(Object obj) {
+  /**
+   * Validates that the passed object is not null
+   *
+   * @param obj object to validate
+   */
+  @Override
+  public void validate(Object obj) {
     if (obj == null) {
-        throw new ValidationException("passed reference cannot be null");
+      throw new ValidationException("passed reference cannot be null");
     }
-}
+  }
 
 }

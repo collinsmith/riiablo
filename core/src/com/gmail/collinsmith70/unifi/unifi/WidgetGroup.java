@@ -23,8 +23,11 @@ public abstract class WidgetGroup extends Widget
         implements WidgetParent, Marginable {
 
   public static final class LayoutParams {
-    @LayoutParam public static final String layout_width = "layout_width";
-    @LayoutParam public static final String layout_height = "layout_height";
+
+    @LayoutParam
+    public static final String layout_width = "layout_width";
+    @LayoutParam
+    public static final String layout_height = "layout_height";
   }
 
   public enum Gravity {
@@ -71,14 +74,20 @@ public abstract class WidgetGroup extends Widget
   private static final ImmutableSet<Gravity> DEFAULT_GRAVITY
           = ImmutableSet.of(Gravity.TOP, Gravity.LEFT);
 
-  @NonNull private final Collection<Widget> children;
+  @NonNull
+  private final Collection<Widget> children;
 
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginBottom;
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginLeft;
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginRight;
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int marginTop;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int marginBottom;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int marginLeft;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int marginRight;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int marginTop;
 
-  @Nullable private Set<Gravity> gravity;
+  @Nullable
+  private Set<Gravity> gravity;
 
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
@@ -269,8 +278,8 @@ public abstract class WidgetGroup extends Widget
    * defined as the space outside of this {@code WidgetGroup}, which no other {@code Widget} may
    * invade (i.e., marks the outside edge).
    * <p>
-   *   Note: Changing the sides of the returned {@code Boundary} instance will not be reflected
-   *         within this {@code WidgetGroup}.
+   * Note: Changing the sides of the returned {@code Boundary} instance will not be reflected
+   * within this {@code WidgetGroup}.
    * </p>
    *
    * @return {@code Boundary} containing the sizes of the margins of this {@code WidgetGroup}
@@ -290,7 +299,6 @@ public abstract class WidgetGroup extends Widget
    * @param dst {@code Boundary} instance to populate, otherwise if a {@code null} reference is
    *            passed, then this method would behave the same as if {@link #getMargin} were
    *            called.
-   *
    * @return {@code Boundary} containing the sizes of the margins of this {@code WidgetGroup}
    */
   @NonNull
@@ -310,8 +318,8 @@ public abstract class WidgetGroup extends Widget
    * outside of this {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the
    * outside edge).
    * <p>
-   *   Precondition: {@code marginLeft >= 0 AND marginRight >= 0 AND marginBottom >= 0
-   *                        AND marginTop >= 0}
+   * Precondition: {@code marginLeft >= 0 AND marginRight >= 0 AND marginBottom >= 0
+   * AND marginTop >= 0}
    * </p>
    *
    * @param marginLeft   Left margin, in pixels
@@ -322,9 +330,9 @@ public abstract class WidgetGroup extends Widget
   @Override
   @CallSuper
   public final void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginLeft,
-                        @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop,
-                        @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight,
-                        @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
+                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop,
+                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight,
+                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
     setMarginLeft(marginLeft);
     setMarginTop(marginTop);
     setMarginRight(marginRight);
@@ -336,8 +344,8 @@ public abstract class WidgetGroup extends Widget
    * {@link Boundary}. Margin is defined as the space outside of this {@code WidgetGroup}, which no
    * other {@code Widget} may invade (i.e., marks the outside edge).
    * <p>
-   *   Precondition: {@code src.getLeft() >= 0 AND src.getRight() >= 0 AND src.getBottom() >= 0
-   *                        AND src.getTop() >= 0}
+   * Precondition: {@code src.getLeft() >= 0 AND src.getRight() >= 0 AND src.getBottom() >= 0
+   * AND src.getTop() >= 0}
    * </p>
    *
    * @param src {@code Boundary} to copy the margin onto this {@code WidgetGroup}
@@ -371,7 +379,7 @@ public abstract class WidgetGroup extends Widget
    * other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @return {@code true} if at least one side of this {@code WidgetGroup} has a positive margin
-   *         value, otherwise {@code false}
+   * value, otherwise {@code false}
    */
   @Override
   @CallSuper
@@ -414,9 +422,8 @@ public abstract class WidgetGroup extends Widget
    * Checks whether or not the given {@link Widget} belongs to this {@code WidgetGroup}.
    *
    * @param widget {@code Widget} to check
-   *
    * @return {@code true} if the given {@link Widget} belongs to this {@code WidgetGroup},
-   *         otherwise {@code false}
+   * otherwise {@code false}
    */
   @Override
   @CallSuper
@@ -429,7 +436,6 @@ public abstract class WidgetGroup extends Widget
    * Removes the given {@link Widget} from this {@code WidgetGroup} if it belongs to it.
    *
    * @param widget {@code Widget} to remove from this {@code WidgetGroup} container
-   *
    * @return {@code true} if the {@code Widget} was successfully removed, otherwise {@code false}
    */
   @Override
@@ -493,7 +499,7 @@ public abstract class WidgetGroup extends Widget
         child.setRight(getWidth() - getPaddingRight());
       } else if (!layout_width.equalsIgnoreCase("wrap_content")) {
         //System.out.println("layout_width = " + LengthUnit.toPixels(layout_width));
-        child.setRight(child.getLeft() + (int)LengthUnit.toPixels(layout_width));
+        child.setRight(child.getLeft() + (int) LengthUnit.toPixels(layout_width));
       }
 
       if (layout_height.equalsIgnoreCase("match_parent")) {
@@ -501,11 +507,11 @@ public abstract class WidgetGroup extends Widget
         child.setTop(getHeight() - getPaddingTop());
       } else if (!layout_height.toString().equalsIgnoreCase("wrap_content")) {
         //System.out.println("layout_height = " + LengthUnit.toPixels(layout_height));
-        child.setBottom(child.getTop() - (int)LengthUnit.toPixels(layout_height));
+        child.setBottom(child.getTop() - (int) LengthUnit.toPixels(layout_height));
       }
 
       if (child instanceof WidgetParent) {
-        ((WidgetParent)child).requestLayout();
+        ((WidgetParent) child).requestLayout();
       }
 
       if (layout_width.equalsIgnoreCase("wrap_content")) {
@@ -513,7 +519,8 @@ public abstract class WidgetGroup extends Widget
       }
 
       if (layout_height.equalsIgnoreCase("wrap_content")) {
-        child.setBottom(child.getTop() - Math.max(child.getPreferredHeight(), child.getMinHeight()));
+        child.setBottom(child.getTop() - Math.max(child.getPreferredHeight(),
+                child.getMinHeight()));
       }
     }
   }

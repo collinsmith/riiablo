@@ -9,14 +9,14 @@ package com.gmail.collinsmith70.util;
  */
 public interface RangeValidator<T extends Comparable<? super T>> extends Validator {
 
-/**
- * @return minimum of the {@link RangeValidator}
- */
-T getMin();
+  /**
+   * @return minimum of the {@link RangeValidator}
+   */
+  T getMin();
 
-/**
- * @return maximum of the {@link RangeValidator}
- */
-T getMax();
+  /**
+   * @return maximum of the {@link RangeValidator}
+   */
+  T getMax();
 
 }

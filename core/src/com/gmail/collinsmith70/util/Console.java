@@ -7,91 +7,91 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public abstract class Console extends PrintStream {
 
-private static final int INITIAL_BUFFER_CAPACITY = 128;
+  private static final int INITIAL_BUFFER_CAPACITY = 128;
 
-private final Set<PrintStreamListener> STREAM_LISTENERS;
-private final Set<BufferListener> BUFFER_LISTENERS;
+  private final Set<PrintStreamListener> STREAM_LISTENERS;
+  private final Set<BufferListener> BUFFER_LISTENERS;
 
-private StringBuffer buffer;
+  private StringBuffer buffer;
 
-public Console() {
+  public Console() {
     this(null);
-}
+  }
 
-public Console(OutputStream out) {
+  public Console(OutputStream out) {
     super(out, true);
     this.STREAM_LISTENERS = new CopyOnWriteArraySet<PrintStreamListener>();
     this.BUFFER_LISTENERS = new CopyOnWriteArraySet<BufferListener>();
     this.buffer = new StringBuffer(INITIAL_BUFFER_CAPACITY);
-}
+  }
 
-@Override
-public void println(String s) {
+  @Override
+  public void println(String s) {
     super.println(s);
     for (PrintStreamListener printStreamListener : STREAM_LISTENERS) {
-        printStreamListener.onPrintln(s);
+      printStreamListener.onPrintln(s);
     }
-}
+  }
 
-@Override
-public void flush() {
+  @Override
+  public void flush() {
     super.flush();
     for (BufferListener bufferListener : BUFFER_LISTENERS) {
-        bufferListener.flush();
+      bufferListener.flush();
     }
-}
+  }
 
-public void commitBuffer() {
+  public void commitBuffer() {
     String bufferContents = getBufferContents();
     println(bufferContents);
     clearBuffer();
 
     for (BufferListener bufferListener : BUFFER_LISTENERS) {
-        bufferListener.commit(bufferContents);
+      bufferListener.commit(bufferContents);
     }
-}
+  }
 
-public void clearBuffer() {
+  public void clearBuffer() {
     this.buffer = new StringBuffer(INITIAL_BUFFER_CAPACITY);
-}
+  }
 
-public StringBuffer getBuffer() {
+  public StringBuffer getBuffer() {
     return buffer;
-}
+  }
 
-protected void onBufferModified() {
+  protected void onBufferModified() {
     String bufferContents = getBufferContents();
     for (BufferListener bufferListener : BUFFER_LISTENERS) {
-        bufferListener.modified(bufferContents);
+      bufferListener.modified(bufferContents);
     }
-}
+  }
 
-public String getBufferContents() {
+  public String getBufferContents() {
     return buffer.toString();
-}
+  }
 
-public void addBufferListener(BufferListener l) {
+  public void addBufferListener(BufferListener l) {
     BUFFER_LISTENERS.add(l);
-}
+  }
 
-public boolean removeBufferListener(BufferListener l) {
+  public boolean removeBufferListener(BufferListener l) {
     return BUFFER_LISTENERS.remove(l);
-}
+  }
 
-public boolean containsBufferListener(BufferListener l) {
+  public boolean containsBufferListener(BufferListener l) {
     return BUFFER_LISTENERS.contains(l);
-}
+  }
 
-public void addStreamListener(PrintStreamListener l) {
+  public void addStreamListener(PrintStreamListener l) {
     STREAM_LISTENERS.add(l);
-}
+  }
 
-public boolean removeStreamListener(PrintStreamListener l) {
+  public boolean removeStreamListener(PrintStreamListener l) {
     return STREAM_LISTENERS.remove(l);
-}
+  }
 
-public boolean containsStreamListener(PrintStreamListener l) {
+  public boolean containsStreamListener(PrintStreamListener l) {
     return STREAM_LISTENERS.contains(l);
-}
+  }
 
 }

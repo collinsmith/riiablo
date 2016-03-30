@@ -16,12 +16,12 @@ import com.gmail.collinsmith70.util.PrintStreamListener;
 
 public class ClientConsoleWidget extends WidgetGroup implements BufferListener, PrintStreamListener {
 
-private final ClientConsole CONSOLE;
+  private final ClientConsole CONSOLE;
 
-private final TextArea OUTPUT_TEXTAREA;
-private final TextField INPUT_TEXTFIELD;
+  private final TextArea OUTPUT_TEXTAREA;
+  private final TextField INPUT_TEXTFIELD;
 
-public ClientConsoleWidget(ClientConsole console) {
+  public ClientConsoleWidget(ClientConsole console) {
     this.CONSOLE = console;
     CONSOLE.addStreamListener(this);
     CONSOLE.addBufferListener(this);
@@ -36,19 +36,19 @@ public ClientConsoleWidget(ClientConsole console) {
 
     this.INPUT_TEXTFIELD = new TextField("", style);
     INPUT_TEXTFIELD.addListener(new InputListener() {
-        @Override
-        public boolean keyDown(InputEvent event, int keycode) {
-            if (keycode == Input.Keys.ENTER) {
-                CONSOLE.keyTyped('\n');
-            }
-
-            return super.keyDown(event, keycode);
+      @Override
+      public boolean keyDown(InputEvent event, int keycode) {
+        if (keycode == Input.Keys.ENTER) {
+          CONSOLE.keyTyped('\n');
         }
 
-        @Override
-        public boolean keyTyped(InputEvent event, char ch) {
-            return CONSOLE.keyTyped(ch);
-        }
+        return super.keyDown(event, keycode);
+      }
+
+      @Override
+      public boolean keyTyped(InputEvent event, char ch) {
+        return CONSOLE.keyTyped(ch);
+      }
     });
 
     VerticalGroup vg = new VerticalGroup();
@@ -63,31 +63,33 @@ public ClientConsoleWidget(ClientConsole console) {
     setLayoutEnabled(true);
     vg.setLayoutEnabled(true);
     vg.setFillParent(true);
-    OUTPUT_TEXTAREA.setBounds(0,0,800,600);
+    OUTPUT_TEXTAREA.setBounds(0, 0, 800, 600);
     invalidateHierarchy();
     validate();
-}
+  }
 
-public ClientConsole getConsole() { return CONSOLE; }
+  public ClientConsole getConsole() {
+    return CONSOLE;
+  }
 
-@Override
-public void onPrintln(String s) {
+  @Override
+  public void onPrintln(String s) {
     OUTPUT_TEXTAREA.setText(OUTPUT_TEXTAREA.getText() + s + '\n');
-}
+  }
 
-@Override
-public void modified(String buffer) {
+  @Override
+  public void modified(String buffer) {
 
-}
+  }
 
-@Override
-public void commit(String buffer) {
+  @Override
+  public void commit(String buffer) {
     INPUT_TEXTFIELD.setText("");
-}
+  }
 
-@Override
-public boolean flush() {
+  @Override
+  public boolean flush() {
     return false;
-}
+  }
 
 }

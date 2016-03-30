@@ -44,7 +44,7 @@ public class Point2D {
 
   public void set(@NonNull final Point2D src) {
     if (src == null) {
-        throw new IllegalArgumentException("src point cannot be null");
+      throw new IllegalArgumentException("src point cannot be null");
     }
 
     set(src.x, src.y);

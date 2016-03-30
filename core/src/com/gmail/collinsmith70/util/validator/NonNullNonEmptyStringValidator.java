@@ -4,17 +4,17 @@ import com.gmail.collinsmith70.util.ValidationException;
 
 public class NonNullNonEmptyStringValidator extends NonNullValidator {
 
-@Override
-public void validate(Object obj) {
+  @Override
+  public void validate(Object obj) {
     super.validate(obj);
     if (!(obj instanceof String)) {
-        throw new ValidationException("passed reference is not a String");
+      throw new ValidationException("passed reference is not a String");
     }
 
-    String str = (String)obj;
+    String str = (String) obj;
     if (str.isEmpty()) {
-        throw new ValidationException("passed String is empty");
+      throw new ValidationException("passed String is empty");
     }
-}
+  }
 
 }

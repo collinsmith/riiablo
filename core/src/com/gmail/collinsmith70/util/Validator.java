@@ -11,35 +11,34 @@ import com.gmail.collinsmith70.util.validator.RejectAllValidator;
  */
 public interface Validator<T> extends Validatable {
 
-/**
- * Constant reference to a {@linkplain Validator} which accepts all values
- */
-static Validator ACCEPT_ALL = new AcceptAllValidator();
+  /**
+   * Constant reference to a {@linkplain Validator} which accepts all values
+   */
+  static Validator ACCEPT_ALL = new AcceptAllValidator();
 
-/**
- * Constant reference to a {@linkplain Validator} which rejects all values
- */
-static Validator REJECT_ALL = new RejectAllValidator();
+  /**
+   * Constant reference to a {@linkplain Validator} which rejects all values
+   */
+  static Validator REJECT_ALL = new RejectAllValidator();
 
-/**
- * Constant reference to a {@linkplain Validator} which accepts all non-null values
- */
-static Validator ACCEPT_NON_NULL = new NonNullValidator();
+  /**
+   * Constant reference to a {@linkplain Validator} which accepts all non-null values
+   */
+  static Validator ACCEPT_NON_NULL = new NonNullValidator();
 
-/**
- * Constant reference to a {@linkplain Validator} which accepts all {@linkplain String}s which are
- * both non-null and {@linkplain String#isEmpty() non-empty}
- */
-static Validator ACCEPT_NON_NULL_NON_EMPTY_STRING = new NonNullNonEmptyStringValidator();
+  /**
+   * Constant reference to a {@linkplain Validator} which accepts all {@linkplain String}s which are
+   * both non-null and {@linkplain String#isEmpty() non-empty}
+   */
+  static Validator ACCEPT_NON_NULL_NON_EMPTY_STRING = new NonNullNonEmptyStringValidator();
 
-/**
- * Validates the specified object and throws a {@link ValidationException} with a reason if it is
- * not valid.
- *
- * @param obj object to validate
- *
- * @throws ValidationException if the passed object is invalid
- */
-void validate(Object obj);
+  /**
+   * Validates the specified object and throws a {@link ValidationException} with a reason if it is
+   * not valid.
+   *
+   * @param obj object to validate
+   * @throws ValidationException if the passed object is invalid
+   */
+  void validate(Object obj);
 
 }

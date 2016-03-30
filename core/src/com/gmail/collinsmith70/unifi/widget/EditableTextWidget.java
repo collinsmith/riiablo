@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 public class EditableTextWidget extends TextWidget {
 
-public EditableTextWidget(@NonNull BitmapFont font) {
+  public EditableTextWidget(@NonNull BitmapFont font) {
     super(font);
-}
+  }
 
-public EditableTextWidget(@NonNull BitmapFont font, @Nullable String text) {
+  public EditableTextWidget(@NonNull BitmapFont font, @Nullable String text) {
     super(font, text);
-}
+  }
 
 }

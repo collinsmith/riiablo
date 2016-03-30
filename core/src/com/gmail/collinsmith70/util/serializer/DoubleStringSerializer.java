@@ -6,25 +6,25 @@ import com.gmail.collinsmith70.util.StringSerializer;
  * Serializer which (de)serializes a {@link Double} object into its {@link String} representation.
  */
 public enum DoubleStringSerializer implements StringSerializer<Double> {
-/**
- * @see DoubleStringSerializer
- */
-INSTANCE;
+  /**
+   * @see DoubleStringSerializer
+   */
+  INSTANCE;
 
-/**
- * {@inheritDoc}
- */
-@Override
-public String serialize(Double obj) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String serialize(Double obj) {
     return obj.toString();
-}
+  }
 
-/**
- * {@inheritDoc}
- */
-@Override
-public Double deserialize(String obj) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Double deserialize(String obj) {
     return Double.parseDouble(obj);
-}
+  }
 
 }

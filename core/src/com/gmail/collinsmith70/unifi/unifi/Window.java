@@ -20,9 +20,11 @@ import java.util.Iterator;
 public class Window
         implements WidgetParent, Disposable {
 
-  @NonNull private final Dimension2D dimension;
+  @NonNull
+  private final Dimension2D dimension;
 
-  @NonNull private final Collection<Widget> children;
+  @NonNull
+  private final Collection<Widget> children;
 
   public Window(int width, int height) {
     this.dimension = new Dimension2D(width, height);
@@ -55,7 +57,7 @@ public class Window
         continue;
       }
 
-      ((WidgetParent)child).requestLayout();
+      ((WidgetParent) child).requestLayout();
     }
   }
 

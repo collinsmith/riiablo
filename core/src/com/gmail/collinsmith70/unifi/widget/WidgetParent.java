@@ -4,6 +4,6 @@ import com.gmail.collinsmith70.unifi.util.*;
 
 public interface WidgetParent extends Parentable, Focusable, Bounded {
 
-void requestLayout();
+  void requestLayout();
 
 }

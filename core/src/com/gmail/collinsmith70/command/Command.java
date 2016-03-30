@@ -12,20 +12,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Command<T> {
 
-private final String PRIMARY_ALIAS;
-private final String DESCRIPTION;
-private final Set<String> ALIASES;
-private final Parameter[] PARAMETER_RESOLVERS;
-private final Class<T> TYPE;
-private final Action<T> ACTION;
+  private final String PRIMARY_ALIAS;
+  private final String DESCRIPTION;
+  private final Set<String> ALIASES;
+  private final Parameter[] PARAMETER_RESOLVERS;
+  private final Class<T> TYPE;
+  private final Action<T> ACTION;
 
-private final Set<AddRemoveStringListener<Command<T>>> ALIAS_LISTENERS;
+  private final Set<AddRemoveStringListener<Command<T>>> ALIAS_LISTENERS;
 
-public Command(String alias, String description, Class<T> type, Action<T> action, Parameter... parameters) {
+  public Command(String alias, String description, Class<T> type, Action<T> action, Parameter... parameters) {
     if (alias == null) {
-        throw new NullPointerException("Command aliases cannot be null");
+      throw new NullPointerException("Command aliases cannot be null");
     } else if (alias.isEmpty()) {
-        throw new IllegalArgumentException("Command aliases cannot be empty");
+      throw new IllegalArgumentException("Command aliases cannot be empty");
     }
 
     this.PRIMARY_ALIAS = alias;
@@ -38,89 +38,101 @@ public Command(String alias, String description, Class<T> type, Action<T> action
     this.ALIAS_LISTENERS = new CopyOnWriteArraySet<AddRemoveStringListener<Command<T>>>();
 
     if (PARAMETER_RESOLVERS != null && !isValidParameterResolversOrder(PARAMETER_RESOLVERS)) {
-        throw new IllegalArgumentException(
-                "OptionalParameter instances must be after all normal " +
-                "Parameter instances");
+      throw new IllegalArgumentException(
+              "OptionalParameter instances must be after all normal " +
+                      "Parameter instances");
     }
 
     addAlias(alias);
-}
+  }
 
-private boolean isValidParameterResolversOrder(Parameter[] parameters) {
+  private boolean isValidParameterResolversOrder(Parameter[] parameters) {
     for (Iterator<Parameter> it = new ArrayIterator(parameters); it.hasNext(); ) {
-        if (!(it.next() instanceof OptionalParameter)) {
-            continue;
-        }
+      if (!(it.next() instanceof OptionalParameter)) {
+        continue;
+      }
 
-        while (it.hasNext()) {
-            if (!(it.next() instanceof OptionalParameter)) {
-                return false;
-            }
+      while (it.hasNext()) {
+        if (!(it.next() instanceof OptionalParameter)) {
+          return false;
         }
+      }
     }
 
     return true;
-}
+  }
 
-public String getAlias() { return PRIMARY_ALIAS; }
-public String getDescription() { return DESCRIPTION; }
-public Set<String> getAliases() { return UnmodifiableSet.unmodifiableSet(ALIASES); }
-public Class<T> getType() { return TYPE; }
+  public String getAlias() {
+    return PRIMARY_ALIAS;
+  }
 
-public Command<T> addAlias(String alias) {
+  public String getDescription() {
+    return DESCRIPTION;
+  }
+
+  public Set<String> getAliases() {
+    return UnmodifiableSet.unmodifiableSet(ALIASES);
+  }
+
+  public Class<T> getType() {
+    return TYPE;
+  }
+
+  public Command<T> addAlias(String alias) {
     if (alias == null) {
-        throw new NullPointerException("Command aliases should not be null");
+      throw new NullPointerException("Command aliases should not be null");
     } else if (alias.isEmpty()) {
-        throw new IllegalArgumentException("Command aliases should not be empty");
+      throw new IllegalArgumentException("Command aliases should not be empty");
     }
 
     ALIASES.add(alias);
     for (AddRemoveStringListener<Command<T>> addRemoveStringListener : ALIAS_LISTENERS) {
-        addRemoveStringListener.onAdded(alias, this);
+      addRemoveStringListener.onAdded(alias, this);
     }
 
     return this;
-}
+  }
 
-public boolean containsAlias(String alias) {
+  public boolean containsAlias(String alias) {
     return ALIASES.contains(alias);
-}
+  }
 
-public boolean removeAlias(String alias) {
+  public boolean removeAlias(String alias) {
     if (alias.equals(PRIMARY_ALIAS)) {
-        throw new IllegalArgumentException("Cannot remove primary alias from command!");
+      throw new IllegalArgumentException("Cannot remove primary alias from command!");
     }
 
     boolean removed = ALIASES.remove(alias);
     if (removed) {
-        for (AddRemoveStringListener<Command<T>> addRemoveStringListener : ALIAS_LISTENERS) {
-            addRemoveStringListener.onRemoved(alias, this);
-        }
+      for (AddRemoveStringListener<Command<T>> addRemoveStringListener : ALIAS_LISTENERS) {
+        addRemoveStringListener.onRemoved(alias, this);
+      }
     }
 
     return removed;
-}
+  }
 
-public void execute(CommandInstance command) {
+  public void execute(CommandInstance command) {
     execute(command, null);
-}
-public void execute(CommandInstance command, T obj) {
-    ACTION.onActionExecuted(command, obj);
-}
+  }
 
-public void addAliasListener(AddRemoveStringListener<Command<T>> l) {
+  public void execute(CommandInstance command, T obj) {
+    ACTION.onActionExecuted(command, obj);
+  }
+
+  public void addAliasListener(AddRemoveStringListener<Command<T>> l) {
     ALIAS_LISTENERS.add(l);
     for (String alias : ALIASES) {
-        l.onAdded(alias, this);
+      l.onAdded(alias, this);
     }
-}
+  }
 
-public boolean containsAliasListener(AddRemoveStringListener<Command<T>> l) {
+  public boolean containsAliasListener(AddRemoveStringListener<Command<T>> l) {
     return ALIAS_LISTENERS.contains(l);
-}
+  }
 
-public boolean removeAliasListener(AddRemoveStringListener<Command<T>> l) {
+  public boolean removeAliasListener(AddRemoveStringListener<Command<T>> l) {
     return ALIAS_LISTENERS.remove(l);
-}
+  }
 
 }

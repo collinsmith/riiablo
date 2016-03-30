@@ -10,20 +10,19 @@ import com.gmail.collinsmith70.util.ValidationException;
  */
 public abstract class SimpleValidator implements Validator {
 
-/**
- * @param obj object to validate
- *
- * @return {@code true} if {@link #validate(Object)} will not throw an exception,
- *         otherwise {@code false}
- */
-@Override
-public boolean isValid(Object obj) {
+  /**
+   * @param obj object to validate
+   * @return {@code true} if {@link #validate(Object)} will not throw an exception,
+   * otherwise {@code false}
+   */
+  @Override
+  public boolean isValid(Object obj) {
     try {
-        validate(obj);
-        return true;
+      validate(obj);
+      return true;
     } catch (ValidationException e) {
-        return false;
+      return false;
     }
-}
+  }
 
 }

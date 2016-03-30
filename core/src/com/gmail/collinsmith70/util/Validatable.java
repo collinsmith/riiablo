@@ -4,7 +4,7 @@ package com.gmail.collinsmith70.util;
  * Functional interface declaring that a class' instances should be {@link Validatable} and require
  * the {@link #isValid} method to determine whether or not certain values are correct in "setter"
  * methods.
- *
+ * <p/>
  * <p>
  * For example:
  * </p>
@@ -37,11 +37,10 @@ package com.gmail.collinsmith70.util;
 @FunctionalInterface
 public interface Validatable {
 
-/**
- * @param obj object to validate
- *
- * @return {@code true} if the object is valid, otherwise {@code false}
- */
-boolean isValid(Object obj);
+  /**
+   * @param obj object to validate
+   * @return {@code true} if the object is valid, otherwise {@code false}
+   */
+  boolean isValid(Object obj);
 
 }

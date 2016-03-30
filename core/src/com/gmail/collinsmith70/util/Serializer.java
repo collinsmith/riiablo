@@ -9,22 +9,20 @@ package com.gmail.collinsmith70.util;
  */
 public interface Serializer<T1, T2> {
 
-/**
- * Serializes an object into its {@link T2} representation.
- *
- * @param obj object to serialize
- *
- * @return {@link T2} representation of the passed object
- */
-T2 serialize(T1 obj);
+  /**
+   * Serializes an object into its {@link T2} representation.
+   *
+   * @param obj object to serialize
+   * @return {@link T2} representation of the passed object
+   */
+  T2 serialize(T1 obj);
 
-/**
- * Deserializes an object from its {@link T2} representation.
- *
- * @param obj object to deserialize
- *
- * @return {@link T1} representation of the passed object
- */
-T1 deserialize(T2 obj);
+  /**
+   * Deserializes an object from its {@link T2} representation.
+   *
+   * @param obj object to deserialize
+   * @return {@link T1} representation of the passed object
+   */
+  T1 deserialize(T2 obj);
 
 }

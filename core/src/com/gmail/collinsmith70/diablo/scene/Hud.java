@@ -6,17 +6,19 @@ import com.gmail.collinsmith70.diablo.Client;
 
 public class Hud extends WidgetGroup implements Disposable {
 
-private final Client CLIENT;
+  private final Client CLIENT;
 
-public Hud(Client client) {
+  public Hud(Client client) {
     this.CLIENT = client;
-}
+  }
 
-public Client getClient() { return CLIENT; }
+  public Client getClient() {
+    return CLIENT;
+  }
 
-@Override
-public void dispose() {
+  @Override
+  public void dispose() {
 
-}
+  }
 
 }

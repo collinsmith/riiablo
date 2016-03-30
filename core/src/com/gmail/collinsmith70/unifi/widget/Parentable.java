@@ -4,7 +4,9 @@ import android.support.annotation.Nullable;
 
 public interface Parentable {
 
-boolean hasParent();
-@Nullable  WidgetParent getParent();
+  boolean hasParent();
+
+  @Nullable
+  WidgetParent getParent();
 
 }

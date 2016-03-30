@@ -28,8 +28,10 @@ public abstract class Widget
 
   @StringDef
   @Documented
-  @Target({ ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE })
-  public @interface LayoutParam {}
+  @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE})
+  public @interface LayoutParam {
+
+  }
 
   /**
    * Interface containing methods which will be called for various layout param events.
@@ -98,11 +100,14 @@ public abstract class Widget
     GONE
   }
 
-  @NonNull private final Set<Flag> FLAGS;
+  @NonNull
+  private final Set<Flag> FLAGS;
 
-  @Nullable private WidgetParent parent;
+  @Nullable
+  private WidgetParent parent;
 
-  @NonNull private Visibility visibility;
+  @NonNull
+  private Visibility visibility;
 
   private int bottom;
   private int left;
@@ -115,13 +120,19 @@ public abstract class Widget
   private int preferredWidth;
   private int preferredHeight;
 
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingBottom;
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingLeft;
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingRight;
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int paddingTop;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int paddingBottom;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int paddingLeft;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int paddingRight;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int paddingTop;
 
-  @NonNull private final Map<String, Object> LAYOUT_PARAMS;
-  @NonNull private final Set<LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
+  @NonNull
+  private final Map<String, Object> LAYOUT_PARAMS;
+  @NonNull
+  private final Set<LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
 
   public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
@@ -147,7 +158,8 @@ public abstract class Widget
   protected void drawDebug(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
-    shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+    {
       shapeRenderer.setColor(Color.LIGHT_GRAY);
       shapeRenderer.rect(getX() + 1, getY() + 1, getWidth() - 1, getHeight() - 1);
       if (hasPadding()) {
@@ -156,7 +168,8 @@ public abstract class Widget
                 getWidth() - getPaddingLeft() - getPaddingRight() - 1,
                 getHeight() - getPaddingTop() - getPaddingBottom() - 1);
       }
-    } shapeRenderer.end();
+    }
+    shapeRenderer.end();
 
     System.out.printf("%s: %d %d %d %d%n",
             getClass().getSimpleName(),
@@ -181,9 +194,8 @@ public abstract class Widget
    * {@link LayoutParamChangeListener}.
    *
    * @param l {@code LayoutParamChangeListener} to check
-   *
    * @return {@code true} if it is, otherwise {@code false} if it will not, or if the passed
-   *         {@code LayoutParamChangeListener} is {@code null}.
+   * {@code LayoutParamChangeListener} is {@code null}.
    */
   public boolean containsLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
     return l != null && LAYOUT_PARAM_CHANGE_LISTENERS.contains(l);
@@ -193,9 +205,8 @@ public abstract class Widget
    * Removes the specified {@link LayoutParamChangeListener} from this {@code Widget}.
    *
    * @param l {@code LayoutParamChangeListener} to remove
-   *
    * @return {@code true} if it was removed, otherwise {@code false} if it did not belong to this
-   *         {@code Widget}, or if the passed {@code LayoutParamChangeListener} is {@code null}.
+   * {@code Widget}, or if the passed {@code LayoutParamChangeListener} is {@code null}.
    */
   public boolean removeLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
     return l != null && LAYOUT_PARAM_CHANGE_LISTENERS.remove(l);
@@ -234,13 +245,12 @@ public abstract class Widget
    *
    * @param <E>   Type to cast the returned value to
    * @param param Key to remove the mapping for
-   *
    * @return Value which the specified parameter key was mapped to, otherwise {@code null} if there
-   *         was no mapping or if the mapping was to a {@code null} reference.
+   * was no mapping or if the mapping was to a {@code null} reference.
    */
   @Nullable
   public final <E> E remove(@Nullable final String param) {
-    return (E)LAYOUT_PARAMS.remove(param);
+    return (E) LAYOUT_PARAMS.remove(param);
   }
 
   /**
@@ -249,17 +259,15 @@ public abstract class Widget
    *
    * @param <E>   Type to cast the returned value to
    * @param param Key to search and return a value for
-   *
    * @return Value under the specified parameter key, otherwise {@code null} if there is no value
-   *         under this key or if the value under the key is actually {@code null}.
-   *         {@link #containsKey} can be used to determine which is the case.
-   *
+   * under this key or if the value under the key is actually {@code null}.
+   * {@link #containsKey} can be used to determine which is the case.
    * @see #containsKey(String)
    * @see #getOrDefault(String, Object)
    */
   @Nullable
   public final <E> E get(@Nullable final String param) {
-    return (E)LAYOUT_PARAMS.get(param);
+    return (E) LAYOUT_PARAMS.get(param);
   }
 
   /**
@@ -271,10 +279,8 @@ public abstract class Widget
    * @param param        Key to search and return a value for
    * @param defaultValue Default value to return in the case that no mapping to the specified
    *                     parameter key exists
-   *
    * @return Value under the specified parameter key, otherwise the default value given if there is
-   *         no mapping to that key.
-   *
+   * no mapping to that key.
    * @see #get(String)
    * @see #containsKey(String)
    */
@@ -293,9 +299,7 @@ public abstract class Widget
    * {@code null} values are permitted.
    *
    * @param param Key to query and check if there exists a mapping for
-   *
    * @return {@code true} if a mapping exists, otherwise {@code false}
-   *
    * @see #getOrDefault(String, Object)
    */
   public final boolean containsKey(@Nullable final String param) {
@@ -325,7 +329,7 @@ public abstract class Widget
    * Checks whether or not this {@code Widget} has a parent container.
    *
    * @return {@code true} if this {@code Widget} belongs to a parent container,
-   *         otherwise {@code false}
+   * otherwise {@code false}
    */
   public final boolean hasParent() {
     return getParent() != null;
@@ -335,13 +339,13 @@ public abstract class Widget
    * {@link Window} instance containing this {@code Widget}.
    *
    * @return {@code Window} instance containing this {@code Widget}, otherwise {@code null} if this
-   *         {@code Widget} has yet to be added to any {@code Window}
+   * {@code Widget} has yet to be added to any {@code Window}
    */
   @Nullable
   public final Window getWindow() {
     for (WidgetParent parent = getParent(); parent != null; parent = parent.getParent()) {
       if (parent instanceof Window) {
-        return (Window)parent;
+        return (Window) parent;
       }
     }
 
@@ -463,7 +467,7 @@ public abstract class Widget
    * require focus.
    *
    * @return {@code true} if this {@code Widget} can respond to focus events,
-   *         otherwise {@code false}
+   * otherwise {@code false}
    */
   @CallSuper
   public boolean isFocusable() {
@@ -491,7 +495,7 @@ public abstract class Widget
    * over.
    *
    * @return {@code true} implies that this {@code Widget} has an input device over it,
-   *         otherwise {@code false}
+   * otherwise {@code false}
    */
   @CallSuper
   boolean isOver() {
@@ -625,12 +629,12 @@ public abstract class Widget
   /**
    * Sets the bottom position of this {@code Widget} relative to its {@linkplain #getParent parent}.
    * <p>
-   *   Note: If the specified bottom is greater than the current {@linkplain #getTop top} of this
-   *         {@code Widget}, then the top is set to the same value as the specified bottom.
+   * Note: If the specified bottom is greater than the current {@linkplain #getTop top} of this
+   * {@code Widget}, then the top is set to the same value as the specified bottom.
    * </p>
    * <p>
-   *   Note: This method is meant to be called by the layout system and should not generally be
-   *         called otherwise, because the property may be changed at any time by the layout.
+   * Note: This method is meant to be called by the layout system and should not generally be
+   * called otherwise, because the property may be changed at any time by the layout.
    * </p>
    *
    * @param bottom Bottom of this {@code Widget}, in pixels.
@@ -657,12 +661,12 @@ public abstract class Widget
   /**
    * Sets the left position of this {@code Widget} relative to its {@linkplain #getParent parent}.
    * <p>
-   *   Note: If the specified left is greater than the current {@linkplain #getRight right} of this
-   *         {@code Widget}, then the right is set to the same value as the specified left.
+   * Note: If the specified left is greater than the current {@linkplain #getRight right} of this
+   * {@code Widget}, then the right is set to the same value as the specified left.
    * </p>
    * <p>
-   *   Note: This method is meant to be called by the layout system and should not generally be
-   *         called otherwise, because the property may be changed at any time by the layout.
+   * Note: This method is meant to be called by the layout system and should not generally be
+   * called otherwise, because the property may be changed at any time by the layout.
    * </p>
    *
    * @param left Left of this {@code Widget}, in pixels.
@@ -689,12 +693,12 @@ public abstract class Widget
   /**
    * Sets the right position of this {@code Widget} relative to its {@linkplain #getParent parent}.
    * <p>
-   *   Note: If the specified right is less than the current {@linkplain #getLeft left} of this
-   *         {@code Widget}, then the left is set to the same value as the specified right.
+   * Note: If the specified right is less than the current {@linkplain #getLeft left} of this
+   * {@code Widget}, then the left is set to the same value as the specified right.
    * </p>
    * <p>
-   *   Note: This method is meant to be called by the layout system and should not generally be
-   *         called otherwise, because the property may be changed at any time by the layout.
+   * Note: This method is meant to be called by the layout system and should not generally be
+   * called otherwise, because the property may be changed at any time by the layout.
    * </p>
    *
    * @param right Right of this {@code Widget}, in pixels.
@@ -721,12 +725,12 @@ public abstract class Widget
   /**
    * Sets the top position of this {@code Widget} relative to its {@linkplain #getParent parent}.
    * <p>
-   *   Note: If the specified top is less than the current {@linkplain #getBottom bottom} of this
-   *         {@code Widget}, then the bottom is set to the same value as the specified top.
+   * Note: If the specified top is less than the current {@linkplain #getBottom bottom} of this
+   * {@code Widget}, then the bottom is set to the same value as the specified top.
    * </p>
    * <p>
-   *   Note: This method is meant to be called by the layout system and should not generally be
-   *         called otherwise, because the property may be changed at any time by the layout.
+   * Note: This method is meant to be called by the layout system and should not generally be
+   * called otherwise, because the property may be changed at any time by the layout.
    * </p>
    *
    * @param top Top of this {@code Widget}, in pixels.
@@ -744,8 +748,8 @@ public abstract class Widget
    * {@link Boundary} containing of the positions of this {@code Widget} relative to its
    * {@linkplain #getParent parent}.
    * <p>
-   *   Note: Changing the sides of the returned {@code Boundary} instance will not be reflected
-   *         within this {@code Widget}.
+   * Note: Changing the sides of the returned {@code Boundary} instance will not be reflected
+   * within this {@code Widget}.
    * </p>
    *
    * @return {@code Boundary} containing the positions of this {@code Widget}
@@ -763,7 +767,6 @@ public abstract class Widget
    * @param dst {@code Boundary} instance to populate, otherwise if a {@code null} reference is
    *            passed, then this method would behave the same as if {@link #getBoundary} were
    *            called.
-   *
    * @return {@code Boundary} containing the positions of this {@code Widget}
    */
   @NonNull
@@ -781,7 +784,7 @@ public abstract class Widget
    * Sets the positions of all sides of this {@code Widget} relative to its
    * {@linkplain #getParent parent}.
    * <p>
-   *   Precondition: {@code left <= right AND bottom <= top}
+   * Precondition: {@code left <= right AND bottom <= top}
    * </p>
    *
    * @param left   Left of this {@code Widget}, in pixels.
@@ -807,7 +810,7 @@ public abstract class Widget
    * Sets the positions of all sides of this {@code Widget} relative to its
    * {@linkplain #getParent parent} from the specified source {@link Boundary}.
    * <p>
-   *   Precondition: {@code src.getLeft() <= src.getRight() AND src.getBottom() <= src.getTop()}
+   * Precondition: {@code src.getLeft() <= src.getRight() AND src.getBottom() <= src.getTop()}
    * </p>
    *
    * @param src {@code Boundary} to set the side positions of this {@code Widget} to
@@ -862,7 +865,6 @@ public abstract class Widget
    * @param dst {@code Dimension2D} instance to populate, otherwise if a {@code null} reference is
    *            passed, then this method would behave the same as if {@link #getSize} were
    *            called.
-   *
    * @return {@code Dimension2D} containing the dimensions of this {@code Widget}
    */
   @NonNull
@@ -1045,7 +1047,6 @@ public abstract class Widget
    * @param dst {@code Point2D} instance to populate, otherwise if a {@code null} reference is
    *            passed, then this method would behave the same as if {@link #getTranslation} were
    *            called.
-   *
    * @return {@code Point2D} containing the translation offset of this {@code Widget}
    */
   @Override
@@ -1120,18 +1121,17 @@ public abstract class Widget
   /**
    * Checks whether or not a given point lies within the boundary of this {@code Widget}.
    * <p>
-   *   Note: Coordinates are to be given in relative terms to the {@linkplain #getParent parent} of
-   *         this {@code Widget} (i.e., same coordinate scheme as in {@link #getBoundary()})
+   * Note: Coordinates are to be given in relative terms to the {@linkplain #getParent parent} of
+   * this {@code Widget} (i.e., same coordinate scheme as in {@link #getBoundary()})
    * </p>
    * <p>
-   *   Note: This method does not take in consideration the state of this {@code Widget}.
+   * Note: This method does not take in consideration the state of this {@code Widget}.
    * </p>
    *
    * @param x Relative location of the point on the {@code x}-axis
    * @param y Relative location of the point on the {@code y}-axis
-   *
    * @return {@code true} if the coordinates are within the boundary of this {@code Widget},
-   *         otherwise {@code false}
+   * otherwise {@code false}
    */
   @Override
   public boolean contains(final int x, final int y) {
@@ -1142,17 +1142,16 @@ public abstract class Widget
   /**
    * Checks whether or not a given {@link Point2D} lies within the boundary of this {@code Widget}.
    * <p>
-   *   Note: Coordinates are to be given in relative terms to the {@linkplain #getParent parent} of
-   *         this {@code Widget} (i.e., same coordinate scheme as in {@link #getBoundary()})
+   * Note: Coordinates are to be given in relative terms to the {@linkplain #getParent parent} of
+   * this {@code Widget} (i.e., same coordinate scheme as in {@link #getBoundary()})
    * </p>
    * <p>
-   *   Note: This method does not take in consideration the state of this {@code Widget}.
+   * Note: This method does not take in consideration the state of this {@code Widget}.
    * </p>
    *
    * @param point {@code Point2D} instance containing the relative coordinates to test
-   *
    * @return {@code true} if the coordinates represented by the {@code Point2D} are within the
-   *         boundary of this {@code Widget}, otherwise {@code false}
+   * boundary of this {@code Widget}, otherwise {@code false}
    */
   @Override
   public boolean contains(@NonNull final Point2D point) {
@@ -1183,7 +1182,6 @@ public abstract class Widget
    * @param dst {@code Point2D} instance to populate, otherwise if a {@code null} reference is
    *            passed, then this method would behave the same as if {@link #getPosition} were
    *            called.
-   *
    * @return {@code Point2D} containing the virtual coordinates of this {@code Widget}
    */
   @Override
@@ -1361,7 +1359,6 @@ public abstract class Widget
    * @param dst {@code Boundary} instance to populate, otherwise if a {@code null} reference is
    *            passed, then this method would behave the same as if {@link #getPadding} were
    *            called.
-   *
    * @return {@code Boundary} containing the padding of this {@code Widget}
    */
   @NonNull
@@ -1379,8 +1376,8 @@ public abstract class Widget
    * Sets the padding on all sides of this {@code Widget}. Padding is defined as the space between
    * the edge of a {@code Widget} and its contents.
    * <p>
-   *   Precondition: {@code paddingLeft >= 0 AND paddingRight >= 0 AND paddingBottom >= 0
-   *                        AND paddingTop >= 0}
+   * Precondition: {@code paddingLeft >= 0 AND paddingRight >= 0 AND paddingBottom >= 0
+   * AND paddingTop >= 0}
    * </p>
    *
    * @param paddingLeft   Left padding, in pixels
@@ -1403,8 +1400,8 @@ public abstract class Widget
    * Sets the padding on all sides of this {@code Widget} to those of the source {@link Boundary}.
    * Padding is defined as the space between the edge of a {@code Widget} and its contents.
    * <p>
-   *   Precondition: {@code src.getLeft() >= 0 AND src.getRight() >= 0 AND src.getBottom() >= 0
-   *                        AND src.getTop() >= 0}
+   * Precondition: {@code src.getLeft() >= 0 AND src.getRight() >= 0 AND src.getBottom() >= 0
+   * AND src.getTop() >= 0}
    * </p>
    *
    * @param src {@code Boundary} to copy the padding onto this {@code Widget}
@@ -1431,7 +1428,7 @@ public abstract class Widget
    * Padding is defined as the space between the edge of a {@code Widget} and its contents.
    *
    * @return {@code true} if at least one side of this {@code Widget} has a positive padding value,
-   *         otherwise {@code false}
+   * otherwise {@code false}
    */
   @Override
   public final boolean hasPadding() {

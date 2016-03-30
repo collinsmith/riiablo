@@ -6,72 +6,74 @@ import com.google.common.base.Preconditions;
 
 public class ClientInputProcessor implements InputProcessor {
 
-private static final String TAG = ClientInputProcessor.class.getSimpleName();
+  private static final String TAG = ClientInputProcessor.class.getSimpleName();
 
-private final Client CLIENT;
-private final GdxKeyManager KEY_MANAGER;
-private final InputProcessor PROPAGATING;
+  private final Client CLIENT;
+  private final GdxKeyManager KEY_MANAGER;
+  private final InputProcessor PROPAGATING;
 
-public ClientInputProcessor(Client client) {
+  public ClientInputProcessor(Client client) {
     this(client, null);
-}
+  }
 
-public ClientInputProcessor(Client client, InputProcessor ip) {
+  public ClientInputProcessor(Client client, InputProcessor ip) {
     this.CLIENT = Preconditions.checkNotNull(client);
     this.KEY_MANAGER = Preconditions.checkNotNull(CLIENT.getKeyManager());
     this.PROPAGATING = ip;
-}
+  }
 
-public Client getClient() { return CLIENT; }
+  public Client getClient() {
+    return CLIENT;
+  }
 
-@Override
-public boolean keyDown(int keycode) {
+  @Override
+  public boolean keyDown(int keycode) {
     Key<Integer> key = KEY_MANAGER.get(keycode);
     if (key != null) {
-        key.setPressed(true, keycode);
+      key.setPressed(true, keycode);
     }
 
     return PROPAGATING.keyDown(keycode);
-}
+  }
 
-@Override
-public boolean keyUp(int keycode) {
+  @Override
+  public boolean keyUp(int keycode) {
     Key<Integer> key = KEY_MANAGER.get(keycode);
     if (key != null) {
-        key.setPressed(false, keycode);
+      key.setPressed(false, keycode);
     }
 
     return PROPAGATING.keyUp(keycode);
-}
+  }
 
-@Override
-public boolean keyTyped(char ch) {
+  @Override
+  public boolean keyTyped(char ch) {
     return PROPAGATING.keyTyped(ch);
-}
+  }
 
-@Override
-public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+  @Override
+  public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     return PROPAGATING.touchDown(screenX, screenY, pointer, button);
-}
+  }
 
-@Override
-public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+  @Override
+  public boolean touchUp(int screenX, int screenY, int pointer, int button) {
     return PROPAGATING.touchUp(screenX, screenY, pointer, button);
-}
+  }
 
-@Override
-public boolean touchDragged(int screenX, int screenY, int pointer) {
+  @Override
+  public boolean touchDragged(int screenX, int screenY, int pointer) {
     return PROPAGATING.touchDragged(screenX, screenY, pointer);
-}
+  }
 
-@Override
-public boolean mouseMoved(int screenX, int screenY) {
+  @Override
+  public boolean mouseMoved(int screenX, int screenY) {
     return PROPAGATING.mouseMoved(screenX, screenY);
-}
+  }
 
-@Override
-public boolean scrolled(int amount) {
+  @Override
+  public boolean scrolled(int amount) {
     return PROPAGATING.scrolled(amount);
-}
+  }
 
 }

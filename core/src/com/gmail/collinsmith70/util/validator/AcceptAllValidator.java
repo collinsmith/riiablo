@@ -7,12 +7,13 @@ package com.gmail.collinsmith70.util.validator;
  */
 public final class AcceptAllValidator extends SimpleValidator {
 
-/**
- * Validates the passed object
- *
- * @param obj object to validate
- */
-@Override
-public void validate(Object obj) {}
+  /**
+   * Validates the passed object
+   *
+   * @param obj object to validate
+   */
+  @Override
+  public void validate(Object obj) {
+  }
 
 }

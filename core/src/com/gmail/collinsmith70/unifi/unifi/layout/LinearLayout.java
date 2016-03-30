@@ -25,9 +25,11 @@ public abstract class LinearLayout extends WidgetGroup {
     END_TO_START;
   }
 
-  @IntRange(from = 0, to = Integer.MAX_VALUE) private int spacing;
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int spacing;
 
-  @NonNull private Direction direction;
+  @NonNull
+  private Direction direction;
 
   /**
    * Spacing between the children of this {@code LinearLayout}.
@@ -56,7 +58,7 @@ public abstract class LinearLayout extends WidgetGroup {
    * {@link Direction} which this {@code LinearLayout} is laid out.
    *
    * @return {@code Direction} corresponding to the order which this {@code LinearLayout} is laid
-   *         out.
+   * out.
    */
   @NonNull
   public Direction getDirection() {

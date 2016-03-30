@@ -13,98 +13,137 @@ package com.gmail.collinsmith70.unifi.util;
  */
 public enum LengthUnit {
 
-MILLIMETERS {
-    @Override public long toMillimeters(long l)         { return l; }
-    @Override public long toCentimeters(long l)         { return l/(C1/C0); }
-    @Override public long toMeters(long l)              { return l/(C2/C0); }
-    @Override public long convert(long l, LengthUnit u) { return u.toMillimeters(l); }
-},
+  MILLIMETERS {
+    @Override
+    public long toMillimeters(long l) {
+      return l;
+    }
 
-CENTIMETERS {
-    @Override public long toMillimeters(long l)         { return x(l, C1/C0, MAX/(C1/C0)); }
-    @Override public long toCentimeters(long l)         { return l; }
-    @Override public long toMeters(long l)              { return l/(C2/C1); }
-    @Override public long convert(long l, LengthUnit u) { return u.toCentimeters(l); }
-},
+    @Override
+    public long toCentimeters(long l) {
+      return l / (C1 / C0);
+    }
 
-METERS {
-    @Override public long toMillimeters(long l)         { return x(l, C2/C0, MAX/(C2/C0)); }
-    @Override public long toCentimeters(long l)         { return x(l, C2/C1, MAX/(C2/C1)); }
-    @Override public long toMeters(long l)              { return l; }
-    @Override public long convert(long l, LengthUnit u) { return u.toMeters(l); }
-};
+    @Override
+    public long toMeters(long l) {
+      return l / (C2 / C0);
+    }
 
-private static final long C0 = 1L;
-private static final long C1 = C0 * 100L;
-private static final long C2 = C0 * 1000L;
+    @Override
+    public long convert(long l, LengthUnit u) {
+      return u.toMillimeters(l);
+    }
+  },
 
-private static final long MAX = Long.MAX_VALUE;
+  CENTIMETERS {
+    @Override
+    public long toMillimeters(long l) {
+      return x(l, C1 / C0, MAX / (C1 / C0));
+    }
 
-/**
- * Scale l by m, checking for overflow. This has a short name to make above code more readable.
- * <p>Note: Taken from {@link java.util.concurrent.TimeUnit#x(long, long, long)}</p>
- */
-static long x(long l, long m, long over) {
+    @Override
+    public long toCentimeters(long l) {
+      return l;
+    }
+
+    @Override
+    public long toMeters(long l) {
+      return l / (C2 / C1);
+    }
+
+    @Override
+    public long convert(long l, LengthUnit u) {
+      return u.toCentimeters(l);
+    }
+  },
+
+  METERS {
+    @Override
+    public long toMillimeters(long l) {
+      return x(l, C2 / C0, MAX / (C2 / C0));
+    }
+
+    @Override
+    public long toCentimeters(long l) {
+      return x(l, C2 / C1, MAX / (C2 / C1));
+    }
+
+    @Override
+    public long toMeters(long l) {
+      return l;
+    }
+
+    @Override
+    public long convert(long l, LengthUnit u) {
+      return u.toMeters(l);
+    }
+  };
+
+  private static final long C0 = 1L;
+  private static final long C1 = C0 * 100L;
+  private static final long C2 = C0 * 1000L;
+
+  private static final long MAX = Long.MAX_VALUE;
+
+  /**
+   * Scale l by m, checking for overflow. This has a short name to make above code more readable.
+   * <p>Note: Taken from {@link java.util.concurrent.TimeUnit#x(long, long, long)}</p>
+   */
+  static long x(long l, long m, long over) {
     if (l > over) {
-        return Long.MAX_VALUE;
+      return Long.MAX_VALUE;
     } else if (l < -over) {
-        return Long.MIN_VALUE;
+      return Long.MIN_VALUE;
     }
 
     return l * m;
-}
+  }
 
-/**
- * Equivalent to {@code MILLIMETERS.convert(length, this)}.
- *
- * @param length length to convert
- *
- * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
- *         {@link Long#MAX_VALUE} if it would positively overflow
- *
- * @see #convert(long, LengthUnit)
- */
-public abstract long toMillimeters(long length);
+  /**
+   * Equivalent to {@code MILLIMETERS.convert(length, this)}.
+   *
+   * @param length length to convert
+   * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
+   * {@link Long#MAX_VALUE} if it would positively overflow
+   * @see #convert(long, LengthUnit)
+   */
+  public abstract long toMillimeters(long length);
 
-/**
- * Equivalent to {@code CENTIMETERS.convert(length, this)}.
- *
- * @param length length to convert
- *
- * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
- *         {@link Long#MAX_VALUE} if it would positively overflow
- *
- * @see #convert(long, LengthUnit)
- */
-public abstract long toCentimeters(long length);
+  /**
+   * Equivalent to {@code CENTIMETERS.convert(length, this)}.
+   *
+   * @param length length to convert
+   * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
+   * {@link Long#MAX_VALUE} if it would positively overflow
+   * @see #convert(long, LengthUnit)
+   */
+  public abstract long toCentimeters(long length);
 
-/**
- * Equivalent to {@code METERS.convert(length, this)}.
- *
- * @param length length to convert
- *
- * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
- *         {@link Long#MAX_VALUE} if it would positively overflow
- *
- * @see #convert(long, LengthUnit)
- */
-public abstract long toMeters(long length);
+  /**
+   * Equivalent to {@code METERS.convert(length, this)}.
+   *
+   * @param length length to convert
+   * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
+   * {@link Long#MAX_VALUE} if it would positively overflow
+   * @see #convert(long, LengthUnit)
+   */
+  public abstract long toMeters(long length);
 
-/**
- * Converts the given length in the given unit to this unit. Conversions from finer to coarser
- * granularities truncate, and will lose some precision. For example converting 999 millimeters to
- * meters results in 0. Conversions from coarser to finer granularities with arguments that would
- * numerically overflow to Long.MIN_VALUE if negative or Long.MAX_VALUE if positive.
- * <p>
- * For example, to convert 10 meters to millimeters, use:
- * {@code LengthUnit.MILLIMETERS.convert(10L, LengthUnit.METERS)}
- * </p>
- * @param sourceLength length in the given {@code sourceUnit}
- * @param sourceUnit   {@linkplain LengthUnit unit} of the {@code sourceDuration} argument
- *
- * @return converted duration in this unit, or {@link Long#MIN_VALUE} if conversion would negatively
- *         overflow, or {@link Long#MAX_VALUE} if it would positively overflow
- */
-public abstract long convert(long sourceLength, LengthUnit sourceUnit);
+  /**
+   * Converts the given length in the given unit to this unit. Conversions from finer to coarser
+   * granularities truncate, and will lose some precision. For example converting 999 millimeters to
+   * meters results in 0. Conversions from coarser to finer granularities with arguments that would
+   * numerically overflow to Long.MIN_VALUE if negative or Long.MAX_VALUE if positive.
+   * <p>
+   * For example, to convert 10 meters to millimeters, use:
+   * {@code LengthUnit.MILLIMETERS.convert(10L, LengthUnit.METERS)}
+   * </p>
+   *
+   * @param sourceLength length in the given {@code sourceUnit}
+   * @param sourceUnit   {@linkplain LengthUnit unit} of the {@code sourceDuration} argument
+   * @return converted duration in this unit, or {@link Long#MIN_VALUE} if conversion would negatively
+   * overflow, or {@link Long#MAX_VALUE} if it would positively overflow
+   */
+  public abstract long convert(long sourceLength, LengthUnit sourceUnit);
 
 }

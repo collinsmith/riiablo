@@ -4,7 +4,10 @@ import android.support.annotation.IntRange;
 
 public interface DrawableParent {
 
-@IntRange(from = 0, to = Integer.MAX_VALUE) int getX();
-@IntRange(from = 0, to = Integer.MAX_VALUE) int getY();
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  int getX();
+
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  int getY();
 
 }

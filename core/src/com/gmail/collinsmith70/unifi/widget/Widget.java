@@ -23,12 +23,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class Widget
         implements InputProcessor, RelativeBounded, Padded, Focusable {
 
-/**
- * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@code Widget}.
- */ private final Set<Flag> FLAGS;
-/**
- * Enumeration of all boolean state fields for a {@code Widget}.
- */ private enum Flag {
+  /**
+   * {@link Set} of {@linkplain Flag flags} representing the boolean states of this {@code Widget}.
+   */
+  private final Set<Flag> FLAGS;
+
+  /**
+   * Enumeration of all boolean state fields for a {@code Widget}.
+   */
+  private enum Flag {
     /**
      * {@code true} implies that this {@code Widget} is enabled, while {@code false} implies that it is
      * not. Interpretation on what exactly enabled means varies by subclass, but generally this effects
@@ -59,9 +62,9 @@ public class Widget
      * otherwise {@code false}.
      */
     FOCUSABLE
-}
+  }
 
-public Widget() {
+  public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
     this.LAYOUT_PARAMS = new HashMap<String, Object>();
     this.LAYOUT_PARAM_CHANGE_LISTENERS
@@ -75,790 +78,974 @@ public Widget() {
     setDown(false);
     setTag(null);
     setVisibility(Visibility.VISIBLE);
-}
+  }
 
-/**
- * @return {@code true} if this {@code Widget} is in debug mode and will have
- *         {@link #onDrawDebug(Batch)} called after every {@linkplain #onDraw(Batch) draw},
- *         otherwise {@code false}
- *
- * @see #setDebugging(boolean)
- */ public boolean isDebugging() {
+  /**
+   * @return {@code true} if this {@code Widget} is in debug mode and will have
+   * {@link #onDrawDebug(Batch)} called after every {@linkplain #onDraw(Batch) draw},
+   * otherwise {@code false}
+   * @see #setDebugging(boolean)
+   */
+  public boolean isDebugging() {
     return FLAGS.contains(Flag.DEBUGGING);
-}
-/**
- * @param debugging {@code true} to enable {@linkplain #isDebugging() debugging} for this
- *                  {@code Widget}, otherwise {@code false}
- *
- * @see #isDebugging()
- */ public void setDebugging(boolean debugging) {
+  }
+
+  /**
+   * @param debugging {@code true} to enable {@linkplain #isDebugging() debugging} for this
+   *                  {@code Widget}, otherwise {@code false}
+   * @see #isDebugging()
+   */
+  public void setDebugging(boolean debugging) {
     if (debugging) {
-        FLAGS.add(Flag.DEBUGGING);
+      FLAGS.add(Flag.DEBUGGING);
     } else {
-        FLAGS.remove(Flag.DEBUGGING);
+      FLAGS.remove(Flag.DEBUGGING);
     }
-}
-public boolean isDown() {
+  }
+
+  public boolean isDown() {
     return FLAGS.contains(Flag.DOWN);
-}
-private void setDown(boolean down) {
+  }
+
+  private void setDown(boolean down) {
     if (down) {
-        FLAGS.add(Flag.DOWN);
+      FLAGS.add(Flag.DOWN);
     } else {
-        FLAGS.remove(Flag.DOWN);
+      FLAGS.remove(Flag.DOWN);
     }
-}
-/**
- * @return {@code true} if this {@code Widget} is enabled. Interpretation varies by subclass.
- *
- * @see #setEnabled(boolean)
- */ public boolean isEnabled() {
+  }
+
+  /**
+   * @return {@code true} if this {@code Widget} is enabled. Interpretation varies by subclass.
+   * @see #setEnabled(boolean)
+   */
+  public boolean isEnabled() {
     return FLAGS.contains(Flag.ENABLED);
 
-}
-/**
- * @param enabled {@code true} to enable this {@code Widget}, otherwise {@code false}.
- *                Interpretation varies by subclass.
- *
- * @see #isEnabled()
- */ public void setEnabled(boolean enabled) {
+  }
+
+  /**
+   * @param enabled {@code true} to enable this {@code Widget}, otherwise {@code false}.
+   *                Interpretation varies by subclass.
+   * @see #isEnabled()
+   */
+  public void setEnabled(boolean enabled) {
     if (enabled) {
-        FLAGS.add(Flag.ENABLED);
+      FLAGS.add(Flag.ENABLED);
     } else {
-        FLAGS.remove(Flag.ENABLED);
+      FLAGS.remove(Flag.ENABLED);
     }
-}
-/**
- * @return {@code true} if this {@code Widget} has an input cursor hovering above it (e.g., mouse
- *         cursor), otherwise {@code false}
- */ public boolean isOver() {
+  }
+
+  /**
+   * @return {@code true} if this {@code Widget} has an input cursor hovering above it (e.g., mouse
+   * cursor), otherwise {@code false}
+   */
+  public boolean isOver() {
     return FLAGS.contains(Flag.OVER);
 
-}
-/**
- * @param over {@code true} to enable the {@linkplain #isOver() hovering} state for this
- *             {@code Widget}, otherwise {@code false}.
- *
- * @see #isOver()
- */ private void setOver(boolean over) {
-    if (over) {
-        FLAGS.add(Flag.OVER);
-    } else {
-        FLAGS.remove(Flag.OVER);
-    }
-}
+  }
 
-/**
- * Floating-point representation of the z-axis location of this {@code Widget}, used to determine
- * height of a component relative to its {@linkplain #getParent() parent}.
- */ @FloatRange(from = 0.0, to = Float.MAX_VALUE) private float elevation;
-/**
- * @return Floating-point representation of the z-axis location of this {@code Widget}, used to
- *         determine height of a component relative to its {@linkplain #getParent() parent}.
- */ @FloatRange(from = 0.0, to = Float.MAX_VALUE) public float getElevation() {
+  /**
+   * @param over {@code true} to enable the {@linkplain #isOver() hovering} state for this
+   *             {@code Widget}, otherwise {@code false}.
+   * @see #isOver()
+   */
+  private void setOver(boolean over) {
+    if (over) {
+      FLAGS.add(Flag.OVER);
+    } else {
+      FLAGS.remove(Flag.OVER);
+    }
+  }
+
+  /**
+   * Floating-point representation of the z-axis location of this {@code Widget}, used to determine
+   * height of a component relative to its {@linkplain #getParent() parent}.
+   */
+  @FloatRange(from = 0.0, to = Float.MAX_VALUE)
+  private float elevation;
+
+  /**
+   * @return Floating-point representation of the z-axis location of this {@code Widget}, used to
+   * determine height of a component relative to its {@linkplain #getParent() parent}.
+   */
+  @FloatRange(from = 0.0, to = Float.MAX_VALUE)
+  public float getElevation() {
     return elevation;
-}
-/**
- * @param elevation Floating-point representation for the {@linkplain #getElevation() elevation} of
- *                  this {@code Widget}, used to determine height of a component relative to its
- *                  {@linkplain #getParent() parent}.
- */ public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float elevation) {
+  }
+
+  /**
+   * @param elevation Floating-point representation for the {@linkplain #getElevation() elevation} of
+   *                  this {@code Widget}, used to determine height of a component relative to its
+   *                  {@linkplain #getParent() parent}.
+   */
+  public void setElevation(@FloatRange(from = 0.0, to = Float.MAX_VALUE) float elevation) {
     if (elevation < 0.0f) {
-        throw new IllegalArgumentException(
-                "elevation must be between 0.0 and " + Float.MAX_VALUE + " (inclusive)");
+      throw new IllegalArgumentException(
+              "elevation must be between 0.0 and " + Float.MAX_VALUE + " (inclusive)");
     }
 
     this.elevation = elevation;
-}
+  }
 
-/**
- * {@link WidgetGroup.LayoutParams} instance containing arguments associated with laying out this
- * {@code Widget}.
- *
- * @see #getLayoutParams()
- * @see #setLayoutParams(WidgetGroup.LayoutParams)
- */ @Nullable private WidgetGroup.LayoutParams layoutParams;
-/**
- * Get the {@link WidgetGroup.LayoutParams} associated with this {@code Widget}. All widgets should
- * have layout parameters. These supply parameters to the {@linkplain #getParent() parent} of this
- * widget specifying how it should be arranged. There are many subclasses of
- * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
- * {@link WidgetGroup} that are responsible for arranging their children. This method may return
- * {@code null} if this {@code Widget} is not attached to a parent {@link WidgetGroup} or
- * {@link #setLayoutParams(WidgetGroup.LayoutParams)} was not invoked successfully. When a
- * {@code Widget} is attached to a parent {@link WidgetGroup}, this method must not return
- * {@code null}.
- *
- * @return {@link WidgetGroup.LayoutParams} instance associated with this {@code Widget},
- *         or {@code null} if no parameters have been set yet
- */ @Nullable public WidgetGroup.LayoutParams getLayoutParams() {
+  /**
+   * {@link WidgetGroup.LayoutParams} instance containing arguments associated with laying out this
+   * {@code Widget}.
+   *
+   * @see #getLayoutParams()
+   * @see #setLayoutParams(WidgetGroup.LayoutParams)
+   */
+  @Nullable
+  private WidgetGroup.LayoutParams layoutParams;
+
+  /**
+   * Get the {@link WidgetGroup.LayoutParams} associated with this {@code Widget}. All widgets should
+   * have layout parameters. These supply parameters to the {@linkplain #getParent() parent} of this
+   * widget specifying how it should be arranged. There are many subclasses of
+   * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
+   * {@link WidgetGroup} that are responsible for arranging their children. This method may return
+   * {@code null} if this {@code Widget} is not attached to a parent {@link WidgetGroup} or
+   * {@link #setLayoutParams(WidgetGroup.LayoutParams)} was not invoked successfully. When a
+   * {@code Widget} is attached to a parent {@link WidgetGroup}, this method must not return
+   * {@code null}.
+   *
+   * @return {@link WidgetGroup.LayoutParams} instance associated with this {@code Widget},
+   * or {@code null} if no parameters have been set yet
+   */
+  @Nullable
+  public WidgetGroup.LayoutParams getLayoutParams() {
     return layoutParams;
-}
-/**
- * Sets the layout parameters associated with this view. These supply parameters to the parent of
- * this {@code Widget} specifying how it should be arranged. There are many subclasses of
- * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
- * {@link WidgetGroup} that are responsible for arranging their children.
- *
- * @param params layout parameters for this {@code Widget}, cannot be {@code null}
- */ public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
+  }
+
+  /**
+   * Sets the layout parameters associated with this view. These supply parameters to the parent of
+   * this {@code Widget} specifying how it should be arranged. There are many subclasses of
+   * {@link WidgetGroup.LayoutParams}, and these correspond to the different subclasses of
+   * {@link WidgetGroup} that are responsible for arranging their children.
+   *
+   * @param params layout parameters for this {@code Widget}, cannot be {@code null}
+   */
+  public void setLayoutParams(@NonNull WidgetGroup.LayoutParams params) {
     if (params == null) {
-        throw new IllegalArgumentException("params cannot be null");
+      throw new IllegalArgumentException("params cannot be null");
     }
 
     this.layoutParams = params;
     switch (this.layoutParams.getWidth()) {
-        case WidgetGroup.LayoutParams.FILL_PARENT:
-            if (!hasParent()) {
-                //throw new IllegalArgumentException("FILL_PARENT specified without parent");
-                break;
-            }
+      case WidgetGroup.LayoutParams.FILL_PARENT:
+        if (!hasParent()) {
+          //throw new IllegalArgumentException("FILL_PARENT specified without parent");
+          break;
+        }
 
-            setLeft(getParent().getLeft());
-            setRight(getParent().getRight());
-            break;
-        case WidgetGroup.LayoutParams.WRAP_CONTENT:
-            if (!(this instanceof WidgetGroup)) {
-                throw new UnsupportedOperationException(
-                        "Widget must be an instance of WidgetGroup to wrap size to content");
-            }
+        setLeft(getParent().getLeft());
+        setRight(getParent().getRight());
+        break;
+      case WidgetGroup.LayoutParams.WRAP_CONTENT:
+        if (!(this instanceof WidgetGroup)) {
+          throw new UnsupportedOperationException(
+                  "Widget must be an instance of WidgetGroup to wrap size to content");
+        }
 
-            WidgetGroup widgetGroup = (WidgetGroup)this;
-            widgetGroup.setWidth(widgetGroup.getMinWidth());
-            break;
-        default:
-            setWidth(this.layoutParams.getWidth());
+        WidgetGroup widgetGroup = (WidgetGroup) this;
+        widgetGroup.setWidth(widgetGroup.getMinWidth());
+        break;
+      default:
+        setWidth(this.layoutParams.getWidth());
     }
 
     switch (this.layoutParams.getHeight()) {
-        case WidgetGroup.LayoutParams.FILL_PARENT:
-            if (!hasParent()) {
-                //throw new IllegalArgumentException("FILL_PARENT specified without parent");
-                break;
-            }
+      case WidgetGroup.LayoutParams.FILL_PARENT:
+        if (!hasParent()) {
+          //throw new IllegalArgumentException("FILL_PARENT specified without parent");
+          break;
+        }
 
-            setTop(getParent().getTop());
-            setBottom(getParent().getBottom());
-            break;
-        case WidgetGroup.LayoutParams.WRAP_CONTENT:
-            if (!(this instanceof WidgetGroup)) {
-                throw new UnsupportedOperationException(
-                        "Widget must be an instance of WidgetGroup to wrap size to content");
-            }
+        setTop(getParent().getTop());
+        setBottom(getParent().getBottom());
+        break;
+      case WidgetGroup.LayoutParams.WRAP_CONTENT:
+        if (!(this instanceof WidgetGroup)) {
+          throw new UnsupportedOperationException(
+                  "Widget must be an instance of WidgetGroup to wrap size to content");
+        }
 
-            WidgetGroup widgetGroup = (WidgetGroup)this;
-            widgetGroup.setHeight(widgetGroup.getMinHeight());
-            break;
-        default:
-            setHeight(this.layoutParams.getHeight());
+        WidgetGroup widgetGroup = (WidgetGroup) this;
+        widgetGroup.setHeight(widgetGroup.getMinHeight());
+        break;
+      default:
+        setHeight(this.layoutParams.getHeight());
     }
-}
+  }
 
-/**
- * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@code Widget} may have.
- */ public enum Visibility {
-    /** {@code Widget} will be laid out and rendered normally */
+  /**
+   * {@linkplain Enum Enumeration} of all {@link Visibility} modifiers a {@code Widget} may have.
+   */
+  public enum Visibility {
+    /**
+     * {@code Widget} will be laid out and rendered normally
+     */
     VISIBLE,
-    /** {@code Widget} will be laid out normally, however it will not be drawn */
+    /**
+     * {@code Widget} will be laid out normally, however it will not be drawn
+     */
     INVISIBLE,
-    /** {@code Widget} will neither be laid out or drawn (as if it is not even present) */
+    /**
+     * {@code Widget} will neither be laid out or drawn (as if it is not even present)
+     */
     GONE
-}
-/**
- * {@link Visibility} of this {@code Widget}. This effects how the component behaves when rendering
- * and additionally when being laid out.
- *
- * @see #getVisibility()
- * @see #setVisibility(Visibility)
- */ @NonNull private Visibility visibility;
-/**
- * @return {@link Visibility} constant of this {@code Widget}
- */ @NonNull public Visibility getVisibility() {
+  }
+
+  /**
+   * {@link Visibility} of this {@code Widget}. This effects how the component behaves when rendering
+   * and additionally when being laid out.
+   *
+   * @see #getVisibility()
+   * @see #setVisibility(Visibility)
+   */
+  @NonNull
+  private Visibility visibility;
+
+  /**
+   * @return {@link Visibility} constant of this {@code Widget}
+   */
+  @NonNull
+  public Visibility getVisibility() {
     return visibility;
-}
-/**
- * @param visibility {@link Visibility} constant to apply to this {@code Widget}
- */ public void setVisibility(@NonNull Visibility visibility) {
+  }
+
+  /**
+   * @param visibility {@link Visibility} constant to apply to this {@code Widget}
+   */
+  public void setVisibility(@NonNull Visibility visibility) {
     if (visibility == null) {
-        throw new IllegalArgumentException("visibility cannot be null");
+      throw new IllegalArgumentException("visibility cannot be null");
     }
 
     this.visibility = visibility;
-}
+  }
 
-@NonNull private final Set<WidgetGroup.LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
-public void addLayoutParamChangeListener(@NonNull WidgetGroup.LayoutParamChangeListener l) {
+  @NonNull
+  private final Set<WidgetGroup.LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
+
+  public void addLayoutParamChangeListener(@NonNull WidgetGroup.LayoutParamChangeListener l) {
     if (l == null) {
-        throw new IllegalArgumentException("LayoutParamChangeListener cannot be null");
+      throw new IllegalArgumentException("LayoutParamChangeListener cannot be null");
     }
 
     LAYOUT_PARAM_CHANGE_LISTENERS.add(l);
-}
+  }
 
-@NonNull private final Map<String, Object> LAYOUT_PARAMS;
-public void put(@NonNull String param, @Nullable Object value) {
+  @NonNull
+  private final Map<String, Object> LAYOUT_PARAMS;
+
+  public void put(@NonNull String param, @Nullable Object value) {
     if (param == null) {
-        throw new IllegalArgumentException("param cannot be null");
+      throw new IllegalArgumentException("param cannot be null");
     }
 
     LAYOUT_PARAMS.put(param, value);
     for (WidgetGroup.LayoutParamChangeListener l : LAYOUT_PARAM_CHANGE_LISTENERS) {
-        l.onChange(param, value);
+      l.onChange(param, value);
     }
-}
-@Nullable public <E> E get(@Nullable Object param) {
-    return (E)LAYOUT_PARAMS.get(param);
-}
-@Nullable public <E> E getOrDefault(@Nullable Object param, @Nullable E defaultValue) {
-    E value = (E)LAYOUT_PARAMS.get(param);
-    return value == null ? defaultValue : value;
-}
-public boolean containsKey(@Nullable Object param) {
-    return LAYOUT_PARAMS.containsKey(param);
-}
+  }
 
-/**
- * Draws this {@code Widget} onto the given {@link Batch}.
- *
- * @param batch {@link Batch} to draw this {@code Widget} onto
- *
- * @see #onDrawBackground(Batch)
- * @see #onDraw(Batch)
- * @see #onDrawDebug(Batch)
- */ protected void draw(@NonNull Batch batch) {
+  @Nullable
+  public <E> E get(@Nullable Object param) {
+    return (E) LAYOUT_PARAMS.get(param);
+  }
+
+  @Nullable
+  public <E> E getOrDefault(@Nullable Object param, @Nullable E defaultValue) {
+    E value = (E) LAYOUT_PARAMS.get(param);
+    return value == null ? defaultValue : value;
+  }
+
+  public boolean containsKey(@Nullable Object param) {
+    return LAYOUT_PARAMS.containsKey(param);
+  }
+
+  /**
+   * Draws this {@code Widget} onto the given {@link Batch}.
+   *
+   * @param batch {@link Batch} to draw this {@code Widget} onto
+   * @see #onDrawBackground(Batch)
+   * @see #onDraw(Batch)
+   * @see #onDrawDebug(Batch)
+   */
+  protected void draw(@NonNull Batch batch) {
     assert batch != null : "batch should never be null";
     switch (getVisibility()) {
-        case VISIBLE:
-            onDrawBackground(batch);
-            onDraw(batch);
-            if (isDebugging()) {
-                onDrawDebug(batch);
-            }
+      case VISIBLE:
+        onDrawBackground(batch);
+        onDraw(batch);
+        if (isDebugging()) {
+          onDrawDebug(batch);
+        }
 
-            break;
-        case INVISIBLE:
-            if (!isDebugging()) {
-                break;
-            }
+        break;
+      case INVISIBLE:
+        if (!isDebugging()) {
+          break;
+        }
 
-            final ShapeRenderer shapeRenderer = new DottedShapeRenderer();
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
-                shapeRenderer.setColor(Color.LIGHT_GRAY);
-                shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
-            } shapeRenderer.end();
-            shapeRenderer.dispose();
-            break;
-        case GONE:
-            break;
-        default:
+        final ShapeRenderer shapeRenderer = new DottedShapeRenderer();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Point);
+      {
+        shapeRenderer.setColor(Color.LIGHT_GRAY);
+        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
+      }
+      shapeRenderer.end();
+      shapeRenderer.dispose();
+      break;
+      case GONE:
+        break;
+      default:
     }
-}
-/**
- * Called when the {@linkplain Drawable background} of this {@code Widget} should be drawn.
- *
- * @param batch {@link Batch} to draw onto
- */ public void onDrawBackground(@NonNull Batch batch) {
+  }
+
+  /**
+   * Called when the {@linkplain Drawable background} of this {@code Widget} should be drawn.
+   *
+   * @param batch {@link Batch} to draw onto
+   */
+  public void onDrawBackground(@NonNull Batch batch) {
     if (batch == null) {
-        throw new IllegalArgumentException("batch should never be null");
+      throw new IllegalArgumentException("batch should never be null");
     }
-}
-/**
- * Called when the foreground of this {@code Widget} should be drawn.
- *
- * @param batch {@link Batch} to draw onto
- */ public void onDraw(@NonNull Batch batch) {
+  }
+
+  /**
+   * Called when the foreground of this {@code Widget} should be drawn.
+   *
+   * @param batch {@link Batch} to draw onto
+   */
+  public void onDraw(@NonNull Batch batch) {
     if (batch == null) {
-        throw new IllegalArgumentException("batch should never be null");
+      throw new IllegalArgumentException("batch should never be null");
     }
-}
-/**
- * Called when {@link #onDraw(Batch) drawing} this widget when it is in
- * {@linkplain #isDebugging() debug} mode.
- *
- * @param batch {@link Batch} to draw debug information onto
- */ public void onDrawDebug(@NonNull Batch batch) {
+  }
+
+  /**
+   * Called when {@link #onDraw(Batch) drawing} this widget when it is in
+   * {@linkplain #isDebugging() debug} mode.
+   *
+   * @param batch {@link Batch} to draw debug information onto
+   */
+  public void onDrawDebug(@NonNull Batch batch) {
     if (batch == null) {
-        throw new IllegalArgumentException("batch should never be null");
+      throw new IllegalArgumentException("batch should never be null");
     }
 
     if (hasPadding()) {
-        final ShapeRenderer shapeRenderer = new DottedShapeRenderer();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Point); {
-            shapeRenderer.setColor(Color.TEAL);
-            shapeRenderer.rect(getX()+getPaddingLeft(), getY()+getPaddingBottom(),
-                    getWidth()-getPaddingLeft()-getPaddingRight(),
-                    getHeight()-getPaddingTop()-getPaddingBottom());
-        } shapeRenderer.end();
-        shapeRenderer.dispose();
+      final ShapeRenderer shapeRenderer = new DottedShapeRenderer();
+      shapeRenderer.begin(ShapeRenderer.ShapeType.Point);
+      {
+        shapeRenderer.setColor(Color.TEAL);
+        shapeRenderer.rect(getX() + getPaddingLeft(), getY() + getPaddingBottom(),
+                getWidth() - getPaddingLeft() - getPaddingRight(),
+                getHeight() - getPaddingTop() - getPaddingBottom());
+      }
+      shapeRenderer.end();
+      shapeRenderer.dispose();
     }
 
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
-    shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
-        Color color = Color.RED;
-        if (!isEnabled()) {
-            color = Color.DARK_GRAY;
-        } else if (!isFocusable()) {
-            color = Color.LIGHT_GRAY;
-        } else if (isDown() && isOver()) {
-            color = Color.GREEN;
-        } else if (isOver()) {
-            color = Color.BLUE;
-        }
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+    {
+      Color color = Color.RED;
+      if (!isEnabled()) {
+        color = Color.DARK_GRAY;
+      } else if (!isFocusable()) {
+        color = Color.LIGHT_GRAY;
+      } else if (isDown() && isOver()) {
+        color = Color.GREEN;
+      } else if (isOver()) {
+        color = Color.BLUE;
+      }
 
-        shapeRenderer.setColor(color);
-        shapeRenderer.rect(getX()+1, getY()+1, getWidth(), getHeight());
-        //System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
-        //        getX(), getY(), getWidth(), getHeight(),
-        //        getRelativeLeft(), getRelativeRight(), getRelativeTop(), getRelativeBottom());
-    } shapeRenderer.end();
+      shapeRenderer.setColor(color);
+      shapeRenderer.rect(getX() + 1, getY() + 1, getWidth(), getHeight());
+      //System.out.printf("%s [%d, %d, %d, %d] [%d, %d, %d, %d]%n", getClass().getName(),
+      //        getX(), getY(), getWidth(), getHeight(),
+      //        getRelativeLeft(), getRelativeRight(), getRelativeTop(), getRelativeBottom());
+    }
+    shapeRenderer.end();
     shapeRenderer.dispose();
-}
+  }
 
-public void onTouch(int screenX, int screenY, int button, int pointer) {
+  public void onTouch(int screenX, int screenY, int button, int pointer) {
     System.out.println("onTouch " + getClass().getSimpleName());
-}
+  }
 
-/**
- * Abstract {@code Object} associated with this {@code Widget}.
- */ @Nullable private Object tag;
-/**
- * @return abstract {@code Object} associated with this {@code Widget}, or {@code null} if no object
- *         is associated with it
- */ @Nullable public Object getTag() {
+  /**
+   * Abstract {@code Object} associated with this {@code Widget}.
+   */
+  @Nullable
+  private Object tag;
+
+  /**
+   * @return abstract {@code Object} associated with this {@code Widget}, or {@code null} if no object
+   * is associated with it
+   */
+  @Nullable
+  public Object getTag() {
     return tag;
-}
-/**
- * @param tag abstract {@code Object} to associate with this {@code Widget}, or {@code null} to
- *            disassociate the currently {@linkplain #getTag() tagged object}
- */ public void setTag(@Nullable final Object tag) {
-    this.tag = tag;
-}
+  }
 
-/**
- * @return topmost {@code Widget} {@linkplain #getParent() containing} this {@code Widget}
- */ @Nullable public Widget getRootWidget() {
+  /**
+   * @param tag abstract {@code Object} to associate with this {@code Widget}, or {@code null} to
+   *            disassociate the currently {@linkplain #getTag() tagged object}
+   */
+  public void setTag(@Nullable final Object tag) {
+    this.tag = tag;
+  }
+
+  /**
+   * @return topmost {@code Widget} {@linkplain #getParent() containing} this {@code Widget}
+   */
+  @Nullable
+  public Widget getRootWidget() {
     Widget root = null;
     for (WidgetParent parent = getParent();
-        parent != null && parent instanceof Widget;
-        parent = getParent()) {
-        root = (Widget)parent;
+         parent != null && parent instanceof Widget;
+         parent = getParent()) {
+      root = (Widget) parent;
     }
 
     return root;
-}
-/**
- * @return {@link Window} containing this {@code Widget}
- */ @Nullable public final Window getWindow() {
+  }
+
+  /**
+   * @return {@link Window} containing this {@code Widget}
+   */
+  @Nullable
+  public final Window getWindow() {
     WidgetParent parent = getParent();
     while (parent != null) {
-        if (parent instanceof Window) {
-            return (Window)parent;
-        }
+      if (parent instanceof Window) {
+        return (Window) parent;
+      }
 
-        parent = parent.getParent();
+      parent = parent.getParent();
     }
 
     return null;
-}
+  }
 
-@Override public boolean isFocusable() {
+  @Override
+  public boolean isFocusable() {
     return FLAGS.contains(Flag.FOCUSABLE) && getVisibility().equals(Visibility.VISIBLE);
-}
-@Override public boolean hasFocus() {
+  }
+
+  @Override
+  public boolean hasFocus() {
     return false;
-}
-@Override public boolean hasFocusable() {
+  }
+
+  @Override
+  public boolean hasFocusable() {
     if (hasParent()) {
-        return isFocusable() || getParent().hasFocusable();
+      return isFocusable() || getParent().hasFocusable();
     }
 
     return isFocusable();
-}
-@Override public void setFocusable(boolean focusable) {
+  }
+
+  @Override
+  public void setFocusable(boolean focusable) {
     if (focusable) {
-        FLAGS.add(Flag.FOCUSABLE);
+      FLAGS.add(Flag.FOCUSABLE);
     } else {
-        FLAGS.remove(Flag.FOCUSABLE);
+      FLAGS.remove(Flag.FOCUSABLE);
     }
-}
+  }
 
-@Nullable private WidgetParent parent;
-@Nullable public WidgetParent getParent() {
+  @Nullable
+  private WidgetParent parent;
+
+  @Nullable
+  public WidgetParent getParent() {
     return parent;
-}
-public void setParent(@Nullable WidgetParent parent) {
+  }
+
+  public void setParent(@Nullable WidgetParent parent) {
     this.parent = parent;
-}
-public boolean hasParent() {
+  }
+
+  public boolean hasParent() {
     return getParent() != null;
-}
+  }
 
-private int bottom;
-private int left;
-private int right;
-private int top;
+  private int bottom;
+  private int left;
+  private int right;
+  private int top;
 
-@Override public Bounded getRelativeParent() {
+  @Override
+  public Bounded getRelativeParent() {
     return getParent();
-}
-public boolean hasRelativeParent() {
+  }
+
+  public boolean hasRelativeParent() {
     return hasParent();
-}
+  }
 
-@Override public int getRelativeBottom() {
+  @Override
+  public int getRelativeBottom() {
     return bottom;
-}
-@Override public int getRelativeLeft() {
-    return left;
-}
-@Override public int getRelativeRight() {
-    return right;
-}
-@Override public int getRelativeTop() {
-    return top;
-}
+  }
 
-@Override public void setRelativeBottom(int bottom) {
+  @Override
+  public int getRelativeLeft() {
+    return left;
+  }
+
+  @Override
+  public int getRelativeRight() {
+    return right;
+  }
+
+  @Override
+  public int getRelativeTop() {
+    return top;
+  }
+
+  @Override
+  public void setRelativeBottom(int bottom) {
     if (bottom > getRelativeTop()) {
-        setRelativeTop(bottom);
+      setRelativeTop(bottom);
     }
 
     this.bottom = bottom;
-}
-@Override public void setRelativeLeft(int left) {
+  }
+
+  @Override
+  public void setRelativeLeft(int left) {
     if (left > getRelativeRight()) {
-        setRelativeRight(left);
+      setRelativeRight(left);
     }
 
     this.left = left;
-}
-@Override public void setRelativeRight(int right) {
+  }
+
+  @Override
+  public void setRelativeRight(int right) {
     if (right < getRelativeLeft()) {
-        setRelativeLeft(right);
+      setRelativeLeft(right);
     }
 
     this.right = right;
-}
-@Override public void setRelativeTop(int top) {
+  }
+
+  @Override
+  public void setRelativeTop(int top) {
     if (top < getRelativeBottom()) {
-        setRelativeBottom(top);
+      setRelativeBottom(top);
     }
 
     this.top = top;
-}
+  }
 
-@Override public void moveRelativeBottom(int bottom) {
+  @Override
+  public void moveRelativeBottom(int bottom) {
     if (hasRelativeParent()) {
-        moveBottom(getRelativeParent().getBottom() + bottom);
-        return;
+      moveBottom(getRelativeParent().getBottom() + bottom);
+      return;
     }
 
     moveBottom(bottom);
-}
-@Override public void moveRelativeLeft(int left) {
+  }
+
+  @Override
+  public void moveRelativeLeft(int left) {
     if (hasRelativeParent()) {
-        moveLeft(getRelativeParent().getLeft() + left);
-        return;
+      moveLeft(getRelativeParent().getLeft() + left);
+      return;
     }
 
     moveLeft(left);
-}
-@Override public void moveRelativeRight(int right) {
+  }
+
+  @Override
+  public void moveRelativeRight(int right) {
     if (hasRelativeParent()) {
-        moveRight(getRelativeParent().getLeft() + right);
-        return;
+      moveRight(getRelativeParent().getLeft() + right);
+      return;
     }
 
     moveRight(right);
-}
-@Override public void moveRelativeTop(int top) {
+  }
+
+  @Override
+  public void moveRelativeTop(int top) {
     if (hasRelativeParent()) {
-        moveTop(getRelativeParent().getBottom() + top);
-        return;
+      moveTop(getRelativeParent().getBottom() + top);
+      return;
     }
 
     moveTop(top);
-}
+  }
 
-@Override public int getBottom() {
+  @Override
+  public int getBottom() {
     if (hasRelativeParent()) {
-        return getRelativeParent().getBottom() + getRelativeBottom();
+      return getRelativeParent().getBottom() + getRelativeBottom();
     }
 
     return getRelativeBottom();
-}
-@Override public int getLeft() {
+  }
+
+  @Override
+  public int getLeft() {
     if (hasRelativeParent()) {
-        return getRelativeParent().getLeft() + getRelativeLeft();
+      return getRelativeParent().getLeft() + getRelativeLeft();
     }
 
     return getRelativeLeft();
-}
-@Override public int getRight() {
+  }
+
+  @Override
+  public int getRight() {
     if (hasRelativeParent()) {
-        return getRelativeParent().getLeft() + getRelativeRight();
+      return getRelativeParent().getLeft() + getRelativeRight();
     }
 
     return getRelativeRight();
-}
-@Override public int getTop() {
+  }
+
+  @Override
+  public int getTop() {
     if (hasRelativeParent()) {
-        return getRelativeParent().getBottom() + getRelativeTop();
+      return getRelativeParent().getBottom() + getRelativeTop();
     }
 
     return getRelativeTop();
-}
+  }
 
-@Override public void setBottom(int bottom) {
+  @Override
+  public void setBottom(int bottom) {
     if (hasRelativeParent()) {
-        setRelativeBottom(bottom - getRelativeParent().getBottom());
-        return;
+      setRelativeBottom(bottom - getRelativeParent().getBottom());
+      return;
     }
 
     setRelativeBottom(bottom);
-}
-@Override public void setLeft(int left) {
+  }
+
+  @Override
+  public void setLeft(int left) {
     if (hasRelativeParent()) {
-        setRelativeLeft(left - getRelativeParent().getLeft());
-        return;
+      setRelativeLeft(left - getRelativeParent().getLeft());
+      return;
     }
 
     setRelativeLeft(left);
-}
-@Override public void setRight(int right) {
+  }
+
+  @Override
+  public void setRight(int right) {
     if (hasRelativeParent()) {
-        setRelativeRight(right - getRelativeParent().getLeft());
-        return;
+      setRelativeRight(right - getRelativeParent().getLeft());
+      return;
     }
 
     setRelativeRight(right);
-}
-@Override public void setTop(int top) {
+  }
+
+  @Override
+  public void setTop(int top) {
     if (hasRelativeParent()) {
-        setRelativeTop(top - getRelativeParent().getBottom());
-        return;
+      setRelativeTop(top - getRelativeParent().getBottom());
+      return;
     }
 
     setRelativeTop(top);
-}
+  }
 
-@Override public void moveBottom(int bottom) {
+  @Override
+  public void moveBottom(int bottom) {
     setY(bottom);
-}
-@Override public void moveLeft(int left) {
+  }
+
+  @Override
+  public void moveLeft(int left) {
     setX(left);
-}
-@Override public void moveRight(int right) {
+  }
+
+  @Override
+  public void moveRight(int right) {
     setX(right - getWidth());
-}
-@Override public void moveTop(int top) {
+  }
+
+  @Override
+  public void moveTop(int top) {
     setY(top - getHeight());
-}
+  }
 
-@Override public int getX() {
+  @Override
+  public int getX() {
     return getLeft();
-}
-@Override public int getY() {
-    return getBottom();
-}
-@Override @IntRange(from = 0, to = Integer.MAX_VALUE) public int getWidth() {
-    return getRight() - getLeft();
-}
-@Override @IntRange(from = 0, to = Integer.MAX_VALUE) public int getHeight() {
-    return getTop() - getBottom();
-}
+  }
 
-@Override public void setX(int x) {
+  @Override
+  public int getY() {
+    return getBottom();
+  }
+
+  @Override
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getWidth() {
+    return getRight() - getLeft();
+  }
+
+  @Override
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getHeight() {
+    return getTop() - getBottom();
+  }
+
+  @Override
+  public void setX(int x) {
     final int width = getWidth();
     setLeft(x);
     setWidth(width);
-}
-@Override public void setY(int y) {
+  }
+
+  @Override
+  public void setY(int y) {
     final int height = getHeight();
     setBottom(y);
     setHeight(height);
-}
-@Override public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
+  }
+
+  @Override
+  public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
     if (width < 0) {
-        throw new IllegalArgumentException(
-                "width should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+      throw new IllegalArgumentException(
+              "width should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
     }
 
     setRight(getLeft() + width);
-}
-@Override public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+  }
+
+  @Override
+  public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     if (height < 0) {
-        throw new IllegalArgumentException(
-                "height should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
+      throw new IllegalArgumentException(
+              "height should be between 0 and " + Integer.MAX_VALUE + " (inclusive)");
     }
 
     setTop(getBottom() + height);
-}
+  }
 
-@Override public void setBounds(int left, int right, int top, int bottom) {
+  @Override
+  public void setBounds(int left, int right, int top, int bottom) {
     if (right > left) {
-        throw new IllegalArgumentException(
-                "left should be less than or equal to right (" + right + ")");
+      throw new IllegalArgumentException(
+              "left should be less than or equal to right (" + right + ")");
     } else if (bottom > top) {
-        throw new IllegalArgumentException(
-                "bottom should be less than or equal to top (" + top + ")");
+      throw new IllegalArgumentException(
+              "bottom should be less than or equal to top (" + top + ")");
     }
 
     setLeft(left);
     setRight(right);
     setTop(top);
     setBottom(bottom);
-}
-@Override public void setRelativeBounds(int left, int right, int top, int bottom) {
+  }
+
+  @Override
+  public void setRelativeBounds(int left, int right, int top, int bottom) {
     if (right > left) {
-        throw new IllegalArgumentException(
-            "left should be less than or equal to right (" + right + ")");
+      throw new IllegalArgumentException(
+              "left should be less than or equal to right (" + right + ")");
     } else if (bottom > top) {
-        throw new IllegalArgumentException(
-                "bottom should be less than or equal to top (" + top + ")");
+      throw new IllegalArgumentException(
+              "bottom should be less than or equal to top (" + top + ")");
     }
 
     setRelativeLeft(left);
     setRelativeRight(right);
     setRelativeTop(top);
     setRelativeBottom(bottom);
-}
-@Override public boolean inBounds(int x, int y) {
+  }
+
+  @Override
+  public boolean inBounds(int x, int y) {
     return getLeft() <= x && x <= getRight()
             && getBottom() <= y && y <= getTop();
-}
-@Override public boolean hasSize() {
+  }
+
+  @Override
+  public boolean hasSize() {
     return getRelativeRight() > getRelativeLeft()
             && getRelativeTop() > getRelativeBottom();
-}
-@Override public void setPosition(int x, int y) {
+  }
+
+  @Override
+  public void setPosition(int x, int y) {
     setX(x);
     setY(y);
-}
-@Override public void setSize(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
-                              @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+  }
+
+  @Override
+  public void setSize(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
+                      @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     setWidth(width);
     setHeight(height);
-}
+  }
 
-private int paddingBottom;
-private int paddingLeft;
-private int paddingRight;
-private int paddingTop;
+  private int paddingBottom;
+  private int paddingLeft;
+  private int paddingRight;
+  private int paddingTop;
 
-@Override public int getPaddingBottom() {
+  @Override
+  public int getPaddingBottom() {
     return paddingBottom;
-}
-@Override public int getPaddingLeft() {
-    return paddingLeft;
-}
-@Override public int getPaddingRight() {
-    return paddingRight;
-}
-@Override public int getPaddingTop() {
-    return paddingTop;
-}
+  }
 
-@Override public boolean hasPadding() {
+  @Override
+  public int getPaddingLeft() {
+    return paddingLeft;
+  }
+
+  @Override
+  public int getPaddingRight() {
+    return paddingRight;
+  }
+
+  @Override
+  public int getPaddingTop() {
+    return paddingTop;
+  }
+
+  @Override
+  public boolean hasPadding() {
     return getPaddingBottom() > 0 || getPaddingLeft() > 0
             || getPaddingRight() > 0 || getPaddingTop() > 0;
-}
+  }
 
-@Override public void setPaddingBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+  @Override
+  public void setPaddingBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
     if (bottom < 0) {
-        throw new IllegalArgumentException("bottom should be greater than or equal to 0");
+      throw new IllegalArgumentException("bottom should be greater than or equal to 0");
     }
 
     this.paddingBottom = bottom;
-}
-@Override public void setPaddingLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
+  }
+
+  @Override
+  public void setPaddingLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) int left) {
     if (left < 0) {
-        throw new IllegalArgumentException("left should be greater than or equal to 0");
+      throw new IllegalArgumentException("left should be greater than or equal to 0");
     }
 
     this.paddingLeft = left;
-}
-@Override public void setPaddingRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
+  }
+
+  @Override
+  public void setPaddingRight(@IntRange(from = 0, to = Integer.MAX_VALUE) int right) {
     if (right < 0) {
-        throw new IllegalArgumentException("right should be greater than or equal to 0");
+      throw new IllegalArgumentException("right should be greater than or equal to 0");
     }
 
     this.paddingRight = right;
-}
-@Override public void setPaddingTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
+  }
+
+  @Override
+  public void setPaddingTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top) {
     if (top < 0) {
-        throw new IllegalArgumentException("top should be greater than or equal to 0");
+      throw new IllegalArgumentException("top should be greater than or equal to 0");
     }
 
     this.paddingTop = top;
-}
+  }
 
-@Override public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) int left, @IntRange(from = 0, to = Integer.MAX_VALUE) int top, @IntRange(from = 0, to = Integer.MAX_VALUE) int right, @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
+  @Override
+  public void setPadding(@IntRange(from = 0, to = Integer.MAX_VALUE) int left, @IntRange(from = 0, to = Integer.MAX_VALUE) int top, @IntRange(from = 0, to = Integer.MAX_VALUE) int right, @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom) {
     setPaddingBottom(bottom);
     setPaddingLeft(left);
     setPaddingRight(right);
     setPaddingTop(top);
-}
+  }
 
-@Override public boolean mouseMoved(int screenX, int screenY) {
+  @Override
+  public boolean mouseMoved(int screenX, int screenY) {
     if (!isEnabled() || !isFocusable()) {
-        return false;
+      return false;
     }
 
     boolean inBounds = inBounds(screenX, screenY);
     setOver(inBounds);
     //System.out.printf("moving (%d, %d)%n", screenX, screenY);
     return inBounds;
-}
-@Override public boolean keyDown(int keycode) {
+  }
+
+  @Override
+  public boolean keyDown(int keycode) {
     return false;
-}
-@Override public boolean keyUp(int keycode) {
+  }
+
+  @Override
+  public boolean keyUp(int keycode) {
     return false;
-}
-@Override public boolean keyTyped(char character) {
+  }
+
+  @Override
+  public boolean keyTyped(char character) {
     return false;
-}
-@Override public boolean scrolled(int amount) {
+  }
+
+  @Override
+  public boolean scrolled(int amount) {
     return false;
-}
-@Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+  }
+
+  @Override
+  public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     if (!isEnabled() || !isFocusable()) {
-        return false;
+      return false;
     }
 
     boolean inBounds = inBounds(screenX, screenY);
     if (inBounds) {
-        setDown(true);
+      setDown(true);
     }
 
     return inBounds;
-}
-@Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+  }
+
+  @Override
+  public boolean touchUp(int screenX, int screenY, int pointer, int button) {
     if (!isEnabled() || !isFocusable()) {
-        return false;
+      return false;
     }
 
     if (isDown()) {
-        setDown(false);
-        if (inBounds(screenX, screenY)) {
-            onTouch(screenX, screenY, pointer, button);
-        }
+      setDown(false);
+      if (inBounds(screenX, screenY)) {
+        onTouch(screenX, screenY, pointer, button);
+      }
 
-        return true;
+      return true;
     }
 
     return false;
-}
-@Override public boolean touchDragged(int screenX, int screenY, int pointer) {
+  }
+
+  @Override
+  public boolean touchDragged(int screenX, int screenY, int pointer) {
     if (!isEnabled() || !isFocusable()) {
-        return false;
+      return false;
     }
 
     boolean inBounds = inBounds(screenX, screenY);
     setOver(inBounds);
     //System.out.printf("dragging (%d, %d)%n", screenX, screenY);
     return inBounds;
-}
+  }
 
 }

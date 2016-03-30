@@ -16,78 +16,78 @@ import com.google.common.base.Preconditions;
 public class NumberRangeValidator<T extends Number & Comparable<? super T>>
         implements RangeValidator<T> {
 
-/**
- * Minimum value
- */
-private final T MIN;
+  /**
+   * Minimum value
+   */
+  private final T MIN;
 
-/**
- * Maximum value
- */
-private final T MAX;
+  /**
+   * Maximum value
+   */
+  private final T MAX;
 
-/**
- * Constructs a new {@linkplain NumberRangeValidator} instance
- *
- * @param min minimum value
- * @param max maximum value
- */
-public NumberRangeValidator(@NonNull T min, @NonNull T max) {
+  /**
+   * Constructs a new {@linkplain NumberRangeValidator} instance
+   *
+   * @param min minimum value
+   * @param max maximum value
+   */
+  public NumberRangeValidator(@NonNull T min, @NonNull T max) {
     this.MIN = Preconditions.checkNotNull(min);
     this.MAX = Preconditions.checkNotNull(max);
-}
+  }
 
-/**
- * {@inheritDoc}
- */
-@Override
-public T getMin() {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public T getMin() {
     return MIN;
-}
+  }
 
-/**
- * {@inheritDoc}
- */
-@Override
-public T getMax() {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public T getMax() {
     return MAX;
-}
+  }
 
-/**
- * {@inheritDoc}
- */
-@Override
-public boolean isValid(Object obj) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isValid(Object obj) {
     try {
-        validate(obj);
-        return true;
+      validate(obj);
+      return true;
     } catch (ValidationException e) {
-        return false;
+      return false;
     }
-}
+  }
 
-/**
- * Validates that the passed object is a {@link Number} which lies with the
- * {@linkplain RangeValidator#getMin() minimum} and {@linkplain RangeValidator#getMax() maximum}
- * values of this {@linkplain NumberRangeValidator}
- *
- * @param obj object to validate
- */
-@Override
-public void validate(Object obj) {
+  /**
+   * Validates that the passed object is a {@link Number} which lies with the
+   * {@linkplain RangeValidator#getMin() minimum} and {@linkplain RangeValidator#getMax() maximum}
+   * values of this {@linkplain NumberRangeValidator}
+   *
+   * @param obj object to validate
+   */
+  @Override
+  public void validate(Object obj) {
     if (obj == null) {
-        throw new ValidationException("passed reference cannot be null");
+      throw new ValidationException("passed reference cannot be null");
     }
 
     if (!MIN.getClass().isAssignableFrom(obj.getClass())) {
-        throw new ValidationException(
-                "passed reference is not a subclass of " + MIN.getClass().getName());
+      throw new ValidationException(
+              "passed reference is not a subclass of " + MIN.getClass().getName());
     }
 
-    T castedObj = (T)obj;
+    T castedObj = (T) obj;
     if (MIN.compareTo(castedObj) > 0 && MAX.compareTo(castedObj) < 0) {
-        throw new RangeValidationException(MIN, MAX);
+      throw new RangeValidationException(MIN, MAX);
     }
-}
+  }
 
 }
