@@ -256,6 +256,10 @@ public class Window
 
     children.add(widget);
     widget.setParent(this);
+    if (widget instanceof WidgetParent) {
+      widget.setBoundary(getLeft(), getTop(), getRight(), getBottom());
+    }
+
     requestLayout();
   }
 
