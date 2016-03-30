@@ -31,6 +31,9 @@ public class Window
 
   public void draw(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
+    for (Widget child : this) {
+      child.draw(batch);
+    }
   }
 
   @Override
