@@ -44,7 +44,6 @@ public enum LengthUnit {
   private static final double MAX = Double.MAX_VALUE;
   private static final double DENSITY = Gdx.graphics.getDensity();
   private static final double PPC = DENSITY * 2.54;
-  private static final double DP_DIVIDEND = DENSITY / 160;
 
   private enum State {
     LOOKING_FOR_DIGITS,
@@ -139,7 +138,7 @@ public enum LengthUnit {
             case 'd':
               if (i + 2 == value.length()
                       && value.charAt(i+1) == 'p') {
-                return sourceLength / DP_DIVIDEND;
+                return sourceLength * DENSITY;
               }
 
               throw new IllegalArgumentException(
