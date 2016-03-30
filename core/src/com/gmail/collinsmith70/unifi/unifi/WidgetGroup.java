@@ -485,10 +485,6 @@ public abstract class WidgetGroup extends Widget
   public void requestLayout() {
     System.out.println("WidgetGroup#requestLayout();");
     for (Widget child : this) {
-      if (!(child instanceof WidgetParent)) {
-        continue;
-      }
-
       final String layout_width = child.get(LayoutParams.layout_width).toString();
       final String layout_height = child.get(LayoutParams.layout_height).toString();
 
@@ -496,7 +492,7 @@ public abstract class WidgetGroup extends Widget
         child.setLeft(getPaddingLeft());
         child.setRight(getWidth() - getPaddingRight());
       } else if (!layout_width.equalsIgnoreCase("wrap_content")) {
-        System.out.println("layout_width = " + LengthUnit.toPixels(layout_width));
+        //System.out.println("layout_width = " + LengthUnit.toPixels(layout_width));
         child.setRight(child.getLeft() + (int)LengthUnit.toPixels(layout_width));
       }
 
@@ -504,11 +500,13 @@ public abstract class WidgetGroup extends Widget
         child.setBottom(getPaddingBottom());
         child.setTop(getHeight() - getPaddingTop());
       } else if (!layout_height.toString().equalsIgnoreCase("wrap_content")) {
-        System.out.println("layout_height = " + LengthUnit.toPixels(layout_height));
+        //System.out.println("layout_height = " + LengthUnit.toPixels(layout_height));
         child.setBottom(child.getTop() - (int)LengthUnit.toPixels(layout_height));
       }
 
-      ((WidgetParent)child).requestLayout();
+      if (child instanceof WidgetParent) {
+        ((WidgetParent)child).requestLayout();
+      }
 
       if (layout_width.equalsIgnoreCase("wrap_content")) {
         child.setRight(child.getLeft() + Math.max(child.getPreferredWidth(), child.getMinWidth()));
