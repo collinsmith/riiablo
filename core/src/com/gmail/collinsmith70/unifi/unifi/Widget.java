@@ -149,11 +149,13 @@ public abstract class Widget
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
     shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
       shapeRenderer.setColor(Color.DARK_GRAY);
-      shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
-      shapeRenderer.setColor(Color.LIGHT_GRAY);
-      shapeRenderer.rect(getX() + getPaddingLeft(), getY() + getPaddingBottom(),
-              getWidth() - getPaddingLeft() - getPaddingRight(),
-              getHeight() - getPaddingTop() - getPaddingBottom());
+      shapeRenderer.rect(getX() + 1, getY() + 1, getWidth() - 1, getHeight() - 1);
+      if (hasPadding()) {
+        shapeRenderer.setColor(Color.LIGHT_GRAY);
+        shapeRenderer.rect(getX() + getPaddingLeft() + 1, getY() + getPaddingBottom() + 1,
+                getWidth() - getPaddingLeft() - getPaddingRight() - 1,
+                getHeight() - getPaddingTop() - getPaddingBottom() - 1);
+      }
     } shapeRenderer.end();
 
     System.out.printf("%s: %d %d %d %d%n",
