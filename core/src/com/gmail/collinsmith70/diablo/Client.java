@@ -247,9 +247,9 @@ public void render() {
     //STAGE.act(Gdx.graphics.getDeltaTime());
     //STAGE.draw();
     //Batch b = STAGE.getBatch();
-    Batch b = BATCH;
-    b.begin(); {
-        WINDOW.draw(b);
+    final Batch batch = BATCH;
+    batch.begin(); {
+        WINDOW.draw(batch);
         final BitmapFont font = getDefaultFont();
         if (pCvar_showFps > 0 || forcedDrawFps) {
             GlyphLayout fps = new GlyphLayout(
@@ -278,9 +278,9 @@ public void render() {
                     break;
             }
 
-            font.draw(b, fps, x ,y);
+            font.draw(batch, fps, x ,y);
         }
-    } b.end();
+    } batch.end();
 }
 
 @Override
