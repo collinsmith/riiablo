@@ -148,10 +148,10 @@ public abstract class Widget
     assert batch != null : "batch should not be null";
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
     shapeRenderer.begin(ShapeRenderer.ShapeType.Line); {
-      shapeRenderer.setColor(Color.DARK_GRAY);
+      shapeRenderer.setColor(Color.LIGHT_GRAY);
       shapeRenderer.rect(getX() + 1, getY() + 1, getWidth() - 1, getHeight() - 1);
       if (hasPadding()) {
-        shapeRenderer.setColor(Color.LIGHT_GRAY);
+        shapeRenderer.setColor(Color.DARK_GRAY);
         shapeRenderer.rect(getX() + getPaddingLeft() + 1, getY() + getPaddingBottom() + 1,
                 getWidth() - getPaddingLeft() - getPaddingRight() - 1,
                 getHeight() - getPaddingTop() - getPaddingBottom() - 1);
