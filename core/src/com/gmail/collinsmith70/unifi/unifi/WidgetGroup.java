@@ -28,6 +28,9 @@ public abstract class WidgetGroup extends Widget
     public static final String layout_width = "layout_width";
     @LayoutParam
     public static final String layout_height = "layout_height";
+    @LayoutParam
+    public static final String layout_weight = "layout_weight";
+
   }
 
   public enum Gravity {
