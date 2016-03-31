@@ -24,10 +24,43 @@ public abstract class WidgetGroup extends Widget
 
   public static final class LayoutParams {
 
+    /**
+     * Determines the width of a {@code Widget} within its parent. Width should be given as one of:
+     * <ul>
+     *   <li>{@code wrap_content} - (default) {@code Widget} is only large enough to fit its
+     *                              children</li>
+     *   <li>{@code match_parent} - {@code Widget} will be the same size as its parent (excluding
+     *                              padding)</li>
+     *   <li>{@code [0-9]+\w*(px|dp|mm|cm|m)} - {@code Widget} will be sized according to the
+     *                                          {@linkplain LengthUnit#toPixels(String) specified
+     *                                          value}</li>
+     * </ul>
+     */
     @LayoutParam
     public static final String layout_width = "layout_width";
+
+    /**
+     * Determines the height of a {@code Widget} within its parent. Height should be given as one
+     * of:
+     *
+     * <ul>
+     *   <li>{@code wrap_content} - (default) {@code Widget} is only large enough to fit its
+     *                              children</li>
+     *   <li>{@code match_parent} - {@code Widget} will be the same size as its parent (excluding
+     *                              padding)</li>
+     *   <li>{@code [0-9]+\w*(px|dp|mm|cm|m)} - {@code Widget} will be sized according to the
+     *                                          {@linkplain LengthUnit#toPixels(String) specified
+     *                                          value}</li>
+     * </ul>
+     */
     @LayoutParam
     public static final String layout_height = "layout_height";
+
+    /**
+     * Determines the weight a {@code Widget} should be given within its parent. Specified as a
+     * floating point value between {@code 0.0} and {@code 1.0} (inclusive). Value used will
+     * determine the ratio of unused space in the parent to allocate to the component.
+     */
     @LayoutParam
     public static final String layout_weight = "layout_weight";
 
