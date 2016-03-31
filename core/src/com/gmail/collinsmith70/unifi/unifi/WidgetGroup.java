@@ -5,7 +5,9 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.util.LengthUnit;
 import com.google.common.collect.ImmutableSet;
@@ -131,12 +133,30 @@ public abstract class WidgetGroup extends Widget
 
   @Override
   protected void draw(@NonNull final Batch batch) {
-    assert batch != null : "batch should not be null";
-    drawBackground(batch);
+    super.draw(batch);
     drawChildren(batch);
-    if (isDebug()) {
-      drawDebug(batch);
+  }
+
+  @Override
+  protected void drawDebug(@NonNull final Batch batch) {
+    assert batch != null : "batch should not be null";
+    final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+    {
+      shapeRenderer.setColor(Color.DARK_GRAY);
+      shapeRenderer.rect(getX() + 1, getY() + 1, getWidth() - 1, getHeight() - 1);
+      if (hasPadding()) {
+        shapeRenderer.setColor(Color.DARK_GRAY);
+        shapeRenderer.rect(getX() + getPaddingLeft() + 1, getY() + getPaddingBottom() + 1,
+                getWidth() - getPaddingLeft() - getPaddingRight() - 1,
+                getHeight() - getPaddingTop() - getPaddingBottom() - 1);
+      }
     }
+    shapeRenderer.end();
+
+    System.out.printf("%s: %d %d %d %d%n",
+            getClass().getSimpleName(),
+            getX(), getY(), getWidth(), getHeight());
   }
 
   protected void drawChildren(@NonNull final Batch batch) {
