@@ -115,15 +115,15 @@ public class Client implements ApplicationListener {
     //STAGE.setDebugAll(true);
 
     Button button1 = new Button();
-    button1.put(WidgetGroup.LayoutParams.layout_width, "128dp");
-    button1.put(WidgetGroup.LayoutParams.layout_height, "128dp");
+    button1.put(WidgetGroup.LayoutParams.layout_width, "128px");
+    button1.put(WidgetGroup.LayoutParams.layout_height, "128px");
     Button button2 = new Button();
-    button2.put(WidgetGroup.LayoutParams.layout_width, "256dp");
-    button2.put(WidgetGroup.LayoutParams.layout_height, "256dp");
+    button2.put(WidgetGroup.LayoutParams.layout_width, "256px");
+    button2.put(WidgetGroup.LayoutParams.layout_height, "256px");
     button2.setVisibility(Widget.Visibility.INVISIBLE);
     Button button3 = new Button();
-    button3.put(WidgetGroup.LayoutParams.layout_width, "256dp");
-    button3.put(WidgetGroup.LayoutParams.layout_height, "128dp");
+    button3.put(WidgetGroup.LayoutParams.layout_width, "256px");
+    button3.put(WidgetGroup.LayoutParams.layout_height, "128px");
     button3.put("anchorDst", AnchoredLayout.Anchor.CENTER);
 
     LinearLayout ll1 = new VerticalLayout();

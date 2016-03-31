@@ -8,7 +8,7 @@ public class VerticalLayout extends LinearLayout {
 
   @Override
   public void layoutChildren() {
-
+    super.layoutChildren();
     final int spacing = getSpacing();
     final Set<Gravity> gravity = getGravity();
     final Direction direction = getDirection();
@@ -63,8 +63,6 @@ public class VerticalLayout extends LinearLayout {
         child.translateBottom(child.getBottom() + shift);
       }
     }
-
-    super.layoutChildren();
   }
 
 }
