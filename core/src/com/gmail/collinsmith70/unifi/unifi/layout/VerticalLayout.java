@@ -7,8 +7,7 @@ import java.util.Set;
 public class VerticalLayout extends LinearLayout {
 
   @Override
-  public void requestLayout() {
-    super.requestLayout();
+  public void layoutChildren() {
 
     final int spacing = getSpacing();
     final Set<Gravity> gravity = getGravity();
@@ -64,6 +63,8 @@ public class VerticalLayout extends LinearLayout {
         child.translateBottom(child.getBottom() + shift);
       }
     }
+
+    super.layoutChildren();
   }
 
 }

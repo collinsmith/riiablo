@@ -524,12 +524,15 @@ public abstract class WidgetGroup extends Widget
   }
 
   @Override
-  public void requestLayout() {
+  public final void requestLayout() {
     System.out.println("WidgetGroup#requestLayout();");
+    layout();
+  }
+
+  public void layout() {
     for (Widget child : this) {
       final String layout_width = child.get(LayoutParams.layout_width).toString();
       final String layout_height = child.get(LayoutParams.layout_height).toString();
-
       if (layout_width.equalsIgnoreCase("match_parent")) {
         child.setLeft(getPaddingLeft());
         child.setRight(getWidth() - getPaddingRight());
@@ -545,11 +548,13 @@ public abstract class WidgetGroup extends Widget
         //System.out.println("layout_height = " + LengthUnit.toPixels(layout_height));
         child.setBottom(child.getTop() - (int) LengthUnit.toPixels(layout_height));
       }
+    }
 
-      if (child instanceof WidgetParent) {
-        ((WidgetParent) child).requestLayout();
-      }
+    layoutChildren();
 
+    for (Widget child : this) {
+      final String layout_width = child.get(LayoutParams.layout_width).toString();
+      final String layout_height = child.get(LayoutParams.layout_height).toString();
       if (layout_width.equalsIgnoreCase("wrap_content")) {
         child.setRight(child.getLeft() + Math.max(child.getPreferredWidth(), child.getMinWidth()));
       }
@@ -557,6 +562,14 @@ public abstract class WidgetGroup extends Widget
       if (layout_height.equalsIgnoreCase("wrap_content")) {
         child.setBottom(child.getTop() - Math.max(child.getPreferredHeight(),
                 child.getMinHeight()));
+      }
+    }
+  }
+
+  public void layoutChildren() {
+    for (Widget child : this) {
+      if (child instanceof WidgetGroup) {
+        ((WidgetGroup) child).layout();
       }
     }
   }

@@ -7,8 +7,7 @@ import java.util.Set;
 public class HorizontalLayout extends LinearLayout {
 
   @Override
-  public void requestLayout() {
-    super.requestLayout();
+  public void layoutChildren() {
     final int spacing = getSpacing();
     final Set<Gravity> gravity = getGravity();
     final Direction direction = getDirection();
@@ -63,6 +62,8 @@ public class HorizontalLayout extends LinearLayout {
         child.translateRight(child.getRight() + shift);
       }
     }
+
+    super.layoutChildren();
   }
 
 }
