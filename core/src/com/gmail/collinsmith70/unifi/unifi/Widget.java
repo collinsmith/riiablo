@@ -73,6 +73,11 @@ public abstract class Widget
     FOCUSABLE,
 
     /**
+     * @see #isInvalidated()
+     */
+    INVALIDATED,
+
+    /**
      * @see #isOver()
      */
     OVER
@@ -487,6 +492,32 @@ public abstract class Widget
       FLAGS.add(Flag.FOCUSABLE);
     } else {
       FLAGS.remove(Flag.FOCUSABLE);
+    }
+  }
+
+  /**
+   * Checks whether or not the state of this {@code Widget} has been invalidated and must be
+   * redrawn or laid out.
+   *
+   * @return {@code true} if this {@code Widget} is invalidated, otherwise {@code false}
+   */
+  @CallSuper
+  public boolean isInvalidated() {
+    return FLAGS.contains(Flag.INVALIDATED);
+  }
+
+  /**
+   * Sets this {@code Widget} as {@linkplain #isInvalidated invalidated}. Invalidation should occur
+   * when this {@code Widget} needs to be redrawn or laid out due to a state change.
+   *
+   * @param invalidated {@code true} to invalidate this {@code Widget}, otherwise {@code false} to
+   *                    validate it
+   */
+  protected void setInvalidated(final boolean invalidated) {
+    if (invalidated) {
+      FLAGS.add(Flag.INVALIDATED);
+    } else {
+      FLAGS.remove(Flag.INVALIDATED);
     }
   }
 
