@@ -553,9 +553,14 @@ public abstract class Widget
    * @param bottom Bottom of this {@code Widget}, in pixels
    */
   public final void translateBottom(final int bottom) {
+    if (getBottom() == bottom) {
+      return;
+    }
+
     final int height = getHeight();
     this.bottom = bottom;
     this.top = bottom + height;
+    setInvalidated(true);
   }
 
   /**
@@ -565,9 +570,14 @@ public abstract class Widget
    * @param left Left of this {@code Widget}, in pixels
    */
   public final void translateLeft(final int left) {
+    if (getLeft() == left) {
+      return;
+    }
+
     final int width = getWidth();
     this.left = left;
     this.right = left + width;
+    setInvalidated(true);
   }
 
   /**
@@ -577,9 +587,14 @@ public abstract class Widget
    * @param right Right of this {@code Widget}, in pixels
    */
   public final void translateRight(final int right) {
+    if (getRight() == right) {
+      return;
+    }
+
     final int width = getWidth();
     this.right = right;
     this.left = right - width;
+    setInvalidated(true);
   }
 
   /**
@@ -589,9 +604,14 @@ public abstract class Widget
    * @param top Top of this {@code Widget}, in pixels
    */
   public final void translateTop(final int top) {
+    if (getTop() == top) {
+      return;
+    }
+
     final int height = getHeight();
     this.top = top;
     this.bottom = top - height;
+    setInvalidated(true);
   }
 
   /**
@@ -672,11 +692,14 @@ public abstract class Widget
    */
   @Override
   public final void setBottom(final int bottom) {
-    if (getTop() < bottom) {
+    if (getBottom() == bottom) {
+      return;
+    } else if (getTop() < bottom) {
       this.top = bottom;
     }
 
     this.bottom = bottom;
+    setInvalidated(true);
   }
 
   /**
@@ -704,11 +727,14 @@ public abstract class Widget
    */
   @Override
   public final void setLeft(final int left) {
-    if (getRight() < left) {
+    if (getLeft() == left) {
+      return;
+    } else if (getRight() < left) {
       this.right = left;
     }
 
     this.left = left;
+    setInvalidated(true);
   }
 
   /**
@@ -736,11 +762,14 @@ public abstract class Widget
    */
   @Override
   public final void setRight(final int right) {
-    if (right < getLeft()) {
+    if (getRight() == right) {
+      return;
+    } else if (right < getLeft()) {
       this.left = right;
     }
 
     this.right = right;
+    setInvalidated(true);
   }
 
   /**
@@ -768,11 +797,14 @@ public abstract class Widget
    */
   @Override
   public final void setTop(final int top) {
-    if (top < getBottom()) {
+    if (getTop() == top) {
+      return;
+    } else if (top < getBottom()) {
       this.bottom = top;
     }
 
     this.top = top;
+    setInvalidated(true);
   }
 
   /**
@@ -829,12 +861,16 @@ public abstract class Widget
       throw new IllegalArgumentException("left <= right");
     } else if (top < bottom) {
       throw new IllegalArgumentException("bottom <= top");
+    } else if (getLeft() == left && getTop() == top
+            && getRight() == right && getBottom() == bottom) {
+      return;
     }
 
     this.left = left;
     this.top = top;
     this.right = right;
     this.bottom = bottom;
+    setInvalidated(true);
   }
 
   /**
@@ -1115,9 +1151,14 @@ public abstract class Widget
   @Override
   @CallSuper
   public void setX(final int x) {
+    if (getLeft() == x) {
+      return;
+    }
+
     final int width = getWidth();
     this.left = x;
     this.right = x + width;
+    setInvalidated(true);
   }
 
   /**
@@ -1144,9 +1185,14 @@ public abstract class Widget
   @Override
   @CallSuper
   public void setY(final int y) {
+    if (getBottom() == y) {
+      return;
+    }
+
     final int height = getHeight();
     this.bottom = y;
     this.top = y + height;
+    setInvalidated(true);
   }
 
   /**
@@ -1237,8 +1283,22 @@ public abstract class Widget
   @Override
   @CallSuper
   public final void setPosition(final int x, final int y) {
-    setX(x);
-    setY(y);
+    boolean stateChanged = false;
+    if (getLeft() != x) {
+      final int width = getWidth();
+      this.left = x;
+      this.right = x + width;
+      stateChanged = true;
+    }
+
+    if (getBottom() != y) {
+      final int height = getHeight();
+      this.bottom = y;
+      this.top = y + height;
+      stateChanged = true;
+    }
+
+    setInvalidated(stateChanged);
   }
 
   /**
@@ -1285,6 +1345,7 @@ public abstract class Widget
     }
 
     this.paddingBottom = paddingBottom;
+    setInvalidated(true);
   }
 
   /**
@@ -1313,6 +1374,7 @@ public abstract class Widget
     }
 
     this.paddingLeft = paddingLeft;
+    setInvalidated(true);
   }
 
   /**
@@ -1341,6 +1403,7 @@ public abstract class Widget
     }
 
     this.paddingRight = paddingRight;
+    setInvalidated(true);
   }
 
   /**
@@ -1369,6 +1432,7 @@ public abstract class Widget
     }
 
     this.paddingTop = paddingTop;
+    setInvalidated(true);
   }
 
   /**
