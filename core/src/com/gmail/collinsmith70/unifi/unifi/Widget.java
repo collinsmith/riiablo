@@ -861,7 +861,9 @@ public abstract class Widget
       throw new IllegalArgumentException("left <= right");
     } else if (top < bottom) {
       throw new IllegalArgumentException("bottom <= top");
-    } else if (getLeft() == left && getTop() == top
+    }
+
+    if (getLeft() == left && getTop() == top
             && getRight() == right && getBottom() == bottom) {
       return;
     }
