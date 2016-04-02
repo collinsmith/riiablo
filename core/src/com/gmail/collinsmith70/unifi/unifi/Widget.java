@@ -1341,10 +1341,10 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingBottom) {
-    if (getPaddingBottom() == paddingBottom) {
-      return;
-    } else if (paddingBottom < 0) {
+    if (paddingBottom < 0) {
       throw new IllegalArgumentException("paddingBottom must be greater than or equal to 0");
+    } else if (getPaddingBottom() == paddingBottom) {
+      return;
     }
 
     this.paddingBottom = paddingBottom;
@@ -1372,10 +1372,10 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingLeft) {
-    if (getPaddingLeft() == paddingLeft) {
-      return;
-    } else if (paddingLeft < 0) {
+    if (paddingLeft < 0) {
       throw new IllegalArgumentException("paddingLeft must be greater than or equal to 0");
+    } else if (getPaddingLeft() == paddingLeft) {
+      return;
     }
 
     this.paddingLeft = paddingLeft;
@@ -1403,10 +1403,10 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingRight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingRight) {
-    if (getPaddingRight() == paddingRight) {
-      return;
-    } else if (paddingRight < 0) {
+    if (paddingRight < 0) {
       throw new IllegalArgumentException("paddingRight must be greater than or equal to 0");
+    } else if (getPaddingRight() == paddingRight) {
+      return;
     }
 
     this.paddingRight = paddingRight;
@@ -1434,10 +1434,10 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingTop(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingTop) {
-    if (getPaddingTop() == paddingTop) {
-      return;
-    } else if (paddingTop < 0) {
+    if (paddingTop < 0) {
       throw new IllegalArgumentException("paddingTop must be greater than or equal to 0");
+    } else if (getPaddingTop() == paddingTop) {
+      return;
     }
 
     this.paddingTop = paddingTop;
