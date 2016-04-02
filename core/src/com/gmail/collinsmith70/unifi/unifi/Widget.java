@@ -1283,22 +1283,21 @@ public abstract class Widget
   @Override
   @CallSuper
   public final void setPosition(final int x, final int y) {
-    boolean stateChanged = false;
-    if (getLeft() != x) {
+    final boolean s1 = getLeft() != x;
+    if (s1) {
       final int width = getWidth();
       this.left = x;
       this.right = x + width;
-      stateChanged = true;
     }
 
-    if (getBottom() != y) {
+    final boolean s2 = getBottom() != y;
+    if (s2) {
       final int height = getHeight();
       this.bottom = y;
       this.top = y + height;
-      stateChanged = true;
     }
 
-    if (stateChanged) {
+    if (s1 | s2) {
       setInvalidated(true);
     }
   }
