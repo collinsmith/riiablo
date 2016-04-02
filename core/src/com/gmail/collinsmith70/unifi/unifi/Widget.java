@@ -1298,7 +1298,9 @@ public abstract class Widget
       stateChanged = true;
     }
 
-    setInvalidated(stateChanged);
+    if (stateChanged) {
+      setInvalidated(true);
+    }
   }
 
   /**
