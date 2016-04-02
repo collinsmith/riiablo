@@ -1341,7 +1341,9 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingBottom) {
-    if (paddingBottom < 0) {
+    if (getPaddingBottom() == paddingBottom) {
+      return;
+    } else if (paddingBottom < 0) {
       throw new IllegalArgumentException("paddingBottom must be greater than or equal to 0");
     }
 
@@ -1370,7 +1372,9 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingLeft) {
-    if (paddingLeft < 0) {
+    if (getPaddingLeft() == paddingLeft) {
+      return;
+    } else if (paddingLeft < 0) {
       throw new IllegalArgumentException("paddingLeft must be greater than or equal to 0");
     }
 
@@ -1399,7 +1403,9 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingRight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingRight) {
-    if (paddingRight < 0) {
+    if (getPaddingRight() == paddingRight) {
+      return;
+    } else if (paddingRight < 0) {
       throw new IllegalArgumentException("paddingRight must be greater than or equal to 0");
     }
 
@@ -1428,7 +1434,9 @@ public abstract class Widget
    */
   @CallSuper
   public void setPaddingTop(@IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingTop) {
-    if (paddingTop < 0) {
+    if (getPaddingTop() == paddingTop) {
+      return;
+    } else if (paddingTop < 0) {
       throw new IllegalArgumentException("paddingTop must be greater than or equal to 0");
     }
 
@@ -1486,10 +1494,26 @@ public abstract class Widget
                                @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingTop,
                                @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingRight,
                                @IntRange(from = 0, to = Integer.MAX_VALUE) final int paddingBottom) {
-    setPaddingLeft(paddingLeft);
-    setPaddingTop(paddingTop);
-    setPaddingRight(paddingRight);
-    setPaddingBottom(paddingBottom);
+    if (paddingLeft < 0) {
+      throw new IllegalArgumentException("paddingLeft must be greater than or equal to 0");
+    } else if (paddingTop < 0) {
+      throw new IllegalArgumentException("paddingTop must be greater than or equal to 0");
+    } else if (paddingRight < 0) {
+      throw new IllegalArgumentException("paddingRight must be greater than or equal to 0");
+    } else if (paddingBottom < 0) {
+      throw new IllegalArgumentException("paddingBottom must be greater than or equal to 0");
+    }
+
+    if (getPaddingLeft() == paddingLeft && getPaddingTop() == paddingTop
+            && getPaddingRight() == paddingRight && getPaddingBottom() == paddingBottom) {
+      return;
+    }
+
+    this.paddingLeft = paddingLeft;
+    this.paddingTop = paddingTop;
+    this.paddingRight = paddingRight;
+    this.paddingBottom = paddingBottom;
+    setInvalidated(true);
   }
 
   /**
