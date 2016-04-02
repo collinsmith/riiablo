@@ -327,7 +327,12 @@ public abstract class Widget
    * @param parent Parent container of this {@code Widget}
    */
   protected final void setParent(@Nullable final WidgetParent parent) {
+    if (getParent() == parent) {
+      return;
+    }
+
     this.parent = parent;
+    setInvalidated(true);
   }
 
   /**
