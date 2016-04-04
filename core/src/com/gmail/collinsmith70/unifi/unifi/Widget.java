@@ -148,6 +148,16 @@ public abstract class Widget
     setVisibility(Visibility.VISIBLE);
   }
 
+  /**
+   * Called when this {@code Widget} should draw itself onto the passed {@link Batch}.
+   * <p>
+   *   Note: Overriding this method should either call super or {@link #drawBackground} and
+   *         {@link #drawDebug}
+   * </p>
+   *
+   * @param batch {@code Batch} instance to render onto
+   */
+  @CallSuper
   protected void draw(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
     drawBackground(batch);
@@ -156,10 +166,23 @@ public abstract class Widget
     }
   }
 
+  /**
+   * Called when this {@code Widget} should draw its background content onto the passed
+   * {@link Batch}.
+   *
+   * @param batch {@code Batch} instance to render onto
+   */
+  @CallSuper
   protected void drawBackground(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
   }
 
+  /**
+   * Called when this {@code Widget} should draw its debug content onto the passed {@link Batch}.
+   *
+   * @param batch {@code Batch} instance to render onto
+   */
+  @CallSuper
   protected void drawDebug(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -186,7 +209,7 @@ public abstract class Widget
    *
    * @param l {@code LayoutParamChangeListener} to add
    */
-  public void addLayoutParamChangeListener(@NonNull final LayoutParamChangeListener l) {
+  public final void addLayoutParamChangeListener(@NonNull final LayoutParamChangeListener l) {
     if (l == null) {
       throw new IllegalArgumentException("l cannot be null");
     }
@@ -202,7 +225,7 @@ public abstract class Widget
    * @return {@code true} if it is, otherwise {@code false} if it will not, or if the passed
    * {@code LayoutParamChangeListener} is {@code null}.
    */
-  public boolean containsLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
+  public final boolean containsLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
     return l != null && LAYOUT_PARAM_CHANGE_LISTENERS.contains(l);
   }
 
@@ -213,7 +236,7 @@ public abstract class Widget
    * @return {@code true} if it was removed, otherwise {@code false} if it did not belong to this
    * {@code Widget}, or if the passed {@code LayoutParamChangeListener} is {@code null}.
    */
-  public boolean removeLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
+  public final boolean removeLayoutParamChangeListener(@Nullable final LayoutParamChangeListener l) {
     return l != null && LAYOUT_PARAM_CHANGE_LISTENERS.remove(l);
   }
 
