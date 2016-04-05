@@ -172,7 +172,6 @@ public abstract class Widget
    *
    * @param batch {@code Batch} instance to render onto
    */
-  @CallSuper
   protected void drawBackground(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
   }
@@ -182,7 +181,6 @@ public abstract class Widget
    *
    * @param batch {@code Batch} instance to render onto
    */
-  @CallSuper
   protected void drawDebug(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
     final ShapeRenderer shapeRenderer = new ShapeRenderer();
