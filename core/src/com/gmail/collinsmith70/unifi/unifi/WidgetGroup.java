@@ -159,6 +159,11 @@ public abstract class WidgetGroup extends Widget
             getX(), getY(), getWidth(), getHeight());
   }
 
+  /**
+   * Called when this {@code Widget} should draw its children content onto the passed {@link Batch}.
+   *
+   * @param batch {@code Batch} instance to render onto
+   */
   protected void drawChildren(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
     for (Widget child : this) {
