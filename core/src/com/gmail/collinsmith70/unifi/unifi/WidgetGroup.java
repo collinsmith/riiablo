@@ -581,12 +581,13 @@ public abstract class WidgetGroup extends Widget
       final String layout_width = child.get(LayoutParams.layout_width).toString();
       final String layout_height = child.get(LayoutParams.layout_height).toString();
       if (layout_width.equalsIgnoreCase("wrap_content")) {
-        child.setRight(child.getLeft() + Math.max(child.getPreferredWidth(), child.getMinWidth()));
+        child.setRight(child.getLeft() + Math.max(child.getPreferredWidth(), child.getMinWidth())
+                + child.getPaddingLeft() + child.getPaddingRight());
       }
 
       if (layout_height.equalsIgnoreCase("wrap_content")) {
-        child.setBottom(child.getTop() - Math.max(child.getPreferredHeight(),
-                child.getMinHeight()));
+        child.setBottom(child.getTop() - Math.max(child.getPreferredHeight(), child.getMinHeight())
+                - child.getPaddingTop() - child.getPaddingBottom());
       }
     }
   }
