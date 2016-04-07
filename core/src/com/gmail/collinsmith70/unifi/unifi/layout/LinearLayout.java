@@ -3,8 +3,13 @@ package com.gmail.collinsmith70.unifi.unifi.layout;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
+import com.gmail.collinsmith70.unifi.unifi.Widget;
 import com.gmail.collinsmith70.unifi.unifi.WidgetGroup;
 
+/**
+ * A {@link WidgetGroup} that lays out child {@link Widget} instances linearly, such that each
+ * component is adjacent to another in a single direction.
+ */
 public abstract class LinearLayout extends WidgetGroup {
 
   /**
