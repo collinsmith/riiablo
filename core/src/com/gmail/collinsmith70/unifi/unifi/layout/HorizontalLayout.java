@@ -4,6 +4,9 @@ import com.gmail.collinsmith70.unifi.unifi.Widget;
 
 import java.util.Set;
 
+/**
+ * A {@link LinearLayout} which lays out child widgets in a horizontal line.
+ */
 public class HorizontalLayout extends LinearLayout {
 
   @Override
