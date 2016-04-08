@@ -26,6 +26,7 @@ import com.gmail.collinsmith70.unifi.unifi.layout.HorizontalLayout;
 import com.gmail.collinsmith70.unifi.unifi.layout.LinearLayout;
 import com.gmail.collinsmith70.unifi.unifi.layout.VerticalLayout;
 import com.gmail.collinsmith70.unifi.unifi.widget.Button;
+import com.gmail.collinsmith70.unifi.unifi.widget.Text;
 import com.gmail.collinsmith70.util.ImmutableDimension;
 import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 
@@ -126,6 +127,10 @@ public class Client implements ApplicationListener {
     button3.put(WidgetGroup.LayoutParams.layout_height, "128px");
     button3.put("anchorDst", AnchoredLayout.Anchor.CENTER);
 
+    Text text = new Text("Hello World!", getDefaultFont());
+    text.put(WidgetGroup.LayoutParams.layout_width, "wrap_content");
+    text.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
+
     LinearLayout ll1 = new VerticalLayout();
     ll1.put(WidgetGroup.LayoutParams.layout_width, "wrap_content");
     ll1.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
@@ -137,6 +142,7 @@ public class Client implements ApplicationListener {
     ll2.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
     ll2.addWidget(ll1);
     ll2.addWidget(button3);
+    ll2.addWidget(text);
 
     this.BATCH = new SpriteBatch(1024);
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
