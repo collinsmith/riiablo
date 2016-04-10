@@ -1,48 +1,48 @@
 package com.gmail.collinsmith70.unifi.unifi.shape;
 
-import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 public abstract class Shape {
 
-  private float width;
-  private float height;
+  private int width;
+  private int height;
 
   public abstract void draw(@NonNull final Batch batch);
 
-  public final void resize(@FloatRange(from = 0.0f, to = Float.MAX_VALUE) final float width,
-                           @FloatRange(from = 0.0f, to = Float.MAX_VALUE) final float height) {
+  public final void resize(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
+                           @IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
     setWidth(width);
     setHeight(height);
     onResize(width, height);
   }
 
-  protected void onResize(@FloatRange(from = 0.0f, to = Float.MAX_VALUE) final float width,
-                          @FloatRange(from = 0.0f, to = Float.MAX_VALUE) final float height) {}
+  protected void onResize(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
+                          @IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {}
 
-  @FloatRange(from = 0.0f, to = Float.MAX_VALUE)
-  public final float getWidth() {
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public final int getWidth() {
     return width;
   }
 
-  private void setWidth(@FloatRange(from = 0.0f, to = Float.MAX_VALUE) final float width) {
-    if (width < 0.0f) {
-      throw new IllegalArgumentException("width must be greater than or equal to 0.0f");
+  private void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width) {
+    if (width < 0) {
+      throw new IllegalArgumentException("width must be greater than or equal to 0");
     }
 
     this.width = width;
   }
 
-  @FloatRange(from = 0.0f, to = Float.MAX_VALUE)
-  public final float getHeight() {
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public final int getHeight() {
     return height;
   }
 
-  private void setHeight(@FloatRange(from = 0.0f, to = Float.MAX_VALUE) final float height) {
-    if (height < 0.0f) {
-      throw new IllegalArgumentException("height must be greater than or equal to 0.0f");
+  private void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
+    if (height < 0) {
+      throw new IllegalArgumentException("height must be greater than or equal to 0");
     }
 
     this.height = height;
