@@ -1,8 +1,8 @@
-package com.gmail.collinsmith70.unifi.unifi.drawable.shape;
+package com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape;
 
 import android.support.annotation.IntRange;
 
-import com.gmail.collinsmith70.unifi.unifi.drawable.Drawable;
+import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.Drawable;
 
 public abstract class Shape implements Drawable {
 

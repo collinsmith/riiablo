@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.unifi.drawable;
+package com.gmail.collinsmith70.unifi.unifi.graphics.drawable;
 
 import android.support.annotation.NonNull;
 
