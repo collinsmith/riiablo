@@ -1,17 +1,13 @@
 package com.gmail.collinsmith70.unifi.unifi.drawable.shape;
 
 import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
 
-import com.badlogic.gdx.graphics.Pixmap;
 import com.gmail.collinsmith70.unifi.unifi.drawable.Drawable;
 
 public abstract class Shape implements Drawable {
 
   private int width;
   private int height;
-
-  public abstract void draw(@NonNull final Pixmap pixmap);
 
   public final void resize(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
                            @IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
