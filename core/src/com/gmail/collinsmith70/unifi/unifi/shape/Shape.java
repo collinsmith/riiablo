@@ -30,6 +30,8 @@ public abstract class Shape {
   private void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width) {
     if (width < 0) {
       throw new IllegalArgumentException("width must be greater than or equal to 0");
+    } else if (getWidth() == width) {
+      return;
     }
 
     this.width = width;
@@ -43,6 +45,8 @@ public abstract class Shape {
   private void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
     if (height < 0) {
       throw new IllegalArgumentException("height must be greater than or equal to 0");
+    } else if (getHeight() == height) {
+      return;
     }
 
     this.height = height;
