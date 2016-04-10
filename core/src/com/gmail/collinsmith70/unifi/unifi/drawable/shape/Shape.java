@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.unifi.shape;
+package com.gmail.collinsmith70.unifi.unifi.drawable.shape;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
