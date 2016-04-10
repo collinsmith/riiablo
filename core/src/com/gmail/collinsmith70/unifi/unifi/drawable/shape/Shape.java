@@ -4,8 +4,9 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.graphics.Pixmap;
+import com.gmail.collinsmith70.unifi.unifi.drawable.Drawable;
 
-public abstract class Shape {
+public abstract class Shape implements Drawable {
 
   private int width;
   private int height;
