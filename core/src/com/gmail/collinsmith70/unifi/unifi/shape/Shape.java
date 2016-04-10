@@ -3,14 +3,14 @@ package com.gmail.collinsmith70.unifi.unifi.shape;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.Pixmap;
 
 public abstract class Shape {
 
   private int width;
   private int height;
 
-  public abstract void draw(@NonNull final Batch batch);
+  public abstract void draw(@NonNull final Pixmap pixmap);
 
   public final void resize(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
                            @IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
