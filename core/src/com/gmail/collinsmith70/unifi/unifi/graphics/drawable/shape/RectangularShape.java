@@ -1,31 +1,21 @@
 package com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
 
 public class RectangularShape extends Shape {
 
   @Override
-  public void draw(@NonNull final Pixmap pixmap) {
+  public void draw(@NonNull final Pixmap pixmap, @NonNull final Paint paint) {
+    pixmap.setColor(paint.getColor());
     pixmap.drawRectangle(0, 0, getWidth(), getHeight());
   }
 
-  @NonNull
-  public final Boundary getBounds() {
-    return new Boundary(0, 0, getWidth(), getHeight());
-  }
-
-  @NonNull
-  public final Boundary getBounds(@Nullable final Boundary dst) {
-    if (dst == null) {
-      return getBounds();
-    }
-
-    dst.set(0, 0, getWidth(), getHeight());
-    return dst;
+  @Override
+  public void draw(@NonNull final Pixmap pixmap) {
+    draw(pixmap, Paint.DEFAULT_PAINT);
   }
 
 }

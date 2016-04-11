@@ -1,13 +1,20 @@
 package com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape;
 
 import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.Pixmap;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.Drawable;
+import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 
 public abstract class Shape implements Drawable {
 
   private int width;
   private int height;
+
+  public abstract void draw(@NonNull final Pixmap pixmap, @NonNull final Paint paint);
 
   public final void resize(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
                            @IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
@@ -47,6 +54,21 @@ public abstract class Shape implements Drawable {
     }
 
     this.height = height;
+  }
+
+  @NonNull
+  public Dimension2D getSize() {
+    return new Dimension2D(getWidth(), getHeight());
+  }
+
+  @NonNull
+  public Dimension2D getSize(@Nullable final Dimension2D dst) {
+    if (dst == null) {
+      return getSize();
+    }
+
+    dst.set(getWidth(), getHeight());
+    return dst;
   }
 
 }
