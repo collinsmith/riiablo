@@ -45,6 +45,10 @@ public enum LengthUnit {
   private static final double DENSITY = Gdx.graphics.getDensity();
   private static final double PPC = DENSITY * 2.54;
 
+  public static final double FILL_PARENT = -1.0;
+  public static final double MATCH_PARENT = -1.0;
+  public static final double WRAP_CONTENT = -2.0;
+
   private enum State {
     LOOKING_FOR_DIGITS,
     PARSING_DIGITS,
