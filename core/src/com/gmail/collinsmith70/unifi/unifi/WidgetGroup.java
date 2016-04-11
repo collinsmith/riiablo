@@ -555,37 +555,38 @@ public abstract class WidgetGroup extends Widget
   }
 
   public void layout() {
+    double layout_width, layout_height;
     for (Widget child : this) {
-      final String layout_width = child.get(LayoutParams.layout_width).toString();
-      final String layout_height = child.get(LayoutParams.layout_height).toString();
-      if (layout_width.equalsIgnoreCase("match_parent")) {
+      layout_width = LengthUnit.parse(child.get(LayoutParams.layout_width).toString());
+      layout_height = LengthUnit.parse(child.get(LayoutParams.layout_height).toString());
+      if (layout_width == LengthUnit.MATCH_PARENT) {
         child.setLeft(getPaddingLeft());
         child.setRight(getWidth() - getPaddingRight());
-      } else if (!layout_width.equalsIgnoreCase("wrap_content")) {
+      } else if (layout_width > 0) {
         //System.out.println("layout_width = " + LengthUnit.toPixels(layout_width));
-        child.setRight(child.getLeft() + (int) LengthUnit.toPixels(layout_width));
+        child.setRight(child.getLeft() + (int) layout_width);
       }
 
-      if (layout_height.equalsIgnoreCase("match_parent")) {
+      if (layout_height == LengthUnit.MATCH_PARENT) {
         child.setBottom(getPaddingBottom());
         child.setTop(getHeight() - getPaddingTop());
-      } else if (!layout_height.toString().equalsIgnoreCase("wrap_content")) {
+      } else if (layout_height > 0) {
         //System.out.println("layout_height = " + LengthUnit.toPixels(layout_height));
-        child.setBottom(child.getTop() - (int) LengthUnit.toPixels(layout_height));
+        child.setBottom(child.getTop() - (int) layout_height);
       }
     }
 
     layoutChildren();
 
     for (Widget child : this) {
-      final String layout_width = child.get(LayoutParams.layout_width).toString();
-      final String layout_height = child.get(LayoutParams.layout_height).toString();
-      if (layout_width.equalsIgnoreCase("wrap_content")) {
+      layout_width = LengthUnit.parse(child.get(LayoutParams.layout_width).toString());
+      layout_height = LengthUnit.parse(child.get(LayoutParams.layout_height).toString());
+      if (layout_width == LengthUnit.WRAP_CONTENT) {
         child.setRight(child.getLeft() + Math.max(child.getPreferredWidth(), child.getMinWidth())
                 + child.getPaddingLeft() + child.getPaddingRight());
       }
 
-      if (layout_height.equalsIgnoreCase("wrap_content")) {
+      if (layout_height == LengthUnit.WRAP_CONTENT) {
         child.setBottom(child.getTop() - Math.max(child.getPreferredHeight(), child.getMinHeight())
                 - child.getPaddingTop() - child.getPaddingBottom());
       }
