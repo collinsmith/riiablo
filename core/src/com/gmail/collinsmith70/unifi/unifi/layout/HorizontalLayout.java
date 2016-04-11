@@ -61,7 +61,7 @@ public class HorizontalLayout extends LinearLayout {
         child.translateLeft(child.getLeft() + shift);
       }
     } else if (gravity.contains(Gravity.RIGHT)) {
-      final int shift = getWidth() - getPaddingLeft() + childrenWidth;
+      final int shift = getWidth() - getPaddingLeft() - childrenWidth;
       for (Widget child : this) {
         child.translateRight(child.getRight() + shift);
       }
