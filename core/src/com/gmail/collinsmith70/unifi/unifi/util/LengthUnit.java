@@ -182,6 +182,27 @@ public enum LengthUnit {
   }
 
   /**
+   * Parses the given {@code String} and returns the number of pixels on the screen which equals the
+   * corresponding length and {@code LengthUnit}.
+   *
+   * @param value String representation of the length and {@code LengthUnit} to translate
+   *
+   * @return Number of pixels corresponding with that length and unit, or {@code -1} if {@code
+   *         fill_parent} or {@code match_parent} was passed, or {@code -2} if {@code wrap_content}
+   *         was passed.
+   */
+  public static double parse(@NonNull final String value) {
+    if (value.equalsIgnoreCase("fill_parent")
+            || value.equalsIgnoreCase("match_parent")) {
+      return -1.0;
+    } else if (value.equalsIgnoreCase("wrap_content")) {
+      return -2.0;
+    }
+
+    return toPixels(value);
+  }
+
+  /**
    * Equivalent to {@code PIXELS.convert(length, this)}.
    *
    * @param length length to convert
