@@ -65,7 +65,14 @@ public class Window
   }
 
   public void setDebugging(boolean debugging) {
+    if (debugging == isDebugging()) {
+      return;
+    }
+
     this.debugging = debugging;
+    for (Widget child : this) {
+      child.setInvalidated(true);
+    }
   }
 
   public boolean isDebugging() {
