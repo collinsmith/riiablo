@@ -15,7 +15,11 @@ public class RectangularShape extends Shape {
         pixmap.fillRectangle(0, 0, getWidth(), getHeight());
         break;
       case STROKE:
-        pixmap.drawRectangle(0, 0, getWidth(), getHeight());
+        final int width = getWidth();
+        final int height = getHeight();
+        for (int i = 0; i < paint.getStrokeWidth(); i++) {
+          pixmap.drawRectangle(i, i, width - 2 * i, height - 2 * i);
+        }
         break;
       default:
         throw new IllegalStateException("paint.getStyle() should be Style.FILL or Style.STROKE");
