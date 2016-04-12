@@ -169,6 +169,11 @@ public abstract class WidgetGroup extends Widget
 
   @Override
   protected void setInvalidated(final boolean invalidated) {
+    if (children == null) {
+      super.setInvalidated(invalidated);
+      return;
+    }
+
     if (invalidated == isInvalidated()) {
       return;
     }
