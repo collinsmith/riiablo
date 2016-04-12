@@ -168,6 +168,7 @@ public abstract class Widget
   protected void draw(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
     if (isInvalidated() || graphicData == null) {
+      System.out.printf("%s invalidated, redrawing...%n", this);
       if (graphicData != null) {
         graphicData.dispose();
       }
