@@ -10,7 +10,17 @@ public class RectangularShape extends Shape {
   @Override
   public void draw(@NonNull final Pixmap pixmap, @NonNull final Paint paint) {
     pixmap.setColor(paint.getColor());
-    pixmap.drawRectangle(0, 0, getWidth(), getHeight());
+    switch (paint.getStyle()) {
+      case FILL:
+        pixmap.fillRectangle(0, 0, getWidth(), getHeight());
+        break;
+      case STROKE:
+        pixmap.drawRectangle(0, 0, getWidth(), getHeight());
+        break;
+      default:
+        throw new IllegalStateException("paint.getStyle() should be Style.FILL or Style.STROKE");
+    }
+
   }
 
   @Override
