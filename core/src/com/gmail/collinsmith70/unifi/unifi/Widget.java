@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Disposable;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.RectangularShape;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.Shape;
@@ -207,13 +208,12 @@ public abstract class Widget
     paint.setColor(Color.BLUE);
     paint.setStrokeWidth(5);
 
-    final Pixmap debug = new Pixmap(getWidth(), getHeight(), Pixmap.Format.RGBA8888); {
+    final Canvas debugCanvas = new Canvas(getWidth(), getHeight()); {
       final Shape rect = new RectangularShape();
       rect.resize(getWidth(), getHeight());
-      rect.draw(debug, paint);
-
-      graphicData.draw(debug, 0, 0);
-    } debug.dispose();
+      rect.draw(debugCanvas, paint);
+      graphicData.draw(debugCanvas.getPixmap(), 0, 0);
+    } debugCanvas.dispose();
   }
 
   /**

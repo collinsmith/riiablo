@@ -34,18 +34,36 @@ public class Canvas implements Disposable {
 
   public void drawVerticalLine(int x, int y, int length, @NonNull Paint paint) {
     pixmap.setColor(paint.getColor());
-    x -= Math.round(paint.getStrokeWidth() / 2);
-    for (int i = 0; i < paint.getStrokeWidth(); i++) {
-      pixmap.drawLine(x + i, y, x + i, y + length);
-    }
+    pixmap.fillRectangle(
+            x, y, paint.getStrokeWidth(), length);
   }
 
   public void drawHorizontalLine(int x, int y, int length, @NonNull Paint paint) {
     pixmap.setColor(paint.getColor());
-    y -= Math.round(paint.getStrokeWidth() / 2);
-    for (int i = 0; i < paint.getStrokeWidth(); i++) {
-      pixmap.drawLine(x, y + i, x + length, y + i);
+    pixmap.fillRectangle(
+            x, y, length, paint.getStrokeWidth());
+  }
+
+  public void drawRectangle(int x, int y, int width, int height, @NonNull Paint paint) {
+    pixmap.setColor(paint.getColor());
+    if (paint.getStyle() == Paint.Style.FILL) {
+      pixmap.fillRectangle(x, y, width, height);
+      return;
     }
+
+    pixmap.fillRectangle(x, y, paint.getStrokeWidth(), height);
+    pixmap.fillRectangle(x + width - paint.getStrokeWidth(), y, paint.getStrokeWidth(), height);
+    pixmap.fillRectangle(x, y + height - paint.getStrokeWidth(), width, paint.getStrokeWidth());
+    pixmap.fillRectangle(x, y, width, paint.getStrokeWidth());
+
+    //drawHorizontalLine(x, y, width, paint);
+    //drawHorizontalLine(x, y + height, width, paint);
+    //drawVerticalLine(x, y, height, paint);
+    //drawVerticalLine(x + width, y, height, paint);
+  }
+
+  public Pixmap getPixmap() {
+    return pixmap;
   }
 
   public Texture toTexture() {
