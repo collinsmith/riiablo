@@ -429,7 +429,12 @@ public abstract class Widget
    */
   @CallSuper
   public boolean isDebug() {
-    return FLAGS.contains(Flag.DEBUG) || getWindow().isDebugging();
+    final Window window = getWindow();
+    if (window != null) {
+      return FLAGS.contains(Flag.DEBUG) || window.isDebugging();
+    }
+
+    return FLAGS.contains(Flag.DEBUG);
   }
 
   /**
