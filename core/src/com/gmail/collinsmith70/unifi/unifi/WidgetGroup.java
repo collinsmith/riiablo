@@ -167,6 +167,14 @@ public abstract class WidgetGroup extends Widget
     }
   }
 
+  @Override
+  protected void setInvalidated(final boolean invalidated) {
+    super.setInvalidated(invalidated);
+    for (Widget child : this) {
+      child.setInvalidated(true);
+    }
+  }
+
   /**
    * Gravity of this {@code WidgetGroup}, controlling how children are aligned.
    *
