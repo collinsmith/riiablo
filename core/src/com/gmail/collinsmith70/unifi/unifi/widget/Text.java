@@ -95,7 +95,7 @@ public class Text extends Widget {
   protected void draw(@NonNull final Batch batch) {
     super.draw(batch);
     font.setColor(textColor);
-    font.draw(batch, glyphLayout, getX(), getY());
+    font.draw(batch, glyphLayout, getX(), getY() + glyphLayout.height);
   }
 
   @Override
