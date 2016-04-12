@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.unifi.graphics;
 
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.graphics.Color;
@@ -19,9 +20,13 @@ public class Paint {
   @NonNull
   private Style style;
 
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  private int strokeWidth;
+
   public Paint() {
     this.color = Color.BLACK;
     this.style = Style.STROKE;
+    this.strokeWidth = 0;
   }
 
   @NonNull
@@ -48,6 +53,19 @@ public class Paint {
     }
 
     this.style = style;
+  }
+
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getStrokeWidth() {
+    return strokeWidth;
+  }
+
+  public void setStrokeWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
+    if (strokeWidth < 0) {
+      throw new IllegalArgumentException("strokeWidth must be greater than or equal to 0");
+    }
+
+    this.strokeWidth = strokeWidth;
   }
 
 }

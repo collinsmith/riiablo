@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.unifi.graphics;
 
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -12,6 +13,7 @@ public class ImmutablePaint extends Paint {
   public ImmutablePaint(@NonNull final ImmutablePaint.Builder builder) {
     super.setColor(builder.getColor());
     super.setStyle(builder.getStyle());
+    super.setStrokeWidth(builder.getStrokeWidth());
   }
 
   @Override
@@ -24,15 +26,22 @@ public class ImmutablePaint extends Paint {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
+  @Override
+  public void setStrokeWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
+    throw new UnsupportedOperationException("this class' state is immutable");
+  }
+
   public static ImmutablePaint of(@NonNull final ImmutablePaint.Builder builder) {
     return new ImmutablePaint(builder);
   }
 
   public static ImmutablePaint of(@Nullable final Color color,
-                                  @Nullable final Style style) {
+                                  @Nullable final Style style,
+                                  @IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
     return new ImmutablePaint.Builder()
             .setColor(color)
             .setStyle(style)
+            .setStrokeWidth(strokeWidth)
             .build();
   }
 
@@ -43,6 +52,9 @@ public class ImmutablePaint extends Paint {
 
     @Nullable
     private Style style;
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    private int strokeWidth;
 
     @NonNull
     public Builder setColor(@NonNull final Color color) {
@@ -72,6 +84,21 @@ public class ImmutablePaint extends Paint {
       }
 
       return style;
+    }
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    public int getStrokeWidth() {
+      return strokeWidth;
+    }
+
+    @NonNull
+    public Builder setStrokeWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
+      if (strokeWidth < 0) {
+        throw new IllegalArgumentException("strokeWidth must be greater than or equal to 0");
+      }
+
+      this.strokeWidth = strokeWidth;
+      return this;
     }
 
     @NonNull
