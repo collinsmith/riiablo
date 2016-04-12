@@ -27,7 +27,7 @@ public class ImmutablePaint extends Paint {
   }
 
   @Override
-  public void setStrokeWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
+  public void setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
@@ -37,7 +37,8 @@ public class ImmutablePaint extends Paint {
 
   public static ImmutablePaint of(@Nullable final Color color,
                                   @Nullable final Style style,
-                                  @IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
+                                  @IntRange(from = 1, to = Integer.MAX_VALUE) final int
+                                          strokeWidth) {
     return new ImmutablePaint.Builder()
             .setColor(color)
             .setStyle(style)
@@ -86,15 +87,16 @@ public class ImmutablePaint extends Paint {
       return style;
     }
 
-    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    @IntRange(from = 1, to = Integer.MAX_VALUE)
     public int getStrokeWidth() {
-      return strokeWidth;
+      return Math.max(1, strokeWidth);
     }
 
     @NonNull
-    public Builder setStrokeWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
-      if (strokeWidth < 0) {
-        throw new IllegalArgumentException("strokeWidth must be greater than or equal to 0");
+    public Builder setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int
+                                              strokeWidth) {
+      if (strokeWidth < 1) {
+        throw new IllegalArgumentException("strokeWidth must be greater than or equal to 1");
       }
 
       this.strokeWidth = strokeWidth;

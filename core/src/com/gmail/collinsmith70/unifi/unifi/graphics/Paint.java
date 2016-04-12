@@ -20,13 +20,13 @@ public class Paint {
   @NonNull
   private Style style;
 
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  @IntRange(from = 1, to = Integer.MAX_VALUE)
   private int strokeWidth;
 
   public Paint() {
     this.color = Color.BLACK;
     this.style = Style.STROKE;
-    this.strokeWidth = 0;
+    this.strokeWidth = 1;
   }
 
   @NonNull
@@ -55,14 +55,14 @@ public class Paint {
     this.style = style;
   }
 
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  @IntRange(from = 1, to = Integer.MAX_VALUE)
   public int getStrokeWidth() {
     return strokeWidth;
   }
 
-  public void setStrokeWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) final int strokeWidth) {
-    if (strokeWidth < 0) {
-      throw new IllegalArgumentException("strokeWidth must be greater than or equal to 0");
+  public void setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
+    if (strokeWidth < 1) {
+      throw new IllegalArgumentException("strokeWidth must be greater than or equal to 1");
     }
 
     this.strokeWidth = strokeWidth;
