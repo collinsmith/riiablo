@@ -24,7 +24,11 @@ public class Canvas implements Disposable {
     this.pixmap = pixmap;
   }
 
-  public void drawLine(int x, int y, int length, boolean vertical, @NonNull Paint paint) {
+  public void drawLine(final int x,
+                       final int y,
+                       @IntRange(from = 0, to = Integer.MAX_VALUE) final int length,
+                       final boolean vertical,
+                       @NonNull final Paint paint) {
     if (vertical) {
       drawVerticalLine(x, y, length, paint);
     } else {
@@ -32,17 +36,25 @@ public class Canvas implements Disposable {
     }
   }
 
-  public void drawVerticalLine(int x, int y, int length, @NonNull Paint paint) {
+  public void drawVerticalLine(final int x,
+                               final int y,
+                               @IntRange(from = 0, to = Integer.MAX_VALUE) final int length,
+                               @NonNull final Paint paint) {
     pixmap.setColor(paint.getColor());
     pixmap.fillRectangle(x, y, paint.getStrokeWidth(), length);
   }
 
-  public void drawHorizontalLine(int x, int y, int length, @NonNull Paint paint) {
+  public void drawHorizontalLine(final int x, final int y, final int length,
+                                 @NonNull final Paint paint) {
     pixmap.setColor(paint.getColor());
     pixmap.fillRectangle(x, y, length, paint.getStrokeWidth());
   }
 
-  public void drawRectangle(int x, int y, int width, int height, @NonNull Paint paint) {
+  public void drawRectangle(final int x,
+                            final int y,
+                            @IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
+                            @IntRange(from = 0, to = Integer.MAX_VALUE) final int height,
+                            @NonNull final Paint paint) {
     pixmap.setColor(paint.getColor());
     if (paint.getStyle() == Paint.Style.FILL) {
       pixmap.fillRectangle(x, y, width, height);
@@ -53,11 +65,6 @@ public class Canvas implements Disposable {
     pixmap.fillRectangle(x + width - paint.getStrokeWidth(), y, paint.getStrokeWidth(), height);
     pixmap.fillRectangle(x, y + height - paint.getStrokeWidth(), width, paint.getStrokeWidth());
     pixmap.fillRectangle(x, y, width, paint.getStrokeWidth());
-
-    //drawHorizontalLine(x, y, width, paint);
-    //drawHorizontalLine(x, y + height, width, paint);
-    //drawVerticalLine(x, y, height, paint);
-    //drawVerticalLine(x + width, y, height, paint);
   }
 
   public Pixmap getPixmap() {
