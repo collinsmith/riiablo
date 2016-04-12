@@ -205,6 +205,7 @@ public abstract class Widget
     assert batch != null : "batch should not be null";
     final Paint paint = new Paint();
     paint.setColor(Color.BLUE);
+    paint.setStrokeWidth(5);
 
     final Pixmap debug = new Pixmap(getWidth(), getHeight(), Pixmap.Format.RGBA8888); {
       final Shape rect = new RectangularShape();
