@@ -26,9 +26,12 @@ public class Window
   @NonNull
   private final Collection<Widget> children;
 
+  private boolean debugging;
+
   public Window(int width, int height) {
     this.dimension = new Dimension2D(width, height);
     this.children = new ArrayList<Widget>();
+    this.debugging = Boolean.parseBoolean(System.getProperty(Window.class.getName() + "debugMode"));
   }
 
   public void draw(@NonNull final Batch batch) {
@@ -62,11 +65,11 @@ public class Window
   }
 
   public void setDebugging(boolean debugging) {
-    System.setProperty(Window.class.getName() + "debugMode", Boolean.toString(debugging));
+    this.debugging = debugging;
   }
 
   public boolean isDebugging() {
-    return Boolean.parseBoolean(System.getProperty(Window.class.getName() + "debugMode"));
+    return debugging;
   }
 
   @Nullable
