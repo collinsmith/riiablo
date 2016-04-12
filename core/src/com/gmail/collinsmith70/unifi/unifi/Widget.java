@@ -181,6 +181,7 @@ public abstract class Widget
     }
 
     batch.draw(graphicData, getX(), getY());
+    setInvalidated(false);
   }
 
   /**
