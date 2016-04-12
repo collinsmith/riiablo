@@ -4,6 +4,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 
 public class Paint {
 
@@ -19,6 +20,12 @@ public class Paint {
 
   @NonNull
   private Style style;
+
+  @NonNull
+  private Pixmap.Blending blending;
+
+  @NonNull
+  private Pixmap.Filter filter;
 
   @IntRange(from = 1, to = Integer.MAX_VALUE)
   private int strokeWidth;
@@ -66,6 +73,32 @@ public class Paint {
     }
 
     this.strokeWidth = strokeWidth;
+  }
+
+  @NonNull
+  public Pixmap.Blending getBlendingMode() {
+    return blending;
+  }
+
+  public void setBlendingMode(@NonNull final Pixmap.Blending blending) {
+    if (blending == null) {
+      throw new IllegalArgumentException("blending cannot be null");
+    }
+
+    this.blending = blending;
+  }
+
+  @NonNull
+  public Pixmap.Filter getFilterMode() {
+    return filter;
+  }
+
+  public void setFilterMode(@NonNull final Pixmap.Filter filter) {
+    if (filter == null) {
+      throw new IllegalArgumentException("filter cannot be null");
+    }
+
+    this.filter = filter;
   }
 
 }

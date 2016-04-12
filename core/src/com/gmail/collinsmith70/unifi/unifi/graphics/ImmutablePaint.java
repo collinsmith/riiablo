@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 
 public class ImmutablePaint extends Paint {
 
@@ -13,6 +14,8 @@ public class ImmutablePaint extends Paint {
   public ImmutablePaint(@NonNull final ImmutablePaint.Builder builder) {
     super.setColor(builder.getColor());
     super.setStyle(builder.getStyle());
+    super.setBlendingMode(builder.getBlendingMode());
+    super.setFilterMode(builder.getFilterMode());
     super.setStrokeWidth(builder.getStrokeWidth());
   }
 
@@ -27,6 +30,16 @@ public class ImmutablePaint extends Paint {
   }
 
   @Override
+  public void setBlendingMode(@NonNull Pixmap.Blending blending) {
+    throw new UnsupportedOperationException("this class' state is immutable");
+  }
+
+  @Override
+  public void setFilterMode(@NonNull Pixmap.Filter filter) {
+    throw new UnsupportedOperationException("this class' state is immutable");
+  }
+
+  @Override
   public void setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
@@ -37,11 +50,15 @@ public class ImmutablePaint extends Paint {
 
   public static ImmutablePaint of(@Nullable final Color color,
                                   @Nullable final Style style,
+                                  @Nullable final Pixmap.Blending blending,
+                                  @Nullable Pixmap.Filter filter,
                                   @IntRange(from = 1, to = Integer.MAX_VALUE) final int
                                           strokeWidth) {
     return new ImmutablePaint.Builder()
             .setColor(color)
             .setStyle(style)
+            .setBlendingMode(blending)
+            .setFilterMode(filter)
             .setStrokeWidth(strokeWidth)
             .build();
   }
@@ -53,6 +70,12 @@ public class ImmutablePaint extends Paint {
 
     @Nullable
     private Style style;
+
+    @Nullable
+    private Pixmap.Blending blending;
+
+    @Nullable
+    private Pixmap.Filter filter;
 
     @IntRange(from = 0, to = Integer.MAX_VALUE)
     private int strokeWidth;
@@ -100,6 +123,36 @@ public class ImmutablePaint extends Paint {
       }
 
       this.strokeWidth = strokeWidth;
+      return this;
+    }
+
+    @NonNull
+    public Pixmap.Blending getBlendingMode() {
+      if (blending == null) {
+        return Pixmap.Blending.SourceOver;
+      }
+
+      return blending;
+    }
+
+    @NonNull
+    public Builder setBlendingMode(@NonNull final Pixmap.Blending blending) {
+      this.blending = blending;
+      return this;
+    }
+
+    @NonNull
+    public Pixmap.Filter getFilterMode() {
+      if (filter == null) {
+        return Pixmap.Filter.NearestNeighbour;
+      }
+
+      return filter;
+    }
+
+    @NonNull
+    public Builder setFilterMode(@NonNull final Pixmap.Filter filter) {
+      this.filter = filter;
       return this;
     }
 
