@@ -24,6 +24,12 @@ public class Canvas implements Disposable {
     this.pixmap = pixmap;
   }
 
+  private void prepare(@NonNull final Paint paint) {
+    pixmap.setColor(paint.getColor());
+    Pixmap.setBlending(paint.getBlendingMode());
+    Pixmap.setFilter(paint.getFilterMode());
+  }
+
   public void drawLine(final int x,
                        final int y,
                        @IntRange(from = 0, to = Integer.MAX_VALUE) final int length,
@@ -40,13 +46,13 @@ public class Canvas implements Disposable {
                                final int y,
                                @IntRange(from = 0, to = Integer.MAX_VALUE) final int length,
                                @NonNull final Paint paint) {
-    pixmap.setColor(paint.getColor());
+    prepare(paint);
     pixmap.fillRectangle(x, y, paint.getStrokeWidth(), length);
   }
 
   public void drawHorizontalLine(final int x, final int y, final int length,
                                  @NonNull final Paint paint) {
-    pixmap.setColor(paint.getColor());
+    prepare(paint);
     pixmap.fillRectangle(x, y, length, paint.getStrokeWidth());
   }
 
@@ -55,7 +61,7 @@ public class Canvas implements Disposable {
                             @IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
                             @IntRange(from = 0, to = Integer.MAX_VALUE) final int height,
                             @NonNull final Paint paint) {
-    pixmap.setColor(paint.getColor());
+    prepare(paint);
     if (paint.getStyle() == Paint.Style.FILL) {
       pixmap.fillRectangle(x, y, width, height);
       return;
@@ -65,6 +71,20 @@ public class Canvas implements Disposable {
     pixmap.fillRectangle(x + width - paint.getStrokeWidth(), y, paint.getStrokeWidth(), height);
     pixmap.fillRectangle(x, y + height - paint.getStrokeWidth(), width, paint.getStrokeWidth());
     pixmap.fillRectangle(x, y, width, paint.getStrokeWidth());
+  }
+
+  public void drawCanvas(final int x,
+                         final int y,
+                         @NonNull final Canvas canvas) {
+    drawCanvas(x, y, canvas, Paint.DEFAULT_PAINT);
+  }
+
+  public void drawCanvas(final int x,
+                         final int y,
+                         @NonNull final Canvas canvas,
+                         @NonNull final Paint paint) {
+    prepare(paint);
+    pixmap.drawPixmap(canvas.getPixmap(), x, y);
   }
 
   public Pixmap getPixmap() {
