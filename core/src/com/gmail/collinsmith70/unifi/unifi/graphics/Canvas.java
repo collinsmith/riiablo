@@ -34,14 +34,12 @@ public class Canvas implements Disposable {
 
   public void drawVerticalLine(int x, int y, int length, @NonNull Paint paint) {
     pixmap.setColor(paint.getColor());
-    pixmap.fillRectangle(
-            x, y, paint.getStrokeWidth(), length);
+    pixmap.fillRectangle(x, y, paint.getStrokeWidth(), length);
   }
 
   public void drawHorizontalLine(int x, int y, int length, @NonNull Paint paint) {
     pixmap.setColor(paint.getColor());
-    pixmap.fillRectangle(
-            x, y, length, paint.getStrokeWidth());
+    pixmap.fillRectangle(x, y, length, paint.getStrokeWidth());
   }
 
   public void drawRectangle(int x, int y, int width, int height, @NonNull Paint paint) {
