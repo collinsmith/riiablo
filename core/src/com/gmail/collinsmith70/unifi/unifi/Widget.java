@@ -441,11 +441,17 @@ public abstract class Widget
    */
   @CallSuper
   public void setDebug(final boolean debug) {
+    if (debug == isDebug()) {
+      return;
+    }
+
     if (debug) {
       FLAGS.add(Flag.DEBUG);
     } else {
       FLAGS.remove(Flag.DEBUG);
     }
+
+    setInvalidated(true);
   }
 
   /**
@@ -469,12 +475,18 @@ public abstract class Widget
    * @param down {@code true} if it is, otherwise {@code false}
    */
   private void setDown(final boolean down) {
+    if (down == isDown()) {
+      return;
+    }
+
     if (down) {
       setOver(true);
       FLAGS.add(Flag.DOWN);
     } else {
       FLAGS.remove(Flag.DOWN);
     }
+
+    setInvalidated(true);
   }
 
   /**
@@ -498,11 +510,17 @@ public abstract class Widget
    */
   @CallSuper
   public void setEnabled(final boolean enabled) {
+    if (enabled == isEnabled()) {
+      return;
+    }
+
     if (enabled) {
       FLAGS.add(Flag.ENABLED);
     } else {
       FLAGS.remove(Flag.ENABLED);
     }
+
+    setInvalidated(true);
   }
 
   /**
@@ -526,11 +544,17 @@ public abstract class Widget
    */
   @CallSuper
   public void setFocusable(final boolean focusable) {
+    if (focusable == isFocusable()) {
+      return;
+    }
+
     if (focusable) {
       FLAGS.add(Flag.FOCUSABLE);
     } else {
       FLAGS.remove(Flag.FOCUSABLE);
     }
+
+    setInvalidated(true);
   }
 
   /**
@@ -577,11 +601,17 @@ public abstract class Widget
    * @param over {@code true} if it does, otherwise {@code false}
    */
   private void setOver(final boolean over) {
+    if (over == isOver()) {
+      return;
+    }
+
     if (over) {
       FLAGS.add(Flag.OVER);
     } else {
       FLAGS.remove(Flag.OVER);
     }
+
+    setInvalidated(true);
   }
 
   /**
