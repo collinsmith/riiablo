@@ -6,8 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
+import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.RectangularShape;
+import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.Shape;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.util.LengthUnit;
 import com.google.common.collect.ImmutableSet;
@@ -140,23 +143,16 @@ public abstract class WidgetGroup extends Widget
   @Override
   protected void drawDebug(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
-    final ShapeRenderer shapeRenderer = new ShapeRenderer();
-    shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-    {
-      shapeRenderer.setColor(Color.DARK_GRAY);
-      shapeRenderer.rect(getX() + 1, getY() + 1, getWidth() - 1, getHeight() - 1);
-      if (hasPadding()) {
-        shapeRenderer.setColor(Color.DARK_GRAY);
-        shapeRenderer.rect(getX() + getPaddingLeft() + 1, getY() + getPaddingBottom() + 1,
-                getWidth() - getPaddingLeft() - getPaddingRight() - 1,
-                getHeight() - getPaddingTop() - getPaddingBottom() - 1);
-      }
-    }
-    shapeRenderer.end();
+    final Paint paint = new Paint();
+    paint.setColor(Color.DARK_GRAY);
 
-    System.out.printf("%s: %d %d %d %d%n",
-            getClass().getSimpleName(),
-            getX(), getY(), getWidth(), getHeight());
+    final Pixmap debug = new Pixmap(getWidth(), getHeight(), Pixmap.Format.RGBA8888); {
+      final Shape rect = new RectangularShape();
+      rect.resize(getWidth(), getHeight());
+      rect.draw(debug, paint);
+
+      graphicData.draw(debug, 0, 0);
+    } debug.dispose();
   }
 
   /**
