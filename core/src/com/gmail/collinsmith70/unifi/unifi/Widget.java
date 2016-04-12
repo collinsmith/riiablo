@@ -152,6 +152,7 @@ public abstract class Widget
     this.LAYOUT_PARAM_CHANGE_LISTENERS = new CopyOnWriteArraySet<LayoutParamChangeListener>();
 
     setEnabled(true);
+    setInvalidated(true);
     setVisibility(Visibility.VISIBLE);
   }
 
