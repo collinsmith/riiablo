@@ -3,6 +3,7 @@ package com.gmail.collinsmith70.unifi.unifi.graphics;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
@@ -25,6 +26,7 @@ public class Canvas implements Disposable {
   }
 
   private void prepare(@NonNull final Paint paint) {
+    Gdx.gl.glLineWidth(paint.getStrokeWidth());
     pixmap.setColor(paint.getColor());
     Pixmap.setBlending(paint.getBlendingMode());
     Pixmap.setFilter(paint.getFilterMode());
