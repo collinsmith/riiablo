@@ -178,8 +178,10 @@ public abstract class WidgetGroup extends Widget
     }
 
     super.setInvalidated(invalidated);
-    for (Widget child : this) {
-      child.setInvalidated(true);
+    if (invalidated) {
+      for (Widget child : this) {
+        child.invalidate();
+      }
     }
   }
 
