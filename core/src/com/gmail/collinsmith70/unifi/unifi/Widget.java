@@ -591,6 +591,20 @@ public abstract class Widget
   }
 
   /**
+   * @see #setInvalidated
+   */
+  public void validate() {
+    setInvalidated(false);
+  }
+
+  /**
+   * @see #setInvalidated
+   */
+  public void invalidate() {
+    setInvalidated(true);
+  }
+
+  /**
    * Checks whether or not this {@code Widget} has an input device (e.g., mouse cursor) hovering
    * over.
    *
