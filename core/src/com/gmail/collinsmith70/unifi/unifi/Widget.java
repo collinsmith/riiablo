@@ -153,7 +153,7 @@ public abstract class Widget
     this.LAYOUT_PARAM_CHANGE_LISTENERS = new CopyOnWriteArraySet<LayoutParamChangeListener>();
 
     setEnabled(true);
-    setInvalidated(true);
+    invalidate();
     setVisibility(Visibility.VISIBLE);
   }
 
@@ -184,7 +184,7 @@ public abstract class Widget
     }
 
     batch.draw(graphicData, getX(), getY());
-    setInvalidated(false);
+    validate();
   }
 
   /**
@@ -367,7 +367,7 @@ public abstract class Widget
     }
 
     this.parent = parent;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -458,7 +458,7 @@ public abstract class Widget
       FLAGS.remove(Flag.DEBUG);
     }
 
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -493,7 +493,7 @@ public abstract class Widget
       FLAGS.remove(Flag.DOWN);
     }
 
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -527,7 +527,7 @@ public abstract class Widget
       FLAGS.remove(Flag.ENABLED);
     }
 
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -561,7 +561,7 @@ public abstract class Widget
       FLAGS.remove(Flag.FOCUSABLE);
     }
 
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -632,7 +632,7 @@ public abstract class Widget
       FLAGS.remove(Flag.OVER);
     }
 
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -649,7 +649,7 @@ public abstract class Widget
     final int height = getHeight();
     this.bottom = bottom;
     this.top = bottom + height;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -666,7 +666,7 @@ public abstract class Widget
     final int width = getWidth();
     this.left = left;
     this.right = left + width;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -683,7 +683,7 @@ public abstract class Widget
     final int width = getWidth();
     this.right = right;
     this.left = right - width;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -700,7 +700,7 @@ public abstract class Widget
     final int height = getHeight();
     this.top = top;
     this.bottom = top - height;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -788,7 +788,7 @@ public abstract class Widget
     }
 
     this.bottom = bottom;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -823,7 +823,7 @@ public abstract class Widget
     }
 
     this.left = left;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -858,7 +858,7 @@ public abstract class Widget
     }
 
     this.right = right;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -893,7 +893,7 @@ public abstract class Widget
     }
 
     this.top = top;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -961,7 +961,7 @@ public abstract class Widget
     this.top = top;
     this.right = right;
     this.bottom = bottom;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -1249,7 +1249,7 @@ public abstract class Widget
     final int width = getWidth();
     this.left = x;
     this.right = x + width;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -1283,7 +1283,7 @@ public abstract class Widget
     final int height = getHeight();
     this.bottom = y;
     this.top = y + height;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -1389,7 +1389,7 @@ public abstract class Widget
     }
 
     if (s1 | s2) {
-      setInvalidated(true);
+      invalidate();
     }
   }
 
@@ -1439,7 +1439,7 @@ public abstract class Widget
     }
 
     this.paddingBottom = paddingBottom;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -1470,7 +1470,7 @@ public abstract class Widget
     }
 
     this.paddingLeft = paddingLeft;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -1501,7 +1501,7 @@ public abstract class Widget
     }
 
     this.paddingRight = paddingRight;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -1532,7 +1532,7 @@ public abstract class Widget
     }
 
     this.paddingTop = paddingTop;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
@@ -1604,7 +1604,7 @@ public abstract class Widget
     this.paddingTop = paddingTop;
     this.paddingRight = paddingRight;
     this.paddingBottom = paddingBottom;
-    setInvalidated(true);
+    invalidate();
   }
 
   /**
