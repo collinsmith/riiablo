@@ -568,7 +568,10 @@ public abstract class WidgetGroup extends Widget
     layout();
   }
 
-  public void layout() {
+  /**
+   * Lays out this {@code WidgetGroup} and sets the sizing.
+   */
+  private void layout() {
     double layout_width, layout_height;
     for (Widget child : this) {
       layout_width = LengthUnit.parse(child.get(LayoutParams.layout_width).toString());
@@ -607,6 +610,11 @@ public abstract class WidgetGroup extends Widget
     }
   }
 
+  /**
+   * Lays out the children of this {@code WidgetGroup}. This method is intended to be overridden by
+   * subclasses who have specific specifications on how their children should be laid out.
+   */
+  @CallSuper
   public void layoutChildren() {
     for (Widget child : this) {
       if (child instanceof WidgetGroup) {
