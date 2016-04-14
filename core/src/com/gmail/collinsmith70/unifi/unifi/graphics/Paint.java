@@ -41,12 +41,14 @@ public class Paint {
     return color;
   }
 
-  public void setColor(@NonNull final Color color) {
+  @NonNull
+  public Paint setColor(@NonNull final Color color) {
     if (color == null) {
       throw new IllegalArgumentException("color cannot be null");
     }
 
     this.color = color;
+    return this;
   }
 
   @NonNull
@@ -54,12 +56,14 @@ public class Paint {
     return style;
   }
 
-  public void setStyle(@NonNull final Style style) {
+  @NonNull
+  public Paint setStyle(@NonNull final Style style) {
     if (style == null) {
       throw new IllegalArgumentException("style cannot be null");
     }
 
     this.style = style;
+    return this;
   }
 
   @IntRange(from = 1, to = Integer.MAX_VALUE)
@@ -67,12 +71,14 @@ public class Paint {
     return strokeWidth;
   }
 
-  public void setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
+  @NonNull
+  public Paint setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
     if (strokeWidth < 1) {
       throw new IllegalArgumentException("strokeWidth must be greater than or equal to 1");
     }
 
     this.strokeWidth = strokeWidth;
+    return this;
   }
 
   @NonNull
@@ -80,12 +86,14 @@ public class Paint {
     return blending;
   }
 
-  public void setBlendingMode(@NonNull final Pixmap.Blending blending) {
+  @NonNull
+  public Paint setBlendingMode(@NonNull final Pixmap.Blending blending) {
     if (blending == null) {
       throw new IllegalArgumentException("blending cannot be null");
     }
 
     this.blending = blending;
+    return this;
   }
 
   @NonNull
@@ -93,12 +101,14 @@ public class Paint {
     return filter;
   }
 
-  public void setFilterMode(@NonNull final Pixmap.Filter filter) {
+  @NonNull
+  public Paint setFilterMode(@NonNull final Pixmap.Filter filter) {
     if (filter == null) {
       throw new IllegalArgumentException("filter cannot be null");
     }
 
     this.filter = filter;
+    return this;
   }
 
 }
