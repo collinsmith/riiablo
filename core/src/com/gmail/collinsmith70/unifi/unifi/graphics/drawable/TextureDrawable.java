@@ -14,7 +14,8 @@ public class TextureDrawable implements Drawable, Disposable {
   @Nullable
   private Texture texture;
 
-  @Nullable Pixmap pixmap;
+  @Nullable
+  private TextureData textureData;
 
   public TextureDrawable() {
 
@@ -22,12 +23,7 @@ public class TextureDrawable implements Drawable, Disposable {
 
   public TextureDrawable(@NonNull final Texture texture) {
     this.texture = texture;
-    TextureData textureData = texture.getTextureData();
-    if (textureData.isPrepared()) {
-      this.pixmap = textureData.consumePixmap();
-    } else {
-      throw new IllegalArgumentException("TextureDrawable does not support texture " + texture);
-    }
+    this.textureData = texture.getTextureData();
   }
 
   @Nullable
@@ -37,20 +33,21 @@ public class TextureDrawable implements Drawable, Disposable {
 
   @Override
   public void draw(@NonNull final Canvas canvas) {
-    if (pixmap == null) {
-      throw new IllegalStateException("pixmap has already been disposed!");
+    if (!textureData.isPrepared()) {
+      textureData.prepare();
     }
 
+    Pixmap pixmap = textureData.consumePixmap();
     canvas.drawPixmap(0, 0, pixmap);
+    if (textureData.disposePixmap()) {
+      pixmap.dispose();
+    }
   }
 
   @Override
   public void dispose() {
     texture.dispose();
     texture = null;
-
-    pixmap.dispose();
-    pixmap = null;
   }
 
 }
