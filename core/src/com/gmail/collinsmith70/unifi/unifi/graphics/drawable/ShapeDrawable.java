@@ -45,6 +45,7 @@ public class ShapeDrawable implements Drawable {
   @Override
   public void draw(@NonNull final Canvas canvas) {
     if (shape != null) {
+      shape.resize(canvas.getWidth(), canvas.getHeight());
       shape.draw(canvas, paint);
     } else {
       canvas.drawRectangle(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
