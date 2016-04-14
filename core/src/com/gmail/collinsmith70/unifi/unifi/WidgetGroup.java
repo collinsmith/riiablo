@@ -6,10 +6,10 @@ import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
+import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.Drawable;
+import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.ShapeDrawable;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.RectangularShape;
-import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.Shape;
 import com.gmail.collinsmith70.unifi.unifi.util.LengthUnit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
@@ -119,28 +119,22 @@ public abstract class WidgetGroup extends Widget
   @Nullable
   private Set<Gravity> gravity;
 
+  private static final Drawable DEFAULT_DEBUG_DRAWABLE;
+  static {
+    ShapeDrawable shapeDrawable = new ShapeDrawable(new RectangularShape());
+    shapeDrawable.setPaint(new Paint().setColor(Color.DARK_GRAY));
+    DEFAULT_DEBUG_DRAWABLE = shapeDrawable;
+  }
+
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
+    this.debugDrawable = DEFAULT_DEBUG_DRAWABLE;
   }
 
   @Override
   protected void draw(@NonNull final Batch batch) {
     super.draw(batch);
     drawChildren(batch);
-  }
-
-  @Override
-  protected void drawDebug(@NonNull final Batch batch) {
-    assert batch != null : "batch should not be null";
-    final Paint paint = new Paint();
-    paint.setColor(Color.DARK_GRAY);
-
-    final Canvas debugCanvas = new Canvas(getWidth(), getHeight()); {
-      final Shape rect = new RectangularShape();
-      rect.resize(getWidth(), getHeight());
-      rect.draw(debugCanvas, paint);
-      texture.draw(debugCanvas.getPixmap(), 0, 0);
-    } debugCanvas.dispose();
   }
 
   /**

@@ -13,8 +13,9 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
+import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.Drawable;
+import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.ShapeDrawable;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.RectangularShape;
-import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.Shape;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
@@ -156,6 +157,16 @@ public abstract class Widget
   @Nullable
   protected Texture texture;
 
+  private static final Drawable DEFAULT_DEBUG_DRAWABLE;
+  static {
+    ShapeDrawable shapeDrawable = new ShapeDrawable(new RectangularShape());
+    shapeDrawable.setPaint(new Paint().setColor(Color.BLUE).setStrokeWidth(4));
+    DEFAULT_DEBUG_DRAWABLE = shapeDrawable;
+  }
+
+  @Nullable
+  protected Drawable debugDrawable = DEFAULT_DEBUG_DRAWABLE;
+
   public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
     this.LAYOUT_PARAMS = new HashMap<String, Object>();
@@ -187,10 +198,14 @@ public abstract class Widget
       texture = new Texture(getWidth(), getHeight(), Pixmap.Format.RGBA8888);
     }
 
-    drawBackground(batch);
-    if (isDebug()) {
-      drawDebug(batch);
-    }
+    final Canvas canvas = new Canvas(getWidth(), getHeight()); {
+      drawBackground(canvas);
+      if (isDebug()) {
+        drawDebug(canvas);
+      }
+
+      texture.draw(canvas.getPixmap(), 0, 0);
+    } canvas.dispose();
 
     batch.draw(texture, getX(), getY());
     validate();
@@ -198,31 +213,26 @@ public abstract class Widget
 
   /**
    * Called when this {@code Widget} should draw its background content onto the passed
-   * {@link Batch}.
+   * {@link Canvas}.
    *
-   * @param batch {@code Batch} instance to render onto
+   * @param canvas {@code Canvas} instance to render onto
    */
-  protected void drawBackground(@NonNull final Batch batch) {
-    assert batch != null : "batch should not be null";
+  protected void drawBackground(@NonNull final Canvas canvas) {
+    assert canvas != null : "canvas should not be null";
   }
 
   /**
-   * Called when this {@code Widget} should draw its debug content onto the passed {@link Batch}.
+   * Called when this {@code Widget} should draw its debug content onto the passed {@link Canvas}.
    *
-   * @param batch {@code Batch} instance to render onto
+   * @param canvas {@code Canvas} instance to render onto
    */
-  protected void drawDebug(@NonNull final Batch batch) {
-    assert batch != null : "batch should not be null";
-    final Paint paint = new Paint();
-    paint.setColor(Color.BLUE);
-    paint.setStrokeWidth(5);
+  protected void drawDebug(@NonNull final Canvas canvas) {
+    assert canvas != null : "canvas should not be null";
+    if (debugDrawable == null) {
+      return;
+    }
 
-    final Canvas debugCanvas = new Canvas(getWidth(), getHeight()); {
-      final Shape rect = new RectangularShape();
-      rect.resize(getWidth(), getHeight());
-      rect.draw(debugCanvas, paint);
-      texture.draw(debugCanvas.getPixmap(), 0, 0);
-    } debugCanvas.dispose();
+    debugDrawable.draw(canvas);
   }
 
   /**
