@@ -1,7 +1,6 @@
 package com.gmail.collinsmith70.unifi.unifi;
 
 import android.support.annotation.CallSuper;
-import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -11,7 +10,6 @@ import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.RectangularShape;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.Shape;
-import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.util.LengthUnit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
@@ -25,7 +23,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 public abstract class WidgetGroup extends Widget
-        implements WidgetParent, Marginable {
+        implements WidgetParent {
 
   public static final class LayoutParams {
 
@@ -117,15 +115,6 @@ public abstract class WidgetGroup extends Widget
 
   @NonNull
   private final Collection<Widget> children;
-
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  private int marginBottom;
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  private int marginLeft;
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  private int marginRight;
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  private int marginTop;
 
   @Nullable
   private Set<Gravity> gravity;
@@ -226,241 +215,6 @@ public abstract class WidgetGroup extends Widget
 
     // EnumSet does not permit {@code null} elements, so no need to validate here
     this.gravity = EnumSet.of(gravity, gravities);
-  }
-
-  /**
-   * Bottom margin of this {@code WidgetGroup}. Margin is defined as the space outside of this
-   * {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside edge).
-   *
-   * @return Bottom margin, in pixels
-   */
-  @Override
-  @CallSuper
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getMarginBottom() {
-    return marginBottom;
-  }
-
-  /**
-   * Sets the bottom margin of this {@code WidgetGroup}. Margin is defined as the space outside of
-   * this {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside
-   * edge).
-   *
-   * @param marginBottom Bottom margin, in pixels
-   */
-  @Override
-  @CallSuper
-  public void setMarginBottom(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
-    if (marginBottom < 0) {
-      throw new IllegalArgumentException("bottom margin should be positive");
-    }
-
-    this.marginBottom = marginBottom;
-  }
-
-  /**
-   * Left margin of this {@code WidgetGroup}. Margin is defined as the space outside of this
-   * {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside edge).
-   *
-   * @return Left margin, in pixels
-   */
-  @Override
-  @CallSuper
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getMarginLeft() {
-    return marginLeft;
-  }
-
-  /**
-   * Sets the left margin of this {@code WidgetGroup}. Margin is defined as the space outside of
-   * this {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside
-   * edge).
-   *
-   * @param marginLeft Left margin, in pixels
-   */
-  @Override
-  @CallSuper
-  public void setMarginLeft(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginLeft) {
-    if (marginLeft < 0) {
-      throw new IllegalArgumentException("left margin should be positive");
-    }
-
-    this.marginLeft = marginLeft;
-  }
-
-  /**
-   * Right margin of this {@code WidgetGroup}. Margin is defined as the space outside of this
-   * {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside edge).
-   *
-   * @return Right margin, in pixels
-   */
-  @Override
-  @CallSuper
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getMarginRight() {
-    return marginRight;
-  }
-
-  /**
-   * Sets the right margin of this {@code WidgetGroup}. Margin is defined as the space outside of
-   * this {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside
-   * edge).
-   *
-   * @param marginRight Right margin, in pixels
-   */
-  @Override
-  @CallSuper
-  public void setMarginRight(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight) {
-    if (marginRight < 0) {
-      throw new IllegalArgumentException("right margin should be positive");
-    }
-
-    this.marginRight = marginRight;
-  }
-
-  /**
-   * Top margin of this {@code WidgetGroup}. Margin is defined as the space outside of this
-   * {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside edge).
-   *
-   * @return Top margin, in pixels
-   */
-  @Override
-  @CallSuper
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getMarginTop() {
-    return marginTop;
-  }
-
-  /**
-   * Sets the top margin of this {@code WidgetGroup}. Margin is defined as the space outside of
-   * this {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the outside
-   * edge).
-   *
-   * @param marginTop Top margin, in pixels
-   */
-  @Override
-  @CallSuper
-  public void setMarginTop(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop) {
-    if (marginTop < 0) {
-      throw new IllegalArgumentException("marginTop margin should be positive");
-    }
-
-    this.marginTop = marginTop;
-  }
-
-  /**
-   * {@link Boundary} containing of the sizes of the margins of this {@code WidgetGroup}. Margin is
-   * defined as the space outside of this {@code WidgetGroup}, which no other {@code Widget} may
-   * invade (i.e., marks the outside edge).
-   * <p>
-   * Note: Changing the sides of the returned {@code Boundary} instance will not be reflected
-   * within this {@code WidgetGroup}.
-   * </p>
-   *
-   * @return {@code Boundary} containing the sizes of the margins of this {@code WidgetGroup}
-   */
-  @Override
-  @CallSuper
-  @NonNull
-  public Boundary getMargin() {
-    return new Boundary(getMarginLeft(), getMarginTop(), getMarginRight(), getMarginBottom());
-  }
-
-  /**
-   * Populates the passed {@link Boundary} instance with the sizes of the margins of this
-   * {@code WidgetGroup}. Margin is defined as the space outside of this {@code WidgetGroup}, which
-   * no other {@code Widget} may invade (i.e., marks the outside edge).
-   *
-   * @param dst {@code Boundary} instance to populate, otherwise if a {@code null} reference is
-   *            passed, then this method would behave the same as if {@link #getMargin} were
-   *            called.
-   * @return {@code Boundary} containing the sizes of the margins of this {@code WidgetGroup}
-   */
-  @NonNull
-  @CallSuper
-  @Override
-  public Boundary getMargin(@Nullable final Boundary dst) {
-    if (dst == null) {
-      return getMargin();
-    }
-
-    dst.set(getMarginLeft(), getMarginTop(), getMarginRight(), getMarginBottom());
-    return dst;
-  }
-
-  /**
-   * Sets the margin on all sides of this {@code WidgetGroup}. Margin is defined as the space
-   * outside of this {@code WidgetGroup}, which no other {@code Widget} may invade (i.e., marks the
-   * outside edge).
-   * <p>
-   * Precondition: {@code marginLeft >= 0 AND marginRight >= 0 AND marginBottom >= 0
-   * AND marginTop >= 0}
-   * </p>
-   *
-   * @param marginLeft   Left margin, in pixels
-   * @param marginTop    Top margin, in pixels
-   * @param marginRight  Right margin, in pixels
-   * @param marginBottom Bottom margin, in pixels
-   */
-  @Override
-  @CallSuper
-  public final void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginLeft,
-                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop,
-                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight,
-                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
-    setMarginLeft(marginLeft);
-    setMarginTop(marginTop);
-    setMarginRight(marginRight);
-    setMarginBottom(marginBottom);
-  }
-
-  /**
-   * Sets the margin on all sides of this {@code WidgetGroup} to those of the source
-   * {@link Boundary}. Margin is defined as the space outside of this {@code WidgetGroup}, which no
-   * other {@code Widget} may invade (i.e., marks the outside edge).
-   * <p>
-   * Precondition: {@code src.getLeft() >= 0 AND src.getRight() >= 0 AND src.getBottom() >= 0
-   * AND src.getTop() >= 0}
-   * </p>
-   *
-   * @param src {@code Boundary} to copy the margin onto this {@code WidgetGroup}
-   */
-  @Override
-  @CallSuper
-  public final void setMargin(@NonNull final Boundary src) {
-    if (src == null) {
-      throw new IllegalArgumentException("src margin cannot be null");
-    }
-
-    setMargin(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
-  }
-
-  /**
-   * Sets the margin on all sides of this {@code WidgetGroup} to the specified value. This method
-   * would be the same as calling {@link #setMargin(int, int, int, int)} with all the same
-   * parameter. Margin is defined as the space outside of this {@code WidgetGroup}, which no
-   * other {@code Widget} may invade (i.e., marks the outside edge).
-   *
-   * @param margin Margin, in pixels
-   */
-  @Override
-  public final void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) final int margin) {
-    setMargin(margin, margin, margin, margin);
-  }
-
-  /**
-   * Checks whether or not at least one side of this {@code WidgetGroup} has a positive margin
-   * value. Margin is defined as the space outside of this {@code WidgetGroup}, which no
-   * other {@code Widget} may invade (i.e., marks the outside edge).
-   *
-   * @return {@code true} if at least one side of this {@code WidgetGroup} has a positive margin
-   * value, otherwise {@code false}
-   */
-  @Override
-  @CallSuper
-  public boolean hasMargin() {
-    return getMarginLeft() > 0 || getMarginRight() > 0
-            || getMarginBottom() > 0 || getMarginTop() > 0;
   }
 
   /**
