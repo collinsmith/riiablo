@@ -154,7 +154,7 @@ public abstract class Widget
   private final Set<LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
 
   @Nullable
-  protected Texture graphicData;
+  protected Texture texture;
 
   public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
@@ -178,13 +178,13 @@ public abstract class Widget
   @CallSuper
   protected void draw(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
-    if (isInvalidated() || graphicData == null) {
+    if (isInvalidated() || texture == null) {
       System.out.printf("%s invalidated, redrawing...%n", this);
-      if (graphicData != null) {
-        graphicData.dispose();
+      if (texture != null) {
+        texture.dispose();
       }
 
-      graphicData = new Texture(getWidth(), getHeight(), Pixmap.Format.RGBA8888);
+      texture = new Texture(getWidth(), getHeight(), Pixmap.Format.RGBA8888);
     }
 
     drawBackground(batch);
@@ -192,7 +192,7 @@ public abstract class Widget
       drawDebug(batch);
     }
 
-    batch.draw(graphicData, getX(), getY());
+    batch.draw(texture, getX(), getY());
     validate();
   }
 
@@ -221,7 +221,7 @@ public abstract class Widget
       final Shape rect = new RectangularShape();
       rect.resize(getWidth(), getHeight());
       rect.draw(debugCanvas, paint);
-      graphicData.draw(debugCanvas.getPixmap(), 0, 0);
+      texture.draw(debugCanvas.getPixmap(), 0, 0);
     } debugCanvas.dispose();
   }
 
@@ -1894,8 +1894,8 @@ public abstract class Widget
 
   @Override
   public void dispose() {
-    if (graphicData != null) {
-      graphicData.dispose();
+    if (texture != null) {
+      texture.dispose();
     }
   }
 

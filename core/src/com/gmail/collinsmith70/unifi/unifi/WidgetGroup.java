@@ -139,7 +139,7 @@ public abstract class WidgetGroup extends Widget
       final Shape rect = new RectangularShape();
       rect.resize(getWidth(), getHeight());
       rect.draw(debugCanvas, paint);
-      graphicData.draw(debugCanvas.getPixmap(), 0, 0);
+      texture.draw(debugCanvas.getPixmap(), 0, 0);
     } debugCanvas.dispose();
   }
 
