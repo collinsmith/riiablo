@@ -9,7 +9,7 @@ import com.gmail.collinsmith70.unifi.unifi.WidgetGroup;
 /**
  * A {@link WidgetGroup} that lays out child {@link Widget} instances linearly, such that each
  * component is adjacent to another in a single direction. Supports {@code Widget} instances with
- * {@linkplain Widget#getMargin() margins}.
+ * {@linkplain Widget#getMargins() margins}.
  */
 public abstract class LinearLayout extends WidgetGroup {
 

@@ -134,15 +134,22 @@ public class Client implements ApplicationListener {
     LinearLayout ll1 = new VerticalLayout();
     ll1.put(WidgetGroup.LayoutParams.layout_width, "wrap_content");
     ll1.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
+    ll1.setMargins(5);
     ll1.setPadding(10);
     ll1.addWidget(button1);
     ll1.addWidget(button2);
+    LinearLayout ll3 = new HorizontalLayout();
+    ll3.put(WidgetGroup.LayoutParams.layout_width, "wrap_content");
+    ll3.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
+    ll3.setPadding(10);
+    ll3.addWidget(text);
+
     LinearLayout ll2 = new HorizontalLayout();
     ll2.put(WidgetGroup.LayoutParams.layout_width, "wrap_content");
     ll2.put(WidgetGroup.LayoutParams.layout_height, "wrap_content");
     ll2.addWidget(ll1);
     ll2.addWidget(button3);
-    ll2.addWidget(text);
+    ll2.addWidget(ll3);
 
     this.BATCH = new SpriteBatch(1024);
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);

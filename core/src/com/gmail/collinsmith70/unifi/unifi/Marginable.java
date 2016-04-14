@@ -29,19 +29,19 @@ public interface Marginable {
   void setMarginTop(@IntRange(from = 0, to = Integer.MAX_VALUE) int top);
 
   @NonNull
-  Boundary getMargin();
+  Boundary getMargins();
 
   @NonNull
-  Boundary getMargin(@Nullable Boundary dst);
+  Boundary getMargins(@Nullable Boundary dst);
 
-  void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
-                 @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
-                 @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
-                 @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom);
+  void setMargins(@IntRange(from = 0, to = Integer.MAX_VALUE) int left,
+                  @IntRange(from = 0, to = Integer.MAX_VALUE) int top,
+                  @IntRange(from = 0, to = Integer.MAX_VALUE) int right,
+                  @IntRange(from = 0, to = Integer.MAX_VALUE) int bottom);
 
-  void setMargin(@NonNull final Boundary src);
+  void setMargins(@NonNull final Boundary src);
 
-  void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) int margin);
+  void setMargins(@IntRange(from = 0, to = Integer.MAX_VALUE) int margin);
 
   boolean hasMargin();
 

@@ -1791,7 +1791,7 @@ public abstract class Widget
   @Override
   @CallSuper
   @NonNull
-  public Boundary getMargin() {
+  public Boundary getMargins() {
     return new Boundary(getMarginLeft(), getMarginTop(), getMarginRight(), getMarginBottom());
   }
 
@@ -1801,16 +1801,16 @@ public abstract class Widget
    * no other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @param dst {@code Boundary} instance to populate, otherwise if a {@code null} reference is
-   *            passed, then this method would behave the same as if {@link #getMargin} were
+   *            passed, then this method would behave the same as if {@link #getMargins} were
    *            called.
    * @return {@code Boundary} containing the sizes of the margins of this {@code Widget}
    */
   @NonNull
   @CallSuper
   @Override
-  public Boundary getMargin(@Nullable final Boundary dst) {
+  public Boundary getMargins(@Nullable final Boundary dst) {
     if (dst == null) {
-      return getMargin();
+      return getMargins();
     }
 
     dst.set(getMarginLeft(), getMarginTop(), getMarginRight(), getMarginBottom());
@@ -1833,10 +1833,10 @@ public abstract class Widget
    */
   @Override
   @CallSuper
-  public final void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginLeft,
-                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop,
-                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight,
-                              @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
+  public final void setMargins(@IntRange(from = 0, to = Integer.MAX_VALUE) final int marginLeft,
+                               @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginTop,
+                               @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginRight,
+                               @IntRange(from = 0, to = Integer.MAX_VALUE) final int marginBottom) {
     setMarginLeft(marginLeft);
     setMarginTop(marginTop);
     setMarginRight(marginRight);
@@ -1856,25 +1856,25 @@ public abstract class Widget
    */
   @Override
   @CallSuper
-  public final void setMargin(@NonNull final Boundary src) {
+  public final void setMargins(@NonNull final Boundary src) {
     if (src == null) {
       throw new IllegalArgumentException("src margin cannot be null");
     }
 
-    setMargin(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
+    setMargins(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
   }
 
   /**
    * Sets the margin on all sides of this {@code Widget} to the specified value. This method
-   * would be the same as calling {@link #setMargin(int, int, int, int)} with all the same
+   * would be the same as calling {@link #setMargins(int, int, int, int)} with all the same
    * parameter. Margin is defined as the space outside of this {@code Widget}, which no
    * other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @param margin Margin, in pixels
    */
   @Override
-  public final void setMargin(@IntRange(from = 0, to = Integer.MAX_VALUE) final int margin) {
-    setMargin(margin, margin, margin, margin);
+  public final void setMargins(@IntRange(from = 0, to = Integer.MAX_VALUE) final int margin) {
+    setMargins(margin, margin, margin, margin);
   }
 
   /**

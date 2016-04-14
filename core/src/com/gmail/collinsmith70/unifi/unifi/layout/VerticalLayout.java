@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * A {@link LinearLayout} which lays out child widgets in a vertical line. Supports {@code Widget}
- * instances with top and bottom {@linkplain Widget#getMargin() margins}.
+ * instances with top and bottom {@linkplain Widget#getMargins() margins}.
  */
 public class VerticalLayout extends LinearLayout {
 
