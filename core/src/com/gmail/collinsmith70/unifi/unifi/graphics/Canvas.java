@@ -99,6 +99,11 @@ public class Canvas implements Disposable {
     pixmap.drawPixmap(canvas.getPixmap(), x, y);
   }
 
+  public void fill(@NonNull final Paint paint) {
+    prepare(paint);
+    pixmap.fill();
+  }
+
   public Pixmap getPixmap() {
     return pixmap;
   }
