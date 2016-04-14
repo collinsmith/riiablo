@@ -20,27 +20,32 @@ public class ImmutablePaint extends Paint {
   }
 
   @Override
-  public void setColor(@NonNull final Color color) {
+  @NonNull
+  public Paint setColor(@NonNull final Color color) {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
   @Override
-  public void setStyle(@NonNull final Style style) {
+  @NonNull
+  public Paint setStyle(@NonNull final Style style) {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
   @Override
-  public void setBlendingMode(@NonNull Pixmap.Blending blending) {
+  @NonNull
+  public Paint setBlendingMode(@NonNull Pixmap.Blending blending) {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
   @Override
-  public void setFilterMode(@NonNull Pixmap.Filter filter) {
+  @NonNull
+  public Paint setFilterMode(@NonNull Pixmap.Filter filter) {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
   @Override
-  public void setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
+  @NonNull
+  public Paint setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
     throw new UnsupportedOperationException("this class' state is immutable");
   }
 
