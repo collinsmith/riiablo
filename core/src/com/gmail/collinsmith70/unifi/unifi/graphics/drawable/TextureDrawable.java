@@ -30,14 +30,27 @@ public class TextureDrawable implements Drawable, Disposable {
     }
   }
 
+  @Nullable
+  public Texture getTexture() {
+    return texture;
+  }
+
   @Override
   public void draw(@NonNull final Canvas canvas) {
+    if (pixmap == null) {
+      throw new IllegalStateException("pixmap has already been disposed!");
+    }
+
     canvas.drawPixmap(0, 0, pixmap);
   }
 
   @Override
   public void dispose() {
+    texture.dispose();
+    texture = null;
 
+    pixmap.dispose();
+    pixmap = null;
   }
 
 }
