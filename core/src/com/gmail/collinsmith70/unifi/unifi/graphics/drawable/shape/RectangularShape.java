@@ -12,9 +12,4 @@ public class RectangularShape extends Shape {
     canvas.drawRectangle(0, 0, getWidth(), getHeight(), paint);
   }
 
-  @Override
-  public void draw(@NonNull final Canvas canvas) {
-    draw(canvas, Paint.DEFAULT_PAINT);
-  }
-
 }

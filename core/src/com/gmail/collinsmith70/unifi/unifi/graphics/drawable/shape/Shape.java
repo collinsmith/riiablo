@@ -6,10 +6,9 @@ import android.support.annotation.Nullable;
 
 import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
-import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.Drawable;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 
-public abstract class Shape implements Drawable {
+public abstract class Shape {
 
   private int width;
   private int height;
