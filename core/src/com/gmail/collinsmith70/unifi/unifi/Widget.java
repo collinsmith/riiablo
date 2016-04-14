@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Disposable;
@@ -195,20 +194,18 @@ public abstract class Widget
         texture.dispose();
       }
 
-      texture = new Texture(getWidth(), getHeight(), Pixmap.Format.RGBA8888);
+      final Canvas canvas = new Canvas(getWidth(), getHeight()); {
+        drawBackground(canvas);
+        if (isDebug()) {
+          drawDebug(canvas);
+        }
+
+        texture = new Texture(canvas.getPixmap());
+      } canvas.dispose();
+      validate();
     }
 
-    final Canvas canvas = new Canvas(getWidth(), getHeight()); {
-      drawBackground(canvas);
-      if (isDebug()) {
-        drawDebug(canvas);
-      }
-
-      texture.draw(canvas.getPixmap(), 0, 0);
-    } canvas.dispose();
-
     batch.draw(texture, getX(), getY());
-    validate();
   }
 
   /**
