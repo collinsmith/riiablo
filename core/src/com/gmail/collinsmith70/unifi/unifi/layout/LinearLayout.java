@@ -13,11 +13,18 @@ import com.gmail.collinsmith70.unifi.unifi.WidgetGroup;
  */
 public abstract class LinearLayout extends WidgetGroup {
 
-  public enum Orientation {
-    VERTICAL,
-    HORIZONTAL
-  }
+  /**
+   * Enumeration of all {@code Orientation} constants which can be used in {@link #create}.
+   */
+  public enum Orientation { VERTICAL, HORIZONTAL }
 
+  /**
+   * Factory method which constructs a {@code LinearLayout} with the specified {@link Orientation}.
+   *
+   * @param orientation {@code Orientation} of the {@code LinearLayout}
+   *
+   * @return Constructed {@code LinearLayout} with the specified {@code Orientation}
+   */
   public static LinearLayout create(@NonNull final Orientation orientation) {
     switch (orientation) {
       case VERTICAL:
