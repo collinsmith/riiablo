@@ -7,7 +7,8 @@ import com.google.common.collect.PeekingIterator;
 import java.util.Set;
 
 /**
- * A {@link LinearLayout} which lays out child widgets in a horizontal line.
+ * A {@link LinearLayout} which lays out child widgets in a horizontal line. Supports {@code Widget}
+ * instances with left and right {@linkplain Widget#getMargin() margins}.
  */
 public class HorizontalLayout extends LinearLayout {
 
