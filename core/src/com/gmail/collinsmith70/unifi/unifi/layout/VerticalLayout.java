@@ -1,6 +1,8 @@
 package com.gmail.collinsmith70.unifi.unifi.layout;
 
 import com.gmail.collinsmith70.unifi.unifi.Widget;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 
 import java.util.Set;
 
@@ -17,8 +19,10 @@ public class VerticalLayout extends LinearLayout {
     final Direction direction = getDirection();
     int childrenHeight = -spacing;
     int preferredWidth = 0;
-    for (Widget child : this) {
-
+    int gap = Integer.MIN_VALUE;
+    PeekingIterator<Widget> peekingIterator = Iterators.peekingIterator(iterator());
+    while (peekingIterator.hasNext()) {
+      Widget child = peekingIterator.next();
       if (gravity.contains(Gravity.CENTER_HORIZONTAL)) {
         child.translateHorizontalCenter((getWidth() - getPaddingLeft() - getPaddingRight()) / 2);
       } else if (gravity.contains(Gravity.RIGHT)) {
@@ -27,16 +31,27 @@ public class VerticalLayout extends LinearLayout {
         child.translateLeft(getPaddingLeft());
       }
 
-      childrenHeight += child.getHeight() + spacing;
+      gap = Math.max(spacing, child.getMarginBottom());
+      if (peekingIterator.hasNext()) {
+        gap = Math.max(gap, peekingIterator.peek().getMarginTop());
+      }
+
+      childrenHeight += child.getHeight() + gap;
       preferredWidth = Math.max(preferredWidth, child.getWidth());
 
+    }
+
+    if (gap != Integer.MIN_VALUE) {
+      childrenHeight -= gap;
     }
 
     setPreferredWidth(preferredWidth);
     setPreferredHeight(childrenHeight);
 
     int offset = 0;
-    for (Widget child : this) {
+    peekingIterator = Iterators.peekingIterator(iterator());
+    while (peekingIterator.hasNext()) {
+      Widget child = peekingIterator.next();
       switch (direction) {
         case START_TO_END:
           child.translateTop(getHeight() - getPaddingTop() - offset);
@@ -47,7 +62,13 @@ public class VerticalLayout extends LinearLayout {
         default:
       }
 
-      offset += child.getHeight() + spacing;
+      gap = Math.max(spacing, child.getMarginBottom());
+      if (peekingIterator.hasNext()) {
+        gap = Math.max(gap, peekingIterator.peek().getMarginTop());
+      }
+
+
+      offset += child.getHeight() + gap;
 
     }
 
