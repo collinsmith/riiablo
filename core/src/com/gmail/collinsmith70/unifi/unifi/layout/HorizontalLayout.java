@@ -48,8 +48,8 @@ public class HorizontalLayout extends LinearLayout {
     setPreferredWidth(childrenWidth);
     setPreferredHeight(preferredHeight);
 
-    peekingIterator = Iterators.peekingIterator(iterator());
     int offset = 0;
+    peekingIterator = Iterators.peekingIterator(iterator());
     while (peekingIterator.hasNext()) {
       Widget child = peekingIterator.next();
       switch (direction) {
