@@ -13,6 +13,23 @@ import com.gmail.collinsmith70.unifi.unifi.WidgetGroup;
  */
 public abstract class LinearLayout extends WidgetGroup {
 
+  public enum Orientation {
+    VERTICAL,
+    HORIZONTAL
+  }
+
+  public static LinearLayout create(@NonNull final Orientation orientation) {
+    switch (orientation) {
+      case VERTICAL:
+        return new VerticalLayout();
+      case HORIZONTAL:
+        return new HorizontalLayout();
+      default:
+        throw new IllegalStateException(
+                "orientation should be one of Orientation.VERTICAL, Orientation.HORIZONTAL");
+    }
+  }
+
   /**
    * Enumeration of all {@code Direction} constants, determining the order which a
    * {@code LinearLayout} is laid out.
