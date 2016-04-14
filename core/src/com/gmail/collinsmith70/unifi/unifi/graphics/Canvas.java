@@ -25,6 +25,16 @@ public class Canvas implements Disposable {
     this.pixmap = pixmap;
   }
 
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getWidth() {
+    return pixmap.getWidth();
+  }
+
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int getHeight() {
+    return pixmap.getHeight();
+  }
+
   private void prepare(@NonNull final Paint paint) {
     Gdx.gl.glLineWidth(paint.getStrokeWidth());
     pixmap.setColor(paint.getColor());
