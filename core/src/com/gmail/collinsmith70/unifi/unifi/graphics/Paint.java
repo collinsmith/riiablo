@@ -33,6 +33,8 @@ public class Paint {
   public Paint() {
     this.color = Color.BLACK;
     this.style = Style.STROKE;
+    this.blending = Pixmap.Blending.SourceOver;
+    this.filter = Pixmap.Filter.NearestNeighbour;
     this.strokeWidth = 1;
   }
 
