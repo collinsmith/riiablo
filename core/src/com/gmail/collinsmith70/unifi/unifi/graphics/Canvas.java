@@ -76,16 +76,20 @@ public class Canvas implements Disposable {
     clipRectangle(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
   }
 
+  private void prepare(@NonNull final Paint paint, @NonNull final Pixmap pixmap) {
+    Gdx.gl.glLineWidth(paint.getStrokeWidth());
+    pixmap.setColor(paint.getColor());
+    Pixmap.setBlending(paint.getBlendingMode());
+    Pixmap.setFilter(paint.getFilterMode());
+  }
+
   private void prepare(@NonNull final Paint paint) {
     if (clippedPixmap != null) {
       throw new IllegalStateException("prepare called without calling finish");
     }
 
     this.clippedPixmap = new Pixmap(clip.getWidth(), clip.getHeight(), PIXMAP_FORMAT);
-    Gdx.gl.glLineWidth(paint.getStrokeWidth());
-    clippedPixmap.setColor(paint.getColor());
-    Pixmap.setBlending(paint.getBlendingMode());
-    Pixmap.setFilter(paint.getFilterMode());
+    prepare(paint, clippedPixmap);
   }
 
   private void finish() {
@@ -133,7 +137,7 @@ public class Canvas implements Disposable {
                             @NonNull final Paint paint) {
     prepare(paint);
     if (paint.getStyle() == Paint.Style.FILL) {
-      clippedPixmap.fillRectangle(x - clip.getLeft(), y, width, height);
+      clippedPixmap.fillRectangle(x - clip.getLeft(), y - clip.getTop(), width, height);
       finish();
       return;
     }
@@ -143,6 +147,82 @@ public class Canvas implements Disposable {
     clippedPixmap.fillRectangle(x - clip.getLeft(), y + height - paint.getStrokeWidth() - clip.getTop(), width, paint.getStrokeWidth());
     clippedPixmap.fillRectangle(x - clip.getLeft(), y - clip.getTop(), width, paint.getStrokeWidth());
     finish();
+  }
+
+  public void drawRoundRectangle(final int x,
+                                 final int y,
+                                 @IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
+                                 @IntRange(from = 0, to = Integer.MAX_VALUE) final int height,
+                                 @IntRange(from = 0, to = Integer.MAX_VALUE) final int radius,
+                                 @NonNull final Paint paint) {
+    Pixmap tempPixmap = new Pixmap(radius, radius, PIXMAP_FORMAT);
+    drawCircle(0, 0, radius, paint, tempPixmap);
+    drawPixmap(x + width - radius, y + height - radius, tempPixmap, paint);
+    tempPixmap.dispose();
+    tempPixmap = new Pixmap(radius, radius, PIXMAP_FORMAT);
+    drawCircle(radius, 0, radius, paint, tempPixmap);
+    drawPixmap(x, y + height - radius, tempPixmap, paint);
+    tempPixmap.dispose();
+    tempPixmap = new Pixmap(radius, radius, PIXMAP_FORMAT);
+    drawCircle(0, radius, radius, paint, tempPixmap);
+    drawPixmap(x + width - radius, y, tempPixmap, paint);
+    tempPixmap.dispose();
+    tempPixmap = new Pixmap(radius, radius, PIXMAP_FORMAT);
+    drawCircle(radius, radius, radius, paint, tempPixmap);
+    drawPixmap(x, y, tempPixmap, paint);
+    tempPixmap.dispose();
+
+    prepare(paint);
+    if (paint.getStyle() == Paint.Style.FILL) {
+      clippedPixmap.fillRectangle(x - clip.getLeft() + radius,
+              y - clip.getTop(),
+              width - (2 * radius),
+              height);
+      clippedPixmap.fillRectangle(x - clip.getLeft(),
+              y - clip.getTop() + radius,
+              width,
+              height - (2 * radius));
+      clippedPixmap.fillRectangle(x - clip.getLeft() + width - radius,
+              y - clip.getTop() + radius,
+              width,
+              height - (2 * radius));
+      finish();
+      return;
+    }
+
+    clippedPixmap.fillRectangle(x - clip.getLeft(),
+            y - clip.getTop() + radius,
+            paint.getStrokeWidth(),
+            height - (2 * radius));
+    clippedPixmap.fillRectangle(x + width - paint.getStrokeWidth() - clip.getLeft(),
+            y - clip.getTop() + radius,
+            paint.getStrokeWidth(),
+            height - (2 * radius));
+    clippedPixmap.fillRectangle(x - clip.getLeft() + radius,
+            y + height - paint.getStrokeWidth() - clip.getTop(),
+            width - (2 * radius),
+            paint.getStrokeWidth());
+    clippedPixmap.fillRectangle(x - clip.getLeft() + radius,
+            y - clip.getTop(),
+            width - (2 * radius),
+            paint.getStrokeWidth());
+    finish();
+  }
+
+  private void drawCircle(final int x,
+                          final int y,
+                          @IntRange(from = 0, to = Integer.MAX_VALUE) final int radius,
+                          @NonNull final Paint paint,
+                          @NonNull final Pixmap pixmap) {
+    prepare(paint, pixmap);
+    if (paint.getStyle() == Paint.Style.FILL) {
+      pixmap.fillCircle(x, y, radius);
+      return;
+    }
+
+    for (int i = 0; i < paint.getStrokeWidth(); i++) {
+      pixmap.drawCircle(x, y, radius - i);
+    }
   }
 
   public void drawCircle(final int x,
