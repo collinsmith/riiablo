@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.gmail.collinsmith70.unifi.unifi.Widget;
@@ -42,6 +43,7 @@ public class Text extends Widget {
     this.glyphLayout = new GlyphLayout(getFont(), getText());
     setPreferredWidth(Math.round(glyphLayout.width));
     setPreferredHeight(Math.round(glyphLayout.height));
+    setDebug(null);
   }
 
   @NonNull
@@ -94,7 +96,10 @@ public class Text extends Widget {
 
   @Override
   protected void onDraw(@NonNull final Canvas canvas) {
-    canvas.drawText(getX(), getY(), text, Paint.DEFAULT_PAINT);
+    Paint paint = new Paint();
+    paint.setBlendingMode(Pixmap.Blending.SourceOver);
+    paint.setFilterMode(Pixmap.Filter.BiLinear);
+    canvas.drawText(0, 0, text, paint, getFont());
     //font.setColor(textColor);
     //font.draw(batch, glyphLayout, getX(), getY() + glyphLayout.height);
   }
