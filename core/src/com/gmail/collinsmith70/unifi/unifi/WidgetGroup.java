@@ -304,6 +304,7 @@ public abstract class WidgetGroup extends Widget
 
   @Override
   public void dispose() {
+    super.dispose();
     for (Widget child : this) {
       child.dispose();
     }
