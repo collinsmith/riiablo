@@ -7,8 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
@@ -154,7 +152,7 @@ public abstract class Widget
   private final Set<LayoutParamChangeListener> LAYOUT_PARAM_CHANGE_LISTENERS;
 
   @Nullable
-  protected Texture texture;
+  protected Canvas canvas;
 
   private static final Drawable DEFAULT_DEBUG_DRAWABLE;
   static {
@@ -177,35 +175,39 @@ public abstract class Widget
   }
 
   /**
-   * Called when this {@code Widget} should draw itself onto the passed {@link Batch}.
-   * <p>
-   *   Note: Overriding this method should either call super or {@link #drawBackground} and
-   *         {@link #drawDebug}
-   * </p>
+   * Called when this {@code Widget} should draw itself onto the passed {@link Canvas}.
    *
-   * @param batch {@code Batch} instance to render onto
+   * @param canvas {@code Canvas} instance to render onto
    */
   @CallSuper
-  protected void draw(@NonNull final Batch batch) {
-    assert batch != null : "batch should not be null";
-    if (isInvalidated() || texture == null) {
+  protected final void draw(@NonNull final Canvas canvas) {
+    assert canvas != null : "canvas should not be null";
+    if (isInvalidated() || this.canvas == null) {
       System.out.printf("%s invalidated, redrawing...%n", this);
-      if (texture != null) {
-        texture.dispose();
+      if (this.canvas != null) {
+        this.canvas.dispose();
+        this.canvas = null;
       }
 
-      final Canvas canvas = new Canvas(getWidth(), getHeight()); {
-        drawBackground(canvas);
-        if (isDebug()) {
-          drawDebug(canvas);
-        }
+      this.canvas = new Canvas(getWidth(), getHeight());
+      drawBackground(this.canvas);
+      onDraw(canvas);
+      if (isDebug()) {
+        drawDebug(this.canvas);
+      }
 
-        texture = new Texture(canvas.getPixmap());
-      } canvas.dispose();
       validate();
     }
 
-    batch.draw(texture, getX(), getY());
+    canvas.drawCanvas(getX(), getY(), this.canvas);
+  }
+
+  /**
+   * Called when this {@code Widget} should draw its content onto the passed {@link Canvas}.
+   *
+   * @param canvas {@code Canvas} instance to render onto
+   */
+  protected void onDraw(@NonNull final Canvas canvas) {
   }
 
   /**
@@ -1901,8 +1903,9 @@ public abstract class Widget
 
   @Override
   public void dispose() {
-    if (texture != null) {
-      texture.dispose();
+    if (this.canvas != null) {
+      this.canvas.dispose();
+      this.canvas = null;
     }
   }
 

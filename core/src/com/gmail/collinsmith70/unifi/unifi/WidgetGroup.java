@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.Drawable;
 import com.gmail.collinsmith70.unifi.unifi.graphics.drawable.ShapeDrawable;
@@ -132,20 +132,19 @@ public abstract class WidgetGroup extends Widget
   }
 
   @Override
-  protected void draw(@NonNull final Batch batch) {
-    super.draw(batch);
-    drawChildren(batch);
+  protected void onDraw(@NonNull final Canvas canvas) {
+    drawChildren(canvas);
   }
 
   /**
-   * Called when this {@code Widget} should draw its children content onto the passed {@link Batch}.
+   * Called when this {@code Widget} should draw its children content onto the passed {@link Canvas}.
    *
-   * @param batch {@code Batch} instance to render onto
+   * @param canvas {@code Canvas} instance to render onto
    */
-  protected void drawChildren(@NonNull final Batch batch) {
-    assert batch != null : "batch should not be null";
+  protected void drawChildren(@NonNull final Canvas canvas) {
+    assert canvas != null : "canvas should not be null";
     for (Widget child : this) {
-      child.draw(batch);
+      child.draw(canvas);
     }
   }
 

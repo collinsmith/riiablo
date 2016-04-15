@@ -5,8 +5,10 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Disposable;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 import com.gmail.collinsmith70.unifi.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.unifi.math.Point2D;
@@ -28,21 +30,73 @@ public class Window
 
   private boolean debugging;
 
+  @Nullable
+  private Texture texture;
+
+  @Nullable
+  private Canvas canvas;
+
+  private boolean valid;
+
   public Window(int width, int height) {
+    this.valid = false;
     this.dimension = new Dimension2D(width, height);
     this.children = new ArrayList<Widget>();
     this.debugging = Boolean.parseBoolean(System.getProperty(Window.class.getName() + "debugMode"));
   }
 
+  public void validate() {
+    this.valid = true;
+  }
+
+  public void invalidate() {
+    this.valid = false;
+  }
+
+  private boolean isValid() {
+    return valid;
+  }
+
   public void draw(@NonNull final Batch batch) {
     assert batch != null : "batch should not be null";
-    for (Widget child : this) {
-      child.draw(batch);
+    if (isValid()) {
+      batch.draw(texture,
+              0, 0, getWidth(), getHeight(),
+              0, 0, getWidth(), getHeight(),
+              false, true);
+      return;
     }
+
+    if (canvas != null) {
+      canvas.dispose();
+      this.canvas = null;
+    }
+
+    this.canvas = new Canvas(getWidth(), getHeight());
+    for (Widget child : this) {
+      child.draw(canvas);
+    }
+
+    texture = canvas.toTexture();
+    batch.draw(texture,
+            0, 0, getWidth(), getHeight(),
+            0, 0, getWidth(), getHeight(),
+            false, true);
+    validate();
   }
 
   @Override
   public void dispose() {
+    if (texture != null) {
+      texture.dispose();
+      this.texture = null;
+    }
+
+    if (canvas != null) {
+      canvas.dispose();
+      this.canvas = null;
+    }
+
     for (Widget child : this) {
       child.dispose();
     }
@@ -50,6 +104,7 @@ public class Window
 
   public void resize(int width, int height) {
     dimension.set(width, height);
+    invalidate();
   }
 
   @Override
@@ -62,6 +117,8 @@ public class Window
 
       ((WidgetParent) child).requestLayout();
     }
+
+    invalidate();
   }
 
   public void setDebugging(boolean debugging) {
@@ -73,6 +130,8 @@ public class Window
     for (Widget child : this) {
       child.setInvalidated(true);
     }
+
+    invalidate();
   }
 
   public boolean isDebugging() {

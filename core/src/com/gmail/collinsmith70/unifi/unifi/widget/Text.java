@@ -5,10 +5,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.gmail.collinsmith70.unifi.unifi.Widget;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Canvas;
+import com.gmail.collinsmith70.unifi.unifi.graphics.Paint;
 import com.google.common.base.Strings;
 
 public class Text extends Widget {
@@ -92,10 +93,10 @@ public class Text extends Widget {
   }
 
   @Override
-  protected void draw(@NonNull final Batch batch) {
-    super.draw(batch);
-    font.setColor(textColor);
-    font.draw(batch, glyphLayout, getX(), getY() + glyphLayout.height);
+  protected void onDraw(@NonNull final Canvas canvas) {
+    canvas.drawText(getX(), getY(), text, Paint.DEFAULT_PAINT);
+    //font.setColor(textColor);
+    //font.draw(batch, glyphLayout, getX(), getY() + glyphLayout.height);
   }
 
   @Override
