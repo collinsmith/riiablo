@@ -57,6 +57,14 @@ public class Canvas implements Disposable {
     return dst;
   }
 
+  public void clipRectangle(final int left, final int top, final int right, final int bottom) {
+    clip.set(left, top, right, bottom);
+  }
+
+  public void clipRectangle(@NonNull final Boundary src) {
+    clip.set(src);
+  }
+
   private void prepare(@NonNull final Paint paint) {
     Gdx.gl.glLineWidth(paint.getStrokeWidth());
     pixmap.setColor(paint.getColor());
