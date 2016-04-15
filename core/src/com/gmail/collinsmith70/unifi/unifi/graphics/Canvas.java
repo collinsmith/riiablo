@@ -313,6 +313,15 @@ public class Canvas implements Disposable {
     finish();
   }
 
+  public void drawText(final int x,
+                       final int y,
+                       @NonNull final String text,
+                       @NonNull final Paint paint) {
+    prepare(paint);
+    // TODO: draw text
+    finish();
+  }
+
   public void fill(@NonNull final Paint paint) {
     prepare(paint);
     clippedPixmap.fill();
