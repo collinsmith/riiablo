@@ -85,6 +85,21 @@ public class Canvas implements Disposable {
     pixmap.fillRectangle(x, y, width, paint.getStrokeWidth());
   }
 
+  public void drawCircle(final int x,
+                         final int y,
+                         @IntRange(from = 0, to = Integer.MAX_VALUE) final int radius,
+                         @NonNull final Paint paint) {
+    prepare(paint);
+    if (paint.getStyle() == Paint.Style.FILL) {
+      pixmap.fillCircle(x, y, radius);
+      return;
+    }
+
+    for (int i = 0; i < paint.getStrokeWidth(); i++) {
+      pixmap.drawCircle(x, y, radius - i);
+    }
+  }
+
   public void drawCanvas(final int x,
                          final int y,
                          @NonNull final Canvas canvas) {
