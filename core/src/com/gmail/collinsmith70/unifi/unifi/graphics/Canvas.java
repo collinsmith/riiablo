@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 public class Canvas implements Disposable {
 
+  @NonNull
   private Pixmap pixmap;
 
   public Canvas(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
