@@ -205,7 +205,7 @@ public abstract class Widget
       validate();
     }
 
-    canvas.drawCanvas(getX(), getY(), this.canvas);
+    canvas.drawCanvas(getLeft(), getBottom(), this.canvas);
   }
 
   /**
