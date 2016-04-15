@@ -162,13 +162,18 @@ public abstract class Widget
   }
 
   @Nullable
-  protected Drawable debugDrawable = DEFAULT_DEBUG_DRAWABLE;
+  private Drawable background;
+  @Nullable
+  private Drawable foreground;
+  @Nullable
+  private Drawable debug;
 
   public Widget() {
     this.FLAGS = EnumSet.noneOf(Flag.class);
     this.LAYOUT_PARAMS = new HashMap<String, Object>();
     this.LAYOUT_PARAM_CHANGE_LISTENERS = new CopyOnWriteArraySet<LayoutParamChangeListener>();
 
+    setDebug(DEFAULT_DEBUG_DRAWABLE);
     setEnabled(true);
     invalidate();
     setVisibility(Visibility.VISIBLE);
@@ -191,7 +196,8 @@ public abstract class Widget
 
       this.canvas = new Canvas(getWidth(), getHeight());
       drawBackground(this.canvas);
-      onDraw(canvas);
+      drawForeground(this.canvas);
+      onDraw(this.canvas);
       if (isDebug()) {
         drawDebug(this.canvas);
       }
@@ -216,8 +222,30 @@ public abstract class Widget
    *
    * @param canvas {@code Canvas} instance to render onto
    */
+  @CallSuper
   protected void drawBackground(@NonNull final Canvas canvas) {
     assert canvas != null : "canvas should not be null";
+    if (getBackground() == null) {
+      return;
+    }
+
+    getBackground().draw(canvas);
+  }
+
+  /**
+   * Called when this {@code Widget} should draw its foreground content onto the passed
+   * {@link Canvas}.
+   *
+   * @param canvas {@code Canvas} instance to render onto
+   */
+  @CallSuper
+  protected void drawForeground(@NonNull final Canvas canvas) {
+    assert canvas != null : "canvas should not be null";
+    if (getForeground() == null) {
+      return;
+    }
+
+    getForeground().draw(canvas);
   }
 
   /**
@@ -225,13 +253,14 @@ public abstract class Widget
    *
    * @param canvas {@code Canvas} instance to render onto
    */
+  @CallSuper
   protected void drawDebug(@NonNull final Canvas canvas) {
     assert canvas != null : "canvas should not be null";
-    if (debugDrawable == null) {
+    if (getDebug() == null) {
       return;
     }
 
-    debugDrawable.draw(canvas);
+    getDebug().draw(canvas);
   }
 
   /**
@@ -1907,6 +1936,74 @@ public abstract class Widget
       this.canvas.dispose();
       this.canvas = null;
     }
+  }
+
+  /**
+   * {@link Drawable} rendered as the background of this {@code Widget}.
+   *
+   * @return {@code Drawable} rendered in the background of this {@code Widget}, or {@code null} if
+   *         this {@code Widget} has no background set.
+   */
+  @CallSuper
+  public Drawable getBackground() {
+    return background;
+  }
+
+  /**
+   * Sets the {@link Drawable} rendered as the background of this {@code Widget}.
+   *
+   * @param background {@code Drawable} to render in the background of this {@code Widget}, or
+   *                   {@code null} to remove the current background from this {@code Widget}.
+   */
+  @CallSuper
+  public void setBackground(@Nullable final Drawable background) {
+    this.background = background;
+  }
+
+  /**
+   * {@link Drawable} rendered as the foreground of this {@code Widget}.
+   *
+   * @return {@code Drawable} rendered in the foreground of this {@code Widget}, or {@code null} if
+   *         this {@code Widget} has no background set.
+   */
+  @CallSuper
+  public Drawable getForeground() {
+    return foreground;
+  }
+
+  /**
+   * Sets the {@link Drawable} rendered as the foreground of this {@code Widget}.
+   *
+   * @param foreground {@code Drawable} to render in the foreground of this {@code Widget}, or
+   *                   {@code null} to remove the current background from this {@code Widget}.
+   */
+  @CallSuper
+  public void setForeground(@Nullable final Drawable foreground) {
+    this.foreground = foreground;
+  }
+
+  /**
+   * {@link Drawable} rendered on top of this {@code Widget} when it is in {@linkplain #isDebug()
+   * debugging mode}.
+   *
+   * @return {@code Drawable} rendered when in debug mode, or {@code null} if
+   *         this {@code Widget} has no background set.
+   */
+  @CallSuper
+  public Drawable getDebug() {
+    return debug;
+  }
+
+  /**
+   * Sets the {@link Drawable} rendered on top of this {@code Widget} when it is in
+   * {@linkplain #isDebug() debugging mode}.
+   *
+   * @param debugDrawable {@code Drawable} to render when in debug mode, or {@code null} to remove
+   *                      the current background from this {@code Widget}.
+   */
+  @CallSuper
+  public void setDebug(@Nullable final Drawable debugDrawable) {
+    this.debug = debugDrawable;
   }
 
 }

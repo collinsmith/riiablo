@@ -128,7 +128,7 @@ public abstract class WidgetGroup extends Widget
 
   public WidgetGroup() {
     this.children = new ArrayList<Widget>();
-    this.debugDrawable = DEFAULT_DEBUG_DRAWABLE;
+    setDebug(DEFAULT_DEBUG_DRAWABLE);
   }
 
   @Override
