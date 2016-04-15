@@ -149,7 +149,7 @@ public class ImmutablePaint extends Paint {
     @NonNull
     public Pixmap.Filter getFilterMode() {
       if (filter == null) {
-        return Pixmap.Filter.BiLinear;
+        return Pixmap.Filter.NearestNeighbour;
       }
 
       return filter;
