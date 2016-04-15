@@ -119,14 +119,16 @@ public class Canvas implements Disposable {
                                @IntRange(from = 0, to = Integer.MAX_VALUE) final int length,
                                @NonNull final Paint paint) {
     prepare(paint);
-    clippedPixmap.fillRectangle(x - clip.getLeft(), y - clip.getTop(), paint.getStrokeWidth(), length);
+    clippedPixmap.fillRectangle(x - clip.getLeft(),
+            y - clip.getTop(), paint.getStrokeWidth(), length);
     finish();
   }
 
   public void drawHorizontalLine(final int x, final int y, final int length,
                                  @NonNull final Paint paint) {
     prepare(paint);
-    clippedPixmap.fillRectangle(x - clip.getLeft(), y - clip.getTop(), length, paint.getStrokeWidth());
+    clippedPixmap.fillRectangle(x - clip.getLeft(),
+            y - clip.getTop(), length, paint.getStrokeWidth());
     finish();
   }
 
@@ -142,10 +144,14 @@ public class Canvas implements Disposable {
       return;
     }
 
-    clippedPixmap.fillRectangle(x - clip.getLeft(), y - clip.getTop(), paint.getStrokeWidth(), height);
-    clippedPixmap.fillRectangle(x + width - paint.getStrokeWidth() - clip.getLeft(), y - clip.getTop(), paint.getStrokeWidth(), height);
-    clippedPixmap.fillRectangle(x - clip.getLeft(), y + height - paint.getStrokeWidth() - clip.getTop(), width, paint.getStrokeWidth());
-    clippedPixmap.fillRectangle(x - clip.getLeft(), y - clip.getTop(), width, paint.getStrokeWidth());
+    clippedPixmap.fillRectangle(x - clip.getLeft(),
+            y - clip.getTop(), paint.getStrokeWidth(), height);
+    clippedPixmap.fillRectangle(x + width - paint.getStrokeWidth() - clip.getLeft(),
+            y - clip.getTop(), paint.getStrokeWidth(), height);
+    clippedPixmap.fillRectangle(x - clip.getLeft(),
+            y + height - paint.getStrokeWidth() - clip.getTop(), width, paint.getStrokeWidth());
+    clippedPixmap.fillRectangle(x - clip.getLeft(),
+            y - clip.getTop(), width, paint.getStrokeWidth());
     finish();
   }
 
