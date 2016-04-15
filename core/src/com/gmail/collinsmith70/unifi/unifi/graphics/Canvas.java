@@ -2,16 +2,21 @@ package com.gmail.collinsmith70.unifi.unifi.graphics;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
+import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 
 public class Canvas implements Disposable {
 
   @NonNull
   private Pixmap pixmap;
+
+  @NonNull
+  private Boundary clip;
 
   public Canvas(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
                 @IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
@@ -24,6 +29,7 @@ public class Canvas implements Disposable {
     }
 
     this.pixmap = pixmap;
+    this.clip = new Boundary(0, 0, getWidth(), getHeight());
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
@@ -34,6 +40,21 @@ public class Canvas implements Disposable {
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getHeight() {
     return pixmap.getHeight();
+  }
+
+  @NonNull
+  public Boundary getClipBounds() {
+    return new Boundary(clip);
+  }
+
+  @NonNull
+  public Boundary getClipBounds(@Nullable final Boundary dst) {
+    if (dst == null) {
+      return getClipBounds();
+    }
+
+    dst.set(clip);
+    return dst;
   }
 
   private void prepare(@NonNull final Paint paint) {
