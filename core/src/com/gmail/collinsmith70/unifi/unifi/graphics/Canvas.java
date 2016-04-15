@@ -10,6 +10,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.unifi.math.Boundary;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class Canvas implements Disposable {
 
   private static final Pixmap.Format PIXMAP_FORMAT = Pixmap.Format.RGBA8888;
@@ -23,6 +26,8 @@ public class Canvas implements Disposable {
   @Nullable
   private Pixmap clippedPixmap;
 
+  private final Deque<Boundary> saveStates;
+
   public Canvas(@IntRange(from = 0, to = Integer.MAX_VALUE) final int width,
                 @IntRange(from = 0, to = Integer.MAX_VALUE) final int height) {
     this(new Pixmap(width, height, PIXMAP_FORMAT));
@@ -33,8 +38,37 @@ public class Canvas implements Disposable {
       throw new IllegalArgumentException("pixmap cannot be null");
     }
 
+    this.saveStates = new ArrayDeque<Boundary>();
     this.pixmap = pixmap;
     this.clip = new Boundary(0, 0, getWidth(), getHeight());
+  }
+
+  @IntRange(from = 0, to = Integer.MAX_VALUE)
+  public int save() {
+    if (clippedPixmap != null) {
+      throw new IllegalStateException("finish must be called before save");
+    }
+
+    saveStates.push(new Boundary(clip));
+    return saveStates.size() - 1;
+  }
+
+  public void restore() {
+    if (clippedPixmap != null) {
+      throw new IllegalStateException("finish must be called before restore");
+    }
+
+    if (saveStates.isEmpty()) {
+      return;
+    }
+
+    clip.set(saveStates.pop());
+  }
+
+  public void restoreToCount(@IntRange(from = 0, to = Integer.MAX_VALUE) final int saveCount) {
+    while (saveStates.size() > saveCount) {
+      restore();
+    }
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
