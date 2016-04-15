@@ -51,6 +51,9 @@ public class Window
 
   public void invalidate() {
     this.valid = false;
+    for (Widget child : this) {
+      child.invalidate();
+    }
   }
 
   private boolean isValid() {
@@ -127,10 +130,6 @@ public class Window
     }
 
     this.debugging = debugging;
-    for (Widget child : this) {
-      child.setInvalidated(true);
-    }
-
     invalidate();
   }
 
