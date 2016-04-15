@@ -355,6 +355,8 @@ public abstract class WidgetGroup extends Widget
                 - child.getPaddingTop() - child.getPaddingBottom());
       }
     }
+
+    invalidate();
   }
 
   /**
