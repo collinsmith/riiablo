@@ -22,7 +22,8 @@ public class RoundedRectangularShape extends RectangularShape {
 
   @Override
   public void draw(@NonNull final Canvas canvas, @NonNull final Paint paint) {
-    canvas.drawRoundRectangle(0, 0, getWidth(), getHeight(), radius, paint);
+    int tempRadius = Math.min(radius, Math.min(getWidth() / 2, getHeight() / 2));
+    canvas.drawRoundRectangle(0, 0, getWidth(), getHeight(), tempRadius, paint);
   }
 
 }
