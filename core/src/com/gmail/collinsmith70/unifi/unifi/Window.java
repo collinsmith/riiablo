@@ -113,6 +113,10 @@ public class Window
   @Override
   public void requestLayout() {
     System.out.println("Window#requestLayout();");
+    layout();
+  }
+
+  private void layout() {
     for (Widget child : this) {
       if (!(child instanceof WidgetParent)) {
         continue;
