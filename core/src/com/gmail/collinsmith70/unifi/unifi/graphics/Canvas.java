@@ -18,7 +18,7 @@ public class Canvas implements Disposable {
   private Pixmap pixmap;
 
   @NonNull
-  private Boundary clip;
+  private final Boundary clip;
 
   @Nullable
   private Pixmap clippedPixmap;
