@@ -1,5 +1,9 @@
 package com.gmail.collinsmith70.unifi.util;
 
+import android.support.annotation.NonNull;
+
+import com.badlogic.gdx.Gdx;
+
 /**
  * A {@code LengthUnit} represents the most <a href="https://en.wikipedia.org/wiki/Length">extended
  * dimension of an object</a> at a given unit of granularity and provides utility methods to convert
@@ -14,126 +18,246 @@ package com.gmail.collinsmith70.unifi.util;
 public enum LengthUnit {
 
   MILLIMETERS {
-    @Override
-    public long toMillimeters(long l) {
-      return l;
-    }
-
-    @Override
-    public long toCentimeters(long l) {
-      return l / (C1 / C0);
-    }
-
-    @Override
-    public long toMeters(long l) {
-      return l / (C2 / C0);
-    }
-
-    @Override
-    public long convert(long l, LengthUnit u) {
-      return u.toMillimeters(l);
-    }
+    @Override public double toPixels(double l)                       { return PPC * toCentimeters(l); }
+    @Override public double toMillimeters(double l)                  { return l; }
+    @Override public double toCentimeters(double l)                  { return l / 10; }
+    @Override public double toMeters(double l)                       { return l / 1000; }
+    @Override public double convert(double l, @NonNull LengthUnit u) { return u.toMillimeters(l); }
   },
 
   CENTIMETERS {
-    @Override
-    public long toMillimeters(long l) {
-      return x(l, C1 / C0, MAX / (C1 / C0));
-    }
-
-    @Override
-    public long toCentimeters(long l) {
-      return l;
-    }
-
-    @Override
-    public long toMeters(long l) {
-      return l / (C2 / C1);
-    }
-
-    @Override
-    public long convert(long l, LengthUnit u) {
-      return u.toCentimeters(l);
-    }
+    @Override public double toPixels(double l)                       { return PPC * l; }
+    @Override public double toMillimeters(double l)                  { return l * 10; }
+    @Override public double toCentimeters(double l)                  { return l; }
+    @Override public double toMeters(double l)                       { return l / 100; }
+    @Override public double convert(double l, @NonNull LengthUnit u) { return u.toCentimeters(l); }
   },
 
   METERS {
-    @Override
-    public long toMillimeters(long l) {
-      return x(l, C2 / C0, MAX / (C2 / C0));
-    }
-
-    @Override
-    public long toCentimeters(long l) {
-      return x(l, C2 / C1, MAX / (C2 / C1));
-    }
-
-    @Override
-    public long toMeters(long l) {
-      return l;
-    }
-
-    @Override
-    public long convert(long l, LengthUnit u) {
-      return u.toMeters(l);
-    }
+    @Override public double toPixels(double l)                       { return PPC * toCentimeters(l); }
+    @Override public double toMillimeters(double l)                  { return l * 1000; }
+    @Override public double toCentimeters(double l)                  { return l * 10; }
+    @Override public double toMeters(double l)                       { return l; }
+    @Override public double convert(double l, @NonNull LengthUnit u) { return u.toMeters(l); }
   };
 
-  private static final long C0 = 1L;
-  private static final long C1 = C0 * 100L;
-  private static final long C2 = C0 * 1000L;
+  private static final double MAX = Double.MAX_VALUE;
+  private static final double DENSITY = Gdx.graphics.getDensity();
+  private static final double PPC = DENSITY * 2.54;
 
-  private static final long MAX = Long.MAX_VALUE;
+  public static final double FILL_PARENT = -1.0;
+  public static final double MATCH_PARENT = -1.0;
+  public static final double WRAP_CONTENT = -2.0;
+
+  private enum State {
+    LOOKING_FOR_DIGITS,
+    PARSING_DIGITS,
+    PARSING_WHITESPACE,
+    PARSING_METRIC
+  }
 
   /**
-   * Scale l by m, checking for overflow. This has a short name to make above code more readable.
-   * <p>Note: Taken from {@link java.util.concurrent.TimeUnit#x(long, long, long)}</p>
+   * Number of pixels on the screen which equals the corresponding length and {@code LengthUnit}.
+   * Value is expected in the given regular expression: {@code [0-9]+\w*(px|dp|mm|cm|m)}.
+   * <ul>
+   *   <li>px <i>(pixels)</i></li>
+   *   <li>dp <i>(density-independent pixels)</i></li>
+   *   <li>mm <i>(millimeters)</i></li>
+   *   <li>cm <i>(centimeters)</i></li>
+   *   <li>m <i>(meters)</i></li>
+   * </ul>
+   *
+   * @param value String representation of the length and {@code LengthUnit} to translate
+   *
+   * @return Number of pixels corresponding with that length and unit
    */
-  static long x(long l, long m, long over) {
-    if (l > over) {
-      return Long.MAX_VALUE;
-    } else if (l < -over) {
-      return Long.MIN_VALUE;
+  public static double toPixels(@NonNull final String value) {
+    if (value == null) {
+      throw new IllegalArgumentException("value cannot be null");
+    } else if (value.isEmpty()) {
+      throw new IllegalArgumentException("value cannot be empty");
     }
 
-    return l * m;
+    double sourceLength = 0;
+    State state = State.LOOKING_FOR_DIGITS;
+    for (int i = 0; i < value.length(); i++) {
+      char ch = value.charAt(i);
+      switch (state) {
+        case LOOKING_FOR_DIGITS:
+          if (ch < '0' || '9' < ch) {
+            throw new IllegalArgumentException(
+                    "value should match the following regular expression: [0-9]+\\w*(px|dp|mm|cm|m)");
+          }
+
+          sourceLength = ch - 48;
+          state = State.PARSING_DIGITS;
+          break;
+        case PARSING_DIGITS:
+          if (ch < '0' || '9' < ch) {
+            if (Character.isWhitespace(ch)) {
+              state = State.PARSING_WHITESPACE;
+            } else if (ch == 'c'
+                    || ch == 'd'
+                    || ch == 'p'
+                    || ch == 'm') {
+              i--;
+              state = State.PARSING_METRIC;
+            }
+
+            break;
+          }
+
+          sourceLength *= 10;
+          sourceLength += ch - 48;
+          break;
+        case PARSING_WHITESPACE:
+          if (!Character.isWhitespace(ch)) {
+            if (ch == 'c'
+             || ch == 'd'
+             || ch == 'p'
+             || ch == 'm') {
+              i--;
+              state = State.PARSING_METRIC;
+            } else {
+              throw new IllegalArgumentException(
+                      "value should match the following regular expression: " +
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
+            }
+
+            break;
+          }
+
+          break;
+        case PARSING_METRIC:
+          switch (ch) {
+            case 'c':
+              if (i + 2 == value.length()
+               && value.charAt(i+1) == 'm') {
+                return CENTIMETERS.toPixels(sourceLength);
+              }
+
+              throw new IllegalArgumentException(
+                      "value should match the following regular expression: " +
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
+            case 'd':
+              if (i + 2 == value.length()
+                      && value.charAt(i+1) == 'p') {
+                return sourceLength * DENSITY;
+              }
+
+              throw new IllegalArgumentException(
+                      "value should match the following regular expression: " +
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
+            case 'm':
+              if (i + 1 == value.length()) {
+                return METERS.toPixels(sourceLength);
+              } else if (i + 2 == value.length()
+                      && value.charAt(i+1) == 'm') {
+                return MILLIMETERS.toPixels(sourceLength);
+              }
+
+              throw new IllegalArgumentException(
+                      "value should match the following regular expression: " +
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
+            case 'p':
+              if (i + 2 == value.length()
+               && value.charAt(i+1) == 'x') {
+                return sourceLength;
+              }
+
+              throw new IllegalArgumentException(
+                      "value should match the following regular expression: " +
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
+            default:
+              throw new IllegalArgumentException(
+                      "value should match the following regular expression: " +
+                              "[0-9]+\\w*(px|dp|mm|cm|m)");
+          }
+        default:
+          throw new IllegalArgumentException(
+                  "value should match the following regular expression: " +
+                          "[0-9]+\\w*(px|dp|mm|cm|m)");
+      }
+    }
+
+    throw new IllegalArgumentException(
+            "value should match the following regular expression: " +
+                    "[0-9]+\\w*(px|dp|mm|cm|m)");
   }
+
+  /**
+   * Parses the given {@code String} and returns the number of pixels on the screen which equals the
+   * corresponding length and {@code LengthUnit}.
+   *
+   * @param value String representation of the length and {@code LengthUnit} to translate
+   *
+   * @return Number of pixels corresponding with that length and unit, or {@code -1} if {@code
+   *         fill_parent} or {@code match_parent} was passed, or {@code -2} if {@code wrap_content}
+   *         was passed.
+   */
+  public static double parse(@NonNull final String value) {
+    if (value.equalsIgnoreCase("fill_parent")
+            || value.equalsIgnoreCase("match_parent")) {
+      return -1.0;
+    } else if (value.equalsIgnoreCase("wrap_content")) {
+      return -2.0;
+    }
+
+    return toPixels(value);
+  }
+
+  /**
+   * Equivalent to {@code PIXELS.convert(length, this)}.
+   *
+   * @param length length to convert
+   *
+   * @return converted length, or {@link Double#POSITIVE_INFINITY} if conversion would overflow,
+   *         or {@code 0.0} if it would underflow
+   */
+  public abstract double toPixels(double length);
 
   /**
    * Equivalent to {@code MILLIMETERS.convert(length, this)}.
    *
    * @param length length to convert
-   * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
-   * {@link Long#MAX_VALUE} if it would positively overflow
-   * @see #convert(long, LengthUnit)
+   *
+   * @return converted length, or {@link Double#POSITIVE_INFINITY} if conversion would overflow,
+   *         or {@code 0.0} if it would underflow
+   *
+   * @see #convert(double, LengthUnit)
    */
-  public abstract long toMillimeters(long length);
+  public abstract double toMillimeters(double length);
 
   /**
    * Equivalent to {@code CENTIMETERS.convert(length, this)}.
    *
    * @param length length to convert
-   * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
-   * {@link Long#MAX_VALUE} if it would positively overflow
-   * @see #convert(long, LengthUnit)
+   *
+   * @return converted length, or {@link Double#POSITIVE_INFINITY} if conversion would overflow,
+   *         or {@code 0.0} if it would underflow
+   *
+   * @see #convert(double, LengthUnit)
    */
-  public abstract long toCentimeters(long length);
+  public abstract double toCentimeters(double length);
 
   /**
    * Equivalent to {@code METERS.convert(length, this)}.
    *
    * @param length length to convert
-   * @return converted length, or {@link Long#MIN_VALUE} if conversion would negatively overflow, or
-   * {@link Long#MAX_VALUE} if it would positively overflow
-   * @see #convert(long, LengthUnit)
+   *
+   * @return converted length, or {@link Double#POSITIVE_INFINITY} if conversion would overflow,
+   *         or {@code 0.0} if it would underflow
+   *
+   * @see #convert(double, LengthUnit)
    */
-  public abstract long toMeters(long length);
+  public abstract double toMeters(double length);
 
   /**
    * Converts the given length in the given unit to this unit. Conversions from finer to coarser
-   * granularities truncate, and will lose some precision. For example converting 999 millimeters to
-   * meters results in 0. Conversions from coarser to finer granularities with arguments that would
-   * numerically overflow to Long.MIN_VALUE if negative or Long.MAX_VALUE if positive.
+   * granularities round, and will lose some precision. For example converting 999 millimeters to
+   * meters results in 0.999. Conversions from coarser to finer granularities with arguments that
+   * would numerically overflow result in {@link Double#POSITIVE_INFINITY} and {@code 0.0} if it
+   * would result in an underflow.
    * <p>
    * For example, to convert 10 meters to millimeters, use:
    * {@code LengthUnit.MILLIMETERS.convert(10L, LengthUnit.METERS)}
@@ -141,9 +265,10 @@ public enum LengthUnit {
    *
    * @param sourceLength length in the given {@code sourceUnit}
    * @param sourceUnit   {@linkplain LengthUnit unit} of the {@code sourceDuration} argument
-   * @return converted duration in this unit, or {@link Long#MIN_VALUE} if conversion would negatively
-   * overflow, or {@link Long#MAX_VALUE} if it would positively overflow
+   *
+   * @return converted length, or {@link Double#POSITIVE_INFINITY} if conversion would overflow,
+   *         or {@code 0.0} if it would underflow
    */
-  public abstract long convert(long sourceLength, LengthUnit sourceUnit);
+  public abstract double convert(double sourceLength, @NonNull LengthUnit sourceUnit);
 
 }

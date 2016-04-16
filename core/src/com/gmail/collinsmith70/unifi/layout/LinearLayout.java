@@ -3,229 +3,110 @@ package com.gmail.collinsmith70.unifi.layout;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
-import com.gmail.collinsmith70.unifi.widget.Widget;
-import com.gmail.collinsmith70.unifi.widget.WidgetGroup;
-import com.gmail.collinsmith70.unifi.widget.WidgetManager;
-import com.gmail.collinsmith70.unifi.widget.WidgetParent;
+/**
+ * A {@link com.gmail.collinsmith70.unifi.WidgetGroup} that lays out child {@link com.gmail.collinsmith70.unifi.Widget} instances linearly, such that each
+ * component is adjacent to another in a single direction. Supports {@code Widget} instances with
+ * {@linkplain com.gmail.collinsmith70.unifi.Widget#getMargins() margins}.
+ */
+public abstract class LinearLayout extends com.gmail.collinsmith70.unifi.WidgetGroup {
 
-public class LinearLayout extends WidgetGroup {
+  /**
+   * Enumeration of all {@code Orientation} constants which can be used in {@link #create}.
+   */
+  public enum Orientation { VERTICAL, HORIZONTAL }
 
-  public enum Orientation {
-    HORIZONTAL {
-      @Override
-      void layout(LinearLayout linearLayout) {
-        final int spacing = linearLayout.getSpacing();
-        switch (linearLayout.getDirection()) {
-          case START_TO_END:
-            int left = linearLayout.getPaddingLeft();
-            for (Widget child : linearLayout) {
-              if (child.getVisibility().equals(Visibility.GONE)) {
-                continue;
-              } else if (child instanceof WidgetParent) {
-                ((WidgetParent) child).requestLayout();
-              }
-
-              child.moveRelativeTop(linearLayout.getHeight());
-              child.moveRelativeLeft(left);
-              left += child.getWidth();
-              left += spacing;
-              linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
-                      child.getHeight()));
-            }
-
-            int width = Math.max(0, left - spacing);
-            linearLayout.setMinWidth(width);
-            break;
-          case END_TO_START:
-            int right = linearLayout.getWidth() - linearLayout.getPaddingRight();
-            for (Widget child : linearLayout) {
-              if (child.getVisibility().equals(Visibility.GONE)) {
-                continue;
-              } else if (child instanceof WidgetParent) {
-                ((WidgetParent) child).requestLayout();
-              }
-
-              child.moveRelativeTop(linearLayout.getHeight());
-              child.moveRelativeRight(right);
-              right -= child.getWidth();
-              right -= spacing;
-              linearLayout.setMinHeight(Math.max(linearLayout.getMinHeight(),
-                      child.getHeight()));
-            }
-
-            width = Math.max(0, linearLayout.getWidth() - right - spacing);
-            linearLayout.setMinWidth(width);
-            break;
-          default:
-            throw new UnsupportedOperationException();
-        }
-      }
-    },
-    VERTICAL {
-      @Override
-      void layout(LinearLayout linearLayout) {
-        final int spacing = linearLayout.getSpacing();
-        switch (linearLayout.getDirection()) {
-          case START_TO_END:
-            int top = linearLayout.getHeight() - linearLayout.getPaddingTop();
-            for (Widget child : linearLayout) {
-              if (child.getVisibility().equals(Visibility.GONE)) {
-                continue;
-              } else if (child instanceof WidgetParent) {
-                ((WidgetParent) child).requestLayout();
-              }
-
-              child.moveRelativeLeft(0);
-              child.moveRelativeTop(top);
-              top -= child.getHeight();
-              top -= spacing;
-              linearLayout.setMinWidth(Math.max(
-                      linearLayout.getMinWidth(),
-                      child.getWidth()));
-            }
-
-            int height = Math.max(0, linearLayout.getHeight() - top - spacing);
-            linearLayout.setMinHeight(height);
-            break;
-          case END_TO_START:
-            int bottom = linearLayout.getPaddingBottom();
-            for (Widget child : linearLayout) {
-              if (child.getVisibility().equals(Visibility.GONE)) {
-                continue;
-              } else if (child instanceof WidgetParent) {
-                ((WidgetParent) child).requestLayout();
-              }
-
-              child.moveRelativeLeft(0);
-              child.moveRelativeBottom(bottom);
-              bottom += child.getHeight();
-              bottom += spacing;
-              linearLayout.setMinWidth(Math.max(
-                      linearLayout.getMinWidth(),
-                      child.getWidth()));
-            }
-
-            height = Math.max(0, bottom - spacing);
-            linearLayout.setMinHeight(height);
-            break;
-          default:
-            throw new UnsupportedOperationException();
-        }
-      }
-    };
-
-    abstract void layout(LinearLayout linearLayout);
-  }
-
-  @NonNull
-  private Orientation orientation = Orientation.HORIZONTAL;
-
-  @NonNull
-  public Orientation getOrientation() {
-    return orientation;
-  }
-
-  public void setOrientation(@NonNull Orientation orientation) {
-    if (orientation == null) {
-      throw new IllegalArgumentException("orientation cannot be null");
+  /**
+   * Factory method which constructs a {@code LinearLayout} with the specified {@link Orientation}.
+   *
+   * @param orientation {@code Orientation} of the {@code LinearLayout}
+   *
+   * @return Constructed {@code LinearLayout} with the specified {@code Orientation}
+   */
+  public static LinearLayout create(@NonNull final Orientation orientation) {
+    switch (orientation) {
+      case VERTICAL:
+        return new VerticalLayout();
+      case HORIZONTAL:
+        return new HorizontalLayout();
+      default:
+        throw new IllegalStateException(
+                "orientation should be one of Orientation.VERTICAL, Orientation.HORIZONTAL");
     }
-
-    this.orientation = orientation;
-    requestLayout();
   }
 
-  public enum Direction {START_TO_END, END_TO_START}
+  /**
+   * Enumeration of all {@code Direction} constants, determining the order which a
+   * {@code LinearLayout} is laid out.
+   */
+  public enum Direction {
+    /**
+     * Lays out the children of this {@code LinearLayout} starting with the first child and ending
+     * with the last.
+     */
+    START_TO_END,
 
-  @NonNull
-  private Direction direction = Direction.START_TO_END;
-
-  @NonNull
-  public Direction getDirection() {
-    return direction;
-  }
-
-  public void setDirection(@NonNull Direction direction) {
-    if (direction == null) {
-      throw new IllegalArgumentException("direction cannot be null");
-    }
-
-    this.direction = direction;
-    requestLayout();
+    /**
+     * Lays out the children of this {@code LinearLayout} starting with the last child and ending
+     * with the first.
+     */
+    END_TO_START;
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   private int spacing;
 
+  @NonNull
+  private Direction direction;
+
+  /**
+   * Spacing between the children of this {@code LinearLayout}.
+   *
+   * @return Spacing between children of this {@code LinearLayout}, in pixels
+   */
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getSpacing() {
     return spacing;
   }
 
+  /**
+   * Sets the spacing between the children of this {@code LinearLayout}.
+   *
+   * @param spacing Spacing between children of this {@code LinearLayout}, in pixels
+   */
   public void setSpacing(@IntRange(from = 0, to = Integer.MAX_VALUE) int spacing) {
     if (spacing < 0) {
-      throw new IllegalArgumentException("spacing should be greater than or equal to 0");
+      throw new IllegalArgumentException("spacing must be greater than or equal to 0");
     }
 
     this.spacing = spacing;
   }
 
-  public LinearLayout() {
-    this(Orientation.HORIZONTAL);
-  }
-
-  public LinearLayout(int spacing) {
-    this(Orientation.HORIZONTAL, spacing);
-  }
-
-  public LinearLayout(Orientation orientation) {
-    this(orientation, Direction.START_TO_END);
-  }
-
-  public LinearLayout(Orientation orientation, int spacing) {
-    this(orientation, Direction.START_TO_END, spacing);
-  }
-
-  public LinearLayout(Orientation orientation, Direction direction) {
-    this(orientation, direction, 0);
-  }
-
-  public LinearLayout(Orientation orientation, Direction direction, int spacing) {
-    setDirection(direction);
-    setOrientation(orientation);
-    setSpacing(spacing);
-  }
-
+  /**
+   * {@link Direction} which this {@code LinearLayout} is laid out.
+   *
+   * @return {@code Direction} corresponding to the order which this {@code LinearLayout} is laid
+   * out.
+   */
   @NonNull
-  @Override
-  public WidgetManager addWidget(@NonNull Widget child) {
-    WidgetManager widgetManager = super.addWidget(child);
-    requestLayout();
-    return widgetManager;
+  public Direction getDirection() {
+    if (direction == null) {
+      return Direction.START_TO_END;
+    }
+
+    return direction;
   }
 
-  @Override
-  protected void layoutChildren() {
-    getOrientation().layout(this);
-  }
+  /**
+   * Sets the {@link Direction} which this {@code LinearLayout} is laid out.
+   *
+   * @param direction {@code Direction} corresponding to the order which this {@code LinearLayout}
+   *                  is to be laid out.
+   */
+  public void setDirection(@NonNull final Direction direction) {
+    if (direction == null) {
+      throw new IllegalArgumentException("direction cannot be null");
+    }
 
-  @Override
-  public boolean keyDown(int keycode) {
-    return false;
+    this.direction = direction;
   }
-
-  @Override
-  public boolean keyUp(int keycode) {
-    return false;
-  }
-
-  @Override
-  public boolean keyTyped(char character) {
-    return false;
-  }
-
-  @Override
-  public boolean scrolled(int amount) {
-    return false;
-  }
-
 }
