@@ -81,6 +81,14 @@ public class Rectangle {
     _setBottom(bottom);
   }
 
+  public final int getX() {
+    return getLeft();
+  }
+
+  public final int getY() {
+    return getTop();
+  }
+
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   public final int getWidth() {
     return Math.abs(getLeft() - getRight());
