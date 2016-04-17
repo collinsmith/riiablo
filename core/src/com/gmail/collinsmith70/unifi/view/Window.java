@@ -57,7 +57,7 @@ public class Window implements Bounded, Disposable, WidgetManager, WidgetParent 
     this.children = new ArrayList<Widget>();
     this.dirty = new Rectangle();
     this.attachInfo = new Widget.AttachInfo(this);
-    this.bounds = new Window.WindowBounds();
+    this.bounds = this.new WindowBounds();
   }
 
   @NonNull
