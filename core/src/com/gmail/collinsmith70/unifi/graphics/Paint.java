@@ -1,18 +1,17 @@
 package com.gmail.collinsmith70.unifi.graphics;
 
-import android.support.annotation.IntRange;
+import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
+
+import org.apache.commons.lang3.Validate;
 
 public class Paint {
 
-  public static final ImmutablePaint DEFAULT_PAINT = new ImmutablePaint();
-
   public enum Style {
     FILL,
-    STROKE
+    STROKE;
   }
 
   @NonNull
@@ -21,95 +20,60 @@ public class Paint {
   @NonNull
   private Style style;
 
-  @NonNull
-  private Pixmap.Blending blending;
-
-  @NonNull
-  private Pixmap.Filter filter;
-
-  @IntRange(from = 1, to = Integer.MAX_VALUE)
-  private int strokeWidth;
+  @FloatRange(from = 1.0f, to = Float.MAX_VALUE)
+  private float strokeWidth;
 
   public Paint() {
-    this.color = Color.BLACK;
-    this.style = Style.STROKE;
-    this.blending = Pixmap.Blending.SourceOver;
-    this.filter = Pixmap.Filter.NearestNeighbour;
-    this.strokeWidth = 1;
+    _setColor(Color.BLACK);
+    _setStyle(Style.FILL);
+    _setStrokeWidth(1.0f);
+  }
+
+  private void _setColor(@NonNull Color color) {
+    Validate.isTrue(color != null, "color cannot be null");
+    this.color = color;
+  }
+
+  private void _setStyle(@NonNull Style style) {
+    Validate.isTrue(style != null, "style cannot be null");
+    this.style = style;
+  }
+
+  public void _setStrokeWidth(@FloatRange(from = 1.0f, to = Float.MAX_VALUE) float strokeWidth) {
+    Validate.isTrue(strokeWidth < 1.0f, "strokeWidth must be greater than 1.0f");
+    this.strokeWidth = strokeWidth;
   }
 
   @NonNull
-  public Color getColor() {
+  public final Color getColor() {
     return color;
   }
 
   @NonNull
-  public Paint setColor(@NonNull final Color color) {
-    if (color == null) {
-      throw new IllegalArgumentException("color cannot be null");
-    }
-
-    this.color = color;
+  public Paint setColor(@NonNull Color color) {
+    _setColor(color);
     return this;
   }
 
   @NonNull
-  public Style getStyle() {
+  public final Style getStyle() {
     return style;
   }
 
   @NonNull
-  public Paint setStyle(@NonNull final Style style) {
-    if (style == null) {
-      throw new IllegalArgumentException("style cannot be null");
-    }
-
-    this.style = style;
+  public Paint setStyle(@NonNull Style style) {
+    _setStyle(style);
     return this;
   }
 
-  @IntRange(from = 1, to = Integer.MAX_VALUE)
-  public int getStrokeWidth() {
+  @FloatRange(from = 1.0f, to = Float.MAX_VALUE)
+  public final float getStrokeWidth() {
     return strokeWidth;
   }
 
   @NonNull
-  public Paint setStrokeWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) final int strokeWidth) {
-    if (strokeWidth < 1) {
-      throw new IllegalArgumentException("strokeWidth must be greater than or equal to 1");
-    }
-
-    this.strokeWidth = strokeWidth;
-    return this;
-  }
-
-  @NonNull
-  public Pixmap.Blending getBlendingMode() {
-    return blending;
-  }
-
-  @NonNull
-  public Paint setBlendingMode(@NonNull final Pixmap.Blending blending) {
-    if (blending == null) {
-      throw new IllegalArgumentException("blending cannot be null");
-    }
-
-    this.blending = blending;
-    return this;
-  }
-
-  @NonNull
-  public Pixmap.Filter getFilterMode() {
-    return filter;
-  }
-
-  @NonNull
-  public Paint setFilterMode(@NonNull final Pixmap.Filter filter) {
-    if (filter == null) {
-      throw new IllegalArgumentException("filter cannot be null");
-    }
-
-    this.filter = filter;
+  public Paint setStrokeWidth(@FloatRange(from = 1.0f, to = Float.MAX_VALUE) float strokeWidth) {
+    _setStrokeWidth(strokeWidth);
     return this;
   }
 

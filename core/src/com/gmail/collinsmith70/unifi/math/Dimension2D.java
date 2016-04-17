@@ -1,84 +1,106 @@
 package com.gmail.collinsmith70.unifi.math;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.apache.commons.lang3.Validate;
 
 public class Dimension2D {
-
-  public Dimension2D() {
-    this(0, 0);
-  }
-
-  public Dimension2D(int width, int height) {
-    if (width < 0) {
-      throw new IllegalArgumentException("width should be greater than or equal to 0");
-    } else if (height < 0) {
-      throw new IllegalArgumentException("height should be greater than or equal to 0");
-    }
-
-    this.width = width;
-    this.height = height;
-  }
-
-  public Dimension2D(@NonNull final Dimension2D dimension) {
-    if (dimension == null) {
-      throw new IllegalArgumentException("src dimension cannnot be null");
-    }
-
-    assert dimension.width >= 0 : "src dimension width should be a natural number";
-    assert dimension.height >= 0 : "src dimension height should be a natural number";
-
-    this.width = dimension.width;
-    this.height = dimension.height;
-  }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   private int width;
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getWidth() {
+  private int height;
+
+  public Dimension2D() {
+    this(0, 0);
+  }
+
+  public Dimension2D(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
+                     @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    _setWidth(width);
+    _setHeight(height);
+  }
+
+  public Dimension2D(@NonNull Dimension2D src) {
+    Validate.isTrue(src != null, "src cannot be null");
+    _setWidth(src.getWidth());
+    _setHeight(src.getHeight());
+  }
+
+  private void _setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
+    Validate.isTrue(width >= 0, "width must be greater than or equal to 0");
+    this.width = width;
+  }
+
+  private void _setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
+    this.height = height;
+  }
+
+  public final int getWidth() {
     return width;
   }
 
   public void setWidth(@IntRange(from = 0, to = Integer.MAX_VALUE) int width) {
-    if (width < 0) {
-      throw new IllegalArgumentException("width should be greater than or equal to 0");
-    }
-
-    this.width = width;
+    _setWidth(width);
   }
 
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  private int height;
-
-  @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getHeight() {
+  public final int getHeight() {
     return height;
   }
 
   public void setHeight(@IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
-    if (height < 0) {
-      throw new IllegalArgumentException("height should be greater than or equal to 0");
-    }
-
-    this.height = height;
+    _setHeight(height);
   }
 
-  public void set(int width, int height) {
+  public final void set(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
+                  @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     setWidth(width);
     setHeight(height);
   }
 
-  public void set(@NonNull final Dimension2D src) {
-    if (src == null) {
-      throw new IllegalArgumentException("src dimension cannot be null");
+  public final void set(@NonNull Dimension2D src) {
+    Validate.isTrue(src != null, "src cannot be null");
+    set(src.getWidth(), src.getHeight());
+  }
+
+  @Override
+  @CallSuper
+  public boolean equals(@Nullable Object obj) {
+    if (obj == null) {
+      return false;
+    } else if (obj == this) {
+      return true;
+    } else if (!(obj instanceof Dimension2D)) {
+      return false;
     }
 
-    set(src.width, src.height);
+    Dimension2D other = (Dimension2D)obj;
+    return this.getWidth() == other.getWidth()
+        && this.getHeight() == other.getHeight();
+  }
+
+  @Override
+  @CallSuper
+  public int hashCode() {
+    int result = 17;
+    result = 31 * result + getWidth();
+    result = 31 * result + getHeight();
+    return result;
+  }
+
+  @NonNull
+  public Dimension2D immutableCopy() {
+    return new ImmutableDimension2D(this);
   }
 
   @Override
   public String toString() {
-    return String.format("%d x %d", width, height);
+    return String.format("[width = %d, height = %d]", getWidth(), getHeight());
   }
+
 }
