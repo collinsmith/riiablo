@@ -259,11 +259,25 @@ public class Canvas implements Disposable {
     }
 
     Gdx.gl.glLineWidth(paint.getStrokeWidth());
+
+    batch.setColor(paint.getColor());
+    shapeRenderer.setColor(paint.getColor());
+    if (paint instanceof TextPaint) {
+      TextPaint textPaint = (TextPaint)paint;
+      textPaint.setColor(paint.getColor());
+    }
   }
 
   private void reset() {
+    if (isDrawing()) {
+      flush();
+    }
+
     Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
     Gdx.gl.glLineWidth(Paint.DEFAULT.getStrokeWidth());
+
+    batch.setColor(Paint.DEFAULT.getColor());
+    shapeRenderer.setColor(Paint.DEFAULT.getColor());
   }
 
   public void drawColor(@NonNull Color color) {
@@ -294,7 +308,6 @@ public class Canvas implements Disposable {
         width -= adjust;
         height -= adjust;
         startShapeRenderer(ShapeRenderer.ShapeType.Line); {
-          shapeRenderer.setColor(paint.getColor());
           shapeRenderer.line(x, y - adjust, x, y + height + adjust);
           shapeRenderer.line(x + width, y - adjust, x + width, y + height + adjust);
           shapeRenderer.line(x - adjust, y, x + width + adjust, y);
@@ -305,7 +318,6 @@ public class Canvas implements Disposable {
       case FILL:
       default:
         startShapeRenderer(ShapeRenderer.ShapeType.Line); {
-          shapeRenderer.setColor(paint.getColor());
           shapeRenderer.rect(x, y, width, height);
         }
     }
@@ -342,7 +354,6 @@ public class Canvas implements Disposable {
     switch (paint.getStyle()) {
       case STROKE:
         startShapeRenderer(ShapeRenderer.ShapeType.Line); {
-          shapeRenderer.setColor(paint.getColor());
           shapeRenderer.line(x0, y1, x0, y2);
           shapeRenderer.line(x3, y1, x3, y2);
           shapeRenderer.line(x1, y0, x2, y);
@@ -381,7 +392,6 @@ public class Canvas implements Disposable {
       default:
         startShapeRenderer(ShapeRenderer.ShapeType.Filled); {
           final float radius2 = radius * 2;
-          shapeRenderer.setColor(paint.getColor());
           shapeRenderer.rect(x0, y1, width, height - radius2);
           shapeRenderer.rect(x1, y0, width - radius2, height);
           shapeRenderer.circle(x1, y1, radius);
@@ -402,7 +412,6 @@ public class Canvas implements Disposable {
     Validate.isTrue(font != null, "paint font cannot be null");
     prepare(paint);
     startBatch(); {
-      font.setColor(paint.getColor());
       font.draw(batch, text, x, y);
     }
   }
@@ -421,7 +430,6 @@ public class Canvas implements Disposable {
     Validate.isTrue(paint != null, "paint cannot be null");
     prepare(paint);
     startBatch(); {
-      batch.setColor(paint.getColor());
       batch.draw(texture, x, y);
     }
   }
@@ -438,7 +446,6 @@ public class Canvas implements Disposable {
     Validate.isTrue(paint != null, "paint cannot be null");
     prepare(paint);
     startBatch(); {
-      batch.setColor(paint.getColor());
       batch.draw(texture, x, y, width, height);
     }
   }
