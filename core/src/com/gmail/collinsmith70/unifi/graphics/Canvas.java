@@ -301,16 +301,34 @@ public class Canvas implements Disposable {
     switch (paint.getStyle()) {
       case STROKE:
         startShapeRenderer(ShapeRenderer.ShapeType.Line); {
-          final float radius2 = radius * 2;
           shapeRenderer.setColor(paint.getColor());
-          shapeRenderer.line(x, y + radius, x, y + height - radius2);
-          shapeRenderer.line(x + width, y + radius, x + width, y + height - radius2);
-          shapeRenderer.line(x + radius, y, x + width - radius2, y);
-          shapeRenderer.line(x + radius, y + height, x + width - radius2, y + height);
+          shapeRenderer.line(x, y + radius, x, y + height - radius);
+          shapeRenderer.line(x + width, y + radius, x + width, y + height - radius);
+          shapeRenderer.line(x + radius, y, x + width - radius, y);
+          shapeRenderer.line(x + radius, y + height, x + width - radius, y + height);
 
-          final float kappa = 0.5522847498307933984022516322796f;
+          final float kappa = 0.5522847498307933984022516322796f * radius;
           final int segments = Math.max(1, (int)(6 * (float)Math.cbrt(radius) * 0.25f));
-          // TODO: draw arcs
+          shapeRenderer.curve(x, y + radius,
+                  x, y + kappa,
+                  x + kappa, y,
+                  x + radius, y,
+                  segments);
+          shapeRenderer.curve(x, y + height - radius,
+                  x, y + height - radius + kappa,
+                  x + radius - kappa, y + height,
+                  x + radius, y + height,
+                  segments);
+          shapeRenderer.curve(x + width - radius, y + height,
+                  x + width - radius + kappa, y + height,
+                  x + width, y + height - radius + kappa,
+                  x + width, y + height - radius,
+                  segments);
+          shapeRenderer.curve(x + width - radius, y,
+                  x + width - radius + kappa, y,
+                  x + width, y + radius - kappa,
+                  x + width, y + radius,
+                  segments);
         }
 
         break;
@@ -338,8 +356,10 @@ public class Canvas implements Disposable {
     BitmapFont font = paint.getFont();
     Validate.isTrue(font != null, "paint font cannot be null");
     prepare(paint);
-    font.setColor(paint.getColor());
-    font.draw(batch, text, x, y);
+    startBatch(); {
+      font.setColor(paint.getColor());
+      font.draw(batch, text, x, y);
+    }
   }
 
   public void drawTexture(@NonNull Texture texture,

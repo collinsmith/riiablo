@@ -39,8 +39,8 @@ public class Paint {
     this.style = style;
   }
 
-  public void _setStrokeWidth(@FloatRange(from = 1.0f, to = Float.MAX_VALUE) float strokeWidth) {
-    Validate.isTrue(strokeWidth < 1.0f, "strokeWidth must be greater than 1.0f");
+  private void _setStrokeWidth(@FloatRange(from = 1.0f, to = Float.MAX_VALUE) float strokeWidth) {
+    Validate.isTrue(strokeWidth >= 1.0f, "strokeWidth must be greater than 1.0f");
     this.strokeWidth = strokeWidth;
   }
 

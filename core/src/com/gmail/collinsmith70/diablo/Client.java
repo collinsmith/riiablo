@@ -6,11 +6,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.gmail.collinsmith70.command.CommandManager;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarStateAdapter;
@@ -18,15 +17,9 @@ import com.gmail.collinsmith70.diablo.scene.HudedScene;
 import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
 import com.gmail.collinsmith70.key.KeyStateAdapter;
-import com.gmail.collinsmith70.unifi2.AnchoredLayout;
-import com.gmail.collinsmith70.unifi2.Widget;
-import com.gmail.collinsmith70.unifi2.WidgetGroup;
-import com.gmail.collinsmith70.unifi2.Window;
-import com.gmail.collinsmith70.unifi2.layout.HorizontalLayout;
-import com.gmail.collinsmith70.unifi2.layout.LinearLayout;
-import com.gmail.collinsmith70.unifi2.layout.VerticalLayout;
-import com.gmail.collinsmith70.unifi2.widget.Button;
-import com.gmail.collinsmith70.unifi2.widget.Text;
+import com.gmail.collinsmith70.unifi.graphics.Paint;
+import com.gmail.collinsmith70.unifi.graphics.TextPaint;
+import com.gmail.collinsmith70.unifi.view.Window;
 import com.gmail.collinsmith70.util.ImmutableDimension;
 import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 
@@ -59,7 +52,7 @@ public class Client implements ApplicationListener {
 //private Stage STAGE;
 
   private Window WINDOW;
-  private Batch BATCH;
+  //private Batch BATCH;
 
   private HudedScene scene;
 
@@ -115,6 +108,7 @@ public class Client implements ApplicationListener {
     //STAGE.setViewport(new FitViewport(RESOLUTION.width, RESOLUTION.height));
     //STAGE.setDebugAll(true);
 
+    /*
     Button button1 = new Button();
     button1.put(WidgetGroup.LayoutParams.layout_width, "128px");
     button1.put(WidgetGroup.LayoutParams.layout_height, "128px");
@@ -155,6 +149,9 @@ public class Client implements ApplicationListener {
     this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
     this.WINDOW.addWidget(ll2);
     this.WINDOW.setDebugging(true);
+    */
+
+    this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
 
     Gdx.input.setCatchBackKey(true);
     Gdx.input.setCatchMenuKey(true);
@@ -281,10 +278,27 @@ public class Client implements ApplicationListener {
   public void render() {
     Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+    WINDOW.draw();
+    TextPaint paint = new TextPaint();
+    paint.setFont(getDefaultFont());
+    paint.setColor(Color.WHITE);
+    paint.setStyle(Paint.Style.STROKE);
+    GlyphLayout fps = new GlyphLayout(
+            getDefaultFont(),
+            Integer.toString(Gdx.graphics.getFramesPerSecond()));
+    WINDOW.getCanvas().drawText(Integer.toString(Gdx.graphics.getFramesPerSecond()),
+            0,
+            RESOLUTION.height,
+            paint);
+    WINDOW.getCanvas().drawRect(1, 1, 100, 50, paint);
+    paint.setColor(Color.GREEN);
+    WINDOW.getCanvas().drawRoundRect(1, 1, 100, 50, 16, paint);
+
     //STAGE.act(Gdx.graphics.getDeltaTime());
     //STAGE.draw();
     //Batch b = STAGE.getBatch();
-    final Batch batch = BATCH;
+    /*final Batch batch = BATCH;
     batch.begin();
     {
       WINDOW.draw(batch);
@@ -319,7 +333,7 @@ public class Client implements ApplicationListener {
         font.draw(batch, fps, x, y);
       }
     }
-    batch.end();
+    batch.end();*/
   }
 
   @Override
@@ -345,8 +359,8 @@ public class Client implements ApplicationListener {
     //this.STAGE = null;
     WINDOW.dispose();
     this.WINDOW = null;
-    this.BATCH.dispose();
-    this.BATCH = null;
+    //this.BATCH.dispose();
+    //this.BATCH = null;
 
     Gdx.app.log(TAG, "Saving cvars...");
     CVAR_MANAGER.saveAll();

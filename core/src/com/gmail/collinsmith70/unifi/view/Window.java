@@ -55,7 +55,7 @@ public class Window implements Disposable, WidgetManager, WidgetParent {
   }
 
   @NonNull
-  protected final Canvas getCanvas() {
+  public final Canvas getCanvas() {
     return canvas;
   }
 

@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import com.gmail.collinsmith70.unifi2.graphics.Canvas;
 import com.gmail.collinsmith70.unifi2.graphics.Paint;
 
-public class RoundedRectangularShape extends com.gmail.collinsmith70.unifi.unifi.graphics.drawable.shape.RectangularShape {
+public class RoundedRectangularShape extends RectangularShape {
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   private int radius;
