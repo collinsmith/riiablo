@@ -14,6 +14,8 @@ public class Paint {
     STROKE;
   }
 
+  public static final Paint DEFAULT = new ImmutablePaint();
+
   @NonNull
   private Color color;
 
@@ -27,6 +29,13 @@ public class Paint {
     _setColor(Color.BLACK);
     _setStyle(Style.FILL);
     _setStrokeWidth(1.0f);
+  }
+
+  public Paint(@NonNull Paint src) {
+    Validate.isTrue(src != null, "src cannot be null");
+    _setColor(src.getColor());
+    _setStyle(src.getStyle());
+    _setStrokeWidth(src.getStrokeWidth());
   }
 
   private void _setColor(@NonNull Color color) {
