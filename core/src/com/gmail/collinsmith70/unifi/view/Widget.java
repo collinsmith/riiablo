@@ -3,6 +3,8 @@ package com.gmail.collinsmith70.unifi.view;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.gmail.collinsmith70.unifi.graphics.Canvas;
+import com.gmail.collinsmith70.unifi.graphics.Drawable;
 import com.gmail.collinsmith70.unifi.util.Bounded;
 import com.gmail.collinsmith70.unifi.util.Bounds;
 import com.gmail.collinsmith70.unifi.util.Padded;
@@ -10,7 +12,7 @@ import com.gmail.collinsmith70.unifi.util.Padding;
 
 import org.apache.commons.lang3.Validate;
 
-public class Widget implements Bounded, Padded {
+public class Widget implements Bounded, Drawable, Padded {
 
   @Nullable
   private WidgetParent parent;
@@ -23,6 +25,18 @@ public class Widget implements Bounded, Padded {
 
   @NonNull
   private Padding padding;
+
+  @Nullable
+  private Drawable background;
+
+  @Nullable
+  private Drawable foreground;
+
+  @Nullable
+  private Drawable overlay;
+
+  @Nullable
+  private Drawable debug;
 
   public Widget() {
     this.bounds = new Bounds() {
@@ -44,12 +58,53 @@ public class Widget implements Bounded, Padded {
 
   }
 
+  @Override
+  public final void draw(@NonNull Canvas canvas) {
+    Validate.isTrue(canvas != null, "canvas cannot be null");
+    drawBackground(canvas);
+    drawForeground(canvas);
+    drawOverlay(canvas);
+    drawDebug(canvas);
+  }
+
+  protected void drawBackground(@NonNull Canvas canvas) {
+    Validate.isTrue(canvas != null, "canvas cannot be null");
+    Drawable background = getBackground();
+    if (background != null) {
+      background.draw(canvas);
+    }
+  }
+
+  protected void drawForeground(@NonNull Canvas canvas) {
+    Validate.isTrue(canvas != null, "canvas cannot be null");
+    Drawable foreground = getForeground();
+    if (foreground != null) {
+      foreground.draw(canvas);
+    }
+  }
+
+  protected void drawOverlay(@NonNull Canvas canvas) {
+    Validate.isTrue(canvas != null, "canvas cannot be null");
+    Drawable overlay = getOverlay();
+    if (overlay != null) {
+      overlay.draw(canvas);
+    }
+  }
+
+  protected void drawDebug(@NonNull Canvas canvas) {
+    Validate.isTrue(canvas != null, "canvas cannot be null");
+    Drawable debug = getDebug();
+    if (debug != null) {
+      debug.draw(canvas);
+    }
+  }
+
   @Nullable
-  AttachInfo getAttachInfo() {
+  final AttachInfo getAttachInfo() {
     return attachInfo;
   }
 
-  void setAttachInfo(@Nullable AttachInfo attachInfo) {
+  final void setAttachInfo(@Nullable AttachInfo attachInfo) {
     this.attachInfo = attachInfo;
   }
 
@@ -66,7 +121,8 @@ public class Widget implements Bounded, Padded {
     return getParent() != null;
   }
 
-  @Nullable Window getWindow() {
+  @Nullable
+  public final Window getWindow() {
     if (attachInfo == null) {
       return null;
     }
@@ -76,13 +132,13 @@ public class Widget implements Bounded, Padded {
 
   @NonNull
   @Override
-  public Bounds getBounds() {
+  public final Bounds getBounds() {
     return bounds;
   }
 
   @NonNull
   @Override
-  public Bounds getBounds(@Nullable Bounds dst) {
+  public final Bounds getBounds(@Nullable Bounds dst) {
     if (dst == null) {
       return new Bounds(bounds);
     }
@@ -92,20 +148,20 @@ public class Widget implements Bounded, Padded {
   }
 
   @Override
-  public void setBounds(@NonNull Bounds bounds) {
+  public final void setBounds(@NonNull Bounds bounds) {
     Validate.isTrue(bounds != null, "bounds cannot be null");
     this.bounds = bounds;
   }
 
   @NonNull
   @Override
-  public Padding getPadding() {
+  public final Padding getPadding() {
     return padding;
   }
 
   @NonNull
   @Override
-  public Padding getPadding(@Nullable Padding dst) {
+  public final Padding getPadding(@Nullable Padding dst) {
     if (dst == null) {
       return new Padding(padding);
     }
@@ -115,9 +171,57 @@ public class Widget implements Bounded, Padded {
   }
 
   @Override
-  public void setPadding(@NonNull Padding padding) {
+  public final void setPadding(@NonNull Padding padding) {
     Validate.isTrue(padding != null, "padding cannot be null");
     this.padding = padding;
+  }
+
+  @Nullable
+  public Drawable getBackground() {
+    return background;
+  }
+
+  public void setBackground(@Nullable Drawable background) {
+    if (getBackground() != background) {
+      this.background = background;
+      invalidate();
+    }
+  }
+
+  @Nullable
+  public Drawable getForeground() {
+    return foreground;
+  }
+
+  public void setForeground(@Nullable Drawable foreground) {
+    if (getForeground() != foreground) {
+      this.foreground = foreground;
+      invalidate();
+    }
+  }
+
+  @Nullable
+  public Drawable getOverlay() {
+    return overlay;
+  }
+
+  public void setOverlay(@Nullable Drawable overlay) {
+    if (getOverlay() != overlay) {
+      this.overlay = overlay;
+      invalidate();
+    }
+  }
+
+  @Nullable
+  public Drawable getDebug() {
+    return debug;
+  }
+
+  public void setDebug(@Nullable Drawable debug) {
+    if (getDebug() != debug) {
+      this.debug = debug;
+      invalidate();
+    }
   }
 
   final static class AttachInfo {
