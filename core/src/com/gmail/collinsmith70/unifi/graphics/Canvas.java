@@ -249,7 +249,7 @@ public class Canvas implements Disposable {
       shapeRenderer.end();
     }
 
-    Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+    reset();
   }
 
   private void prepare(@NonNull Paint paint) {
@@ -259,6 +259,11 @@ public class Canvas implements Disposable {
     }
 
     Gdx.gl.glLineWidth(paint.getStrokeWidth());
+  }
+
+  private void reset() {
+    Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+    Gdx.gl.glLineWidth(Paint.DEFAULT.getStrokeWidth());
   }
 
   public void drawColor(@NonNull Color color) {
@@ -405,10 +410,7 @@ public class Canvas implements Disposable {
   public void drawTexture(@NonNull Texture texture,
                           float x,
                           float y) {
-    Validate.isTrue(texture != null, "texture cannot be null");
-    startBatch(); {
-      batch.draw(texture, x, y);
-    }
+    drawTexture(texture, x, y, Paint.DEFAULT);
   }
 
   public void drawTexture(@NonNull Texture texture,
@@ -421,6 +423,23 @@ public class Canvas implements Disposable {
     startBatch(); {
       batch.setColor(paint.getColor());
       batch.draw(texture, x, y);
+    }
+  }
+
+  public void drawTexture(@NonNull Texture texture,
+                          float x,
+                          float y,
+                          @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float width,
+                          @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float height,
+                          @NonNull Paint paint) {
+    Validate.isTrue(texture != null, "texture cannot be null");
+    Validate.isTrue(width >= 0, "width must be greater than or equal to 0");
+    Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
+    Validate.isTrue(paint != null, "paint cannot be null");
+    prepare(paint);
+    startBatch(); {
+      batch.setColor(paint.getColor());
+      batch.draw(texture, x, y, width, height);
     }
   }
 
