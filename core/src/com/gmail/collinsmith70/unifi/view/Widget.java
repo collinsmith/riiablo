@@ -2,6 +2,7 @@ package com.gmail.collinsmith70.unifi.view;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 
 import com.gmail.collinsmith70.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.graphics.Drawable;
@@ -12,7 +13,21 @@ import com.gmail.collinsmith70.unifi.util.Padding;
 
 import org.apache.commons.lang3.Validate;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Widget implements Bounded, Drawable, Padded {
+
+  @StringDef
+  @Documented
+  @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE})
+  public @interface LayoutParam {}
+
+  @NonNull
+  private final Map<String, Object> LAYOUT_PARAMS;
 
   @Nullable
   private WidgetParent parent;
@@ -39,6 +54,7 @@ public class Widget implements Bounded, Drawable, Padded {
   private Drawable debug;
 
   public Widget() {
+    this.LAYOUT_PARAMS = new HashMap<String, Object>();
     this.bounds = new Bounds() {
       @Override
       protected void onChange() {
@@ -97,6 +113,44 @@ public class Widget implements Bounded, Drawable, Padded {
     if (debug != null) {
       debug.draw(canvas);
     }
+  }
+
+  public final void put(@NonNull @LayoutParam String layoutParam,
+                        @Nullable Object value) {
+    Validate.isTrue(layoutParam != null, "layoutParam cannot be null");
+    Validate.isTrue(!layoutParam.isEmpty(), "layoutParam cannot be empty");
+    final Object curValue = get(layoutParam);
+    if (curValue == null && curValue == value && containsKey(layoutParam)) {
+      return;
+    } else if (curValue != null && curValue == value) {
+      return;
+    }
+
+    LAYOUT_PARAMS.put(layoutParam, value);
+  }
+
+  @Nullable
+  public final <E> E get(@Nullable @LayoutParam String layoutParam) {
+    return (E)LAYOUT_PARAMS.get(layoutParam);
+  }
+
+  @Nullable
+  public final <E> E getOrDefault(@Nullable @LayoutParam String layoutParam,
+                                  @Nullable E defaultValue) {
+    if (containsKey(layoutParam)) {
+      return get(layoutParam);
+    }
+
+    return defaultValue;
+  }
+
+  @Nullable
+  public final <E> E remove(@Nullable @LayoutParam String layoutParam) {
+    return (E)LAYOUT_PARAMS.remove(layoutParam);
+  }
+
+  public final boolean containsKey(@Nullable @LayoutParam String layoutParam) {
+    return LAYOUT_PARAMS.containsKey(layoutParam);
   }
 
   @Nullable
@@ -233,6 +287,20 @@ public class Widget implements Bounded, Drawable, Padded {
       Validate.isTrue(window != null, "window cannot be null");
       this.window = window;
     }
+
+  }
+
+  public static final class LayoutParams {
+
+    public static final int FILL_PARENT = -1;
+    public static final int MATCH_PARENT = FILL_PARENT;
+    public static final int WRAP_CONTENT = -2;
+
+    @LayoutParam
+    public static final String layout_width = "layout_width";
+
+    @LayoutParam
+    public static final String layout_height = "layout_height";
 
   }
 
