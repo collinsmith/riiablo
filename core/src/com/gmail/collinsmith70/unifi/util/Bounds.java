@@ -140,6 +140,25 @@ public class Bounds extends Rectangle {
     return inset(null, padding);
   }
 
+  @NonNull
+  public Bounds extract(@Nullable Bounds dst, @NonNull Padding padding) {
+    Validate.isTrue(padding != null, "padding cannot be null");
+    if (dst == null) {
+      dst = new Bounds();
+    }
+
+    dst.set(getLeft() - padding.getLeft(),
+            getTop() + padding.getTop(),
+            getRight() + padding.getRight(),
+            getBottom() - padding.getBottom());
+    return dst;
+  }
+
+  @NonNull
+  public Bounds extract(@NonNull Padding padding) {
+    return inset(null, padding);
+  }
+
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int getWidth() {
     return getRight() - getLeft();
