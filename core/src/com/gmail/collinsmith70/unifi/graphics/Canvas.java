@@ -70,6 +70,7 @@ public class Canvas implements Disposable {
     this.dimension = new Dimension2D(width, height);
     this.batch = batch;
     this.shapeRenderer = shapeRenderer;
+    shapeRenderer.translate(1, 1, 0);
 
     this.saveStates = new ArrayDeque<State>();
     this.tmp = new Rectangle();
@@ -297,37 +298,52 @@ public class Canvas implements Disposable {
     Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
     Validate.isTrue(radius >= 1, "radius must be greater than or equal to 1");
     Validate.isTrue(paint != null, "paint cannot be null");
+
+    final float x0 = x;
+    final float x3 = x0 + width;
+    final float x1 = x0 + radius;
+    final float x2 = x3 - radius;
+
+    final float y0 = y;
+    final float y3 = y0 + height;
+    final float y1 = y0 + radius;
+    final float y2 = y3 - radius;
+
     prepare(paint);
     switch (paint.getStyle()) {
       case STROKE:
         startShapeRenderer(ShapeRenderer.ShapeType.Line); {
           shapeRenderer.setColor(paint.getColor());
-          shapeRenderer.line(x, y + radius, x, y + height - radius);
-          shapeRenderer.line(x + width, y + radius, x + width, y + height - radius);
-          shapeRenderer.line(x + radius, y, x + width - radius, y);
-          shapeRenderer.line(x + radius, y + height, x + width - radius, y + height);
+          shapeRenderer.line(x0, y1, x0, y2);
+          shapeRenderer.line(x3, y1, x3, y2);
+          shapeRenderer.line(x1, y0, x2, y);
+          shapeRenderer.line(x1, y3, x2, y3);
 
           final float kappa = 0.5522847498307933984022516322796f * radius;
           final int segments = Math.max(1, (int)(6 * (float)Math.cbrt(radius) * 0.25f));
-          shapeRenderer.curve(x, y + radius,
-                  x, y + kappa,
-                  x + kappa, y,
-                  x + radius, y,
+          shapeRenderer.curve(
+                  x0, y1,
+                  x0, y0 + kappa,
+                  x0 + kappa, y0,
+                  x1, y0,
                   segments);
-          shapeRenderer.curve(x, y + height - radius,
-                  x, y + height - radius + kappa,
-                  x + radius - kappa, y + height,
-                  x + radius, y + height,
+          shapeRenderer.curve(
+                  x0, y2,
+                  x0, y2 + kappa,
+                  x1 - kappa, y3,
+                  x1, y3,
                   segments);
-          shapeRenderer.curve(x + width - radius, y + height,
-                  x + width - radius + kappa, y + height,
-                  x + width, y + height - radius + kappa,
-                  x + width, y + height - radius,
+          shapeRenderer.curve(
+                  x2, y3,
+                  x2 + kappa, y3,
+                  x3, y2 + kappa,
+                  x3, y2,
                   segments);
-          shapeRenderer.curve(x + width - radius, y,
-                  x + width - radius + kappa, y,
-                  x + width, y + radius - kappa,
-                  x + width, y + radius,
+          shapeRenderer.curve(
+                  x2, y0,
+                  x2 + kappa, y0,
+                  x3, y1 - kappa,
+                  x3, y1,
                   segments);
         }
 
@@ -337,12 +353,12 @@ public class Canvas implements Disposable {
         startShapeRenderer(ShapeRenderer.ShapeType.Filled); {
           final float radius2 = radius * 2;
           shapeRenderer.setColor(paint.getColor());
-          shapeRenderer.rect(x, y + radius, width, height - radius2);
-          shapeRenderer.rect(x + radius, y, width - radius2, height);
-          shapeRenderer.circle(x + radius, y + radius, radius);
-          shapeRenderer.circle(x + width - radius, y + radius, radius);
-          shapeRenderer.circle(x + radius, y + height - radius, radius);
-          shapeRenderer.circle(x + width - radius, y + height - radius, radius);
+          shapeRenderer.rect(x0, y1, width, height - radius2);
+          shapeRenderer.rect(x1, y0, width - radius2, height);
+          shapeRenderer.circle(x1, y1, radius);
+          shapeRenderer.circle(x2, y1, radius);
+          shapeRenderer.circle(x1, y2, radius);
+          shapeRenderer.circle(x2, y2, radius);
         }
     }
   }
