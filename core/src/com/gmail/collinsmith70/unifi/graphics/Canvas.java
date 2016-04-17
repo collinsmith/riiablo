@@ -265,6 +265,8 @@ public class Canvas implements Disposable {
                        @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float width,
                        @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float height,
                        @NonNull Paint paint) {
+    Validate.isTrue(width >= 0, "width must be greater than or equal to 0");
+    Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
     Validate.isTrue(paint != null, "paint cannot be null");
     ShapeRenderer.ShapeType shapeType;
     switch (paint.getStyle()) {
@@ -282,6 +284,47 @@ public class Canvas implements Disposable {
     startShapeRenderer(shapeType); {
       shapeRenderer.setColor(paint.getColor());
       shapeRenderer.rect(x, y, width, height);
+    }
+  }
+
+  public void drawRoundRect(float x,
+                            float y,
+                            @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float width,
+                            @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float height,
+                            @FloatRange(from = 1.0f, to = Float.MAX_VALUE) float radius,
+                            @NonNull Paint paint) {
+    Validate.isTrue(width >= 0, "width must be greater than or equal to 0");
+    Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
+    Validate.isTrue(radius >= 1, "radius must be greater than or equal to 1");
+    Validate.isTrue(paint != null, "paint cannot be null");
+    prepare(paint);
+    switch (paint.getStyle()) {
+      case STROKE:
+        startShapeRenderer(ShapeRenderer.ShapeType.Line); {
+          final float radius2 = radius * 2;
+          shapeRenderer.setColor(paint.getColor());
+          shapeRenderer.line(x, y + radius, x, y + height - radius2);
+          shapeRenderer.line(x + width, y + radius, x + width, y + height - radius2);
+          shapeRenderer.line(x + radius, y, x + width - radius2, y);
+          shapeRenderer.line(x + radius, y + height, x + width - radius2, y + height);
+
+          final float kappa = 0.5522847498307933984022516322796f;
+          final int segments = Math.max(1, (int)(6 * (float)Math.cbrt(radius) * 0.25f));
+        }
+
+        break;
+      case FILL:
+      default:
+        startShapeRenderer(ShapeRenderer.ShapeType.Filled); {
+          final float radius2 = radius * 2;
+          shapeRenderer.setColor(paint.getColor());
+          shapeRenderer.rect(x, y + radius, width, height - radius2);
+          shapeRenderer.rect(x + radius, y, width - radius2, height);
+          shapeRenderer.circle(x + radius, y + radius, radius);
+          shapeRenderer.circle(x + width - radius, y + radius, radius);
+          shapeRenderer.circle(x + radius, y + height - radius, radius);
+          shapeRenderer.circle(x + width - radius, y + height - radius, radius);
+        }
     }
   }
 
