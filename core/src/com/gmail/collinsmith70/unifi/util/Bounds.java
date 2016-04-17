@@ -122,17 +122,36 @@ public class Bounds extends Rectangle {
   }
 
   @NonNull
-  public Bounds inset(@Nullable Bounds dst, @NonNull Padding padding) {
-    Validate.isTrue(padding != null, "padding cannot be null");
+  private Bounds _add(@Nullable Bounds dst, @NonNull Rectangle rectangle) {
+    Validate.isTrue(rectangle != null, rectangle.getClass().getSimpleName() + " cannot be null");
     if (dst == null) {
       dst = new Bounds();
     }
 
-    dst.set(getLeft() + padding.getLeft(),
-            getTop() - padding.getTop(),
-            getRight() - padding.getRight(),
-            getBottom() + padding.getBottom());
+    dst.set(getLeft() + rectangle.getLeft(),
+            getTop() - rectangle.getTop(),
+            getRight() - rectangle.getRight(),
+            getBottom() + rectangle.getBottom());
     return dst;
+  }
+
+  @NonNull
+  private Bounds _remove(@Nullable Bounds dst, @NonNull Rectangle rectangle) {
+    Validate.isTrue(rectangle != null, rectangle.getClass().getSimpleName() + " cannot be null");
+    if (dst == null) {
+      dst = new Bounds();
+    }
+
+    dst.set(getLeft() - rectangle.getLeft(),
+            getTop() + rectangle.getTop(),
+            getRight() + rectangle.getRight(),
+            getBottom() - rectangle.getBottom());
+    return dst;
+  }
+
+  @NonNull
+  public Bounds inset(@Nullable Bounds dst, @NonNull Padding padding) {
+    return _add(dst, padding);
   }
 
   @NonNull
@@ -141,22 +160,33 @@ public class Bounds extends Rectangle {
   }
 
   @NonNull
-  public Bounds remove(@Nullable Bounds dst, @NonNull Padding padding) {
-    Validate.isTrue(padding != null, "padding cannot be null");
-    if (dst == null) {
-      dst = new Bounds();
-    }
-
-    dst.set(getLeft() - padding.getLeft(),
-            getTop() + padding.getTop(),
-            getRight() + padding.getRight(),
-            getBottom() - padding.getBottom());
-    return dst;
+  public Bounds extract(@Nullable Bounds dst, @NonNull Padding padding) {
+    return _remove(dst, padding);
   }
 
   @NonNull
-  public Bounds remove(@NonNull Padding padding) {
-    return inset(null, padding);
+  public Bounds extract(@NonNull Padding padding) {
+    return extract(null, padding);
+  }
+
+  @NonNull
+  public Bounds add(@Nullable Bounds dst, @NonNull Margin margin) {
+    return _remove(dst, margin);
+  }
+
+  @NonNull
+  public Bounds add(@NonNull Margin margin) {
+    return add(null, margin);
+  }
+
+  @NonNull
+  public Bounds remove(@Nullable Bounds dst, @NonNull Margin margin) {
+    return _add(dst, margin);
+  }
+
+  @NonNull
+  public Bounds remove(@NonNull Margin margin) {
+    return remove(null, margin);
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
