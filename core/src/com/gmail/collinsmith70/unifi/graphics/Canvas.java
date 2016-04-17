@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -15,10 +16,30 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.math.Dimension2D;
+import com.gmail.collinsmith70.unifi.math.ImmutableRectangle;
+import com.gmail.collinsmith70.unifi.math.Rectangle;
 
 import org.apache.commons.lang3.Validate;
 
+import java.nio.IntBuffer;
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class Canvas implements Disposable {
+
+  private static final class State {
+
+    private final ImmutableRectangle clip;
+
+    private State(@NonNull Rectangle clip) {
+      this.clip = new ImmutableRectangle(clip);
+    }
+
+    private ImmutableRectangle getClip() {
+      return clip;
+    }
+
+  }
 
   @NonNull
   private final Dimension2D dimension;
@@ -28,6 +49,12 @@ public class Canvas implements Disposable {
 
   @NonNull
   private final ShapeRenderer shapeRenderer;
+
+  @NonNull
+  private final Deque<State> saveStates;
+
+  @NonNull
+  private final Rectangle tmp;
 
   public Canvas(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
                 @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
@@ -43,6 +70,9 @@ public class Canvas implements Disposable {
     this.dimension = new Dimension2D(width, height);
     this.batch = batch;
     this.shapeRenderer = shapeRenderer;
+
+    this.saveStates = new ArrayDeque<State>();
+    this.tmp = new Rectangle();
   }
 
   protected final Batch getBatch() {
@@ -101,24 +131,66 @@ public class Canvas implements Disposable {
     //...
   }
 
+  @NonNull
+  private Rectangle getClip() {
+    IntBuffer intBuffer = IntBuffer.allocate(4);
+    Gdx.gl.glGetIntegerv(GL20.GL_SCISSOR_BOX, intBuffer);
+    return new Rectangle(intBuffer.get(), intBuffer.get(), intBuffer.get(), intBuffer.get());
+  }
+
+  @NonNull
+  private Rectangle getClip(@Nullable Rectangle dst) {
+    if (dst == null) {
+      return getClip();
+    }
+
+    IntBuffer intBuffer = IntBuffer.allocate(4);
+    Gdx.gl.glGetIntegerv(GL20.GL_SCISSOR_BOX, intBuffer);
+    dst.set(intBuffer.get(), intBuffer.get(), intBuffer.get(), intBuffer.get());
+    return dst;
+  }
+
   @IntRange(from = 0, to = Integer.MAX_VALUE)
   public int save() {
-    throw new UnsupportedOperationException("not supported yet");
+    getClip(tmp);
+    State saveState = new State(tmp);
+    saveStates.push(saveState);
+    return saveStates.size() - 1;
   }
 
   public void restore() {
-    throw new UnsupportedOperationException("not supported yet");
+    State saveState = saveStates.pop();
+    clipRect(saveState.getClip());
   }
 
   public void restoreToCount(@IntRange(from = 0, to = Integer.MAX_VALUE) int saveCount) {
-    throw new UnsupportedOperationException("not supported yet");
+    Validate.isTrue(saveCount >= 0, "saveCount must be greater than or equal to 0");
+    State saveState = null;
+    while (saveStates.size() > saveCount) {
+      saveState = saveStates.pop();
+    }
+
+    if (saveState == null) {
+      Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+      return;
+    }
+
+    clipRect(saveState.getClip());
   }
 
-  public void clipRect(float x,
-                       float y,
-                       @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float width,
-                       @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float height) {
-    throw new UnsupportedOperationException("not supported yet");
+  public void clipRect(@NonNull Rectangle rectangle) {
+    Validate.isTrue(rectangle != null, "rectangle cannot be null");
+    clipRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
+  }
+
+  public void clipRect(int x,
+                       int y,
+                       @IntRange(from = 0, to = Integer.MAX_VALUE) int width,
+                       @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
+    Validate.isTrue(width >= 0, "width must be greater than or equal to 0");
+    Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
+    Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+    Gdx.gl.glScissor(x, y, width, height);
   }
 
   private void startBatch() {
