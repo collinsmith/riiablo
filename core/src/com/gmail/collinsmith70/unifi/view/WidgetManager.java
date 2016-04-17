@@ -14,4 +14,6 @@ public interface WidgetManager extends Iterable<Widget> {
   @NonNull
   Collection<Widget> getChildren();
 
+  void clear();
+
 }

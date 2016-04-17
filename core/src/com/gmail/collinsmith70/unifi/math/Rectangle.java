@@ -49,7 +49,7 @@ public class Rectangle {
     this.bottom = bottom;
   }
 
-  public final int getLeft() {
+  public int getLeft() {
     return left;
   }
 
@@ -57,7 +57,7 @@ public class Rectangle {
     _setLeft(left);
   }
 
-  public final int getTop() {
+  public int getTop() {
     return top;
   }
 
@@ -65,7 +65,7 @@ public class Rectangle {
     _setTop(top);
   }
 
-  public final int getRight() {
+  public int getRight() {
     return right;
   }
 
@@ -73,7 +73,7 @@ public class Rectangle {
     _setRight(right);
   }
 
-  public final int getBottom() {
+  public int getBottom() {
     return bottom;
   }
 
@@ -81,37 +81,37 @@ public class Rectangle {
     _setBottom(bottom);
   }
 
-  public final int getX() {
+  public int getX() {
     return getLeft();
   }
 
-  public final int getY() {
+  public int getY() {
     return getTop();
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public final int getWidth() {
+  public int getWidth() {
     return Math.abs(getLeft() - getRight());
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public final int getHeight() {
+  public int getHeight() {
     return Math.abs(getTop() - getBottom());
   }
 
-  public final void set(int left, int top, int right, int bottom) {
+  public void set(int left, int top, int right, int bottom) {
     setLeft(left);
     setTop(top);
     setRight(right);
     setBottom(bottom);
   }
 
-  public final void set(@NonNull Rectangle src) {
+  public void set(@NonNull Rectangle src) {
     Validate.isTrue(src != null, "src cannot be null");
     set(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
   }
 
-  public final boolean isEmpty() {
+  public boolean isEmpty() {
     return getLeft() != getRight() && getTop() != getBottom();
   }
 

@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.math.Rectangle;
+import com.gmail.collinsmith70.unifi.util.Bounded;
 import com.google.common.collect.Iterators;
 
 import org.apache.commons.lang3.Validate;
@@ -17,7 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class Window implements Disposable, WidgetManager, WidgetParent {
+public class Window implements Bounded, Disposable, WidgetManager, WidgetParent {
 
   @NonNull
   private final Canvas canvas;
@@ -55,7 +56,7 @@ public class Window implements Disposable, WidgetManager, WidgetParent {
   }
 
   @NonNull
-  public final Canvas getCanvas() {
+  private final Canvas getCanvas() {
     return canvas;
   }
 
@@ -105,6 +106,7 @@ public class Window implements Disposable, WidgetManager, WidgetParent {
   }
 
   public final void draw() {
+    // TODO: if valid (dirty.isEmpty() == false) draw cached FrameBuffer, else redraw parts
 
     canvas.end();
     onDraw();
@@ -134,9 +136,23 @@ public class Window implements Disposable, WidgetManager, WidgetParent {
       return;
     }
 
+    _removeWidget(widget);
+    invalidate();
+  }
+
+  private void _removeWidget(@NonNull Widget widget) {
+    Validate.isTrue(widget != null, "widget cannot be null");
     children.remove(widget);
     widget.setParent(null);
     widget.setAttachInfo(null);
+  }
+
+  @Override
+  public final void clear() {
+    for (Widget child : this) {
+      _removeWidget(child);
+    }
+
     invalidate();
   }
 
@@ -166,6 +182,46 @@ public class Window implements Disposable, WidgetManager, WidgetParent {
   @Override
   public boolean isLayoutRequested() {
     return isLayoutRequested;
+  }
+
+  @Override
+  public int getLeft() {
+    return 0;
+  }
+
+  @Override
+  public void setLeft(int left) {
+    throw new UnsupportedOperationException("Window bounds cannot be changed");
+  }
+
+  @Override
+  public int getTop() {
+    return getHeight();
+  }
+
+  @Override
+  public void setTop(int top) {
+    throw new UnsupportedOperationException("Window bounds cannot be changed");
+  }
+
+  @Override
+  public int getRight() {
+    return getWidth();
+  }
+
+  @Override
+  public void setRight(int right) {
+    throw new UnsupportedOperationException("Window bounds cannot be changed");
+  }
+
+  @Override
+  public int getBottom() {
+    return 0;
+  }
+
+  @Override
+  public void setBottom(int bottom) {
+    throw new UnsupportedOperationException("Window bounds cannot be changed");
   }
 
 }
