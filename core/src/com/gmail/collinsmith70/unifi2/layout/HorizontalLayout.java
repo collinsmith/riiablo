@@ -11,7 +11,7 @@ import java.util.Set;
  * A {@link com.gmail.collinsmith70.unifi.layout.LinearLayout} which lays out child widgets in a horizontal line. Supports {@code Widget}
  * instances with left and right {@linkplain Widget#getMargins() margins}.
  */
-public class HorizontalLayout extends com.gmail.collinsmith70.unifi.layout.LinearLayout {
+public class HorizontalLayout extends LinearLayout {
 
   @Override
   public void layoutChildren() {

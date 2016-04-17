@@ -11,7 +11,7 @@ import java.util.Set;
  * A {@link com.gmail.collinsmith70.unifi.layout.LinearLayout} which lays out child widgets in a vertical line. Supports {@code Widget}
  * instances with top and bottom {@linkplain Widget#getMargins() margins}.
  */
-public class VerticalLayout extends com.gmail.collinsmith70.unifi.layout.LinearLayout {
+public class VerticalLayout extends LinearLayout {
 
   @Override
   public void layoutChildren() {
