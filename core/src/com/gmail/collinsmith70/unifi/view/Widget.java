@@ -41,6 +41,9 @@ public class Widget implements Bounded, Drawable, Padded {
   @NonNull
   private Padding padding;
 
+  @NonNull
+  private Visibility visibility;
+
   @Nullable
   private Drawable background;
 
@@ -55,6 +58,7 @@ public class Widget implements Bounded, Drawable, Padded {
 
   public Widget() {
     this.LAYOUT_PARAMS = new HashMap<String, Object>();
+
     this.bounds = new Bounds() {
       @Override
       protected void onChange() {
@@ -68,6 +72,8 @@ public class Widget implements Bounded, Drawable, Padded {
         invalidate();
       }
     };
+
+    _setVisibility(Visibility.VISIBLE);
   }
 
   public void invalidate() {
@@ -154,6 +160,20 @@ public class Widget implements Bounded, Drawable, Padded {
 
   public final boolean containsKey(@Nullable @LayoutParam String layoutParam) {
     return LAYOUT_PARAMS.containsKey(layoutParam);
+  }
+
+  @NonNull
+  public Visibility getVisibility() {
+    return visibility;
+  }
+
+  private void _setVisibility(@NonNull Visibility visibility) {
+    Validate.isTrue(visibility != null, "visibility cannot be null");
+    this.visibility = visibility;
+  }
+
+  public void setVisibility(@NonNull Visibility visibility) {
+    _setVisibility(visibility);
   }
 
   @Nullable
@@ -291,6 +311,12 @@ public class Widget implements Bounded, Drawable, Padded {
       this.window = window;
     }
 
+  }
+
+  public enum Visibility {
+    VISIBLE,
+    INVISIBLE,
+    GONE
   }
 
   public static final class LayoutParams {
