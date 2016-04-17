@@ -26,7 +26,7 @@ public class Paint {
   private float strokeWidth;
 
   public Paint() {
-    _setColor(Color.BLACK);
+    _setColor(Color.WHITE);
     _setStyle(Style.FILL);
     _setStrokeWidth(1.0f);
   }
