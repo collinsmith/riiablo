@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.Disposable;
 import com.gmail.collinsmith70.unifi.math.Dimension2D;
 import com.gmail.collinsmith70.unifi.math.ImmutableRectangle;
@@ -134,7 +135,7 @@ public class Canvas implements Disposable {
 
   @NonNull
   private Rectangle getClip() {
-    IntBuffer intBuffer = IntBuffer.allocate(4);
+    IntBuffer intBuffer = BufferUtils.newIntBuffer(16);
     Gdx.gl.glGetIntegerv(GL20.GL_SCISSOR_BOX, intBuffer);
     return new Rectangle(intBuffer.get(), intBuffer.get(), intBuffer.get(), intBuffer.get());
   }
@@ -145,7 +146,7 @@ public class Canvas implements Disposable {
       return getClip();
     }
 
-    IntBuffer intBuffer = IntBuffer.allocate(4);
+    IntBuffer intBuffer = BufferUtils.newIntBuffer(16);
     Gdx.gl.glGetIntegerv(GL20.GL_SCISSOR_BOX, intBuffer);
     dst.set(intBuffer.get(), intBuffer.get(), intBuffer.get(), intBuffer.get());
     return dst;
@@ -160,6 +161,11 @@ public class Canvas implements Disposable {
   }
 
   public void restore() {
+    if (saveStates.isEmpty()) {
+      Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+      return;
+    }
+
     State saveState = saveStates.pop();
     clipRect(saveState.getClip());
   }
@@ -190,8 +196,9 @@ public class Canvas implements Disposable {
                        @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
     Validate.isTrue(width >= 0, "width must be greater than or equal to 0");
     Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
+    flush();
     Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-    Gdx.gl.glScissor(x, y, width, height);
+    Gdx.gl.glScissor(x, y, width + 1, height + 1);
   }
 
   private void startBatch() {
@@ -241,10 +248,16 @@ public class Canvas implements Disposable {
     if (shapeRenderer.isDrawing()) {
       shapeRenderer.end();
     }
+
+    Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
   }
 
   private void prepare(@NonNull Paint paint) {
     Validate.isTrue(paint != null, "paint cannot be null");
+    if (isDrawing()) {
+      flush();
+    }
+
     Gdx.gl.glLineWidth(paint.getStrokeWidth());
   }
 
@@ -269,22 +282,27 @@ public class Canvas implements Disposable {
     Validate.isTrue(width >= 0, "width must be greater than or equal to 0");
     Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
     Validate.isTrue(paint != null, "paint cannot be null");
-    ShapeRenderer.ShapeType shapeType;
-    switch (paint.getStyle()) {
-      case FILL:
-        shapeType = ShapeRenderer.ShapeType.Filled;
-        break;
-      case STROKE:
-        shapeType = ShapeRenderer.ShapeType.Line;
-        break;
-      default:
-        shapeType = ShapeRenderer.ShapeType.Filled;
-    }
-
     prepare(paint);
-    startShapeRenderer(shapeType); {
-      shapeRenderer.setColor(paint.getColor());
-      shapeRenderer.rect(x, y, width, height);
+    switch (paint.getStyle()) {
+      case STROKE:
+        final float adjust = paint.getStrokeWidth() / 2;
+        width -= adjust;
+        height -= adjust;
+        startShapeRenderer(ShapeRenderer.ShapeType.Line); {
+          shapeRenderer.setColor(paint.getColor());
+          shapeRenderer.line(x, y - adjust, x, y + height + adjust);
+          shapeRenderer.line(x + width, y - adjust, x + width, y + height + adjust);
+          shapeRenderer.line(x - adjust, y, x + width + adjust, y);
+          shapeRenderer.line(x - adjust, y + height, x + width + adjust, y + height);
+        }
+
+        break;
+      case FILL:
+      default:
+        startShapeRenderer(ShapeRenderer.ShapeType.Line); {
+          shapeRenderer.setColor(paint.getColor());
+          shapeRenderer.rect(x, y, width, height);
+        }
     }
   }
 
@@ -298,6 +316,12 @@ public class Canvas implements Disposable {
     Validate.isTrue(height >= 0, "height must be greater than or equal to 0");
     Validate.isTrue(radius >= 1, "radius must be greater than or equal to 1");
     Validate.isTrue(paint != null, "paint cannot be null");
+
+    if (paint.getStyle() == Paint.Style.STROKE) {
+      final float adjust = paint.getStrokeWidth() / 2;
+      width -= adjust;
+      height -= adjust;
+    }
 
     final float x0 = x;
     final float x3 = x0 + width;
