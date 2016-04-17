@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class ImmutablePaint extends Paint {
+public final class ImmutablePaint extends Paint {
 
   public ImmutablePaint() {
     super();
