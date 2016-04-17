@@ -2,6 +2,7 @@ package com.gmail.collinsmith70.unifi.util;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.gmail.collinsmith70.unifi.math.Rectangle;
 
@@ -118,6 +119,25 @@ public class Bounds extends Rectangle {
   public void set(@NonNull Rectangle src) {
     Validate.isTrue(src != null, "src cannot be null");
     set(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
+  }
+
+  @NonNull
+  public Bounds inset(@Nullable Bounds dst, @NonNull Padding padding) {
+    Validate.isTrue(padding != null, "padding cannot be null");
+    if (dst == null) {
+      dst = new Bounds();
+    }
+
+    dst.set(getLeft() + padding.getLeft(),
+            getTop() - padding.getTop(),
+            getRight() - padding.getRight(),
+            getBottom() + padding.getBottom());
+    return dst;
+  }
+
+  @NonNull
+  public Bounds inset(@NonNull Padding padding) {
+    return inset(null, padding);
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
