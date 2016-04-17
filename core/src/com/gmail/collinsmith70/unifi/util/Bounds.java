@@ -141,7 +141,7 @@ public class Bounds extends Rectangle {
   }
 
   @NonNull
-  public Bounds extract(@Nullable Bounds dst, @NonNull Padding padding) {
+  public Bounds remove(@Nullable Bounds dst, @NonNull Padding padding) {
     Validate.isTrue(padding != null, "padding cannot be null");
     if (dst == null) {
       dst = new Bounds();
@@ -155,7 +155,7 @@ public class Bounds extends Rectangle {
   }
 
   @NonNull
-  public Bounds extract(@NonNull Padding padding) {
+  public Bounds remove(@NonNull Padding padding) {
     return inset(null, padding);
   }
 
