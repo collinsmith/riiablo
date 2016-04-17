@@ -310,6 +310,7 @@ public class Canvas implements Disposable {
 
           final float kappa = 0.5522847498307933984022516322796f;
           final int segments = Math.max(1, (int)(6 * (float)Math.cbrt(radius) * 0.25f));
+          // TODO: draw arcs
         }
 
         break;
