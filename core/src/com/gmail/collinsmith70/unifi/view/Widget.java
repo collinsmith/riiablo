@@ -127,6 +127,7 @@ public class Widget implements Bounded, Drawable, Padded {
     }
 
     LAYOUT_PARAMS.put(layoutParam, value);
+    invalidate();
   }
 
   @Nullable
@@ -146,7 +147,9 @@ public class Widget implements Bounded, Drawable, Padded {
 
   @Nullable
   public final <E> E remove(@Nullable @LayoutParam String layoutParam) {
-    return (E)LAYOUT_PARAMS.remove(layoutParam);
+    E value = (E)LAYOUT_PARAMS.remove(layoutParam);
+    invalidate();
+    return value;
   }
 
   public final boolean containsKey(@Nullable @LayoutParam String layoutParam) {
