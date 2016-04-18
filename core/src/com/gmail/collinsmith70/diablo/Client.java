@@ -6,10 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.gmail.collinsmith70.command.CommandManager;
 import com.gmail.collinsmith70.cvar.Cvar;
 import com.gmail.collinsmith70.cvar.CvarStateAdapter;
@@ -17,8 +15,6 @@ import com.gmail.collinsmith70.diablo.scene.HudedScene;
 import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
 import com.gmail.collinsmith70.key.KeyStateAdapter;
-import com.gmail.collinsmith70.unifi.graphics.Paint;
-import com.gmail.collinsmith70.unifi.graphics.TextPaint;
 import com.gmail.collinsmith70.unifi.view.Window;
 import com.gmail.collinsmith70.util.ImmutableDimension;
 import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
@@ -280,20 +276,6 @@ public class Client implements ApplicationListener {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
     WINDOW.draw();
-    TextPaint paint = new TextPaint();
-    paint.setFont(getDefaultFont());
-    paint.setColor(Color.WHITE);
-    paint.setStyle(Paint.Style.STROKE);
-    GlyphLayout fps = new GlyphLayout(
-            getDefaultFont(),
-            Integer.toString(Gdx.graphics.getFramesPerSecond()));
-    WINDOW.getCanvas().drawText(Integer.toString(Gdx.graphics.getFramesPerSecond()),
-            0,
-            RESOLUTION.height,
-            paint);
-    WINDOW.getCanvas().drawRect(1, 1, 100, 50, paint);
-    paint.setColor(Color.GREEN);
-    WINDOW.getCanvas().drawRoundRect(1, 1, 100, 50, 16, paint);
 
     //STAGE.act(Gdx.graphics.getDeltaTime());
     //STAGE.draw();

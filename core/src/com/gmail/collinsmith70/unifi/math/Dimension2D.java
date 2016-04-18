@@ -41,7 +41,7 @@ public class Dimension2D {
     this.height = height;
   }
 
-  public final int getWidth() {
+  public int getWidth() {
     return width;
   }
 
@@ -49,7 +49,7 @@ public class Dimension2D {
     _setWidth(width);
   }
 
-  public final int getHeight() {
+  public int getHeight() {
     return height;
   }
 

@@ -9,4 +9,7 @@ public interface Drawable extends Bounded, Padded {
 
   void draw(@NonNull Canvas canvas);
 
+  int getMinimumWidth();
+  int getMinimumHeight();
+
 }
