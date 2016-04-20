@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.graphics;
+package com.gmail.collinsmith70.unifi3.graphics;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.FloatRange;
@@ -16,9 +16,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.Disposable;
-import com.gmail.collinsmith70.unifi.math.Dimension2D;
-import com.gmail.collinsmith70.unifi.math.ImmutableRectangle;
-import com.gmail.collinsmith70.unifi.math.Rectangle;
+import com.gmail.collinsmith70.unifi3.math.Dimension2D;
+import com.gmail.collinsmith70.unifi3.math.ImmutableRectangle;
 
 import org.apache.commons.lang3.Validate;
 
@@ -32,7 +31,7 @@ public class Canvas implements Disposable {
 
     private final ImmutableRectangle clip;
 
-    private State(@NonNull Rectangle clip) {
+    private State(@NonNull com.gmail.collinsmith70.unifi3.math.Rectangle clip) {
       this.clip = new ImmutableRectangle(clip);
     }
 
@@ -55,7 +54,7 @@ public class Canvas implements Disposable {
   private final Deque<State> saveStates;
 
   @NonNull
-  private final Rectangle tmp;
+  private final com.gmail.collinsmith70.unifi3.math.Rectangle tmp;
 
   public Canvas(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
                 @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
@@ -74,7 +73,7 @@ public class Canvas implements Disposable {
     shapeRenderer.translate(1, 1, 0);
 
     this.saveStates = new ArrayDeque<State>();
-    this.tmp = new Rectangle();
+    this.tmp = new com.gmail.collinsmith70.unifi3.math.Rectangle();
   }
 
   protected final Batch getBatch() {
@@ -134,14 +133,14 @@ public class Canvas implements Disposable {
   }
 
   @NonNull
-  private Rectangle getClip() {
+  private com.gmail.collinsmith70.unifi3.math.Rectangle getClip() {
     IntBuffer intBuffer = BufferUtils.newIntBuffer(16);
     Gdx.gl.glGetIntegerv(GL20.GL_SCISSOR_BOX, intBuffer);
-    return new Rectangle(intBuffer.get(), intBuffer.get(), intBuffer.get(), intBuffer.get());
+    return new com.gmail.collinsmith70.unifi3.math.Rectangle(intBuffer.get(), intBuffer.get(), intBuffer.get(), intBuffer.get());
   }
 
   @NonNull
-  private Rectangle getClip(@Nullable Rectangle dst) {
+  private com.gmail.collinsmith70.unifi3.math.Rectangle getClip(@Nullable com.gmail.collinsmith70.unifi3.math.Rectangle dst) {
     if (dst == null) {
       return getClip();
     }
@@ -185,7 +184,7 @@ public class Canvas implements Disposable {
     clipRect(saveState.getClip());
   }
 
-  public void clipRect(@NonNull Rectangle rectangle) {
+  public void clipRect(@NonNull com.gmail.collinsmith70.unifi3.math.Rectangle rectangle) {
     Validate.isTrue(rectangle != null, "rectangle cannot be null");
     clipRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
   }

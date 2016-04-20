@@ -1,14 +1,14 @@
-package com.gmail.collinsmith70.unifi.util;
+package com.gmail.collinsmith70.unifi3.util;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.gmail.collinsmith70.unifi.math.Rectangle;
-
 import org.apache.commons.lang3.Validate;
 
-public class Bounds extends Rectangle {
+public class Bounds extends com.gmail.collinsmith70.unifi3.math.Rectangle {
+
+  public static final Bounds tmp = new Bounds();
 
   public Bounds() {
     super();
@@ -116,13 +116,13 @@ public class Bounds extends Rectangle {
   }
 
   @Override
-  public void set(@NonNull Rectangle src) {
+  public void set(@NonNull com.gmail.collinsmith70.unifi3.math.Rectangle src) {
     Validate.isTrue(src != null, "src cannot be null");
     set(src.getLeft(), src.getTop(), src.getRight(), src.getBottom());
   }
 
   @NonNull
-  private Bounds _add(@Nullable Bounds dst, @NonNull Rectangle rectangle) {
+  private Bounds _add(@Nullable Bounds dst, @NonNull com.gmail.collinsmith70.unifi3.math.Rectangle rectangle) {
     Validate.isTrue(rectangle != null, rectangle.getClass().getSimpleName() + " cannot be null");
     if (dst == null) {
       dst = new Bounds();
@@ -136,7 +136,7 @@ public class Bounds extends Rectangle {
   }
 
   @NonNull
-  private Bounds _remove(@Nullable Bounds dst, @NonNull Rectangle rectangle) {
+  private Bounds _remove(@Nullable Bounds dst, @NonNull com.gmail.collinsmith70.unifi3.math.Rectangle rectangle) {
     Validate.isTrue(rectangle != null, rectangle.getClass().getSimpleName() + " cannot be null");
     if (dst == null) {
       dst = new Bounds();
@@ -201,7 +201,7 @@ public class Bounds extends Rectangle {
 
   @NonNull
   @Override
-  public Rectangle immutableCopy() {
+  public com.gmail.collinsmith70.unifi3.math.Rectangle immutableCopy() {
     throw new UnsupportedOperationException("not supported");
   }
 

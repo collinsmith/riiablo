@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.math;
+package com.gmail.collinsmith70.unifi3.math;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.IntRange;

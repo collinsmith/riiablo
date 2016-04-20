@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.util;
+package com.gmail.collinsmith70.unifi3.util;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

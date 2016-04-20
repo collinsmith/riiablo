@@ -1,4 +1,4 @@
-package com.gmail.collinsmith70.unifi.view;
+package com.gmail.collinsmith70.unifi3.view;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
@@ -6,11 +6,11 @@ import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
-import com.gmail.collinsmith70.unifi.graphics.Canvas;
-import com.gmail.collinsmith70.unifi.math.Dimension2D;
-import com.gmail.collinsmith70.unifi.math.Rectangle;
-import com.gmail.collinsmith70.unifi.util.Bounded;
-import com.gmail.collinsmith70.unifi.util.Bounds;
+import com.gmail.collinsmith70.unifi3.graphics.Canvas;
+import com.gmail.collinsmith70.unifi3.math.Dimension2D;
+import com.gmail.collinsmith70.unifi3.math.Rectangle;
+import com.gmail.collinsmith70.unifi3.util.Bounded;
+import com.gmail.collinsmith70.unifi3.util.Bounds;
 
 import org.apache.commons.lang3.Validate;
 
@@ -22,7 +22,7 @@ public class Window implements Bounded, Disposable, WidgetParent {
 
   private static final String TAG = Window.class.getSimpleName();
 
-  private static final boolean DEBUG_LAYOUT = false;
+  private static final boolean DEBUG_LAYOUT = true;
 
   @NonNull
   private final Canvas canvas;
@@ -108,11 +108,11 @@ public class Window implements Bounded, Disposable, WidgetParent {
   }
 
   @Nullable
-  final Widget getWidget() {
+  public final Widget getWidget() {
     return widget;
   }
 
-  final void setWidget(@Nullable Widget widget) {
+  public final void setWidget(@Nullable Widget widget) {
     if (getWidget() == widget) {
       return;
     }
@@ -144,6 +144,11 @@ public class Window implements Bounded, Disposable, WidgetParent {
 
   public final void draw() {
     // TODO: if valid (dirty.isEmpty() == false) draw cached FrameBuffer, else redraw parts
+    if (first) {
+      isLayoutScheduled = true;
+      doLayout();
+      first = false;
+    }
 
     canvas.end();
     onDraw();
@@ -186,7 +191,8 @@ public class Window implements Bounded, Disposable, WidgetParent {
       return;
     }
 
-    isLayoutScheduled = true;
+    isLayoutScheduled = false;
+    measureHierarchy(widget, getWidth(), getHeight());
     performLayout(getWidth(), getHeight());
   }
 
@@ -278,6 +284,19 @@ public class Window implements Bounded, Disposable, WidgetParent {
     }
 
     this.isLayingOut = false;
+  }
+
+  private void measureHierarchy(final Widget host,
+                                final int desiredWindowWidth,
+                                final int desiredWindowHeight) {
+    if (DEBUG_LAYOUT) {
+      Gdx.app.log(TAG, "Measuring " + host + " in display "
+              + desiredWindowWidth + "x" + desiredWindowHeight);
+    }
+
+    int childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, getWidth());
+    int childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, getHeight());
+    widget.measure(childWidthMeasureSpec, childHeightMeasureSpec);
   }
 
   private int getRootMeasureSpec(

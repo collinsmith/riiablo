@@ -1,9 +1,9 @@
-package com.gmail.collinsmith70.unifi.util;
+package com.gmail.collinsmith70.unifi3.util;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
-import com.gmail.collinsmith70.unifi.math.Rectangle;
+import com.gmail.collinsmith70.unifi3.math.Rectangle;
 
 import org.apache.commons.lang3.Validate;
 

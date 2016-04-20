@@ -1,9 +1,9 @@
-package com.gmail.collinsmith70.unifi.util;
+package com.gmail.collinsmith70.unifi3.util;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
-import com.gmail.collinsmith70.unifi.math.Dimension2D;
+import com.gmail.collinsmith70.unifi3.math.Dimension2D;
 
 public class Measured extends Dimension2D {
 

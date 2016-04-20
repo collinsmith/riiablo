@@ -1,13 +1,15 @@
-package com.gmail.collinsmith70.unifi.util;
+package com.gmail.collinsmith70.unifi3.util;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
-import com.gmail.collinsmith70.unifi.math.Rectangle;
+import com.gmail.collinsmith70.unifi3.math.Rectangle;
 
 import org.apache.commons.lang3.Validate;
 
 public class Margin extends Rectangle {
+
+  public static final Margin EMPTY_MARGINS = new ImmutableMargin();
 
   public Margin() {
     super();
@@ -117,7 +119,7 @@ public class Margin extends Rectangle {
   }
 
   @Override
-  public void set(@NonNull Rectangle src) {
+  public final void set(@NonNull Rectangle src) {
     throw new UnsupportedOperationException("not supported");
   }
 
@@ -126,28 +128,28 @@ public class Margin extends Rectangle {
   }
 
   @Override
-  public int getX() {
+  public final int getX() {
     throw new UnsupportedOperationException("not supported");
   }
 
   @Override
-  public int getY() {
+  public final int getY() {
     throw new UnsupportedOperationException("not supported");
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getWidth() {
+  public final int getWidth() {
     throw new UnsupportedOperationException("not supported");
   }
 
   @IntRange(from = 0, to = Integer.MAX_VALUE)
-  public int getHeight() {
+  public final int getHeight() {
     throw new UnsupportedOperationException("not supported");
   }
 
   @NonNull
   @Override
-  public Rectangle immutableCopy() {
+  public final Rectangle immutableCopy() {
     throw new UnsupportedOperationException("not supported");
   }
 
