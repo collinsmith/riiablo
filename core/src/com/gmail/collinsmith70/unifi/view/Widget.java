@@ -1,10 +1,12 @@
 package com.gmail.collinsmith70.unifi.view;
 
+import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 
+import com.badlogic.gdx.Gdx;
 import com.gmail.collinsmith70.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.graphics.Drawable;
 import com.gmail.collinsmith70.unifi.util.Bounded;
@@ -17,95 +19,285 @@ import com.gmail.collinsmith70.unifi.util.Padding;
 import org.apache.commons.lang3.Validate;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
-import java.util.EnumSet;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Widget implements Bounded, Drawable, Layoutable, Padded {
+public class Widget implements Bounded, Layoutable, Padded {
 
-  private static final boolean IGNORE_MEASURE_CACHE = false;
+  protected static final String TAG = "Widget";
 
-  @StringDef
-  @Documented
-  @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE})
-  public @interface LayoutParam {}
+  private static boolean IGNORE_MEASURE_CACHE = false;
+
+  private static final int NOT_FOCUSABLE       = 0;
+  private static final int FOCUSABLE           = 1 << 0;
+  private static final int FITS_SYSTEM_WINDOWS = 1 << 1;
+  public static final int VISIBLE              = 0;
+  public static final int INVISIBLE            = 1 << 2;
+  public static final int GONE                 = 1 << 3;
+  static final int ENABLED                     = 0;
+  static final int DISABLED                    = 1 << 4;
+  static final int WILL_DRAW                   = 0;
+  static final int WILL_NOT_DRAW               = 1 << 5;
+  static final int SCROLLBARS_NONE             = 0;
+  static final int SCROLLBARS_HORIZONTAL       = 1 << 6;
+  static final int SCROLLBARS_VERTICAL         = 1 << 7;
+
+  private static final int FOCUSABLE_MASK  = NOT_FOCUSABLE | FOCUSABLE;
+  static final int VISIBILITY_MASK         = VISIBLE | INVISIBLE | GONE;
+  static final int ENABLED_MASK            = ENABLED | DISABLED;
+  static final int DRAW_MASK               = WILL_DRAW | WILL_NOT_DRAW;
+  static final int SCROLLBARS_MASK         = SCROLLBARS_NONE | SCROLLBARS_HORIZONTAL
+                                                     | SCROLLBARS_VERTICAL;
+
+  private static final int[] VISIBILITY_FLAGS = {VISIBLE, INVISIBLE, GONE};
+  @IntDef({VISIBLE, INVISIBLE, GONE})
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface Visibility {}
+
+  public static final int FOCUS_BACKWARD = 0x00000001;
+  public static final int FOCUS_FORWARD  = 0x00000002;
+  public static final int FOCUS_LEFT     = 0x00000011;
+  public static final int FOCUS_UP       = 0x00000021;
+  public static final int FOCUS_RIGHT    = 0x00000042;
+  public static final int FOCUS_DOWN     = 0x00000082;
+
+  @IntDef({FOCUS_BACKWARD, FOCUS_FORWARD, FOCUS_LEFT, FOCUS_UP, FOCUS_RIGHT, FOCUS_DOWN})
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface FocusDirection {}
+
+  @IntDef({FOCUS_LEFT, FOCUS_UP, FOCUS_RIGHT, FOCUS_DOWN})
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface SimpleFocusDirection {}
+
+  static final class PFLAG {
+    static final int WANTS_FOCUS                          = 0x00000001;
+    static final int FOCUSED                              = 0x00000002;
+    static final int SELECTED                             = 0x00000004;
+    static final int IS_ROOT_NAMESPACE                    = 0x00000008;
+    static final int HAS_BOUNDS                           = 0x00000010;
+    static final int DRAWN                                = 0x00000020;
+    static final int DRAW_ANIMATION                       = 0x00000040;
+    static final int SKIP_DRAW                            = 0x00000080;
+    static final int ONLY_DRAWS_BACKGROUND                = 0x00000100;
+    static final int REQUEST_TRANSPARENT_REGIONS          = 0x00000200;
+    static final int DRAWABLE_STATE_DIRTY                 = 0x00000400;
+    static final int MEASURED_DIMENSION_SET               = 0x00000800;
+    static final int FORCE_LAYOUT                         = 0x00001000;
+    static final int LAYOUT_REQUIRED                      = 0x00002000;
+    private static final int PRESSED                      = 0x00004000;
+    static final int DRAWING_CACHE_VALID                  = 0x00008000;
+    static final int ANIMATION_STARTED                    = 0x00010000;
+    private static final int SAVE_STATE_CALLED            = 0x00020000;
+    static final int ALPHA_SET                            = 0x00040000;
+    static final int SCROLL_CONTAINER                     = 0x00080000;
+    static final int SCROLL_CONTAINER_ADDED               = 0x00100000;
+    static final int DIRTY                                = 0x00200000;
+    static final int DIRTY_OPAQUE                         = 0x00400000;
+    static final int DIRTY_MASK                           = 0x00600000;
+    static final int OPAQUE_BACKGROUND                    = 0x00800000;
+    static final int OPAQUE_SCROLLBARS                    = 0x01000000;
+    static final int OPAQUE_MASK                          = 0x01800000;
+    private static final int PREPRESSED                   = 0x02000000;
+    static final int CANCEL_NEXT_UP_EVENT                 = 0x04000000;
+    private static final int AWAKEN_SCROLL_BARS_ON_ATTACH = 0x08000000;
+    private static final int HOVERED                      = 0x10000000;
+    private static final int DOES_NOTHING_REUSE_PLEASE    = 0x20000000;
+    static final int ACTIVATED                            = 0x40000000;
+    static final int INVALIDATED                          = 0x80000000;
+  }
+
+  int mFlags;
+  int mPrivateFlags;
 
   @NonNull
-  private final Set<Flag> FLAGS;
+  private final Map<String, Object> mLayoutParams = new HashMap<String, Object>();
+
+  @Nullable
+  private WidgetParent mParent;
+
+  @Nullable
+  AttachInfo mAttachInfo;
+
+  private int mMeasuredWidth;
+  private int mMeasuredHeight;
+
+  private LongSparseLongArray mMeasureCache;
+  private int mOldWidthMeasureSpec = Integer.MIN_VALUE;
+  private int mOldHeightMeasureSpec = Integer.MIN_VALUE;
+
+  private int mMinimumWidth;
+  private int mMinimumHeight;
 
   @NonNull
-  private final Map<String, Object> LAYOUT_PARAMS;
-
-  @Nullable
-  private WidgetParent parent;
-
-  @Nullable
-  private AttachInfo attachInfo;
-
-  private int measuredWidth;
-  private int measuredHeight;
-
-  private LongSparseLongArray measureCache;
-  private int oldWidthMeasureSpec;
-  private int oldHeightMeasureSpec;
-
-  private int minimumWidth;
-  private int minimumHeight;
+  private Bounds mBounds = new Bounds() {
+    @Override
+    protected void onChange() {
+      invalidate();
+    }
+  };
 
   @NonNull
-  private Bounds bounds;
+  private Padding mPadding = new Padding() {
+    @Override
+    protected void onChange() {
+      invalidate();
+    }
+  };
 
-  @NonNull
-  private Padding padding;
-
-  @NonNull
-  private Visibility visibility;
-
-  @Nullable
-  private Drawable background;
-
-  @Nullable
-  private Drawable foreground;
-
-  @Nullable
-  private Drawable overlay;
-
-  @Nullable
-  private Drawable debug;
+  @Nullable private Drawable mBackground;
+  @Nullable private Drawable mForeground;
+  @Nullable private Drawable mOverlay;
+  @Nullable private Drawable mDebug;
 
   public Widget() {
-    this.FLAGS = EnumSet.noneOf(Flag.class);
-    this.LAYOUT_PARAMS = new HashMap<String, Object>();
+  }
 
-    this.bounds = new Bounds() {
-      @Override
-      protected void onChange() {
-        invalidate();
+  void setFlags(int flags, int mask) {
+    int oldFlags = flags;
+    mFlags = (mFlags & ~mask) | (flags | mask);
+
+    int changed = mFlags ^ oldFlags;
+    if (changed == 0) {
+      return;
+    }
+
+    int privateFlags = mPrivateFlags;
+    if (((changed & FOCUSABLE_MASK) != 0) && ((privateFlags & PFLAG.HAS_BOUNDS) != 0)) {
+      if (((oldFlags & FOCUSABLE_MASK) == FOCUSABLE) && ((privateFlags & PFLAG.FOCUSED) != 0)) {
+        clearFocus();
+      } else if (((oldFlags & FOCUSABLE_MASK) == NOT_FOCUSABLE)
+              && ((privateFlags & PFLAG.FOCUSED) == 0)) {
+        if (mParent != null) {
+          mParent.focusableViewAvailable(this);
+        }
       }
-    };
+    }
 
-    this.padding = new Padding() {
-      @Override
-      protected void onChange() {
+    final int newVisibility = flags & VISIBILITY_MASK;
+    if (newVisibility == VISIBLE) {
+      if ((changed & VISIBILITY_MASK) != 0) {
+        mPrivateFlags |= PFLAG.DRAWN;
         invalidate();
+        if (mParent != null && !mBounds.isEmpty()) {
+          mParent.focusableViewAvailable(this);
+        }
       }
-    };
+    }
 
-    _setVisibility(Visibility.VISIBLE);
+        /* Check if the GONE bit has changed */
+    if ((changed & GONE) != 0) {
+      needGlobalAttributesUpdate(false);
+      requestLayout();
+
+      if (((mViewFlags & VISIBILITY_MASK) == GONE)) {
+        if (hasFocus()) clearFocus();
+        clearAccessibilityFocus();
+        destroyDrawingCache();
+        if (mParent instanceof View) {
+          // GONE views noop invalidation, so invalidate the parent
+          ((View) mParent).invalidate(true);
+        }
+        // Mark the view drawn to ensure that it gets invalidated properly the next
+        // time it is visible and gets invalidated
+        mPrivateFlags |= PFLAG_DRAWN;
+      }
+      if (mAttachInfo != null) {
+        mAttachInfo.mViewVisibilityChanged = true;
+      }
+    }
+
+        /* Check if the VISIBLE bit has changed */
+    if ((changed & INVISIBLE) != 0) {
+      needGlobalAttributesUpdate(false);
+            /*
+             * If this view is becoming invisible, set the DRAWN flag so that
+             * the next invalidate() will not be skipped.
+             */
+      mPrivateFlags |= PFLAG_DRAWN;
+
+      if (((mViewFlags & VISIBILITY_MASK) == INVISIBLE)) {
+        // root view becoming invisible shouldn't clear focus and accessibility focus
+        if (getRootView() != this) {
+          if (hasFocus()) clearFocus();
+          clearAccessibilityFocus();
+        }
+      }
+      if (mAttachInfo != null) {
+        mAttachInfo.mViewVisibilityChanged = true;
+      }
+    }
+
+    if ((changed & VISIBILITY_MASK) != 0) {
+      // If the view is invisible, cleanup its display list to free up resources
+      if (newVisibility != VISIBLE && mAttachInfo != null) {
+        cleanupDraw();
+      }
+
+      if (mParent instanceof ViewGroup) {
+        ((ViewGroup) mParent).onChildVisibilityChanged(this,
+                (changed & VISIBILITY_MASK), newVisibility);
+        ((View) mParent).invalidate(true);
+      } else if (mParent != null) {
+        mParent.invalidateChild(this, null);
+      }
+      dispatchVisibilityChanged(this, newVisibility);
+
+      notifySubtreeAccessibilityStateChangedIfNeeded();
+    }
+
+    if ((changed & WILL_NOT_CACHE_DRAWING) != 0) {
+      destroyDrawingCache();
+    }
+
+    if ((changed & DRAWING_CACHE_ENABLED) != 0) {
+      destroyDrawingCache();
+      mPrivateFlags &= ~PFLAG_DRAWING_CACHE_VALID;
+      invalidateParentCaches();
+    }
+
+    if ((changed & DRAWING_CACHE_QUALITY_MASK) != 0) {
+      destroyDrawingCache();
+      mPrivateFlags &= ~PFLAG_DRAWING_CACHE_VALID;
+    }
+
+    if ((changed & DRAW_MASK) != 0) {
+      if ((mFlags & WILL_NOT_DRAW) != 0) {
+        if (mBackground != null) {
+          mPrivateFlags &= ~PFLAG_SKIP_DRAW;
+          mPrivateFlags |= PFLAG_ONLY_DRAWS_BACKGROUND;
+        } else {
+          mPrivateFlags |= PFLAG_SKIP_DRAW;
+        }
+      } else {
+        mPrivateFlags &= ~PFLAG_SKIP_DRAW;
+      }
+      requestLayout();
+      invalidate(true);
+    }
+
+    if ((changed & KEEP_SCREEN_ON) != 0) {
+      if (mParent != null && mAttachInfo != null && !mAttachInfo.mRecomputeGlobalAttributes) {
+        mParent.recomputeViewAttributes(this);
+      }
+    }
+  }
+
+  public void clearFocus() {
+    throw new UnsupportedOperationException();
   }
 
   public void invalidate() {
 
   }
 
-  @Override
   public final void draw(@NonNull Canvas canvas) {
     Validate.isTrue(canvas != null, "canvas cannot be null");
     drawBackground(canvas);
     drawForeground(canvas);
+    onDraw(canvas);
     drawOverlay(canvas);
     drawDebug(canvas);
   }
@@ -124,6 +316,10 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
     if (foreground != null) {
       foreground.draw(canvas);
     }
+  }
+
+  protected void onDraw(@NonNull Canvas canvas) {
+    Validate.isTrue(canvas != null, "canvas cannot be null");
   }
 
   protected void drawOverlay(@NonNull Canvas canvas) {
@@ -153,18 +349,18 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
       return;
     }
 
-    LAYOUT_PARAMS.put(layoutParam, value);
+    layoutParams.put(layoutParam, value);
     invalidate();
   }
 
   @Nullable
   public final <E> E get(@Nullable @LayoutParam String layoutParam) {
-    return (E)LAYOUT_PARAMS.get(layoutParam);
+    return (E) layoutParams.get(layoutParam);
   }
 
   @Nullable
-  public final <E> E getOrDefault(@Nullable @LayoutParam String layoutParam,
-                                  @Nullable E defaultValue) {
+  public final <E> E get(@Nullable @LayoutParam String layoutParam,
+                         @Nullable E defaultValue) {
     if (containsKey(layoutParam)) {
       return get(layoutParam);
     }
@@ -174,13 +370,13 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
 
   @Nullable
   public final <E> E remove(@Nullable @LayoutParam String layoutParam) {
-    E value = (E)LAYOUT_PARAMS.remove(layoutParam);
+    E value = (E) layoutParams.remove(layoutParam);
     invalidate();
     return value;
   }
 
   public final boolean containsKey(@Nullable @LayoutParam String layoutParam) {
-    return LAYOUT_PARAMS.containsKey(layoutParam);
+    return layoutParams.containsKey(layoutParam);
   }
 
   @NonNull
@@ -188,13 +384,9 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
     return visibility;
   }
 
-  private void _setVisibility(@NonNull Visibility visibility) {
+  public void setVisibility(@NonNull Visibility visibility) {
     Validate.isTrue(visibility != null, "visibility cannot be null");
     this.visibility = visibility;
-  }
-
-  public void setVisibility(@NonNull Visibility visibility) {
-    _setVisibility(visibility);
   }
 
   @Override
@@ -221,6 +413,10 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
     if (attachInfo != null && attachInfo.widgetRequestingLayout == this) {
       attachInfo.widgetRequestingLayout = null;
     }
+  }
+
+  public boolean isLayoutRequested() {
+    return FLAGS.contains(Flag.FORCE_LAYOUT);
   }
 
   @Nullable
@@ -513,12 +709,6 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
     LAYOUT_REQUIRED
   }
 
-  public enum Visibility {
-    VISIBLE,
-    INVISIBLE,
-    GONE
-  }
-
   public static final class MeasureSpec {
 
     private static final int MODE_SHIFT = 30;
@@ -580,6 +770,11 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
 
   }
 
+  @StringDef
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface LayoutParam {}
+
   public static final class LayoutParams {
 
     public static final int FILL_PARENT = -1;
@@ -591,6 +786,12 @@ public class Widget implements Bounded, Drawable, Layoutable, Padded {
 
     @LayoutParam
     public static final String layout_height = "layout_height";
+
+    @LayoutParam
+    public static final String layout_margin = "layout_margin";
+
+    @LayoutParam
+    public static final String layout_weight = "layout_weight";
 
   }
 
