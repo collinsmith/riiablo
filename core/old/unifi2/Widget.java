@@ -1695,7 +1695,7 @@ public abstract class Widget
 
 
   /**
-   * Bottom margin of this {@code Widget}. Margin is defined as the space outside of this
+   * Bottom margin of this {@code Widget}. Margins is defined as the space outside of this
    * {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @return Bottom margin, in pixels
@@ -1708,7 +1708,7 @@ public abstract class Widget
   }
 
   /**
-   * Sets the bottom margin of this {@code Widget}. Margin is defined as the space outside of
+   * Sets the bottom margin of this {@code Widget}. Margins is defined as the space outside of
    * this {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside
    * edge).
    *
@@ -1725,7 +1725,7 @@ public abstract class Widget
   }
 
   /**
-   * Left margin of this {@code Widget}. Margin is defined as the space outside of this
+   * Left margin of this {@code Widget}. Margins is defined as the space outside of this
    * {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @return Left margin, in pixels
@@ -1738,7 +1738,7 @@ public abstract class Widget
   }
 
   /**
-   * Sets the left margin of this {@code Widget}. Margin is defined as the space outside of
+   * Sets the left margin of this {@code Widget}. Margins is defined as the space outside of
    * this {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside
    * edge).
    *
@@ -1755,7 +1755,7 @@ public abstract class Widget
   }
 
   /**
-   * Right margin of this {@code Widget}. Margin is defined as the space outside of this
+   * Right margin of this {@code Widget}. Margins is defined as the space outside of this
    * {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @return Right margin, in pixels
@@ -1768,7 +1768,7 @@ public abstract class Widget
   }
 
   /**
-   * Sets the right margin of this {@code Widget}. Margin is defined as the space outside of
+   * Sets the right margin of this {@code Widget}. Margins is defined as the space outside of
    * this {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside
    * edge).
    *
@@ -1785,7 +1785,7 @@ public abstract class Widget
   }
 
   /**
-   * Top margin of this {@code Widget}. Margin is defined as the space outside of this
+   * Top margin of this {@code Widget}. Margins is defined as the space outside of this
    * {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @return Top margin, in pixels
@@ -1798,7 +1798,7 @@ public abstract class Widget
   }
 
   /**
-   * Sets the top margin of this {@code Widget}. Margin is defined as the space outside of
+   * Sets the top margin of this {@code Widget}. Margins is defined as the space outside of
    * this {@code Widget}, which no other {@code Widget} may invade (i.e., marks the outside
    * edge).
    *
@@ -1815,7 +1815,7 @@ public abstract class Widget
   }
 
   /**
-   * {@link Boundary} containing of the sizes of the margins of this {@code Widget}. Margin is
+   * {@link Boundary} containing of the sizes of the margins of this {@code Widget}. Margins is
    * defined as the space outside of this {@code Widget}, which no other {@code Widget} may
    * invade (i.e., marks the outside edge).
    * <p>
@@ -1834,7 +1834,7 @@ public abstract class Widget
 
   /**
    * Populates the passed {@link Boundary} instance with the sizes of the margins of this
-   * {@code Widget}. Margin is defined as the space outside of this {@code Widget}, which
+   * {@code Widget}. Margins is defined as the space outside of this {@code Widget}, which
    * no other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @param dst {@code Boundary} instance to populate, otherwise if a {@code null} reference is
@@ -1855,7 +1855,7 @@ public abstract class Widget
   }
 
   /**
-   * Sets the margin on all sides of this {@code Widget}. Margin is defined as the space
+   * Sets the margin on all sides of this {@code Widget}. Margins is defined as the space
    * outside of this {@code Widget}, which no other {@code Widget} may invade (i.e., marks the
    * outside edge).
    * <p>
@@ -1882,7 +1882,7 @@ public abstract class Widget
 
   /**
    * Sets the margin on all sides of this {@code Widget} to those of the source
-   * {@link Boundary}. Margin is defined as the space outside of this {@code Widget}, which no
+   * {@link Boundary}. Margins is defined as the space outside of this {@code Widget}, which no
    * other {@code Widget} may invade (i.e., marks the outside edge).
    * <p>
    * Precondition: {@code src.getLeft() >= 0 AND src.getRight() >= 0 AND src.getBottom() >= 0
@@ -1904,10 +1904,10 @@ public abstract class Widget
   /**
    * Sets the margin on all sides of this {@code Widget} to the specified value. This method
    * would be the same as calling {@link #setMargins(int, int, int, int)} with all the same
-   * parameter. Margin is defined as the space outside of this {@code Widget}, which no
+   * parameter. Margins is defined as the space outside of this {@code Widget}, which no
    * other {@code Widget} may invade (i.e., marks the outside edge).
    *
-   * @param margin Margin, in pixels
+   * @param margin Margins, in pixels
    */
   @Override
   public final void setMargins(@IntRange(from = 0, to = Integer.MAX_VALUE) final int margin) {
@@ -1916,7 +1916,7 @@ public abstract class Widget
 
   /**
    * Checks whether or not at least one side of this {@code Widget} has a positive margin
-   * value. Margin is defined as the space outside of this {@code Widget}, which no
+   * value. Margins is defined as the space outside of this {@code Widget}, which no
    * other {@code Widget} may invade (i.e., marks the outside edge).
    *
    * @return {@code true} if at least one side of this {@code Widget} has a positive margin
