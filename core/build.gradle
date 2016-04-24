@@ -19,4 +19,5 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.+'
     compile 'org.apache.commons:commons-collections4:4.+'
     compile 'com.android.support:support-annotations:23.1.1'
+    compile 'xmlpull:xmlpull:1.1.3.1'
 }
