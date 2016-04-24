@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.gmail.collinsmith70.unifi.graphics.ColorUtils;
 import com.gmail.collinsmith70.unifi.util.Xml;
 
@@ -19,6 +20,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.text.ParseException;
 import java.util.Locale;
 
 public class Resources {
@@ -70,7 +74,7 @@ public class Resources {
             throw new FileNotFoundException("File not found: " + fileHandle.path());
         }
 
-        Gdx.app.debug(TAG, "Parsing resource xml file " + fileHandle.path() + "...");
+        Gdx.app.debug(TAG, "Parsing resource " + fileHandle.path() + "...");
 
         try {
             XmlPullParser parser = Xml.newPullParser();
@@ -107,7 +111,153 @@ public class Resources {
         }
     }
 
+    public static class ResourceReference {
+
+        private String mPackage;
+        private Type mType;
+        private String mName;
+
+        @NonNull
+        public static ResourceReference parse(@NonNull String str) throws ParseException {
+            return parse(str, new ResourceReference());
+        }
+
+        @NonNull
+        public static ResourceReference parse(@NonNull String str, @NonNull ResourceReference res)
+                throws ParseException {
+            try {
+                int pos = 0;
+                Reader r = new StringReader(str);
+                int ch = r.read();
+                pos++;
+                if (ch != '@') {
+                    throw new ParseException(
+                            "Unable to parse resource identifier: Unexpected char: '@'", pos);
+                }
+
+                String tmp;
+                StringBuilder sb = new StringBuilder();
+
+                ch = r.read();
+                pos++;
+                while (ch != -1 && ch != ':' && ch != '/') {
+                    sb.append((char) ch);
+                    ch = r.read();
+                    pos++;
+                }
+
+                switch (ch) {
+                    case -1:
+                        throw new ParseException(
+                                "Unable to parse resource identifier: Unexpected end of string: " +
+                                        "Resource identifiers should be formatted like: " +
+                                        "@[package:]type/name",
+                                pos);
+                    case ':':
+                        if (sb.length() == 0) {
+                            throw new ParseException(
+                                    "Unable to parse resource identifier: Invalid format: " +
+                                            "':' given without package string preceding: " +
+                                            "Resource identifiers should be formatted like: " +
+                                            "@[package:]type/name",
+                                    pos);
+                        }
+
+                        res.mPackage = sb.toString();
+
+                        sb = new StringBuilder();
+                        ch = r.read();
+                        pos++;
+                        while (ch != -1 && ch != '/') {
+                            sb.append((char) ch);
+                            ch = r.read();
+                            pos++;
+                        }
+
+                        if (ch == -1) {
+                            throw new ParseException(
+                                    "Unable to parse resource identifier: Unexpected end of " +
+                                            "string: " +
+                                            "Resource identifiers should be formatted like: " +
+                                            "@[package:]type/name",
+                                    pos);
+                        }
+
+                    case '/':
+                        if (sb.length() == 0) {
+                            throw new ParseException(
+                                    "Unable to parse resource identifier: Invalid format: " +
+                                            "'/' given without type string preceding: " +
+                                            "Resource identifiers should be formatted like: " +
+                                            "@[package:]type/name",
+                                    pos);
+                        }
+
+                        tmp = null;
+                        try {
+                            res.mType = Type.valueOf(tmp = sb.toString());
+                        } catch (IllegalArgumentException e) {
+                            throw new ParseException(
+                                    "Unable to parse resource identifier: Unidentifiable type: "
+                                            + tmp,
+                                    pos);
+                        }
+
+                        break;
+                }
+
+                sb = new StringBuilder();
+                ch = r.read();
+                pos++;
+                while (ch != -1) {
+                    sb.append((char) ch);
+                    ch = r.read();
+                    pos++;
+                }
+
+                if (sb.length() == 0) {
+                    throw new ParseException(
+                            "Unable to parse resource identifier: Unexpected end of string: " +
+                                    "Resource identifiers should be formatted like: " +
+                                    "@[package:]type/name",
+                            pos);
+                }
+
+                res.mName = sb.toString();
+            } catch (IOException e) {
+                Gdx.app.error(TAG, e.getMessage(), e);
+            }
+
+            return res;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            if (mPackage == null) {
+                return String.format(Locale.ROOT, "@%s/%s", mType, mName);
+            }
+
+            return String.format(Locale.ROOT, "@%s:%s/%s", mPackage, mType, mName);
+        }
+
+        @NonNull
+        public String toPackageString() {
+            if (mPackage == null) {
+                return String.format(Locale.ROOT, "R.%s.%s", mType, mName);
+            }
+
+            return String.format(Locale.ROOT, "%s.R.%s.%s", mPackage, mType, mName);
+        }
+
+        public enum Type {
+            color;
+        }
+
+    }
+
     private static final Trie<String, ResourceXmlType> resourceXmlTypes;
+
     static {
         resourceXmlTypes = new PatriciaTrie<Resources.ResourceXmlType>();
         for (ResourceXmlType resourceXmlType : ResourceXmlType.values()) {
