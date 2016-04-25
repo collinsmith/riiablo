@@ -8,7 +8,9 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.StringBuilder;
+import com.gmail.collinsmith70.unifi.content.res.parser.ColorParser;
 import com.gmail.collinsmith70.unifi.graphics.ColorUtils;
+import com.gmail.collinsmith70.unifi.util.AttributeSet;
 import com.gmail.collinsmith70.unifi.util.Xml;
 
 import org.apache.commons.collections4.Trie;
@@ -78,25 +80,31 @@ public class Resources {
 
         try {
             XmlPullParser parser = Xml.newPullParser();
+            AttributeSet attrs = Xml.asAttributeSet(parser);
             parser.setInput(fileHandle.reader());
 
             String tag;
             boolean isRootTag = true;
-            ResourceXmlType resourceXmlType;
+            ResourceReference.Type resourceXmlType;
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 tag = parser.getName();
                 switch (eventType) {
                     case XmlPullParser.START_TAG:
-                        resourceXmlType = resourceXmlTypes.get(tag);
+                        resourceXmlType = resourceTypes.get(tag);
                         if (resourceXmlType != null) {
-                            eventType = resourceXmlType.parse(this, parser);
-                            break;
+                            switch (resourceXmlType) {
+                                case color:
+                                    String name = attrs.getAttributeValue(null, "name");
+                                    Color color = resourceXmlType.parse(parser, attrs);
+                                    colors.put(name, color);
+                                    break;
+                            }
                         }
 
                         if (isRootTag) {
                             isRootTag = false;
-                        } else {
+                        } else if (resourceXmlType == null) {
                             Gdx.app.debug(TAG, "Unknown tag found: " + parser.getName());
                         }
                     default:
@@ -111,8 +119,18 @@ public class Resources {
         }
     }
 
+    private static final Trie<String, ResourceReference.Type> resourceTypes;
+
+    static {
+        resourceTypes = new PatriciaTrie<ResourceReference.Type>();
+        for (ResourceReference.Type resourceType : ResourceReference.Type.values()) {
+            resourceTypes.put(resourceType.getTag(), resourceType);
+        }
+    }
+
     public static class ResourceReference {
 
+        private boolean isStyleAttributeReference;
         private String mPackage;
         private Type mType;
         private String mName;
@@ -130,10 +148,14 @@ public class Resources {
                 Reader r = new StringReader(str);
                 int ch = r.read();
                 pos++;
-                if (ch != '@') {
+                if (ch != '@' && ch != '?') {
                     throw new ParseException(
-                            "Unable to parse resource identifier: Unexpected char: '@'", pos);
+                            "Unable to parse resource identifier: " +
+                                    "Unexpected char: " + (char)ch,
+                            pos);
                 }
+
+                res.isStyleAttributeReference = ch == '?';
 
                 String tmp;
                 StringBuilder sb = new StringBuilder();
@@ -241,28 +263,40 @@ public class Resources {
             return String.format(Locale.ROOT, "@%s:%s/%s", mPackage, mType, mName);
         }
 
-        @NonNull
-        public String toPackageString() {
-            if (mPackage == null) {
-                return String.format(Locale.ROOT, "R.%s.%s", mType, mName);
+        public enum Type {
+            color() {
+                @NonNull
+                @Override
+                public Color parse(@NonNull XmlPullParser parser, @NonNull AttributeSet attrs)
+                        throws IOException, XmlPullParserException {
+                    return ColorParser.parse(parser, attrs);
+                }
+            };
+
+            @Nullable
+            private final String tag;
+
+            Type() {
+                this.tag = name().toLowerCase(Locale.ROOT);
             }
 
-            return String.format(Locale.ROOT, "%s.R.%s.%s", mPackage, mType, mName);
+            Type(@NonNull String tag) {
+                Validate.isTrue(tag != null, "tag cannot null");
+                Validate.isTrue(!tag.isEmpty(), "tag cannot be empty");
+                this.tag = tag;
+            }
+
+            @NonNull
+            public String getTag() {
+                return tag;
+            }
+
+            @NonNull
+            public abstract <T> T parse(@NonNull XmlPullParser parser, @NonNull AttributeSet attrs)
+                    throws IOException, XmlPullParserException;
+
         }
 
-        public enum Type {
-            color;
-        }
-
-    }
-
-    private static final Trie<String, ResourceXmlType> resourceXmlTypes;
-
-    static {
-        resourceXmlTypes = new PatriciaTrie<Resources.ResourceXmlType>();
-        for (ResourceXmlType resourceXmlType : ResourceXmlType.values()) {
-            resourceXmlTypes.put(resourceXmlType.getTag(), resourceXmlType);
-        }
     }
 
     private enum ResourceXmlType {
@@ -270,7 +304,7 @@ public class Resources {
         COLOR() {
             @Override
             protected int parse(@NonNull Resources res, @NonNull XmlPullParser parser)
-                    throws XmlPullParserException, IOException {
+                    throws IOException, XmlPullParserException {
                 String name = parser.getAttributeValue(null, "name");
                 if (name == null) {
                     throw new XmlPullParserException(parser.getPositionDescription()

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.gmail.collinsmith70.command.CommandManager;
@@ -15,13 +16,17 @@ import com.gmail.collinsmith70.diablo.scene.HudedScene;
 import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
 import com.gmail.collinsmith70.key.KeyStateAdapter;
-import com.gmail.collinsmith70.unifi.view.Window;
-import com.gmail.collinsmith70.util.ImmutableDimension;
+import com.gmail.collinsmith70.unifi.content.res.Resources;
+import com.gmail.collinsmith70.unifi.graphics.Canvas;
+import com.gmail.collinsmith70.unifi.graphics.ImmutablePaint;
+import com.gmail.collinsmith70.unifi.graphics.Paint;
+import com.gmail.collinsmith70.unifi.math.Dimension;
+import com.gmail.collinsmith70.unifi.math.ImmutableDimension;
 import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 
-import java.awt.Dimension;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.text.ParseException;
 import java.util.Locale;
 
 public class Client implements ApplicationListener {
@@ -47,7 +52,7 @@ public class Client implements ApplicationListener {
 
 //private Stage STAGE;
 
-  private Window WINDOW;
+  //private Window WINDOW;
   //private Batch BATCH;
 
   private HudedScene scene;
@@ -58,7 +63,7 @@ public class Client implements ApplicationListener {
   private BitmapFont font;
 
   public Client(int width, int height) {
-    this.RESOLUTION = new ImmutableDimension(width, height);
+    this.RESOLUTION = ImmutableDimension.newImmutableDimension(width, height);
 
     this.STDOUT = System.out;
     this.STDERR = System.err;
@@ -74,6 +79,8 @@ public class Client implements ApplicationListener {
 
   @Override
   public void create() {
+    Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
     //FileHandle consoleFileHandle = Gdx.files.local("console.out");
     //OutputStream consoleOut = consoleFileHandle.write(false);
     OutputStream consoleOut = System.out;
@@ -147,7 +154,13 @@ public class Client implements ApplicationListener {
     this.WINDOW.setDebugging(true);
     */
 
-    this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
+    //LinearLayout linearLayout = new LinearLayout();
+    //linearLayout.put(Widget.LayoutParams.layout_width, Widget.LayoutParams.FILL_PARENT);
+    //linearLayout.put(Widget.LayoutParams.layout_height, Widget.LayoutParams.FILL_PARENT);
+    //linearLayout.setBackground(new ColorDrawable(ColorUtils.GREEN));
+
+    //this.WINDOW = new Window(RESOLUTION.width, RESOLUTION.height);
+    //WINDOW.setWidget(linearLayout);
 
     Gdx.input.setCatchBackKey(true);
     Gdx.input.setCatchMenuKey(true);
@@ -164,6 +177,17 @@ public class Client implements ApplicationListener {
     });
 
     setScene(new HudedScene(this));
+
+    Resources res = new Resources(ASSET_MANAGER);
+    Color black = res.getColor("@color/black");
+    System.out.println("color = " + black.toString());
+
+    try {
+      Resources.ResourceReference ref = Resources.ResourceReference.parse("@unifi:color/name");
+      Gdx.app.debug(TAG, "Resource: " + ref);
+    } catch (ParseException e) {
+      Gdx.app.error(TAG, e.getMessage(), e);
+    }
   }
 
   private void setSerializers() {
@@ -179,10 +203,11 @@ public class Client implements ApplicationListener {
         Client.this.pCvar_Windowed = to;
         if (Gdx.app.getType() == Application.ApplicationType.Desktop
                 && !Client.this.forcedWindowed) {
-          Gdx.graphics.setDisplayMode(
-                  Gdx.graphics.getWidth(),
-                  Gdx.graphics.getHeight(),
-                  !to);
+          if (to) {
+            Gdx.graphics.setWindowedMode(RESOLUTION.getWidth(), RESOLUTION.getHeight());
+          } else {
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+          }
         }
       }
     });
@@ -220,9 +245,9 @@ public class Client implements ApplicationListener {
   }
 
   //public Stage getStage() { return STAGE; }
-  public Window getWindow() {
-    return WINDOW;
-  }
+  //public Window getWindow() {
+  //  return WINDOW;
+  //}
 
   public ClientConsole getConsole() {
     return CONSOLE;
@@ -270,12 +295,31 @@ public class Client implements ApplicationListener {
     //STAGE.getViewport().update(width, height, true);
   }
 
+  Canvas canvas;
+  ImmutablePaint paint = ImmutablePaint.builder()
+          .setStyle(Paint.Style.STROKE)
+          .setColor(Color.NAVY)
+          .setStrokeWidth(5)
+          .build();
+
   @Override
   public void render() {
     Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    WINDOW.draw();
+    if (canvas == null) {
+      canvas = new Canvas(RESOLUTION.getWidth(), RESOLUTION.getHeight());
+      canvas.setRestoreGlState(true);
+    }
+
+    Gdx.app.setLogLevel(Application.LOG_DEBUG);
+    canvas.begin();
+    canvas.clipRect(0, 0, 100, 50);
+    canvas.drawRoundRect(0, 0, 100, 50, 8, Paint.DEFAULT);
+    canvas.drawRoundRect(1, 1, 98, 48, 8, paint);
+    canvas.end();
+
+    //WINDOW.draw();
 
     //STAGE.act(Gdx.graphics.getDeltaTime());
     //STAGE.draw();
@@ -339,8 +383,8 @@ public class Client implements ApplicationListener {
     Gdx.app.log(TAG, "Disposing stage...");
     //STAGE.dispose();
     //this.STAGE = null;
-    WINDOW.dispose();
-    this.WINDOW = null;
+    //WINDOW.dispose();
+    //this.WINDOW = null;
     //this.BATCH.dispose();
     //this.BATCH = null;
 
