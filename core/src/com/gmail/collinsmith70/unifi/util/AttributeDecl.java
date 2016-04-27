@@ -1,5 +1,6 @@
 package com.gmail.collinsmith70.unifi.util;
 
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
 import org.apache.commons.lang3.Validate;
@@ -14,11 +15,23 @@ public final class AttributeDecl {
     @NonNull
     private final Class<?> valueType;
 
-    public AttributeDecl(@NonNull String name, @NonNull Class<?> valueType) {
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    private final int index;
+
+    public AttributeDecl(@IntRange(from = 0, to = Integer.MAX_VALUE) int index,
+                         @NonNull String name,
+                         @NonNull Class<?> valueType) {
+        Validate.isTrue(index >= 0, "index cannot be less than 0");
         Validate.isTrue(name != null, "name cannot be null");
         Validate.isTrue(valueType != null, "valueType cannot be null");
+        this.index = index;
         this.name = name;
         this.valueType = valueType;
+    }
+
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    public int getIndex() {
+        return index;
     }
 
     @NonNull
