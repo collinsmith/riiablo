@@ -10,6 +10,7 @@ import org.apache.commons.lang3.Validate;
 
 public class PaintDrawable extends Drawable {
 
+    @NonNull
     private Paint paint;
 
     public PaintDrawable() {
@@ -25,6 +26,7 @@ public class PaintDrawable extends Drawable {
         canvas.drawRect(getBounds(), paint);
     }
 
+    @NonNull
     public Paint getPaint() {
         return paint;
     }
