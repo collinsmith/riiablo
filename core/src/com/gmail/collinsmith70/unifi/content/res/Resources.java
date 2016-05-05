@@ -1,5 +1,7 @@
 package com.gmail.collinsmith70.unifi.content.res;
 
+import com.google.common.primitives.UnsignedInteger;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -10,6 +12,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.gmail.collinsmith70.unifi.content.res.parser.ColorParser;
 import com.gmail.collinsmith70.unifi.graphics.ColorUtils;
+import com.gmail.collinsmith70.unifi.util.AttributeDecl;
 import com.gmail.collinsmith70.unifi.util.AttributeSet;
 import com.gmail.collinsmith70.unifi.util.Xml;
 
@@ -25,7 +28,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class Resources {
 
@@ -47,6 +52,21 @@ public class Resources {
     @NonNull
     public AssetManager getAssets() {
         return assetManager;
+    }
+
+    public TypedArray obtainAttributes(@NonNull AttributeSet set, @NonNull AttributeDecl[] attrs) {
+        TypedArray array = TypedArray.obtain(this, attrs.length);
+        for (AttributeDecl attrDecl : attrs) {
+            if (attrDecl.getValueType() == Integer.class) {
+                array.data[attrDecl.getIndex()]
+                        = set.getAttributeIntValue(null, attrDecl.getName(), 0);
+            } else if (attrDecl.getValueType() == UnsignedInteger.class) {
+                array.data[attrDecl.getIndex()]
+                        = set.getAttributeUnsignedIntValue(null, attrDecl.getName(), 0xFFFFFFFF);
+            }
+        }
+
+        return array;
     }
 
     @Nullable
@@ -85,18 +105,18 @@ public class Resources {
 
             String tag;
             boolean isRootTag = true;
-            ResourceReference.Type resourceXmlType;
+            ResourceReference.Type resourceType;
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 tag = parser.getName();
                 switch (eventType) {
                     case XmlPullParser.START_TAG:
-                        resourceXmlType = resourceTypes.get(tag);
-                        if (resourceXmlType != null) {
-                            switch (resourceXmlType) {
+                        resourceType = resourceTypes.get(tag);
+                        if (resourceType != null) {
+                            switch (resourceType) {
                                 case color:
                                     String name = attrs.getAttributeValue(null, "name");
-                                    Color color = resourceXmlType.parse(parser, attrs);
+                                    Color color = resourceType.parse(parser, attrs);
                                     colors.put(name, color);
                                     break;
                             }
@@ -104,7 +124,7 @@ public class Resources {
 
                         if (isRootTag) {
                             isRootTag = false;
-                        } else if (resourceXmlType == null) {
+                        } else if (resourceType == null) {
                             Gdx.app.debug(TAG, "Unknown tag found: " + parser.getName());
                         }
                     default:
@@ -370,8 +390,33 @@ public class Resources {
 
     public final class Theme {
 
-        public TypedArray obtainStyledAttributes(int[] attrs) {
-            return null;
+        private Map<String, Object> theme;
+
+        Theme() {
+            this.theme = new HashMap<String, Object>();
+        }
+
+        @NonNull
+        public TypedArray obtainStyledAttributes(@NonNull AttributeDecl[] attrs) {
+            Validate.isTrue(attrs != null, "attrs cannot be null");
+            final TypedArray array = TypedArray.obtain(Resources.this, attrs.length);
+            for (AttributeDecl decl : attrs) {
+                array.data[decl.getIndex()] = theme.get(decl.getName());
+            }
+
+            return array;
+        }
+
+        @NonNull
+        public TypedArray obtainStyledAttributes(@NonNull AttributeSet set,
+                                                 @NonNull AttributeDecl[] attrs) {
+            Validate.isTrue(attrs != null, "set cannot be null");
+            Validate.isTrue(attrs != null, "attrs cannot be null");
+            final TypedArray array = TypedArray.obtain(Resources.this, attrs.length);
+            for (AttributeDecl decl : attrs) {
+            }
+
+            return array;
         }
 
     }
