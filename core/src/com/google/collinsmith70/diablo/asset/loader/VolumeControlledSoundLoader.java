@@ -1,13 +1,14 @@
 package com.google.collinsmith70.diablo.asset.loader;
 
+import com.google.collinsmith70.diablo.audio.VolumeControlled;
+import com.google.collinsmith70.diablo.audio.VolumeController;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.SoundLoader;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
-import com.google.collinsmith70.diablo.audio.VolumeControlled;
-import com.google.collinsmith70.diablo.audio.VolumeController;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;
@@ -161,9 +162,9 @@ private static class VolumeManagedSoundWrapper implements Sound {
         parent.setPan(soundId, pan, volume);
     }
 
-    @Override
+    //@Override
     public void setPriority(long soundId, int priority) {
-        parent.setPriority(soundId, priority);
+        //parent.setPriority(soundId, priority);
     }
 }
 

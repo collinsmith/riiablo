@@ -1,8 +1,9 @@
 package com.google.collinsmith70.diablo.cvar;
 
+import com.google.collinsmith70.diablo.cvar.validator.FloatValueValidator;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.google.collinsmith70.diablo.cvar.validator.FloatValueValidator;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
@@ -197,16 +198,16 @@ public static class Client {
             }
 
             public static final Cvar<Float> r = new Cvar<Float>(
-                    "Client.Console.Color.r",
+                    "Client.Console.ColorUtils.r",
                     Float.class, 1.0f);
             public static final Cvar<Float> g = new Cvar<Float>(
-                    "Client.Console.Color.g",
+                    "Client.Console.ColorUtils.g",
                     Float.class, 1.0f);
             public static final Cvar<Float> b = new Cvar<Float>(
-                    "Client.Console.Color.b",
+                    "Client.Console.ColorUtils.b",
                     Float.class, 1.0f);
             public static final Cvar<Float> a = new Cvar<Float>(
-                    "Client.Console.Color.a",
+                    "Client.Console.ColorUtils.a",
                     Float.class, 1.0f);
         }
     }

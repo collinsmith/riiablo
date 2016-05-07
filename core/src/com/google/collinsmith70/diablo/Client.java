@@ -1,5 +1,19 @@
 package com.google.collinsmith70.diablo;
 
+import com.google.collinsmith70.diablo.asset.Assets;
+import com.google.collinsmith70.diablo.asset.loader.VolumeControlledMusicLoader;
+import com.google.collinsmith70.diablo.asset.loader.VolumeControlledSoundLoader;
+import com.google.collinsmith70.diablo.audio.SoundVolumeController;
+import com.google.collinsmith70.diablo.audio.VolumeController;
+import com.google.collinsmith70.diablo.command.Commands;
+import com.google.collinsmith70.diablo.cvar.Cvar;
+import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
+import com.google.collinsmith70.diablo.cvar.Cvars;
+import com.google.collinsmith70.diablo.key.Keys;
+import com.google.collinsmith70.diablo.lang.Langs;
+import com.google.collinsmith70.diablo.scene.AbstractScene;
+import com.google.collinsmith70.diablo.scene.SplashScene;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -14,19 +28,6 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.google.collinsmith70.diablo.asset.Assets;
-import com.google.collinsmith70.diablo.asset.loader.VolumeControlledMusicLoader;
-import com.google.collinsmith70.diablo.asset.loader.VolumeControlledSoundLoader;
-import com.google.collinsmith70.diablo.audio.SoundVolumeController;
-import com.google.collinsmith70.diablo.audio.VolumeController;
-import com.google.collinsmith70.diablo.command.Commands;
-import com.google.collinsmith70.diablo.cvar.Cvar;
-import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
-import com.google.collinsmith70.diablo.cvar.Cvars;
-import com.google.collinsmith70.diablo.key.Keys;
-import com.google.collinsmith70.diablo.lang.Langs;
-import com.google.collinsmith70.diablo.scene.AbstractScene;
-import com.google.collinsmith70.diablo.scene.SplashScene;
 
 import java.util.Locale;
 
@@ -162,10 +163,10 @@ public void create() {
         Cvars.Client.Render.Windowed.addCvarChangeListener(new CvarChangeListener<Boolean>() {
             @Override
             public void onCvarChanged(Cvar<Boolean> cvar, Boolean fromValue, Boolean toValue) {
-                Gdx.graphics.setDisplayMode(
-                        Gdx.graphics.getWidth(),
-                        Gdx.graphics.getHeight(),
-                        !toValue);
+                //Gdx.graphics.setDisplayMode(
+                //        Gdx.graphics.getWidth(),
+                //        Gdx.graphics.getHeight(),
+                //        !toValue);
             }
         });
     }
