@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LinearLayout xmlns="http://schemas.android.com/apk/res/android"
+              layout_width="match_parent"
+              layout_height="match_parent"
+              gravity="center" >
+    <Button layout_width="320dp"
+            layout_height="wrap_content"
+            text="@string/home/single_player"/>
+</LinearLayout>
