@@ -16,6 +16,7 @@ import com.gmail.collinsmith70.diablo.scene.HudedScene;
 import com.gmail.collinsmith70.diablo.widget.ClientConsoleWidget;
 import com.gmail.collinsmith70.key.Key;
 import com.gmail.collinsmith70.key.KeyStateAdapter;
+import com.gmail.collinsmith70.unifi.R;
 import com.gmail.collinsmith70.unifi.content.res.Resources;
 import com.gmail.collinsmith70.unifi.graphics.Canvas;
 import com.gmail.collinsmith70.unifi.graphics.ImmutablePaint;
@@ -27,6 +28,7 @@ import com.gmail.collinsmith70.util.serializer.LocaleStringSerializer;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class Client implements ApplicationListener {
@@ -188,6 +190,8 @@ public class Client implements ApplicationListener {
     } catch (ParseException e) {
       Gdx.app.error(TAG, e.getMessage(), e);
     }
+
+    Gdx.app.debug(TAG, Arrays.toString(R.styleable.ColorDrawable));
   }
 
   private void setSerializers() {
