@@ -6,4 +6,10 @@
     <Button layout_width="320dp"
             layout_height="wrap_content"
             text="@string/home/single_player"/>
+    <Button layout_width="320dp"
+            layout_height="wrap_content"
+            text="@string/home/options"/>
+    <Button layout_width="320dp"
+            layout_height="wrap_content"
+            text="@string/home/exit"/>
 </LinearLayout>
