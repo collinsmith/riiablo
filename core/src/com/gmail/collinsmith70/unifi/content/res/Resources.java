@@ -56,17 +56,24 @@ public class Resources {
 
     public TypedArray obtainAttributes(@NonNull AttributeSet set, @NonNull AttributeDecl[] attrs) {
         TypedArray array = TypedArray.obtain(this, attrs.length);
-        for (AttributeDecl attrDecl : attrs) {
-            if (attrDecl.getValueType() == Integer.class) {
-                array.data[attrDecl.getIndex()]
-                        = set.getAttributeIntValue(null, attrDecl.getName(), 0);
-            } else if (attrDecl.getValueType() == UnsignedInteger.class) {
-                array.data[attrDecl.getIndex()]
-                        = set.getAttributeUnsignedIntValue(null, attrDecl.getName(), 0xFFFFFFFF);
+        retrieveAttributes(set, attrs, array.data);
+        return array;
+    }
+
+    public void retrieveAttributes(@NonNull AttributeSet set,
+                                   @NonNull AttributeDecl[] attrs,
+                                   Object[] data) {
+        Class<?> type;
+        for (AttributeDecl attr : attrs) {
+            type = attr.getValueType();
+            if (type == Integer.class) {
+                data[attr.getIndex()] = set.getAttributeIntValue(null,
+                        attr.getName(), 0);
+            } else if (type == UnsignedInteger.class) {
+                data[attr.getIndex()] = set.getAttributeUnsignedIntValue(null,
+                        attr.getName(), 0xFFFFFFFF);
             }
         }
-
-        return array;
     }
 
     @Nullable
@@ -400,8 +407,16 @@ public class Resources {
         public TypedArray obtainStyledAttributes(@NonNull AttributeDecl[] attrs) {
             Validate.isTrue(attrs != null, "attrs cannot be null");
             final TypedArray array = TypedArray.obtain(Resources.this, attrs.length);
-            for (AttributeDecl decl : attrs) {
-                array.data[decl.getIndex()] = theme.get(decl.getName());
+            array.theme = this;
+            for (AttributeDecl attr : attrs) {
+                Object themeVal = theme.get(attr.getName());
+                if (!attr.getValueType().isAssignableFrom(themeVal.getClass())) {
+                    throw new RuntimeException(String.format(Locale.ROOT,
+                            "theme value at %s is not compatible with attr of type %s",
+                            attr.getName(), attr.getValueType().getName()));
+                }
+
+                array.data[attr.getIndex()] = themeVal;
             }
 
             return array;
@@ -413,9 +428,7 @@ public class Resources {
             Validate.isTrue(attrs != null, "set cannot be null");
             Validate.isTrue(attrs != null, "attrs cannot be null");
             final TypedArray array = TypedArray.obtain(Resources.this, attrs.length);
-            for (AttributeDecl decl : attrs) {
-            }
-
+            retrieveAttributes(set, attrs, array.data);
             return array;
         }
 
