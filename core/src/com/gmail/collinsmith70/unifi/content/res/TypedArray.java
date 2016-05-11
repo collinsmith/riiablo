@@ -46,6 +46,9 @@ public class TypedArray implements Pool.Poolable {
         Pools.free(this);
     }
 
+    TypedArray() {
+    }
+
     TypedArray(@NonNull Resources res,
                @IntRange(from = 0, to = Integer.MAX_VALUE) int len) {
         _setResources(res);
