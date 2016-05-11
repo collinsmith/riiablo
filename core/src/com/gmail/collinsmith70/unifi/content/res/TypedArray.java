@@ -70,7 +70,7 @@ public class TypedArray implements Pool.Poolable {
         }
     }
 
-    @NonNull
+    @Nullable
     public Resources getResources() {
         checkRecycled();
         return res;
