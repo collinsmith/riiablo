@@ -167,6 +167,11 @@ public class RectF {
         return getLeft() == left && getTop() == top && getRight() == right && getBottom() == bottom;
     }
 
+    @NonNull
+    public final Rect toRect() {
+        return new Rect((int)getLeft(), (int)getTop(), (int)getRight(), (int)getBottom());
+    }
+
     @Override
     @CallSuper
     public boolean equals(@Nullable Object obj) {
