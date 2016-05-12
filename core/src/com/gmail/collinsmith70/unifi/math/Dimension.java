@@ -69,29 +69,30 @@ public class Dimension {
 
     private void _set(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
                       @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
-        if (!equals(width, height)) {
-            _setWidth(width);
-            _setHeight(height);
-            onChange();
-        }
+        _setWidth(width);
+        _setHeight(height);
     }
 
     public void set(@IntRange(from = 0, to = Integer.MAX_VALUE) int width,
                     @IntRange(from = 0, to = Integer.MAX_VALUE) int height) {
-        _set(width, height);
-    }
-
-    private void _set(@NonNull Dimension src) {
-        Validate.isTrue(src != null, "source Dimension cannot be null");
-        if (!equals(src.getWidth(), src.getHeight())) {
-            _setWidth(src.getWidth());
-            _setHeight(src.getHeight());
+        if (!equals(width, height)) {
+            _set(width, height);
             onChange();
         }
     }
 
+    private void _set(@NonNull Dimension src) {
+        Validate.isTrue(src != null, "source Dimension cannot be null");
+        _setWidth(src.getWidth());
+        _setHeight(src.getHeight());
+    }
+
     public void set(@NonNull Dimension src) {
-        _set(src);
+        Validate.isTrue(src != null, "source Dimension cannot be null");
+        if (!equals(src.getWidth(), src.getHeight())) {
+            _set(src);
+            onChange();
+        }
     }
 
     public final boolean equals(int width, int height) {
