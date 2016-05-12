@@ -28,6 +28,9 @@ public class Rect {
         _set(src);
     }
 
+    protected void onChange() {
+    }
+
     public int getLeft() {
         return left;
     }
@@ -37,7 +40,10 @@ public class Rect {
     }
 
     public void setLeft(int left) {
-        _setLeft(left);
+        if (getLeft() != left) {
+            _setLeft(left);
+            onChange();
+        }
     }
 
     public int getTop() {
@@ -49,7 +55,10 @@ public class Rect {
     }
 
     public void setTop(int top) {
-        _setTop(top);
+        if (getTop() != top) {
+            _setTop(top);
+            onChange();
+        }
     }
 
     public int getRight() {
@@ -61,7 +70,10 @@ public class Rect {
     }
 
     public void setRight(int right) {
-        _setRight(right);
+        if (getRight() != right) {
+            _setRight(right);
+            onChange();
+        }
     }
 
     public int getBottom() {
@@ -73,7 +85,10 @@ public class Rect {
     }
 
     public void setBottom(int bottom) {
-        _setBottom(bottom);
+        if (getBottom() != bottom) {
+            _setBottom(bottom);
+            onChange();
+        }
     }
 
     private void _set(int left, int top, int right, int bottom) {
@@ -84,7 +99,10 @@ public class Rect {
     }
 
     public void set(int left, int top, int right, int bottom) {
-        _set(left, top, right, bottom);
+        if (!equals(left, top, right, bottom)) {
+            _set(left, top, right, bottom);
+            onChange();
+        }
     }
 
     private void _set(@NonNull Rect src) {
@@ -96,7 +114,10 @@ public class Rect {
     }
 
     public void set(@NonNull Rect src) {
-        _set(src);
+        if (!equals(src.getLeft(), src.getTop(), src.getRight(), src.getBottom())) {
+            _set(src);
+            onChange();
+        }
     }
 
     public boolean isEmpty() {
