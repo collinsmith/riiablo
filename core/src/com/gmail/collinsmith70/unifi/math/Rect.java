@@ -161,7 +161,7 @@ public class Rect {
                     Math.max(getBottom(), r.getBottom()));
         }
 
-        dst._set(Math.max(getLeft(), r.getLeft()),
+        dst.set(Math.max(getLeft(), r.getLeft()),
                 Math.min(getTop(), r.getTop()),
                 Math.min(getRight(), r.getRight()),
                 Math.max(getBottom(), r.getBottom()));
