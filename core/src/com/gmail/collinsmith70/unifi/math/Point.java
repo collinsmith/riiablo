@@ -25,6 +25,9 @@ public class Point {
         _set(src);
     }
 
+    protected void onChange() {
+    }
+
     public int getX() {
         return x;
     }
@@ -34,7 +37,10 @@ public class Point {
     }
 
     public void setX(int x) {
-        _setX(x);
+        if (getX() != x) {
+            _setX(x);
+            onChange();
+        }
     }
 
     public int getY() {
@@ -46,7 +52,10 @@ public class Point {
     }
 
     public void setY(int y) {
-        _setY(y);
+        if (getY() != y) {
+            _setY(y);
+            onChange();
+        }
     }
 
     private void _set(int x, int y) {
@@ -55,7 +64,10 @@ public class Point {
     }
 
     public void set(int x, int y) {
-        _set(x, y);
+        if (!equals(x, y)) {
+            _set(x, y);
+            onChange();
+        }
     }
 
     private void _set(@NonNull Point src) {
@@ -65,7 +77,11 @@ public class Point {
     }
 
     public void set(@NonNull Point src) {
-        _set(src);
+        Validate.isTrue(src != null, "source Point cannot be null");
+        if (!equals(src.getX(), src.getY())) {
+            _set(src);
+            onChange();
+        }
     }
 
     public final boolean equals(int x, int y) {
