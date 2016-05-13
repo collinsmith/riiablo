@@ -146,28 +146,6 @@ public class Rect {
         return Math.abs(getTop() - getBottom());
     }
 
-    @NonNull
-    public final Rect intersect(@NonNull Rect r) {
-        return intersect(r, this);
-    }
-
-    @NonNull
-    public final Rect intersect(@NonNull Rect r, @Nullable Rect dst) {
-        Validate.isTrue(r != null, "r cannot be null");
-        if (dst == null) {
-            return new Rect(Math.max(getLeft(), r.getLeft()),
-                    Math.min(getTop(), r.getTop()),
-                    Math.min(getRight(), r.getRight()),
-                    Math.max(getBottom(), r.getBottom()));
-        }
-
-        dst.set(Math.max(getLeft(), r.getLeft()),
-                Math.min(getTop(), r.getTop()),
-                Math.min(getRight(), r.getRight()),
-                Math.max(getBottom(), r.getBottom()));
-        return dst;
-    }
-
     public final boolean equals(int left, int top, int right, int bottom) {
         return getLeft() == left && getTop() == top && getRight() == right && getBottom() == bottom;
     }

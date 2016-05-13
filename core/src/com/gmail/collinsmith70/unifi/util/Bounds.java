@@ -27,9 +27,6 @@ public class Bounds extends Rect {
         _set(src);
     }
 
-    protected void onChange() {
-    }
-
     private void _setLeft(int left) {
         super.setLeft(left);
         if (getRight() < left) {
@@ -196,6 +193,28 @@ public class Bounds extends Rect {
     @Override
     public int getHeight() {
         return getTop() - getBottom();
+    }
+
+    @NonNull
+    public final Bounds intersect(@NonNull Bounds b) {
+        return intersect(b, this);
+    }
+
+    @NonNull
+    public final Bounds intersect(@NonNull Bounds b, @Nullable Bounds dst) {
+        Validate.isTrue(b != null, "b cannot be null");
+        if (dst == null) {
+            return new Bounds(Math.max(getLeft(), b.getLeft()),
+                    Math.min(getTop(), b.getTop()),
+                    Math.min(getRight(), b.getRight()),
+                    Math.max(getBottom(), b.getBottom()));
+        }
+
+        dst.set(Math.max(getLeft(), b.getLeft()),
+                Math.min(getTop(), b.getTop()),
+                Math.min(getRight(), b.getRight()),
+                Math.max(getBottom(), b.getBottom()));
+        return dst;
     }
 
 }
