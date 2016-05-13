@@ -109,11 +109,11 @@ public class PointTest {
 
     @Test
     public void testEquals_IntInt() {
-        int width, height;
+        int x, y;
         for (int i = 0; i < data.length - 1; i++) {
-            width = data[i];
-            height = data[i + 1];
-            assertTrue(new Point(width, height).equals(width, height));
+            x = data[i];
+            y = data[i + 1];
+            assertTrue(new Point(x, y).equals(x, y));
         }
     }
 
