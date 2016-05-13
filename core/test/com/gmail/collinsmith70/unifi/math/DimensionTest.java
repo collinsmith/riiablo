@@ -83,7 +83,7 @@ public class DimensionTest {
     }
 
     @Test
-    public void testEqualsIntInt() {
+    public void testEquals_IntInt() {
         int width, height;
         for (int i = 0; i < data.length - 1; i++) {
             width = data[i];
@@ -93,7 +93,7 @@ public class DimensionTest {
     }
 
     @Test
-    public void testEqualsObject() {
+    public void testEquals_Object() {
         Dimension dim1 = new Dimension(0, 0);
         Dimension dim2 = new Dimension(1, 1);
         

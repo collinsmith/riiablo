@@ -83,7 +83,7 @@ public class PointTest {
     }
 
     @Test
-    public void testEqualsIntInt() {
+    public void testEquals_IntInt() {
         int width, height;
         for (int i = 0; i < data.length - 1; i++) {
             width = data[i];
@@ -93,7 +93,7 @@ public class PointTest {
     }
 
     @Test
-    public void testEqualsObject() {
+    public void testEquals_Object() {
         Point pt1 = new Point(0, 0);
         Point pt2 = new Point(1, 1);
 
