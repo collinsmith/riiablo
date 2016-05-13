@@ -94,6 +94,17 @@ public class DimensionTest {
                 }.set(1, 1);
             }
         });
+        assertThrows(RuntimeException.class, new Assert.ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                new Dimension() {
+                    @Override
+                    protected void onChange() {
+                        throw new RuntimeException("Dimension#onChange() called");
+                    }
+                }.set(new Dimension(1, 1));
+            }
+        });
     }
 
     @Test
