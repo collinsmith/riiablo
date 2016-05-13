@@ -33,15 +33,29 @@ public class PointTest {
     }
 
     @Test
-    public void testSet() {
+    public void testSet_IntInt() {
         Point pt = new Point();
-        int width, height;
+        int x, y;
         for (int i = 0; i < data.length - 1; i++) {
-            width = data[i];
-            height = data[i + 1];
-            pt.set(width, height);
-            assertTrue(pt.getX() == width);
-            assertTrue(pt.getY() == height);
+            x = data[i];
+            y = data[i + 1];
+            pt.set(x, y);
+            assertTrue(pt.getX() == x);
+            assertTrue(pt.getY() == y);
+        }
+    }
+
+    @Test
+    public void testSet_Point() {
+        Point pt = new Point();
+        Point pt2;
+        int x, y;
+        for (int i = 0; i < data.length - 1; i++) {
+            x = data[i];
+            y = data[i + 1];
+            pt2 = new Point(x, y);
+            pt.set(pt2);
+            assertTrue(pt.equals(pt2));
         }
     }
 

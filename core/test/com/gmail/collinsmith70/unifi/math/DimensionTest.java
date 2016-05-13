@@ -33,15 +33,29 @@ public class DimensionTest {
     }
 
     @Test
-    public void testSet() {
+    public void testSet_IntInt() {
         Dimension dim = new Dimension();
         int width, height;
         for (int i = 0; i < data.length - 1; i++) {
             width = data[i];
-            height = data[i+1];
+            height = data[i + 1];
             dim.set(width, height);
             assertTrue(dim.getWidth() == width);
             assertTrue(dim.getHeight() == height);
+        }
+    }
+
+    @Test
+    public void testSet_Dimension() {
+        Dimension dim = new Dimension();
+        Dimension dim2;
+        int width, height;
+        for (int i = 0; i < data.length - 1; i++) {
+            width = data[i];
+            height = data[i+1];
+            dim2 = new Dimension(width, height);
+            dim.set(dim2);
+            assertTrue(dim.equals(dim2));
         }
     }
 
