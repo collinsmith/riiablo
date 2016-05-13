@@ -94,6 +94,17 @@ public class PointTest {
                 }.set(1, 1);
             }
         });
+        assertThrows(RuntimeException.class, new Assert.ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                new Point() {
+                    @Override
+                    protected void onChange() {
+                        throw new RuntimeException("Point#onChange() called");
+                    }
+                }.set(new Point(1, 1));
+            }
+        });
     }
 
     @Test
