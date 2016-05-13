@@ -32,6 +32,9 @@ public class RectF {
         _set(src);
     }
 
+    protected void onChange() {
+    }
+
     public float getLeft() {
         return left;
     }
@@ -41,7 +44,10 @@ public class RectF {
     }
 
     public void setLeft(float left) {
-        _setLeft(left);
+        if (getLeft() != left) {
+            _setLeft(left);
+            onChange();
+        }
     }
 
     public float getTop() {
@@ -53,7 +59,10 @@ public class RectF {
     }
 
     public void setTop(float top) {
-        _setTop(top);
+        if (getTop() != top) {
+            _setTop(top);
+            onChange();
+        }
     }
 
     public float getRight() {
@@ -65,7 +74,10 @@ public class RectF {
     }
 
     public void setRight(float right) {
-        _setRight(right);
+        if (getRight() != right) {
+            _setRight(right);
+            onChange();
+        }
     }
 
     public float getBottom() {
@@ -77,7 +89,10 @@ public class RectF {
     }
 
     public void setBottom(float bottom) {
-        _setBottom(bottom);
+        if (getBottom() != bottom) {
+            _setBottom(bottom);
+            onChange();
+        }
     }
 
     private void _set(float left, float top, float right, float bottom) {
@@ -88,11 +103,14 @@ public class RectF {
     }
 
     public void set(float left, float top, float right, float bottom) {
-        _set(left, top, right, bottom);
+        if (!equals(left, top, right, bottom)) {
+            _set(left, top, right, bottom);
+            onChange();
+        }
     }
 
     private void _set(@NonNull RectF src) {
-        Validate.isTrue(src != null, "source Rect cannot be null");
+        Validate.isTrue(src != null, "source RectF cannot be null");
         _setLeft(src.getLeft());
         _setTop(src.getTop());
         _setRight(src.getRight());
@@ -100,11 +118,15 @@ public class RectF {
     }
 
     public void set(@NonNull RectF src) {
-        _set(src);
+        Validate.isTrue(src != null, "source RectF cannot be null");
+        if (!equals(src.getLeft(), src.getTop(), src.getRight(), src.getBottom())) {
+            _set(src);
+            onChange();
+        }
     }
 
     private void _set(@NonNull Rect src) {
-        Validate.isTrue(src != null, "source Rect cannot be null");
+        Validate.isTrue(src != null, "source RectF cannot be null");
         _setLeft(src.getLeft());
         _setTop(src.getTop());
         _setRight(src.getRight());
@@ -112,7 +134,11 @@ public class RectF {
     }
 
     public void set(@NonNull Rect src) {
-        _set(src);
+        Validate.isTrue(src != null, "source Rect cannot be null");
+        if (!equals(src.getLeft(), src.getTop(), src.getRight(), src.getBottom())) {
+            _set(src);
+            onChange();
+        }
     }
 
     public boolean isEmpty() {
