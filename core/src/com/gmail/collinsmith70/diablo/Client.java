@@ -64,6 +64,10 @@ public class Client implements ApplicationListener {
 
   private BitmapFont font;
 
+  public Client() {
+    this(1280, 720);
+  }
+
   public Client(int width, int height) {
     this.RESOLUTION = ImmutableDimension.newImmutableDimension(width, height);
 

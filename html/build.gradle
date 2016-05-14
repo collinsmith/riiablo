@@ -7,8 +7,8 @@ gwt {
     minHeapSize="1G"
 
     src = files(file("src/")) // Needs to be in front of "modules" below.
-    modules 'com.google.collinsmith70.diablo.GdxDefinition'
-    devModules 'com.google.collinsmith70.diablo.GdxDefinitionSuperdev'
+    modules 'com.gmail.collinsmith70.diablo.GdxDefinition'
+    devModules 'com.gmail.collinsmith70.diablo.GdxDefinitionSuperdev'
     project.webAppDirName = 'webapp'
 
     compiler {

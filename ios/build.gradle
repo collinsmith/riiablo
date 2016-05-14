@@ -4,7 +4,7 @@ sourceCompatibility = '1.7'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 ext {
-	mainClassName = "com.google.collinsmith70.diablo.IOSLauncher"
+	mainClassName = "com.gmail.collinsmith70.diablo.IOSLauncher"
 }
 
 launchIPhoneSimulator.dependsOn build
