@@ -18,7 +18,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = "Diablo"
-        gdxVersion = '1.9.3-SNAPSHOT'
+        gdxVersion = '1.9.4-SNAPSHOT' // https://libgdx.badlogicgames.com/versions.html
         roboVMVersion = '1.8.0'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.6.0'
