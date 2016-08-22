@@ -65,3 +65,4 @@ build/
 
 ## NetBeans Gradle Stuff
 .nb-gradle/
+/core/old/
