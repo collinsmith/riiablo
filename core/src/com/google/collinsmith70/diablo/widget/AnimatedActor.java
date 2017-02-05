@@ -1,5 +1,9 @@
 package com.google.collinsmith70.diablo.widget;
 
+import com.google.collinsmith70.diablo.cvar.Cvar;
+import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
+import com.google.collinsmith70.diablo.cvar.Cvars;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -7,13 +11,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
-import com.google.collinsmith70.diablo.cvar.Cvar;
-import com.google.collinsmith70.diablo.cvar.CvarChangeListener;
-import com.google.collinsmith70.diablo.cvar.Cvars;
 
 public class AnimatedActor extends Actor {
 
-private final Animation ANIMATION;
+private final Animation<TextureRegion> ANIMATION;
 private final Texture TEXTURE;
 
 private float timeInState;
@@ -38,7 +39,7 @@ public AnimatedActor(Texture sheet, int numFrames, int frameWidth, int frameHeig
         }
     }
 
-    ANIMATION = new Animation(frameDuration, Array.with(frames), Animation.PlayMode.LOOP);
+    ANIMATION = new Animation<TextureRegion>(frameDuration, Array.with(frames), Animation.PlayMode.LOOP);
     timeInState = 0.0f;
 
     setSize(frameWidth, frameHeight);
