@@ -46,7 +46,7 @@ in a general sense, since the UI I made is much more helpful when writing the
 game code.
 <details>
 	<summary>Screenshot</summary>
-	![MPQ Viewer](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-3.png)
+	<img src="https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-3.png" alt="MPQ Viewer">
 </details>
 
 # Map Builder
@@ -54,5 +54,5 @@ Used to test the map building algorithm/renderer. This is very basic at the
 moment.
 <details>
 	<summary>Screenshot</summary>
-	![Map Builder](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-4.png)
+	<img src="https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-4.png" alt="Map Builder">
 </details>
