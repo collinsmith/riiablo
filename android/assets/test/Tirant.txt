@@ -1,0 +1,742 @@
+Tirant.d2s
+Version: 1.10-1.13, LOD
+Title: Matriarch
+Type: Sorceress
+File Size: 3439 bytes
+
+Character Stats: 
+              Level = 90
+              Experience = 1730732714
+              Current Life = 1668
+              Max Life = 916
+              Max Life Fraction = 0
+              Current Mana = 456
+              Max Mana = 212
+              Max Mana Fraction = 0
+              Current Stamina = 905
+              Max Stamina = 526
+              Max Stamina Fraction = 0
+              Strength = 106
+              Energy = 35
+              Dexterity = 25
+              Vitality = 374
+
+Skills: 
+              Fire Bolt = 0
+              Warmth (passive) = 1
+              Inferno = 0
+              Blaze = 0
+              Fire Ball = 0
+              Fire Wall = 0
+              Enchant = 0
+              Meteor = 0
+              Fire Mastery (passive) = 0
+              Hydra = 0
+              Charged Bolt = 20
+              Static Field = 1
+              Telekinesis = 1
+              Nova = 16
+              Lightning = 20
+              Chain Lightning = 20
+              Teleport = 1
+              Thunder Storm = 0
+              Energy Shield = 0
+              Lightning Mastery (passive) = 20
+              Ice Bolt = 0
+              Frozen Armor = 1
+              Frost Nova = 0
+              Ice Blast = 0
+              Shiver Armor = 0
+              Glacial Spike = 0
+              Blizzard = 0
+              Chilling Armor = 0
+              Frozen Orb = 0
+              Cold Mastery (passive) = 0
+
+Items (SUMMARY given after this list of individual items): 
+ Number of Items = 72
+
+23 Inv(1,2): Town Portal Book
+Town Portal Book
+Quantity = 20
+              Normal Magic
+
+35 Inv(1,4): Small Charm
+Fine Small Charm of Balance
+              Normal Magic
+                            +10 Attack Rating
+                            +3 Maximum 1-Handed Damage
+                            +3 Maximum 2-Handed Damage
+                            +5% Faster Hit Recovery Rate
+                            nv +3 Maximum Throw Damage
+
+27 Inv(2,3): Small Charm
+Small Charm of Vita
+              Normal Magic
+                            +20 Life
+
+23 Inv(2,2): Identify Book
+Identify Book
+Quantity = 19
+              Normal Magic
+
+21 Inv(3,2): Horadric Cube
+Horadric Cube
+              Normal Magic
+
+43 Inv(1,3): Small Charm
+Annihilus Small Charm
+              Normal Magic
+                             +14 To All Attributes
+                             All Resistances +13%
+                            +5% To Experience Gained
+                            +1 To All Skills
+
+28 Inv(2,4): Small Charm
+Ruby Small Charm of Balance
+              Normal Magic
+                            +10% Fire Resistance
+                            +5% Faster Hit Recovery Rate
+
+29 Inv(4,4): Small Charm
+Lapis Small Charm of Vita
+              Normal Magic
+                            +17 Life
+                            +7% Cold Resistance
+
+27 Inv(3,3): Small Charm
+Small Charm of Vita
+              Normal Magic
+                            +20 Life
+
+23 Inv(5,2): Town Portal Book
+Town Portal Book
+Quantity = 20
+              Normal Magic
+
+28 Inv(3,4): Small Charm
+Tangerine Small Charm of Balance
+              Normal Magic
+                            +5% Lightning Resistance
+                            +5% Faster Hit Recovery Rate
+
+29 Inv(4,3): Small Charm
+Rugged Small Charm of Vita
+              Normal Magic
+                            +17 Life
+                            +15 Stamina
+
+33 Head: Circlet
+Powered Circlet of the Locust
+Defense = 30
+              Normal Magic
+                            +5% Life Stolen per Hit
+                            +3 To Lightning Skills (Sorceress)
+
+48 Neck: Amulet
+Storm gorget, Amulet
+              Normal Magic
+                            +23 Strength
+                            +14 Life
+                            +24 Mana
+                             All Resistances +10%
+                            +1 To Sorceress Skill Levels
+
+44 Torso: Wyrmhide
+Skin of the Vipermagi Wyrmhide
+Defense = 371
+              Normal Magic
+                            +120% Enhanced Defense
+                            Magical Damage Reduced By +13
+                             All Resistances +28%
+                            nv Level Requirements +7
+                            +30% Faster Cast Rate
+                            +1 To All Skills
+
+38 RFinger: Ring
+Plague touch, Ring
+              Normal Magic
+                            +13 Strength
+                            +8 Dexterity
+                            +30 Mana
+                            +10% Faster Cast Rate
+
+46 LFinger: Ring
+Blood eye, Ring
+              Normal Magic
+                            +96 Attack Rating
+                            +7% Fire Resistance
+                            +7% Lightning Resistance
+                            +21% Cold Resistance
+                            +7% Poison Resistance
+                            +10% Faster Cast Rate
+                            Poison Length Reduced By +25%
+
+51 Waist: Spiderweb Sash
+Viper winding, Spiderweb Sash
+Defense = 63
+              Normal Magic
+                            +6 Stamina
+                            +29% Enhanced Defense
+                            +5% Poison Resistance
+                            +1 To +3 Cold Damage (Cold Length +2 sec)
+                            +72% Extra Gold From Monsters
+                            +24% Faster Hit Recovery Rate
+
+40 Hands: Gaunlets(H)
+Frostburn Gaunlets(H)
+Defense = 16
+              Normal Magic
+                            +11% Enhanced Defense
+                            +5% To +5% Enhanced Damage
+                            +30 Defense
+                            +1 To +6 Cold Damage (Cold Length +2 sec)
+                            +40% Maximum Mana
+
+14 Belt(3,1): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+14 Belt(3,2): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+14 Belt(3,3): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+14 Belt(3,4): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+22 Inv(6,1): Skeleton Key
+Skeleton Key
+Quantity = 7
+              Normal Magic
+
+22 Inv(6,4): Skeleton Key
+Skeleton Key
+Quantity = 12
+              Normal Magic
+
+14 Belt(2,1): Full Rejuv Potion
+Full Rejuv Potion
+              Normal Magic
+
+14 Belt(2,2): Full Rejuv Potion
+Full Rejuv Potion
+              Normal Magic
+
+14 Belt(2,3): Full Rejuv Potion
+Full Rejuv Potion
+              Normal Magic
+
+22 Inv(6,2): Skeleton Key
+Skeleton Key
+Quantity = 12
+              Normal Magic
+
+14 Belt(2,4): Full Rejuv Potion
+Full Rejuv Potion
+              Normal Magic
+
+14 Inv(6,3): Full Rejuv Potion
+Full Rejuv Potion
+              Normal Magic
+
+14 Inv(10,2): Full Rejuv Potion
+Full Rejuv Potion
+              Normal Magic
+
+14 Belt(1,1): Greater Healing Potion
+Greater Healing Potion
+              Normal Magic
+
+14 Belt(1,2): Greater Healing Potion
+Greater Healing Potion
+              Normal Magic
+
+14 Belt(1,3): Greater Healing Potion
+Greater Healing Potion
+              Normal Magic
+
+14 Inv(10,4): Full Rejuv Potion
+Full Rejuv Potion
+              Normal Magic
+
+14 Belt(4,1): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+14 Belt(4,2): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+14 Belt(1,4): Greater Healing Potion
+Greater Healing Potion
+              Normal Magic
+
+14 Belt(4,3): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+14 Belt(4,4): Greater Mana Potion
+Greater Mana Potion
+              Normal Magic
+
+23 Inv(5,4): Town Portal Book
+Town Portal Book
+Quantity = 20
+              Normal Magic
+
+27 Stash(8,1): Large Charm
+Large Charm of Vita
+              Normal Magic
+                            +40 Life
+
+24 Stash(3,8): Berserker Axe
+Berserker Axe
+One-Handed Damage: 24 to 71
+              Normal Magic
+
+40 (Total=82) Stash(3,1): Hellforged Plate
+Hellforged Plate
+Defense = 1018
+Ethereal
+              Normal Magic
+              Runeword Magic
+                            +2 To Assassin Skill Levels
+                            +45% Increased Attack Speed
+                            +25% Chance to Cast Level +15 Venom (ass) On Striking
+                            +5% Chance to Cast Level +15 Fade (ass) When Struck
+
+              14 (1)Socketed in Stash(3,1): Shael Rune
+              Normal Magic
+
+              14 (2)Socketed in Stash(3,1): Thul Rune
+              Normal Magic
+
+              14 (3)Socketed in Stash(3,1): Lem Rune
+              Normal Magic
+
+30 Stash(1,8): Light Plate
+Light Plate
+Absorbs: 1
+Defense = 108
+              Normal Magic
+                            +15% Enhanced Defense
+                            +10% Maximum Durability
+
+48 Stash(5,2): Demonhide Boots
+Pain tread, Demonhide Boots
+One-Handed Damage: 26 to 46
+Defense = 36
+              Normal Magic
+                            +25% Enhanced Defense
+                            +26% Fire Resistance
+                            +28% Cold Resistance
+                            +22% Better Chance of Getting Magic Items
+                            +20% Faster Run/Walk
+                            Poison Length Reduced By +25%
+
+25 Stash(7,5): Archon Plate
+Archon Plate
+Absorbs: 1
+Defense = 518
+              Normal Magic
+
+29 Stash(7,2): Small Charm
+Toxic Small Charm
+              Normal Magic
+                            +60 To +60 Poison Damage Over +5 sec
+
+29 Stash(7,6): Small Charm
+Toxic Small Charm
+              Normal Magic
+                            +60 To +60 Poison Damage Over +5 sec
+
+26 Stash(8,7): Small Charm
+Small Charm of Strength
+              Normal Magic
+                            +2 Strength
+
+27 Stash(10,5): Large Charm
+Large Charm of Vita
+              Normal Magic
+                            +38 Life
+
+27 Stash(10,8): Large Charm
+Large Charm of Vita
+              Normal Magic
+                            +40 Life
+
+26 Stash(8,8): Small Charm
+Small Charm of Strength
+              Normal Magic
+                            +2 Strength
+
+29 Stash(7,8): Small Charm
+Toxic Small Charm
+              Normal Magic
+                            +60 To +60 Poison Damage Over +5 sec
+
+27 Stash(10,2): Large Charm
+Large Charm of Vita
+              Normal Magic
+                            +40 Life
+
+30 Stash(8,6): Jewel
+Rusty Jewel of Fervor
+              Normal Magic
+                            +12% To +12% Enhanced Damage
+                            +15% Increased Attack Speed
+
+28 Stash(7,7): Amulet
+Charged Amulet
+              Normal Magic
+                            +2 To Lightning Skills (Sorceress)
+
+27 Stash(9,8): Large Charm
+Large Charm of Vita
+              Normal Magic
+                            +40 Life
+
+28 Stash(9,5): Large Charm
+Captain's Large Charm
+              Normal Magic
+                            +1 To Offensive Auras (Paladin)
+
+26 Stash(9,2): Large Charm
+Large Charm of Inertia
+              Normal Magic
+                            +7% Faster Run/Walk
+
+29 Stash(10,-1): Small Charm
+Lizard's Small Charm of Vita
+              Normal Magic
+                            +18 Life
+                            +1 Mana
+
+49 Stash(1,5): Bracers(M)
+Bramble clutches, Bracers(M)
+Defense = 10
+              Normal Magic
+                            +7 Strength
+                            +15 Mana
+                            +45% Enhanced Defense
+                            +19 Attack Rating
+                            +23% Better Chance of Getting Magic Items
+                            Poison Length Reduced By +25%
+
+26 Stash(7,1): Large Charm
+Large Charm of Inertia
+              Normal Magic
+                            +7% Faster Run/Walk
+
+25 Stash(5,5): Light Plate
+Light Plate
+Absorbs: 1
+Defense = 93
+              Normal Magic
+
+51 (Total=107) Stash(1,2): Grim Scythe
+Grim Scythe
+Two-Handed Damage: 30 to 70
+              Normal Magic
+              Runeword Magic
+                             +5 To All Attributes
+                            +206% To +206% Enhanced Damage
+                            +23% Better Chance of Getting Magic Items
+                            +6 To Critical Strike (ama)
+                            +35% Faster Cast Rate
+                            +240% Bonus to Attack Rating
+                            Level +14 Meditation (pal) When Equipped
+
+              14 (1)Socketed in Stash(1,2): Ral Rune
+              Normal Magic
+
+              14 (2)Socketed in Stash(1,2): Tir Rune
+              Normal Magic
+
+              14 (3)Socketed in Stash(1,2): Tal Rune
+              Normal Magic
+
+              14 (4)Socketed in Stash(1,2): Sol Rune
+              Normal Magic
+
+45 Stash(5,8): Ring
+Grim whorl, Ring
+              Normal Magic
+                            +10 Stamina
+                            +58 Attack Rating
+                            Replenish Life +7
+                            +10% Better Chance of Getting Magic Items
+                            +10% Faster Cast Rate
+                            Poison Length Reduced By +25%
+
+27 Stash(6,8): Large Charm
+Large Charm of Substinence
+              Normal Magic
+                            +35 Life
+
+45 (Total=115) R2Hand: Flail
+Flail
+One-Handed Damage: 1 to 24
+              Normal Magic
+              Runeword Magic
+                            +234% To +234% Enhanced Damage
+                            Replenish Life +12
+                            +40% Increased Attack Speed
+                            +4 To Battle Cry (bar)
+                            +3 To Battle Orders (bar)
+                            +4 To Battle Command (bar)
+                            +1 To All Skills
+
+              14 (1)Socketed in R2Hand: Amn Rune
+              Normal Magic
+
+              14 (2)Socketed in R2Hand: Ral Rune
+              Normal Magic
+
+              14 (3)Socketed in R2Hand: Mal Rune
+              Normal Magic
+
+              14 (4)Socketed in R2Hand: Ist Rune
+              Normal Magic
+
+              14 (5)Socketed in R2Hand: Ohm Rune
+              Normal Magic
+
+47 (Total=103) L2Hand: Monarch
+Monarch
+One-Handed Damage: 12 to 34
+Defense = 149
+Chance to Block: 42
+              Normal Magic
+                            +15% Enhanced Defense
+                            +10% Maximum Durability
+              Runeword Magic
+                            +22 Vitality
+                            +101 Mana
+                            +250 Defense vs Missile
+                            +55% Faster Hit Recovery Rate
+                            +26% Faster Cast Rate
+                            +2 To All Skills
+                            +4 Magic Absorbs
+
+              14 (1)Socketed in L2Hand: Tal Rune
+              Normal Magic
+
+              14 (2)Socketed in L2Hand: Thul Rune
+              Normal Magic
+
+              14 (3)Socketed in L2Hand: Ort Rune
+              Normal Magic
+
+              14 (4)Socketed in L2Hand: Amn Rune
+              Normal Magic
+
+53 (Total=109) RHand: Flail
+Flail
+One-Handed Damage: 1 to 24
+Ethereal
+              Normal Magic
+              Runeword Magic
+                             All Resistances +34%
+                            Replenish Life +20
+                            +15% Maximum Mana
+                            +40% Faster Cast Rate
+                            +3 To All Skills
+                            Level 14 Raven (dru) (60/60 Charges)
+                            Level 4 Oak Sage (dru) (25/25 Charges)
+
+              14 (1)Socketed in RHand: Ko Rune
+              Normal Magic
+
+              14 (2)Socketed in RHand: Vex Rune
+              Normal Magic
+
+              14 (3)Socketed in RHand: Pul Rune
+              Normal Magic
+
+              14 (4)Socketed in RHand: Thul Rune
+              Normal Magic
+
+42 (Total=98) LHand: Monarch
+Monarch
+One-Handed Damage: 12 to 34
+Defense = 133
+Chance to Block: 42
+              Normal Magic
+              Runeword Magic
+                            +22 Vitality
+                            +108 Mana
+                            +250 Defense vs Missile
+                            +55% Faster Hit Recovery Rate
+                            +34% Faster Cast Rate
+                            +2 To All Skills
+                            +6 Magic Absorbs
+
+              14 (1)Socketed in LHand: Tal Rune
+              Normal Magic
+
+              14 (2)Socketed in LHand: Thul Rune
+              Normal Magic
+
+              14 (3)Socketed in LHand: Ort Rune
+              Normal Magic
+
+              14 (4)Socketed in LHand: Amn Rune
+              Normal Magic
+
+52 (Total=108) MercTorso: Hellforged Plate
+Hellforged Plate
+Defense = 1180
+Ethereal
+              Normal Magic
+              Runeword Magic
+                            +200% Enhanced Defense
+                            +300% To +300% Enhanced Damage
+                             All Resistances +25%
+                            +25% Faster Cast Rate
+                            +12% Damage Goes to Mana
+                            +20% Chance to Cast Level +15 Chilling Armor (sor) When Struck
+                            +135 Life / Level
+
+              14 (1)Socketed in MercTorso: El Rune
+              Normal Magic
+
+              14 (2)Socketed in MercTorso: Sol Rune
+              Normal Magic
+
+              14 (3)Socketed in MercTorso: Dol Rune
+              Normal Magic
+
+              14 (4)Socketed in MercTorso: Lo Rune
+              Normal Magic
+
+43 MercHelm: Grim Helm
+Vampiregaze Grim Helm
+Defense = 126
+              Normal Magic
+                            +100% Enhanced Defense
+                            Magical Damage Reduced By +14
+                            Damage Reduced By +19%
+                            +6 To +22 Cold Damage (Cold Length +4 sec)
+                            +6% Life Stolen per Hit
+                            +8% Mana Stolen per Hit
+                            +15% Slower Stamina Drain
+
+48 (Total=104) MercRightHand: Great Poleaxe
+Great Poleaxe
+Two-Handed Damage: 46 to 127
+Ethereal
+              Normal Magic
+              Runeword Magic
+                            +315% To +315% Enhanced Damage
+                            +35% Faster Run/Walk
+                            Level +12 Conviction (pal) When Equipped
+                            +50% Chance to Cast Level +20 Chain Lightning (sor) When You Kill An Enemy
+                            Level 21 Cyclone Armor (dru) (30/30 Charges)
+                            +45 Vitality / Level
+                            -49% To Enemy Lightning Resistance
+
+              14 (1)Socketed in MercRightHand: Ber Rune
+              Normal Magic
+
+              14 (2)Socketed in MercRightHand: Mal Rune
+              Normal Magic
+
+              14 (3)Socketed in MercRightHand: Ber Rune
+              Normal Magic
+
+              14 (4)Socketed in MercRightHand: Ist Rune
+              Normal Magic
+
+SUMMARY of Charms in Inventory + Equipped (not in hands): 
+              +106 Attack Rating
+              +3 Maximum 1-Handed Damage
+              +3 Maximum 2-Handed Damage
+              +39% Faster Hit Recovery Rate
+              nv +3 Maximum Throw Damage
+              +88 Life
+               +14 To All Attributes
+               All Resistances +51%
+              +5% To Experience Gained
+              +2 To All Skills
+              +17% Fire Resistance
+              +28% Cold Resistance
+              +12% Lightning Resistance
+              +21 Stamina
+              +5% Life Stolen per Hit
+              +3 To Lightning Skills (Sorceress)
+              +36 Strength
+              +54 Mana
+              +1 To Sorceress Skill Levels
+              +160% Enhanced Defense
+              Magical Damage Reduced By +13
+              nv Level Requirements +7
+              +50% Faster Cast Rate
+              +8 Dexterity
+              +12% Poison Resistance
+              Poison Length Reduced By +25%
+              +2 To +9 Cold Damage (Cold Length +4 sec)
+              +72% Extra Gold From Monsters
+              +5% To +5% Enhanced Damage
+              +30 Defense
+              +40% Maximum Mana
+
+SUMMARY of Items in Right Hand: 
+53 (Total=109) RHand: Flail
+Flail
+One-Handed Damage: 1 to 24
+Ethereal
+               All Resistances +34%
+              Replenish Life +20
+              +15% Maximum Mana
+              +40% Faster Cast Rate
+              +3 To All Skills
+              Level 14 Raven (dru) (60/60 Charges)
+              Level 4 Oak Sage (dru) (25/25 Charges)
+
+SUMMARY of Items in Left Hand: 
+42 (Total=98) LHand: Monarch
+Monarch
+One-Handed Damage: 12 to 34
+Defense = 133
+Chance to Block: 42
+              +22 Vitality
+              +108 Mana
+              +250 Defense vs Missile
+              +55% Faster Hit Recovery Rate
+              +34% Faster Cast Rate
+              +2 To All Skills
+              +6 Magic Absorbs
+
+SUMMARY of Items in 2nd Right Hand: 
+45 (Total=115) R2Hand: Flail
+Flail
+One-Handed Damage: 1 to 24
+              +234% To +234% Enhanced Damage
+              Replenish Life +12
+              +40% Increased Attack Speed
+              +4 To Battle Cry (bar)
+              +3 To Battle Orders (bar)
+              +4 To Battle Command (bar)
+              +1 To All Skills
+
+SUMMARY of Items in 2nd Left Hand: 
+47 (Total=103) L2Hand: Monarch
+Monarch
+One-Handed Damage: 12 to 34
+Defense = 149
+Chance to Block: 42
+              +15% Enhanced Defense
+              +10% Maximum Durability
+              +22 Vitality
+              +101 Mana
+              +250 Defense vs Missile
+              +55% Faster Hit Recovery Rate
+              +26% Faster Cast Rate
+              +2 To All Skills
+              +4 Magic Absorbs

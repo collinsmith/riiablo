@@ -1,0 +1,1093 @@
+Name	Def	LevelType
+None	0	0
+Act 1 - Town 1	1	1
+Act 1 - Town 1 Transition E	2	1
+Act 1 - Town 1 Transition S	3	1
+Act 1 - Wild Border 1	4	2
+Act 1 - Wild Border 2	5	2
+Act 1 - Wild Border 3	6	2
+Act 1 - Wild Border 4	7	2
+Act 1 - Wild Border 5	8	2
+Act 1 - Wild Border 6	9	2
+Act 1 - Wild Border 7	10	2
+Act 1 - Wild Border 8	11	2
+Act 1 - Wild Border 9	12	2
+Act 1 - Wild Border 10	13	2
+Act 1 - Wild Border 11	14	2
+Act 1 - Wild Border 12	15	2
+Act 1 - Wild Cliff Border 2	16	2
+Act 1 - Wild Cliff Border 3	17	2
+Act 1 - Wild Cliff Border 5	18	2
+Act 1 - Wild Cliff Border 6A	19	2
+Act 1 - Wild Cliff Border 6B	20	2
+Act 1 - Wild Cliff Border 6C	21	2
+Act 1 - Wild Cliff Border 7	22	2
+Act 1 - Wild Cliff Border 10	23	2
+Act 1 - Wild Cliff Cave Right	24	2
+Act 1 - Wild Cliff Cave Left	25	2
+Act 1 - River Upper	26	2
+Act 1 - River Lower	27	2
+Act 1 - Bridge	28	2
+Act 1 - Stone Fill 1	29	2
+Act 1 - Stone Fill 2	30	2
+Act 1 - Corral Fill	31	2
+Act 1 - Fence Fill 1	32	2
+Act 1 - Fence Fill 2	33	2
+Act 1 - Fence Fill 3	34	2
+Act 1 - Fence Fill 4	35	2
+Act 1 - Fence Fill 5	36	2
+Act 1 - Fence Fill 6	37	2
+Act 1 - Swamp Fill 1	38	2
+Act 1 - Swamp Fill 2	39	2
+Act 1 - Tree Fill	40	2
+Act 1 - Ruin	41	1
+Act 1 - Fallen Camp 1	42	2
+Act 1 - Fallen Camp 2	43	2
+Act 1 - Fallen Camp Bishibosh	44	2
+Act 1 - Camp	45	2
+Act 1 - Pond	46	2
+Act 1 - Cottages 1	47	2
+Act 1 - Cottages 2	48	2
+Act 1 - Cottages 3	49	2
+Act 1 - Bivouac	50	2
+Act 1 - Cave Entrance	51	2
+Act 1 - DOE Entrance	52	2
+Act 1 - Cave W	53	3
+Act 1 - Cave E	54	3
+Act 1 - Cave EW	55	3
+Act 1 - Cave S	56	3
+Act 1 - Cave SW	57	3
+Act 1 - Cave SE	58	3
+Act 1 - Cave SEW	59	3
+Act 1 - Cave N	60	3
+Act 1 - Cave NW	61	3
+Act 1 - Cave NE	62	3
+Act 1 - Cave NEW	63	3
+Act 1 - Cave NS	64	3
+Act 1 - Cave NSW	65	3
+Act 1 - Cave NSE	66	3
+Act 1 - Cave NSEW	67	3
+Act 1 - Cave Theme W	68	3
+Act 1 - Cave Theme E	69	3
+Act 1 - Cave Theme EW	70	3
+Act 1 - Cave Theme S	71	3
+Act 1 - Cave Theme SW	72	3
+Act 1 - Cave Theme SE	73	3
+Act 1 - Cave Theme SEW	74	3
+Act 1 - Cave Theme N	75	3
+Act 1 - Cave Theme NW	76	3
+Act 1 - Cave Theme NE	77	3
+Act 1 - Cave Theme NEW	78	3
+Act 1 - Cave Theme NS	79	3
+Act 1 - Cave Theme NSW	80	3
+Act 1 - Cave Theme NSE	81	3
+Act 1 - Cave Theme NSEW	82	3
+Act 1 - Cave Prev W	83	3
+Act 1 - Cave Prev E	84	3
+Act 1 - Cave Prev S	85	3
+Act 1 - Cave Prev N	86	3
+Act 1 - Cave Next W	87	3
+Act 1 - Cave Next E	88	3
+Act 1 - Cave Next S	89	3
+Act 1 - Cave Next N	90	3
+Act 1 - Cave Down W	91	3
+Act 1 - Cave Down E	92	3
+Act 1 - Cave Down S	93	3
+Act 1 - Cave Down N	94	3
+Act 1 - Cave Den Of Evil W	95	3
+Act 1 - Cave Den Of Evil E	96	3
+Act 1 - Cave Den Of Evil S	97	3
+Act 1 - Cave Den Of Evil N	98	3
+Act 1 - Cave Coldcrow W	99	3
+Act 1 - Cave Coldcrow E	100	3
+Act 1 - Cave Coldcrow S	101	3
+Act 1 - Cave Coldcrow N	102	3
+Act 1 - Cave Treasure 1	103	3
+Act 1 - Cave Treasure 2	104	3
+Act 1 - Cave Treasure 3	105	3
+Act 1 - Cave Treasure 4	106	3
+Act 1 - Cave Treasure 5	107	3
+Act 1 - Graveyard	108	2
+Act 1 - Crypt W	109	4
+Act 1 - Crypt E	110	4
+Act 1 - Crypt EW	111	4
+Act 1 - Crypt S	112	4
+Act 1 - Crypt SW	113	4
+Act 1 - Crypt SE	114	4
+Act 1 - Crypt SEW	115	4
+Act 1 - Crypt N	116	4
+Act 1 - Crypt NW	117	4
+Act 1 - Crypt NE	118	4
+Act 1 - Crypt NEW	119	4
+Act 1 - Crypt NS	120	4
+Act 1 - Crypt NSW	121	4
+Act 1 - Crypt NSE	122	4
+Act 1 - Crypt NSEW	123	4
+Act 1 - Crypt Theme W	124	4
+Act 1 - Crypt Theme E	125	4
+Act 1 - Crypt Theme EW	126	4
+Act 1 - Crypt Theme S	127	4
+Act 1 - Crypt Theme SW	128	4
+Act 1 - Crypt Theme SE	129	4
+Act 1 - Crypt Theme SEW	130	4
+Act 1 - Crypt Theme N	131	4
+Act 1 - Crypt Theme NW	132	4
+Act 1 - Crypt Theme NE	133	4
+Act 1 - Crypt Theme NEW	134	4
+Act 1 - Crypt Theme NS	135	4
+Act 1 - Crypt Theme NSW	136	4
+Act 1 - Crypt Theme NSE	137	4
+Act 1 - Crypt Theme NSEW	138	4
+Act 1 - Crypt Prev W	139	4
+Act 1 - Crypt Prev E	140	4
+Act 1 - Crypt Prev S	141	4
+Act 1 - Crypt Prev N	142	4
+Act 1 - Crypt Next W	143	4
+Act 1 - Crypt Next E	144	4
+Act 1 - Crypt Next S	145	4
+Act 1 - Crypt Next N	146	4
+Act 1 - Crypt Bonebreak W	147	4
+Act 1 - Crypt Bonebreak E	148	4
+Act 1 - Crypt Bonebreak S	149	4
+Act 1 - Crypt Bonebreak N	150	4
+Act 1 - Crypt Chest W	151	4
+Act 1 - Crypt Chest E	152	4
+Act 1 - Crypt Chest S	153	4
+Act 1 - Crypt Chest N	154	4
+Act 1 - Crypt Portal W	155	4
+Act 1 - Crypt Portal E	156	4
+Act 1 - Crypt Portal S	157	4
+Act 1 - Crypt Portal N	158	4
+Act 1 - Crypt Countess X	159	4
+Act 1 - Cairn Stones	160	2
+Act 1 - Inifus	161	2
+Act 1 - Tower Tome	162	2
+Act 1 - Tower 1	163	2
+Act 1 - Tower 2	164	2
+Act 1 - Mon Front	165	6
+Act 1 - Courtyard 1	166	6
+Act 1 - Barracks Court Connect	167	7
+Act 1 - Barracks W	168	7
+Act 1 - Barracks E	169	7
+Act 1 - Barracks EW	170	7
+Act 1 - Barracks S	171	7
+Act 1 - Barracks SW	172	7
+Act 1 - Barracks SE	173	7
+Act 1 - Barracks SEW	174	7
+Act 1 - Barracks N	175	7
+Act 1 - Barracks NW	176	7
+Act 1 - Barracks NE	177	7
+Act 1 - Barracks NEW	178	7
+Act 1 - Barracks NS	179	7
+Act 1 - Barracks NSW	180	7
+Act 1 - Barracks NSE	181	7
+Act 1 - Barracks NSEW	182	7
+Act 1 - Barracks Theme W	183	7
+Act 1 - Barracks Theme E	184	7
+Act 1 - Barracks Theme EW	185	7
+Act 1 - Barracks Theme S	186	7
+Act 1 - Barracks Theme SW	187	7
+Act 1 - Barracks Theme SE	188	7
+Act 1 - Barracks Theme SEW	189	7
+Act 1 - Barracks Theme N	190	7
+Act 1 - Barracks Theme NW	191	7
+Act 1 - Barracks Theme NE	192	7
+Act 1 - Barracks Theme NEW	193	7
+Act 1 - Barracks Theme NS	194	7
+Act 1 - Barracks Theme NSW	195	7
+Act 1 - Barracks Theme NSE	196	7
+Act 1 - Barracks Theme NSEW	197	7
+Act 1 - Barracks Next W	198	7
+Act 1 - Barracks Next E	199	7
+Act 1 - Barracks Next S	200	7
+Act 1 - Barracks Next N	201	7
+Act 1 - Barracks Forge W	202	7
+Act 1 - Barracks Forge E	203	7
+Act 1 - Barracks Forge S	204	7
+Act 1 - Barracks Forge N	205	7
+Act 1 - Jail W	206	8
+Act 1 - Jail E	207	8
+Act 1 - Jail EW	208	8
+Act 1 - Jail S	209	8
+Act 1 - Jail SW	210	8
+Act 1 - Jail SE	211	8
+Act 1 - Jail SEW	212	8
+Act 1 - Jail N	213	8
+Act 1 - Jail NW	214	8
+Act 1 - Jail NE	215	8
+Act 1 - Jail NEW	216	8
+Act 1 - Jail NS	217	8
+Act 1 - Jail NSW	218	8
+Act 1 - Jail NSE	219	8
+Act 1 - Jail NSEW	220	8
+Act 1 - Jail Theme W	221	8
+Act 1 - Jail Theme E	222	8
+Act 1 - Jail Theme EW	223	8
+Act 1 - Jail Theme S	224	8
+Act 1 - Jail Theme SW	225	8
+Act 1 - Jail Theme SE	226	8
+Act 1 - Jail Theme SEW	227	8
+Act 1 - Jail Theme N	228	8
+Act 1 - Jail Theme NW	229	8
+Act 1 - Jail Theme NE	230	8
+Act 1 - Jail Theme NEW	231	8
+Act 1 - Jail Theme NS	232	8
+Act 1 - Jail Theme NSW	233	8
+Act 1 - Jail Theme NSE	234	8
+Act 1 - Jail Theme NSEW	235	8
+Act 1 - Jail Prev W	236	8
+Act 1 - Jail Prev E	237	8
+Act 1 - Jail Prev S	238	8
+Act 1 - Jail Prev N	239	8
+Act 1 - Jail Next W	240	8
+Act 1 - Jail Next E	241	8
+Act 1 - Jail Next S	242	8
+Act 1 - Jail Next N	243	8
+Act 1 - Jail Cath W	244	8
+Act 1 - Jail Cath E	245	8
+Act 1 - Jail Cath S	246	8
+Act 1 - Jail Cath N	247	8
+Act 1 - Jail Waypoint W	248	8
+Act 1 - Jail Waypoint E	249	8
+Act 1 - Jail Waypoint S	250	8
+Act 1 - Jail Waypoint N	251	8
+Act 1 - Jail Pitspawn W	252	8
+Act 1 - Jail Pitspawn E	253	8
+Act 1 - Jail Pitspawn S	254	8
+Act 1 - Jail Pitspawn N	255	8
+Act 1 - Courtyard 2	256	6
+Act 1 - Cathedral	257	9
+Act 1 - Catacombs W	258	10
+Act 1 - Catacombs E	259	10
+Act 1 - Catacombs EW	260	10
+Act 1 - Catacombs S	261	10
+Act 1 - Catacombs SW	262	10
+Act 1 - Catacombs SE	263	10
+Act 1 - Catacombs SEW	264	10
+Act 1 - Catacombs N	265	10
+Act 1 - Catacombs NW	266	10
+Act 1 - Catacombs NE	267	10
+Act 1 - Catacombs NEW	268	10
+Act 1 - Catacombs NS	269	10
+Act 1 - Catacombs NSW	270	10
+Act 1 - Catacombs NSE	271	10
+Act 1 - Catacombs NSEW	272	10
+Act 1 - Catacombs Theme W	273	10
+Act 1 - Catacombs Theme E	274	10
+Act 1 - Catacombs Theme EW	275	10
+Act 1 - Catacombs Theme S	276	10
+Act 1 - Catacombs Theme SW	277	10
+Act 1 - Catacombs Theme SE	278	10
+Act 1 - Catacombs Theme SEW	279	10
+Act 1 - Catacombs Theme N	280	10
+Act 1 - Catacombs Theme NW	281	10
+Act 1 - Catacombs Theme NE	282	10
+Act 1 - Catacombs Theme NEW	283	10
+Act 1 - Catacombs Theme NS	284	10
+Act 1 - Catacombs Theme NSW	285	10
+Act 1 - Catacombs Theme NSE	286	10
+Act 1 - Catacombs Theme NSEW	287	10
+Act 1 - Catacombs Prev EW	288	10
+Act 1 - Catacombs Prev NS	289	10
+Act 1 - Catacombs Prev NSEW	290	10
+Act 1 - Catacombs Next W	291	10
+Act 1 - Catacombs Next E	292	10
+Act 1 - Catacombs Next S	293	10
+Act 1 - Catacombs Next N	294	10
+Act 1 - Catacombs Waypoint W	295	10
+Act 1 - Catacombs Waypoint E	296	10
+Act 1 - Catacombs Waypoint S	297	10
+Act 1 - Catacombs Waypoint N	298	10
+Act 1 - Andariel	299	10
+Act 1 - Tristram	300	11
+Act 2 - Town 	301	12
+Act 2 - Sewer W	302	0
+Act 2 - Sewer E 	303	0
+Act 2 - Sewer EW	304	0
+Act 2 - Sewer S	305	0
+Act 2 - Sewer SW	306	0
+Act 2 - Sewer SE	307	0
+Act 2 - Sewer SEW	308	0
+Act 2 - Sewer N	309	0
+Act 2 - Sewer NW	310	0
+Act 2 - Sewer NE	311	0
+Act 2 - Sewer NEW	312	0
+Act 2 - Sewer NS	313	0
+Act 2 - Sewer NSW	314	0
+Act 2 - Sewer NSE	315	0
+Act 2 - Sewer NSEW	316	0
+Act 2 - Sewer Theme W	317	0
+Act 2 - Sewer Theme E 	318	0
+Act 2 - Sewer Theme EW	319	0
+Act 2 - Sewer Theme S	320	0
+Act 2 - Sewer Theme SW	321	0
+Act 2 - Sewer Theme SE	322	0
+Act 2 - Sewer Theme SEW	323	0
+Act 2 - Sewer Theme N	324	0
+Act 2 - Sewer Theme NW	325	0
+Act 2 - Sewer Theme NE	326	0
+Act 2 - Sewer Theme NEW	327	0
+Act 2 - Sewer Theme NS	328	0
+Act 2 - Sewer Theme NSW	329	0
+Act 2 - Sewer Theme NSE	330	0
+Act 2 - Sewer Theme NSEW	331	0
+Act 2 - Sewer Prev W	332	0
+Act 2 - Sewer Prev E	333	0
+Act 2 - Sewer Prev S	334	0
+Act 2 - Sewer Prev N	335	0
+Act 2 - Sewer Prev NS	336	0
+Act 2 - Sewer Next W	337	0
+Act 2 - Sewer Next E	338	0
+Act 2 - Sewer Next S	339	0
+Act 2 - Sewer Next N	340	0
+Act 2 - Sewer Radament's Lair W	341	0
+Act 2 - Sewer Radament's Lair E	342	0
+Act 2 - Sewer Radament's Lair S	343	0
+Act 2 - Sewer Radament's Lair N	344	0
+Act 2 - Sewer Waypoint W	345	0
+Act 2 - Sewer Waypoint E	346	0
+Act 2 - Sewer Waypoint S	347	0
+Act 2 - Sewer Waypoint N	348	0
+Act 2 - Sewer Chest W	349	0
+Act 2 - Sewer Chest E	350	0
+Act 2 - Sewer Chest S	351	0
+Act 2 - Sewer Chest N	352	0
+Act 2 - Harem	353	0
+Act 2 - Corrupt Harem NE	354	0
+Act 2 - Corrupt Harem SE	355	0
+Act 2 - Corrupt Harem SW	356	0
+Act 2 - Corrupt Harem NW	357	0
+Act 2 - Basement NE	358	0
+Act 2 - Basement SE	359	0
+Act 2 - Basement SW	360	0
+Act 2 - Basement NW	361	0
+Act 2 - Desert Transition W	362	0
+Act 2 - Desert Transition N	363	0
+Act 2 - Desert Border 1	364	0
+Act 2 - Desert Border 2	365	0
+Act 2 - Desert Border 3	366	0
+Act 2 - Desert Border 4	367	0
+Act 2 - Desert Border 5	368	0
+Act 2 - Desert Border 6	369	0
+Act 2 - Desert Border 7	370	0
+Act 2 - Desert Border 8	371	0
+Act 2 - Desert Border 9	372	0
+Act 2 - Desert Border 10	373	0
+Act 2 - Desert Border 11	374	0
+Act 2 - Desert Border 12	375	0
+Act 2 - Desert Cliff Right Ends	376	0
+Act 2 - Desert Cliff Right Wall	377	0
+Act 2 - Desert Cliff Right Path	378	0
+Act 2 - Desert Cliff Left Ends	379	0
+Act 2 - Desert Cliff Left Wall	380	0
+Act 2 - Desert Cliff Left Path	381	0
+Act 2 - Desert Cliff Top	382	0
+Act 2 - Desert Cliff Right King Tomb	383	0
+Act 2 - Desert Cliff Right King Ends	384	0
+Act 2 - Desert Cliff Left King Tomb	385	0
+Act 2 - Desert Cliff Left King Ends	386	0
+Act 2 - Desert Cliff Top King Tomb	387	0
+Act 2 - Desert Tomb 1	388	0
+Act 2 - Desert Tomb 2	389	0
+Act 2 - Desert Lair 1	390	0
+Act 2 - Desert Lair 2	391	0
+Act 2 - Desert Valley Ruin 1	392	0
+Act 2 - Desert Valley Ruin 2	393	0
+Act 2 - Desert Valley Warp	394	0
+Act 2 - Desert Oasis 1	395	0
+Act 2 - Desert Oasis 2	396	0
+Act 2 - Desert Oasis 3	397	0
+Act 2 - Desert Fill Mesa 1	398	0
+Act 2 - Desert Fill Head 1	399	0
+Act 2 - Desert Fill Head 2	400	0
+Act 2 - Desert Fill Bone 1	401	0
+Act 2 - Desert Fill Bone 2	402	0
+Act 2 - Desert Fill Wagon 1	403	0
+Act 2 - Desert Fill Berms 1	404	0
+Act 2 - Desert Fill Berms 2	405	0
+Act 2 - Desert Fill Berms 3	406	0
+Act 2 - Desert Fill Berms 4	407	0
+Act 2 - Desert Ruins 16X16	408	0
+Act 2 - Desert Ruins 16X08	409	0
+Act 2 - Desert Ruins 08X16	410	0
+Act 2 - Desert Ruins 08X08	411	0
+Act 2 - Desert Ruins Sewer	412	0
+Act 2 - Desert Ruins Elder	413	0
+Act 2 - Tomb W	414	0
+Act 2 - Tomb E	415	0
+Act 2 - Tomb EW	416	0
+Act 2 - Tomb S	417	0
+Act 2 - Tomb SW	418	0
+Act 2 - Tomb SE	419	0
+Act 2 - Tomb SEW	420	0
+Act 2 - Tomb N	421	0
+Act 2 - Tomb NW	422	0
+Act 2 - Tomb NE	423	0
+Act 2 - Tomb NEW	424	0
+Act 2 - Tomb NS	425	0
+Act 2 - Tomb NSW	426	0
+Act 2 - Tomb NSE	427	0
+Act 2 - Tomb NSEW	428	0
+Act 2 - Tomb Theme W	429	0
+Act 2 - Tomb Theme E	430	0
+Act 2 - Tomb Theme EW	431	0
+Act 2 - Tomb Theme S	432	0
+Act 2 - Tomb Theme SW	433	0
+Act 2 - Tomb Theme SE	434	0
+Act 2 - Tomb Theme SEW	435	0
+Act 2 - Tomb Theme N	436	0
+Act 2 - Tomb Theme NW	437	0
+Act 2 - Tomb Theme NE	438	0
+Act 2 - Tomb Theme NEW	439	0
+Act 2 - Tomb Theme NS	440	0
+Act 2 - Tomb Theme NSW	441	0
+Act 2 - Tomb Theme NSE	442	0
+Act 2 - Tomb Theme NSEW	443	0
+Act 2 - Tomb Prev SEW	444	0
+Act 2 - Tomb Prev NEW	445	0
+Act 2 - Tomb Prev NSW	446	0
+Act 2 - Tomb Prev NSE	447	0
+Act 2 - Tomb Next W	448	0
+Act 2 - Tomb Next E	449	0
+Act 2 - Tomb Next S	450	0
+Act 2 - Tomb Next N	451	0
+Act 2 - Tomb Treasure W	452	0
+Act 2 - Tomb Treasure E	453	0
+Act 2 - Tomb Treasure S	454	0
+Act 2 - Tomb Treasure N	455	0
+Act 2 - Tomb Cube W	456	0
+Act 2 - Tomb Cube E	457	0
+Act 2 - Tomb Cube S	458	0
+Act 2 - Tomb Cube N	459	0
+Act 2 - Tomb Talrasha W	460	0
+Act 2 - Tomb Talrasha E	461	0
+Act 2 - Tomb Talrasha S	462	0
+Act 2 - Tomb Talrasha N	463	0
+Act 2 - Tomb Leatherarm W	464	0
+Act 2 - Tomb Leatherarm E	465	0
+Act 2 - Tomb Leatherarm S	466	0
+Act 2 - Tomb Leatherarm N	467	0
+Act 2 - Tomb Kaa W	468	0
+Act 2 - Tomb Kaa E	469	0
+Act 2 - Tomb Kaa S	470	0
+Act 2 - Tomb Kaa N	471	0
+Act 2 - Tomb Chest W	472	0
+Act 2 - Tomb Chest E	473	0
+Act 2 - Tomb Chest S	474	0
+Act 2 - Tomb Chest N	475	0
+Act 2 - Tomb Waypoint W	476	0
+Act 2 - Tomb Waypoint E	477	0
+Act 2 - Tomb Waypoint S	478	0
+Act 2 - Tomb Waypoint N	479	0
+Act 2 - Tomb Tainted Sun X	480	0
+Act 2 - Duriel's Lair	481	0
+Act 2 - Lair W	482	0
+Act 2 - Lair E	483	0
+Act 2 - Lair EW	484	0
+Act 2 - Lair S	485	0
+Act 2 - Lair SW	486	0
+Act 2 - Lair SE	487	0
+Act 2 - Lair SEW	488	0
+Act 2 - Lair N	489	0
+Act 2 - Lair NW	490	0
+Act 2 - Lair NE	491	0
+Act 2 - Lair NEW	492	0
+Act 2 - Lair NS	493	0
+Act 2 - Lair NSW	494	0
+Act 2 - Lair NSE	495	0
+Act 2 - Lair NSEW	496	0
+Act 2 - Lair Prev W	497	0
+Act 2 - Lair Prev E	498	0
+Act 2 - Lair Prev S	499	0
+Act 2 - Lair Prev N	500	0
+Act 2 - Lair Next W	501	0
+Act 2 - Lair Next E	502	0
+Act 2 - Lair Next S	503	0
+Act 2 - Lair Next N	504	0
+Act 2 - Lair Treasure W	505	0
+Act 2 - Lair Treasure E	506	0
+Act 2 - Lair Treasure S	507	0
+Act 2 - Lair Treasure N	508	0
+Act 2 - Lair Tight Spot S	509	0
+Act 2 - Arcane W	510	0
+Act 2 - Arcane E	511	0
+Act 2 - Arcane EW	512	0
+Act 2 - Arcane S	513	0
+Act 2 - Arcane SW	514	0
+Act 2 - Arcane SE	515	0
+Act 2 - Arcane SEW	516	0
+Act 2 - Arcane N	517	0
+Act 2 - Arcane NW	518	0
+Act 2 - Arcane NE	519	0
+Act 2 - Arcane NEW	520	0
+Act 2 - Arcane NS	521	0
+Act 2 - Arcane NSW	522	0
+Act 2 - Arcane NSE	523	0
+Act 2 - Arcane NSEW	524	0
+Act 2 - Arcane Summoner W	525	0
+Act 2 - Arcane Summoner E	526	0
+Act 2 - Arcane Summoner S	527	0
+Act 2 - Arcane Summoner N	528	0
+Act 3 - Town	529	20
+Act 3 - Jungle W	530	0
+Act 3 - Jungle E	531	0
+Act 3 - Jungle EW	532	0
+Act 3 - Jungle S	533	0
+Act 3 - Jungle SW	534	0
+Act 3 - Jungle SE	535	0
+Act 3 - Jungle SEW	536	0
+Act 3 - Jungle N	537	0
+Act 3 - Jungle NW	538	0
+Act 3 - Jungle NE	539	0
+Act 3 - Jungle NEW	540	0
+Act 3 - Jungle NS	541	0
+Act 3 - Jungle NSW	542	0
+Act 3 - Jungle NSE	543	0
+Act 3 - Jungle NSEW	544	0
+Act 3 - Jungle W E	545	0
+Act 3 - Jungle W S	546	0
+Act 3 - Jungle W N	547	0
+Act 3 - Jungle E W	548	0
+Act 3 - Jungle E S	549	0
+Act 3 - Jungle E N	550	0
+Act 3 - Jungle EW S	551	0
+Act 3 - Jungle EW N	552	0
+Act 3 - Jungle S W	553	0
+Act 3 - Jungle S E	554	0
+Act 3 - Jungle S N	555	0
+Act 3 - Jungle SW E	556	0
+Act 3 - Jungle SW N	557	0
+Act 3 - Jungle SE W	558	0
+Act 3 - Jungle SE N	559	0
+Act 3 - Jungle SEW N	560	0
+Act 3 - Jungle N W	561	0
+Act 3 - Jungle N E	562	0
+Act 3 - Jungle N S	563	0
+Act 3 - Jungle NW E	564	0
+Act 3 - Jungle NW S	565	0
+Act 3 - Jungle NE W	566	0
+Act 3 - Jungle NE S	567	0
+Act 3 - Jungle NEW S	568	0
+Act 3 - Jungle NS W	569	0
+Act 3 - Jungle NS E	570	0
+Act 3 - Jungle NSW E	571	0
+Act 3 - Jungle NSE W	572	0
+Act 3 - Jungle Head	573	0
+Act 3 - Jungle Tail	574	0
+Act 3 - Clearing Webby W	575	0
+Act 3 - Clearing Webby E	576	0
+Act 3 - Clearing Webby EW	577	0
+Act 3 - Clearing Webby S	578	0
+Act 3 - Clearing Webby SW	579	0
+Act 3 - Clearing Webby SE	580	0
+Act 3 - Clearing Webby N	581	0
+Act 3 - Clearing Webby NW	582	0
+Act 3 - Clearing Webby NE	583	0
+Act 3 - Clearing Webby NS	584	0
+Act 3 - Clearing Boggy W	585	0
+Act 3 - Clearing Boggy E	586	0
+Act 3 - Clearing Boggy EW	587	0
+Act 3 - Clearing Boggy S	588	0
+Act 3 - Clearing Boggy SW	589	0
+Act 3 - Clearing Boggy SE	590	0
+Act 3 - Clearing Boggy N	591	0
+Act 3 - Clearing Boggy NW	592	0
+Act 3 - Clearing Boggy NE	593	0
+Act 3 - Clearing Boggy NS	594	0
+Act 3 - Clearing Pygmy W	595	0
+Act 3 - Clearing Pygmy E	596	0
+Act 3 - Clearing Pygmy EW	597	0
+Act 3 - Clearing Pygmy S	598	0
+Act 3 - Clearing Pygmy SW	599	0
+Act 3 - Clearing Pygmy SE	600	0
+Act 3 - Clearing Pygmy N	601	0
+Act 3 - Clearing Pygmy NW	602	0
+Act 3 - Clearing Pygmy NE	603	0
+Act 3 - Clearing Pygmy NS	604	0
+Act 3 - Slums Border N	605	0
+Act 3 - Slums Border S	606	0
+Act 3 - Slums Border E	607	0
+Act 3 - Slums Border W	608	0
+Act 3 - Slums Border NE	609	0
+Act 3 - Slums Border NW	610	0
+Act 3 - Slums Border SE	611	0
+Act 3 - Slums Border SW	612	0
+Act 3 - Slums Gate N	613	0
+Act 3 - Slums Gate S	614	0
+Act 3 - Slums 08x08	615	0
+Act 3 - Slums 08x16	616	0
+Act 3 - Slums 16x08	617	0
+Act 3 - Slums 16x16	618	0
+Act 3 - Burbs Border N	619	0
+Act 3 - Burbs Border S	620	0
+Act 3 - Burbs Border E	621	0
+Act 3 - Burbs Border W	622	0
+Act 3 - Burbs Border NE	623	0
+Act 3 - Burbs Border NW	624	0
+Act 3 - Burbs Border SE	625	0
+Act 3 - Burbs Border SW	626	0
+Act 3 - Burbs Gate N	627	0
+Act 3 - Burbs Gate S	628	0
+Act 3 - Burbs Sewer	629	0
+Act 3 - Burbs Temple	630	0
+Act 3 - Burbs Waypoint	631	0
+Act 3 - Burbs 08x08	632	0
+Act 3 - Burbs 08x16	633	0
+Act 3 - Burbs 16x08	634	0
+Act 3 - Burbs 16x16	635	0
+Act 3 - Metro Border N	636	0
+Act 3 - Metro Border S	637	0
+Act 3 - Metro Border E	638	0
+Act 3 - Metro Border W	639	0
+Act 3 - Metro Border NE	640	0
+Act 3 - Metro Border NW	641	0
+Act 3 - Metro Border SE	642	0
+Act 3 - Metro Border SW	643	0
+Act 3 - Metro Gate N	644	0
+Act 3 - Metro Gate S	645	0
+Act 3 - Metro Sewer	646	0
+Act 3 - MetroTemple	647	0
+Act 3 - Metro 08x08	648	0
+Act 3 - Metro 08x16	649	0
+Act 3 - Metro 16x08	650	0
+Act 3 - Metro 16x16	651	0
+Act 3 - Bridge	652	0
+Act 3 - Travincal NW	653	0
+Act 3 - Travincal N 	654	0
+Act 3 - Travincal NE	655	0
+Act 3 - Travincal SW	656	0
+Act 3 - Travincal S 	657	0
+Act 3 - Travincal SE	658	0
+Act 3 - Spider SW	659	0
+Act 3 - Spider SE	660	0
+Act 3 - Spider NW	661	0
+Act 3 - Spider NE	662	0
+Act 3 - Spider Chest NW	663	0
+Act 3 - Spider Chest NE	664	0
+Act 3 - Dungeon W	665	0
+Act 3 - Dungeon E	666	0
+Act 3 - Dungeon EW	667	0
+Act 3 - Dungeon S	668	0
+Act 3 - Dungeon SW	669	0
+Act 3 - Dungeon SE	670	0
+Act 3 - Dungeon SEW	671	0
+Act 3 - Dungeon N	672	0
+Act 3 - Dungeon NW	673	0
+Act 3 - Dungeon NE	674	0
+Act 3 - Dungeon NEW	675	0
+Act 3 - Dungeon NS	676	0
+Act 3 - Dungeon NSW	677	0
+Act 3 - Dungeon NSE	678	0
+Act 3 - Dungeon NSEW	679	0
+Act 3 - Dungeon Theme W	680	0
+Act 3 - Dungeon Theme E	681	0
+Act 3 - Dungeon Theme EW	682	0
+Act 3 - Dungeon Theme S	683	0
+Act 3 - Dungeon Theme SW	684	0
+Act 3 - Dungeon Theme SE	685	0
+Act 3 - Dungeon Theme SEW	686	0
+Act 3 - Dungeon Theme N	687	0
+Act 3 - Dungeon Theme NW	688	0
+Act 3 - Dungeon Theme NE	689	0
+Act 3 - Dungeon Theme NEW	690	0
+Act 3 - Dungeon Theme NS	691	0
+Act 3 - Dungeon Theme NSW	692	0
+Act 3 - Dungeon Theme NSE	693	0
+Act 3 - Dungeon Theme NSEW	694	0
+Act 3 - Dungeon Prev W	695	0
+Act 3 - Dungeon Prev E	696	0
+Act 3 - Dungeon Prev S	697	0
+Act 3 - Dungeon Prev N	698	0
+Act 3 - Dungeon Next W	699	0
+Act 3 - Dungeon Next E	700	0
+Act 3 - Dungeon Next S	701	0
+Act 3 - Dungeon Next N	702	0
+Act 3 - Dungeon Treasure 1	703	0
+Act 3 - Dungeon Treasure 2	704	0
+Act 3 - Sewer W	705	0
+Act 3 - Sewer E	706	0
+Act 3 - Sewer EW	707	0
+Act 3 - Sewer S	708	0
+Act 3 - Sewer SW	709	0
+Act 3 - Sewer SE	710	0
+Act 3 - Sewer SEW	711	0
+Act 3 - Sewer N	712	0
+Act 3 - Sewer NW	713	0
+Act 3 - Sewer NE	714	0
+Act 3 - Sewer NEW	715	0
+Act 3 - Sewer NS	716	0
+Act 3 - Sewer NSW	717	0
+Act 3 - Sewer NSE	718	0
+Act 3 - Sewer NSEW	719	0
+Act 3 - Sewer Theme W	720	0
+Act 3 - Sewer Theme E	721	0
+Act 3 - Sewer Theme EW	722	0
+Act 3 - Sewer Theme S	723	0
+Act 3 - Sewer Theme SW	724	0
+Act 3 - Sewer Theme SE	725	0
+Act 3 - Sewer Theme SEW	726	0
+Act 3 - Sewer Theme N	727	0
+Act 3 - Sewer Theme NW	728	0
+Act 3 - Sewer Theme NE	729	0
+Act 3 - Sewer Theme NEW	730	0
+Act 3 - Sewer Theme NS	731	0
+Act 3 - Sewer Theme NSW	732	0
+Act 3 - Sewer Theme NSE	733	0
+Act 3 - Sewer Theme NSEW	734	0
+Act 3 - Sewer Prev SW	735	0
+Act 3 - Sewer Prev SE	736	0
+Act 3 - Sewer Prev NW	737	0
+Act 3 - Sewer Prev NE	738	0
+Act 3 - Sewer Drain W	739	0
+Act 3 - Sewer Drain E	740	0
+Act 3 - Sewer Drain S	741	0
+Act 3 - Sewer Drain N	742	0
+Act 3 - Sewer Chest W	743	0
+Act 3 - Sewer Chest E	744	0
+Act 3 - Sewer Chest S	745	0
+Act 3 - Sewer Chest N	746	0
+Act 3 - Sewer Treasure X	747	0
+Act 3 - Temple 1	748	0
+Act 3 - Temple 2	749	0
+Act 3 - Temple 3	750	0
+Act 3 - Temple 4	751	0
+Act 3 - Temple 5	752	0
+Act 3 - Temple 6	753	0
+Act 3 - Mephisto W	754	0
+Act 3 - Mephisto E	755	0
+Act 3 - Mephisto EW	756	0
+Act 3 - Mephisto S	757	0
+Act 3 - Mephisto SW	758	0
+Act 3 - Mephisto SE	759	0
+Act 3 - Mephisto SEW	760	0
+Act 3 - Mephisto N	761	0
+Act 3 - Mephisto NW	762	0
+Act 3 - Mephisto NE	763	0
+Act 3 - Mephisto NEW	764	0
+Act 3 - Mephisto NS	765	0
+Act 3 - Mephisto NSW	766	0
+Act 3 - Mephisto NSE	767	0
+Act 3 - Mephisto NSEW	768	0
+Act 3 - Mephisto Theme W	769	0
+Act 3 - Mephisto Theme E	770	0
+Act 3 - Mephisto Theme EW	771	0
+Act 3 - Mephisto Theme S	772	0
+Act 3 - Mephisto Theme SW	773	0
+Act 3 - Mephisto Theme SE	774	0
+Act 3 - Mephisto Theme SEW	775	0
+Act 3 - Mephisto Theme N	776	0
+Act 3 - Mephisto Theme NW	777	0
+Act 3 - Mephisto Theme NE	778	0
+Act 3 - Mephisto Theme NEW	779	0
+Act 3 - Mephisto Theme NS	780	0
+Act 3 - Mephisto Theme NSW	781	0
+Act 3 - Mephisto Theme NSE	782	0
+Act 3 - Mephisto Theme NSEW	783	0
+Act 3 - Mephisto Prev W	784	0
+Act 3 - Mephisto Prev E	785	0
+Act 3 - Mephisto Prev S	786	0
+Act 3 - Mephisto Prev N	787	0
+Act 3 - Mephisto Next W	788	0
+Act 3 - Mephisto Next E	789	0
+Act 3 - Mephisto Next S	790	0
+Act 3 - Mephisto Next N	791	0
+Act 3 - Mephisto Waypoint W	792	0
+Act 3 - Mephisto Waypoint E	793	0
+Act 3 - Mephisto Waypoint S	794	0
+Act 3 - Mephisto Waypoint N	795	0
+Act 3 - Mephisto Complex	796	0
+Act 4 - Fortress	797	26
+Act 4 - Fortress Transition	798	26
+Act 4 - Mesa Border 1	799	0
+Act 4 - Mesa Border 2	800	0
+Act 4 - Mesa Border 3	801	0
+Act 4 - Mesa Border 4	802	0
+Act 4 - Mesa Border 5	803	0
+Act 4 - Mesa Border 6	804	0
+Act 4 - Mesa Border 7	805	0
+Act 4 - Mesa Border 8	806	0
+Act 4 - Mesa Border 9	807	0
+Act 4 - Mesa Border 10	808	0
+Act 4 - Mesa Border 11	809	0
+Act 4 - Mesa Border 12	810	0
+Act 4 - Mesa Warp	811	0
+Act 4 - Mesa 1 24X24	812	0
+Act 4 - Mesa 1 16X16	813	0
+Act 4 - Mesa 1 16X08	814	0
+Act 4 - Mesa 1 08X16	815	0
+Act 4 - Mesa 1 08X08	816	0
+Act 4 - Mesa 2 24X24	817	0
+Act 4 - Mesa 2 16X16	818	0
+Act 4 - Mesa 2 16X08	819	0
+Act 4 - Mesa 2 08X16	820	0
+Act 4 - Mesa 2 08X08	821	0
+Act 4 - Mesa 2 Izual	822	0
+Act 4 - Mesa 3 24X24	823	0
+Act 4 - Mesa 3 16X16	824	0
+Act 4 - Mesa 3 16X08	825	0
+Act 4 - Mesa 3 08X16	826	0
+Act 4 - Mesa 3 08X08	827	0
+Act 4 - Pits 1 16X16	828	0
+Act 4 - Pits 1 16X08	829	0
+Act 4 - Pits 1 08X16	830	0
+Act 4 - Pits 1 08X08	831	0
+Act 4 - Pits 2 16X16	832	0
+Act 4 - Pits 2 16X08	833	0
+Act 4 - Pits 2 08X16	834	0
+Act 4 - Pits 2 08X08	835	0
+Act 4 - Lava X	836	0
+Act 4 - Lava W	837	0
+Act 4 - Lava E	838	0
+Act 4 - Lava EW	839	0
+Act 4 - Lava S	840	0
+Act 4 - Lava SW	841	0
+Act 4 - Lava SE	842	0
+Act 4 - Lava SEW	843	0
+Act 4 - Lava N	844	0
+Act 4 - Lava NW	845	0
+Act 4 - Lava NE	846	0
+Act 4 - Lava NEW	847	0
+Act 4 - Lava NS	848	0
+Act 4 - Lava NSW	849	0
+Act 4 - Lava NSE	850	0
+Act 4 - Lava NSEW	851	0
+Act 4 - Lava Warp N	852	0
+Act 4 - Lava Forge W	853	0
+Act 4 - Lava Forge E	854	0
+Act 4 - Bridge 1	855	0
+Act 4 - Bridge 2	856	0
+Act 4 - Diablo Entry	857	0
+Act 4 - Diablo Arm W	858	0
+Act 4 - Diablo Arm E	859	0
+Act 4 - Diablo Arm S	860	0
+Act 4 - Diablo Arm N	861	0
+Act 4 - Diablo Heart	862	0
+Expansion		0
+Act 5 - Town	863	29
+Act 5 - Temple Final Room	864	0
+Act 5 - Siege To Town	865	0
+Act 5 - Siege Strip 1	866	0
+Act 5 - Siege Strip 2	867	0
+Act 5 - Siege Strip 3	868	0
+Act 5 - Siege Strip 4	869	0
+Act 5 - Siege Strip 5	870	0
+Act 5 - Siege Strip 6	871	0
+Act 5 - Siege Strip 7	872	0
+Act 5 - Siege Strip 8	873	0
+Act 5 - Siege Strip 9	874	0
+Act 5 - Siege Strip 10	875	0
+Act 5 - Siege Strip 11	876	0
+Act 5 - Siege Strip 12	877	0
+Act 5 - Siege Strip 13	878	0
+Act 5 - Siege To Barricade	879	0
+Act 5 - Barricade To Siege	880	0
+Act 5 - Barricade Cliff Border 1	881	0
+Act 5 - Barricade Cliff Border 2	882	0
+Act 5 - Barricade Cliff Border 3	883	0
+Act 5 - Barricade Cliff Border 4	884	0
+Act 5 - Barricade Cliff Border 5	885	0
+Act 5 - Barricade Cliff Border 6	886	0
+Act 5 - Barricade Cliff Border 7	887	0
+Act 5 - Barricade Cliff Border 8	888	0
+Act 5 - Barricade Cliff Border 9	889	0
+Act 5 - Barricade Cliff Border 10	890	0
+Act 5 - Barricade Cliff Border 11	891	0
+Act 5 - Barricade Cliff Border 12	892	0
+Act 5 - Barricade Ravine Border 1	893	0
+Act 5 - Barricade Ravine Border 2	894	0
+Act 5 - Barricade Ravine Border 3	895	0
+Act 5 - Barricade Ravine Border 4	896	0
+Act 5 - Barricade Ravine Border 5	897	0
+Act 5 - Barricade Ravine Border 6	898	0
+Act 5 - Barricade Ravine Border 7	899	0
+Act 5 - Barricade Ravine Border 8	900	0
+Act 5 - Barricade Ravine Border 9	901	0
+Act 5 - Barricade Ravine Border 10	902	0
+Act 5 - Barricade Ravine Border 11	903	0
+Act 5 - Barricade Ravine Border 12	904	0
+Act 5 - Barricade Ravine-Cliff Border 5	905	0
+Act 5 - Barricade Cliff Ravine Border 7	906	0
+Act 5 - Barricade Entrance 16x32	907	0
+Act 5 - Barricade Entrance 32x16	908	0
+Act 5 - Barricade Exit 32x16	909	0
+Act 5 - Barricade Exit 16x32	910	0
+Act 5 - Barricade From Cave 32x16	911	0
+Act 5 - Barricade From Cave 16x32	912	0
+Act 5 - Barricade To Cave 32x16	913	0
+Act 5 - Barricade To Cave 16x32	914	0
+Act 5 - Barricade 1	915	0
+Act 5 - Barricade 2	916	0
+Act 5 - Barricade 3	917	0
+Act 5 - Barricade 4	918	0
+Act 5 - Barricade 5	919	0
+Act 5 - Barricade 6	920	0
+Act 5 - Barricade 7	921	0
+Act 5 - Barricade 8	922	0
+Act 5 - Barricade 9	923	0
+Act 5 - Barricade 10	924	0
+Act 5 - Barricade 11	925	0
+Act 5 - Barricade 12	926	0
+Act 5 - Barricade 13	927	0
+Act 5 - Barricade 14	928	0
+Act 5 - Barricade 15	929	0
+Act 5 - Barricade 16	930	0
+Act 5 - Barricade Prison 1	931	0
+Act 5 - Barricade Prison 2	932	0
+Act 5 - Barricade Prison 3	933	0
+Act 5 - Barricade Prison 4	934	0
+Act 5 - Barricade Prison 5	935	0
+Act 5 - Barricade Prison 6	936	0
+Act 5 - Barricade Prison 7	937	0
+Act 5 - Barricade Prison 8	938	0
+Act 5 - Barricade Building	939	0
+Act 5 - Barricade Filler 	940	0
+Act 5 - Barricade Filler Treasure	941	0
+Act 5 - Barricade Ruins N	942	0
+Act 5 - Barricade Ruins N	943	0
+Act 5 - Barricade Ruins N Treasure	944	0
+Act 5 - Barricade Ruins W	945	0
+Act 5 - Barricade Ruins W	946	0
+Act 5 - Barricade Ruins W Treasure	947	0
+Act 5 - Barricade Snow Lake  1	948	0
+Act 5 - Barricade Snow Lake  2	949	0
+Act 5 - Barricade Snow Other 	950	0
+Act 5 - Barricade Snow Treasure 	951	0
+Act 5 - Barricade Snow Unique	952	0
+Act 5 - Barricade Waypoint Dirt	953	0
+Act 5 - Barricade Waypoint Snow	954	0
+Act 5 - Barricade Hell Portal N	955	0
+Act 5 - Barricade Hell Portal W	956	0
+Act 5 - Barricade Cliff Border 1 Snow	957	0
+Act 5 - Barricade Cliff Border 2 Snow	958	0
+Act 5 - Barricade Cliff Border 3 Snow	959	0
+Act 5 - Barricade Cliff Border 4 Snow	960	0
+Act 5 - Barricade Cliff Border 5 Snow	961	0
+Act 5 - Barricade Cliff Border 6 Snow	962	0
+Act 5 - Barricade Cliff Border 7 Snow	963	0
+Act 5 - Barricade Cliff Border 8 Snow	964	0
+Act 5 - Barricade Cliff Border 9 Snow	965	0
+Act 5 - Barricade Cliff Border 10 Snow	966	0
+Act 5 - Barricade Cliff Border 11 Snow	967	0
+Act 5 - Barricade Cliff Border 12 Snow	968	0
+Act 5 - Barricade Ravine Border 1 Snow	969	0
+Act 5 - Barricade Ravine Border 2 Snow	970	0
+Act 5 - Barricade Ravine Border 3 Snow	971	0
+Act 5 - Barricade Ravine Border 4 Snow	972	0
+Act 5 - Barricade Ravine Border 5 Snow	973	0
+Act 5 - Barricade Ravine Border 6 Snow	974	0
+Act 5 - Barricade Ravine Border 7 Snow	975	0
+Act 5 - Barricade Ravine Border 8 Snow	976	0
+Act 5 - Barricade Ravine Border 9 Snow	977	0
+Act 5 - Barricade Ravine Border 10 Snow	978	0
+Act 5 - Barricade Ravine Border 11 Snow	979	0
+Act 5 - Barricade Ravine Border 12 Snow	980	0
+Act 5 - Barricade Ravine-Cliff Border 5 Snow	981	0
+Act 5 - Barricade Cliff Ravine Border 7 Snow	982	0
+Act 5 - Barricade From Cave 32x16 Snow	983	0
+Act 5 - Barricade From Cave 16x32 Snow	984	0
+Act 5 - Barricade To Cave 32x16 Snow	985	0
+Act 5 - Barricade To Cave 16x32 Snow	986	0
+Act 5 - Barricade 1 Snow	987	0
+Act 5 - Barricade 2 Snow	988	0
+Act 5 - Barricade 3 Snow	989	0
+Act 5 - Barricade 4 Snow	990	0
+Act 5 - Barricade 5 Snow	991	0
+Act 5 - Barricade 6 Snow	992	0
+Act 5 - Barricade 7 Snow	993	0
+Act 5 - Barricade 8 Snow	994	0
+Act 5 - Barricade 9 Snow	995	0
+Act 5 - Barricade 10 Snow	996	0
+Act 5 - Barricade 11 Snow	997	0
+Act 5 - Barricade 12 Snow	998	0
+Act 5 - Barricade 13 Snow	999	0
+Act 5 - Barricade 14 Snow	1000	0
+Act 5 - Barricade 15 Snow	1001	0
+Act 5 - Barricade 16 Snow	1002	0
+Act 5 - Ice W	1003	0
+Act 5 - Ice E	1004	0
+Act 5 - Ice EW	1005	0
+Act 5 - Ice S	1006	0
+Act 5 - Ice SW	1007	0
+Act 5 - Ice SE	1008	0
+Act 5 - Ice SEW	1009	0
+Act 5 - Ice N	1010	0
+Act 5 - Ice NW	1011	0
+Act 5 - Ice NE	1012	0
+Act 5 - Ice NEW	1013	0
+Act 5 - Ice NS	1014	0
+Act 5 - Ice NSW	1015	0
+Act 5 - Ice NSE	1016	0
+Act 5 - Ice NSEW	1017	0
+Act 5 - Ice Prev W	1018	0
+Act 5 - Ice Prev E	1019	0
+Act 5 - Ice Prev S	1020	0
+Act 5 - Ice Prev N	1021	0
+Act 5 - Ice Next W	1022	0
+Act 5 - Ice Next E	1023	0
+Act 5 - Ice Next S	1024	0
+Act 5 - Ice Next N	1025	0
+Act 5 - Ice Down W	1026	0
+Act 5 - Ice Down E	1027	0
+Act 5 - Ice Down S	1028	0
+Act 5 - Ice Down N	1029	0
+Act 5 - Ice Theme W	1030	0
+Act 5 - Ice Theme E	1031	0
+Act 5 - Ice Theme S	1032	0
+Act 5 - Ice Theme N	1033	0
+Act 5 - Ice waypoint N	1034	0
+Act 5 - Ice waypoint S	1035	0
+Act 5 - Ice waypoint E	1036	0
+Act 5 - Ice waypoint W	1037	0
+Act 5 - Ice River A	1038	0
+Act 5 - Ice River B	1039	0
+Act 5 - Ice Pool A	1040	0
+Act 5 - Ice Pool B	1041	0
+Act 5 - Temple NE	1042	0
+Act 5 - Temple NW	1043	0
+Act 5 - Temple SE up	1044	0
+Act 5 - Temple SW	1045	0
+Act 5 - Temple NE Down	1046	0
+Act 5 - Temple NW Down	1047	0
+Act 5 - Temple SW Down	1048	0
+Act 5 - Temple NE Waypoint	1049	0
+Act 5 - Temple NW Waypoint	1050	0
+Act 5 - Temple SE Waypoint	1051	0
+Act 5 - Temple SW Waypoint	1052	0
+Act 5 - Lava N	1053	0
+Act 5 - Lava S	1054	0
+Act 5 - Lava E	1055	0
+Act 5 - Lava W	1056	0
+Act 5 - Lava EW	1057	0
+Act 5 - Lava NS	1058	0
+Act 5 - Baal W	1059	0
+Act 5 - Baal E	1060	0
+Act 5 - Baal EW	1061	0
+Act 5 - Baal S	1062	0
+Act 5 - Baal SW	1063	0
+Act 5 - Baal SE	1064	0
+Act 5 - Baal SEW	1065	0
+Act 5 - Baal N	1066	0
+Act 5 - Baal NW	1067	0
+Act 5 - Baal NE	1068	0
+Act 5 - Baal NEW	1069	0
+Act 5 - Baal NS	1070	0
+Act 5 - Baal NSW	1071	0
+Act 5 - Baal NSE	1072	0
+Act 5 - Baal NSEW	1073	0
+Act 5 - Baal Prev NEW	1074	0
+Act 5 - Baal Prev NSE	1075	0
+Act 5 - Baal Prev NSW	1076	0
+Act 5 - Baal Prev SEW	1077	0
+Act 5 - Baal Next N	1078	0
+Act 5 - Baal Next S	1079	0
+Act 5 - Baal Next E	1080	0
+Act 5 - Baal Next W	1081	0
+Act 5 - Baal Waypoint N	1082	0
+Act 5 - Baal Waypoint S	1083	0
+Act 5 - Baal Waypoint E	1084	0
+Act 5 - Baal Waypoint W	1085	0
+Act 5 - ThroneRoom	1086	0
+Act 5 - WorldStone	1087	0
+Act 5 - Temple Entrance	1088	0
+Act 5 - Baal Entrance	1089	0
+Act 5 - Pandemonium Finale	1090	0

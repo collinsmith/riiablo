@@ -1,0 +1,1051 @@
+Act	Type	Id	Description	ObjectId
+1	1	0	gheed	-1
+1	1	1	cain1	-1
+1	1	2	akara	-1
+1	1	3	chicken	-1
+1	1	4	rogue1	-1
+1	1	5	kashya	-1
+1	1	6	cow	-1
+1	1	7	warriv1	-1
+1	1	8	charsi	-1
+1	1	9	andariel	-1
+1	1	10	place_fallen	-1
+1	1	11	place_fallenshaman	-1
+1	1	12	place_bloodraven	-1
+1	1	13	cow	-1
+1	1	14	camel	-1
+1	1	15	place_unique_pack	-1
+1	1	16	place_npc_pack	-1
+1	1	17	place_nothing	-1
+1	1	18	place_nothing	-1
+1	1	19	place_champion	-1
+1	1	20	navi	-1
+1	1	21	rogue1	-1
+1	1	22	rogue3	-1
+1	1	23	gargoyletrap	-1
+1	1	24	place_fallennest	-1
+1	1	25	place_talkingrogue	-1
+1	1	26	place_fallen	-1
+1	1	27	place_fallenshaman	-1
+1	1	28	trap-horzmissile	-1
+1	1	29	trap-vertmissile	-1
+1	1	30	place_group25	-1
+1	1	31	place_group50	-1
+1	1	32	place_group75	-1
+1	1	33	place_group100	-1
+1	1	34	Bishibosh	-1
+1	1	35	Bonebreak	-1
+1	1	36	Coldcrow	-1
+1	1	37	Rakanishu	-1
+1	1	38	Treehead WoodFist	-1
+1	1	39	Griswold	-1
+1	1	40	The Countess	-1
+1	1	41	Pitspawn Fouldog	-1
+1	1	42	Flamespike the Crawler	-1
+1	1	43	Boneash	-1
+1	1	44	The Smith	-1
+1	1	45	The Cow King	-1
+1	1	46	Corpsefire	-1
+1	1	47	0	-1
+1	1	48	0	-1
+1	1	49	0	-1
+1	1	50	0	-1
+1	1	51	0	-1
+1	1	52	0	-1
+1	1	53	0	-1
+1	1	54	0	-1
+1	1	55	0	-1
+1	1	56	0	-1
+1	1	57	0	-1
+1	1	58	0	-1
+1	1	59	0	-1
+1	2	0	RogueFountain	12
+1	2	1	Torch1 Tiki	37
+1	2	2	RogueBonfire	39
+1	2	3	Standard1	35
+1	2	4	Standard2	36
+1	2	5	LargeChestR	5
+1	2	6	StoneAlpha	17
+1	2	7	StoneBeta	18
+1	2	8	StoneGamma	19
+1	2	9	StoneDelta	20
+1	2	10	StoneLambda	21
+1	2	11	StoneTheta	22
+1	2	12	inifuss tree	30
+1	2	13	ripple	70
+1	2	14	ripple	70
+1	2	15	ripple	69
+1	2	16	ripple	69
+1	2	17	Brazier	29
+1	2	18	Fountain	31
+1	2	19	Candles1	33
+1	2	20	Candles2	34
+1	2	21	Torch1 Tiki	37
+1	2	22	Invisible object	61
+1	2	23	invisible river sound1	65
+1	2	24	invisible river sound2	66
+1	2	25	Tower Tome	8
+1	2	26	Cain's Been Captured	26
+1	2	27	Hole in Ground	28
+1	2	28	bubbling pool of blood	82
+1	2	29	Shrine	2
+1	2	30	forest altar	81
+1	2	31	healing well	84
+1	2	32	horn shrine	83
+1	2	33	invisible town sound	78
+1	2	34	Invisible object	61
+1	2	35	flies	103
+1	2	36	Malus	108
+1	2	37	waypoint portal	119
+1	2	38	0	580
+1	2	39	pool act 1 wilderness	130
+1	2	40	rockb act 1 wilderness	159
+1	2	41	cliff act 1 wilderness	163
+1	2	42	log	169
+1	2	43	fire small	160
+1	2	44	fire medium	161
+1	2	45	fire large	162
+1	2	46	Armor Stand 1R	104
+1	2	47	Armor Stand 2L	105
+1	2	48	Weapon Rack 1R	106
+1	2	49	Weapon Rack 2L	107
+1	2	50	bookshelf1	179
+1	2	51	bookshelf2	180
+1	2	52	waypoint portal	119
+1	2	53	waypoint act 1 wilderness	157
+1	2	54	bed act 1	247
+1	2	55	bed act 1	248
+1	2	56	rock act 1 wilderness	155
+1	2	57	rockc act 1 wilderness	174
+1	2	58	rockd act 1 wilderness	175
+1	2	59	chest-r-large act 1	139
+1	2	60	chest-r-tallskinney act 1	140
+1	2	61	chest-r-med act 1	141
+1	2	62	Lchest1 act 1	144
+1	2	63	LargeChestL	6
+1	2	64	gchest1L general	240
+1	2	65	gchest2R general	241
+1	2	66	gchest3R general	242
+1	2	67	Rogue corpse 1	54
+1	2	68	Rogue corpse 2	55
+1	2	69	rolling rogue corpse	56
+1	2	70	rogue on a stick 1	57
+1	2	71	rogue on a stick 2	58
+1	2	72	corpseb	171
+1	2	73	guard on a stick, desert, tomb, harom	178
+1	2	74	burning town	239
+1	2	75	burning town	245
+1	2	76	exploding cow	250
+1	2	77	Fountain 1	111
+1	2	78	cavewell act 1 caves 	138
+1	2	79	cathedralwell act 1 inside	132
+1	2	80	mana well1	164
+1	2	81	mana well2	165
+1	2	82	healthorama	77
+1	2	83	bull shrine,health, tombs	85
+1	2	84	stele,magic shrine, stone, desert	86
+1	2	85	act 1 cathedral	262
+1	2	86	act 1 jail	263
+1	2	87	act 1 jail	264
+1	2	88	act 1 jail	265
+1	2	89	CasketR	50
+1	2	90	CasketL	51
+1	2	91	casket #3	79
+1	2	92	Casket	53
+1	2	93	Casket #5	1
+1	2	94	Casket #6	3
+1	2	95	Barrel	7
+1	2	96	Crate	46
+1	2	97	Torch2 Wall	38
+1	2	98	stool for act 1 cabin	256
+1	2	99	wood for act 1 cabin	257
+1	2	100	more wood for act 1 cabin	258
+1	2	101	secret door 1	129
+1	2	102	bank	267
+1	2	103	wirt's body	268
+1	2	104	gold placeholder	269
+1	2	105	0	581
+1	2	106	helllightsource1	351
+1	2	107	helllightsource1	352
+1	2	108	helllightsource1	353
+1	2	109	fog act 3 water rfga	374
+1	2	110	cain start position	385
+1	2	111	sparklychest	397
+1	2	112	Red Portal	321
+1	2	113	0	0
+1	2	114	Myhrginoc's Book of Lore	8
+1	2	115	0	0
+1	2	116	0	0
+1	2	117	0	0
+1	2	118	0	0
+1	2	119	0	0
+1	2	120	0	0
+1	2	121	0	0
+1	2	122	0	0
+1	2	123	0	0
+1	2	124	0	0
+1	2	125	0	0
+1	2	126	0	0
+1	2	127	0	0
+1	2	128	0	0
+1	2	129	0	0
+1	2	130	0	0
+1	2	131	0	0
+1	2	132	0	0
+1	2	133	0	0
+1	2	134	0	0
+1	2	135	0	0
+1	2	136	0	0
+1	2	137	0	0
+1	2	138	0	0
+1	2	139	0	0
+1	2	140	0	0
+1	2	141	0	0
+1	2	142	0	0
+1	2	143	0	0
+1	2	144	0	0
+1	2	145	0	0
+1	2	146	0	0
+1	2	147	0	0
+1	2	148	0	0
+1	2	149	0	0
+2	1	0	warriv2	-1
+2	1	1	atma	-1
+2	1	2	drognan	-1
+2	1	3	fara	-1
+2	1	4	place_nothing	-1
+2	1	5	place_nothing	-1
+2	1	6	place_nothing	-1
+2	1	7	place_nothing	-1
+2	1	8	greiz	-1
+2	1	9	elzix	-1
+2	1	10	lysander	-1
+2	1	11	meshif1	-1
+2	1	12	geglash	-1
+2	1	13	jerhyn	-1
+2	1	14	place_unique_pack	-1
+2	1	15	place_npc_pack	-1
+2	1	16	place_nothing	-1
+2	1	17	summoner	-1
+2	1	18	Radament	-1
+2	1	19	duriel	-1
+2	1	20	cain2	-1
+2	1	21	place_champion	-1
+2	1	22	act2male	-1
+2	1	23	act2female	-1
+2	1	24	act2guard1	-1
+2	1	25	act2vendor1	-1
+2	1	26	act2vendor2	-1
+2	1	27	place_tightspotboss	-1
+2	1	28	fish	-1
+2	1	29	place_talkingguard	-1
+2	1	30	place_dumbguard	-1
+2	1	31	place_maggot	-1
+2	1	32	place_maggotegg	-1
+2	1	33	place_nothing	-1
+2	1	34	gargoyletrap	-1
+2	1	35	trap-horzmissile	-1
+2	1	36	trap-vertmissile	-1
+2	1	37	place_group25	-1
+2	1	38	place_group50	-1
+2	1	39	place_group75	-1
+2	1	40	place_group100	-1
+2	1	41	lightningspire	-1
+2	1	42	firetower	-1
+2	1	43	place_nothing	-1
+2	1	44	place_nothing	-1
+2	1	45	place_nothing	-1
+2	1	46	Bloodwitch the Wild	-1
+2	1	47	Fangskin	-1
+2	1	48	Beetleburst	-1
+2	1	49	Leatherarm	-1
+2	1	50	Coldworm the Burrower	-1
+2	1	51	Fire Eye	-1
+2	1	52	Dark Elder	-1
+2	1	53	Ancient Kaa the Soulless	-1
+2	1	54	act2guard4	-1
+2	1	55	act2guard5	-1
+2	1	56	sarcophagus	-1
+2	1	57	tyrael1	-1
+2	1	58	skeleton5	-1
+2	1	59	0	-1
+2	2	0	Trap Door	74
+2	2	1	Torch1 Tiki	37
+2	2	2	teleportation pad	192
+2	2	3	teleportation pad	304
+2	2	4	teleportation pad	305
+2	2	5	teleportation pad	306
+2	2	6	Brazier3	101
+2	2	7	Floor brazier	102
+2	2	8	invisible town sound	78
+2	2	9	flies	103
+2	2	10	waypoint act 2	156
+2	2	11	0	580
+2	2	12	cathedralwell act 1 inside	132
+2	2	13	secret door 1	129
+2	2	14	yet another tome	357
+2	2	15	tyrael's door	153
+2	2	16	placeholder #1	121
+2	2	17	placeholder #2	122
+2	2	18	slimedoor1	229
+2	2	19	slimedoor2	230
+2	2	20	test data floortrap	196
+2	2	21	bank	267
+2	2	22	spikes for tombs floortrap	261
+2	2	23	tainted sun altar quest	149
+2	2	24	gold placeholder	269
+2	2	25	Urn #1	4
+2	2	26	Urn #2	9
+2	2	27	Urn #3	52
+2	2	28	Urn #4	94
+2	2	29	Urn #5	95
+2	2	30	jug1 act 2, desert	142
+2	2	31	jug2 act 2, desert	143
+2	2	32	LargeChestR	5
+2	2	33	LargeChestL	6
+2	2	34	tombchest 1, largechestL	87
+2	2	35	tombchest 2 largechestR	88
+2	2	36	dchest2R act 2, desert, tomb, chest-r-med	146
+2	2	37	dchest2R act 2, desert, tomb, chest-r-med	146
+2	2	38	dchestr act 2, desert, tomb, chest -r large	147
+2	2	39	dchestL act 2, desert, tomb chest l large	148
+2	2	40	gchest1L general	240
+2	2	41	gchest2R general	241
+2	2	42	gchest3R general	242
+2	2	43	glchest3L general	243
+2	2	44	chest-L-med	176
+2	2	45	chest-L-large	177
+2	2	46	chest-L-tallskinney, general chest r?	198
+2	2	47	sewers	246
+2	2	48	Brazier	29
+2	2	49	fire small	160
+2	2	50	fire medium	161
+2	2	51	fire large	162
+2	2	52	yet another flame, no damage	273
+2	2	53	brazier_celler, act 2	283
+2	2	54	bull shrine,health, tombs	85
+2	2	55	stele,magic shrine, stone, desert	86
+2	2	56	palace shrine, healthR, harom, arcane Sanctuary	109
+2	2	57	snake woman, magic shrine, tomb, arcane sanctuary	116
+2	2	58	dshrine2 act 2 shrine	134
+2	2	59	desertshrine3 act 2 shrine	135
+2	2	60	dshrine1 act 2 shrine	136
+2	2	61	dshrine1 act 2 , desert	150
+2	2	62	dshrine4 act 2, desert	151
+2	2	63	health well, health shrine, desert	172
+2	2	64	mana well7, mana shrine, desert	173
+2	2	65	magic shrine, act 3 sewers.	279
+2	2	66	healthwell, act 3, sewers	280
+2	2	67	manawell, act 3, sewers	281
+2	2	68	magic shrine, act 3 sewers, dungeon.	282
+2	2	69	mana well3, act 2, tomb, 	166
+2	2	70	mana well4, act 2, harom	167
+2	2	71	Fountain 2, well, desert, tomb	113
+2	2	72	desertwell act 2 well, desert, tomb	137
+2	2	73	mummy coffinL, tomb	89
+2	2	74	Armor Stand 1R	104
+2	2	75	Armor Stand 2L	105
+2	2	76	Weapon Rack 1R	106
+2	2	77	Weapon Rack 2L	107
+2	2	78	guard corpse	154
+2	2	79	corpseb	171
+2	2	80	guard on a stick, desert, tomb, harom	178
+2	2	81	guard corpse 2	270
+2	2	82	dead villager 1	271
+2	2	83	dead villager 2	272
+2	2	84	goo pile for sand maggot lair	266
+2	2	85	tiny pixel shaped thingie	274
+2	2	86	sewers	244
+2	2	87	anubis coffin, act2, tomb	284
+2	2	88	waypoint, celler	288
+2	2	89	arcane sanctuary portal	298
+2	2	90	bed for harum	289
+2	2	91	wall torch left for tombs	296
+2	2	92	wall torch right for tombs	297
+2	2	93	brazier_small, act 2, desert, town, tombs	287
+2	2	94	brazier_tall, act 2, desert, town, tombs	286
+2	2	95	brazier_general, act 2, sewers, tomb, desert	285
+2	2	96	iron grate door left	290
+2	2	97	iron grate door right	291
+2	2	98	wooden grate door left	292
+2	2	99	wooden grate door right	293
+2	2	100	wooden door left	294
+2	2	101	wooden door right	295
+2	2	102	shrine1_arcane sanctuary	133
+2	2	103	magic shrine, act 3 arcane sanctuary.	303
+2	2	104	magic shrine, act 2, haram	299
+2	2	105	magic shrine, act 2, haram	300
+2	2	106	maggot well health	301
+2	2	107	maggot well mana	302
+2	2	108	0	581
+2	2	109	horadric cube chest	354
+2	2	110	0	582
+2	2	111	harem guard 1	314
+2	2	112	harem guard 2	315
+2	2	113	harem guard 3	316
+2	2	114	harem guard 4	317
+2	2	115	waypoint act2 sewer	323
+2	2	116	tombwell act 2 well, tomb	322
+2	2	117	drinker	110
+2	2	118	gesturer	112
+2	2	119	turner	114
+2	2	120	horadric scroll chest	355
+2	2	121	staff of kings chest	356
+2	2	122	yet another tome	357
+2	2	123	helllightsource1	351
+2	2	124	helllightsource1	352
+2	2	125	helllightsource1	353
+2	2	126	Where you place the Horadric staff	152
+2	2	127	fog act 3 water rfga	374
+2	2	128	arcanesanctuarybigchestLeft	387
+2	2	129	arcanesanctuarybigchestRight	389
+2	2	130	arcanesanctuarychestsmallLeft	390
+2	2	131	arcanesanctuarychestsmallRight	391
+2	2	132	arcanesanctuarycasket	388
+2	2	133	sparklychest	397
+2	2	134	waypoint valleywaypoint	402
+2	2	135	0	0
+2	2	136	0	0
+2	2	137	0	0
+2	2	138	0	0
+2	2	139	0	0
+2	2	140	0	0
+2	2	141	0	0
+2	2	142	0	0
+2	2	143	0	0
+2	2	144	0	0
+2	2	145	0	0
+2	2	146	0	0
+2	2	147	0	0
+2	2	148	0	0
+2	2	149	0	0
+3	1	0	cain3	-1
+3	1	1	place_champion	-1
+3	1	2	act3male	-1
+3	1	3	act3female	-1
+3	1	4	asheara	-1
+3	1	5	hratli	-1
+3	1	6	alkor	-1
+3	1	7	ormus	-1
+3	1	8	meshif2	-1
+3	1	9	place_amphibian	-1
+3	1	10	place_tentacle_ns	-1
+3	1	11	place_tentacle_ew	-1
+3	1	12	place_fetishnest	-1
+3	1	13	trap-horzmissile	-1
+3	1	14	trap-vertmissile	-1
+3	1	15	natalya	-1
+3	1	16	place_mosquitonest	-1
+3	1	17	place_group25	-1
+3	1	18	place_group50	-1
+3	1	19	place_group75	-1
+3	1	20	place_group100	-1
+3	1	21	compellingorb	-1
+3	1	22	mephisto	-1
+3	1	23	trap-melee	-1
+3	1	24	mephistospirit	-1
+3	1	25	act3hire	-1
+3	1	26	place_fetish	-1
+3	1	27	place_fetishshaman	-1
+3	1	28	Web Mage the Burning	-1
+3	1	29	Witch Doctor Endugu	-1
+3	1	30	Stormtree	-1
+3	1	31	Sarina the Battlemaid	-1
+3	1	32	Icehawk Riftwing	-1
+3	1	33	Ismail Vilehand	-1
+3	1	34	Geleb Flamefinger	-1
+3	1	35	Bremm Sparkfist	-1
+3	1	36	Toorc Icefist	-1
+3	1	37	Wyand Voidfinger	-1
+3	1	38	Maffer Dragonhand	-1
+3	1	39	0	-1
+3	1	40	0	-1
+3	1	41	0	-1
+3	1	42	0	-1
+3	1	43	0	-1
+3	1	44	0	-1
+3	1	45	0	-1
+3	1	46	0	-1
+3	1	47	0	-1
+3	1	48	0	-1
+3	1	49	0	-1
+3	1	50	0	-1
+3	1	51	0	-1
+3	1	52	0	-1
+3	1	53	0	-1
+3	1	54	0	-1
+3	1	55	0	-1
+3	1	56	0	-1
+3	1	57	0	-1
+3	1	58	0	-1
+3	1	59	0	-1
+3	2	0	jungle torch	117
+3	2	1	act3waypoint town	237
+3	2	2	0	580
+3	2	3	pool act 1 wilderness	130
+3	2	4	Floor brazier	102
+3	2	5	Torch1 Tiki	37
+3	2	6	fire small	160
+3	2	7	fire medium	161
+3	2	8	fire large	162
+3	2	9	Armor Stand 1R	104
+3	2	10	Armor Stand 2L	105
+3	2	11	Weapon Rack 1R	106
+3	2	12	Weapon Rack 2L	107
+3	2	13	stairsl	194
+3	2	14	stairsr	195
+3	2	15	Lam Esen's Tome	193
+3	2	16	water rocks in act 3 wrok	207
+3	2	17	water rocks girl in act 3 wrob	211
+3	2	18	water logs in act 3  ne logw	210
+3	2	19	Big log act 3 se blgc 	234
+3	2	20	water rocks in act 3 rokb	214
+3	2	21	water rocks girl in act 3 watc	215
+3	2	22	water logs in act 3 logx	213
+3	2	23	big log act 3  sw blga	228
+3	2	24	water rocks in act 3 waty	216
+3	2	25	water rock girl act 3  nw  blgb	227
+3	2	26	water logs in act 3  logz	217
+3	2	27	Big log act 3 nw blgd	235
+3	2	28	web covered tree 1	218
+3	2	29	web covered tree 2	219
+3	2	30	web covered tree 3	220
+3	2	31	web covered tree 4	221
+3	2	32	cacoon	223
+3	2	33	cacoon 2	224
+3	2	34	bank	267
+3	2	35	gold placeholder	269
+3	2	36	0	581
+3	2	37	jungle healwell act 3	170
+3	2	38	magic shrine, act 3, sewer	325
+3	2	39	jungle shrine2	184
+3	2	40	jungle shrine3 act 3	190
+3	2	41	jungle shrine4 act 3	191
+3	2	42	jungleshrine act 3	197
+3	2	43	mafistoshrine	199
+3	2	44	mafistoshrine	200
+3	2	45	mafistoshrine	201
+3	2	46	mafistomana	202
+3	2	47	mafistohealth	206
+3	2	48	manashrine, act 3, dungeun	278
+3	2	49	healthshrine, act 3, dungeun	120
+3	2	50	pool act 1 wilderness	130
+3	2	51	act3, sewer	326
+3	2	52	corpse	158
+3	2	53	dead villager 1	271
+3	2	54	dead villager 2	272
+3	2	55	torch (act 3 sewer) stra	327
+3	2	56	torch (act 3 kurast) strb	328
+3	2	57	mafistochestlargeLeft	329
+3	2	58	mafistochestlargeright	330
+3	2	59	mafistochestmedleft	331
+3	2	60	mafistochestmedright	332
+3	2	61	spiderlairchestlargeLeft	333
+3	2	62	spiderlairchesttallLeft	334
+3	2	63	spiderlairchestmedright	335
+3	2	64	spiderlairchesttallright	336
+3	2	65	LargeChestR	5
+3	2	66	LargeChestL	6
+3	2	67	chest-L-med	176
+3	2	68	gchest1L general	240
+3	2	69	gchest2R general	241
+3	2	70	jungle chest act 3	181
+3	2	71	chest-L-med, jungle	183
+3	2	72	sewers	246
+3	2	73	jungle object` act3	185
+3	2	74	jungle object` act3	186
+3	2	75	jungle object` act3	187
+3	2	76	jungle object` act3	188
+3	2	77	mafistolair	203
+3	2	78	box	204
+3	2	79	altar	205
+3	2	80	basket 1	208
+3	2	81	basket 2	209
+3	2	82	log	169
+3	2	83	waypoint act2 sewer	323
+3	2	84	waypoint act3 travincal	324
+3	2	85	test data floortrap	196
+3	2	86	bubbles in act3 water	212
+3	2	87	hobject1	225
+3	2	88	sewers	244
+3	2	89	helllightsource1	351
+3	2	90	helllightsource1	352
+3	2	91	helllightsource1	353
+3	2	92	dungeon	360
+3	2	93	magic shrine, act 3,dundeon	361
+3	2	94	dungeon	362
+3	2	95	casket for Act 3 dungeon	365
+3	2	96	gidbinn altar	251
+3	2	97	gidbinn decoy	252
+3	2	98	basket 1	208
+3	2	99	brazier_celler, act 2	283
+3	2	100	lever for act 3 sewer quest	367
+3	2	101	stairs for act 3 sewer quest	366
+3	2	102	start position	368
+3	2	103	mephisto bridge	341
+3	2	104	hellgate	342
+3	2	105	manawell, act 3, kurast	343
+3	2	106	healthwell, act 3, kurast	344
+3	2	107	fog act 3 water rfga	374
+3	2	108	torch for act3 town	370
+3	2	109	hratli start	378
+3	2	110	hratli end	379
+3	2	111	stairsr	386
+3	2	112	sparklychest	397
+3	2	113	khalim chest	405
+3	2	114	khalim chest	407
+3	2	115	khalim chest	406
+3	2	116	0	0
+3	2	117	0	0
+3	2	118	0	0
+3	2	119	0	0
+3	2	120	0	0
+3	2	121	0	0
+3	2	122	0	0
+3	2	123	0	0
+3	2	124	0	0
+3	2	125	0	0
+3	2	126	0	0
+3	2	127	0	0
+3	2	128	0	0
+3	2	129	0	0
+3	2	130	0	0
+3	2	131	0	0
+3	2	132	0	0
+3	2	133	0	0
+3	2	134	0	0
+3	2	135	0	0
+3	2	136	0	0
+3	2	137	0	0
+3	2	138	0	0
+3	2	139	0	0
+3	2	140	0	0
+3	2	141	0	0
+3	2	142	0	0
+3	2	143	0	0
+3	2	144	0	0
+3	2	145	0	0
+3	2	146	0	0
+3	2	147	0	0
+3	2	148	0	0
+3	2	149	0	0
+4	1	0	place_champion	-1
+4	1	1	trap-horzmissile	-1
+4	1	2	trap-vertmissile	-1
+4	1	3	place_group25	-1
+4	1	4	place_group50	-1
+4	1	5	place_group75	-1
+4	1	6	place_group100	-1
+4	1	7	tyrael2	-1
+4	1	8	window2	-1
+4	1	9	window1	-1
+4	1	10	jamella	-1
+4	1	11	halbu	-1
+4	1	12	hellmeteor	-1
+4	1	13	izual	-1
+4	1	14	diablo	-1
+4	1	15	Winged Death	-1
+4	1	16	The Tormentor	-1
+4	1	17	Taintbreeder	-1
+4	1	18	Riftwraith the Cannibal	-1
+4	1	19	Infector of Souls	-1
+4	1	20	Lord De Seis	-1
+4	1	21	Grand Vizier of Chaos	-1
+4	1	22	trappedsoul1	-1
+4	1	23	trappedsoul2	-1
+4	1	24	regurgitator3	-1
+4	1	25	cain4	-1
+4	1	26	malachai	-1
+4	1	27	The Feature Creep	-1
+4	1	28	0	-1
+4	1	29	0	-1
+4	1	30	0	-1
+4	1	31	0	-1
+4	1	32	0	-1
+4	1	33	0	-1
+4	1	34	0	-1
+4	1	35	0	-1
+4	1	36	0	-1
+4	1	37	0	-1
+4	1	38	0	-1
+4	1	39	0	-1
+4	1	40	0	-1
+4	1	41	0	-1
+4	1	42	0	-1
+4	1	43	0	-1
+4	1	44	0	-1
+4	1	45	0	-1
+4	1	46	0	-1
+4	1	47	0	-1
+4	1	48	0	-1
+4	1	49	0	-1
+4	1	50	0	-1
+4	1	51	0	-1
+4	1	52	0	-1
+4	1	53	0	-1
+4	1	54	0	-1
+4	1	55	0	-1
+4	1	56	0	-1
+4	1	57	0	-1
+4	1	58	0	-1
+4	1	59	0	-1
+4	2	0	waypointh	238
+4	2	1	0	580
+4	2	2	bank	267
+4	2	3	gold placeholder	269
+4	2	4	0	581
+4	2	5	0	573
+4	2	6	0	573
+4	2	7	0	573
+4	2	8	hellfire1	345
+4	2	9	hellfire2	346
+4	2	10	hellfire3	347
+4	2	11	helllava1	348
+4	2	12	helllava2	349
+4	2	13	helllava3	350
+4	2	14	helllightsource1	351
+4	2	15	helllightsource1	352
+4	2	16	helllightsource1	353
+4	2	17	hell brazier	358
+4	2	18	hell brazier	359
+4	2	19	outerhell skeleton	363
+4	2	20	skeleton spawn for hell   facing nw	259
+4	2	21	skeleton spawn for hell            facing ne	373
+4	2	22	innerhellbonepile	372
+4	2	23	fog act 3 water rfga	374
+4	2	24	health wellforhell	236
+4	2	25	mana wellforhell	249
+4	2	26	outershrinehell	226
+4	2	27	outershrinehell2	231
+4	2	28	outershrinehell3	232
+4	2	29	mana shrineforinnerhell	93
+4	2	30	innershrinehell	97
+4	2	31	innershrinehell2	123
+4	2	32	innershrinehell3	124
+4	2	33	health shrineforinnerhell	96
+4	2	34	hobject1	225
+4	2	35	hobject2	233
+4	2	36	hobject1	222
+4	2	37	ihobject3 inner hell	125
+4	2	38	skullpile inner hell	126
+4	2	39	ihobject5 inner hell	127
+4	2	40	hobject4 inner hell	128
+4	2	41	Not used	375
+4	2	42	Forge  hell	376
+4	2	43	diablo left light	254
+4	2	44	diablo right light	253
+4	2	45	hellgate	342
+4	2	46	diablo start point	255
+4	2	47	Diablo seal	392
+4	2	48	Diablo seal	393
+4	2	49	Diablo seal	394
+4	2	50	Diablo seal	395
+4	2	51	Diablo seal	396
+4	2	52	waypoint pandamonia fortress	398
+4	2	53	sparklychest	397
+4	2	54	fissure for act 4 inner hell	399
+4	2	55	smoke	401
+4	2	56	brazier for act 4, hell mesa	400
+4	2	57	Burning guy for outer hell	380
+4	2	58	guy stuck in hell	383
+4	2	59	guy stuck in hell	384
+4	2	60	wall torch left for tombs	296
+4	2	61	wall torch right for tombs	297
+4	2	62	hell brazier	403
+4	2	63	Floor brazier	102
+4	2	64	fortress brazier #1	408
+4	2	65	fortress brazier #2	409
+4	2	66	0	0
+4	2	67	0	0
+4	2	68	0	0
+4	2	69	0	0
+4	2	70	0	0
+4	2	71	0	0
+4	2	72	0	0
+4	2	73	0	0
+4	2	74	0	0
+4	2	75	0	0
+4	2	76	0	0
+4	2	77	0	0
+4	2	78	0	0
+4	2	79	0	0
+4	2	80	0	0
+4	2	81	0	0
+4	2	82	0	0
+4	2	83	0	0
+4	2	84	0	0
+4	2	85	0	0
+4	2	86	0	0
+4	2	87	0	0
+4	2	88	0	0
+4	2	89	0	0
+4	2	90	0	0
+4	2	91	0	0
+4	2	92	0	0
+4	2	93	0	0
+4	2	94	0	0
+4	2	95	0	0
+4	2	96	0	0
+4	2	97	0	0
+4	2	98	0	0
+4	2	99	0	0
+4	2	100	0	0
+4	2	101	0	0
+4	2	102	0	0
+4	2	103	0	0
+4	2	104	0	0
+4	2	105	0	0
+4	2	106	0	0
+4	2	107	0	0
+4	2	108	0	0
+4	2	109	0	0
+4	2	110	0	0
+4	2	111	0	0
+4	2	112	0	0
+4	2	113	0	0
+4	2	114	0	0
+4	2	115	0	0
+4	2	116	0	0
+4	2	117	0	0
+4	2	118	0	0
+4	2	119	0	0
+4	2	120	0	0
+4	2	121	0	0
+4	2	122	0	0
+4	2	123	0	0
+4	2	124	0	0
+4	2	125	0	0
+4	2	126	0	0
+4	2	127	0	0
+4	2	128	0	0
+4	2	129	0	0
+4	2	130	0	0
+4	2	131	0	0
+4	2	132	0	0
+4	2	133	0	0
+4	2	134	0	0
+4	2	135	0	0
+4	2	136	0	0
+4	2	137	0	0
+4	2	138	0	0
+4	2	139	0	0
+4	2	140	0	0
+4	2	141	0	0
+4	2	142	0	0
+4	2	143	0	0
+4	2	144	0	0
+4	2	145	0	0
+4	2	146	0	0
+4	2	147	0	0
+4	2	148	0	0
+4	2	149	0	0
+5	1	0	larzuk	-1
+5	1	1	drehya	-1
+5	1	2	malah	-1
+5	1	3	nihlathak	-1
+5	1	4	qual-kehk	-1
+5	1	5	place_impgroup	-1
+5	1	6	Siege Boss	-1
+5	1	7	tyrael3	-1
+5	1	8	cain6	-1
+5	1	9	place_imp	-1
+5	1	10	place_minion	-1
+5	1	11	place_miniongroup	-1
+5	1	12	catapult2	-1
+5	1	13	catapult1	-1
+5	1	14	place_bloodlord	-1
+5	1	15	catapultspotter2	-1
+5	1	16	catapultspotter1	-1
+5	1	17	act5barb1	-1
+5	1	18	place_deadbarb	-1
+5	1	19	place_deadminion	-1
+5	1	20	place_deadimp	-1
+5	1	21	cain6	-1
+5	1	22	act5barb3	-1
+5	1	23	place_reanimateddead	-1
+5	1	24	ancientstatue1	-1
+5	1	25	ancientstatue2	-1
+5	1	26	ancientstatue3	-1
+5	1	27	Dac Farren	-1
+5	1	28	baalthrone	-1
+5	1	29	baaltaunt	-1
+5	1	30	injuredbarb1	-1
+5	1	31	injuredbarb2	-1
+5	1	32	injuredbarb3	-1
+5	1	33	baalcrab	-1
+5	1	34	Axe Dweller	-1
+5	1	35	Bonesaw Breaker	-1
+5	1	36	Megaflow Rectifier	-1
+5	1	37	Eyeback Unleashed	-1
+5	1	38	Threash Socket	-1
+5	1	39	Pindleskin	-1
+5	1	40	Snapchip Shatter	-1
+5	1	41	Anodized Elite	-1
+5	1	42	Vinvear Molech	-1
+5	1	43	Sharp Tooth Sayer	-1
+5	1	44	Magma Torquer	-1
+5	1	45	Blaze Ripper	-1
+5	1	46	Frozenstein	-1
+5	1	47	worldstoneeffect	-1
+5	1	48	chicken	-1
+5	1	49	place_champion	-1
+5	1	50	evilhut	-1
+5	1	51	place_nothing	-1
+5	1	52	place_nothing	-1
+5	1	53	place_nothing	-1
+5	1	54	place_nothing	-1
+5	1	55	place_nothing	-1
+5	1	56	0	-1
+5	1	57	0	-1
+5	1	58	0	-1
+5	1	59	0	-1
+5	2	0	banner 1	452
+5	2	1	banner 2	453
+5	2	2	Guild Vault	338
+5	2	3	Steeg Stone	337
+5	2	4	bank	267
+5	2	5	fog act 3 water rfga	374
+5	2	6	ttor	482
+5	2	7	fire	39
+5	2	8	Standard1	35
+5	2	9	Standard2	36
+5	2	10	Candles1	33
+5	2	11	Candles2	34
+5	2	12	Torch2 Wall	38
+5	2	13	Floor brazier	102
+5	2	14	ptox	411
+5	2	15	burningbodies	438
+5	2	16	pyox	412
+5	2	17	ecfra	435
+5	2	18	ettr	436
+5	2	19	tribal flag	440
+5	2	20	eflg	441
+5	2	21	eflg	441
+5	2	22	chan	442
+5	2	23	Waypoint	429
+5	2	24	woodchestL	420
+5	2	25	woodchestR	431
+5	2	26	ChestL	430
+5	2	27	chestR	413
+5	2	28	ChestSL	432
+5	2	29	ChestSR	433
+5	2	30	barrel wilderness	418
+5	2	31	barrel wilderness	419
+5	2	32	burialchestL	424
+5	2	33	burialchestR	425
+5	2	34	hiddenstash	416
+5	2	35	Shrine3wilderness	414
+5	2	36	Shrine2wilderness	415
+5	2	37	Shrine2wilderness	427
+5	2	38	Shrine2wilderness	428
+5	2	39	Shrine3wilderness	421
+5	2	40	manashrine	422
+5	2	41	healthshrine	423
+5	2	42	well	426
+5	2	43	hellgate	451
+5	2	44	bank	267
+5	2	45	jar1	443
+5	2	46	jar2	444
+5	2	47	jar3	445
+5	2	48	swingingheads	446
+5	2	49	pole	447
+5	2	50	animated skulland rockpile	448
+5	2	51	pileofskullsandrocks	450
+5	2	52	hellgate	451
+5	2	53	Drehya Start In Town	459
+5	2	54	Drehya Start Outside Town	460
+5	2	55	Nihlathak Start In Town	461
+5	2	56	Nihlathak Start Outside Town	462
+5	2	57	ttor	482
+5	2	58	cagedwussie1	473
+5	2	59	chest	455
+5	2	60	deathpole	456
+5	2	61	Ldeathpole	457
+5	2	62	Altar	458
+5	2	63	hidden stash	463
+5	2	64	healthshrine	464
+5	2	65	manashrine	465
+5	2	66	evilurn	466
+5	2	67	icecavejar1	467
+5	2	68	icecavejar2	468
+5	2	69	icecavejar3	469
+5	2	70	icecavejar4	470
+5	2	71	icecavejar4	471
+5	2	72	icecaveshrine2	472
+5	2	73	deadbarbarian	477
+5	2	74	icecaveshrine2	479
+5	2	75	icecave_torch1	480
+5	2	76	icecave_torch2	481
+5	2	77	manashrine	483
+5	2	78	healthshrine	484
+5	2	79	tomb1	485
+5	2	80	tomb2	486
+5	2	81	tomb3	487
+5	2	82	explodingchest	454
+5	2	83	etorch2	437
+5	2	84	pene	508
+5	2	85	magic shrine	488
+5	2	86	well	493
+5	2	87	well	493
+5	2	88	magic shrine	495
+5	2	89	magic shrine	497
+5	2	90	magic shrine2	499
+5	2	91	magic shrine	503
+5	2	92	magic shrine	509
+5	2	93	magic shrine	512
+5	2	94	torch1	489
+5	2	95	torch2	490
+5	2	96	torch1	514
+5	2	97	torch1	515
+5	2	98	well	493
+5	2	99	well	498
+5	2	100	well	513
+5	2	101	Waypoint	494
+5	2	102	Waypoint	496
+5	2	103	Waypoint	511
+5	2	104	object1	500
+5	2	105	woodchestL	501
+5	2	106	woodchestR	502
+5	2	107	woodchest2L	504
+5	2	108	woodchest2R	505
+5	2	109	swingingheads	506
+5	2	110	debris	507
+5	2	111	mrpole	510
+5	2	112	fire	160
+5	2	113	fire	161
+5	2	114	fire	162
+5	2	115	gold placeholder	269
+5	2	116	red light	523
+5	2	117	etorch1	434
+5	2	118	Waypoint	496
+5	2	119	Waypoint	496
+5	2	120	Waypoint	496
+5	2	121	ubub	527
+5	2	122	sbub	528
+5	2	123	candles	538
+5	2	124	Waypoint	539
+5	2	125	Larzuk Greeting	542
+5	2	126	Larzuk Standard	543
+5	2	127	ancientsaltar	546
+5	2	128	To The Worldstone Keep Level 1	547
+5	2	129	eweaponrackR	548
+5	2	130	eweaponrackL	549
+5	2	131	earmorstandR	550
+5	2	132	earmorstandL	551
+5	2	133	torch2	552
+5	2	134	stma	555
+5	2	135	funeralpire	553
+5	2	136	burninglogs	554
+5	2	137	Baal's lair	557
+5	2	138	groundtomb	541
+5	2	139	groundtombL	544
+5	2	140	BBQB	559
+5	2	141	btor	560
+5	2	142	Glacial Caves Level 1	564
+5	2	143	Zoo	567
+5	2	144	Keeper	568
+5	2	145	torch1	536
+5	2	146	torch2	537
+5	2	147	The Worldstone Chamber	563
+5	2	148	door blocker	570
+5	2	149	chest	397

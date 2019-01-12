@@ -1,0 +1,1 @@
+include 'tester', 'ds1viewer', 'mapbuilder', 'mpqviewer', 'desktop', 'android', 'core'
