@@ -34,8 +34,8 @@ compatible with playing with users using the original game client.
 - TODO Platform-specific features (Android touch, PC mouse, etc)
 
 # Screenshots
-![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/screenshots/Clipboard-1.png)
-![Create Character](https://raw.githubusercontent.com/collinsmith/diablo/screenshots/Clipboard-2.png)
+![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-1.png)
+![Create Character](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-2.png)
 
 # MPQ Viewer
 Still a work in progress, but this allows you to look at the game's assets and
