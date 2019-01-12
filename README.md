@@ -44,15 +44,6 @@ for viewing all files that the game can load, but those should hopefully come
 in the future. This should be a replacement for DR Test in the future, at least
 in a general sense, since the UI I made is much more helpful when writing the
 game code.
-<details>
-	<summary>Screenshot</summary>
-	![MPQ Viewer](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-3.png)
-</details>
 
 # Map Builder
-Used to test the map building algorithm/renderer. This is very basic at the
-moment.
-<details>
-	<summary>Screenshot</summary>
-	![Map Builder](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-4.png)
-</details>
+Used to test the map building algorithm. This is very basic at the moment.
