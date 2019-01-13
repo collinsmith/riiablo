@@ -19,6 +19,7 @@ import gdx.diablo.codec.Animation;
 import gdx.diablo.codec.DC6;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
+import gdx.diablo.widget.Label;
 import gdx.diablo.widget.TextButton;
 
 public class MenuScreen extends ScreenAdapter {
@@ -41,6 +42,7 @@ public class MenuScreen extends ScreenAdapter {
   private Button btnSinglePlayer;
   private Button btnMultiPlayer;
   private Button btnExitDiablo;
+  private Label  lbVersion;
 
   public MenuScreen() {
     this(null, null);
@@ -119,6 +121,10 @@ public class MenuScreen extends ScreenAdapter {
     panel.setX(stage.getWidth() / 2);
     panel.setY(stage.getHeight() * 0.40f);
     stage.addActor(panel);
+
+    lbVersion = new Label(Diablo.bundle.get("version"), Diablo.fonts.font16);
+    lbVersion.setPosition(20, 20);
+    stage.addActor(lbVersion);
 
     Diablo.input.addProcessor(stage);
   }
