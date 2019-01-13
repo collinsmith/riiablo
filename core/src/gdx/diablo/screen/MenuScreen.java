@@ -39,6 +39,7 @@ public class MenuScreen extends ScreenAdapter {
 
   private Stage stage;
   private Button btnSinglePlayer;
+  private Button btnMultiPlayer;
   private Button btnExitDiablo;
 
   public MenuScreen() {
@@ -105,11 +106,14 @@ public class MenuScreen extends ScreenAdapter {
     };
     btnSinglePlayer = new TextButton(5106, style);
     btnSinglePlayer.addListener(clickListener);
+    btnMultiPlayer = new TextButton(5108, style);
+    btnMultiPlayer.addListener(clickListener);
     btnExitDiablo = new TextButton(5109, style);
     btnExitDiablo.addListener(clickListener);
 
     Table panel = new Table() {{
       add(btnSinglePlayer).space(8).row();
+      add(btnMultiPlayer).space(8).row();
       add(btnExitDiablo).space(8).row();
     }};
     panel.setX(stage.getWidth() / 2);
