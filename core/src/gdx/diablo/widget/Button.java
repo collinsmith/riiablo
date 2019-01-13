@@ -1,5 +1,6 @@
 package gdx.diablo.widget;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -29,7 +30,9 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
 
       @Override
       public boolean touchDown(InputEvent event, float x, float y, int pointer, int b) {
-        if (button == null) {
+        if (event.getButton() != Input.Buttons.LEFT) {
+          return super.touchDown(event, x, y, pointer, b);
+        } else if (button == null) {
           Diablo.assets.finishLoadingAsset(buttonDescriptor);
           button = Diablo.assets.get(buttonDescriptor);
         }
