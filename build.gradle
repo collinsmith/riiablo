@@ -176,6 +176,21 @@ project(":core") {
     }
 }
 
+project(":server") {
+    apply plugin: "java"
+
+    dependencies {
+        // TODO: $gdxVersion is pulling an older file for some reason
+        compile "com.badlogicgames.gdx:gdx-backend-headless:1.9.9"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+
+    dependencies {
+        compile project(":core")
+        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+    }
+}
+
 tasks.eclipse.doLast {
     delete ".project"
 }
