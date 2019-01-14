@@ -1,10 +1,14 @@
 package gdx.diablo.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Net;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.net.Socket;
+import com.badlogic.gdx.net.SocketHints;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -12,6 +16,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import gdx.diablo.BlendMode;
 import gdx.diablo.Diablo;
@@ -22,7 +31,9 @@ import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.widget.Label;
 import gdx.diablo.widget.TextButton;
 
-public class MenuScreen extends ScreenAdapter {
+public class TCPIPScreen extends ScreenAdapter {
+  private static final String TAG = "MultiplayerScreen";
+
   final AssetDescriptor<DC6> TitleScreenDescriptor = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\TitleScreen.dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   TextureRegion TitleScreen;
 
@@ -34,21 +45,19 @@ public class MenuScreen extends ScreenAdapter {
   Animation D2logoRight;
 
   final AssetDescriptor<DC6>   WideButtonBlankDescriptor = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\3WideButtonBlank.dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
+  final AssetDescriptor<DC6>   MediumButtonBlankDescriptor = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\MediumButtonBlank.dc6", DC6.class);
   final AssetDescriptor<Sound> buttonDescriptor = new AssetDescriptor<>("data\\global\\sfx\\cursor\\button.wav", Sound.class);
 
   final AssetDescriptor<Sound> selectDescriptor = new AssetDescriptor<>("data\\global\\sfx\\cursor\\select.wav", Sound.class);
 
   private Stage stage;
-  private Button btnSinglePlayer;
-  private Button btnMultiplayer;
-  private Button btnExitDiablo;
-  private Label  lbVersion;
+  private Label  lbHostIP;
+  private Button btnHostGame;
+  private Button btnJoinGame;
+  private Label  lbDescription;
+  private Button btnCancel;
 
-  public MenuScreen() {
-    this(null, null);
-  }
-
-  public MenuScreen(Animation D2logoLeft, Animation D2logoRight) {
+  public TCPIPScreen(Animation D2logoLeft, Animation D2logoRight) {
     this.D2logoLeft = D2logoLeft;
     this.D2logoRight = D2logoRight;
     Diablo.assets.load(TitleScreenDescriptor);
@@ -57,6 +66,7 @@ public class MenuScreen extends ScreenAdapter {
     Diablo.assets.load(D2logoBlackLeftDescriptor);
     Diablo.assets.load(D2logoBlackRightDescriptor);
     Diablo.assets.load(WideButtonBlankDescriptor);
+    Diablo.assets.load(MediumButtonBlankDescriptor);
     Diablo.assets.load(buttonDescriptor);
     Diablo.assets.load(selectDescriptor);
 
@@ -97,36 +107,85 @@ public class MenuScreen extends ScreenAdapter {
     }};
     ClickListener clickListener = new ClickListener() {
       @Override
+      public boolean mouseMoved(InputEvent event, float x, float y) {
+        if (btnHostGame.isOver()) {
+          lbDescription.setText(5122);
+        } else if (btnJoinGame.isOver()) {
+          lbDescription.setText(5123);
+        }
+
+        return super.mouseMoved(event, x, y);
+      }
+
+      @Override
+      public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+        lbDescription.setText(null);
+        super.exit(event, x, y, pointer, toActor);
+      }
+
+      @Override
       public void clicked(InputEvent event, float x, float y) {
         Actor actor = event.getListenerActor();
-        if (actor == btnSinglePlayer) {
-          Diablo.client.pushScreen(new SelectCharacterScreen());
-        } else if (actor == btnMultiplayer) {
-          Diablo.client.pushScreen(new MultiplayerScreen(D2logoLeft, D2logoRight));
-        } else if (actor == btnExitDiablo) {
-          Gdx.app.exit();
+        if (actor == btnHostGame) {
+        } else if (actor == btnJoinGame) {
+          try {
+            Gdx.input.getTextInput(new Input.TextInputListener() {
+              @Override
+              public void input(String text) {
+                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, text, 6112, new SocketHints());
+                socket.dispose();
+              }
+
+              @Override
+              public void canceled() {}
+            }, "Enter IP", "127.0.0.1", "127.0.0.1");
+          } catch (GdxRuntimeException e) {
+            Gdx.app.log(TAG, e.getMessage(), e);
+          }
+        } else if (actor == btnCancel) {
+          Diablo.client.popScreen();
         }
       }
     };
-    btnSinglePlayer = new TextButton(5106, style);
-    btnSinglePlayer.addListener(clickListener);
-    btnMultiplayer = new TextButton(5107, style);
-    btnMultiplayer.addListener(clickListener);
-    btnExitDiablo = new TextButton(5109, style);
-    btnExitDiablo.addListener(clickListener);
+    String ip = null;
+    try {
+      InetAddress address = InetAddress.getLocalHost();
+      ip = address.getHostAddress();
+    } catch (UnknownHostException e) {}
+    lbHostIP = new Label(Diablo.string.lookup(5121) + '\n' + ip, Diablo.fonts.font16);
+    lbHostIP.setColor(Diablo.colors.unique);
+    lbHostIP.setAlignment(Align.center);
+    btnHostGame = new TextButton(5118, style);
+    btnHostGame.addListener(clickListener);
+    btnJoinGame = new TextButton(5119, style);
+    btnJoinGame.addListener(clickListener);
+    lbDescription = new Label(null, Diablo.fonts.fontformal12);
+    lbDescription.setColor(Diablo.colors.unique);
+    lbDescription.setAlignment(Align.center);
+    lbDescription.setWrap(true);
 
+    // TODO: Sizing could be cleaned up some
     Table panel = new Table() {{
-      add(btnSinglePlayer).space(8).row();
-      add(btnMultiplayer).space(8).row();
-      add(btnExitDiablo).space(8).row();
+      add(lbHostIP).space(8).row();
+      add(btnHostGame).space(8).row();
+      add(btnJoinGame).space(8).row();
+      add(lbDescription).space(8).minSize(400, 112).row();
     }};
     panel.setX(stage.getWidth() / 2);
     panel.setY(stage.getHeight() * 0.40f);
     stage.addActor(panel);
 
-    lbVersion = new Label(Diablo.bundle.get("version"), Diablo.fonts.font16);
-    lbVersion.setPosition(20, 20);
-    stage.addActor(lbVersion);
+    TextButton.TextButtonStyle mediumButtonStyle = new TextButton.TextButtonStyle() {{
+      Diablo.assets.finishLoadingAsset(MediumButtonBlankDescriptor);
+      DC6 pages = Diablo.assets.get(MediumButtonBlankDescriptor);
+      up = new TextureRegionDrawable(pages.getTexture(0));
+      down = new TextureRegionDrawable(pages.getTexture(1));
+      font = Diablo.fonts.fontexocet10;
+    }};
+    btnCancel = new TextButton(5134, mediumButtonStyle);
+    btnCancel.addListener(clickListener);
+    btnCancel.setPosition(20, 20);
+    stage.addActor(btnCancel);
 
     Diablo.input.addProcessor(stage);
   }
@@ -144,6 +203,7 @@ public class MenuScreen extends ScreenAdapter {
     Diablo.assets.unload(D2logoBlackLeftDescriptor.fileName);
     Diablo.assets.unload(D2logoBlackRightDescriptor.fileName);
     Diablo.assets.unload(WideButtonBlankDescriptor.fileName);
+    Diablo.assets.unload(MediumButtonBlankDescriptor.fileName);
     Diablo.assets.unload(buttonDescriptor.fileName);
     Diablo.assets.unload(selectDescriptor.fileName);
   }
