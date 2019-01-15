@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -1020,7 +1021,7 @@ public class MPQViewer {
     }
 
     private void open(Selection<Node> selection, Node node, final MPQFileHandle handle) {
-      String extension = FilenameUtils.getExtension(handle.fileName).toLowerCase();
+      final String extension = FilenameUtils.getExtension(handle.fileName).toLowerCase();
       if (extension.equals("txt")) {
         try {
           String tmpDir = System.getProperty("java.io.tmpdir");
@@ -1072,10 +1073,9 @@ public class MPQViewer {
         palettePanel.setCollapsed(false);
         final DC dc = extension.equals("dc6") ? DC6.loadFromFile(handle) : DCC.loadFromFile(handle);
         renderer.setDrawable(new DelegatingDrawable<Animation>() {
-          //Texture combined;
           int page = 0;
-          //DC6.PageList pages;
           boolean isAnimationTab;
+          DC pages;
 
           {
             imageControls.switchTo("Animation");
@@ -1104,7 +1104,7 @@ public class MPQViewer {
           public void dispose() {
             super.dispose();
             //if (combined != null) combined.dispose();
-            //if (pages != null) for (Texture p : pages) p.dispose();
+            if (pages != null) pages.dispose();
           }
 
           @Override
@@ -1140,14 +1140,14 @@ public class MPQViewer {
               combined = dc6.render((int) slDirection.getValue(), palettes.get(paletteList
               .getSelected()));
             */
-            /*} else if (actor == btnFirstPage) {
+            } else if (actor == btnFirstPage) {
               slPage.setValue(page = 0);
             } else if (actor == btnLastPage) {
-              slPage.setValue(page = pages.size - 1);
+              slPage.setValue(page = pages.getNumPages() - 1);
             } else if (actor == btnPrevPage) {
               if (page > 0) slPage.setValue(--page);
             } else if (actor == btnNextPage) {
-              if (page < pages.size - 1) slPage.setValue(++page);*/
+              if (page < pages.getNumPages() - 1) slPage.setValue(++page);
             }
           }
 
@@ -1178,7 +1178,7 @@ public class MPQViewer {
             } else if (actor == slFrameDuration) {
               delegate.setFrameDuration(1 / slFrameDuration.getValue());
             } else if (actor == slPage) {
-              delegate.setFrame((int) slPage.getValue());
+              //delegate.setFrame((int) slPage.getValue());
             //} else if (actor == slDirectionPage || /*actor == sbBlendModePage || */(actor == paletteList && pages != null)) {
               //for (int p = 0; p < pages.size; p++) pages.get(p).dispose();
               //pages = new DC6.PageList(dc6.pages((int) slDirectionPage.getValue(), palettes.get(paletteList.getSelected()), sbBlendModePage.getSelected()));
@@ -1191,9 +1191,13 @@ public class MPQViewer {
             if (!isAnimationTab) {
               // TODO: This will crash if unsupported by dc6
               //pages = new DC6.PageList(dc6.pages((int) slDirectionPage.getValue(), palettes.get(paletteList.getSelected()), sbBlendModePage.getSelected()));
+              pages = extension.equals("dc6") ? DC6.loadFromFile(handle) : DCC.loadFromFile(handle);
+              pages.loadDirections(true);
 
+              // FIXME: pages.getNumPages() will return based on dir, may be problem, but all I've
+              //        seen has same number of pages for each direction.
               slPage.setValue(0);
-              //slPage.setRange(0, pages.size - 1);
+              slPage.setRange(0, pages.getNumPages() - 1);
               lbPage.setText((int) slPage.getMinValue() + " / " + (int) slPage.getMaxValue());
             }
           }
@@ -1208,8 +1212,15 @@ public class MPQViewer {
           public void draw(Batch batch, float x, float y, float width, float height) {
             PaletteIndexedBatch b = Diablo.batch;
             if (!isAnimationTab) {
-              //Texture page = pages.get(this.page);
-              //batch.draw(page, x - (page.getWidth() / 2), y - (page.getHeight() / 2));
+              batch.end();
+
+              b.setTransformMatrix(batch.getTransformMatrix());
+              b.begin();
+              TextureRegion page = pages.getTexture((int) slDirectionPage.getValue(), (int) slPage.getValue());
+              b.draw(page, x - (page.getRegionWidth() / 2), y - (page.getRegionHeight() / 2));
+              b.end();
+
+              batch.begin();
               return;
             }
 
