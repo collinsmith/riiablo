@@ -60,7 +60,12 @@ public class TabbedPane extends VisTable {
   }
 
   public void switchTo(String tab) {
-    buttons.setChecked(tab);
+    buttons.setChecked(tab); // Doesn't actually fire button
+
+    // TODO: This could be cleaned up, but it works fine for now
+    InputEvent event = new InputEvent();
+    event.setListenerActor(buttons.getChecked());
+    clickListener.clicked(event, 0, 0);
   }
 
   public String getTab() {
