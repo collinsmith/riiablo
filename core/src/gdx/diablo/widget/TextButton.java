@@ -67,6 +67,8 @@ public class TextButton extends Button {
       unpressedOffsetY = -2;
       pressedOffsetX = -2;
       pressedOffsetY = unpressedOffsetY + pressedOffsetX;
+      checkedOffsetX = unpressedOffsetX;
+      checkedOffsetY = unpressedOffsetY;
       this.font = font;
       fontColor = Color.BLACK;
     }
