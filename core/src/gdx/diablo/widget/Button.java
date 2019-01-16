@@ -30,7 +30,7 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
 
       @Override
       public boolean touchDown(InputEvent event, float x, float y, int pointer, int b) {
-        if (event.getButton() != Input.Buttons.LEFT) {
+        if (event.getButton() != Input.Buttons.LEFT || isDisabled()) {
           return super.touchDown(event, x, y, pointer, b);
         } else if (button == null) {
           Diablo.assets.finishLoadingAsset(buttonDescriptor);
