@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
 
@@ -25,7 +24,7 @@ import gdx.diablo.codec.util.BitStream;
 import gdx.diablo.graphics.PaletteIndexedPixmap;
 import gdx.diablo.util.BufferUtils;
 
-public class DCC extends DC implements Disposable {
+public class DCC extends DC {
   private static final String TAG = "DCC";
   private static final boolean DEBUG            = !true;
   private static final boolean DEBUG_DIRECTIONS = DEBUG && true;

@@ -1078,7 +1078,7 @@ public class MPQViewer {
           DC pages;
 
           {
-            imageControls.switchTo("Animation");
+            imageControls.switchTo(dc.getFrame(0, 0).getWidth() >= DC6.PAGE_SIZE ? "Pages" : "Animation");
             isAnimationTab = imageControls.getTab().equals("Animation");
 
             slDirection.setValue(0);

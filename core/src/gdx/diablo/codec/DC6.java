@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
 
@@ -23,7 +22,7 @@ import gdx.diablo.codec.util.BBox;
 import gdx.diablo.graphics.PaletteIndexedPixmap;
 import gdx.diablo.util.BufferUtils;
 
-public class DC6 extends DC implements Disposable {
+public class DC6 extends DC {
   private static final String TAG = "DC6";
   private static final boolean DEBUG            = true;
   private static final boolean DEBUG_DIRECTIONS = DEBUG && false;
@@ -32,7 +31,7 @@ public class DC6 extends DC implements Disposable {
 
   public static final String EXT = "dc6";
 
-  private static final int PAGE_SIZE = 256;
+  public static final int PAGE_SIZE = 256;
 
   Header    header;
   Direction directions[];

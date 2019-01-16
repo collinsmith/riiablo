@@ -2,11 +2,12 @@ package gdx.diablo.codec;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Disposable;
 
 import gdx.diablo.codec.util.BBox;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 
-public abstract class DC {
+public abstract class DC implements Disposable {
   public abstract int getNumDirections();
   public abstract Direction getDirection(int d);
 
@@ -170,5 +171,12 @@ public abstract class DC {
 
     BBox box;
     byte colormap[];
+
+    /**
+     * read-only workaround for mpq viewer
+     */
+    public int getWidth() {
+      return width;
+    }
   }
 }
