@@ -15,6 +15,7 @@ public class Fonts {
   public final FontTBL.BitmapFont font42;
   public final FontTBL.BitmapFont fontformal12;
   public final FontTBL.BitmapFont fontexocet10;
+  public final FontTBL.BitmapFont fontridiculous;
   public final FontTBL.BitmapFont ReallyTheLastSucker;
 
   public Fonts(AssetManager assets) {
@@ -25,6 +26,7 @@ public class Fonts {
     font42       = load(assets, "font42", BlendMode.ID);
     fontformal12 = load(assets, "fontformal12", BlendMode.LUMINOSITY_TINT);
     fontexocet10 = load(assets, "fontexocet10", BlendMode.TINT_BLACKS);
+    fontridiculous = load(assets, "fontridiculous", BlendMode.TINT_BLACKS);
     ReallyTheLastSucker = load(assets, "ReallyTheLastSucker", BlendMode.ID);
   }
 
