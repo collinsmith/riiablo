@@ -95,6 +95,7 @@ public class MultiplayerScreen extends ScreenAdapter {
       public void clicked(InputEvent event, float x, float y) {
         Actor actor = event.getListenerActor();
         if (actor == btnOpenBattlenet) {
+          Diablo.client.pushScreen(new LobbyScreen());
         } else if (actor == btnTCPIP) {
           Diablo.client.pushScreen(new TCPIPScreen(D2logoLeft, D2logoRight));
         } else if (actor == btnCancel) {

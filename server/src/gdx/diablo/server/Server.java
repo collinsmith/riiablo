@@ -6,10 +6,16 @@ import com.badlogic.gdx.Net;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.badlogic.gdx.net.ServerSocket;
-import com.badlogic.gdx.net.ServerSocketHints;
 import com.badlogic.gdx.net.Socket;
-import com.badlogic.gdx.net.SocketHints;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -41,20 +47,67 @@ public class Server extends ApplicationAdapter {
 
     Gdx.app.log(TAG, "awaiting connection...");
 
-    ServerSocketHints hints = new ServerSocketHints();
-    hints.acceptTimeout = 0;
+    ServerSocket server = Gdx.net.newServerSocket(Net.Protocol.TCP, 6112, null);
+    while (true) {
+      Socket socket = null;
+      BufferedReader in = null;
+      PrintWriter out = null;
+      try {
+        socket = server.accept(null);
 
-    ServerSocket server = Gdx.net.newServerSocket(Net.Protocol.TCP, 6112, hints);
+        Gdx.app.log(TAG, "connection from " + socket.getRemoteAddress());
 
-    Socket socket = server.accept(new SocketHints());
-    Gdx.app.log(TAG, "connection from " + socket.getRemoteAddress());
-    socket.dispose();
+        in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream(), true);
 
-    Gdx.app.exit();
+        String statusLine = in.readLine();
+        Gdx.app.log(TAG, statusLine);
+        String[] parts = statusLine.split("\\s+", 3);
+
+        String path = parts[1];
+        if (path.startsWith("/get-sessions")) {
+          getSessions(out);
+        } else if (path.startsWith("/create-session")) {
+          createSession(in, out);
+        }
+      } catch (Throwable t) {
+        Gdx.app.error(TAG, t.getMessage(), t);
+      } finally {
+        IOUtils.closeQuietly(out);
+        IOUtils.closeQuietly(in);
+        socket.dispose();
+      }
+
+      try {
+      } finally {
+      }
+
+      socket.dispose();
+    }
   }
 
   @Override
   public void dispose() {
     Gdx.app.log(TAG, "shutting down...");
+  }
+
+  private void getSessions(PrintWriter out) {
+    Array<Session> games = new Array<>();
+    games.add(new Session("Kmbaal-33"));
+    games.add(new Session("Cbaalz73"));
+    games.add(new Session("Killin Foos"));
+    games.add(new Session("Skulders 4 Scri"));
+
+    out.print("HTTP/1.1 200\r\n");
+    out.print("\r\n");
+    out.print(new Json().toJson(games));
+  }
+
+  private void createSession(BufferedReader in, PrintWriter out) {
+    try {
+      for (String str; (str = in.readLine()) != null && !str.isEmpty(););
+      Session session = new Json().fromJson(Session.class, in);
+      System.out.println(session);
+    } catch (IOException e) {}
   }
 }

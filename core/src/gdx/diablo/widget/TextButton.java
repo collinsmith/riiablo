@@ -43,6 +43,10 @@ public class TextButton extends Button {
     return style;
   }
 
+  public String getText() {
+    return label.getText().toString();
+  }
+
   public void setText(int id) {
     label.setText(id);
   }

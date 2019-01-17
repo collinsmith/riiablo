@@ -71,8 +71,8 @@ public class DesktopLauncher {
     config.addIcon("ic_launcher_32.png",  Files.FileType.Internal);
     config.addIcon("ic_launcher_16.png",  Files.FileType.Internal);
     config.resizable = false;
-    config.width  = 1280;
-    config.height = 720;
+    config.width  = 853;
+    config.height = 480;
     //config.width  = Diablo.VIRTUAL_WIDTH;
     //config.height = Diablo.VIRTUAL_HEIGHT;
     config.allowSoftwareMode = cmd != null && cmd.hasOption("allowSoftwareMode");

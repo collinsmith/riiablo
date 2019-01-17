@@ -13,6 +13,7 @@ public class Fonts {
   public final FontTBL.BitmapFont font24;
   public final FontTBL.BitmapFont font30;
   public final FontTBL.BitmapFont font42;
+  public final FontTBL.BitmapFont fontformal10;
   public final FontTBL.BitmapFont fontformal12;
   public final FontTBL.BitmapFont fontexocet10;
   public final FontTBL.BitmapFont fontridiculous;
@@ -24,6 +25,7 @@ public class Fonts {
     font24       = load(assets, "font24", BlendMode.ID);
     font30       = load(assets, "font30", BlendMode.ID);
     font42       = load(assets, "font42", BlendMode.ID);
+    fontformal10 = load(assets, "fontformal10", BlendMode.LUMINOSITY_TINT);
     fontformal12 = load(assets, "fontformal12", BlendMode.LUMINOSITY_TINT);
     fontexocet10 = load(assets, "fontexocet10", BlendMode.TINT_BLACKS);
     fontridiculous = load(assets, "fontridiculous", BlendMode.TINT_BLACKS);

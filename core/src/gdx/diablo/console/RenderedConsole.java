@@ -41,7 +41,7 @@ public class RenderedConsole extends Console implements Disposable, InputProcess
 
   public Texture modalBackground;
   private Texture hintBackground;
-  private Texture cursorTexture;
+  public Texture cursorTexture;
 
   private boolean visible;
   private float   height;

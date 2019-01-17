@@ -1,5 +1,6 @@
 package gdx.diablo.widget;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
@@ -12,6 +13,11 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
   public Label(int id, BitmapFont font) {
     this(id == -1 ? "" : Diablo.string.lookup(id), font);
+  }
+
+  public Label(int id, BitmapFont font, Color color) {
+    this(id, font);
+    setColor(color);
   }
 
   public Label(String text, BitmapFont font) {
