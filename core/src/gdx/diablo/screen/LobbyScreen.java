@@ -1,14 +1,17 @@
 package gdx.diablo.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -30,8 +33,10 @@ import gdx.diablo.codec.DC6;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.server.Session;
+import gdx.diablo.util.EventUtils;
 import gdx.diablo.widget.Label;
 import gdx.diablo.widget.TextButton;
+import gdx.diablo.widget.TextField;
 
 public class LobbyScreen extends ScreenAdapter {
   private static final String TAG = "LobbyScreen";
@@ -141,10 +146,9 @@ public class LobbyScreen extends ScreenAdapter {
     btnLadder.setDisabled(true);
     btnLadder.addListener(clickListener);
     btnQuit = new TextButton(5316, style);
-    btnQuit.toggle();
     btnQuit.addListener(clickListener);
 
-    Table panel = new Table() {{
+    final Table panel = new Table() {{
       add(new Table() {{
         add(btnCreate).space(1);
         add(btnJoin).space(1);
@@ -183,6 +187,12 @@ public class LobbyScreen extends ScreenAdapter {
       pressedOffsetX = pressedOffsetY = -1;
     }};
 
+    final TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle() {{
+      font = Diablo.fonts.fontformal10;
+      fontColor = Diablo.colors.white;
+      cursor = new TextureRegionDrawable(Diablo.console.cursorTexture);
+    }};
+
     final TabbedPane right = new TabbedPane(blankbckg) {{
       pack();
       setPosition(Diablo.VIRTUAL_WIDTH - getWidth() - 39, 105);
@@ -197,8 +207,8 @@ public class LobbyScreen extends ScreenAdapter {
         setBackground(creategamebckg);
         addActor(new Label(5150, Diablo.fonts.font30) {{
           setPosition(
-              joingamebckg.getRegionWidth() / 2 - getWidth() / 2,
-              joingamebckg.getRegionHeight() - getHeight());
+              creategamebckg.getRegionWidth() / 2 - getWidth() / 2,
+              creategamebckg.getRegionHeight() - getHeight());
         }});
         addActor(new Label(5274, Diablo.fonts.font16, Diablo.colors.unique) {{
           setPosition(12, 315);
@@ -216,6 +226,22 @@ public class LobbyScreen extends ScreenAdapter {
           setPosition(20, 105);
         }});
 
+        final TextField tfGameName = new TextField("", textFieldStyle);
+        tfGameName.setPosition(14, 288);
+        tfGameName.setSize(180, 20);
+        addActor(tfGameName);
+
+        final TextField tfPassword = new TextField("", textFieldStyle);
+        tfPassword.setPasswordMode(true);
+        tfPassword.setPosition(14, 234);
+        tfPassword.setSize(180, 20);
+        addActor(tfPassword);
+
+        final TextField tfDesc = new TextField("", textFieldStyle);
+        tfDesc.setPosition(14, 180);
+        tfDesc.setSize(336, 20);
+        addActor(tfDesc);
+
         final TextButton btnCancel = new TextButton(5134, cancelbuttonblankStyle);
         btnCancel.addListener(cancelListener);
         btnCancel.setPosition(18, 14);
@@ -229,13 +255,56 @@ public class LobbyScreen extends ScreenAdapter {
                 .newRequest()
                 .method(Net.HttpMethods.POST)
                 .url("http://hydra:6112/create-session")
-                .jsonContent(new Session("New Game!"))
+                .jsonContent(new Session.Builder() {{
+                  name     = tfGameName.getText();
+                  password = tfPassword.getText();
+                  desc     = tfDesc.getText();
+                }})
                 .build();
             Gdx.net.sendHttpRequest(request, null);
           }
         });
+        tfGameName.addListener(new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            btnCreateGame.setDisabled(tfGameName.getText().isEmpty());
+          }
+        });
         addActor(btnCreateGame);
         setSize(getBackground().getMinWidth(), getBackground().getMinHeight());
+
+        final EventListener keyListener = new InputListener() {
+          @Override
+          public boolean keyDown(InputEvent e, int keycode) {
+            switch (keycode) {
+              case Input.Keys.ESCAPE:
+                if (EventUtils.click(btnCancel)) {
+                  return true;
+                }
+                break;
+
+              case Input.Keys.ENTER:
+                if (EventUtils.click(btnCreateGame)) {
+                  return true;
+                }
+                break;
+            }
+
+            return super.keyDown(e, keycode);
+          }
+        };
+        setListener(new TabAdapter() {
+          @Override
+          public void exited() {
+            removeListener(keyListener);
+          }
+
+          @Override
+          public void entered() {
+            addListener(keyListener);
+            stage.setKeyboardFocus(tfGameName);
+          }
+        });
       }});
       addTab(btnJoin, new TabGroup() {{
         setBackground(joingamebckg);
@@ -253,6 +322,17 @@ public class LobbyScreen extends ScreenAdapter {
         addActor(new Label(5275, Diablo.fonts.font16, Diablo.colors.unique) {{
           setPosition(16, 236);
         }});
+
+        final TextField tfGameName = new TextField("", textFieldStyle);
+        tfGameName.setPosition(14, 302);
+        tfGameName.setSize(160, 20);
+        addActor(tfGameName);
+
+        final TextField tfPassword = new TextField("", textFieldStyle);
+        tfPassword.setPasswordMode(true);
+        tfPassword.setPosition(188, 302);
+        tfPassword.setSize(160, 20);
+        addActor(tfPassword);
 
         List.ListStyle style3 = new List.ListStyle(Diablo.fonts.fontformal10, Diablo.colors.unique, Diablo.colors.white,
             new TextureRegionDrawable(Diablo.console.cursorTexture));
@@ -276,14 +356,36 @@ public class LobbyScreen extends ScreenAdapter {
           public void changed(ChangeEvent event, Actor actor) {
             list.getSelection().setRequired(true);
             btnJoinGame.setDisabled(list.getSelection().isEmpty());
+            tfGameName.setText(list.getSelected().toString());
           }
         });
 
-        setListener(new TabListener() {
+        final EventListener keyListener = new InputListener() {
+          @Override
+          public boolean keyDown(InputEvent e, int keycode) {
+            switch (keycode) {
+              case Input.Keys.ESCAPE:
+                return EventUtils.click(btnCancel);
+
+              case Input.Keys.ENTER:
+                return EventUtils.click(btnJoinGame);
+            }
+
+            return super.keyDown(e, keycode);
+          }
+        };
+        setListener(new TabAdapter() {
+          @Override
+          public void exited() {
+            removeListener(keyListener);
+          }
+
           @Override
           public void entered() {
+            addListener(keyListener);
             list.clearItems();
             list.getSelection().setRequired(false);
+            stage.setKeyboardFocus(tfGameName);
             Net.HttpRequest request = new HttpRequestBuilder()
                 .newRequest()
                 .method(Net.HttpMethods.GET)
@@ -348,7 +450,7 @@ public class LobbyScreen extends ScreenAdapter {
     stage.draw();
   }
 
-  static class TabbedPane extends Container<Group> {
+  static class TabbedPane extends Container<TabbedPane.TabGroup> {
     TextureRegion defaultBackground;
     ClickListener clickListener;
     ButtonGroup buttons = new ButtonGroup();
@@ -362,9 +464,11 @@ public class LobbyScreen extends ScreenAdapter {
         @Override
         public void clicked(InputEvent event, float x, float y) {
           Button button = (Button) event.getListenerActor();
+          TabGroup previous = getActor();
           TabGroup content = map.get(button.getName());
           setActor(content);
           setBackground(content.background);
+          content.exited();
           content.entered();
         }
       };
@@ -411,10 +515,21 @@ public class LobbyScreen extends ScreenAdapter {
       public void entered() {
         if (listener != null) listener.entered();
       }
+
+      @Override
+      public void exited() {
+        if (listener != null) listener.exited();
+      }
     }
 
     interface TabListener {
       void entered();
+      void exited();
+    }
+
+    static abstract class TabAdapter implements TabListener {
+      @Override public void entered() {}
+      @Override public void exited() {}
     }
   }
 }
