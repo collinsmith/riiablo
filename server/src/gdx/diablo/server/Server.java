@@ -29,6 +29,13 @@ public class Server extends ApplicationAdapter {
     new HeadlessApplication(new Server(), config);
   }
 
+  private Array<Session> sessions = new Array<>(new Session[] {
+    new Session("Kmbaal-33"),
+    new Session("Cbaalz73"),
+    new Session("Killin Foos"),
+    new Session("Skulders 4 Scri"),
+  });
+
   private Server() {}
 
   @Override
@@ -92,22 +99,17 @@ public class Server extends ApplicationAdapter {
   }
 
   private void getSessions(PrintWriter out) {
-    Array<Session> games = new Array<>();
-    games.add(new Session("Kmbaal-33"));
-    games.add(new Session("Cbaalz73"));
-    games.add(new Session("Killin Foos"));
-    games.add(new Session("Skulders 4 Scri"));
-
     out.print("HTTP/1.1 200\r\n");
     out.print("\r\n");
-    out.print(new Json().toJson(games));
+    out.print(new Json().toJson(sessions));
   }
 
   private void createSession(BufferedReader in, PrintWriter out) {
     try {
       for (String str; (str = in.readLine()) != null && !str.isEmpty(););
-      Session session = new Json().fromJson(Session.class, in);
-      System.out.println(session);
+      Session.Builder builder = new Json().fromJson(Session.Builder.class, in);
+      sessions.add(builder.build());
+      System.out.println(builder);
     } catch (IOException e) {}
   }
 }
