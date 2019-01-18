@@ -289,13 +289,13 @@ public class MappedKey implements Iterable<Integer> {
     return l != null && ASSIGNMENT_LISTENERS.remove(l);
   }
 
-  interface AssignmentListener {
+  public interface AssignmentListener {
     void onAssigned(MappedKey key, @Assignment int assignment, @Keycode int keycode);
     void onUnassigned(MappedKey key, @Assignment int assignment, @Keycode int keycode);
     void onFirstAssignment(MappedKey key, @Assignment int assignment, @Keycode int keycode);
   }
 
-  interface StateListener {
+  public interface StateListener {
     void onPressed(MappedKey key, @Keycode int keycode);
     void onDepressed(MappedKey key, @Keycode int keycode);
   }
