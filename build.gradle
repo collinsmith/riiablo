@@ -190,6 +190,10 @@ project(":server") {
         compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
         compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
     }
+
+    dependencies {
+        testCompile 'junit:junit:4.12'
+    }
 }
 
 tasks.eclipse.doLast {
