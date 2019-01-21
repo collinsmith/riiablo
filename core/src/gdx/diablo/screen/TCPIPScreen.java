@@ -161,7 +161,7 @@ public class TCPIPScreen extends ScreenAdapter {
     btnJoinGame.addListener(clickListener);
     lbDescription = new Label(null, Diablo.fonts.fontformal12);
     lbDescription.setColor(Diablo.colors.unique);
-    lbDescription.setAlignment(Align.center);
+    lbDescription.setAlignment(Align.center | Align.top);
     lbDescription.setWrap(true);
 
     // TODO: Sizing could be cleaned up some
@@ -172,7 +172,7 @@ public class TCPIPScreen extends ScreenAdapter {
       add(lbDescription).space(8).minSize(400, 112).row();
     }};
     panel.setX(stage.getWidth() / 2);
-    panel.setY(stage.getHeight() * 0.40f);
+    panel.setY(stage.getHeight() * 0.375f);
     stage.addActor(panel);
 
     TextButton.TextButtonStyle mediumButtonStyle = new TextButton.TextButtonStyle() {{

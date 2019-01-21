@@ -32,6 +32,7 @@ import gdx.diablo.Diablo;
 import gdx.diablo.codec.DC6;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
+import gdx.diablo.server.Account;
 import gdx.diablo.server.Session;
 import gdx.diablo.util.EventUtils;
 import gdx.diablo.widget.Label;
@@ -69,7 +70,7 @@ public class LobbyScreen extends ScreenAdapter {
 
   private Stage stage;
 
-  public LobbyScreen() {
+  public LobbyScreen(Account account) {
     Diablo.assets.load(waitingroombkgdDescriptor);
     Diablo.assets.load(blankbckgDescriptor);
     Diablo.assets.load(creategamebckgDescriptor);
@@ -190,7 +191,7 @@ public class LobbyScreen extends ScreenAdapter {
     final TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle() {{
       font = Diablo.fonts.fontformal10;
       fontColor = Diablo.colors.white;
-      cursor = new TextureRegionDrawable(Diablo.console.cursorTexture);
+      cursor = new TextureRegionDrawable(Diablo.textures.white);
     }};
 
     final TabbedPane right = new TabbedPane(blankbckg) {{
@@ -335,7 +336,7 @@ public class LobbyScreen extends ScreenAdapter {
         addActor(tfPassword);
 
         List.ListStyle style3 = new List.ListStyle(Diablo.fonts.fontformal10, Diablo.colors.unique, Diablo.colors.white,
-            new TextureRegionDrawable(Diablo.console.cursorTexture));
+            new TextureRegionDrawable(Diablo.textures.white));
         final List<Session> list = new List<>(style3);
         list.setPosition(14, 54);
         list.setSize(158, 177);
