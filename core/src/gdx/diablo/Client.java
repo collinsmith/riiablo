@@ -99,6 +99,7 @@ public class Client extends Game {
   private Colors            colors;
   private Cursor            cursor;
   private Audio             audio;
+  private Textures          textures;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
@@ -219,6 +220,7 @@ public class Client extends Game {
     Diablo.colors    = colors    = new Colors();
     Diablo.cursor    = cursor    = new Cursor();
     Diablo.audio     = audio     = new Audio(assets);
+    Diablo.textures  = textures  = new Textures();
 
     Collection<Throwable> throwables;
     Diablo.commands = commands = new GdxCommandManager();
@@ -426,6 +428,7 @@ public class Client extends Game {
     Diablo.colors = colors;
     Diablo.cursor = cursor;
     Diablo.audio = audio;
+    Diablo.textures = textures;
     super.resume();
   }
 
@@ -458,6 +461,7 @@ public class Client extends Game {
     Gdx.app.debug(TAG, "Disposing assets...");
     palettes.dispose();
     colormaps.dispose();
+    textures.dispose();
     assets.dispose();
 
     try {

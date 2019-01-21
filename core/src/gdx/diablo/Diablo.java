@@ -48,4 +48,5 @@ public class Diablo {
   public static DT1s                  dt1s;
   public static Cursor                cursor;
   public static Audio                 audio;
+  public static Textures              textures;
 }
