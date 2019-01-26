@@ -22,7 +22,7 @@ import gdx.diablo.codec.DC6;
 import gdx.diablo.codec.excel.BodyLocs;
 import gdx.diablo.codec.excel.Inventory;
 import gdx.diablo.codec.util.BBox;
-import gdx.diablo.entity.Player;
+import gdx.diablo.entity3.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.item.BodyLoc;
 import gdx.diablo.item.Item;
@@ -99,7 +99,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     });
     addActor(btnExit);
 
-    inventory = Diablo.files.inventory.getClass(gameScreen.player.getClassId());
+    inventory = Diablo.files.inventory.getClass(gameScreen.player.stats.getClassId());
 
     Diablo.assets.load(inv_armorDescriptor);
     Diablo.assets.load(inv_beltDescriptor);
@@ -207,7 +207,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
       if (bodyParts[i] == null) continue;
       bodyParts[i].slot = i;
-      bodyParts[i].item = gameScreen.player.getBodyLoc(BodyLoc.valueOf(i));
+      bodyParts[i].item = gameScreen.player.getSlot(BodyLoc.valueOf(i));
       bodyParts[i].setBodyPart(Diablo.files.bodylocs.get(i).Code);
     }
 
@@ -312,11 +312,11 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
 
             Diablo.cursor.setItem(item);
             item = cursor;
-            //gameScreen.player.setSlot(slot, item);
+            gameScreen.player.setSlot(BodyLoc.valueOf(slot), item);
           } else {
             Diablo.cursor.setItem(item);
             item = null;
-            //gameScreen.player.setSlot(slot, null);
+            gameScreen.player.setSlot(BodyLoc.valueOf(slot), null);
           }
         }
       });

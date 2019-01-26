@@ -27,8 +27,8 @@ public class SplashScreen extends ScreenAdapter {
   final AssetDescriptor<DC6> D2logoFireLeftDescriptor   = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\D2logoFireLeft.DC6", DC6.class);
   final AssetDescriptor<DC6> D2logoBlackRightDescriptor = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\D2logoBlackRight.DC6", DC6.class);
   final AssetDescriptor<DC6> D2logoFireRightDescriptor  = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\D2logoFireRight.DC6", DC6.class);
-  Animation.CompositeAnimation D2logoLeft;
-  Animation.CompositeAnimation D2logoRight;
+  Animation D2logoLeft;
+  Animation D2logoRight;
 
   GlyphLayout pressContinueGlyphs;
 
@@ -57,15 +57,17 @@ public class SplashScreen extends ScreenAdapter {
 
     Diablo.assets.finishLoadingAsset(D2logoBlackLeftDescriptor);
     Diablo.assets.finishLoadingAsset(D2logoFireLeftDescriptor);
-    D2logoLeft = new Animation.CompositeAnimation(
-        Animation.Layer.from(Diablo.assets.get(D2logoBlackLeftDescriptor)),
-        Animation.Layer.from(Diablo.assets.get(D2logoFireLeftDescriptor), BlendMode.LUMINOSITY));
+    D2logoLeft = Animation.builder()
+        .layer(Diablo.assets.get(D2logoBlackLeftDescriptor))
+        .layer(Diablo.assets.get(D2logoFireLeftDescriptor), BlendMode.LUMINOSITY)
+        .build();
 
     Diablo.assets.finishLoadingAsset(D2logoBlackRightDescriptor);
     Diablo.assets.finishLoadingAsset(D2logoFireRightDescriptor);
-    D2logoRight = new Animation.CompositeAnimation(
-        Animation.Layer.from(Diablo.assets.get(D2logoBlackRightDescriptor)),
-        Animation.Layer.from(Diablo.assets.get(D2logoFireRightDescriptor), BlendMode.LUMINOSITY));
+    D2logoRight = Animation.builder()
+        .layer(Diablo.assets.get(D2logoBlackRightDescriptor))
+        .layer(Diablo.assets.get(D2logoFireRightDescriptor), BlendMode.LUMINOSITY)
+        .build();
 
     String press_to_continue;
     // TODO: Update message for controllers press_any_button

@@ -24,11 +24,10 @@ import com.badlogic.gdx.utils.Timer;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.Keys;
-import gdx.diablo.entity.Player;
+import gdx.diablo.entity3.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.key.MappedKey;
 import gdx.diablo.key.MappedKeyStateAdapter;
-import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.map.Map;
 import gdx.diablo.map.MapLoader;
 import gdx.diablo.map.MapRenderer;
@@ -246,9 +245,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     //int spx = + (character.x * Tile.SUBTILE_WIDTH50)  - (character.y * Tile.SUBTILE_WIDTH50);
     //int spy = - (character.x * Tile.SUBTILE_HEIGHT50) - (character.y * Tile.SUBTILE_HEIGHT50);
     //character.draw(b, spx, spy);
-    int spx = + (player.getOrigin().x * Tile.SUBTILE_WIDTH50)  - (player.getOrigin().y * Tile.SUBTILE_WIDTH50);
-    int spy = - (player.getOrigin().x * Tile.SUBTILE_HEIGHT50) - (player.getOrigin().y * Tile.SUBTILE_HEIGHT50);
-    player.draw(b, spx, spy);
+    //int spx = + (player.getOrigin().x * Tile.SUBTILE_WIDTH50)  - (player.getOrigin().y * Tile.SUBTILE_WIDTH50);
+    //int spy = - (player.getOrigin().x * Tile.SUBTILE_HEIGHT50) - (player.getOrigin().y * Tile.SUBTILE_HEIGHT50);
+    //player.draw(b, spx, spy);
+    player.draw(b);
     b.end();
     b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
 
@@ -256,7 +256,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.shapes.setProjectionMatrix(camera.combined);
     Diablo.shapes.begin(ShapeRenderer.ShapeType.Line);
     mapRenderer.renderDebug(Diablo.shapes);
-    player.drawDebug(Diablo.shapes, spx, spy);
+    //player.drawDebug(Diablo.shapes, spx, spy);
+    player.drawDebug(Diablo.shapes);
     Diablo.shapes.end();
 
     stage.act();
@@ -283,7 +284,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     //character.x = origin.x;
     //character.y = origin.y;
-    player.getOrigin().set(origin);
+    player.origin().set(origin);
     Gdx.app.debug(TAG, player.toString());
 
     Keys.Esc.addStateListener(mappedKeyStateListener);
@@ -298,7 +299,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       @Override
       public void run() {
         player.move();
-        mapRenderer.setPosition(player.getOrigin());
+        mapRenderer.setPosition(player.origin());
       }
     }, 0, 1 / 25f);
   }

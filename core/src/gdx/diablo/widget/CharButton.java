@@ -189,12 +189,13 @@ public class CharButton extends Widget implements Disposable {
     state = State.FW;
     if (fw == null) {
       Diablo.assets.finishLoadingAsset(fwDesc);
-      fw = Animation.newAnimation(Diablo.assets.get(fwDesc));
+      Animation.Builder builder = Animation.builder()
+          .layer(Diablo.assets.get(fwDesc));
       if (charClass.fws) {
         Diablo.assets.finishLoadingAsset(fwsDesc);
-        Animation.Layer composite = Animation.Layer.from(Diablo.assets.get(fwsDesc));
-        fw = fw.composite().addLayer(composite, charClass.blendSpecial);
+        builder.layer(Diablo.assets.get(fwsDesc), charClass.blendSpecial);
       }
+      fw = builder.build();
       fw.setLooping(false);
       fw.addAnimationListener(new Animation.AnimationListener() {
         @Override
@@ -202,12 +203,13 @@ public class CharButton extends Widget implements Disposable {
           state = State.NU3;
           if (nu3 == null) {
             Diablo.assets.finishLoadingAsset(nu3Desc);
-            nu3 = Animation.newAnimation(Diablo.assets.get(nu3Desc));
+            Animation.Builder builder = Animation.builder()
+                .layer(Diablo.assets.get(nu3Desc));
             if (charClass.nu3s) {
               Diablo.assets.finishLoadingAsset(nu3sDesc);
-              Animation.Layer composite = Animation.Layer.from(Diablo.assets.get(nu3sDesc));
-              nu3 = nu3.composite().addLayer(composite, charClass.blendSpecial);
+              builder.layer(Diablo.assets.get(nu3sDesc), charClass.blendSpecial);
             }
+            nu3 = builder.build();
           }
           setActive(nu3);
         }
@@ -227,12 +229,13 @@ public class CharButton extends Widget implements Disposable {
     state = State.BW;
     if (bw == null) {
       Diablo.assets.finishLoadingAsset(bwDesc);
-      bw = Animation.newAnimation(Diablo.assets.get(bwDesc));
+      Animation.Builder builder = Animation.builder()
+          .layer(Diablo.assets.get(bwDesc));
       if (charClass.bws) {
         Diablo.assets.finishLoadingAsset(bwsDesc);
-        Animation.Layer composite = Animation.Layer.from(Diablo.assets.get(bwsDesc));
-        bw = bw.composite().addLayer(composite, charClass.blendSpecial);
+        builder.layer(Diablo.assets.get(bwsDesc), charClass.blendSpecial);
       }
+      bw = builder.build();
       bw.setLooping(false);
       bw.addAnimationListener(new Animation.AnimationListener() {
         @Override

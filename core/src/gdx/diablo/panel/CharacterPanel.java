@@ -16,7 +16,7 @@ import java.text.NumberFormat;
 import gdx.diablo.Cvars;
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.DC6;
-import gdx.diablo.entity.Player;
+import gdx.diablo.entity3.Player;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.screen.GameScreen;
 import gdx.diablo.widget.Button;
@@ -58,7 +58,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
 
     Player player = gameScreen.player;
 
-    Label name = new Label(player.getName(), Diablo.fonts.font16);
+    Label name = new Label(player.stats.getName(), Diablo.fonts.font16);
     name.setPosition(12, getHeight() - 24);
     name.setSize(168, 13);
     name.setAlignment(Align.center);
@@ -68,17 +68,17 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     level.setPosition(12, getHeight() - 65);
     level.setSize(42, 33);
     level.add(new Label(4057, Diablo.fonts.ReallyTheLastSucker)).row();
-    level.add(new Label(Integer.toString(player.getLevel()), Diablo.fonts.font16)).growY().row();
+    level.add(new Label(Integer.toString(player.stats.getLevel()), Diablo.fonts.font16)).growY().row();
     addActor(level);
 
     Table exp = new Table();
     exp.setPosition(66, getHeight() - 65);
     exp.setSize(114, 33);
     exp.add(new Label(4058, Diablo.fonts.ReallyTheLastSucker)).row();
-    exp.add(new Label(NumberFormat.getInstance(Cvars.Client.Locale.get()).format(player.getExperience()), Diablo.fonts.font16)).growY().row();
+    exp.add(new Label(NumberFormat.getInstance(Cvars.Client.Locale.get()).format(player.stats.getExperience()), Diablo.fonts.font16)).growY().row();
     addActor(exp);
 
-    Label clazz = new Label(player.getCharClass().name, Diablo.fonts.font16);
+    Label clazz = new Label(player.stats.getCharClass().name, Diablo.fonts.font16);
     clazz.setPosition(194, getHeight() - 24);
     clazz.setSize(114, 13);
     clazz.setAlignment(Align.center);
@@ -97,7 +97,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     strLabel.setAlignment(Align.center);
     addActor(strLabel);
 
-    Label str = new Label(Integer.toString(player.getStrength()), Diablo.fonts.font16);
+    Label str = new Label(Integer.toString(player.stats.getStrength()), Diablo.fonts.font16);
     str.setPosition(78, getHeight() - 100);
     str.setSize(36, 16);
     str.setAlignment(Align.center);
@@ -109,7 +109,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     dexLabel.setAlignment(Align.center);
     addActor(dexLabel);
 
-    Label dex = new Label(Integer.toString(player.getDexterity()), Diablo.fonts.font16);
+    Label dex = new Label(Integer.toString(player.stats.getDexterity()), Diablo.fonts.font16);
     dex.setPosition(78, getHeight() - 162);
     dex.setSize(36, 16);
     dex.setAlignment(Align.center);
@@ -121,7 +121,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     vitLabel.setAlignment(Align.center);
     addActor(vitLabel);
 
-    Label vit = new Label(Integer.toString(player.getVitality()), Diablo.fonts.font16);
+    Label vit = new Label(Integer.toString(player.stats.getVitality()), Diablo.fonts.font16);
     vit.setPosition(78, getHeight() - 248);
     vit.setSize(36, 16);
     vit.setAlignment(Align.center);
@@ -133,7 +133,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     eneLabel.setAlignment(Align.center);
     addActor(eneLabel);
 
-    Label ene = new Label(Integer.toString(player.getEnergy()), Diablo.fonts.font16);
+    Label ene = new Label(Integer.toString(player.stats.getEnergy()), Diablo.fonts.font16);
     ene.setPosition(78, getHeight() - 310);
     ene.setSize(36, 16);
     ene.setAlignment(Align.center);
@@ -145,7 +145,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     fireResLabel.setAlignment(Align.center);
     addActor(fireResLabel);
 
-    Label fireRes = new Label(Integer.toString(player.getFireResistance()), Diablo.fonts.font16);
+    Label fireRes = new Label(Integer.toString(player.stats.getFireResistance()), Diablo.fonts.font16);
     fireRes.setPosition(273, getHeight() - 349);
     fireRes.setSize(36, 16);
     fireRes.setAlignment(Align.center);
@@ -157,7 +157,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     coldResLabel.setAlignment(Align.center);
     addActor(coldResLabel);
 
-    Label coldRes = new Label(Integer.toString(player.getColdResistance()), Diablo.fonts.font16);
+    Label coldRes = new Label(Integer.toString(player.stats.getColdResistance()), Diablo.fonts.font16);
     coldRes.setPosition(273, getHeight() - 373);
     coldRes.setSize(36, 16);
     coldRes.setAlignment(Align.center);
@@ -169,7 +169,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     lightningResLabel.setAlignment(Align.center);
     addActor(lightningResLabel);
 
-    Label lightningRes = new Label(Integer.toString(player.getLightningResistance()), Diablo.fonts.font16);
+    Label lightningRes = new Label(Integer.toString(player.stats.getLightningResistance()), Diablo.fonts.font16);
     lightningRes.setPosition(273, getHeight() - 397);
     lightningRes.setSize(36, 16);
     lightningRes.setAlignment(Align.center);
@@ -181,7 +181,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     poisonResLabel.setAlignment(Align.center);
     addActor(poisonResLabel);
 
-    Label poisonRes = new Label(Integer.toString(player.getPoisonResistance()), Diablo.fonts.font16);
+    Label poisonRes = new Label(Integer.toString(player.stats.getPoisonResistance()), Diablo.fonts.font16);
     poisonRes.setPosition(273, getHeight() - 421);
     poisonRes.setSize(36, 16);
     poisonRes.setAlignment(Align.center);

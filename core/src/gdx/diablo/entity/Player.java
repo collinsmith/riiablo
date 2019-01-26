@@ -60,7 +60,7 @@ public class Player {
 
   boolean dirty;
   String cofId;
-  Animation.COFAnimation anim;
+  Animation anim;
 
   EnumMap<BodyLoc, Item> equipped;
   Array<Item> inventory;
@@ -335,7 +335,7 @@ public class Player {
     //if (animation != null) animation.dispose();
 
     Animation oldAnim = anim;
-    anim = new Animation.COFAnimation(cof);
+    anim = Animation.newAnimation(cof);
     // TODO: This might be a problem
     anim.setDirection(oldAnim != null ? oldAnim.getDirection() : getDirection());
 

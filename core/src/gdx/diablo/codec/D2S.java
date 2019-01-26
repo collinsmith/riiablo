@@ -30,7 +30,7 @@ import gdx.diablo.util.DebugUtils;
 
 public class D2S {
   private static final String TAG = "D2S";
-  private static final boolean DEBUG           = true;
+  private static final boolean DEBUG           = !true;
   private static final boolean DEBUG_HEADER    = DEBUG && true;
   private static final boolean DEBUG_QUESTS    = DEBUG && true;
   private static final boolean DEBUG_WAYPOINTS = DEBUG && true;

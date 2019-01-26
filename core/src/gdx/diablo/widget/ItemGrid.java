@@ -20,7 +20,7 @@ import gdx.diablo.BlendMode;
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.excel.Inventory;
 import gdx.diablo.codec.excel.ItemEntry;
-import gdx.diablo.entity.Player;
+import gdx.diablo.entity3.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.item.Item;
 

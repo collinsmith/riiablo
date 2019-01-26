@@ -42,7 +42,7 @@ public class Tester1101 extends ApplicationAdapter {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
     MPQ d2data = MPQ.loadFromFile(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\d2data.mpq"));
     COF cof = COF.loadFromStream(d2data.read("data\\global\\objects\\TO\\COF\\toonhth.cof"));
-    animation = new Animation.COFAnimation(cof);
+    animation = Animation.newAnimation(cof);
 
     palette = Palette.loadFromStream(d2data.read(Palettes.ACT1)).render();
 

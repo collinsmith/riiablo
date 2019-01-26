@@ -75,17 +75,19 @@ public class MenuScreen extends ScreenAdapter {
     if (D2logoLeft == null) {
       Diablo.assets.finishLoadingAsset(D2logoBlackLeftDescriptor);
       Diablo.assets.finishLoadingAsset(D2logoFireLeftDescriptor);
-      D2logoLeft = new Animation.CompositeAnimation(
-          Animation.Layer.from(Diablo.assets.get(D2logoBlackLeftDescriptor)),
-          Animation.Layer.from(Diablo.assets.get(D2logoFireLeftDescriptor), BlendMode.LUMINOSITY));
+      D2logoLeft = Animation.builder()
+          .layer(Diablo.assets.get(D2logoBlackLeftDescriptor))
+          .layer(Diablo.assets.get(D2logoFireLeftDescriptor), BlendMode.LUMINOSITY)
+          .build();
     }
 
     if (D2logoRight == null) {
       Diablo.assets.finishLoadingAsset(D2logoBlackRightDescriptor);
       Diablo.assets.finishLoadingAsset(D2logoFireRightDescriptor);
-      D2logoRight = new Animation.CompositeAnimation(
-          Animation.Layer.from(Diablo.assets.get(D2logoBlackRightDescriptor)),
-          Animation.Layer.from(Diablo.assets.get(D2logoFireRightDescriptor), BlendMode.LUMINOSITY));
+      D2logoRight = Animation.builder()
+          .layer(Diablo.assets.get(D2logoBlackRightDescriptor))
+          .layer(Diablo.assets.get(D2logoFireRightDescriptor), BlendMode.LUMINOSITY)
+          .build();
     }
 
     TextButton.TextButtonStyle style = new TextButton.TextButtonStyle() {{

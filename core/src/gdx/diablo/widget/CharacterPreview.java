@@ -22,7 +22,7 @@ public class CharacterPreview extends Widget implements Disposable {
 
   D2S d2s;
   AssetDescriptor[] assets;
-  Animation.COFAnimation anim;
+  Animation anim;
 
   public CharacterPreview() {}
 
@@ -56,7 +56,7 @@ public class CharacterPreview extends Widget implements Disposable {
     }
     //System.out.println(Arrays.toString(armorClasses));
 
-    anim = new Animation.COFAnimation(cof);
+    anim = Animation.newAnimation(cof);
     anim.setDirection(Direction.DOWN);
     anim.setShadow(false);
     if (assets == null) assets = new AssetDescriptor[COF.Component.NUM_COMPONENTS];

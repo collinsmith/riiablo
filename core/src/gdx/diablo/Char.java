@@ -31,7 +31,7 @@ public class Char {
   public String armType;
 
   public float angle;
-  public Animation.COFAnimation animation;
+  public Animation animation;
 
   public Char(CharClass charClass) {
     this.charClass = charClass;
@@ -115,7 +115,7 @@ public class Char {
     // FIXME: dispose/unload old animation layer
     //if (animation != null) animation.dispose();
     Animation oldAnim = animation;
-    animation = new Animation.COFAnimation(cof);
+    animation = Animation.newAnimation(cof);
     if (oldAnim != null) animation.setDirection(oldAnim.getDirection());
 
     String helm = "cap";

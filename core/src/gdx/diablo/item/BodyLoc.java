@@ -2,20 +2,22 @@ package gdx.diablo.item;
 
 import com.badlogic.gdx.Gdx;
 
+import static gdx.diablo.entity3.Entity.Dirty.*;
+
 public enum BodyLoc {
   NONE,
-  HEAD,
+  HEAD(HD),
   NECK,
-  TORS,
-  RARM,
-  LARM,
+  TORS(TR|LG|LA|RA|S1|S2),
+  RARM(RH|LH|SH),
+  LARM(RH|LH|SH),
   RRIN,
   LRIN,
   BELT,
-  FEET,
+  FEET(LG),
   GLOV,
-  RARM2,
-  LARM2;
+  RARM2(RH|LH|SH),
+  LARM2(RH|LH|SH);
 
   public static BodyLoc valueOf(int i) {
     switch (i) {
@@ -36,5 +38,19 @@ public enum BodyLoc {
         Gdx.app.error("BodyLoc", "Unknown body location: " + i);
         return null;
     }
+  }
+
+  final int components;
+
+  BodyLoc() {
+    this.components = -1;
+  }
+
+  BodyLoc(int components) {
+    this.components = components;
+  }
+
+  public int components() {
+    return components;
   }
 }
