@@ -134,6 +134,15 @@ public class Player extends Entity {
     if (alternate != b) {
       alternate = b;
       updateWeaponClass();
+      Item LH = getSlot(BodyLoc.LARM);
+      Item RH = getSlot(BodyLoc.RARM);
+      Item LH2 = getSlot(BodyLoc.LARM2);
+      Item RH2 = getSlot(BodyLoc.RARM2);
+      if (b) {
+        notifyAlternate(LH2, RH2);
+      } else {
+        notifyAlternate(LH, RH);
+      }
     }
   }
 
@@ -233,14 +242,17 @@ public class Player extends Entity {
       setWeaponClass("HTH");
     }
 
-    if (RH != null) setArmType(Component.RH, RH.base.alternateGfx);
-    if (LH != null) setArmType(Component.LH, LH.base.alternateGfx);
-    if (SH != null) setArmType(Component.SH, SH.base.alternateGfx);
-    else setArmType(Component.SH, "");
+    setArmType(Component.RH, RH != null ? RH.base.alternateGfx : "");
+    setArmType(Component.LH, LH != null ? LH.base.alternateGfx : "");
+    setArmType(Component.SH, SH != null ? SH.base.alternateGfx : "");
   }
 
   private void notifySlotChanged(BodyLoc bodyLoc, Item oldItem, Item item) {
     for (SlotListener l : SLOT_LISTENERS) l.onChanged(this, bodyLoc, oldItem, item);
+  }
+
+  private void notifyAlternate(Item LH, Item RH) {
+    for (SlotListener l : SLOT_LISTENERS) l.onAlternate(this, LH, RH);
   }
 
   public boolean addSlotListener(SlotListener l) {
@@ -264,6 +276,12 @@ public class Player extends Entity {
 
   public interface SlotListener {
     void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item);
+    void onAlternate(Player player, Item LH, Item RH);
+  }
+
+  public static class SlotAdapter implements SlotListener {
+    @Override public void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item) {}
+    @Override public void onAlternate(Player player, Item LH, Item RH) {}
   }
 
   public Array<Item> getInventory() {

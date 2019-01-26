@@ -123,7 +123,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
 
     final BodyPart[] bodyParts = new BodyPart[BodyLocs.NUM_LOCS];
 
-    BodyPart torso = bodyParts[BodyLocs.TORS] = new BodyPart(inv_armor.getTexture());
+    BodyPart torso = bodyParts[BodyLocs.TORS] = new BodyPart(BodyLoc.TORS, inv_armor.getTexture());
     torso.setSize(inventory.torsoWidth, inventory.torsoHeight);
     torso.setPosition(
         inventory.torsoLeft - inventory.invLeft,
@@ -131,7 +131,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     torso.xOffs = torso.yOffs = 2;
     addActor(torso);
 
-    BodyPart rArm = bodyParts[BodyLocs.RARM] = new BodyPart(inv_weapons.getTexture());
+    BodyPart rArm = bodyParts[BodyLocs.RARM] = new BodyPart(BodyLoc.RARM, inv_weapons.getTexture());
     rArm.setSize(inventory.rArmWidth, inventory.rArmHeight);
     rArm.setPosition(
         inventory.rArmLeft - inventory.invLeft,
@@ -141,7 +141,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     rArm.yOffsAlt = 5;
     addActor(rArm);
 
-    BodyPart lArm = bodyParts[BodyLocs.LARM] = new BodyPart(inv_weapons.getTexture());
+    BodyPart lArm = bodyParts[BodyLocs.LARM] = new BodyPart(BodyLoc.LARM, inv_weapons.getTexture());
     lArm.setSize(inventory.lArmWidth, inventory.lArmHeight);
     lArm.setPosition(
         inventory.lArmLeft - inventory.invLeft,
@@ -151,7 +151,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     lArm.yOffsAlt = 5;
     addActor(lArm);
 
-    BodyPart head = bodyParts[BodyLocs.HEAD] = new BodyPart(inv_helm_glove.getTexture(1));
+    BodyPart head = bodyParts[BodyLocs.HEAD] = new BodyPart(BodyLoc.HEAD, inv_helm_glove.getTexture(1));
     head.setSize(inventory.headWidth, inventory.headHeight);
     head.setPosition(
         inventory.headLeft - inventory.invLeft,
@@ -159,28 +159,28 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     head.yOffs = 1;
     addActor(head);
 
-    BodyPart neck = bodyParts[BodyLocs.NECK] = new BodyPart(inv_ring_amulet.getTexture(0));
+    BodyPart neck = bodyParts[BodyLocs.NECK] = new BodyPart(BodyLoc.NECK, inv_ring_amulet.getTexture(0));
     neck.setSize(inventory.neckWidth, inventory.neckHeight);
     neck.setPosition(
         inventory.neckLeft - inventory.invLeft,
         getHeight() - inventory.neckBottom);
     addActor(neck);
 
-    BodyPart rHand = bodyParts[BodyLocs.RRIN] = new BodyPart(inv_ring_amulet.getTexture(1));
+    BodyPart rHand = bodyParts[BodyLocs.RRIN] = new BodyPart(BodyLoc.RRIN, inv_ring_amulet.getTexture(1));
     rHand.setSize(inventory.rHandWidth, inventory.rHandHeight);
     rHand.setPosition(
         inventory.rHandLeft - inventory.invLeft,
         getHeight() - inventory.rHandBottom);
     addActor(rHand);
 
-    BodyPart lHand = bodyParts[BodyLocs.LRIN] = new BodyPart(inv_ring_amulet.getTexture(1));
+    BodyPart lHand = bodyParts[BodyLocs.LRIN] = new BodyPart(BodyLoc.LRIN, inv_ring_amulet.getTexture(1));
     lHand.setSize(inventory.lHandWidth, inventory.lHandHeight);
     lHand.setPosition(
         inventory.lHandLeft - inventory.invLeft,
         getHeight() - inventory.lHandBottom);
     addActor(lHand);
 
-    BodyPart belt = bodyParts[BodyLocs.BELT] = new BodyPart(inv_belt.getTexture());
+    BodyPart belt = bodyParts[BodyLocs.BELT] = new BodyPart(BodyLoc.BELT, inv_belt.getTexture());
     belt.setSize(inventory.beltWidth, inventory.beltHeight);
     belt.setPosition(
         inventory.beltLeft - inventory.invLeft,
@@ -188,7 +188,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     belt.yOffs = 2;
     addActor(belt);
 
-    BodyPart feet = bodyParts[BodyLocs.FEET] = new BodyPart(inv_boots.getTexture());
+    BodyPart feet = bodyParts[BodyLocs.FEET] = new BodyPart(BodyLoc.FEET, inv_boots.getTexture());
     feet.setSize(inventory.feetWidth, inventory.feetHeight);
     feet.setPosition(
         inventory.feetLeft - inventory.invLeft,
@@ -197,7 +197,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     feet.yOffs = 2;
     addActor(feet);
 
-    BodyPart gloves = bodyParts[BodyLocs.GLOV] = new BodyPart(inv_helm_glove.getTexture(0));
+    BodyPart gloves = bodyParts[BodyLocs.GLOV] = new BodyPart(BodyLoc.GLOV, inv_helm_glove.getTexture(0));
     gloves.setSize(inventory.glovesWidth, inventory.glovesHeight);
     gloves.setPosition(
         inventory.glovesLeft - inventory.invLeft,
@@ -231,13 +231,6 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       public void clicked(InputEvent event, float x, float y) {
         boolean alternate = !gameScreen.player.isAlternate();
         gameScreen.player.setAlternate(alternate);
-        if (alternate) {
-          //bodyParts[BodyLocs.RARM].item = gameScreen.player.getBodyLoc(BodyLoc.RARM2);
-          //bodyParts[BodyLocs.LARM].item = gameScreen.player.getBodyLoc(BodyLoc.LARM2);
-        } else {
-          //bodyParts[BodyLocs.RARM].item = gameScreen.player.getBodyLoc(BodyLoc.RARM);
-          //bodyParts[BodyLocs.LARM].item = gameScreen.player.getBodyLoc(BodyLoc.LARM);
-        }
       }
     };
     alternateWeaponsL.addListener(swapListener);
@@ -247,8 +240,16 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       @Override
       public void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item) {
         //System.out.println("slot = " + slot);
-        //bodyParts[slot].item = item;
+        //bodyParts[bodyLoc.ordinal()].item = item;
         //if (item != null) Diablo.audio.play(item.base.dropsound, true);
+      }
+
+      @Override
+      public void onAlternate(Player player, Item LH, Item RH) {
+        bodyParts[BodyLocs.RARM].bodyLoc = player.isAlternate() ? BodyLoc.RARM2 : BodyLoc.RARM;
+        bodyParts[BodyLocs.LARM].bodyLoc = player.isAlternate() ? BodyLoc.LARM2 : BodyLoc.LARM;
+        bodyParts[BodyLocs.RARM].item = RH;
+        bodyParts[BodyLocs.LARM].item = LH;
       }
     });
 
@@ -292,13 +293,15 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
   private class BodyPart extends Actor {
     TextureRegion background;
     Item item;
+    BodyLoc bodyLoc;
     String bodyPart;
     int slot;
     final ClickListener clickListener;
     int xOffs, yOffs;
     int xOffsAlt, yOffsAlt;
 
-    BodyPart(TextureRegion background) {
+    BodyPart(BodyLoc bodyLoc, TextureRegion background) {
+      this.bodyLoc = bodyLoc;
       this.background = background;
       addListener(clickListener = new ClickListener() {
         @Override
@@ -312,11 +315,11 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
 
             Diablo.cursor.setItem(item);
             item = cursor;
-            gameScreen.player.setSlot(BodyLoc.valueOf(slot), item);
+            gameScreen.player.setSlot(BodyPart.this.bodyLoc, item);
           } else {
             Diablo.cursor.setItem(item);
             item = null;
-            gameScreen.player.setSlot(BodyLoc.valueOf(slot), null);
+            gameScreen.player.setSlot(BodyPart.this.bodyLoc, null);
           }
         }
       });
