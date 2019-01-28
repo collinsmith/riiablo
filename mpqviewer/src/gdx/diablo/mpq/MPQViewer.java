@@ -1095,7 +1095,8 @@ public class MPQViewer {
             String palette = paletteList.getSelected();
             Diablo.batch.setPalette(palettes.get(palette));
 
-            Animation anim = Animation.newAnimation(dc, (int) slDirection.getValue());
+            Animation anim = Animation.newAnimation(dc);
+            anim.setDirection((int) slDirection.getValue());
             anim.setFrameDuration(1 / slFrameDuration.getValue());
             setDelegate(anim);
           }
