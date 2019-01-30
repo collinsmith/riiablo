@@ -71,7 +71,7 @@ public class Player extends Entity {
     this.stats = new Stats();
     equipped.putAll(d2s.items.equipped);
     inventory.addAll(d2s.items.inventory);
-
+    setMode("TN");
 
     for (Map.Entry<BodyLoc, Item> entry : equipped.entrySet()) {
       entry.getValue().load();

@@ -23,6 +23,7 @@ import gdx.diablo.codec.DCC;
 import gdx.diablo.entity.Direction;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.item.Item;
+import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
 
 public class Entity {
@@ -119,6 +120,18 @@ public class Entity {
     weaponClass  = "HTH";
     layers       = DEFAULT_LAYERS;
     invalidate();
+  }
+
+  public static Entity create(DS1 ds1, DS1.Object obj) {
+    final int type = obj.type;
+    switch (type) {
+      case DS1.Object.DYNAMIC_TYPE:
+        throw new UnsupportedOperationException("Unsupported type: " + type);
+      case DS1.Object.STATIC_TYPE:
+        return null;
+      default:
+        throw new AssertionError("Unsupported type: " + type);
+    }
   }
 
   public void setMode(String mode) {
@@ -219,17 +232,42 @@ public class Entity {
       Gdx.app.log(TAG, path);
 
       if (DEBUG_ASSETS) {
-        AssetDescriptor<DCC> descriptor = new AssetDescriptor<>(path, DCC.class);
+        final AssetDescriptor<DCC> descriptor = new AssetDescriptor<>(path, DCC.class);
         Diablo.assets.load(descriptor);
         Diablo.assets.finishLoadingAsset(descriptor);
         DCC dcc = Diablo.assets.get(descriptor);
         animation.setLayer(c, dcc);
+
+        /*Runnable loader = new Runnable() {
+          @Override
+          public void run() {
+            if (!Diablo.assets.isLoaded(descriptor)) {
+              Gdx.app.postRunnable(this);
+              return;
+            }
+
+            DCC dcc = Diablo.assets.get(descriptor);
+            animation.setLayer(c, dcc);
+
+            Item item = getItem(comp);
+            if (item != null) {
+              animation.getLayer(c).setTransform(item.charColormap, item.charColorIndex);
+            }
+          }
+        };*/
+        //Gdx.app.postRunnable(loader);
       }
 
-      Item item = getItem(comp);
-      if (item != null) {
-        animation.getLayer(layer.component).setTransform(item.charColormap, item.charColorIndex);
-      }
+      //if (BodyLoc.TORS.contains(c)) {
+        Item item = getItem(comp);
+        if (item != null) {
+          // FIXME: colors don't look right for sorc Tirant circlet changing hair color
+          //        putting a ruby in a white circlet not change color on item or character
+          //        circlets and other items with hidden magic level might work different?
+          animation.getLayer(layer.component).setTransform(item.charColormap, item.charColorIndex);
+          //System.out.println(item.getName() + ": " + item.charColormap + " ; " + item.charColorIndex);
+        }
+      //}
     }
 
     dirty = 0;
@@ -272,7 +310,8 @@ public class Entity {
   }
 
   public int getDirection() {
-    return Direction.radiansToDirection(angle, 16);
+    int numDirs = animation.getNumDirections();
+    return Direction.radiansToDirection(angle, numDirs);
   }
 
   public GridPoint2 origin() {

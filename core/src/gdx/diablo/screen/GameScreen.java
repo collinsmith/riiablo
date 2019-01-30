@@ -68,6 +68,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   OrthographicCamera camera;
   InputProcessor inputProcessorTest;
 
+  //TextArea input;
 
   //Char character;
   public Player player;
@@ -84,6 +85,19 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   //public GameScreen(final Char character) {
   public GameScreen(final Player player) {
     this.player = player;
+
+    /*
+    input = new TextArea("", new TextArea.TextFieldStyle() {{
+      this.font = Diablo.fonts.fontformal12;
+      this.fontColor = Diablo.colors.white;
+      this.background = new TextureRegionDrawable(Diablo.textures.modal);
+      this.cursor = new TextureRegionDrawable(Diablo.textures.white);
+    }});
+    input.setSize(Diablo.VIRTUAL_WIDTH * 0.75f, Diablo.fonts.fontformal12.getLineHeight() * 3);
+    input.setPosition(Diablo.VIRTUAL_WIDTH_CENTER - input.getWidth() / 2, 100);
+    input.setAlignment(Align.topLeft);
+    input.setVisible(false);
+    */
 
     escapePanel = new EscapePanel();
 
@@ -116,12 +130,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     stage = new Stage(Diablo.viewport, Diablo.batch);
     if (mobilePanel != null) stage.addActor(mobilePanel);
+    //stage.addActor(input);
     stage.addActor(controlPanel);
     stage.addActor(escapePanel);
     stage.addActor(inventoryPanel);
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
     controlPanel.toFront();
+    //input.toFront();
     escapePanel.toFront();
 
     if (Gdx.app.getType() == Application.ApplicationType.Android || DEBUG_TOUCHPAD) {
@@ -141,7 +157,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         public void changed(ChangeEvent event, Actor actor) {
           float x = touchpad.getKnobPercentX();
           float y = touchpad.getKnobPercentY();
-          if (x == 0 && y == 0) {
+          if (x == 0 && y == 0 || UIUtils.shift()) {
             player.setMode("TN");
             return;
           //} else if (-0.5f < x && x < 0.5f
@@ -171,6 +187,20 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           } else {
             escapePanel.setVisible(true);
           }
+        /*} else if (key == Keys.Enter) {
+          boolean visible = !input.isVisible();
+          if (!visible) {
+            String text = input.getText();
+            if (!text.isEmpty()) {
+              Gdx.app.debug(TAG, text);
+              input.setText("");
+            }
+          }
+
+          input.setVisible(visible);
+          if (visible) {
+            stage.setKeyboardFocus(input);
+          }*/
         } else if (key == Keys.Inventory) {
           inventoryPanel.setVisible(!inventoryPanel.isVisible());
         } else if (key == Keys.Character) {
@@ -292,12 +322,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Character.addStateListener(mappedKeyStateListener);
     Keys.Stash.addStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.addStateListener(mappedKeyStateListener);
+    Keys.Enter.addStateListener(mappedKeyStateListener);
     Diablo.input.addProcessor(stage);
     Diablo.input.addProcessor(inputProcessorTest);
 
     updateTask = Timer.schedule(new Timer.Task() {
       @Override
       public void run() {
+        if (UIUtils.shift()) return;
         player.move();
         mapRenderer.setPosition(player.origin());
       }
@@ -311,6 +343,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Character.removeStateListener(mappedKeyStateListener);
     Keys.Stash.removeStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.removeStateListener(mappedKeyStateListener);
+    Keys.Enter.removeStateListener(mappedKeyStateListener);
     Diablo.input.removeProcessor(stage);
     Diablo.input.removeProcessor(inputProcessorTest);
 

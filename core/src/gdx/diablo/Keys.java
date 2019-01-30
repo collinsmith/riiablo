@@ -41,5 +41,6 @@ public class Keys {
   public static final MappedKey Character = new MappedKey("Character", "character", Input.Keys.C, Input.Keys.A);
   public static final MappedKey Stash = new MappedKey("Stash", "stash", Input.Keys.NUMPAD_1);
   public static final MappedKey SwapWeapons = new MappedKey("SwapWeapons", "swap", Input.Keys.W);
+  public static final MappedKey Enter = new MappedKey("Enter", "enter", Input.Keys.ENTER);
 
 }

@@ -72,7 +72,12 @@ public class Direction {
   private Direction() {}
 
   public static int radiansToDirection(float radians, int directions) {
-    return radiansToDirection16(radians);
+    switch (directions) {
+      case 1:  return 0;
+      case 8:  return radiansToDirection8(radians);
+      case 16: return radiansToDirection16(radians);
+      default: return 0;
+    }
   }
 
   static final int   DIRS_16[] = {7, 13, 2, 12, 6, 11, 1, 10, 5, 9, 0, 8, 4, 15, 3, 14};

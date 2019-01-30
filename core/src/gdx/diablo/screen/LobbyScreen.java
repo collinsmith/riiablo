@@ -7,6 +7,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.net.HttpRequestBuilder;
+import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -24,7 +25,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.SerializationException;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
@@ -34,8 +42,10 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.server.Account;
 import gdx.diablo.server.Session;
+import gdx.diablo.server.SessionError;
 import gdx.diablo.util.EventUtils;
 import gdx.diablo.widget.Label;
+import gdx.diablo.widget.TextArea;
 import gdx.diablo.widget.TextButton;
 import gdx.diablo.widget.TextField;
 
@@ -69,6 +79,13 @@ public class LobbyScreen extends ScreenAdapter {
   final AssetDescriptor<DC6> gamebuttonblankDescriptor = new AssetDescriptor<>("data\\global\\ui\\BIGMENU\\gamebuttonblank.dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
 
   private Stage stage;
+
+  private TextArea taChatOutput;
+  private TextField tfChatInput;
+
+  private Socket socket;
+  private PrintWriter out;
+  private BufferedReader in;
 
   public LobbyScreen(Account account) {
     Diablo.assets.load(waitingroombkgdDescriptor);
@@ -262,7 +279,37 @@ public class LobbyScreen extends ScreenAdapter {
                   desc     = tfDesc.getText();
                 }})
                 .build();
-            Gdx.net.sendHttpRequest(request, null);
+            Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+              @Override
+              public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                String response = httpResponse.getResultAsString();
+                try {
+                  Session session = new Json().fromJson(Session.class, response);
+                  Gdx.app.log(TAG, "create-session " + response);
+
+                  Socket socket = null;
+                  try {
+                    socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
+                    Gdx.app.log(TAG, "create-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
+                  } finally {
+                    if (socket != null) socket.dispose();
+                  }
+                } catch (SerializationException e) {
+                  SessionError error = new Json().fromJson(SessionError.class, response);
+                  Gdx.app.log(TAG, "create-session " + error.toString());
+                }
+              }
+
+              @Override
+              public void failed(Throwable t) {
+                Gdx.app.log(TAG, "create-session " + t.getMessage());
+              }
+
+              @Override
+              public void cancelled() {
+                Gdx.app.log(TAG, "create-session " + "cancelled");
+              }
+            });
           }
         });
         tfGameName.addListener(new ChangeListener() {
@@ -420,12 +467,54 @@ public class LobbyScreen extends ScreenAdapter {
     }};
     stage.addActor(right);
 
+    final Table left = new Table() {{
+      setSize(350, 332);
+      setPosition(55, 115);
+      add(taChatOutput = new TextArea("", new TextArea.TextFieldStyle() {{
+        font = Diablo.fonts.fontformal10;
+        fontColor = Diablo.colors.white;
+        cursor = new TextureRegionDrawable(Diablo.textures.white);
+      }}) {{
+        setDisabled(true);
+      }}).grow().row();
+      add(tfChatInput = new TextField("", textFieldStyle) {{
+        setTextFieldListener(new TextFieldListener() {
+          @Override
+          public void keyTyped(com.badlogic.gdx.scenes.scene2d.ui.TextField textField, char c) {
+            if (c == '\r' || c == '\n') {
+              if (socket != null && socket.isConnected()) {
+                out.println(textField.getText());
+                textField.setText("");
+              }
+            }
+          }
+        });
+      }}).growX();
+    }};
+    stage.addActor(left);
+    stage.setKeyboardFocus(tfChatInput);
+
     Diablo.input.addProcessor(stage);
+    connect();
+  }
+
+  private void connect() {
+    try {
+      socket = Gdx.net.newClientSocket(Net.Protocol.TCP, "hydra", 6113, null);
+      in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
+      out = new PrintWriter(socket.getOutputStream(), true);
+    } catch (Throwable t) {
+      Gdx.app.error(TAG, t.getMessage());
+      taChatOutput.appendText(t.getMessage());
+      taChatOutput.appendText("\n");
+    }
   }
 
   @Override
   public void hide() {
     Diablo.input.removeProcessor(stage);
+    IOUtils.closeQuietly(out);
+    if (socket != null) socket.dispose();
   }
 
   @Override
@@ -442,6 +531,17 @@ public class LobbyScreen extends ScreenAdapter {
 
   @Override
   public void render(float delta) {
+    if (in != null) {
+      try {
+        for (String str; in.ready() && (str = in.readLine()) != null;) {
+          taChatOutput.appendText(str);
+          taChatOutput.appendText("\n");
+        }
+      } catch (IOException e) {
+        Gdx.app.error(TAG, e.getMessage());
+      }
+    }
+
     PaletteIndexedBatch b = Diablo.batch;
     b.begin(Diablo.palettes.act1);
     b.draw(waitingroombkgd, Diablo.VIRTUAL_WIDTH_CENTER - (waitingroombkgd.getRegionWidth() / 2), Diablo.VIRTUAL_HEIGHT - waitingroombkgd.getRegionHeight() + 72);

@@ -53,4 +53,8 @@ public enum BodyLoc {
   public int components() {
     return components;
   }
+
+  public boolean contains(int component) {
+    return components != 0 && (components & (1 << component)) != 0;
+  }
 }

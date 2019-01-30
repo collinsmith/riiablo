@@ -17,7 +17,11 @@ import gdx.diablo.COFs;
 import gdx.diablo.Diablo;
 import gdx.diablo.Files;
 import gdx.diablo.codec.D2S;
+import gdx.diablo.codec.DC6;
+import gdx.diablo.codec.DCC;
 import gdx.diablo.codec.StringTBLs;
+import gdx.diablo.loader.DC6Loader;
+import gdx.diablo.loader.DCCLoader;
 import gdx.diablo.mpq.MPQFileHandleResolver;
 
 public class EntityTest {
@@ -33,7 +37,12 @@ public class EntityTest {
         resolver.add(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\patch_d2.mpq"));
         resolver.add(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\d2exp.mpq"));
         resolver.add(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\d2data.mpq"));
-        Diablo.assets = new AssetManager(resolver);
+        resolver.add(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\d2char.mpq"));
+
+        Diablo.assets = new AssetManager();
+        Diablo.assets.setLoader(DCC.class, new DCCLoader(Diablo.mpqs));
+        Diablo.assets.setLoader(DC6.class, new DC6Loader(Diablo.mpqs));
+
         Diablo.cofs = new COFs(Diablo.assets);
         Diablo.files = new Files(Diablo.assets);
         Diablo.string = new StringTBLs(resolver);

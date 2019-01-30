@@ -2,9 +2,11 @@ package gdx.diablo.server;
 
 public class Session {
 
-  private String name;
-  private String password;
-  private String desc;
+  public String name;
+  public String password;
+  public String desc;
+  public String host;
+  public int    port;
 
   private Session() {}
 
@@ -18,9 +20,13 @@ public class Session {
     desc = builder.desc;
   }
 
+  public String getName() {
+    return name;
+  }
+
   @Override
   public String toString() {
-    return name;
+    return getName();
   }
 
   public static class Builder {

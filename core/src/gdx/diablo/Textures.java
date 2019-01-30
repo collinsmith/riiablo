@@ -7,9 +7,11 @@ import com.badlogic.gdx.utils.Disposable;
 
 public class Textures implements Disposable {
   public final Texture white;
+  public final Texture modal;
 
   public Textures() {
     white = createTexture(Diablo.colors.white);
+    modal = createTexture(new Color(0.0f, 0.0f, 0.0f, 0.5f));
   }
 
   public Texture createTexture(Color color) {
@@ -24,5 +26,6 @@ public class Textures implements Disposable {
   @Override
   public void dispose() {
     white.dispose();
+    modal.dispose();
   }
 }
