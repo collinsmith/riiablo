@@ -29,6 +29,8 @@ compatible with playing with users using the original game client.
 # Features
 - Written using Java + LibGDX + OpenGL
 - Runs on PC, Android and eventually more (IOS, Linux, etc.)
+- Cross-platform multiplayer
+- Dedicated servers, TCP/IP (listen servers) connections, and single player
 - Full console, including CVAR support and key bindings
 - TODO Controller support
 - TODO Platform-specific features (Android touch, PC mouse, etc)
