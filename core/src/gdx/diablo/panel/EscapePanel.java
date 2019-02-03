@@ -46,7 +46,7 @@ public class EscapePanel extends WidgetGroup implements Disposable {
     exit.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-        Diablo.client.setScreen(new MenuScreen());
+        Diablo.client.clearAndSet(new MenuScreen());
       }
     });
 

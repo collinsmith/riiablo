@@ -94,7 +94,7 @@ public class ChatServer extends ApplicationAdapter {
     PrintWriter out;
 
     public Client(Socket socket) {
-      super(clientThreads, "Client-" + String.format("%08X", MathUtils.random(1, Integer.MAX_VALUE)));
+      super(clientThreads, "Client-" + String.format("%08X", MathUtils.random(1, Integer.MAX_VALUE - 1)));
       this.socket = socket;
     }
 
@@ -103,6 +103,14 @@ public class ChatServer extends ApplicationAdapter {
       try {
         in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
+
+        final Calendar calendar = Calendar.getInstance();
+        DateFormat format = DateFormat.getDateTimeInstance();
+        out.println("BNET " + format.format(calendar.getTime()));
+        for (PrintWriter client : clients) {
+          client.println("CONNECT " + socket.getRemoteAddress());
+        }
+
         clients.add(out);
 
         for (String input; (input = in.readLine()) != null; ) {

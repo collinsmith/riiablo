@@ -125,7 +125,7 @@ public class LoginScreen extends ScreenAdapter {
               Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
-                  Diablo.client.pushScreen(new LobbyScreen(account));
+                  Diablo.client.pushScreen(new SelectCharacterScreen2(account));
                 }
               });
             }

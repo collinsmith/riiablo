@@ -46,7 +46,7 @@ public class MobilePanel extends Table implements Disposable {
         } else if (actor == btnMap) {
 
         } else if (actor == btnMessages) {
-
+          gameScreen.input.setVisible(!gameScreen.input.isVisible());
         } else if (actor == btnQuests) {
 
         } else if (actor == btnEscapeMenu) {
@@ -94,13 +94,13 @@ public class MobilePanel extends Table implements Disposable {
       down = new TextureRegionDrawable(Diablo.assets.get(minipanelbtnDescriptor).getTexture(15));
     }});
     btnEscapeMenu.addListener(clickListener);
-    final float size = 40;
+    final float size = 50;
     add(btnCharacter).size(size);
     add(btnInventory).size(size);
     add(btnSkillTree).size(size);
     //add(btnParty).size(size);
     //add(btnMap).size(size);
-    //add(btnMessages).size(size);
+    add(btnMessages).size(size);
     //add(btnQuests).size(size);
     add(btnEscapeMenu).size(size);
     pack();

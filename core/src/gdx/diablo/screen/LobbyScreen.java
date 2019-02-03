@@ -8,6 +8,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.net.Socket;
+import com.badlogic.gdx.net.SocketHints;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -38,6 +39,7 @@ import java.net.SocketTimeoutException;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.DC6;
+import gdx.diablo.entity3.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.server.Account;
@@ -80,6 +82,9 @@ public class LobbyScreen extends ScreenAdapter {
 
   private Stage stage;
 
+  private Account account;
+  private Player  player;
+
   private TextArea taChatOutput;
   private TextField tfChatInput;
 
@@ -87,7 +92,10 @@ public class LobbyScreen extends ScreenAdapter {
   private PrintWriter out;
   private BufferedReader in;
 
-  public LobbyScreen(Account account) {
+  public LobbyScreen(Account account, Player player) {
+    this.account = account;
+    this.player = player;
+
     Diablo.assets.load(waitingroombkgdDescriptor);
     Diablo.assets.load(blankbckgDescriptor);
     Diablo.assets.load(creategamebckgDescriptor);
@@ -284,16 +292,16 @@ public class LobbyScreen extends ScreenAdapter {
               public void handleHttpResponse(Net.HttpResponse httpResponse) {
                 String response = httpResponse.getResultAsString();
                 try {
-                  Session session = new Json().fromJson(Session.class, response);
+                  final Session session = new Json().fromJson(Session.class, response);
                   Gdx.app.log(TAG, "create-session " + response);
-
-                  Socket socket = null;
-                  try {
-                    socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
-                    Gdx.app.log(TAG, "create-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-                  } finally {
-                    if (socket != null) socket.dispose();
-                  }
+                  Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                      Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
+                      Gdx.app.log(TAG, "create-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
+                      Diablo.client.pushScreen(new LoadingScreen(new GameScreen(player, socket)));
+                    }
+                  });
                 } catch (SerializationException e) {
                   SessionError error = new Json().fromJson(SessionError.class, response);
                   Gdx.app.log(TAG, "create-session " + error.toString());
@@ -404,7 +412,24 @@ public class LobbyScreen extends ScreenAdapter {
           public void changed(ChangeEvent event, Actor actor) {
             list.getSelection().setRequired(true);
             btnJoinGame.setDisabled(list.getSelection().isEmpty());
-            tfGameName.setText(list.getSelected().toString());
+            Session selected = list.getSelected();
+            tfGameName.setText(selected != null ? selected.toString() : "");
+          }
+        });
+        btnJoinGame.addListener(new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            if (btnJoinGame.isDisabled()) return;
+            final Session session = list.getSelected();
+            Gdx.app.log(TAG, "join-session " + session);
+            Gdx.app.postRunnable(new Runnable() {
+              @Override
+              public void run() {
+                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
+                Gdx.app.log(TAG, "join-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
+                Diablo.client.pushScreen(new LoadingScreen(new GameScreen(player, socket)));
+              }
+            });
           }
         });
 
@@ -499,15 +524,20 @@ public class LobbyScreen extends ScreenAdapter {
   }
 
   private void connect() {
-    try {
-      socket = Gdx.net.newClientSocket(Net.Protocol.TCP, "hydra", 6113, null);
-      in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
-      out = new PrintWriter(socket.getOutputStream(), true);
-    } catch (Throwable t) {
-      Gdx.app.error(TAG, t.getMessage());
-      taChatOutput.appendText(t.getMessage());
-      taChatOutput.appendText("\n");
-    }
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          socket = Gdx.net.newClientSocket(Net.Protocol.TCP, "hydra", 6113, new SocketHints());
+          in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
+          out = new PrintWriter(socket.getOutputStream(), true);
+        } catch (Throwable t) {
+          Gdx.app.error(TAG, t.getMessage());
+          taChatOutput.appendText(t.getMessage());
+          taChatOutput.appendText("\n");
+        }
+      }
+    }).start();
   }
 
   @Override

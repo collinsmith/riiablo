@@ -13,19 +13,29 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.Keys;
 import gdx.diablo.entity3.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
+import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.key.MappedKey;
 import gdx.diablo.key.MappedKeyStateAdapter;
 import gdx.diablo.map.Map;
@@ -37,6 +47,8 @@ import gdx.diablo.panel.EscapePanel;
 import gdx.diablo.panel.InventoryPanel;
 import gdx.diablo.panel.MobilePanel;
 import gdx.diablo.panel.StashPanel;
+import gdx.diablo.server.PipedSocket;
+import gdx.diablo.widget.TextArea;
 
 public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
   private static final String TAG = "GameScreen";
@@ -68,11 +80,16 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   OrthographicCamera camera;
   InputProcessor inputProcessorTest;
 
-  //TextArea input;
+  public TextArea input;
+  TextArea output;
 
   //Char character;
   public Player player;
   Timer.Task updateTask;
+
+  Socket socket;
+  PrintWriter out;
+  BufferedReader in;
 
   @Override
   public Array<AssetDescriptor> getDependencies() {
@@ -82,22 +99,37 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     return dependencies;
   }
 
-  //public GameScreen(final Char character) {
-  public GameScreen(final Player player) {
-    this.player = player;
+  public GameScreen(Player player) {
+    this(player, new PipedSocket());
+  }
 
-    /*
+  //public GameScreen(final Char character) {
+  public GameScreen(final Player player, Socket socket) {
+    this.player = player;
+    this.socket = socket;
+
     input = new TextArea("", new TextArea.TextFieldStyle() {{
       this.font = Diablo.fonts.fontformal12;
       this.fontColor = Diablo.colors.white;
-      this.background = new TextureRegionDrawable(Diablo.textures.modal);
+      this.background = new PaletteIndexedColorDrawable(Diablo.colors.modal);
       this.cursor = new TextureRegionDrawable(Diablo.textures.white);
     }});
     input.setSize(Diablo.VIRTUAL_WIDTH * 0.75f, Diablo.fonts.fontformal12.getLineHeight() * 3);
     input.setPosition(Diablo.VIRTUAL_WIDTH_CENTER - input.getWidth() / 2, 100);
     input.setAlignment(Align.topLeft);
     input.setVisible(false);
-    */
+
+    output = new TextArea("", new TextArea.TextFieldStyle() {{
+      this.font = Diablo.fonts.fontformal12;
+      this.fontColor = Diablo.colors.white;
+      this.cursor = new TextureRegionDrawable(Diablo.textures.white);
+    }});
+    output.setDebug(true);
+    output.setSize(Diablo.VIRTUAL_WIDTH * 0.75f, Diablo.fonts.fontformal12.getLineHeight() * 8);
+    output.setPosition(10, Diablo.VIRTUAL_HEIGHT - 10, Align.topLeft);
+    output.setAlignment(Align.topLeft);
+    output.setDisabled(true);
+    output.setVisible(true);
 
     escapePanel = new EscapePanel();
 
@@ -130,14 +162,17 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     stage = new Stage(Diablo.viewport, Diablo.batch);
     if (mobilePanel != null) stage.addActor(mobilePanel);
-    //stage.addActor(input);
+    stage.addActor(input);
+    stage.addActor(output);
     stage.addActor(controlPanel);
     stage.addActor(escapePanel);
     stage.addActor(inventoryPanel);
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
     controlPanel.toFront();
-    //input.toFront();
+    if (mobilePanel != null) mobilePanel.toFront();
+    output.toFront();
+    input.toFront();
     escapePanel.toFront();
 
     if (Gdx.app.getType() == Application.ApplicationType.Android || DEBUG_TOUCHPAD) {
@@ -187,12 +222,13 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           } else {
             escapePanel.setVisible(true);
           }
-        /*} else if (key == Keys.Enter) {
+        } else if (key == Keys.Enter) {
           boolean visible = !input.isVisible();
           if (!visible) {
             String text = input.getText();
             if (!text.isEmpty()) {
               Gdx.app.debug(TAG, text);
+              out.println(text);
               input.setText("");
             }
           }
@@ -200,7 +236,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           input.setVisible(visible);
           if (visible) {
             stage.setKeyboardFocus(input);
-          }*/
+          }
         } else if (key == Keys.Inventory) {
           inventoryPanel.setVisible(!inventoryPanel.isVisible());
         } else if (key == Keys.Character) {
@@ -263,6 +299,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   @Override
   public void render(float delta) {
+    try {
+      for (String str; in.ready() && (str = in.readLine()) != null;) {
+        output.appendText(str);
+        output.appendText("\n");
+      }
+    } catch (IOException e) {
+      Gdx.app.error(TAG, e.getMessage());
+    }
+
     PaletteIndexedBatch b = Diablo.batch;
     b.setPalette(Diablo.palettes.act1);
 
@@ -334,10 +379,21 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         mapRenderer.setPosition(player.origin());
       }
     }, 0, 1 / 25f);
+
+    if (socket != null && socket.isConnected()) {
+      Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
+      in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
+      out = new PrintWriter(socket.getOutputStream(), true);
+    }
   }
 
   @Override
   public void hide() {
+    IOUtils.closeQuietly(in);
+    IOUtils.closeQuietly(out);
+    socket.dispose();
+    Gdx.app.log(TAG, "Disposing socket... " + socket.isConnected());
+
     Keys.Esc.removeStateListener(mappedKeyStateListener);
     Keys.Inventory.removeStateListener(mappedKeyStateListener);
     Keys.Character.removeStateListener(mappedKeyStateListener);

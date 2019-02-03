@@ -20,11 +20,12 @@ import gdx.diablo.codec.DC6;
 import gdx.diablo.entity3.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
+import gdx.diablo.server.Account;
 import gdx.diablo.widget.SelectButton;
 import gdx.diablo.widget.TextButton;
 
-public class SelectCharacterScreen extends ScreenAdapter {
-  private static final String TAG = "SelectCharacterScreen";
+public class SelectCharacterScreen2 extends ScreenAdapter {
+  private static final String TAG = "SelectCharacterScreen2";
 
   final AssetDescriptor<DC6> characterselectscreenEXPDescriptor = new AssetDescriptor<>("data\\global\\ui\\CharSelect\\charselectbckg.dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   TextureRegion characterselectscreenEXP;
@@ -40,7 +41,10 @@ public class SelectCharacterScreen extends ScreenAdapter {
   private SelectButton selected;
   private Array<SelectButton> characters;
 
-  public SelectCharacterScreen() {
+  private Account account;
+
+  public SelectCharacterScreen2(Account account) {
+    this.account = account;
     SelectButton.load();
     Diablo.assets.load(characterselectscreenEXPDescriptor);
     Diablo.assets.load(MediumButtonBlankDescriptor);
@@ -60,10 +64,9 @@ public class SelectCharacterScreen extends ScreenAdapter {
           Diablo.client.popScreen();
         } else if (actor == btnOK) {
           assert selected != null;
-          GameScreen game = new GameScreen(new Player(selected.getD2S()));
-          Diablo.client.clearAndSet(new LoadingScreen(game));
+          Diablo.client.pushScreen(new LobbyScreen(account, new Player(selected.getD2S())));
         } else if (actor == btnCreateNewCharacter) {
-          Diablo.client.pushScreen(new CreateCharacterScreen());
+          //Diablo.client.pushScreen(new CreateCharacterScreen());
         }
       }
     };

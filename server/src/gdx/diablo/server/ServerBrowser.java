@@ -147,8 +147,8 @@ public class ServerBrowser extends ApplicationAdapter {
     session.port = 6114 + sessions.size();
     sessions.put(session.getName(), session);
 
-    String id = String.format("%08x", MathUtils.random(Integer.MAX_VALUE - 1));
-    Server server = new Server(sessionGroup, "Session-" + id, session.port);
+    String id = String.format("%08X", MathUtils.random(1, Integer.MAX_VALUE - 1));
+    DedicatedServer server = DedicatedServer.newDedicatedServer(sessionGroup, "Session-" + id, session.port);
     server.start();
     servers.put(session.getName(), server);
 
