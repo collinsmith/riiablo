@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Timer;
 
 import org.apache.commons.io.IOUtils;
@@ -47,6 +48,12 @@ import gdx.diablo.panel.EscapePanel;
 import gdx.diablo.panel.InventoryPanel;
 import gdx.diablo.panel.MobilePanel;
 import gdx.diablo.panel.StashPanel;
+import gdx.diablo.server.Connect;
+import gdx.diablo.server.Disconnect;
+import gdx.diablo.server.Message;
+import gdx.diablo.server.MoveTo;
+import gdx.diablo.server.Packet;
+import gdx.diablo.server.Packets;
 import gdx.diablo.server.PipedSocket;
 import gdx.diablo.widget.TextArea;
 
@@ -85,6 +92,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   //Char character;
   public Player player;
+  ObjectMap<String, Player> otherPlayers = new ObjectMap<>();
   Timer.Task updateTask;
 
   Socket socket;
@@ -228,7 +236,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             String text = input.getText();
             if (!text.isEmpty()) {
               Gdx.app.debug(TAG, text);
-              out.println(text);
+              Message message = new Message(player.stats.getName(), text);
+              out.println(Packets.build(message));
               input.setText("");
             }
           }
@@ -301,8 +310,33 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   public void render(float delta) {
     try {
       for (String str; in.ready() && (str = in.readLine()) != null;) {
-        output.appendText(str);
-        output.appendText("\n");
+        Packet packet = Packets.parse(str);
+        switch (packet.type) {
+          case Packets.MESSAGE:
+            Message message = packet.readValue(Message.class);
+            output.appendText(message.toString());
+            output.appendText("\n");
+            break;
+          case Packets.CONNECT:
+            Connect connect = packet.readValue(Connect.class);
+            output.appendText(Diablo.string.format(3641, connect.name));
+            output.appendText("\n");
+            Player q = player.clone();
+            q.setOrigin(player.origin().cpy());
+            otherPlayers.put(connect.name, q);
+            break;
+          case Packets.DISCONNECT:
+            Disconnect disconnect = packet.readValue(Disconnect.class);
+            output.appendText(Diablo.string.format(3642, disconnect.name));
+            output.appendText("\n");
+            otherPlayers.remove(disconnect.name);
+            break;
+          case Packets.MOVETO:
+            MoveTo moveTo = packet.readValue(MoveTo.class);
+            Player p = otherPlayers.get(moveTo.name);
+            if (p != null) p.origin().set(moveTo.x, moveTo.y);
+            break;
+        }
       }
     } catch (IOException e) {
       Gdx.app.error(TAG, e.getMessage());
@@ -324,6 +358,11 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     //int spy = - (player.getOrigin().x * Tile.SUBTILE_HEIGHT50) - (player.getOrigin().y * Tile.SUBTILE_HEIGHT50);
     //player.draw(b, spx, spy);
     player.draw(b);
+
+    for (Player p : otherPlayers.values()) {
+      p.draw(b);
+    }
+
     b.end();
     b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
 
@@ -371,20 +410,22 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.input.addProcessor(stage);
     Diablo.input.addProcessor(inputProcessorTest);
 
+    if (socket != null && socket.isConnected()) {
+      Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
+      in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
+      out = new PrintWriter(socket.getOutputStream(), true);
+    }
+
     updateTask = Timer.schedule(new Timer.Task() {
       @Override
       public void run() {
         if (UIUtils.shift()) return;
         player.move();
         mapRenderer.setPosition(player.origin());
+        String moveTo = Packets.build(new MoveTo(player.stats.getName(), player.origin()));
+        out.println(moveTo);
       }
     }, 0, 1 / 25f);
-
-    if (socket != null && socket.isConnected()) {
-      Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
-      in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
-      out = new PrintWriter(socket.getOutputStream(), true);
-    }
   }
 
   @Override

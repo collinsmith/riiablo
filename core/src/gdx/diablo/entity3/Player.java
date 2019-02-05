@@ -22,7 +22,16 @@ import gdx.diablo.codec.excel.Weapons;
 import gdx.diablo.item.BodyLoc;
 import gdx.diablo.item.Item;
 
-public class Player extends Entity {
+public class Player extends Entity implements Cloneable {
+  @Override
+  public Player clone() {
+    try {
+      return (Player) super.clone();
+    } catch (CloneNotSupportedException t) {
+      throw new GdxRuntimeException(t);
+    }
+  }
+
   private static final String TAG = "Player";
   private static final boolean DEBUG        = true;
   private static final boolean DEBUG_WCLASS = DEBUG && !true;
@@ -61,7 +70,7 @@ public class Player extends Entity {
 
 
   public Player(String name, CharClass clazz) {
-    super(null);
+    super(Diablo.files.PlrType.get(clazz.id).Token, EntType.CHARS);
     throw new UnsupportedOperationException();
   }
 

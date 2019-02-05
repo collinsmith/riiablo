@@ -318,6 +318,11 @@ public class Entity {
     return origin;
   }
 
+  // TODO: Delete
+  public void setOrigin(GridPoint2 origin) {
+    this.origin = origin;
+  }
+
   public void move() {
     if (!mode.equalsIgnoreCase("WL")
      && !mode.equalsIgnoreCase("RN")

@@ -7,6 +7,7 @@ import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
 
 import org.apache.commons.io.IOUtils;
 
@@ -51,7 +52,7 @@ public class Server implements Disposable, Runnable {
         while (!kill.get()) {
           try {
             Socket socket = server.accept(null);
-            new Client(socket).start();
+            new Client(socket, "Tirant").start();
             Gdx.app.log(name, "connection from " + socket.getRemoteAddress());
           } catch (Throwable t) {
             Gdx.app.log(name, t.getMessage(), t);
@@ -122,10 +123,12 @@ public class Server implements Disposable, Runnable {
     Socket socket;
     BufferedReader in;
     PrintWriter out;
+    String name;
 
-    public Client(Socket socket) {
+    public Client(Socket socket, String name) {
       super(clientThreads, "Client-" + String.format("%08X", MathUtils.random(1, Integer.MAX_VALUE - 1)));
       this.socket = socket;
+      this.name = name;
     }
 
     @Override
@@ -134,33 +137,55 @@ public class Server implements Disposable, Runnable {
         in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
 
+        String connect = Packets.build(new Connect(name));
         for (Client client : clients) {
-          client.out.println("CONNECT " + socket.getRemoteAddress());
+          client.out.println(connect);
+          //client.out.println("CONNECT " + socket.getRemoteAddress());
         }
 
         clients.add(this);
 
-        for (String input; (input = in.readLine()) != null; ) {
+        for (String input; (input = in.readLine()) != null;) {
+          //Message message = Packets.parse(Message.class, input);
+
           String message = "MESSAGE " + socket.getRemoteAddress() + ": " + input;
           Gdx.app.log(getName(), message);
-          for (Client client : clients) {
-            client.out.println(message);
-          }
-        }
 
+          Packet packet = Packets.parse(input);
+          switch (packet.type) {
+            case Packets.MESSAGE:
+              for (Client client : clients) {
+                //client.out.println(message);
+                client.out.println(input);
+              }
+              break;
+            case Packets.MOVETO:
+              for (Client client : clients) {
+                if (client == this) continue;
+                client.out.println(input);
+              }
+              break;
+          }
+
+        }
       } catch (Throwable t) {
         Gdx.app.log(getName(), "ERROR " + socket.getRemoteAddress() + ": " + t.getMessage());
       } finally {
         clients.remove(this);
         String message = "DISCONNECT " + socket.getRemoteAddress();
         Gdx.app.log(getName(), message);
+        String disconnect = Packets.build(new Disconnect(name));
         for (Client client : clients) {
-          client.out.println(message);
+          client.out.println(disconnect);
         }
         //IOUtils.closeQuietly(in);
         IOUtils.closeQuietly(out);
         if (socket != null) socket.dispose();
       }
+    }
+
+    private void tmp() {
+      JsonReader reader = new JsonReader();
     }
   }
 }
