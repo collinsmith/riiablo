@@ -21,7 +21,7 @@ allprojects {
         gdxVersion = '1.9.+'
         roboVMVersion = '2.3.3'
         box2DLightsVersion = '1.4'
-        ashleyVersion = '1.7.0'
+        ashleyVersion = '1.7.+'
         aiVersion = '1.8.0'
     }
 
@@ -163,6 +163,7 @@ project(":core") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
     }
 
     dependencies {

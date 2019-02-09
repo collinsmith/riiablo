@@ -30,6 +30,27 @@ public class Fonts {
     fontexocet10 = load(assets, "fontexocet10", BlendMode.TINT_BLACKS);
     fontridiculous = load(assets, "fontridiculous", BlendMode.TINT_BLACKS);
     ReallyTheLastSucker = load(assets, "ReallyTheLastSucker", BlendMode.ID);
+
+    BitmapFont.BitmapFontData data;
+    data = font16.getData();
+    data.lineHeight = data.xHeight = data.capHeight = 14;
+    data.ascent = 17;
+    data.down = -16;
+
+    data = fontformal10.getData();
+    data.lineHeight = data.xHeight = data.capHeight = 14;
+    data.ascent = 14;
+    data.down = -14;
+
+    data = fontformal12.getData();
+    data.lineHeight = data.xHeight = data.capHeight = 16;
+    data.ascent = 42;
+    data.down = -20;
+
+    data = ReallyTheLastSucker.getData();
+    data.lineHeight = data.xHeight = data.capHeight = 8;
+    data.ascent = 11;
+    data.down = -8;
   }
 
   private BitmapFont loadEx(AssetManager assets, String fontName) {
