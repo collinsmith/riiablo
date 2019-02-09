@@ -22,7 +22,7 @@ import gdx.diablo.codec.DC6;
 import gdx.diablo.codec.excel.BodyLocs;
 import gdx.diablo.codec.excel.Inventory;
 import gdx.diablo.codec.util.BBox;
-import gdx.diablo.entity3.Player;
+import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.item.BodyLoc;
 import gdx.diablo.item.Item;
@@ -309,7 +309,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
           Item cursor = Diablo.cursor.getItem();
           if (cursor != null) {
             if (!ArrayUtils.contains(cursor.type.BodyLoc, bodyPart)) {
-              Diablo.audio.play("sorceress_impossible_1", false);
+              Diablo.audio.play(gameScreen.player.stats.getCharClass().name().toLowerCase() + "_impossible_1", false);
               return;
             }
 

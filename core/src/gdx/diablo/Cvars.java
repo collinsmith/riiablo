@@ -61,6 +61,12 @@ public class Cvars {
         .validator(Validator.ACCEPT_NON_NULL)
         .build();
 
+    Cvar<String> Realm = Cvar.builder(String.class)
+        .alias("Client.Realm")
+        .description("Realm to connect to.")
+        .defaultValue("hydra")
+        .build();
+
     interface Console {
       Cvar<String> Font = Cvar.builder(String.class)
           .alias("Client.Console.Font")

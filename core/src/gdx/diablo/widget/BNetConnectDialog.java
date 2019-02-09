@@ -101,7 +101,7 @@ public class BNetConnectDialog extends Dialog {
     Net.HttpRequest request = new HttpRequestBuilder()
         .newRequest()
         .method(Net.HttpMethods.GET)
-        .url("http://hydra:6112/find-server")
+        .url("http://" + Diablo.client.getRealm() + ":6112/find-server")
         .build();
     Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
       @Override

@@ -3,14 +3,10 @@ package gdx.diablo.entity;
 import com.google.common.base.Preconditions;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -19,152 +15,303 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import gdx.diablo.CharClass;
 import gdx.diablo.Diablo;
-import gdx.diablo.codec.Animation;
-import gdx.diablo.codec.COF;
+import gdx.diablo.ItemCodes;
+import gdx.diablo.codec.COFD2;
 import gdx.diablo.codec.D2S;
-import gdx.diablo.codec.DCC;
 import gdx.diablo.codec.excel.Armor;
-import gdx.diablo.codec.excel.ItemEntry;
-import gdx.diablo.codec.excel.PlrMode;
-import gdx.diablo.codec.excel.PlrType;
-import gdx.diablo.codec.excel.WeaponClass;
 import gdx.diablo.codec.excel.Weapons;
-import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.item.BodyLoc;
 import gdx.diablo.item.Item;
+import gdx.diablo.server.Connect;
 
-public class Player {
+public class Player extends Entity {
   private static final String TAG = "Player";
-  private static final boolean DEBUG           = true;
-  private static final boolean DEBUG_COF       = DEBUG && !true;
-  private static final boolean DEBUG_EQUIPPED  = DEBUG && true;
-  private static final boolean DEBUG_INVENTORY = DEBUG && true;
-
-  private static final String CHARS = "data\\global\\chars\\";
+  private static final boolean DEBUG       = true;
+  private static final boolean DEBUG_STATE = DEBUG && true;
 
   public static final int MAX_NAME_LENGTH = 15;
 
-  D2S        d2s;
-  String     name;
-  GridPoint2 origin;
-  float      angle;
+  public enum Slot {
+    HEAD, NECK, TORS, RARM, LARM, RRIN, LRIN, BELT, FEET, GLOV;
 
-  int plrModeId;
-  PlrMode.Entry plrMode;
+    public BodyLoc toBodyLoc(boolean alternate) {
+      return toBodyLoc(this, alternate);
+    }
 
-  int plrTypeId;
-  PlrType.Entry plrType;
+    public static BodyLoc toBodyLoc(Slot slot, boolean alternate) {
+      switch (slot) {
+        case HEAD: return BodyLoc.HEAD;
+        case NECK: return BodyLoc.NECK;
+        case TORS: return BodyLoc.TORS;
+        case RARM: return alternate ? BodyLoc.RARM2 : BodyLoc.RARM;
+        case LARM: return alternate ? BodyLoc.LARM2 : BodyLoc.LARM;
+        case RRIN: return BodyLoc.RRIN;
+        case LRIN: return BodyLoc.LRIN;
+        case BELT: return BodyLoc.BELT;
+        case FEET: return BodyLoc.FEET;
+        case GLOV: return BodyLoc.GLOV;
+        default:
+          throw new GdxRuntimeException("Invalid slot: " + slot);
+      }
+    }
+  }
 
-  //int weaponClassId;
-  WeaponClass.Entry weaponClass;
-
-  boolean dirty;
-  String cofId;
-  Animation anim;
-
-  EnumMap<BodyLoc, Item> equipped;
-  Array<Item> inventory;
-  boolean usingAlternate;
+  boolean alternate;
+  boolean ignoreUpdate;
+  byte[] transforms;
+  EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
+  Array<Item> inventory = new Array<>();
+  public Stats stats;
   final Set<SlotListener> SLOT_LISTENERS = new CopyOnWriteArraySet<>();
 
-  public Player(D2S d2s) {
-    this.d2s = d2s;
-    name      = d2s.name;
-    plrTypeId = d2s.charClass;
-    plrType   = Diablo.files.PlrType.get(plrTypeId);
-    origin    = new GridPoint2();
-    init();
-    //setWeaponClass("hth");
+  public Player(String name, CharClass clazz) {
+    this(name, clazz.id);
+  }
 
-    equipped = d2s.items.equipped;
+  public Player(D2S d2s) {
+    super(Diablo.files.PlrType.get(d2s.charClass).Token, EntType.PLAYER);
+    setMode("TN");
+
+    stats = new D2SStats(d2s);
+    loadEquipped(d2s.items.equipped);
+    loadInventory(d2s.items.inventory);
+  }
+
+  public Player(String name, int classId) {
+    super(Diablo.files.PlrType.get(classId).Token, EntType.PLAYER);
+    setMode("TN");
+
+    stats = new StatsImpl(name, classId);
+  }
+
+  public Player(Connect connect) {
+    this(connect.name, connect.classId);
+
+    ignoreUpdate = true;
+    transforms = connect.colors;
+    setWeaponClass("1HS");
+    for (int i = 0; i < 16; i++) {
+      String code = ItemCodes.getCode(connect.composites[i] & 0xFF);
+      if (code == null) code = ItemCodes.getCode(ItemCodes.LIT);
+      setArmType(Component.valueOf(i), code);
+    }
+  }
+
+  private void loadEquipped(EnumMap<BodyLoc, Item> items) {
+    equipped.putAll(items);
     for (Map.Entry<BodyLoc, Item> entry : equipped.entrySet()) {
       entry.getValue().load();
-      if (DEBUG_EQUIPPED) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
+      //if (DEBUG_EQUIPPED) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
     }
+  }
 
-    inventory = d2s.items.inventory;
-    for (Item item : inventory) {
+  private void loadInventory(Array<Item> items) {
+    inventory.addAll(items);
+    for (Item item : items) {
       item.load();
-      if (DEBUG_INVENTORY) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
+      //if (DEBUG_INVENTORY) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
     }
   }
 
-  public Player(String name, CharClass clazz) {
-    this.name = name;
-    plrTypeId = clazz.id;
-    plrType   = Diablo.files.PlrType.get(plrTypeId);
-    origin    = new GridPoint2();
-    init();
-    //setWeaponClass("hth");
-    dirty = true;
+  public Item getSlot(Slot slot) {
+    BodyLoc loc = slot.toBodyLoc(alternate);
+    return getSlot(loc);
   }
 
-  private void init() {
-    setMode("TN");
-    setAngle(MathUtils.PI * 3 / 2);
+  public Item getSlot(BodyLoc loc) {
+    return equipped.get(loc);
   }
 
-  public int getClassId() {
-    return d2s.charClass;
+  public Item setSlot(Slot slot, Item item) {
+    Preconditions.checkState(item == null || getSlot(slot) == null, "Slot must be empty first!");
+    BodyLoc loc = slot.toBodyLoc(alternate);
+    return setSlot(loc, item);
   }
 
-  public CharClass getCharClass() {
-    return CharClass.get(d2s.charClass);
-  }
+  public Item setSlot(BodyLoc loc, Item item) {
+    Item oldItem = equipped.put(loc, item);
 
-  public String getName() {
-    return d2s.name;
-  }
+    //invalidate();
+    //setArmType(slot, item.base.alternateGfx);
+    int components = loc.components();
+    if (components > 0) dirty |= components;
+    updateWeaponClass();
 
-  public int getLevel() {
-    return d2s.stats.level;
-  }
-
-  public long getExperience() {
-    return d2s.stats.xp;
-  }
-
-  public int getStrength() {
-    return d2s.stats.strength;
-  }
-
-  public int getDexterity() {
-    return d2s.stats.dexterity;
-  }
-
-  public int getVitality() {
-    return d2s.stats.vitality;
-  }
-
-  public int getEnergy() {
-    return d2s.stats.energy;
-  }
-
-  public int getFireResistance() {
-    return 0;
-  }
-
-  public int getColdResistance() {
-    return 0;
-  }
-
-  public int getLightningResistance() {
-    return 0;
-  }
-
-  public int getPoisonResistance() {
-    return 0;
-  }
-
-  public Item getBodyLoc(BodyLoc bodyLoc) {
-    return equipped.get(bodyLoc);
-  }
-
-  public Item setBodyLoc(BodyLoc bodyLoc, Item item) {
-    Preconditions.checkState(item == null || getBodyLoc(bodyLoc) == null, "Slot must be empty first!");
-    Item oldItem = equipped.put(bodyLoc, item);
-    for (SlotListener l : SLOT_LISTENERS) l.onChanged(this, bodyLoc, oldItem, item);
+    notifySlotChanged(loc, oldItem, item);
     return oldItem;
+  }
+
+  @Override
+  protected byte getTransform(Component component) {
+    if (ignoreUpdate) {
+      return transforms[component.ordinal()];
+    }
+
+    switch (component) {
+      case HD: return packTransform(Slot.HEAD);
+      case TR:
+      case RA:
+      case LA:
+      case S1:
+      case S2: return packTransform(Slot.TORS);
+      // TODO: Shield/weapons?
+      default: return super.getTransform(component);
+    }
+  }
+
+  private byte packTransform(Slot slot) {
+    Item item = getSlot(slot);
+    if (item == null) return super.getTransform(null);
+    return (byte) ((item.base.Transform << 5) | (item.charColorIndex & 0x1F));
+  }
+
+  public Array<Item> getInventory() {
+    return inventory;
+  }
+
+  public boolean isAlternate() {
+    return alternate;
+  }
+
+  public void setAlternate(boolean b) {
+    if (alternate != b) {
+      alternate = b;
+      updateWeaponClass();
+      Item LH = getSlot(BodyLoc.LARM);
+      Item RH = getSlot(BodyLoc.RARM);
+      Item LH2 = getSlot(BodyLoc.LARM2);
+      Item RH2 = getSlot(BodyLoc.RARM2);
+      if (b) {
+        notifyAlternate(LH2, RH2);
+      } else {
+        notifyAlternate(LH, RH);
+      }
+    }
+  }
+
+  @Override
+  protected COFD2 getCOFs() {
+    return Diablo.cofs.chars_cof;
+  }
+
+  public void update() {
+    if (ignoreUpdate) {
+      super.update();
+      return;
+    }
+
+    updateWeaponClass();
+
+    Item head = getSlot(Slot.HEAD);
+    setArmType(Component.HD, head != null ? head.base.alternateGfx : "LIT");
+
+    Item body = getSlot(Slot.TORS);
+    if (body != null) {
+      Armor.Entry armor = body.getBase();
+      setArmType(Component.TR, Diablo.files.ArmType.get(armor.Torso).Token);
+      setArmType(Component.LG, Diablo.files.ArmType.get(armor.Legs ).Token);
+      setArmType(Component.RA, Diablo.files.ArmType.get(armor.rArm ).Token);
+      setArmType(Component.LA, Diablo.files.ArmType.get(armor.lArm ).Token);
+      setArmType(Component.S1, Diablo.files.ArmType.get(armor.lSPad).Token);
+      setArmType(Component.S2, Diablo.files.ArmType.get(armor.rSPad).Token);
+    } else {
+      setArmType(Component.TR, DEFAULT_LAYER);
+      setArmType(Component.LG, DEFAULT_LAYER);
+      setArmType(Component.RA, DEFAULT_LAYER);
+      setArmType(Component.LA, DEFAULT_LAYER);
+      setArmType(Component.S1, DEFAULT_LAYER);
+      setArmType(Component.S2, DEFAULT_LAYER);
+    }
+
+    super.update();
+  }
+
+  private void updateWeaponClass() {
+    Item RH = null, LH = null, SH = null;
+    Item rArm = getSlot(Slot.RARM);
+    if (rArm != null) {
+      if (rArm.type.is("weap")) {
+        RH = rArm;
+      } else if (rArm.type.is("shld")) {
+        SH = rArm;
+      }
+    }
+
+    Item lArm = getSlot(Slot.LARM);
+    if (lArm != null) {
+      if (lArm.type.is("weap")) {
+        LH = lArm;
+      } else if (lArm.type.is("shld")) {
+        SH = lArm;
+      }
+    }
+
+    if (DEBUG_STATE) {
+      Gdx.app.debug(TAG, "RH = " + RH);
+      Gdx.app.debug(TAG, "LH = " + LH);
+      Gdx.app.debug(TAG, "SH = " + SH);
+    }
+
+    if (LH != null && RH != null) {
+      Weapons.Entry LHEntry = LH.getBase();
+      Weapons.Entry RHEntry = RH.getBase();
+      if (       LHEntry.wclass.equals("1hs") && RHEntry.wclass.equals("1hs")) {
+        setWeaponClass("1SS"); // Left Swing Right Swing
+      } else if (LHEntry.wclass.equals("1hs") && RHEntry.wclass.equals("1ht")) {
+        setWeaponClass("1ST"); // Left Swing Right Thrust
+      } else if (LHEntry.wclass.equals("1ht") && RHEntry.wclass.equals("1hs")) {
+        setWeaponClass("1JS"); // Left Jab Right Swing
+      } else if (LHEntry.wclass.equals("1ht") && RHEntry.wclass.equals("1ht")) {
+        setWeaponClass("1JT"); // Left Jab Right Thrust
+      } else if (LH.type.is("miss") || RH.type.is("miss")) {
+        setWeaponClass(LH.type.is("miss") ? LHEntry.wclass : RHEntry.wclass);
+      } else if (LH.type.is("h2h")  || RH.type.is("h2h")) {
+        setWeaponClass("HT2"); // Two Hand-to-Hand
+      } else {
+        setWeaponClass("HTH");
+        Gdx.app.error(TAG, String.format(
+            "Unknown weapon combination: LH=%s RH=%s", LHEntry.wclass, RHEntry.wclass));
+      }
+    } else if (LH != null || RH != null) {
+      RH = ObjectUtils.firstNonNull(RH, LH);
+      LH = null;
+      if (RH.type.is("bow")) {
+        LH = RH;
+        RH = null;
+        Weapons.Entry LHEntry = LH.getBase();
+        setWeaponClass(LHEntry.wclass);
+      } else if (RH.type.is("weap")) { // make sure weap and not e.g. misl, might not be required
+        Weapons.Entry RHEntry = RH.getBase();
+        setWeaponClass(RHEntry.wclass);
+      } else {
+        setWeaponClass("HTH");
+      }
+    } else {
+      setWeaponClass("HTH");
+    }
+
+    setArmType(Component.RH, RH != null ? RH.base.alternateGfx : "");
+    setArmType(Component.LH, LH != null ? LH.base.alternateGfx : "");
+    setArmType(Component.SH, SH != null ? SH.base.alternateGfx : "");
+  }
+
+  @Override
+  public boolean move() {
+    if (!mode.equalsIgnoreCase("WL")
+     && !mode.equalsIgnoreCase("RN")
+     && !mode.equalsIgnoreCase("TW")) {
+      return false;
+    }
+
+    return super.move();
+  }
+
+  private void notifySlotChanged(BodyLoc bodyLoc, Item oldItem, Item item) {
+    for (SlotListener l : SLOT_LISTENERS) l.onChanged(this, bodyLoc, oldItem, item);
+  }
+
+  private void notifyAlternate(Item LH, Item RH) {
+    for (SlotListener l : SLOT_LISTENERS) l.onAlternate(this, LH, RH);
   }
 
   public boolean addSlotListener(SlotListener l) {
@@ -186,218 +333,165 @@ public class Player {
     return !empty;
   }
 
-  public Item getComponentSlot(int component) {
-    switch (component) {
-      case COF.Component.HD: return getBodyLoc(BodyLoc.HEAD);
-      case COF.Component.TR:
-      case COF.Component.RA:
-      case COF.Component.LA:
-      case COF.Component.S1:
-      case COF.Component.S2: return getBodyLoc(BodyLoc.TORS);
-      // TODO: Shield/weapons?
-      default:               return null;
-    }
-  }
-
-  public Array<Item> getInventory() {
-    return inventory;
-  }
-
-  public boolean isAlternate() {
-    return usingAlternate;
-  }
-
-  public void setAlternate(boolean b) {
-    if (usingAlternate != b) {
-      usingAlternate = b;
-    }
-  }
-
-  public static Player obtain(D2S d2s) {
-    return new Player(d2s);
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("name", name)
-        .append("origin", origin)
-        .append("plrMode", plrMode)
-        .append("plrType", plrType)
-        .append("weaponClass", weaponClass)
-        .build();
-  }
-
-  public void setMode(String code) {
-    setMode(Diablo.files.PlrMode.index(code));
-  }
-
-  public void setMode(int plrModeId) {
-    if (this.plrModeId != plrModeId || plrMode == null) {
-      this.plrModeId = plrModeId;
-      plrMode = Diablo.files.PlrMode.get(plrModeId);
-      dirty = true;
-    }
-  }
-
-  /*
-  public void setWeaponClass(String code) {
-    setWeaponClass(Diablo.files.WeaponClass.index(code));
-  }
-
-  public void setWeaponClass(int weaponClassId) {
-    if (this.weaponClassId != weaponClassId || weaponClass == null) {
-      this.weaponClassId = weaponClassId;
-      weaponClass = Diablo.files.WeaponClass.get(weaponClassId);
-      dirty = true;
-    }
-  }
-  */
-
-  public void setAngle(float rad) {
-    if (this.angle != rad) {
-      this.angle = rad;
-      if (anim != null) anim.setDirection(getDirection());
-    }
-  }
-
-  public int getDirection() {
-    return Direction.radiansToDirection(angle, 16);
-  }
-
-  public GridPoint2 getOrigin() {
-    return origin;
-  }
-
-  public void update() {
-    if (!dirty) {
-      return;
-    }
-
-    dirty = false;
-
-    String[] components = new String[COF.Component.NUM_COMPONENTS];
-    Item rHand, lHand;
-    if (!usingAlternate) {
-      rHand = getBodyLoc(BodyLoc.RARM);
-      lHand = getBodyLoc(BodyLoc.LARM);
-    } else {
-      rHand = getBodyLoc(BodyLoc.RARM2);
-      lHand = getBodyLoc(BodyLoc.LARM2);
-    }
-
-    // TODO: custom code for barbarian _1or2handed
-    if (rHand != null) {
-      ItemEntry entry = rHand.base;
-      components[entry.component] = entry.alternateGfx;
-      if (entry instanceof Weapons.Entry) {
-        weaponClass = Diablo.files.WeaponClass.get(((Weapons.Entry) entry).wclass);
-      }
-    }
-    if (lHand != null) {
-      ItemEntry entry = lHand.base;
-      components[entry.component] = entry.alternateGfx;
-      if (entry instanceof Weapons.Entry) {
-        weaponClass = Diablo.files.WeaponClass.get(((Weapons.Entry) entry).wclass);
-      }
-    }
-    if (weaponClass == null) {
-      weaponClass = Diablo.files.WeaponClass.get("hth");
-    }
-
-    Item head = getBodyLoc(BodyLoc.HEAD);
-    components[COF.Component.HD] = head != null ? head.base.alternateGfx : null;
-
-    Item body = getBodyLoc(BodyLoc.TORS);
-    if (body != null) {
-      Armor.Entry armor = body.getBase();
-      components[COF.Component.TR] = Diablo.files.ArmType.get(armor.Torso).Token;
-      components[COF.Component.LG] = Diablo.files.ArmType.get(armor.Legs).Token;
-      components[COF.Component.RA] = Diablo.files.ArmType.get(armor.rArm).Token;
-      components[COF.Component.LA] = Diablo.files.ArmType.get(armor.lArm).Token;
-      components[COF.Component.S1] = Diablo.files.ArmType.get(armor.lSPad).Token;
-      components[COF.Component.S2] = Diablo.files.ArmType.get(armor.rSPad).Token;
-    } else {
-      components[COF.Component.TR] =
-      components[COF.Component.LG] =
-      components[COF.Component.RA] =
-      components[COF.Component.LA] =
-      components[COF.Component.S1] =
-      components[COF.Component.S2] = "lit";
-    }
-
-    String cofId = plrType.Token + plrMode.Token + weaponClass.Code;
-    if (DEBUG_COF) Gdx.app.debug(TAG, "COF: " + this.cofId + " -> " + cofId);
-    COF cof = Diablo.cofs.chars_cof.lookup(cofId);
-    this.cofId = cofId;
-
-    // FIXME: dispose/unload old animation layer
-    //if (animation != null) animation.dispose();
-
-    Animation oldAnim = anim;
-    anim = Animation.newAnimation(cof);
-    // TODO: This might be a problem
-    anim.setDirection(oldAnim != null ? oldAnim.getDirection() : getDirection());
-
-    for (int i = 0; i < cof.getNumLayers(); i++) {
-      COF.Layer layer = cof.getLayer(i);
-      String component  = Diablo.files.Composit.get(layer.component).Token;
-      String armorClass = components[layer.component];
-      if (armorClass == null) continue;
-
-      String weaponClass = layer.weaponClass;
-      String path = CHARS + plrType.Token + "\\" + component + "\\" + plrType.Token + component + armorClass + plrMode.Token + weaponClass + ".dcc";
-
-      AssetDescriptor<DCC> descriptor = new AssetDescriptor<>(path, DCC.class);
-      Diablo.assets.load(descriptor);
-      Diablo.assets.finishLoadingAsset(descriptor);
-      DCC dcc = Diablo.assets.get(descriptor);
-      anim.setLayer(layer.component, dcc);
-
-      Item item = getComponentSlot(layer.component);
-      if (item != null) {
-        anim.getLayer(layer.component).setTransform(item.charColormap, item.charColorIndex);
-        /*
-        int trans = item.charTransformation;
-        if (trans != 0xFFFFFFFF) {
-          anim.getLayer(layer.component).setTransform(trans >>> 8);
-          anim.getLayer(layer.component).setTransformColor(trans & 0xFF);
-        }
-        */
-      }
-    }
-  }
-
-  public void move() {
-    switch (plrModeId) {
-      case 2: case 3: case 6:
-        break;
-      default:
-        return;
-    }
-
-    int x = Direction.getOffX(angle);
-    int y = Direction.getOffY(angle);
-    origin.add(x, y);
-  }
-
-  public void draw(PaletteIndexedBatch batch, int x, int y) {
-    update();
-    anim.act();
-    anim.draw(batch, x, y);
-  }
-
-  public void drawDebug(ShapeRenderer shapes, int x, int y) {
-    final float R = 32;
-    shapes.setColor(Color.RED);
-    shapes.line(x, y, x + MathUtils.cos(angle) * R, y + MathUtils.sin(angle) * R);
-
-    float rounded = Direction.radiansToDirection16Radians(angle);
-    shapes.setColor(Color.GREEN);
-    shapes.line(x, y, x + MathUtils.cos(rounded) * R * 0.5f, y + MathUtils.sin(rounded) * R * 0.5f);
-  }
-
   public interface SlotListener {
     void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item);
+    void onAlternate(Player player, Item LH, Item RH);
+  }
+
+  public static class SlotAdapter implements SlotListener {
+    @Override public void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item) {}
+    @Override public void onAlternate(Player player, Item LH, Item RH) {}
+  }
+
+  public interface Stats {
+    int getClassId();
+    CharClass getCharClass();
+    String getName();
+    int getLevel();
+    long getExperience();
+    int getStrength();
+    int getDexterity();
+    int getVitality();
+    int getEnergy();
+    int getFireResistance();
+    int getColdResistance();
+    int getLightningResistance();
+    int getPoisonResistance();
+  }
+
+  public class StatsImpl implements Stats {
+    final String name;
+    final int    classId;
+    StatsImpl(String name, int classId) {
+      this.name = name;
+      this.classId = classId;
+    }
+
+    @Override
+    public int getClassId() {
+      return classId;
+    }
+
+    @Override
+    public CharClass getCharClass() {
+      return CharClass.get(getClassId());
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public int getLevel() {
+      return 0;
+    }
+
+    @Override
+    public long getExperience() {
+      return 0;
+    }
+
+    @Override
+    public int getStrength() {
+      return 0;
+    }
+
+    @Override
+    public int getDexterity() {
+      return 0;
+    }
+
+    @Override
+    public int getVitality() {
+      return 0;
+    }
+
+    @Override
+    public int getEnergy() {
+      return 0;
+    }
+
+    @Override
+    public int getFireResistance() {
+      return 0;
+    }
+
+    @Override
+    public int getColdResistance() {
+      return 0;
+    }
+
+    @Override
+    public int getLightningResistance() {
+      return 0;
+    }
+
+    @Override
+    public int getPoisonResistance() {
+      return 0;
+    }
+  }
+
+  public class D2SStats implements Stats {
+    public final D2S d2s;
+    D2SStats(D2S d2s) {
+      this.d2s = d2s;
+    }
+
+    @Override
+    public int getClassId() {
+      return d2s.charClass;
+    }
+
+    @Override
+    public CharClass getCharClass() {
+      return CharClass.get(getClassId());
+    }
+
+    @Override
+    public String getName() {
+      return d2s.name;
+    }
+
+    public int getLevel() {
+      return d2s.stats.level;
+    }
+
+    public long getExperience() {
+      return d2s.stats.xp;
+    }
+
+    public int getStrength() {
+      return d2s.stats.strength;
+    }
+
+    public int getDexterity() {
+      return d2s.stats.dexterity;
+    }
+
+    public int getVitality() {
+      return d2s.stats.vitality;
+    }
+
+    public int getEnergy() {
+      return d2s.stats.energy;
+    }
+
+    public int getFireResistance() {
+      return 0;
+    }
+
+    public int getColdResistance() {
+      return 0;
+    }
+
+    public int getLightningResistance() {
+      return 0;
+    }
+
+    public int getPoisonResistance() {
+      return 0;
+    }
   }
 }

@@ -363,6 +363,7 @@ public class Map implements Disposable {
   public GridPoint2 find(int id) {
     GridPoint2 origin = zones.first().presets[0][0].ds1.find(id);
     if (origin == null) return null;
+    origin = origin.cpy();
     origin.x *= DT1.Tile.SUBTILE_SIZE;
     origin.y *= DT1.Tile.SUBTILE_SIZE;
     return origin.add(DT1.Tile.SUBTILE_CENTER);

@@ -13,9 +13,11 @@ import com.badlogic.gdx.utils.Json;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -31,6 +33,9 @@ public class ServerBrowser extends ApplicationAdapter {
     new HeadlessApplication(new ServerBrowser(), config);
   }
 
+  private static final boolean EXT_HOST = true;
+  private String host;
+
   private final Json json = new Json();
   private Map<String, Session> sessions = new ConcurrentHashMap<>();
 
@@ -43,15 +48,39 @@ public class ServerBrowser extends ApplicationAdapter {
 
   ServerBrowser() {}
 
+  private static String getIp() {
+    if (!EXT_HOST) {
+      try {
+        InetAddress address = InetAddress.getLocalHost();
+        return address.getHostAddress();
+      } catch (UnknownHostException e) {
+        Gdx.app.error(TAG, e.getMessage(), e);
+        return "hydra";
+      }
+    }
+
+    BufferedReader in = null;
+    try {
+      in = new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream()));
+      return in.readLine();
+    } catch (IOException e) {
+      Gdx.app.error(TAG, e.getMessage(), e);
+      return "hydra";
+    } finally {
+      IOUtils.closeQuietly(in);
+    }
+  }
+
   @Override
   public void create() {
     final Calendar calendar = Calendar.getInstance();
     DateFormat format = DateFormat.getDateTimeInstance();
     Gdx.app.log(TAG, format.format(calendar.getTime()));
 
+    host = getIp();
     try {
       InetAddress address = InetAddress.getLocalHost();
-      Gdx.app.log(TAG, "IP Address: " + address.getHostAddress());
+      Gdx.app.log(TAG, "IP Address: " + host);
       Gdx.app.log(TAG, "Host Name: " + address.getHostName());
     } catch (UnknownHostException e) {
       Gdx.app.error(TAG, e.getMessage(), e);
@@ -143,7 +172,7 @@ public class ServerBrowser extends ApplicationAdapter {
     }
 
     Session session = builder.build();
-    session.host = "hydra";
+    session.host = host;
     session.port = 6114 + sessions.size();
     sessions.put(session.getName(), session);
 

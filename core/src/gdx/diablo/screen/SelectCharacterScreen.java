@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.D2S;
 import gdx.diablo.codec.DC6;
-import gdx.diablo.entity3.Player;
+import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.widget.SelectButton;

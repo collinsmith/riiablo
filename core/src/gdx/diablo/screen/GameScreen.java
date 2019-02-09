@@ -22,7 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Timer;
 
 import org.apache.commons.io.IOUtils;
@@ -34,7 +34,7 @@ import java.io.PrintWriter;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.Keys;
-import gdx.diablo.entity3.Player;
+import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.key.MappedKey;
@@ -49,6 +49,7 @@ import gdx.diablo.panel.InventoryPanel;
 import gdx.diablo.panel.MobilePanel;
 import gdx.diablo.panel.StashPanel;
 import gdx.diablo.server.Connect;
+import gdx.diablo.server.ConnectResponse;
 import gdx.diablo.server.Disconnect;
 import gdx.diablo.server.Message;
 import gdx.diablo.server.MoveTo;
@@ -92,7 +93,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   //Char character;
   public Player player;
-  ObjectMap<String, Player> otherPlayers = new ObjectMap<>();
+  IntMap<Player> entities = new IntMap<>();
   Timer.Task updateTask;
 
   Socket socket;
@@ -132,7 +133,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       this.fontColor = Diablo.colors.white;
       this.cursor = new TextureRegionDrawable(Diablo.textures.white);
     }});
-    output.setDebug(true);
+    //output.setDebug(true);
     output.setSize(Diablo.VIRTUAL_WIDTH * 0.75f, Diablo.fonts.fontformal12.getLineHeight() * 8);
     output.setPosition(10, Diablo.VIRTUAL_HEIGHT - 10, Align.topLeft);
     output.setAlignment(Align.topLeft);
@@ -321,20 +322,30 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             Connect connect = packet.readValue(Connect.class);
             output.appendText(Diablo.string.format(3641, connect.name));
             output.appendText("\n");
-            Player q = player.clone();
-            q.setOrigin(player.origin().cpy());
-            otherPlayers.put(connect.name, q);
+
+            // FIXME: Default position is in subtiles? Divide 5 temp fix
+            Player connector = new Player(connect);
+            GridPoint2 startPos = map.find(Map.ID.TOWN_ENTRY_1);
+            connector.position().set(startPos.x, startPos.y, 0);
+            entities.put(connect.id, connector);
             break;
           case Packets.DISCONNECT:
             Disconnect disconnect = packet.readValue(Disconnect.class);
             output.appendText(Diablo.string.format(3642, disconnect.name));
             output.appendText("\n");
-            otherPlayers.remove(disconnect.name);
+            entities.remove(disconnect.id);
             break;
           case Packets.MOVETO:
             MoveTo moveTo = packet.readValue(MoveTo.class);
-            Player p = otherPlayers.get(moveTo.name);
-            if (p != null) p.origin().set(moveTo.x, moveTo.y);
+            Player p = entities.get(moveTo.id);
+            if (p != null) {
+              p.position().set(moveTo.x, moveTo.y, 0);
+              p.setAngle(moveTo.angle);
+            }
+            break;
+          case Packets.CONNECT_RESPONSE:
+            ConnectResponse connectResponse = packet.readValue(ConnectResponse.class);
+            entities.put(connectResponse.id, player);
             break;
         }
       }
@@ -357,9 +368,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     //int spx = + (player.getOrigin().x * Tile.SUBTILE_WIDTH50)  - (player.getOrigin().y * Tile.SUBTILE_WIDTH50);
     //int spy = - (player.getOrigin().x * Tile.SUBTILE_HEIGHT50) - (player.getOrigin().y * Tile.SUBTILE_HEIGHT50);
     //player.draw(b, spx, spy);
-    player.draw(b);
+    //player.draw(b);
 
-    for (Player p : otherPlayers.values()) {
+    for (Player p : entities.values()) {
       p.draw(b);
     }
 
@@ -398,8 +409,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     //character.x = origin.x;
     //character.y = origin.y;
-    player.origin().set(origin);
-    Gdx.app.debug(TAG, player.toString());
+    player.position().set(origin.x, origin.y, 0);
 
     Keys.Esc.addStateListener(mappedKeyStateListener);
     Keys.Inventory.addStateListener(mappedKeyStateListener);
@@ -414,15 +424,22 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
       in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
       out = new PrintWriter(socket.getOutputStream(), true);
+
+      String connect = Packets.build(new Connect(player));
+      out.println(connect);
     }
 
     updateTask = Timer.schedule(new Timer.Task() {
+      GridPoint2 position = new GridPoint2();
+
       @Override
       public void run() {
         if (UIUtils.shift()) return;
-        player.move();
-        mapRenderer.setPosition(player.origin());
-        String moveTo = Packets.build(new MoveTo(player.stats.getName(), player.origin()));
+        boolean moved = player.move();
+        position.set((int) player.position().x, (int) player.position().y);
+        mapRenderer.setPosition(position);
+        if (!moved) return;
+        String moveTo = Packets.build(new MoveTo(position, player.getAngle()));
         out.println(moveTo);
       }
     }, 0, 1 / 25f);
@@ -463,7 +480,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   @Override
   public void pause() {
-    escapePanel.setVisible(true);
+    //escapePanel.setVisible(true);
   }
 
   @Override

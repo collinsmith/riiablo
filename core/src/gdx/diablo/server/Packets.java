@@ -15,14 +15,16 @@ public class Packets {
   public static final int CONNECT = 2;
   public static final int DISCONNECT = 3;
   public static final int MOVETO = 4;
+  public static final int CONNECT_RESPONSE = 5;
 
   private static final ObjectIntMap<Class> MAP;
   static {
     MAP = new ObjectIntMap<>();
-    MAP.put(Message.class,    1);
-    MAP.put(Connect.class,    2);
-    MAP.put(Disconnect.class, 3);
-    MAP.put(MoveTo.class,     4);
+    MAP.put(Message.class,         1);
+    MAP.put(Connect.class,         2);
+    MAP.put(Disconnect.class,      3);
+    MAP.put(MoveTo.class,          4);
+    MAP.put(ConnectResponse.class, 5);
   }
 
   public static <T> T parse(Class<T> type, String json) {

@@ -16,7 +16,7 @@ import java.text.NumberFormat;
 import gdx.diablo.Cvars;
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.DC6;
-import gdx.diablo.entity3.Player;
+import gdx.diablo.entity.Player;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.screen.GameScreen;
 import gdx.diablo.widget.Button;

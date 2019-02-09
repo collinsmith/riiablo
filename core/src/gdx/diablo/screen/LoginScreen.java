@@ -115,7 +115,7 @@ public class LoginScreen extends ScreenAdapter {
           Net.HttpRequest request = new HttpRequestBuilder()
               .newRequest()
               .method(Net.HttpMethods.POST)
-              .url("http://hydra:6112/login")
+              .url("http://" + Diablo.client.getRealm() + ":6112/login")
               .jsonContent(new Account.Builder() {{ account = "test"; }})
               .build();
           Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {

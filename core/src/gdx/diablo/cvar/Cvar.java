@@ -133,6 +133,11 @@ public class Cvar<T> implements SuggestionProvider {
     }
   }
 
+  // FIXME: Workaround for issue calling set(String) when <T> is also String
+  public void setString(@NonNull String str) {
+    set(str);
+  }
+
   public void set(@NonNull String str, @NonNull StringSerializer deserializer) {
     try {
       T value = ((StringSerializer<T>) deserializer).deserialize(str);

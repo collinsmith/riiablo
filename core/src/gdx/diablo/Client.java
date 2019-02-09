@@ -104,6 +104,7 @@ public class Client extends Game {
   private boolean forceWindowed;
   private boolean forceDrawFps;
   private byte    drawFpsMethod;
+  private String  realm;
 
   public Client(FileHandle home) {
     this(home, Diablo.VIRTUAL_WIDTH, Diablo.VIRTUAL_HEIGHT);
@@ -138,6 +139,16 @@ public class Client extends Game {
 
   public void setDrawFPSForced(boolean b) {
     forceDrawFps = b;
+  }
+
+  public String getRealm() {
+    return realm;
+  }
+
+  public void setRealm(String realm) {
+    if (!this.realm.equalsIgnoreCase(realm)) {
+      Cvars.Client.Realm.setString(realm);
+    }
   }
 
   @Override
@@ -489,6 +500,13 @@ public class Client extends Game {
       @Override
       public void onChanged(Cvar<Float> cvar, Float from, Float to) {
         batch.setGamma(to);
+      }
+    });
+
+    Cvars.Client.Realm.addStateListener(new CvarStateAdapter<String>() {
+      @Override
+      public void onChanged(Cvar<String> cvar, String from, String to) {
+        realm = to;
       }
     });
   }

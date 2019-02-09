@@ -4,16 +4,17 @@ import com.badlogic.gdx.math.GridPoint2;
 
 public class MoveTo {
 
-  public String name;
-  public int x;
-  public int y;
+  public int   id;
+  public int   x;
+  public int   y;
+  public float angle;
 
   private MoveTo() {}
 
-  public MoveTo(String name, GridPoint2 origin) {
-    this.name = name;
+  public MoveTo(GridPoint2 origin, float angle) {
     x = origin.x;
     y = origin.y;
+    this.angle = angle;
   }
 
 }

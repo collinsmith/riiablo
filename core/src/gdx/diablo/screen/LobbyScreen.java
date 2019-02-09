@@ -39,7 +39,7 @@ import java.net.SocketTimeoutException;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.DC6;
-import gdx.diablo.entity3.Player;
+import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.server.Account;
@@ -280,7 +280,7 @@ public class LobbyScreen extends ScreenAdapter {
             Net.HttpRequest request = new HttpRequestBuilder()
                 .newRequest()
                 .method(Net.HttpMethods.POST)
-                .url("http://hydra:6112/create-session")
+                .url("http://" + Diablo.client.getRealm() + ":6112/create-session")
                 .jsonContent(new Session.Builder() {{
                   name     = tfGameName.getText();
                   password = tfPassword.getText();
@@ -462,7 +462,7 @@ public class LobbyScreen extends ScreenAdapter {
             Net.HttpRequest request = new HttpRequestBuilder()
                 .newRequest()
                 .method(Net.HttpMethods.GET)
-                .url("http://hydra:6112/get-sessions")
+                .url("http://" + Diablo.client.getRealm() + ":6112/get-sessions")
                 .build();
             Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
               @Override
@@ -528,7 +528,7 @@ public class LobbyScreen extends ScreenAdapter {
       @Override
       public void run() {
         try {
-          socket = Gdx.net.newClientSocket(Net.Protocol.TCP, "hydra", 6113, new SocketHints());
+          socket = Gdx.net.newClientSocket(Net.Protocol.TCP, Diablo.client.getRealm(), 6113, new SocketHints());
           in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
           out = new PrintWriter(socket.getOutputStream(), true);
         } catch (Throwable t) {
