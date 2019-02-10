@@ -272,7 +272,6 @@ public class Entity {
 
       byte transform = getTransform(comp);
       animation.getLayer(c).setTransform(transform);
-      System.out.println(comp + " transform " + transform + " " + ((transform & 0xFF) >>> 5) + "|" + (transform & 0x1f));
       /*
       if (item != null) {
         // FIXME: colors don't look right for sorc Tirant circlet changing hair color
