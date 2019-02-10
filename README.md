@@ -6,18 +6,19 @@ already own a copy of the game to play this. I am going to do my best to remain
 faithful to the original game, however I am planning on changing and adding
 additional features as I think they become necessary. I will write articles in
 the future explaining how I was able to accomplish certain things, and how
-some systems work.
+some core systems work.
 
 Some important changes that I will note are that this version supports a 16:9
 aspect ratio (the original was 640x480 and expansion was 800x600), and will
 eventually support wider. Because I'm limited to the original game assets, the
 game will be upscaled to the desired resolution, and 480p seems to work well on
-a smart phone. This does run on Android, and I have been using a Galaxy Note 5
-as the min spec when testing, but older phones may work as well. I can already
-play Diablo II on PC, my goal is to be able to sit back and play it casually
-with my friends while also supporting cross-platform play. This game will one
-day support local play that can then be taken online (similar to Open
-Battle.net), with a more secure option being far beyond that.
+a smart phone, however I want to target 360p for the menus because components
+are sized much better. This does run on Android, and I have been using a Galaxy
+Note 5 as the min spec when testing, but older phones may work as well. I can
+already play Diablo II on PC, my goal is to be able to sit back and play it
+casually with my friends while also supporting cross-platform play. This game
+supports local play that can then be taken online (similar to Open Battle.net),
+with a more secure option being far beyond that.
 
 *NOTE: This is not playable yet, but the game runs and you can load save files,
 walk around a bit and look at your characters.* Game saves are not modified
