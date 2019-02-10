@@ -99,13 +99,13 @@ public class EscapePanel extends WidgetGroup implements Disposable {
     Table table = new Table();
     table.align(Align.center);
     table.add(focusActor[0]);
-    table.add(options).fillX();
+    table.add(options).space(0, spacing, 0, spacing).fillX();
     table.add(focusActor[1]).row();
     table.add(focusActor[2]);
-    table.add(exit).fillX();
+    table.add(exit).space(0, spacing, 0, spacing).fillX();
     table.add(focusActor[3]).row();
     table.add(focusActor[4]);
-    table.add(returntogame).fillX();
+    table.add(returntogame).space(0, spacing, 0, spacing).fillX();
     table.add(focusActor[5]).row();
 
     table.setFillParent(true);
