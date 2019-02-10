@@ -187,7 +187,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     poisonRes.setAlignment(Align.center);
     addActor(poisonRes);
 
-    setDebug(true, true);
+    //setDebug(true, true);
   }
 
   @Override

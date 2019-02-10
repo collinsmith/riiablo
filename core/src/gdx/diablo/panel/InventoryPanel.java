@@ -260,7 +260,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
         getHeight() - inventory.gridTop - grid.getHeight());
     addActor(grid);
 
-    setDebug(true, true);
+    //setDebug(true, true);
   }
 
   @Override
