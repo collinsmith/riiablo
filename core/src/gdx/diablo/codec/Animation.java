@@ -394,16 +394,16 @@ public class Animation extends BaseDrawable {
     }
 
     public void setTransform(Index colormap, int id) {
-      //if (colormap != null) System.out.println("----> " + colormap + "; " + id);
-      transform = colormap;
+      transform      = colormap;
       transformColor = colormap == null ? 0 : id;
     }
 
     public void setTransform(byte packedTransform) {
-      if ((packedTransform & 0xFF) == 0xFF) {
+      int transform = packedTransform & 0xFF;
+      if (transform == 0xFF) {
         setTransform(null, 0);
       } else {
-        setTransform(Diablo.colormaps.get(packedTransform >>> 5), packedTransform & 0x1F);
+        setTransform(Diablo.colormaps.get(transform >>> 5), transform & 0x1F);
       }
     }
 

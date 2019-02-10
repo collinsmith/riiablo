@@ -122,7 +122,56 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       this.fontColor = Diablo.colors.white;
       this.background = new PaletteIndexedColorDrawable(Diablo.colors.modal);
       this.cursor = new TextureRegionDrawable(Diablo.textures.white);
-    }});
+
+      float padding = 4;
+      background.setLeftWidth(padding);
+      background.setTopHeight(padding);
+      background.setRightWidth(padding);
+      background.setBottomHeight(padding);
+    }}) {
+      //boolean newlyVisible = false;
+
+      {
+        writeEnters = false;
+        //setTextFieldFilter(new TextFieldFilter() {
+        //  @Override
+        //  public boolean acceptChar(TextField textField, char c) {
+        //    return c != ENTER_ANDROID && c != ENTER_DESKTOP;
+        //  }
+        //});
+        /*setTextFieldListener(new TextFieldListener() {
+          @Override
+          public void keyTyped(TextField textField, char c) {
+            if (c == ENTER_ANDROID || c == ENTER_DESKTOP) {
+              //if (newlyVisible) {
+              //  newlyVisible = false;
+              //  return;
+              //}
+
+              String text = input.getText();
+              if (!text.isEmpty()) {
+                Gdx.app.debug(TAG, text);
+                Message message = new Message(player.stats.getName(), text);
+                out.println(Packets.build(message));
+                input.setText("");
+              }
+
+              input.setVisible(false);
+            }
+          }
+        });*/
+      }
+
+      //@Override
+      //public void setVisible(boolean visible) {
+        //if (visible && !isVisible()) {
+        //  newlyVisible = true;
+        //}
+
+      //  super.setVisible(visible);
+      //}
+    };
+    input.setDebug(true);
     input.setSize(Diablo.VIRTUAL_WIDTH * 0.75f, Diablo.fonts.fontformal12.getLineHeight() * 3);
     input.setPosition(Diablo.VIRTUAL_WIDTH_CENTER - input.getWidth() / 2, 100);
     input.setAlignment(Align.topLeft);
@@ -201,7 +250,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         public void changed(ChangeEvent event, Actor actor) {
           float x = touchpad.getKnobPercentX();
           float y = touchpad.getKnobPercentY();
-          if (x == 0 && y == 0 || UIUtils.shift()) {
+          if (x == 0 && y == 0) {
             player.setMode("TN");
             return;
           //} else if (-0.5f < x && x < 0.5f
@@ -424,9 +473,13 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
       in = IOUtils.buffer(new InputStreamReader(socket.getInputStream()));
       out = new PrintWriter(socket.getOutputStream(), true);
-
-      String connect = Packets.build(new Connect(player));
-      out.println(connect);
+      if (!(socket instanceof PipedSocket)) {
+        String connect = Packets.build(new Connect(player));
+        out.println(connect);
+      } else {
+        String connectResponse = Packets.build(new ConnectResponse(1));
+        out.println(connectResponse);
+      }
     }
 
     updateTask = Timer.schedule(new Timer.Task() {

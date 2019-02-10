@@ -67,6 +67,8 @@ public class Entity {
       StringBuilder builder = new StringBuilder();
       if (bits == NONE) {
         builder.append("NONE");
+      } else if (bits == ALL) {
+        builder.append("ALL");
       } else {
         if ((bits & HD) == HD) builder.append("HD").append("|");
         if ((bits & TR) == TR) builder.append("TR").append("|");
@@ -270,6 +272,7 @@ public class Entity {
 
       byte transform = getTransform(comp);
       animation.getLayer(c).setTransform(transform);
+      System.out.println(comp + " transform " + transform + " " + ((transform & 0xFF) >>> 5) + "|" + (transform & 0x1f));
       /*
       if (item != null) {
         // FIXME: colors don't look right for sorc Tirant circlet changing hair color

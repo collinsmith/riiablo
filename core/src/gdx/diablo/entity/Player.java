@@ -99,7 +99,7 @@ public class Player extends Entity {
 
   private void loadEquipped(EnumMap<BodyLoc, Item> items) {
     equipped.putAll(items);
-    for (Map.Entry<BodyLoc, Item> entry : equipped.entrySet()) {
+    for (Map.Entry<BodyLoc, Item> entry : items.entrySet()) {
       entry.getValue().load();
       //if (DEBUG_EQUIPPED) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
     }
@@ -134,7 +134,7 @@ public class Player extends Entity {
     //invalidate();
     //setArmType(slot, item.base.alternateGfx);
     int components = loc.components();
-    if (components > 0) dirty |= components;
+    dirty |= components;
     updateWeaponClass();
 
     notifySlotChanged(loc, oldItem, item);
@@ -194,6 +194,7 @@ public class Player extends Entity {
     return Diablo.cofs.chars_cof;
   }
 
+  @Override
   public void update() {
     if (ignoreUpdate) {
       super.update();
