@@ -2,7 +2,7 @@ package gdx.diablo.item;
 
 import com.badlogic.gdx.Gdx;
 
-import static gdx.diablo.entity3.Entity.Dirty.*;
+import static gdx.diablo.entity.Entity.Dirty.*;
 
 public enum BodyLoc {
   NONE,
@@ -43,7 +43,7 @@ public enum BodyLoc {
   final int components;
 
   BodyLoc() {
-    this.components = -1;
+    this.components = 0;
   }
 
   BodyLoc(int components) {
