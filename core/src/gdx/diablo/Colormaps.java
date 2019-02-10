@@ -25,10 +25,10 @@ public class Colormaps implements Disposable {
 
   public Index get(int index) {
     switch (index) {
-      case 1:  return brown;
-      case 2:  return gold;
-      case 3:  return grey;
-      case 4:  return grey2;
+      case 1:  return grey;
+      case 2:  return grey2;
+      case 3:  return null;//brown;
+      case 4:  return null;//gold;
       case 5:  return greybrown;
       case 6:  return invgrey;
       case 7:  return invgrey2;
