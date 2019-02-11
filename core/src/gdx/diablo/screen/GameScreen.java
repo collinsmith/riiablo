@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -128,48 +129,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       background.setTopHeight(padding);
       background.setRightWidth(padding);
       background.setBottomHeight(padding);
-    }}) {
-      //boolean newlyVisible = false;
-
-      {
+    }}) {{
         writeEnters = false;
-        //setTextFieldFilter(new TextFieldFilter() {
-        //  @Override
-        //  public boolean acceptChar(TextField textField, char c) {
-        //    return c != ENTER_ANDROID && c != ENTER_DESKTOP;
-        //  }
-        //});
-        /*setTextFieldListener(new TextFieldListener() {
-          @Override
-          public void keyTyped(TextField textField, char c) {
-            if (c == ENTER_ANDROID || c == ENTER_DESKTOP) {
-              //if (newlyVisible) {
-              //  newlyVisible = false;
-              //  return;
-              //}
-
-              String text = input.getText();
-              if (!text.isEmpty()) {
-                Gdx.app.debug(TAG, text);
-                Message message = new Message(player.stats.getName(), text);
-                out.println(Packets.build(message));
-                input.setText("");
-              }
-
-              input.setVisible(false);
-            }
-          }
-        });*/
       }
 
-      //@Override
-      //public void setVisible(boolean visible) {
-        //if (visible && !isVisible()) {
-        //  newlyVisible = true;
-        //}
-
-      //  super.setVisible(visible);
-      //}
+      @Override
+      public void setVisible(boolean visible) {
+        if (!visible) input.setText("");
+        super.setVisible(visible);
+      }
     };
     input.setDebug(true);
     input.setSize(Diablo.VIRTUAL_WIDTH * 0.75f, Diablo.fonts.fontformal12.getLineHeight() * 3);
@@ -188,6 +156,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     output.setAlignment(Align.topLeft);
     output.setDisabled(true);
     output.setVisible(true);
+    output.setTouchable(Touchable.disabled);
 
     escapePanel = new EscapePanel();
 
@@ -270,11 +239,17 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     mappedKeyStateListener = new MappedKeyStateAdapter() {
       @Override
       public void onPressed(MappedKey key, int keycode) {
+        if (input.isVisible() && (key != Keys.Enter && key != Keys.Esc)) {
+          return;
+        }
+
         if (key == Keys.Esc) {
           if (escapePanel.isVisible()) {
             escapePanel.setVisible(false);
+          } else if (input.isVisible()) {
+            input.setVisible(false);
           } else if (inventoryPanel.isVisible()
-           || characterPanel.isVisible()) {
+                  || characterPanel.isVisible()) {
             inventoryPanel.setVisible(false);
             characterPanel.setVisible(false);
           } else {
