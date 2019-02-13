@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Align;
 import java.util.Arrays;
 
 import gdx.diablo.Diablo;
+import gdx.diablo.entity.Entity;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.map.DT1.Tile;
 
@@ -224,6 +225,7 @@ public class MapRenderer {
                 case Map.SHADOW_OFFSET:
                   break;
                 case Map.WALL_OFFSET: case Map.WALL_OFFSET + 1: case Map.WALL_OFFSET + 2: case Map.WALL_OFFSET + 3:
+                  drawObjects(batch, zone, stx, sty);
                   drawWall(batch, tile, px, py);
                   break;
                 case Map.TAG_OFFSET:
@@ -257,6 +259,16 @@ public class MapRenderer {
     TextureRegion texture = tile.tile.texture;
     //if (texture.getTexture().getTextureObjectHandle() == 0) return;
     batch.draw(texture, px, py, texture.getRegionWidth() + 1, texture.getRegionHeight() + 1);
+  }
+
+  void drawObjects(PaletteIndexedBatch batch, Map.Zone zone, int stx, int sty) {
+    for (Entity entity : zone.entities) {
+      Vector3 position = entity.position();
+      if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
+       && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
+        entity.draw(batch);
+      }
+    }
   }
 
   void drawWall(PaletteIndexedBatch batch, Map.Tile tile, int px, int py) {

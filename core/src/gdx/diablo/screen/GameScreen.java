@@ -384,6 +384,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     b.begin();
     //map.draw(b, 0, 0, 30, 13, Diablo.VIRTUAL_WIDTH, Diablo.VIRTUAL_HEIGHT, 1.5f);
     mapRenderer.render();
+    b.end();
 
     // pixel offset of subtile in world-space
     //int spx = + (character.x * Tile.SUBTILE_WIDTH50)  - (character.y * Tile.SUBTILE_WIDTH50);
@@ -394,13 +395,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     //player.draw(b, spx, spy);
     //player.draw(b);
 
-    for (Player p : entities.values()) {
-      p.draw(b);
-    }
-
-    b.end();
-    b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
-
     Diablo.shapes.setAutoShapeType(true);
     Diablo.shapes.setProjectionMatrix(camera.combined);
     Diablo.shapes.begin(ShapeRenderer.ShapeType.Line);
@@ -408,6 +402,24 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     //player.drawDebug(Diablo.shapes, spx, spy);
     player.drawDebug(Diablo.shapes);
     Diablo.shapes.end();
+
+    b.setProjectionMatrix(camera.combined);
+    b.begin();
+
+    for (Player p : entities.values()) {
+      p.draw(b);
+    }
+
+    b.end();
+    b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
+
+    //Diablo.shapes.setAutoShapeType(true);
+    //Diablo.shapes.setProjectionMatrix(camera.combined);
+    //Diablo.shapes.begin(ShapeRenderer.ShapeType.Line);
+    //mapRenderer.renderDebug(Diablo.shapes);
+    ////player.drawDebug(Diablo.shapes, spx, spy);
+    //player.drawDebug(Diablo.shapes);
+    //Diablo.shapes.end();
 
     stage.act();
     stage.draw();
@@ -419,7 +431,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.assets.get(windowopenDescriptor).play();
 
     map = Diablo.assets.get(mapDescriptor);
+    // FIXME: Below causes bug with debug text in MapRenderer, setting camera to screen dims fixes, but renders far too much on mobile
     camera = new OrthographicCamera(Diablo.VIRTUAL_WIDTH, Diablo.VIRTUAL_HEIGHT);
+    //camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     mapRenderer = new MapRenderer(Diablo.batch, camera);
     mapRenderer.setMap(map);
     mapRenderer.resize();

@@ -20,6 +20,8 @@ import gdx.diablo.Diablo;
 import gdx.diablo.codec.excel.Levels;
 import gdx.diablo.codec.excel.LvlPrest;
 import gdx.diablo.codec.excel.LvlTypes;
+import gdx.diablo.entity.Entity;
+import gdx.diablo.entity.StaticEntity;
 
 public class Map implements Disposable {
   private static final String TAG = "Map";
@@ -520,6 +522,8 @@ public class Map implements Disposable {
   }
 
   static class Zone {
+    static final Array<Entity> EMPTY_ARRAY = new Array<>(0);
+
     int x, y;
     int width, height;
     int gridSizeX, gridSizeY;
@@ -532,6 +536,7 @@ public class Map implements Disposable {
     Preset         presets[][];
     Tile           tiles[][][];
     byte           flags[][];
+    Array<Entity>  entities;
 
     Generator generator;
 
@@ -544,14 +549,15 @@ public class Map implements Disposable {
       this.gridSizeX = gridSizeX;
       this.gridSizeY = gridSizeY;
 
-      tilesX  = level.SizeX[diff];
-      tilesY  = level.SizeY[diff];
-      width   = tilesX * DT1.Tile.SUBTILE_SIZE;
-      height  = tilesY * DT1.Tile.SUBTILE_SIZE;
-      gridsX  = tilesX / gridSizeX;
-      gridsY  = tilesY / gridSizeY;
-      presets = new Preset[gridsX][gridsY];
-      flags   = new byte[width][height];
+      tilesX   = level.SizeX[diff];
+      tilesY   = level.SizeY[diff];
+      width    = tilesX * DT1.Tile.SUBTILE_SIZE;
+      height   = tilesY * DT1.Tile.SUBTILE_SIZE;
+      gridsX   = tilesX / gridSizeX;
+      gridsY   = tilesY / gridSizeY;
+      presets  = new Preset[gridsX][gridsY];
+      flags    = new byte[width][height];
+      entities = EMPTY_ARRAY;
     }
 
     /**
@@ -565,12 +571,48 @@ public class Map implements Disposable {
       this.gridsX    = gridsX;
       this.gridsY    = gridsY;
 
-      tilesX  = gridsX * gridSizeX;
-      tilesY  = gridsY * gridSizeY;
-      width   = gridsX * DT1.Tile.SUBTILE_SIZE;
-      height  = gridsY * DT1.Tile.SUBTILE_SIZE;
-      presets = new Preset[gridsX][gridsY];
-      flags   = new byte[width][height];
+      tilesX   = gridsX * gridSizeX;
+      tilesY   = gridsY * gridSizeY;
+      width    = gridsX * DT1.Tile.SUBTILE_SIZE;
+      height   = gridsY * DT1.Tile.SUBTILE_SIZE;
+      presets  = new Preset[gridsX][gridsY];
+      flags    = new byte[width][height];
+      entities = EMPTY_ARRAY;
+    }
+
+    private void loadEntities(DS1 ds1, int gridX, int gridY) {
+      if (entities == EMPTY_ARRAY) entities = new Array<>();
+      for (int i = 0; i < ds1.numObjects; i++) {
+        DS1.Object obj = ds1.objects[i];
+        if (obj.type != DS1.Object.STATIC_TYPE) continue;
+
+        //int id = Diablo.files.obj.getType2(ds1.getAct(), obj.id);
+        //Objects.Entry object = Diablo.files.objects.get(id);
+        //if (object == null) continue;
+        //if (!object.Draw) continue;
+
+        //final String token = object.Token;
+        //Entity entity = new Entity(token);
+        //entity.setAngle(0);
+        //animation.setLooping(object.CycleAnim[i]);
+        //animation.setFrame(object.Start[i]);
+        //animation.setFrameDelta(object.FrameDelta[i]);
+
+        StaticEntity entity = StaticEntity.create(ds1, obj);
+        if (entity == null) continue;
+
+        entity.position().set(x + gridX + obj.x, y + gridY + obj.y, 0);
+        entities.add(entity);
+
+        /*switch (object.InitFn) {
+          case 8:
+            entity.setMode("ON");
+            break;
+          case 17:
+            entity.setMode("ON");
+            break;
+        }*/
+      }
     }
 
     public void setPosition(int x, int y) {
@@ -636,6 +678,7 @@ public class Map implements Disposable {
           DS1 ds1 = Diablo.assets.get(TILES_PATH + preset.ds1Path);
           preset.set(ds1, dt1s);
           preset.copyTo(this, gridX, gridY);
+          loadEntities(ds1, gridX, gridY);
         }
       }
     }

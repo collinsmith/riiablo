@@ -32,8 +32,8 @@ public class Entity {
   private static final boolean DEBUG_STATE      = DEBUG && true;
 
   protected enum EntType {
-    OBJECT("OBJECT"),
-    MONSTER("MONSTER"),
+    OBJECT("OBJECTS"),
+    MONSTER("MONSTERS"),
     PLAYER("CHARS");
 
     public final String PATH;

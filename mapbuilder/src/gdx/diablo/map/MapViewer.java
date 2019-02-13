@@ -297,7 +297,7 @@ public class MapViewer extends ApplicationAdapter {
       Gdx.app.debug(TAG, Diablo.assets.getReferenceCount(asset) + " : " + asset);
     }
 
-    Gdx.app.debug(TAG, "JAVA: " + Gdx.app.getJavaHeap() + " Bytes; NATIVE:" + Gdx.app.getNativeHeap() + " Bytes");
+    Gdx.app.debug(TAG, "JAVA: " + Gdx.app.getJavaHeap() + " Bytes; NATIVE: " + Gdx.app.getNativeHeap() + " Bytes");
   }
 
   @Override
