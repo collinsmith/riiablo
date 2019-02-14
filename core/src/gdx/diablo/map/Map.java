@@ -21,7 +21,6 @@ import gdx.diablo.codec.excel.Levels;
 import gdx.diablo.codec.excel.LvlPrest;
 import gdx.diablo.codec.excel.LvlTypes;
 import gdx.diablo.entity.Entity;
-import gdx.diablo.entity.StaticEntity;
 
 public class Map implements Disposable {
   private static final String TAG = "Map";
@@ -584,34 +583,10 @@ public class Map implements Disposable {
       if (entities == EMPTY_ARRAY) entities = new Array<>();
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        if (obj.type != DS1.Object.STATIC_TYPE) continue;
-
-        //int id = Diablo.files.obj.getType2(ds1.getAct(), obj.id);
-        //Objects.Entry object = Diablo.files.objects.get(id);
-        //if (object == null) continue;
-        //if (!object.Draw) continue;
-
-        //final String token = object.Token;
-        //Entity entity = new Entity(token);
-        //entity.setAngle(0);
-        //animation.setLooping(object.CycleAnim[i]);
-        //animation.setFrame(object.Start[i]);
-        //animation.setFrameDelta(object.FrameDelta[i]);
-
-        StaticEntity entity = StaticEntity.create(ds1, obj);
+        Entity entity = Entity.create(ds1, obj);
         if (entity == null) continue;
-
         entity.position().set(x + gridX + obj.x, y + gridY + obj.y, 0);
         entities.add(entity);
-
-        /*switch (object.InitFn) {
-          case 8:
-            entity.setMode("ON");
-            break;
-          case 17:
-            entity.setMode("ON");
-            break;
-        }*/
       }
     }
 

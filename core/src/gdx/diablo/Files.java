@@ -23,6 +23,8 @@ import gdx.diablo.codec.excel.MagicPrefix;
 import gdx.diablo.codec.excel.MagicSuffix;
 import gdx.diablo.codec.excel.Misc;
 import gdx.diablo.codec.excel.MonMode;
+import gdx.diablo.codec.excel.MonStats;
+import gdx.diablo.codec.excel.MonStats2;
 import gdx.diablo.codec.excel.Obj;
 import gdx.diablo.codec.excel.ObjMode;
 import gdx.diablo.codec.excel.Objects;
@@ -57,6 +59,8 @@ public class Files {
   public final MagicPrefix  MagicPrefix;
   public final MagicSuffix  MagicSuffix;
   public final MonMode      MonMode;
+  public final MonStats     monstats;
+  public final MonStats2    monstats2;
   public final Objects      objects;
   public final ObjMode      ObjMode;
   public final PlrMode      PlrMode;
@@ -92,6 +96,8 @@ public class Files {
     MagicPrefix  = load(assets, MagicPrefix.class, Excel.EXPANSION);
     MagicSuffix  = load(assets, MagicSuffix.class, Excel.EXPANSION);
     MonMode      = load(assets, MonMode.class);
+    monstats     = load(assets, MonStats.class, Excel.EXPANSION);
+    monstats2    = load(assets, MonStats2.class, Excel.EXPANSION);
     RarePrefix   = load(assets, RarePrefix.class, Excel.EXPANSION);
     RareSuffix   = load(assets, RareSuffix.class, Excel.EXPANSION);
     Runes        = load(assets, Runes.class);

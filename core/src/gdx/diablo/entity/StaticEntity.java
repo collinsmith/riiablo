@@ -11,8 +11,8 @@ public class StaticEntity extends Entity {
 
   Objects.Entry object;
 
-  public StaticEntity(String type, Objects.Entry object) {
-    super(type, EntType.OBJECT);
+  public StaticEntity(Objects.Entry object) {
+    super(object.Token, EntType.OBJECT);
     this.object = object;
     init();
   }
@@ -24,9 +24,7 @@ public class StaticEntity extends Entity {
     Objects.Entry object = Diablo.files.objects.get(id);
     if (object == null) return null; // TODO: Which ones fall under this case?
     if (!object.Draw) return null; // TODO: Not yet
-
-    String type = object.Token;
-    return new StaticEntity(type, object);
+    return new StaticEntity(object);
   }
 
   @Override

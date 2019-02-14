@@ -20,6 +20,7 @@ import gdx.diablo.codec.COF;
 import gdx.diablo.codec.COFD2;
 import gdx.diablo.codec.DCC;
 import gdx.diablo.graphics.PaletteIndexedBatch;
+import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
 
 public class Entity {
@@ -116,6 +117,18 @@ public class Entity {
   float   angle    = MathUtils.PI * 3 / 2;
 
   Animation animation;
+
+  public static Entity create(DS1 ds1, DS1.Object obj) {
+    final int type = obj.type;
+    switch (type) {
+      case DS1.Object.DYNAMIC_TYPE:
+        return Monster.create(ds1, obj);
+      case DS1.Object.STATIC_TYPE:
+        return StaticEntity.create(ds1, obj);
+      default:
+        throw new AssertionError("Unexpected type: " + type);
+    }
+  }
 
   Entity(String type) {
     this(type, EntType.OBJECT);
