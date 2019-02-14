@@ -31,6 +31,7 @@ public class MapRenderer {
   private static final boolean DEBUG_WALKABLE = DEBUG && !true;
   private static final boolean DEBUG_SPECIAL  = DEBUG && true;
   private static final boolean DEBUG_MOUSE    = DEBUG && true;
+  private static final boolean DEBUG_PATHS    = DEBUG && true;
 
   public static boolean RENDER_DEBUG_SUBTILE  = DEBUG_SUBTILE;
   public static boolean RENDER_DEBUG_TILE     = DEBUG_TILE;
@@ -39,6 +40,7 @@ public class MapRenderer {
   public static int     RENDER_DEBUG_GRID     = DEBUG_GRID ? 3 : 0;
   public static int     RENDER_DEBUG_WALKABLE = DEBUG_WALKABLE ? 1 : 0;
   public static boolean RENDER_DEBUG_SPECIAL  = DEBUG_SPECIAL;
+  public static boolean RENDER_DEBUG_PATHS    = DEBUG_PATHS;
 
   private static final Color RENDER_DEBUG_GRID_COLOR_1 = new Color(0x3f3f3f3f);
   private static final Color RENDER_DEBUG_GRID_COLOR_2 = new Color(0x7f7f7f3f);
@@ -314,6 +316,10 @@ public class MapRenderer {
     if (RENDER_DEBUG_SUBTILE) {
       shapes.setColor(Color.WHITE);
       drawDiamond(shapes, spx, spy, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    }
+
+    if (RENDER_DEBUG_PATHS) {
+      renderDebugPaths(shapes);
     }
 
     if (RENDER_DEBUG_CAMERA) {
@@ -723,6 +729,65 @@ public class MapRenderer {
         }
       }
     }
+  }
+
+  private void renderDebugPaths(ShapeRenderer shapes) {
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+    int startX2 = startX;
+    int startY2 = startY;
+    int x, y;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
+          Map.Preset preset = zone.getGrid(tx, ty);
+          if (preset != null) {
+            for (int i = 0; i < preset.ds1.numPaths; i++) {
+              DS1.Path path = preset.ds1.paths[i];
+              if ((stx <= path.x && path.x < stx + Tile.SUBTILE_SIZE)
+               && (sty <= path.y && path.y < sty + Tile.SUBTILE_SIZE)) {
+                DS1.Path.Point prevPoint = null;
+                for (int j = 0; j < path.numPoints; j++) {
+                  DS1.Path.Point point = path.points[j];
+                  if (prevPoint != null) {
+                    float p1x = +(prevPoint.x * Tile.SUBTILE_WIDTH50)  - (prevPoint.y * Tile.SUBTILE_WIDTH50);
+                    float p1y = -(prevPoint.x * Tile.SUBTILE_HEIGHT50) - (prevPoint.y * Tile.SUBTILE_HEIGHT50);
+                    float p2x = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50);
+                    float p2y = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50);
+                    shapes.setColor(Color.PURPLE);
+                    shapes.rectLine(p1x, p1y, p2x, p2y, 2);
+                    shapes.setColor(Color.WHITE);
+                    shapes.rect(p1x - 4, p1y - 4, 8, 8);
+                    if (j == path.numPoints - 1) {
+                      shapes.rect(p2x - 4, p2y - 4, 8, 8);
+                    }
+                  }
+
+                  prevPoint = point;
+                }
+              }
+            }
+          }
+        }
+
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+      } else {
+        startX2--;
+      }
+    }
+
+    shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
   private static void drawDiamond(ShapeRenderer shapes, float x, float y, int width, int height) {
