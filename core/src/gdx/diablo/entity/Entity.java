@@ -330,6 +330,8 @@ public class Entity {
     shapes.line(x, y, x + MathUtils.cos(rounded) * R * 0.5f, y + MathUtils.sin(rounded) * R * 0.5f);
   }
 
+  public void drawDebugPath(ShapeRenderer shapes) {}
+
   public void draw(Batch batch) {
     draw((PaletteIndexedBatch) batch);
   }

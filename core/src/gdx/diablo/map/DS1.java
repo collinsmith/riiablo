@@ -473,11 +473,12 @@ public class DS1 {
     public static final int DYNAMIC_TYPE = 1;
     public static final int STATIC_TYPE  = 2;
 
-    public int type;
-    public int id;
-    public int x;
-    public int y;
-    public int flags;
+    public int  type;
+    public int  id;
+    public int  x;
+    public int  y;
+    public int  flags;
+    public Path path;
 
     Object read(int version, InputStream in) throws IOException {
       type  = EndianUtils.readSwappedInteger(in);
@@ -485,6 +486,7 @@ public class DS1 {
       x     = EndianUtils.readSwappedInteger(in);
       y     = EndianUtils.readSwappedInteger(in);
       flags = version < 6 ? 0 : EndianUtils.readSwappedInteger(in);
+      path  = null;
       return this;
     }
 
@@ -498,13 +500,14 @@ public class DS1 {
 
     @Override
     public String toString() {
-      return new ToStringBuilder(this)
+      ToStringBuilder builder = new ToStringBuilder(this)
           .append("type", getType())
           .append("id", id)
           .append("x", x)
           .append("y", y)
-          .append("ds1Flags", String.format("%08x", flags))
-          .build();
+          .append("ds1Flags", String.format("%08x", flags));
+      if (path != null) builder.append("path", path);
+      return builder.build();
     }
   }
 
@@ -540,14 +543,14 @@ public class DS1 {
     }
   }
 
-  static class Path {
+  public static class Path {
     public static final Path[] EMPTY_PATH_ARRAY = new Path[0];
 
-    int   numPoints;
-    Point points[];
+    public int   numPoints;
+    public Point points[];
 
-    int   x;
-    int   y;
+    public int   x;
+    public int   y;
 
     Path read(int version, Object[] objects, InputStream in) throws IOException {
       numPoints = EndianUtils.readSwappedInteger(in);
@@ -575,6 +578,7 @@ public class DS1 {
       }
 
       for (int p = 0; p < numPoints; p++) points[p] = new Point().read(version, in);
+      object.path = this;
       return this;
     }
 
@@ -588,10 +592,10 @@ public class DS1 {
           .build();
     }
 
-    static class Point {
-      int x;
-      int y;
-      int action;
+    public static class Point {
+      public int x;
+      public int y;
+      public int action;
 
       Point read(int version, InputStream in) throws IOException {
         x      = EndianUtils.readSwappedInteger(in);

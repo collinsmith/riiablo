@@ -745,32 +745,11 @@ public class MapRenderer {
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(stx, sty);
         if (zone != null) {
-          Map.Preset preset = zone.getGrid(tx, ty);
-          if (preset != null) {
-            for (int i = 0; i < preset.ds1.numPaths; i++) {
-              DS1.Path path = preset.ds1.paths[i];
-              if ((stx <= path.x && path.x < stx + Tile.SUBTILE_SIZE)
-               && (sty <= path.y && path.y < sty + Tile.SUBTILE_SIZE)) {
-                DS1.Path.Point prevPoint = null;
-                for (int j = 0; j < path.numPoints; j++) {
-                  DS1.Path.Point point = path.points[j];
-                  if (prevPoint != null) {
-                    float p1x = +(prevPoint.x * Tile.SUBTILE_WIDTH50)  - (prevPoint.y * Tile.SUBTILE_WIDTH50);
-                    float p1y = -(prevPoint.x * Tile.SUBTILE_HEIGHT50) - (prevPoint.y * Tile.SUBTILE_HEIGHT50);
-                    float p2x = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50);
-                    float p2y = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50);
-                    shapes.setColor(Color.PURPLE);
-                    shapes.rectLine(p1x, p1y, p2x, p2y, 2);
-                    shapes.setColor(Color.WHITE);
-                    shapes.rect(p1x - 4, p1y - 4, 8, 8);
-                    if (j == path.numPoints - 1) {
-                      shapes.rect(p2x - 4, p2y - 4, 8, 8);
-                    }
-                  }
-
-                  prevPoint = point;
-                }
-              }
+          for (Entity entity : zone.entities) {
+            Vector3 position = entity.position();
+            if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
+             && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
+              entity.drawDebugPath(shapes);
             }
           }
         }

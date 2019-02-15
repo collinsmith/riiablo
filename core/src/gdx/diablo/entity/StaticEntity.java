@@ -9,11 +9,13 @@ import gdx.diablo.map.DS1;
 public class StaticEntity extends Entity {
   private static final String TAG = "StaticEntity";
 
-  Objects.Entry object;
+  DS1.Object    object;
+  Objects.Entry base;
 
-  public StaticEntity(Objects.Entry object) {
-    super(object.Token, EntType.OBJECT);
+  public StaticEntity(DS1.Object object, Objects.Entry base) {
+    super(base.Token, EntType.OBJECT);
     this.object = object;
+    this.base = base;
     init();
   }
 
@@ -21,10 +23,10 @@ public class StaticEntity extends Entity {
     assert obj.type == DS1.Object.STATIC_TYPE;
 
     int id = Diablo.files.obj.getType2(ds1.getAct(), obj.id);
-    Objects.Entry object = Diablo.files.objects.get(id);
-    if (object == null) return null; // TODO: Which ones fall under this case?
-    if (!object.Draw) return null; // TODO: Not yet
-    return new StaticEntity(object);
+    Objects.Entry base = Diablo.files.objects.get(id);
+    if (base == null) return null; // TODO: Which ones fall under this case?
+    if (!base.Draw) return null; // TODO: Not yet
+    return new StaticEntity(obj, base);
   }
 
   @Override
@@ -32,17 +34,17 @@ public class StaticEntity extends Entity {
     super.update();
     int mode = Diablo.files.ObjMode.index(this.mode);
     //System.out.println(getName() + " " + this.mode + "(" + mode + ") " + object.FrameDelta[mode]);
-    animation.setLooping(object.CycleAnim[mode]);
-    animation.setFrame(object.Start[mode]);
-    animation.setFrameDelta(object.FrameDelta[mode]); // FIXME: anim framedelta looks too quick
+    animation.setLooping(base.CycleAnim[mode]);
+    animation.setFrame(base.Start[mode]);
+    animation.setFrameDelta(base.FrameDelta[mode]); // FIXME: anim framedelta looks too quick
   }
 
   public String getName() {
-    return object == null ? toString() : object.Name + "(" + object.Id + ")";
+    return base == null ? toString() : base.Name + "(" + base.Id + ")";
   }
 
   private void init() {
-    switch (object.InitFn) {
+    switch (base.InitFn) {
       case 0:
         break;
       case 1: case 2: case 3: case 4: case 5: case 6: case 7:
@@ -70,12 +72,12 @@ public class StaticEntity extends Entity {
       case 79:
         break;
       default:
-        Gdx.app.error(TAG, "Invalid InitFn for " + getName() + ": " + object.InitFn);
+        Gdx.app.error(TAG, "Invalid InitFn for " + getName() + ": " + base.InitFn);
     }
   }
 
   private void operate() {
-    switch (object.OperateFn) {
+    switch (base.OperateFn) {
       case 0:
         break;
       case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
@@ -88,30 +90,30 @@ public class StaticEntity extends Entity {
       case 70: case 71: case 72: case 73:
         break;
       default:
-        Gdx.app.error(TAG, "Invalid OperateFn for " + getName() + ": " + object.OperateFn);
+        Gdx.app.error(TAG, "Invalid OperateFn for " + getName() + ": " + base.OperateFn);
     }
   }
 
   private void populate() {
-    switch (object.PopulateFn) {
+    switch (base.PopulateFn) {
       case 0:
         break;
       case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
         break;
       default:
-        Gdx.app.error(TAG, "Invalid PopulateFn for " + getName() + ": " + object.PopulateFn);
+        Gdx.app.error(TAG, "Invalid PopulateFn for " + getName() + ": " + base.PopulateFn);
     }
   }
 
   private void client() {
-    switch (object.ClientFn) {
+    switch (base.ClientFn) {
       case 0:
         break;
       case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
       case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18:
         break;
       default:
-        Gdx.app.error(TAG, "Invalid ClientFn for " + getName() + ": " + object.ClientFn);
+        Gdx.app.error(TAG, "Invalid ClientFn for " + getName() + ": " + base.ClientFn);
     }
   }
 }
