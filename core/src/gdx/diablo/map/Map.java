@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
@@ -520,6 +521,28 @@ public class Map implements Disposable {
     return zone;
   }
 
+  /**
+   * @param x   world sub-tile
+   * @param y   world sub-tile
+   * @param tx  world tile
+   * @param ty  world tile
+   * @param stx sub-tile (0-4)
+   * @param sty sub-tile (0-4)
+   */
+  // TODO: x,y alone should be enough, but others are available in MapRenderer on each position change anyways
+  public void updatePopPads(Bits bits, int x, int y, int tx, int ty, int stx, int sty) {
+    bits.clear();
+    Zone zone = getZone(x, y);
+    if (zone != null) {
+      Map.Preset preset = zone.getGrid(tx, ty);
+      if (preset != null) {
+        int presetX = zone.getGridX(tx) + stx;
+        int presetY = zone.getGridX(ty) + sty;
+        preset.updatePopPads(bits, presetX, presetY);
+      }
+    }
+  }
+
   static class Zone {
     static final Array<Entity> EMPTY_ARRAY = new Array<>(0);
 
@@ -905,6 +928,15 @@ public class Map implements Disposable {
       return ds1Path;
     }
 
+    public void updatePopPads(Bits bits, int x, int y) {
+      if (popPads == null) return;
+      for (PopPad popPad : popPads.values()) {
+        if (popPad.contains(x, y)) {
+          bits.set(DT1.Tile.Index.subIndex(popPad.id));
+        }
+      }
+    }
+
     static class PopPad {
       int id;
       int startX, startY;
@@ -919,6 +951,11 @@ public class Map implements Disposable {
       void setEnd(int x, int y) {
         endX = x;
         endY = y;
+      }
+
+      boolean contains(int x, int y) {
+        return startX <= x && x < endX
+            && startY <= y && y < endY;
       }
 
       @Override

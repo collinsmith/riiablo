@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Bits;
 
 import java.util.Arrays;
 
@@ -32,6 +33,7 @@ public class MapRenderer {
   private static final boolean DEBUG_SPECIAL  = DEBUG && true;
   private static final boolean DEBUG_MOUSE    = DEBUG && true;
   private static final boolean DEBUG_PATHS    = DEBUG && true;
+  private static final boolean DEBUG_POPPADS  = DEBUG && true;
 
   public static boolean RENDER_DEBUG_SUBTILE  = DEBUG_SUBTILE;
   public static boolean RENDER_DEBUG_TILE     = DEBUG_TILE;
@@ -79,6 +81,9 @@ public class MapRenderer {
 
   // tpx and tpy of startX, startY tile in world-space
   int startPx, startPy;
+
+  // DT1 mainIndexes to not draw
+  final Bits popped = new Bits();
 
   public MapRenderer(PaletteIndexedBatch batch, OrthographicCamera camera) {
     this.batch = batch;
@@ -189,10 +194,29 @@ public class MapRenderer {
 
       if (DEBUG_MATH) {
         Gdx.app.debug(TAG,
-            String.format("(%2d,%2d){%d,%d}[%2d,%2d](%dx%d)[%dx%d] %d,%d%n",
+            String.format("(%2d,%2d){%d,%d}[%2d,%2d](%dx%d)[%dx%d] %d,%d",
                 x, y, stx, sty, tx, ty, width, height, tilesX, tilesY, spx, spy));
       }
+
+      map.updatePopPads(popped, x, y, tx, ty, stx, sty);
+      if (DEBUG_POPPADS) {
+        String popPads = getPopPads();
+        if (!popPads.isEmpty()) Gdx.app.debug(TAG, "PopPad IDs: " + popPads);
+      }
     }
+  }
+
+  private String getPopPads() {
+    StringBuilder builder = new StringBuilder();
+    for (int i = popped.nextSetBit(0); i >= 0; i = popped.nextSetBit(i + 1)) {
+      builder.append(i).append(',');
+    }
+
+    if (builder.length() > 0) {
+      builder.setLength(builder.length() - 1);
+    }
+
+    return builder.toString();
   }
 
   // TODO: render will overscan image in y-axis to accommodate walls, should change to wall only instead of entire frame
@@ -288,6 +312,10 @@ public class MapRenderer {
     }
 
     if (tile.tile.isFloor()) {
+      return;
+    }
+
+    if (popped.get(tile.tile.mainIndex)) {
       return;
     }
 

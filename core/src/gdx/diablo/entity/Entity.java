@@ -238,7 +238,7 @@ public class Entity {
       animation.setDirection(getDirection());
     }
 
-    if (DEBUG_DIRTY) Gdx.app.debug(TAG, "dirty layers: " + dirty);
+    if (DEBUG_DIRTY) Gdx.app.debug(TAG, "dirty layers: " + Dirty.toString(dirty));
     for (int l = 0; l < cof.getNumLayers(); l++) {
       COF.Layer layer = cof.getLayer(l);
       final int c = layer.component;
