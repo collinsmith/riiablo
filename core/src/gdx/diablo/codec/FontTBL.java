@@ -29,6 +29,7 @@ public class FontTBL {
   private static final boolean DEBUG_CHARS = DEBUG && false;
 
   public static final int CHARS = 256;
+  private static final int CHAR_SHEET_PADDING = 2;
 
   final Header   header;
   final CharData cData[];
@@ -70,8 +71,8 @@ public class FontTBL {
 
         glyph.id = c;
 
-        glyph.srcX = (c % 16) * charWidth;
-        glyph.srcY = (c / 16) * charHeight;
+        glyph.srcX = (c % 16) * (charWidth  + CHAR_SHEET_PADDING);
+        glyph.srcY = (c / 16) * (charHeight + CHAR_SHEET_PADDING);
 
         CharData cData = FontTBL.this.cData[c];
         glyph.width = cData.width;
@@ -89,8 +90,8 @@ public class FontTBL {
 
     Pixmap createFontSheet() {
       DC.Direction dir = dc6.getDirection(0);
-      final int columnWidth = dir.box.width;
-      final int columnHeight = dir.box.height;
+      final int columnWidth = dir.box.width + CHAR_SHEET_PADDING;
+      final int columnHeight = dir.box.height + CHAR_SHEET_PADDING;
 
       final int columns = 16;
       final int rows = 16;
