@@ -9,8 +9,10 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 
@@ -21,8 +23,10 @@ import gdx.diablo.codec.COFD2;
 import gdx.diablo.codec.DCC;
 import gdx.diablo.codec.util.BBox;
 import gdx.diablo.graphics.PaletteIndexedBatch;
+import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
+import gdx.diablo.widget.Label;
 
 public class Entity {
   private static final String TAG = "Entity";
@@ -119,6 +123,8 @@ public class Entity {
 
   Animation animation;
   public boolean   over = true;
+  Label label;
+  String name;
 
   public static Entity create(DS1 ds1, DS1.Object obj) {
     final int type = obj.type;
@@ -143,6 +149,16 @@ public class Entity {
     weaponClass  = "HTH";
     layers       = DEFAULT_LAYERS;
     invalidate();
+
+    // TODO: LabelStyle should be made static
+    label = new Label(Diablo.fonts.font16);
+    label.getStyle().background = new PaletteIndexedColorDrawable(Diablo.colors.modal75) {{
+      final float padding = 2;
+      setLeftWidth(padding);
+      setTopHeight(padding);
+      setRightWidth(padding);
+      setBottomHeight(padding);
+    }};
   }
 
   public void setMode(String mode) {
@@ -347,7 +363,13 @@ public class Entity {
     if (over) drawLabel(batch);
   }
 
-  public void drawLabel(PaletteIndexedBatch batch) {}
+  public void drawLabel(PaletteIndexedBatch batch) {
+    if (label.getText().length == 0) return;
+    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    label.setPosition(x, y + animation.getMinHeight() + label.getHeight(), Align.center);
+    label.draw(batch, 1);
+  }
 
   public boolean move() {
     int x = Direction.getOffX(angle);
@@ -363,5 +385,15 @@ public class Entity {
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50) - box.yMax;
     return x <= coords.x && coords.x <= x + box.width
        &&  y <= coords.y && coords.y <= y + box.height;
+  }
+
+  public void setName(String name) {
+    if (!StringUtils.equalsIgnoreCase(this.name, name)) {
+      label.setText(this.name = name);
+    }
+  }
+
+  public String getName() {
+    return name;
   }
 }

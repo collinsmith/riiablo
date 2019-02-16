@@ -45,9 +45,8 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
     if (style != null) {
       Drawable background = style.background;
       if (background != null) {
-        // TODO: background.getLeftWidth() looks like it shifts background.getMinWidth() -- bug?
         background.draw(batch,
-            getX() /*- background.getLeftWidth()*/, getY() - background.getBottomHeight(),
+            getX() - background.getLeftWidth(), getY() - background.getBottomHeight(),
             getWidth() + background.getMinWidth(), getHeight() + background.getMinHeight());
       }
     }
@@ -64,5 +63,11 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
   public boolean setText(int id) {
     setText(id == -1 ? "" : Diablo.string.lookup(id));
     return true;
+  }
+
+  @Override
+  public void setText(CharSequence newText) {
+    super.setText(newText);
+    setSize(getPrefWidth(), getPrefHeight());
   }
 }

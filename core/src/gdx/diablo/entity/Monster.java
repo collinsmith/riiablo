@@ -13,10 +13,8 @@ import gdx.diablo.Diablo;
 import gdx.diablo.codec.excel.MonStats;
 import gdx.diablo.codec.excel.MonStats2;
 import gdx.diablo.graphics.PaletteIndexedBatch;
-import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
-import gdx.diablo.widget.Label;
 
 public class Monster extends Entity {
   private static final String TAG = "Monster";
@@ -25,13 +23,12 @@ public class Monster extends Entity {
   MonStats.Entry  monstats;
   MonStats2.Entry monstats2;
 
-  Label label;
-
   public Monster(DS1.Object object, MonStats.Entry monstats) {
     super(monstats.Code, EntType.MONSTER);
     this.object = object;
     this.monstats = monstats;
     this.monstats2 = Diablo.files.monstats2.get(monstats.MonStatsEx);
+    setName(monstats.NameStr);
     setWeaponClass(monstats2.BaseW);
     setMode(monstats.spawnmode.isEmpty() ? "NU" : monstats.spawnmode);
     for (int i = 0; i < monstats2.ComponentV.length; i++) {
@@ -42,15 +39,6 @@ public class Monster extends Entity {
         setArmType(Component.valueOf(i), v[random]);
       }
     }
-
-    label = new Label(monstats.NameStr, Diablo.fonts.font16);
-    label.getStyle().background = new PaletteIndexedColorDrawable(Diablo.colors.modal75) {{
-      final float padding = 3;
-      setLeftWidth(padding);
-      setTopHeight(padding);
-      setRightWidth(padding);
-      setBottomHeight(padding);
-    }};
   }
 
   public static Monster create(DS1 ds1, DS1.Object obj) {
@@ -109,16 +97,8 @@ public class Monster extends Entity {
   public void drawLabel(PaletteIndexedBatch batch) {
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    label.setPosition(x, y + monstats2.pixHeight/*animation.getMinHeight() + label.getHeight()*/, Align.center);
+    label.setPosition(x, y + monstats2.pixHeight + label.getHeight(), Align.center);
     label.draw(batch, 1);
-    //BitmapFont font = Diablo.fonts.font16;
-    //GlyphLayout glyphs = new GlyphLayout(font, "Test", font.getColor(), 0, Align.center, false);
-
-    //batch.setBlendMode(BlendMode.SOLID, Diablo.colors.modal50);
-    //batch.draw(Diablo.textures.white, x - glyphs.width / 2, y + animation.getMinHeight(), glyphs.width, glyphs.height);
-    //batch.resetBlendMode();
-
-    //font.draw(batch, glyphs, x, y + animation.getMinHeight() + font.getLineHeight());
   }
 
   @Override

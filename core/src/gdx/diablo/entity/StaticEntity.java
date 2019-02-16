@@ -1,10 +1,14 @@
 package gdx.diablo.entity;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.excel.Objects;
+import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.map.DS1;
+import gdx.diablo.map.DT1.Tile;
 
 public class StaticEntity extends Entity {
   private static final String TAG = "StaticEntity";
@@ -16,6 +20,7 @@ public class StaticEntity extends Entity {
     super(base.Token, EntType.OBJECT);
     this.object = object;
     this.base = base;
+    setName(base.Name);
     init();
   }
 
@@ -39,8 +44,19 @@ public class StaticEntity extends Entity {
     animation.setFrameDelta(base.FrameDelta[mode]); // FIXME: anim framedelta looks too quick
   }
 
-  public String getName() {
-    return base == null ? toString() : base.Name + "(" + base.Id + ")";
+  @Override
+  public void drawLabel(PaletteIndexedBatch batch) {
+    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    label.setPosition(x, y - base.NameOffset + label.getHeight(), Align.center);
+    label.draw(batch, 1);
+  }
+
+  @Override
+  public boolean contains(Vector3 coords) {
+    int mode = Diablo.files.ObjMode.index(this.mode);
+    if (!base.Selectable[mode]) return false;
+    return super.contains(coords);
   }
 
   private void init() {
