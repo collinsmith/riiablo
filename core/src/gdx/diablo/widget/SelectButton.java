@@ -44,15 +44,15 @@ public class SelectButton extends Table implements Disposable {
     preview = new CharacterPreview();
 
     title      = new Label(Diablo.fonts.font16);
-    title.setColor(Diablo.colors.unique);
+    title.setColor(Diablo.colors.gold);
 
     name       = new Label(Diablo.fonts.font16);
-    name.setColor(Diablo.colors.unique);
+    name.setColor(Diablo.colors.gold);
 
     levelClass = new Label(Diablo.fonts.font16);
 
     expansion  = new Label(Diablo.fonts.font16);
-    expansion.setColor(Diablo.colors.set);
+    expansion.setColor(Diablo.colors.green);
 
     Table previewColumn = new Table();
     previewColumn.add(preview).width(72).growY();
@@ -83,7 +83,7 @@ public class SelectButton extends Table implements Disposable {
     preview.set(d2s);
     title.setText(d2s.getProgressionString());
     name.setText(d2s.name);
-    name.setColor(d2s.isHardcore() ? Diablo.colors.server : Diablo.colors.unique);
+    name.setColor(d2s.isHardcore() ? Diablo.colors.red : Diablo.colors.gold);
     levelClass.setText(Diablo.string.format(5017, d2s.level) + " " + Diablo.string.lookup(CharClass.get(d2s.charClass).name));
     expansion.setText(d2s.isExpansion() ? 11077 : -1);
   }

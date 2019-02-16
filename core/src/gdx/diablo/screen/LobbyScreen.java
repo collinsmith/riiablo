@@ -236,19 +236,19 @@ public class LobbyScreen extends ScreenAdapter {
               creategamebckg.getRegionWidth() / 2 - getWidth() / 2,
               creategamebckg.getRegionHeight() - getHeight());
         }});
-        addActor(new Label(5274, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5274, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(12, 315);
         }});
-        addActor(new Label(5256, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5256, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(12, 260);
         }});
-        addActor(new Label(5257, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5257, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(12, 205);
         }});
-        addActor(new Label(5258, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5258, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(20, 140);
         }});
-        addActor(new Label(5259, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5259, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(20, 105);
         }});
 
@@ -369,13 +369,13 @@ public class LobbyScreen extends ScreenAdapter {
               joingamebckg.getRegionWidth() / 2 - getWidth() / 2,
               joingamebckg.getRegionHeight() - getHeight());
         }});
-        addActor(new Label(5274, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5274, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(12, 328);
         }});
-        addActor(new Label(5225, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5225, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(188, 328);
         }});
-        addActor(new Label(5275, Diablo.fonts.font16, Diablo.colors.unique) {{
+        addActor(new Label(5275, Diablo.fonts.font16, Diablo.colors.gold) {{
           setPosition(16, 236);
         }});
 
@@ -390,7 +390,7 @@ public class LobbyScreen extends ScreenAdapter {
         tfPassword.setSize(160, 20);
         addActor(tfPassword);
 
-        List.ListStyle style3 = new List.ListStyle(Diablo.fonts.fontformal10, Diablo.colors.unique, Diablo.colors.white,
+        List.ListStyle style3 = new List.ListStyle(Diablo.fonts.fontformal10, Diablo.colors.gold, Diablo.colors.white,
             new TextureRegionDrawable(Diablo.textures.white));
         final List<Session> list = new List<>(style3);
         list.setPosition(14, 54);

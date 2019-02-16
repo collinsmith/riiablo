@@ -168,12 +168,12 @@ public class LoginScreen extends ScreenAdapter {
         setAlignment(Align.center);
       }}).width(400).space(8).row();
       add(new Table() {{
-        add(new Label(5224, Diablo.fonts.font16, Diablo.colors.unique)).align(Align.left).row();
+        add(new Label(5224, Diablo.fonts.font16, Diablo.colors.gold)).align(Align.left).row();
         add(new TextField(textFieldStyle)).row();
         align(Align.left);
       }}).space(8).row();
       add(new Table() {{
-        add(new Label(5225, Diablo.fonts.font16, Diablo.colors.unique)).align(Align.left).row();
+        add(new Label(5225, Diablo.fonts.font16, Diablo.colors.gold)).align(Align.left).row();
         add(new TextField(textFieldStyle)).row();
       }}).space(8).row();
       add(btnLogIn).space(8).row();

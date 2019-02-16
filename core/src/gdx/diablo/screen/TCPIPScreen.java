@@ -155,14 +155,14 @@ public class TCPIPScreen extends ScreenAdapter {
       ip = address.getHostAddress();
     } catch (UnknownHostException e) {}
     lbHostIP = new Label(Diablo.string.lookup(5121) + '\n' + ip, Diablo.fonts.font16);
-    lbHostIP.setColor(Diablo.colors.unique);
+    lbHostIP.setColor(Diablo.colors.gold);
     lbHostIP.setAlignment(Align.center);
     btnHostGame = new TextButton(5118, style);
     btnHostGame.addListener(clickListener);
     btnJoinGame = new TextButton(5119, style);
     btnJoinGame.addListener(clickListener);
     lbDescription = new Label(null, Diablo.fonts.fontformal12);
-    lbDescription.setColor(Diablo.colors.unique);
+    lbDescription.setColor(Diablo.colors.gold);
     lbDescription.setAlignment(Align.center | Align.top);
     lbDescription.setWrap(true);
 
