@@ -100,7 +100,6 @@ public class PaletteIndexedBatch extends SpriteBatch {
     setColor(Color.WHITE);
   }
 
-
   public float getGamma() {
     return gamma;
   }

@@ -19,6 +19,7 @@ import gdx.diablo.codec.Animation;
 import gdx.diablo.codec.COF;
 import gdx.diablo.codec.COFD2;
 import gdx.diablo.codec.DCC;
+import gdx.diablo.codec.util.BBox;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
@@ -117,6 +118,7 @@ public class Entity {
   float   angle    = MathUtils.PI * 3 / 2;
 
   Animation animation;
+  public boolean   over = true;
 
   public static Entity create(DS1 ds1, DS1.Object obj) {
     final int type = obj.type;
@@ -342,12 +344,24 @@ public class Entity {
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
     animation.draw(batch, x, y);
+    if (over) drawLabel(batch);
   }
+
+  public void drawLabel(PaletteIndexedBatch batch) {}
 
   public boolean move() {
     int x = Direction.getOffX(angle);
     int y = Direction.getOffY(angle);
     position.add(x, y, 0);
     return true;
+  }
+
+  public boolean contains(Vector3 coords) {
+    if (animation == null) return false;
+    BBox box = animation.getBox();
+    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50)  - (box.width / 2);
+    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50) - box.yMax;
+    return x <= coords.x && coords.x <= x + box.width
+       &&  y <= coords.y && coords.y <= y + box.height;
   }
 }

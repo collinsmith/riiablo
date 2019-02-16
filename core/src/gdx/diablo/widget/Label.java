@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import gdx.diablo.Diablo;
@@ -39,6 +40,17 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
 
   public void draw(PaletteIndexedBatch batch, float a) {
     validate();
+
+    LabelStyle style = getStyle();
+    if (style != null) {
+      Drawable background = style.background;
+      if (background != null) {
+        // TODO: background.getLeftWidth() looks like it shifts background.getMinWidth() -- bug?
+        background.draw(batch,
+            getX() /*- background.getLeftWidth()*/, getY() - background.getBottomHeight(),
+            getWidth() + background.getMinWidth(), getHeight() + background.getMinHeight());
+      }
+    }
 
     batch.setBlendMode(((FontTBL.BitmapFont) getStyle().font).getBlendMode());
     BitmapFontCache cache = getBitmapFontCache();

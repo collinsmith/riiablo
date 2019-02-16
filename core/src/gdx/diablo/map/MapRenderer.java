@@ -102,6 +102,41 @@ public class MapRenderer {
     this.entities = entities;
   }
 
+  public Entity hit() {
+    Vector3 coords = new Vector3();
+    coords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+    camera.unproject(coords);
+    float adjustX = (int) coords.x;
+    float adjustY = (int) coords.y - Tile.SUBTILE_HEIGHT50;
+
+    float selectX = ( adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
+    float selectY = (-adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
+    if (selectX < 0) selectX--;
+    if (selectY < 0) selectY--;
+
+    int mx = -Tile.SUBTILE_WIDTH50  + ((int)selectX * Tile.SUBTILE_WIDTH50)  - ((int)selectY * Tile.SUBTILE_WIDTH50);
+    int my = -Tile.SUBTILE_HEIGHT50 - ((int)selectX * Tile.SUBTILE_HEIGHT50) - ((int)selectY * Tile.SUBTILE_HEIGHT50);
+
+    Map.Zone zone = map.getZone((int) selectX, (int) selectY);
+    if (zone != null) {
+      for (Entity entity : zone.entities) {
+        entity.over = entity.contains(coords);
+        /*Vector3 position = entity.position();
+        float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+        float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+        if (x < coords.x && coords.x < x + 50
+            && y < coords.y && coords.y < y + 50) {
+          entity.over = true;
+          return entity;
+        } else {
+          entity.over = false;
+        }*/
+      }
+    }
+
+    return null;
+  }
+
   public void setMap(Map map) {
     if (this.map != map) {
       this.map = map;
@@ -251,11 +286,11 @@ public class MapRenderer {
                 case Map.FLOOR_OFFSET: case Map.FLOOR_OFFSET + 1:
                   //drawWalls(batch, tile, px, py, false);
                   drawFloor(batch, tile, px, py);
+                  break;
+                case Map.SHADOW_OFFSET:
                   //batch.setBlendMode(BlendMode.SHADOW, SHADOW_TINT);
                   //drawShadows(batch, tx, ty, px, py);
                   //batch.resetBlendMode();
-                  break;
-                case Map.SHADOW_OFFSET:
                   break;
                 case Map.WALL_OFFSET:
                   drawEntities(batch, stx, sty);
@@ -411,17 +446,17 @@ public class MapRenderer {
       int mx = -Tile.SUBTILE_WIDTH50  + ((int)selectX * Tile.SUBTILE_WIDTH50)  - ((int)selectY * Tile.SUBTILE_WIDTH50);
       int my = -Tile.SUBTILE_HEIGHT50 - ((int)selectX * Tile.SUBTILE_HEIGHT50) - ((int)selectY * Tile.SUBTILE_HEIGHT50);
 
-      shapes.end();
-      batch.begin();
-      batch.setShader(null);
-      batch.setProjectionMatrix(camera.combined);
-      Diablo.fonts.consolas16.draw(batch,
-          String.format("%3.0f,%3.0f%n%3.0f,%3.0f%n%3.0f,%3.0f%n%3d,%3d",
-              coords.x, coords.y, adjustX, adjustY, selectX, selectY, mx + Tile.SUBTILE_WIDTH50, my + Tile.SUBTILE_HEIGHT50),
-          coords.x + 10, coords.y - 10);
-      batch.end();
-      batch.getProjectionMatrix().idt();
-      shapes.begin();
+      //shapes.end();
+      //batch.begin();
+      //batch.setShader(null);
+      //batch.setProjectionMatrix(camera.combined);
+      //Diablo.fonts.consolas16.draw(batch,
+      //    String.format("%3.0f,%3.0f%n%3.0f,%3.0f%n%3.0f,%3.0f%n%3d,%3d",
+      //        coords.x, coords.y, adjustX, adjustY, selectX, selectY, mx + Tile.SUBTILE_WIDTH50, my + Tile.SUBTILE_HEIGHT50),
+      //    coords.x + 10, coords.y - 10);
+      //batch.end();
+      //batch.getProjectionMatrix().idt();
+      //shapes.begin();
       shapes.setColor(Color.VIOLET);
       drawDiamond(shapes, mx, my, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }

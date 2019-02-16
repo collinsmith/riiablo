@@ -32,6 +32,7 @@ public class Colors {
   public Color purple = PURPLE.cpy();
   public Color c12    = C12.cpy();
   public Color modal  = black.cpy().sub(0, 0, 0, 0.5f);
+  public Color modal2 = black.cpy().sub(0, 0, 0, 0.25f);
 
   public Colors() {}
 

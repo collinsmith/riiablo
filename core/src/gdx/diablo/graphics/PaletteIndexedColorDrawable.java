@@ -17,6 +17,30 @@ public class PaletteIndexedColorDrawable extends TextureRegionDrawable {
   }
 
   @Override
+  public void setLeftWidth(float leftWidth) {
+    super.setLeftWidth(leftWidth);
+    setMinWidth(getLeftWidth() + getRightWidth());
+  }
+
+  @Override
+  public void setRightWidth(float rightWidth) {
+    super.setRightWidth(rightWidth);
+    setMinWidth(getLeftWidth() + getRightWidth());
+  }
+
+  @Override
+  public void setTopHeight(float topHeight) {
+    super.setTopHeight(topHeight);
+    setMinHeight(getTopHeight() + getBottomHeight());
+  }
+
+  @Override
+  public void setBottomHeight(float bottomHeight) {
+    super.setBottomHeight(bottomHeight);
+    setMinHeight(getTopHeight() + getBottomHeight());
+  }
+
+  @Override
   public void draw(Batch batch, float x, float y, float width, float height) {
     if (!(batch instanceof PaletteIndexedBatch)) {
       // unsupported, will draw white for now

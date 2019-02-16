@@ -20,10 +20,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import gdx.diablo.COFs;
+import gdx.diablo.Colors;
 import gdx.diablo.Diablo;
 import gdx.diablo.Files;
 import gdx.diablo.Fonts;
 import gdx.diablo.Palettes;
+import gdx.diablo.Textures;
 import gdx.diablo.codec.COF;
 import gdx.diablo.codec.DC6;
 import gdx.diablo.codec.DCC;
@@ -98,6 +100,8 @@ public class MapViewer extends ApplicationAdapter {
 
     Diablo.files = new Files(assets);
     Diablo.fonts = new Fonts(assets);
+    Diablo.colors = new Colors();
+    Diablo.textures = new Textures();
     Diablo.cofs = new COFs(assets);//COFD2.loadFromFile(resolver.resolve("data\\global\\cmncof_a1.d2"));
 
     TXT txt = TXT.loadFromFile(Gdx.files.local("data/ds1types.txt"));
@@ -298,11 +302,14 @@ public class MapViewer extends ApplicationAdapter {
     }
 
     Gdx.app.debug(TAG, "JAVA: " + Gdx.app.getJavaHeap() + " Bytes; NATIVE: " + Gdx.app.getNativeHeap() + " Bytes");
+    Diablo.batch.setGamma(1.2f);
   }
 
   @Override
   public void render() {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+    mapRenderer.hit();
 
     PaletteIndexedBatch batch = Diablo.batch;
     batch.setProjectionMatrix(camera.combined);
@@ -351,6 +358,7 @@ public class MapViewer extends ApplicationAdapter {
     font.dispose();
     shapes.dispose();
     palette.dispose();
+    Diablo.textures.dispose();
     Diablo.assets.dispose();
     Diablo.batch.dispose();
     Diablo.shader.dispose();
