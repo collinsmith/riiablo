@@ -26,6 +26,9 @@ import gdx.diablo.item.Item;
  *        and because it will rely on existing code for changing item colors, etc.
  */
 public class Cursor {
+  private static final String TAG = "Cursor";
+  private static final boolean DEBUG             = true;
+  private static final boolean DEBUG_ITEM_BOUNDS = DEBUG && !true;
 
   private com.badlogic.gdx.graphics.Cursor cursor;
   private Item item;
@@ -105,12 +108,14 @@ public class Cursor {
       batch.resetColormap();
       batch.end();
 
-      ShapeRenderer shapes = Diablo.shapes;
-      shapes.setProjectionMatrix(Diablo.viewport.getCamera().combined);
-      shapes.begin(ShapeRenderer.ShapeType.Line);
-      shapes.setColor(Color.GREEN);
-      shapes.rect(coords.x, coords.y, box.width, box.height);
-      shapes.end();
+      if (DEBUG_ITEM_BOUNDS) {
+        ShapeRenderer shapes = Diablo.shapes;
+        shapes.setProjectionMatrix(Diablo.viewport.getCamera().combined);
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(Color.GREEN);
+        shapes.rect(coords.x, coords.y, box.width, box.height);
+        shapes.end();
+      }
     }
   }
 
