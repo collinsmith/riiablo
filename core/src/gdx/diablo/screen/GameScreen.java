@@ -121,7 +121,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     input = new TextArea("", new TextArea.TextFieldStyle() {{
       this.font = Diablo.fonts.fontformal12;
       this.fontColor = Diablo.colors.white;
-      this.background = new PaletteIndexedColorDrawable(Diablo.colors.modal);
+      this.background = new PaletteIndexedColorDrawable(Diablo.colors.modal50);
       this.cursor = new TextureRegionDrawable(Diablo.textures.white);
 
       float padding = 4;
@@ -379,6 +379,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     PaletteIndexedBatch b = Diablo.batch;
     b.setPalette(Diablo.palettes.act1);
+
+    mapRenderer.hit();
 
     b.setProjectionMatrix(camera.combined);
     b.begin();

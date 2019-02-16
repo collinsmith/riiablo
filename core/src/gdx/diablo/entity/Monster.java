@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +44,7 @@ public class Monster extends Entity {
     }
 
     label = new Label(monstats.NameStr, Diablo.fonts.font16);
-    label.getStyle().background = new PaletteIndexedColorDrawable(Diablo.colors.modal2) {{
+    label.getStyle().background = new PaletteIndexedColorDrawable(Diablo.colors.modal75) {{
       final float padding = 3;
       setLeftWidth(padding);
       setTopHeight(padding);
@@ -113,10 +114,16 @@ public class Monster extends Entity {
     //BitmapFont font = Diablo.fonts.font16;
     //GlyphLayout glyphs = new GlyphLayout(font, "Test", font.getColor(), 0, Align.center, false);
 
-    //batch.setBlendMode(BlendMode.SOLID, Diablo.colors.modal);
+    //batch.setBlendMode(BlendMode.SOLID, Diablo.colors.modal50);
     //batch.draw(Diablo.textures.white, x - glyphs.width / 2, y + animation.getMinHeight(), glyphs.width, glyphs.height);
     //batch.resetBlendMode();
 
     //font.draw(batch, glyphs, x, y + animation.getMinHeight() + font.getLineHeight());
+  }
+
+  @Override
+  public boolean contains(Vector3 coords) {
+    if (!monstats2.isSel) return false;
+    return super.contains(coords);
   }
 }

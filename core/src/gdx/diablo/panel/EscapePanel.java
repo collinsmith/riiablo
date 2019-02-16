@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.Disposable;
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.Animation;
 import gdx.diablo.codec.DC6;
+import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.screen.MenuScreen;
 
@@ -109,12 +110,13 @@ public class EscapePanel extends WidgetGroup implements Disposable {
     table.add(focusActor[5]).row();
 
     table.setFillParent(true);
+    table.setBackground(new PaletteIndexedColorDrawable(Diablo.colors.modal50));
     addActor(table);
 
     setFillParent(true);
     setVisible(false);
     setTouchable(Touchable.childrenOnly);
-    //setDebug(true, true);
+    setDebug(true, true);
   }
 
   @Override
