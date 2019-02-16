@@ -36,5 +36,11 @@ public class Colors {
 
   public Colors() {}
 
-  public void load() {}
+  public void load() {
+    // TODO: Add item color cvars
+    //Cvars.Client.Colors.unique = gold;
+    //Cvars.Client.Colors.unique.addListener(
+    //    unique.set(toValue)
+    //)
+  }
 }
