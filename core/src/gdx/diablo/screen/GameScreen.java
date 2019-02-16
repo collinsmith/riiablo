@@ -403,14 +403,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     player.drawDebug(Diablo.shapes);
     Diablo.shapes.end();
 
-    b.setProjectionMatrix(camera.combined);
-    b.begin();
+    //b.setProjectionMatrix(camera.combined);
+    //b.begin();
 
-    for (Player p : entities.values()) {
-      p.draw(b);
-    }
+    //for (Player p : entities.values()) {
+    //  p.draw(b);
+    //}
 
-    b.end();
+    //b.end();
     b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
 
     //Diablo.shapes.setAutoShapeType(true);
@@ -436,6 +436,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     //camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     mapRenderer = new MapRenderer(Diablo.batch, camera);
     mapRenderer.setMap(map);
+    mapRenderer.setEntities(entities);
     mapRenderer.resize();
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);

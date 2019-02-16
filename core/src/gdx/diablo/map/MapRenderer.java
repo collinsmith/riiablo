@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Bits;
+import com.badlogic.gdx.utils.IntMap;
 
 import java.util.Arrays;
 
@@ -85,6 +86,8 @@ public class MapRenderer {
   // DT1 mainIndexes to not draw
   final Bits popped = new Bits();
 
+  IntMap<? extends Entity> entities;
+
   public MapRenderer(PaletteIndexedBatch batch, OrthographicCamera camera) {
     this.batch = batch;
     this.camera = camera;
@@ -93,6 +96,10 @@ public class MapRenderer {
     camera.near = -1000;
     camera.far  = 1000;
     camera.update();
+  }
+
+  public void setEntities(IntMap<? extends Entity> entities) {
+    this.entities = entities;
   }
 
   public void setMap(Map map) {
@@ -250,8 +257,10 @@ public class MapRenderer {
                   break;
                 case Map.SHADOW_OFFSET:
                   break;
-                case Map.WALL_OFFSET: case Map.WALL_OFFSET + 1: case Map.WALL_OFFSET + 2: case Map.WALL_OFFSET + 3:
+                case Map.WALL_OFFSET:
+                  drawEntities(batch, stx, sty);
                   drawObjects(batch, zone, stx, sty);
+                case Map.WALL_OFFSET + 1: case Map.WALL_OFFSET + 2: case Map.WALL_OFFSET + 3:
                   drawWall(batch, tile, px, py);
                   break;
                 case Map.TAG_OFFSET:
@@ -285,6 +294,17 @@ public class MapRenderer {
     TextureRegion texture = tile.tile.texture;
     //if (texture.getTexture().getTextureObjectHandle() == 0) return;
     batch.draw(texture, px, py, texture.getRegionWidth() + 1, texture.getRegionHeight() + 1);
+  }
+
+  void drawEntities(PaletteIndexedBatch batch, int stx, int sty) {
+    if (entities == null) return;
+    for (Entity entity : entities.values()) {
+      Vector3 position = entity.position();
+      if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
+       && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
+        entity.draw(batch);
+      }
+    }
   }
 
   void drawObjects(PaletteIndexedBatch batch, Map.Zone zone, int stx, int sty) {
