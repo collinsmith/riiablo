@@ -386,10 +386,13 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
       // FIXME: should block click events on UI panels, bugged right now
       //Actor hit = stage.hit(Gdx.input.getX(), Gdx.input.getY(), true);
-      //if (hit == null) {
+      //if (hit != null) {
         Vector3 coords = mapRenderer.getCursor();
-        player.target().set(coords);
-        player.updatePath(map);
+        //player.target().set(coords);
+        //player.updatePath(map, coords);
+        //if (player.path().getCount() > 0) {
+        //  player.setMode("RN");
+        //}
       //} else {
       //  System.out.println(hit);
       //}

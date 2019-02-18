@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -76,7 +77,7 @@ public class MapViewer extends ApplicationAdapter {
 
   Vector3 src;
   Vector3 dst;
-  GraphPath<Point2> path;
+  GraphPath<Point2> path = new DefaultGraphPath<>();
 
   boolean drawCrosshair;
   boolean drawGrid;
@@ -172,7 +173,7 @@ public class MapViewer extends ApplicationAdapter {
             //System.out.println(new Vector2(dstX, dstY).dst(srcX, srcY));
             System.out.println(src.dst(dst));
 
-            path = map.path(src, dst);
+            map.path(src, dst, path);
             break;
         }
         return true;
@@ -375,7 +376,7 @@ public class MapViewer extends ApplicationAdapter {
     mapRenderer.renderDebug(shapes);
     if (src != null && dst != null) {
       //mapRenderer.renderDebugPath(shapes, src, dst);
-      if (path != null) mapRenderer.renderDebugPath2(shapes, path);
+      mapRenderer.renderDebugPath2(shapes, path);
       float srcX = +(src.x * Tile.SUBTILE_WIDTH50)  - (src.y * Tile.SUBTILE_WIDTH50);
       float srcY = -(src.x * Tile.SUBTILE_HEIGHT50) - (src.y * Tile.SUBTILE_HEIGHT50);
       float dstX = +(dst.x * Tile.SUBTILE_WIDTH50)  - (dst.y * Tile.SUBTILE_WIDTH50);

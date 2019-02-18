@@ -3,8 +3,8 @@ package gdx.diablo.map;
 import com.badlogic.gdx.math.Vector3;
 
 public class Point2 extends BinaryHeap.Node {
-  final int x;
-  final int y;
+  public final int x;
+  public final int y;
   final int hash;
 
   Point2(int x, int y, float cost) {

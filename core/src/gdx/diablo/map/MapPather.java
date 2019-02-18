@@ -15,13 +15,14 @@ public class MapPather {
   }
 
   public boolean path(Vector3 src, Vector3 dst, GraphPath<Point2> path) {
+    if (src.dst(dst) > 25f) return false;
     return path(new Point2(src), new Point2(dst), path);
   }
 
   public boolean path(Point2 src, Point2 dst, GraphPath<Point2> path) {
     path.clear();
     Map.Zone zone = map.getZone(dst.x, dst.y);
-    if (zone.flags(dst.x, dst.y) != 0) return false;
+    if (zone == null || zone.flags(dst.x, dst.y) != 0) return false;
 
     BinaryHeap<Point2> closedSet = new BinaryHeap<>();
     BinaryHeap<Point2> openSet   = new BinaryHeap<>();
