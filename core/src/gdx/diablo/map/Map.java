@@ -546,9 +546,14 @@ public class Map implements Disposable {
     }
   }
 
-  public GraphPath<MapUtils.Point2> path(Vector3 src, Vector3 dst) {
+  public GraphPath<Point2> path(Vector3 src, Vector3 dst) {
     //return new MapGraph(this).path(src, dst);
-    return MapUtils.path(this, src, dst, new DefaultGraphPath<MapUtils.Point2>());
+    //return MapUtils.path(this, src, dst, new DefaultGraphPath<MapUtils.Point2>());
+    long start = System.currentTimeMillis();
+    GraphPath<Point2> path = new DefaultGraphPath<>();
+    new MapPather(this).path(src, dst, path);
+    System.out.println("time = " + (System.currentTimeMillis() - start) + "ms");
+    return path;
   }
 
   static class Zone {

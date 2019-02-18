@@ -76,7 +76,7 @@ public class MapViewer extends ApplicationAdapter {
 
   Vector3 src;
   Vector3 dst;
-  GraphPath<MapUtils.Point2> path;
+  GraphPath<Point2> path;
 
   boolean drawCrosshair;
   boolean drawGrid;

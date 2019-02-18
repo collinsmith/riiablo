@@ -30,6 +30,7 @@ public class MapUtils {
 
     Point2 next = null;
     Point2 last = coords.removeIndex(coords.size - 1);
+    path.add(last);
     while (true) {
       for (Point2 coord : coords) {
         if (last.adjacent(coord)) {

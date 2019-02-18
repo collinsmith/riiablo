@@ -937,12 +937,12 @@ public class MapRenderer {
     }
   }
 
-  public void renderDebugPath2(ShapeRenderer shapes, GraphPath<MapUtils.Point2> path) {
+  public void renderDebugPath2(ShapeRenderer shapes, GraphPath<Point2> path) {
     shapes.setColor(Color.TAN);
     shapes.set(ShapeRenderer.ShapeType.Filled);
     final int size = path.getCount();
     for (int i = 0; i < size; i++) {
-      MapUtils.Point2 point = path.get(i);
+      Point2 point = path.get(i);
       float px = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50)  - Tile.SUBTILE_WIDTH50;
       float py = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50) - Tile.SUBTILE_HEIGHT50;
       drawDiamondSolid(shapes, px, py, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
