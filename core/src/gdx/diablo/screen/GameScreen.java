@@ -8,7 +8,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
@@ -19,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Align;
@@ -36,6 +34,8 @@ import java.io.PrintWriter;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.Keys;
+import gdx.diablo.entity.Direction;
+import gdx.diablo.entity.Entity;
 import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.graphics.PaletteIndexedColorDrawable;
@@ -62,7 +62,7 @@ import gdx.diablo.widget.TextArea;
 
 public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
   private static final String TAG = "GameScreen";
-  private static final boolean DEBUG_TOUCHPAD = true;
+  private static final boolean DEBUG_TOUCHPAD = !true;
   private static final boolean DEBUG_MOBILE   = true;
 
   final AssetDescriptor<Sound> windowopenDescriptor = new AssetDescriptor<>("data\\global\\sfx\\cursor\\windowopen.wav", Sound.class);
@@ -87,7 +87,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   final AssetDescriptor<Map> mapDescriptor = new AssetDescriptor<>("Act 1", Map.class, MapLoader.MapParameters.of(0, 0, 0));
   Map map;
   MapRenderer mapRenderer;
-  OrthographicCamera camera;
   InputProcessor inputProcessorTest;
 
   public TextArea input;
@@ -216,25 +215,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       }});
       touchpad.setSize(164, 164);
       touchpad.setPosition(0, 0);
-      touchpad.addListener(new ChangeListener() {
-        @Override
-        public void changed(ChangeEvent event, Actor actor) {
-          float x = touchpad.getKnobPercentX();
-          float y = touchpad.getKnobPercentY();
-          if (x == 0 && y == 0) {
-            player.setMode("TN");
-            return;
-          //} else if (-0.5f < x && x < 0.5f
-          //        && -0.5f < y && y < 0.5f) {
-          //  character.setMode("tw");
-          } else {
-            player.setMode("RN");
-          }
-
-          float rad = MathUtils.atan2(y, x);
-          player.setAngle(rad);
-        }
-      });
       stage.addActor(touchpad);
     }
 
@@ -295,20 +275,19 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         switch (amount) {
           case -1:
             if (UIUtils.ctrl()) {
-              camera.zoom = Math.max(0.50f, camera.zoom - ZOOM_AMOUNT);
+              mapRenderer.zoom(Math.max(0.25f, mapRenderer.zoom() - ZOOM_AMOUNT));
             }
 
             break;
           case 1:
             if (UIUtils.ctrl()) {
-              camera.zoom = Math.min(5.0f, camera.zoom + ZOOM_AMOUNT);
+              mapRenderer.zoom(Math.min(2.50f, mapRenderer.zoom() + ZOOM_AMOUNT));
             }
 
             break;
           default:
         }
 
-        camera.update();
         return true;
       }
 
@@ -364,9 +343,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           case Packets.MOVETO:
             MoveTo moveTo = packet.readValue(MoveTo.class);
             Player p = entities.get(moveTo.id);
+            //if (p == player) break; // Disable forced update positions for now
             if (p != null) {
-              p.position().set(moveTo.x, moveTo.y, 0);
-              p.setAngle(moveTo.angle);
+              p.setPath(map, new Vector3(moveTo.x, moveTo.y, 0));
+              //p.setAngle(moveTo.angle);
             }
             break;
           case Packets.CONNECT_RESPONSE:
@@ -382,63 +362,46 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     PaletteIndexedBatch b = Diablo.batch;
     b.setPalette(Diablo.palettes.act1);
 
-    mapRenderer.hit();
-    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-      // FIXME: should block click events on UI panels, bugged right now
-      //Actor hit = stage.hit(Gdx.input.getX(), Gdx.input.getY(), true);
-      //if (hit != null) {
-        Vector3 coords = mapRenderer.getCursor();
-        //player.target().set(coords);
-        //player.updatePath(map, coords);
-        //if (player.path().getCount() > 0) {
-        //  player.setMode("RN");
-        //}
-      //} else {
-      //  System.out.println(hit);
-      //}
+    if (DEBUG_TOUCHPAD || Gdx.app.getType() == Application.ApplicationType.Android) {
+      float x = touchpad.getKnobPercentX();
+      float y = touchpad.getKnobPercentY();
+      if (x == 0 && y == 0) {
+        player.setPath(map, null);
+      } else {
+        float rad = MathUtils.atan2(y, x);
+        x = Direction.getOffX(rad);
+        y = Direction.getOffY(rad);
+        player.setPath(map, new Vector3(x, y, 0).add(player.position()));
+      }
+    } else {
+      if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+        GridPoint2 coords = mapRenderer.coords();
+        player.setPath(map, new Vector3(coords.x, coords.y, 0));
+      }
     }
 
-    b.setProjectionMatrix(camera.combined);
+    for (Entity entity : entities.values()) {
+      entity.update(delta);
+      if (!entity.position().epsilonEquals(entity.target())) {
+        float angle = mapRenderer.angle(entity.position(), entity.target());
+        entity.setAngle(angle);
+      }
+    }
+
+    mapRenderer.update();
+
     b.begin();
-    //map.draw(b, 0, 0, 30, 13, Diablo.VIRTUAL_WIDTH, Diablo.VIRTUAL_HEIGHT, 1.5f);
-    mapRenderer.render();
+    mapRenderer.draw(delta);
     b.end();
 
-    // pixel offset of subtile in world-space
-    //int spx = + (character.x * Tile.SUBTILE_WIDTH50)  - (character.y * Tile.SUBTILE_WIDTH50);
-    //int spy = - (character.x * Tile.SUBTILE_HEIGHT50) - (character.y * Tile.SUBTILE_HEIGHT50);
-    //character.draw(b, spx, spy);
-    //int spx = + (player.getOrigin().x * Tile.SUBTILE_WIDTH50)  - (player.getOrigin().y * Tile.SUBTILE_WIDTH50);
-    //int spy = - (player.getOrigin().x * Tile.SUBTILE_HEIGHT50) - (player.getOrigin().y * Tile.SUBTILE_HEIGHT50);
-    //player.draw(b, spx, spy);
-    //player.draw(b);
-
     Diablo.shapes.setAutoShapeType(true);
-    Diablo.shapes.setProjectionMatrix(camera.combined);
     Diablo.shapes.begin(ShapeRenderer.ShapeType.Line);
-    mapRenderer.renderDebug(Diablo.shapes);
-    //player.drawDebug(Diablo.shapes, spx, spy);
-    mapRenderer.renderDebugPath2(Diablo.shapes, player.path());
+    mapRenderer.drawDebug(Diablo.shapes);
+    mapRenderer.drawDebugPath(Diablo.shapes, player.path());
     player.drawDebug(Diablo.shapes);
     Diablo.shapes.end();
 
-    //b.setProjectionMatrix(camera.combined);
-    //b.begin();
-
-    //for (Player p : entities.values()) {
-    //  p.draw(b);
-    //}
-
-    //b.end();
     b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
-
-    //Diablo.shapes.setAutoShapeType(true);
-    //Diablo.shapes.setProjectionMatrix(camera.combined);
-    //Diablo.shapes.begin(ShapeRenderer.ShapeType.Line);
-    //mapRenderer.renderDebug(Diablo.shapes);
-    ////player.drawDebug(Diablo.shapes, spx, spy);
-    //player.drawDebug(Diablo.shapes);
-    //Diablo.shapes.end();
 
     stage.act();
     stage.draw();
@@ -450,23 +413,16 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.assets.get(windowopenDescriptor).play();
 
     map = Diablo.assets.get(mapDescriptor);
-    // FIXME: Below causes bug with debug text in MapRenderer, setting camera to screen dims fixes, but renders far too much on mobile
-    camera = new OrthographicCamera(Diablo.VIRTUAL_WIDTH, Diablo.VIRTUAL_HEIGHT);
-    //camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    mapRenderer = new MapRenderer(Diablo.batch, camera);
+    mapRenderer = new MapRenderer(Diablo.batch);
     mapRenderer.setMap(map);
+    mapRenderer.setSrc(player);
     mapRenderer.setEntities(entities);
+    if (Gdx.app.getType() == Application.ApplicationType.Android) {
+      mapRenderer.zoom(0.80f);
+    }
     mapRenderer.resize();
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-    mapRenderer.setPosition(origin);
-    if (Gdx.app.getType() == Application.ApplicationType.Android) {
-      camera.zoom = 0.80f;
-      camera.update();
-    }
-
-    //character.x = origin.x;
-    //character.y = origin.y;
     player.position().set(origin.x, origin.y, 0);
 
     Keys.Esc.addStateListener(mappedKeyStateListener);
@@ -496,11 +452,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
       @Override
       public void run() {
-        if (UIUtils.shift()) return;
-        boolean moved = player.move();
-        position.set((int) player.position().x, (int) player.position().y);
-        mapRenderer.setPosition(position);
-        if (!moved) return;
+        Vector3 pos = player.target();
+        position.set((int) pos.x, (int) pos.y);
         String moveTo = Packets.build(new MoveTo(position, player.getAngle()));
         out.println(moveTo);
       }

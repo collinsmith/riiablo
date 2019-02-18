@@ -1,7 +1,6 @@
 package gdx.diablo.map;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -9,12 +8,16 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.entity.Entity;
@@ -35,7 +38,7 @@ public class MapRenderer {
   private static final boolean DEBUG_SPECIAL  = DEBUG && true;
   private static final boolean DEBUG_MOUSE    = DEBUG && true;
   private static final boolean DEBUG_PATHS    = DEBUG && true;
-  private static final boolean DEBUG_POPPADS  = DEBUG && true;
+  private static final boolean DEBUG_POPPADS  = DEBUG && !true;
 
   public static boolean RENDER_DEBUG_SUBTILE  = DEBUG_SUBTILE;
   public static boolean RENDER_DEBUG_TILE     = DEBUG_TILE;
@@ -51,10 +54,24 @@ public class MapRenderer {
   private static final Color RENDER_DEBUG_GRID_COLOR_3 = new Color(0x0000ff3f);
   public static int DEBUG_GRID_MODES = 3;
 
+  // Extra padding to ensure proper overscan, should be odd value
+  private static final int TILES_PADDING_X = 3;
+  private static final int TILES_PADDING_Y = 3;
+
+  private final Vector3    tmpVec3  = new Vector3();
+  private final Vector2    tmpVec2a = new Vector2();
+  private final Vector2    tmpVec2b = new Vector2();
+  private final GridPoint2 tmpVec2i = new GridPoint2();
+
   PaletteIndexedBatch batch;
-  OrthographicCamera camera;
-  Map map;
-  int[] viewBuffer;
+  OrthographicCamera  camera;
+  Map                 map;
+  int viewBuffer[];
+  //int viewBuffer2[]; // lower walls
+  //int viewBuffer3[]; // upper walls
+
+  Entity  src;
+  Vector3 currentPos = new Vector3();
 
   // sub-tile index in world-space
   int x, y;
@@ -84,74 +101,31 @@ public class MapRenderer {
   // tpx and tpy of startX, startY tile in world-space
   int startPx, startPy;
 
+  // camera bounds
+  int renderMinX, renderMinY;
+  int renderMaxX, renderMaxY;
+
   // DT1 mainIndexes to not draw
   final Bits popped = new Bits();
 
   IntMap<? extends Entity> entities;
 
-  public MapRenderer(PaletteIndexedBatch batch, OrthographicCamera camera) {
-    this.batch = batch;
-    this.camera = camera;
+  public MapRenderer(PaletteIndexedBatch batch) {
+    this.batch  = batch;
+    this.camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    camera.setToOrtho(false, 480f * 16 / 9, 480);
+    setClipPlane(-1000, 1000);
+  }
 
-    // This adjusts clip plane
-    camera.near = -1000;
-    camera.far  = 1000;
+  // This adjusts clip plane for debugging purposes (some elements rotated to map grid)
+  private void setClipPlane(float near, float far) {
+    camera.near = near;
+    camera.far  = far;
     camera.update();
   }
 
-  public void setEntities(IntMap<? extends Entity> entities) {
-    this.entities = entities;
-  }
-
-  public Entity hit() {
-    Vector3 coords = new Vector3();
-    coords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-    camera.unproject(coords);
-    float adjustX = (int) coords.x;
-    float adjustY = (int) coords.y - Tile.SUBTILE_HEIGHT50;
-
-    float selectX = ( adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
-    float selectY = (-adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
-    if (selectX < 0) selectX--;
-    if (selectY < 0) selectY--;
-
-    int mx = -Tile.SUBTILE_WIDTH50  + ((int)selectX * Tile.SUBTILE_WIDTH50)  - ((int)selectY * Tile.SUBTILE_WIDTH50);
-    int my = -Tile.SUBTILE_HEIGHT50 - ((int)selectX * Tile.SUBTILE_HEIGHT50) - ((int)selectY * Tile.SUBTILE_HEIGHT50);
-
-    Map.Zone zone = map.getZone((int) selectX, (int) selectY);
-    if (zone != null) {
-      for (Entity entity : zone.entities) {
-        entity.over = entity.contains(coords);
-        /*Vector3 position = entity.position();
-        float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-        float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-        if (x < coords.x && coords.x < x + 50
-            && y < coords.y && coords.y < y + 50) {
-          entity.over = true;
-          return entity;
-        } else {
-          entity.over = false;
-        }*/
-      }
-    }
-
-    return null;
-  }
-
-  public Vector3 getCursor() {
-    Vector3 coords = new Vector3();
-    coords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-    camera.unproject(coords);
-    float adjustX = (int) coords.x;
-    float adjustY = (int) coords.y - Tile.SUBTILE_HEIGHT50;
-
-    float selectX = ( adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
-    float selectY = (-adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
-    if (selectX < 0) selectX--;
-    if (selectY < 0) selectY--;
-    coords.x = (int) selectX;
-    coords.y = (int) selectY;
-    return coords;
+  public Map getMap() {
+    return map;
   }
 
   public void setMap(Map map) {
@@ -160,24 +134,95 @@ public class MapRenderer {
     }
   }
 
-  public Map getMap() {
-    return map;
+  public Entity getSrc() {
+    return src;
   }
 
-  public GridPoint2 toWorldSpace(int x, int y) {// So final actual commands are:
-    x -= (camera.viewportWidth  / 2);
-    y -= (camera.viewportHeight / 2);
-    x += stx;
-    y += sty;
-    return new GridPoint2(
-        (x / Tile.SUBTILE_WIDTH50  + y / Tile.SUBTILE_HEIGHT50) / 2,
-        (y / Tile.SUBTILE_HEIGHT50 - x / Tile.SUBTILE_WIDTH50 ) / 2);
+  public void setSrc(Entity src) {
+    if (this.src != src) {
+      this.src = src;
+    }
+  }
+
+  public void setEntities(IntMap<? extends Entity> entities) {
+    this.entities = entities;
+  }
+
+  public float zoom() {
+    return camera.zoom;
+  }
+
+  public void zoom(float zoom) {
+    zoom(zoom, false);
+  }
+
+  public void zoom(float zoom, boolean resize) {
+    if (camera.zoom != zoom) {
+      camera.zoom = zoom;
+      update(true);
+      if (resize) resize();
+    }
+  }
+
+  public Vector2 project(Vector2 dst) {
+    return project(dst.x, dst.y, dst);
+  }
+
+  public Vector2 project(float x, float y, Vector2 dst) {
+    dst.x = +(x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
+    dst.y = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
+    return dst;
+  }
+
+  public Vector2 unproject(Vector2 dst) {
+    return unproject(dst.x, dst.y, dst);
+  }
+
+  public Vector2 unproject(float x, float y) {
+    return unproject(x, y, new Vector2());
+  }
+
+  public Vector2 unproject(float x, float y, Vector2 dst) {
+    tmpVec3.set(x, y, 0);
+    camera.unproject(tmpVec3);
+    return dst.set(tmpVec3.x, tmpVec3.y);
+  }
+
+  public GridPoint2 coords() {
+    return coords(new GridPoint2());
+  }
+
+  public GridPoint2 coords(GridPoint2 dst) {
+    tmpVec2a.set(Gdx.input.getX(), Gdx.input.getY());
+    unproject(tmpVec2a);
+    return coords(tmpVec2a.x, tmpVec2a.y, dst);
+  }
+
+  public GridPoint2 coords(float x, float y) {
+    return coords(x, y, new GridPoint2());
+  }
+
+  public GridPoint2 coords(float x, float y, GridPoint2 dst) {
+    float adjustX = (int) x;
+    float adjustY = (int) y - Tile.SUBTILE_HEIGHT50;
+    float selectX = ( adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
+    float selectY = (-adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
+    if (selectX < 0) selectX--;
+    if (selectY < 0) selectY--;
+    return dst.set((int) selectX, (int) selectY);
+  }
+
+  public float angle(Vector3 src, Vector3 dst) {
+    project(tmpVec2a.set(src.x, src.y));
+    project(tmpVec2b.set(dst.x, dst.y));
+    tmpVec2b.sub(tmpVec2a);
+    return MathUtils.atan2(tmpVec2b.y, tmpVec2b.x);
   }
 
   public void resize() {
     updateBounds();
     final int viewBufferLen = tilesX + tilesY - 1;
-    final int viewBufferMax = tilesX * 2 - 1;
+    final int viewBufferMax = tilesY * 2 - 1; // was tilesX, but seems better if bound to height
     viewBuffer = new int[viewBufferLen];
     int x, y;
     for (x = 0, y = 1; y < viewBufferMax; x++, y += 2)
@@ -188,80 +233,91 @@ public class MapRenderer {
   }
 
   private void updateBounds() {
-    width  = (int) camera.viewportWidth;
-    height = (int) camera.viewportHeight;
+    width  = (int) (camera.viewportWidth  * camera.zoom);
+    height = (int) (camera.viewportHeight * camera.zoom);
+
+    renderMinX = (int) camera.position.x - (width  >>> 1);
+    renderMinY = (int) camera.position.y - (height >>> 1);
+    renderMaxX = renderMinX + width;
+    renderMaxY = renderMinY + height;
 
     int minTilesX = ((width  + Tile.WIDTH  - 1) / Tile.WIDTH);
     int minTilesY = ((height + Tile.HEIGHT - 1) / Tile.HEIGHT);
     if ((minTilesX & 1) == 1) minTilesX++;
     if ((minTilesY & 1) == 1) minTilesY++;
-    tilesX = minTilesX + 3; // pad width comfortably
-    tilesY = minTilesY + 7; // pad height for lower walls / upper walls
+    tilesX = minTilesX + TILES_PADDING_X;
+    tilesY = minTilesY + TILES_PADDING_Y;
     renderWidth  = tilesX * Tile.WIDTH;
     renderHeight = tilesY * Tile.HEIGHT;
     assert (tilesX & 1) == 1 && (tilesY & 1) == 1;
   }
 
-  public void setPosition(GridPoint2 origin) {
-    setPosition(origin.x, origin.y);
+  public void update() {
+    update(false);
   }
 
-  public void setPosition(int x, int y) {
-    setPosition(x, y, false);
-  }
+  public void update(boolean force) {
+    hitAll();
+    if (src == null) return;
+    Vector3 pos = src.position();
+    if (pos.epsilonEquals(currentPos) && !force) return;
+    currentPos.set(pos);
+    this.x = (int) pos.x;
+    this.y = (int) pos.y;
+    spx =  (x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
+    spy = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
+    float spxf =  (pos.x * Tile.SUBTILE_WIDTH50)  - (pos.y * Tile.SUBTILE_WIDTH50);
+    float spyf = -(pos.x * Tile.SUBTILE_HEIGHT50) - (pos.y * Tile.SUBTILE_HEIGHT50);
+    camera.position.set(spxf, spyf, 0);
+    camera.update();
 
-  public void setPosition(int x, int y, boolean force) {
-    if (this.x != x || this.y != y || force) {
-      this.x = x;
-      this.y = y;
-      spx =  (x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
-      spy = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
-      camera.position.set(spx, spy, 0);
-      camera.update();
-      // subtile index in tile-space
-      stx = x < 0
-          ? (x + 1) % Tile.SUBTILE_SIZE + (Tile.SUBTILE_SIZE - 1)
-          : x % Tile.SUBTILE_SIZE;
-      sty = y < 0
-          ? (y + 1) % Tile.SUBTILE_SIZE + (Tile.SUBTILE_SIZE - 1)
-          : y % Tile.SUBTILE_SIZE;
-      t   = Tile.SUBTILE_INDEX[stx][sty];
+    // subtile index in tile-space
+    stx = x < 0
+        ? (x + 1) % Tile.SUBTILE_SIZE + (Tile.SUBTILE_SIZE - 1)
+        : x % Tile.SUBTILE_SIZE;
+    sty = y < 0
+        ? (y + 1) % Tile.SUBTILE_SIZE + (Tile.SUBTILE_SIZE - 1)
+        : y % Tile.SUBTILE_SIZE;
+    t   = Tile.SUBTILE_INDEX[stx][sty];
 
-      // pixel offset of subtile in world-space
-      spx = -Tile.SUBTILE_WIDTH50  + (x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
-      spy = -Tile.SUBTILE_HEIGHT50 - (x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
+    // pixel offset of subtile in world-space
+    spx = -Tile.SUBTILE_WIDTH50  + (x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
+    spy = -Tile.SUBTILE_HEIGHT50 - (x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
 
-      // tile index in world-space
-      tx = x < 0
-          ? ((x + 1) / Tile.SUBTILE_SIZE) - 1
-          : (x / Tile.SUBTILE_SIZE);
-      ty = y < 0
-          ? ((y + 1) / Tile.SUBTILE_SIZE) - 1
-          : (y / Tile.SUBTILE_SIZE);
+    // tile index in world-space
+    tx = x < 0
+        ? ((x + 1) / Tile.SUBTILE_SIZE) - 1
+        : (x / Tile.SUBTILE_SIZE);
+    ty = y < 0
+        ? ((y + 1) / Tile.SUBTILE_SIZE) - 1
+        : (y / Tile.SUBTILE_SIZE);
 
-      tpx = spx - Tile.SUBTILE_OFFSET[t][0];
-      tpy = spy - Tile.SUBTILE_OFFSET[t][1];
+    tpx = spx - Tile.SUBTILE_OFFSET[t][0];
+    tpy = spy - Tile.SUBTILE_OFFSET[t][1];
 
-      updateBounds();
+    //updateBounds();
+    renderMinX = (int) camera.position.x - (width  >>> 1);
+    renderMinY = (int) camera.position.y - (height >>> 1);
+    renderMaxX = renderMinX + width;
+    renderMaxY = renderMinY + height;
 
-      final int offX = tilesX >>> 1;
-      final int offY = tilesY >>> 1;
-      startX = tx + offX - offY;
-      startY = ty - offX - offY;
-      startPx = tpx + renderWidth  / 2 - Tile.WIDTH50;
-      startPy = tpy + renderHeight / 2 - Tile.HEIGHT50;
+    final int offX = tilesX >>> 1;
+    final int offY = tilesY >>> 1;
+    startX = tx + offX - offY;
+    startY = ty - offX - offY;
+    startPx = tpx + renderWidth  / 2 - Tile.WIDTH50;
+    startPy = tpy + renderHeight / 2 - Tile.HEIGHT50;
 
-      if (DEBUG_MATH) {
-        Gdx.app.debug(TAG,
-            String.format("(%2d,%2d){%d,%d}[%2d,%2d](%dx%d)[%dx%d] %d,%d",
-                x, y, stx, sty, tx, ty, width, height, tilesX, tilesY, spx, spy));
-      }
+    if (DEBUG_MATH) {
+      Gdx.app.debug(TAG,
+          String.format("(%2d,%2d){%d,%d}[%2d,%2d](%dx%d)[%dx%d] %d,%d",
+              x, y, stx, sty, tx, ty, width, height, tilesX, tilesY, spx, spy));
+    }
 
-      map.updatePopPads(popped, x, y, tx, ty, stx, sty);
-      if (DEBUG_POPPADS) {
-        String popPads = getPopPads();
-        if (!popPads.isEmpty()) Gdx.app.debug(TAG, "PopPad IDs: " + popPads);
-      }
+    map.updatePopPads(popped, x, y, tx, ty, stx, sty);
+    if (DEBUG_POPPADS) {
+      String popPads = getPopPads();
+      if (!popPads.isEmpty()) Gdx.app.debug(TAG, "PopPad IDs: " + popPads);
     }
   }
 
@@ -278,8 +334,18 @@ public class MapRenderer {
     return builder.toString();
   }
 
-  // TODO: render will overscan image in y-axis to accommodate walls, should change to wall only instead of entire frame
-  public void render() {
+  private void hitAll() {
+    coords(tmpVec2i); // also sets tmpVec3 to unprojected coords -- TODO: tmpVec3 should be passed in explicitly
+    Map.Zone zone = map.getZone(tmpVec2i.x, tmpVec2i.y);
+    if (zone != null) {
+      for (Entity entity : zone.entities) {
+        entity.over = entity.contains(tmpVec3);
+      }
+    }
+  }
+
+  public void draw(float delta) {
+    batch.setProjectionMatrix(camera.combined);
     for (int i = 0, x, y; i < Map.MAX_LAYERS; i++) {
       int startX2 = startX;
       int startY2 = startY;
@@ -301,6 +367,9 @@ public class MapRenderer {
               Map.Tile tile = zone.get(i, tx, ty);
               switch (i) {
                 case Map.FLOOR_OFFSET: case Map.FLOOR_OFFSET + 1:
+                  // TODO: Expand upon this idea... Good idea to limit upper/lower walls too!
+                  if (px > renderMaxX || py > renderMaxY) break;
+                  if (px + Tile.WIDTH < renderMinX || py + Tile.HEIGHT < renderMinY) break;
                   //drawWalls(batch, tile, px, py, false);
                   drawFloor(batch, tile, px, py);
                   break;
@@ -312,6 +381,7 @@ public class MapRenderer {
                 case Map.WALL_OFFSET:
                   drawEntities(batch, stx, sty);
                   drawObjects(batch, zone, stx, sty);
+                  // fall-through
                 case Map.WALL_OFFSET + 1: case Map.WALL_OFFSET + 2: case Map.WALL_OFFSET + 3:
                   drawWall(batch, tile, px, py);
                   break;
@@ -397,16 +467,18 @@ public class MapRenderer {
     }
   }
 
-  public void renderDebug(ShapeRenderer shapes) {
+  public void drawDebug(ShapeRenderer shapes) {
+    batch.setProjectionMatrix(camera.combined);
+    shapes.setProjectionMatrix(camera.combined);
     if (RENDER_DEBUG_GRID > 0)
-      renderDebugGrid(shapes);
+      drawDebugGrid(shapes);
 
     if (RENDER_DEBUG_WALKABLE > 0)
-      renderDebugWalkable(shapes);
+      drawDebugWalkable(shapes);
 
-    if (RENDER_DEBUG_SPECIAL) {
-      renderDebugSpecial(shapes);
-    }
+
+    if (RENDER_DEBUG_SPECIAL)
+      drawDebugSpecial(shapes);
 
     if (RENDER_DEBUG_TILE) {
       shapes.setColor(Color.OLIVE);
@@ -418,200 +490,48 @@ public class MapRenderer {
       drawDiamond(shapes, spx, spy, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }
 
-    if (RENDER_DEBUG_PATHS) {
-      renderDebugPaths(shapes);
-    }
+    if (RENDER_DEBUG_PATHS)
+      drawDebugPaths(shapes);
 
     if (RENDER_DEBUG_CAMERA) {
+      float viewportWidth  = width;
+      float viewportHeight = height;
       shapes.setColor(Color.GREEN);
       shapes.rect(
-          camera.position.x - camera.viewportWidth  / 2,
-          camera.position.y - camera.viewportHeight / 2,
-          camera.viewportWidth + 1, camera.viewportHeight + 1);
+          camera.position.x - MathUtils.ceil(viewportWidth  / 2),
+          camera.position.y - MathUtils.ceil(viewportHeight / 2),
+          viewportWidth + 2, viewportHeight + 2);
     }
 
     if (RENDER_DEBUG_OVERSCAN) {
-      shapes.setColor(Color.GRAY);
+      /*shapes.setColor(Color.LIGHT_GRAY);
+      shapes.rect(
+          tpx - renderWidth  / 2 + Tile.WIDTH50,
+          tpy - renderHeight / 2 + Tile.HEIGHT50 + renderHeight,
+          renderWidth, 96);
+      shapes.setColor(Color.GRAY);*/
       shapes.rect(
           tpx - renderWidth  / 2 + Tile.WIDTH50,
           tpy - renderHeight / 2 + Tile.HEIGHT50,
           renderWidth, renderHeight);
+      /*shapes.setColor(Color.DARK_GRAY);
+      shapes.rect(
+          tpx - renderWidth  / 2 + Tile.WIDTH50,
+          tpy - renderHeight / 2 + Tile.HEIGHT50 - 96,
+          renderWidth, 96);*/
     }
 
     if (DEBUG_MOUSE) {
-      //int screenX = (int) camera.position.x - (int) camera.viewportWidth  / 2 + Gdx.input.getX();
-      //int screenY = (int) camera.position.y + (int) camera.viewportHeight / 2 - Gdx.input.getY();
-      //int screenX = (int) (((int) camera.position.x - (int) camera.viewportWidth  / 2 + Gdx.input.getX()) * camera.zoom);
-      //int screenY = (int) (((int) camera.position.y + (int) camera.viewportHeight / 2 - Gdx.input.getY()) * camera.zoom);
-      //int adjustX = screenX;
-      //int adjustY = screenY - Tile.SUBTILE_HEIGHT50;
-      Vector3 coords = new Vector3();
-      coords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-      camera.unproject(coords);
-      float adjustX = (int) coords.x;
-      float adjustY = (int) coords.y - Tile.SUBTILE_HEIGHT50;
+      coords(tmpVec2i);
+      int mx = -Tile.SUBTILE_WIDTH50  + (tmpVec2i.x * Tile.SUBTILE_WIDTH50)  - (tmpVec2i.y * Tile.SUBTILE_WIDTH50);
+      int my = -Tile.SUBTILE_HEIGHT50 - (tmpVec2i.x * Tile.SUBTILE_HEIGHT50) - (tmpVec2i.y * Tile.SUBTILE_HEIGHT50);
 
-      //shapes.setColor(Color.VIOLET);
-      //shapes.line(screenX - 10, screenY, screenX + 10, screenY);
-      //shapes.line(screenX, screenY - 10, screenX, screenY + 10);
-
-      float selectX = ( adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
-      float selectY = (-adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
-      if (selectX < 0) selectX--;
-      if (selectY < 0) selectY--;
-
-      int mx = -Tile.SUBTILE_WIDTH50  + ((int)selectX * Tile.SUBTILE_WIDTH50)  - ((int)selectY * Tile.SUBTILE_WIDTH50);
-      int my = -Tile.SUBTILE_HEIGHT50 - ((int)selectX * Tile.SUBTILE_HEIGHT50) - ((int)selectY * Tile.SUBTILE_HEIGHT50);
-
-      //shapes.end();
-      //batch.begin();
-      //batch.setShader(null);
-      //batch.setProjectionMatrix(camera.combined);
-      //Diablo.fonts.consolas16.draw(batch,
-      //    String.format("%3.0f,%3.0f%n%3.0f,%3.0f%n%3.0f,%3.0f%n%3d,%3d",
-      //        coords.x, coords.y, adjustX, adjustY, selectX, selectY, mx + Tile.SUBTILE_WIDTH50, my + Tile.SUBTILE_HEIGHT50),
-      //    coords.x + 10, coords.y - 10);
-      //batch.end();
-      //batch.getProjectionMatrix().idt();
-      //shapes.begin();
       shapes.setColor(Color.VIOLET);
       drawDiamond(shapes, mx, my, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }
   }
 
-  private void renderDebugWalkable(ShapeRenderer shapes) {
-    final int[] WALKABLE_ID = {
-        20, 21, 22, 23, 24,
-        15, 16, 17, 18, 19,
-        10, 11, 12, 13, 14,
-        5, 6, 7, 8, 9,
-        0, 1, 2, 3, 4
-    };
-
-    ShapeRenderer.ShapeType shapeType = shapes.getCurrentType();
-    shapes.set(ShapeRenderer.ShapeType.Filled);
-
-    int startX2 = startX;
-    int startY2 = startY;
-    int startPx2 = startPx;
-    int startPy2 = startPy;
-    int x, y;
-    for (y = 0; y < viewBuffer.length; y++) {
-      int tx = startX2;
-      int ty = startY2;
-      int px = startPx2;
-      int py = startPy2;
-      int size = viewBuffer[y];
-      for (x = 0; x < size; x++) {
-        Map.Zone zone = map.getZone(tx * Tile.SUBTILE_SIZE, ty * Tile.SUBTILE_SIZE);
-        if (zone != null) {
-          if (RENDER_DEBUG_WALKABLE == 1) {
-            for (int sty = 0, t = 0; sty < Tile.SUBTILE_SIZE; sty++) {
-              for (int stx = 0; stx < Tile.SUBTILE_SIZE; stx++, t++) {
-                int flags = zone.flags[zone.getLocalTX(tx) * Tile.SUBTILE_SIZE + stx][zone.getLocalTY(ty) * Tile.SUBTILE_SIZE + sty] & 0xFF;
-                if (flags == 0) continue;
-                renderDebugWalkableTiles(shapes, px, py, t, flags);
-              }
-            }
-          } else {
-            //Map.Tile[][] tiles = zone.tiles[RENDER_DEBUG_WALKABLE - 1];
-            //if (tiles != null) {
-              Map.Tile tile = zone.get(RENDER_DEBUG_WALKABLE - 2, tx, ty);
-              for (int t = 0; tile != null && tile.tile != null && t < Tile.NUM_SUBTILES; t++) {
-                int flags = tile.tile.flags[WALKABLE_ID[t]] & 0xFF;
-                if (flags == 0) continue;
-                renderDebugWalkableTiles(shapes, px, py, t, flags);
-              }
-            //}
-          }
-        }
-
-        tx++;
-        px += Tile.WIDTH50;
-        py -= Tile.HEIGHT50;
-      }
-
-      startY2++;
-      if (y >= tilesX - 1) {
-        startX2++;
-        startPy2 -= Tile.HEIGHT;
-      } else {
-        startX2--;
-        startPx2 -= Tile.WIDTH;
-      }
-    }
-
-    shapes.set(shapeType);
-  }
-
-  private void renderDebugWalkableTiles(ShapeRenderer shapes, int px, int py, int t, int flags) {
-    int offX = px + Tile.SUBTILE_OFFSET[t][0];
-    int offY = py + Tile.SUBTILE_OFFSET[t][1];
-
-    shapes.setColor(Color.CORAL);
-    drawDiamond(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-
-    offY += Tile.SUBTILE_HEIGHT50;
-
-    if ((flags & Tile.FLAG_BLOCK_WALK) != 0) {
-      shapes.setColor(Color.FIREBRICK);
-      shapes.triangle(
-          offX + 16, offY,
-          offX + 16, offY + 8,
-          offX + 24, offY + 4);
-    }
-    if ((flags & Tile.FLAG_BLOCK_LIGHT_LOS) != 0) {
-      shapes.setColor(Color.FOREST);
-      shapes.triangle(
-          offX + 16, offY,
-          offX + 32, offY,
-          offX + 24, offY + 4);
-    }
-    if ((flags & Tile.FLAG_BLOCK_JUMP) != 0) {
-      shapes.setColor(Color.ROYAL);
-      shapes.triangle(
-          offX + 16, offY,
-          offX + 32, offY,
-          offX + 24, offY - 4);
-    }
-    if ((flags & Tile.FLAG_BLOCK_PLAYER_WALK) != 0) {
-      shapes.setColor(Color.VIOLET);
-      shapes.triangle(
-          offX + 16, offY,
-          offX + 16, offY - 8,
-          offX + 24, offY - 4);
-    }
-    if ((flags & Tile.FLAG_BLOCK_UNKNOWN1) != 0) {
-      shapes.setColor(Color.GOLD);
-      shapes.triangle(
-          offX + 16, offY,
-          offX + 16, offY - 8,
-          offX + 8, offY - 4);
-    }
-    if ((flags & Tile.FLAG_BLOCK_LIGHT) != 0) {
-      shapes.setColor(Color.SKY);
-      shapes.triangle(
-          offX, offY,
-          offX + 16, offY,
-          offX + 8, offY - 4);
-    }
-    if ((flags & Tile.FLAG_BLOCK_UNKNOWN2) != 0) {
-      shapes.setColor(Color.WHITE);
-      shapes.triangle(
-          offX, offY,
-          offX + 16, offY,
-          offX + 8, offY + 4);
-    }
-    if ((flags & Tile.FLAG_BLOCK_UNKNOWN3) != 0) {
-      shapes.setColor(Color.SLATE);
-      shapes.triangle(
-          offX + 16, offY,
-          offX + 16, offY + 8,
-          offX + 8, offY + 4);
-    }
-  }
-
-  private void renderDebugGrid(ShapeRenderer shapes) {
+  private void drawDebugGrid(ShapeRenderer shapes) {
     int x, y;
     switch (RENDER_DEBUG_GRID) {
       case 1:
@@ -747,7 +667,139 @@ public class MapRenderer {
     }
   }
 
-  private void renderDebugSpecial(ShapeRenderer shapes) {
+  private void drawDebugWalkable(ShapeRenderer shapes) {
+    final int[] WALKABLE_ID = {
+        20, 21, 22, 23, 24,
+        15, 16, 17, 18, 19,
+        10, 11, 12, 13, 14,
+        5, 6, 7, 8, 9,
+        0, 1, 2, 3, 4
+    };
+
+    ShapeRenderer.ShapeType shapeType = shapes.getCurrentType();
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+
+    int startX2 = startX;
+    int startY2 = startY;
+    int startPx2 = startPx;
+    int startPy2 = startPy;
+    int x, y;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int px = startPx2;
+      int py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(tx * Tile.SUBTILE_SIZE, ty * Tile.SUBTILE_SIZE);
+        if (zone != null) {
+          if (RENDER_DEBUG_WALKABLE == 1) {
+            for (int sty = 0, t = 0; sty < Tile.SUBTILE_SIZE; sty++) {
+              for (int stx = 0; stx < Tile.SUBTILE_SIZE; stx++, t++) {
+                int flags = zone.flags[zone.getLocalTX(tx) * Tile.SUBTILE_SIZE + stx][zone.getLocalTY(ty) * Tile.SUBTILE_SIZE + sty] & 0xFF;
+                if (flags == 0) continue;
+                drawDebugWalkableTiles(shapes, px, py, t, flags);
+              }
+            }
+          } else {
+            //Map.Tile[][] tiles = zone.tiles[RENDER_DEBUG_WALKABLE - 1];
+            //if (tiles != null) {
+              Map.Tile tile = zone.get(RENDER_DEBUG_WALKABLE - 2, tx, ty);
+              for (int t = 0; tile != null && tile.tile != null && t < Tile.NUM_SUBTILES; t++) {
+                int flags = tile.tile.flags[WALKABLE_ID[t]] & 0xFF;
+                if (flags == 0) continue;
+                drawDebugWalkableTiles(shapes, px, py, t, flags);
+              }
+            //}
+          }
+        }
+
+        tx++;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
+      }
+    }
+
+    shapes.set(shapeType);
+  }
+
+  private void drawDebugWalkableTiles(ShapeRenderer shapes, int px, int py, int t, int flags) {
+    int offX = px + Tile.SUBTILE_OFFSET[t][0];
+    int offY = py + Tile.SUBTILE_OFFSET[t][1];
+
+    shapes.setColor(Color.CORAL);
+    drawDiamond(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+
+    offY += Tile.SUBTILE_HEIGHT50;
+
+    if ((flags & Tile.FLAG_BLOCK_WALK) != 0) {
+      shapes.setColor(Color.FIREBRICK);
+      shapes.triangle(
+          offX + 16, offY,
+          offX + 16, offY + 8,
+          offX + 24, offY + 4);
+    }
+    if ((flags & Tile.FLAG_BLOCK_LIGHT_LOS) != 0) {
+      shapes.setColor(Color.FOREST);
+      shapes.triangle(
+          offX + 16, offY,
+          offX + 32, offY,
+          offX + 24, offY + 4);
+    }
+    if ((flags & Tile.FLAG_BLOCK_JUMP) != 0) {
+      shapes.setColor(Color.ROYAL);
+      shapes.triangle(
+          offX + 16, offY,
+          offX + 32, offY,
+          offX + 24, offY - 4);
+    }
+    if ((flags & Tile.FLAG_BLOCK_PLAYER_WALK) != 0) {
+      shapes.setColor(Color.VIOLET);
+      shapes.triangle(
+          offX + 16, offY,
+          offX + 16, offY - 8,
+          offX + 24, offY - 4);
+    }
+    if ((flags & Tile.FLAG_BLOCK_UNKNOWN1) != 0) {
+      shapes.setColor(Color.GOLD);
+      shapes.triangle(
+          offX + 16, offY,
+          offX + 16, offY - 8,
+          offX + 8, offY - 4);
+    }
+    if ((flags & Tile.FLAG_BLOCK_LIGHT) != 0) {
+      shapes.setColor(Color.SKY);
+      shapes.triangle(
+          offX, offY,
+          offX + 16, offY,
+          offX + 8, offY - 4);
+    }
+    if ((flags & Tile.FLAG_BLOCK_UNKNOWN2) != 0) {
+      shapes.setColor(Color.WHITE);
+      shapes.triangle(
+          offX, offY,
+          offX + 16, offY,
+          offX + 8, offY + 4);
+    }
+    if ((flags & Tile.FLAG_BLOCK_UNKNOWN3) != 0) {
+      shapes.setColor(Color.SLATE);
+      shapes.triangle(
+          offX + 16, offY,
+          offX + 16, offY + 8,
+          offX + 8, offY + 4);
+    }
+  }
+
+  private void drawDebugSpecial(ShapeRenderer shapes) {
     for (int i = Map.WALL_OFFSET, x, y; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       int startX2 = startX;
       int startY2 = startY;
@@ -831,7 +883,7 @@ public class MapRenderer {
     }
   }
 
-  private void renderDebugPaths(ShapeRenderer shapes) {
+  private void drawDebugPaths(ShapeRenderer shapes) {
     shapes.set(ShapeRenderer.ShapeType.Filled);
     int startX2 = startX;
     int startY2 = startY;
@@ -869,89 +921,6 @@ public class MapRenderer {
     shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
-  public void renderDebugPath(ShapeRenderer shapes, Vector3 src, Vector3 dst) {
-    shapes.setColor(Color.TAN);
-    shapes.set(ShapeRenderer.ShapeType.Filled);
-    if (Math.abs(dst.y - src.y) < Math.abs(dst.x - src.x)) {
-      if (src.x > dst.x) {
-        plotLineLow(shapes, dst, src);
-      } else {
-        plotLineLow(shapes, src, dst);
-      }
-    } else {
-      if (src.y > dst.y) {
-        plotLineHigh(shapes, dst, src);
-      } else {
-        plotLineHigh(shapes, src, dst);
-      }
-    }
-
-    shapes.set(ShapeRenderer.ShapeType.Line);
-  }
-
-  private void plotLineLow(ShapeRenderer shapes, Vector3 src, Vector3 dst) {
-    float dx = dst.x - src.x;
-    float dy = dst.y - src.y;
-    int yi = 1;
-    if (dy < 0) {
-      yi = -1;
-      dy = -dy;
-    }
-
-    float D = 2*dy - dx;
-    float y = src.y;
-    for (float x = src.x; x <= dst.x; x++) {
-      float px = +((int) x * Tile.SUBTILE_WIDTH50)  - ((int) y * Tile.SUBTILE_WIDTH50)  - Tile.SUBTILE_WIDTH50;
-      float py = -((int) x * Tile.SUBTILE_HEIGHT50) - ((int) y * Tile.SUBTILE_HEIGHT50) - Tile.SUBTILE_HEIGHT50;
-      drawDiamondSolid(shapes, px, py, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-      if (D > 0) {
-        y = y + yi;
-        D = D - 2*dx;
-      }
-
-      D = D + 2*dy;
-    }
-  }
-
-  private void plotLineHigh(ShapeRenderer shapes, Vector3 src, Vector3 dst) {
-    float dx = dst.x - src.x;
-    float dy = dst.y - src.y;
-    int xi = 1;
-    if (dx < 0) {
-      xi = -1;
-      dx = -dx;
-    }
-
-    float D = 2*dx - dy;
-    float x = src.x;
-    for (float y = src.y; y <= dst.y; y++) {
-      float px = +((int) x * Tile.SUBTILE_WIDTH50)  - ((int) y * Tile.SUBTILE_WIDTH50)  - Tile.SUBTILE_WIDTH50;
-      float py = -((int) x * Tile.SUBTILE_HEIGHT50) - ((int) y * Tile.SUBTILE_HEIGHT50) - Tile.SUBTILE_HEIGHT50;
-      drawDiamondSolid(shapes, px, py, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-      if (D > 0) {
-        x = x + xi;
-        D = D - 2*dy;
-      }
-
-      D = D + 2*dx;
-    }
-  }
-
-  public void renderDebugPath2(ShapeRenderer shapes, GraphPath<Point2> path) {
-    if (path == null) return;
-    shapes.setColor(Color.TAN);
-    shapes.set(ShapeRenderer.ShapeType.Filled);
-    final int size = path.getCount();
-    for (int i = 0; i < size; i++) {
-      Point2 point = path.get(i);
-      float px = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50)  - Tile.SUBTILE_WIDTH50;
-      float py = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50) - Tile.SUBTILE_HEIGHT50;
-      drawDiamondSolid(shapes, px, py, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-    }
-
-    shapes.set(ShapeRenderer.ShapeType.Line);
-  }
-
   private static void drawDiamond(ShapeRenderer shapes, float x, float y, int width, int height) {
     int hw = width  >>> 1;
     int hh = height >>> 1;
@@ -959,6 +928,27 @@ public class MapRenderer {
     shapes.line(x + hw   , y + height, x + width, y + hh    );
     shapes.line(x + width, y + hh    , x + hw   , y         );
     shapes.line(x + hw   , y         , x        , y + hh    );
+  }
+
+  public void drawDebugPath(ShapeRenderer shapes, MapGraph.MapGraphPath path) {
+    drawDebugPath(shapes, path, Color.RED);
+  }
+
+  public void drawDebugPath(ShapeRenderer shapes, MapGraph.MapGraphPath path, Color color) {
+    if (path == null || path.getCount() < 2) return;
+    shapes.setProjectionMatrix(camera.combined);
+    shapes.setColor(color);
+    shapes.set(ShapeRenderer.ShapeType.Line);
+    Iterator<MapGraph.Point2> it = new Array.ArrayIterator<>(path.nodes);
+    MapGraph.Point2 src = it.next();
+    for (MapGraph.Point2 dst; it.hasNext(); src = dst) {
+      dst = it.next();
+      float px1 = +(src.x * Tile.SUBTILE_WIDTH50)  - (src.y * Tile.SUBTILE_WIDTH50);
+      float py1 = -(src.x * Tile.SUBTILE_HEIGHT50) - (src.y * Tile.SUBTILE_HEIGHT50);
+      float px2 = +(dst.x * Tile.SUBTILE_WIDTH50)  - (dst.y * Tile.SUBTILE_WIDTH50);
+      float py2 = -(dst.x * Tile.SUBTILE_HEIGHT50) - (dst.y * Tile.SUBTILE_HEIGHT50);
+      shapes.line(px1, py1, px2, py2);
+    }
   }
 
   private static void drawDiamondSolid(ShapeRenderer shapes, float x, float y, int width, int height) {

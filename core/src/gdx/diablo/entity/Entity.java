@@ -3,8 +3,6 @@ package gdx.diablo.entity;
 import android.support.annotation.CallSuper;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -12,11 +10,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.Animation;
@@ -29,7 +30,7 @@ import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.map.Map;
-import gdx.diablo.map.Point2;
+import gdx.diablo.map.MapGraph;
 import gdx.diablo.widget.Label;
 
 public class Entity {
@@ -40,6 +41,8 @@ public class Entity {
   private static final boolean DEBUG_DIRTY      = DEBUG && true;
   private static final boolean DEBUG_ASSETS     = DEBUG && true;
   private static final boolean DEBUG_STATE      = DEBUG && true;
+  private static final boolean DEBUG_PATH       = DEBUG && !true;
+  private static final boolean DEBUG_TARGET     = DEBUG && true;
 
   protected enum EntType {
     OBJECT("OBJECTS"),
@@ -130,7 +133,8 @@ public class Entity {
   Label label;
   String name;
   Vector3 target = new Vector3();
-  GraphPath<Point2> path = new DefaultGraphPath<>();
+  MapGraph.MapGraphPath path = new MapGraph.MapGraphPath();
+  Iterator<MapGraph.Point2> targets = Collections.emptyIterator();
 
   public static Entity create(DS1 ds1, DS1.Object obj) {
     final int type = obj.type;
@@ -224,12 +228,57 @@ public class Entity {
     return target;
   }
 
-  public GraphPath<Point2> path() {
+  public MapGraph.MapGraphPath path() {
     return path;
   }
 
-  public void updatePath(Map map, Vector3 target) {
-    map.path(position, target, path);
+  public void setPath(Map map, Vector3 dst) {
+    boolean success = map.findPath(position, dst, path);
+    if (!success) return;
+    if (DEBUG_PATH) Gdx.app.debug(TAG, "path=" + path);
+    map.smoothPath(path);
+    targets = new Array.ArrayIterator<>(path.nodes);
+    targets.next(); // consume src position
+    if (targets.hasNext()) {
+      MapGraph.Point2 firstDst = targets.next();
+      target.set(firstDst.x, firstDst.y, 0);
+    } else {
+      target.set(position);
+    }
+
+    //if (DEBUG_TARGET) Gdx.app.debug(TAG, "target=" + target);
+  }
+
+  public void update(float delta) {
+    if (target.equals(Vector3.Zero)) return;
+    if (position.epsilonEquals(target)) {
+      if (!targets.hasNext()) {
+        path.clear();
+        setMode("NU");
+        return;
+      }
+    }
+
+    setMode("RN");
+    //float targetLen = target.len();
+    float speed     = 9f * 2f;
+    float distance  = speed * delta;
+    float traveled  = 0;
+    while (traveled < distance) {
+      float targetLen = position.dst(target);
+      float part = Math.min(distance - traveled, targetLen);
+      if (part == 0) break;
+      position.lerp(target, part / targetLen);
+      traveled += part;
+      if (part == targetLen) {
+        if (targets.hasNext()) {
+          MapGraph.Point2 next = targets.next();
+          target.set(next.x, next.y, 0);
+        } else {
+          break;
+        }
+      }
+    }
   }
 
   public float getAngle() {
@@ -404,24 +453,6 @@ public class Entity {
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
     label.setPosition(x, y + animation.getMinHeight() + label.getHeight(), Align.center);
     label.draw(batch, 1);
-  }
-
-  public boolean move() {
-    int x = Direction.getOffX(angle);
-    int y = Direction.getOffY(angle);
-    position.add(x, y, 0);
-    //if (position.epsilonEquals(target) || target.equals(Vector3.Zero)) {
-    //  if (path.getCount() > 0) {
-    //    Point2 point = path.get(0);
-    //    target.set(point.x, point.y, 0);
-    //  } else {
-    //    setMode("NU");
-    //  }
-    //}
-
-    //position.lerp(target, 1f);
-    //position.set(target);
-    return true;
   }
 
   public boolean contains(Vector3 coords) {

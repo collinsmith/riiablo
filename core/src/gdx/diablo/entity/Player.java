@@ -296,6 +296,7 @@ public class Player extends Entity {
     setArmType(Component.SH, SH != null ? SH.base.alternateGfx : "");
   }
 
+  /*
   @Override
   public boolean move() {
     if (!mode.equalsIgnoreCase("WL")
@@ -306,6 +307,7 @@ public class Player extends Entity {
 
     return super.move();
   }
+  */
 
   private void notifySlotChanged(BodyLoc bodyLoc, Item oldItem, Item item) {
     for (SlotListener l : SLOT_LISTENERS) l.onChanged(this, bodyLoc, oldItem, item);

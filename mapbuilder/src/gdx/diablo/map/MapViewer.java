@@ -6,14 +6,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -24,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import gdx.diablo.COFs;
+import gdx.diablo.CharClass;
 import gdx.diablo.Colors;
 import gdx.diablo.Diablo;
 import gdx.diablo.Files;
@@ -37,6 +35,8 @@ import gdx.diablo.codec.FontTBL;
 import gdx.diablo.codec.Palette;
 import gdx.diablo.codec.TXT;
 import gdx.diablo.codec.excel.Excel;
+import gdx.diablo.entity.Entity;
+import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.BitmapFontLoader;
 import gdx.diablo.loader.COFLoader;
@@ -54,7 +54,7 @@ public class MapViewer extends ApplicationAdapter {
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
     config.title = "Map Builder";
     config.resizable = true;
-    config.width = 1280;
+    config.width = 1280; // 1280
     config.height = 720;
     config.foregroundFPS = config.backgroundFPS = 144;
     MapViewer client = new MapViewer();
@@ -68,8 +68,8 @@ public class MapViewer extends ApplicationAdapter {
   Map map;
   DS1Types DS1Types;
 
+  Entity ent;
   MapRenderer mapRenderer;
-  OrthographicCamera camera;
 
   BitmapFont font;
 
@@ -77,7 +77,8 @@ public class MapViewer extends ApplicationAdapter {
 
   Vector3 src;
   Vector3 dst;
-  GraphPath<Point2> path = new DefaultGraphPath<>();
+  MapGraph.MapGraphPath path = new MapGraph.MapGraphPath();
+  MapGraph.MapGraphPath smoothedPath = new MapGraph.MapGraphPath();
 
   boolean drawCrosshair;
   boolean drawGrid;
@@ -128,10 +129,7 @@ public class MapViewer extends ApplicationAdapter {
     shapes = new ShapeRenderer();
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-    camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    camera.update();
-
-    mapRenderer = new MapRenderer(batch, camera);
+    mapRenderer = new MapRenderer(batch);
     mapRenderer.resize();
 
     InputMultiplexer multiplexer = new InputMultiplexer();
@@ -140,7 +138,8 @@ public class MapViewer extends ApplicationAdapter {
       public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         switch (button) {
           case Input.Buttons.LEFT:
-            src = mapRenderer.getCursor();
+            GridPoint2 srcCoords = mapRenderer.coords();
+            src = new Vector3(srcCoords.x, srcCoords.y, 0);
             dst = null;
             break;
           case Input.Buttons.RIGHT:
@@ -153,7 +152,8 @@ public class MapViewer extends ApplicationAdapter {
       @Override
       public boolean touchDragged(int screenX, int screenY, int button) {
         if (src != null) {
-          dst = mapRenderer.getCursor();
+          GridPoint2 dstCoords = mapRenderer.coords();
+          dst = new Vector3(dstCoords.x, dstCoords.y, 0);
         }
         return true;
       }
@@ -162,18 +162,13 @@ public class MapViewer extends ApplicationAdapter {
       public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         switch (button) {
           case Input.Buttons.LEFT:
-            dst = mapRenderer.getCursor();
-            System.out.println("src = " + src);
-            System.out.println("dst = " + dst);
-
-            //float srcX = +(src.x * Tile.SUBTILE_WIDTH50)  - (src.y * Tile.SUBTILE_WIDTH50);
-            //float srcY = -(src.x * Tile.SUBTILE_HEIGHT50) - (src.y * Tile.SUBTILE_HEIGHT50);
-            //float dstX = +(dst.x * Tile.SUBTILE_WIDTH50)  - (dst.y * Tile.SUBTILE_WIDTH50);
-            //float dstY = -(dst.x * Tile.SUBTILE_HEIGHT50) - (dst.y * Tile.SUBTILE_HEIGHT50);
-            //System.out.println(new Vector2(dstX, dstY).dst(srcX, srcY));
-            System.out.println(src.dst(dst));
-
-            map.path(src, dst, path);
+            GridPoint2 dstCoords = mapRenderer.coords();
+            dst = new Vector3(dstCoords.x, dstCoords.y, 0);
+            map.findPath(src, dst, path);
+            smoothedPath.nodes.clear();
+            smoothedPath.nodes.addAll(path.nodes);
+            map.smoothPath(smoothedPath);
+            System.out.println(path + "->" + smoothedPath);
             break;
         }
         return true;
@@ -186,15 +181,14 @@ public class MapViewer extends ApplicationAdapter {
       public boolean scrolled(int amount) {
         switch (amount) {
           case -1:
-            camera.zoom = Math.max(0.50f, camera.zoom - ZOOM_AMOUNT);
+            mapRenderer.zoom(Math.max(0.25f, mapRenderer.zoom() - ZOOM_AMOUNT));
             break;
           case 1:
-            camera.zoom = Math.min(5.0f, camera.zoom + ZOOM_AMOUNT);
+            mapRenderer.zoom(Math.min(2.50f, mapRenderer.zoom() + ZOOM_AMOUNT));
             break;
           default:
         }
 
-        camera.update();
         return true;
       }
 
@@ -212,6 +206,9 @@ public class MapViewer extends ApplicationAdapter {
             if (MapRenderer.RENDER_DEBUG_WALKABLE > Map.MAX_LAYERS + 1) {
               MapRenderer.RENDER_DEBUG_WALKABLE = 0;
             }
+            return true;
+          case Input.Keys.ALT_LEFT:
+            mapRenderer.resize();
             return true;
           case Input.Keys.F1:
             drawCrosshair = !drawCrosshair;
@@ -236,35 +233,31 @@ public class MapViewer extends ApplicationAdapter {
             return true;
           case Input.Keys.W:
           //case Input.Keys.UP:
-            int amount = UIUtils.ctrl() ? 1 : DT1.Tile.SUBTILE_SIZE;
+            int amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             y -= amount;
-            mapRenderer.setPosition(x, y);
-            //mapRenderer.runMath(x, y);
+            ent.position().set(x, y, 0);
             return true;
           case Input.Keys.S:
           //case Input.Keys.DOWN:
-            amount = UIUtils.ctrl() ? 1 : DT1.Tile.SUBTILE_SIZE;
+            amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             y += amount;
-            mapRenderer.setPosition(x, y);
-            //mapRenderer.runMath(x, y);
+            ent.position().set(x, y, 0);
             return true;
           case Input.Keys.A:
           //case Input.Keys.LEFT:
-            amount = UIUtils.ctrl() ? 1 : DT1.Tile.SUBTILE_SIZE;
+            amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             x -= amount;
-            mapRenderer.setPosition(x, y);
-            //mapRenderer.runMath(x, y);
+            ent.position().set(x, y, 0);
             return true;
           case Input.Keys.D:
           //case Input.Keys.RIGHT:
-            amount = UIUtils.ctrl() ? 1 : DT1.Tile.SUBTILE_SIZE;
+            amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             x += amount;
-            mapRenderer.setPosition(x, y);
-            //mapRenderer.runMath(x, y);
+            ent.position().set(x, y, 0);
             return true;
           case Input.Keys.UP:
             Gdx.input.setCursorPosition(Gdx.input.getX(), Gdx.input.getY() - 1);
@@ -285,7 +278,7 @@ public class MapViewer extends ApplicationAdapter {
 
       @Override
       public boolean mouseMoved(int screenX, int screenY) {
-        GridPoint2 pt = mapRenderer.toWorldSpace(screenX, screenY);
+        //GridPoint2 pt = mapRenderer.toWorldSpace(screenX, screenY);
         //System.out.println(pt);
         return true;
       }
@@ -336,19 +329,13 @@ public class MapViewer extends ApplicationAdapter {
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin != null) {
-      //x = origin.x;
-      //y = origin.y;
-      //mapRenderer.setPosition(x, y);
-    } else {
-      //x += DT1.Tile.SUBTILE_CENTER.x;
-      //y += DT1.Tile.SUBTILE_CENTER.y;
-      //mapRenderer.setPosition(x, y);
+      x = origin.x;
+      y = origin.y;
     }
 
-    x = 0;
-    y = 0;
-    mapRenderer.setPosition(x, y, true);
-
+    ent = new Player("null", CharClass.BARBARIAN);
+    ent.position().set(x, y, 0);
+    mapRenderer.setSrc(ent);
 
     for (String asset : Diablo.assets.getAssetNames()) {
       Gdx.app.debug(TAG, Diablo.assets.getReferenceCount(asset) + " : " + asset);
@@ -362,21 +349,19 @@ public class MapViewer extends ApplicationAdapter {
   public void render() {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    mapRenderer.hit();
+    mapRenderer.update();
 
     PaletteIndexedBatch batch = Diablo.batch;
-    batch.setProjectionMatrix(camera.combined);
     batch.begin(palette);
-    mapRenderer.render();
+    mapRenderer.draw(Gdx.graphics.getDeltaTime());
     batch.end();
 
-    shapes.setProjectionMatrix(camera.combined);
     shapes.setAutoShapeType(true);
     shapes.begin(ShapeRenderer.ShapeType.Line);
-    mapRenderer.renderDebug(shapes);
+    mapRenderer.drawDebug(shapes);
     if (src != null && dst != null) {
-      //mapRenderer.renderDebugPath(shapes, src, dst);
-      mapRenderer.renderDebugPath2(shapes, path);
+      mapRenderer.drawDebugPath(shapes, path);
+      mapRenderer.drawDebugPath(shapes, smoothedPath, Color.GREEN);
       float srcX = +(src.x * Tile.SUBTILE_WIDTH50)  - (src.y * Tile.SUBTILE_WIDTH50);
       float srcY = -(src.x * Tile.SUBTILE_HEIGHT50) - (src.y * Tile.SUBTILE_HEIGHT50);
       float dstX = +(dst.x * Tile.SUBTILE_WIDTH50)  - (dst.y * Tile.SUBTILE_WIDTH50);
@@ -391,6 +376,17 @@ public class MapViewer extends ApplicationAdapter {
 
     final int width  = Gdx.graphics.getWidth();
     final int height = Gdx.graphics.getHeight();
+
+    if (drawCrosshair) {
+      shapes.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
+      shapes.updateMatrices();
+      shapes.begin(ShapeRenderer.ShapeType.Line);
+      shapes.setColor(Color.GREEN);
+      shapes.line(0, height / 2, width, height / 2);
+      shapes.line(width / 2, 0, width / 2, height);
+      shapes.end();
+    }
+
     batch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
     batch.begin();
     batch.setShader(null);
@@ -407,16 +403,6 @@ public class MapViewer extends ApplicationAdapter {
 
     batch.end();
     batch.setShader(Diablo.shader);
-
-    /*final int width  = Gdx.graphics.getWidth();
-    final int height = Gdx.graphics.getHeight();
-    shapes.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
-    shapes.updateMatrices();
-    shapes.begin(ShapeRenderer.ShapeType.Line);
-    shapes.setColor(Color.GREEN);
-    shapes.line(width >>> 1, 0, width >>> 1, height);
-    shapes.line(0, height >>> 1, width, height >>> 1);
-    shapes.end();*/
   }
 
   @Override
