@@ -3,6 +3,8 @@ package gdx.diablo.entity;
 import android.support.annotation.CallSuper;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -26,6 +28,8 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
+import gdx.diablo.map.Map;
+import gdx.diablo.map.Point2;
 import gdx.diablo.widget.Label;
 
 public class Entity {
@@ -125,6 +129,8 @@ public class Entity {
   public boolean   over = true;
   Label label;
   String name;
+  Vector3 target = new Vector3();
+  GraphPath<Point2> path = new DefaultGraphPath<>();
 
   public static Entity create(DS1 ds1, DS1.Object obj) {
     final int type = obj.type;
@@ -212,6 +218,18 @@ public class Entity {
 
   public Vector3 velocity() {
     return velocity;
+  }
+
+  public Vector3 target() {
+    return target;
+  }
+
+  public GraphPath<Point2> path() {
+    return path;
+  }
+
+  public void updatePath(Map map) {
+    map.path(position, target, path);
   }
 
   public float getAngle() {
@@ -335,6 +353,11 @@ public class Entity {
   }
 
   public void drawDebug(ShapeRenderer shapes) {
+    drawDebugStatus(shapes);
+    drawDebugTarget(shapes);
+  }
+
+  public void drawDebugStatus(ShapeRenderer shapes) {
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
 
@@ -346,6 +369,18 @@ public class Entity {
     float rounded = Direction.radiansToDirection16Radians(angle);
     shapes.setColor(Color.GREEN);
     shapes.line(x, y, x + MathUtils.cos(rounded) * R * 0.5f, y + MathUtils.sin(rounded) * R * 0.5f);
+  }
+
+  public void drawDebugTarget(ShapeRenderer shapes) {
+    if (target.equals(Vector3.Zero)) return;
+    float srcX = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+    float srcY = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    float dstX = +(target.x * Tile.SUBTILE_WIDTH50)  - (target.y * Tile.SUBTILE_WIDTH50);
+    float dstY = -(target.x * Tile.SUBTILE_HEIGHT50) - (target.y * Tile.SUBTILE_HEIGHT50);
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+    shapes.setColor(Color.ORANGE);
+    shapes.rectLine(srcX, srcY, dstX, dstY, 1);
+    shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
   public void drawDebugPath(ShapeRenderer shapes) {}

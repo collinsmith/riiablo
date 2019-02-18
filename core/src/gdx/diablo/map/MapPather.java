@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 public class MapPather {
   Map map;
-  Heuristic heuristic = new EuclideanHeuristic();
+  Heuristic heuristic = new DiagonalHeuristic();
 
   public MapPather(Map map) {
     this.map = map;
@@ -19,6 +19,10 @@ public class MapPather {
   }
 
   public boolean path(Point2 src, Point2 dst, GraphPath<Point2> path) {
+    path.clear();
+    Map.Zone zone = map.getZone(dst.x, dst.y);
+    if (zone.flags(dst.x, dst.y) != 0) return false;
+
     BinaryHeap<Point2> closedSet = new BinaryHeap<>();
     BinaryHeap<Point2> openSet   = new BinaryHeap<>();
     openSet.add(src);
@@ -37,6 +41,7 @@ public class MapPather {
 
     while (openSet.size > 0) {
       Point2 current = openSet.pop();
+      closedSet.add(current);
       if (current.equals(dst)) {
         buildPath(current, cameFrom, path);
         return true;
@@ -59,8 +64,6 @@ public class MapPather {
         gScore.put(neighbor, tent_gScore);
         fScore.put(neighbor, gScore.get(neighbor, Float.POSITIVE_INFINITY) + heuristic.estimate(neighbor, dst));
       }
-
-      closedSet.add(current);
     }
 
     return false;
@@ -98,6 +101,15 @@ public class MapPather {
 
   interface Heuristic {
 	float estimate(Point2 src, Point2 dst);
+  }
+
+  static class DiagonalHeuristic implements Heuristic {
+    @Override
+    public float estimate(Point2 src, Point2 dst) {
+      int dx = Math.abs(src.x - dst.x);
+      int dy = Math.abs(src.y - dst.y);
+      return 1f * Math.max(dx, dy) + (1.414213562373095f-1f) * Math.min(dx, dy);
+    }
   }
 
   static class EuclideanHeuristic implements Heuristic {

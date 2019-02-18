@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -188,6 +189,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         Diablo.VIRTUAL_HEIGHT - stashPanel.getHeight());
 
     stage = new Stage(Diablo.viewport, Diablo.batch);
+    //stage.setDebugAll(true);
     if (mobilePanel != null) stage.addActor(mobilePanel);
     stage.addActor(input);
     stage.addActor(output);
@@ -381,6 +383,17 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     b.setPalette(Diablo.palettes.act1);
 
     mapRenderer.hit();
+    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+      // FIXME: should block click events on UI panels, bugged right now
+      //Actor hit = stage.hit(Gdx.input.getX(), Gdx.input.getY(), true);
+      //if (hit == null) {
+        Vector3 coords = mapRenderer.getCursor();
+        player.target().set(coords);
+        player.updatePath(map);
+      //} else {
+      //  System.out.println(hit);
+      //}
+    }
 
     b.setProjectionMatrix(camera.combined);
     b.begin();
@@ -402,6 +415,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.shapes.begin(ShapeRenderer.ShapeType.Line);
     mapRenderer.renderDebug(Diablo.shapes);
     //player.drawDebug(Diablo.shapes, spx, spy);
+    mapRenderer.renderDebugPath2(Diablo.shapes, player.path());
     player.drawDebug(Diablo.shapes);
     Diablo.shapes.end();
 

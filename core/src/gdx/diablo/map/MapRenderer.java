@@ -938,6 +938,7 @@ public class MapRenderer {
   }
 
   public void renderDebugPath2(ShapeRenderer shapes, GraphPath<Point2> path) {
+    if (path == null) return;
     shapes.setColor(Color.TAN);
     shapes.set(ShapeRenderer.ShapeType.Filled);
     final int size = path.getCount();
