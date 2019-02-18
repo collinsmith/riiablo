@@ -1,6 +1,7 @@
 package gdx.diablo.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -135,6 +136,22 @@ public class MapRenderer {
     }
 
     return null;
+  }
+
+  public Vector3 getCursor() {
+    Vector3 coords = new Vector3();
+    coords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+    camera.unproject(coords);
+    float adjustX = (int) coords.x;
+    float adjustY = (int) coords.y - Tile.SUBTILE_HEIGHT50;
+
+    float selectX = ( adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
+    float selectY = (-adjustX / Tile.SUBTILE_WIDTH50 - adjustY / Tile.SUBTILE_HEIGHT50) / 2;
+    if (selectX < 0) selectX--;
+    if (selectY < 0) selectY--;
+    coords.x = (int) selectX;
+    coords.y = (int) selectY;
+    return coords;
   }
 
   public void setMap(Map map) {
@@ -852,6 +869,88 @@ public class MapRenderer {
     shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
+  public void renderDebugPath(ShapeRenderer shapes, Vector3 src, Vector3 dst) {
+    shapes.setColor(Color.TAN);
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+    if (Math.abs(dst.y - src.y) < Math.abs(dst.x - src.x)) {
+      if (src.x > dst.x) {
+        plotLineLow(shapes, dst, src);
+      } else {
+        plotLineLow(shapes, src, dst);
+      }
+    } else {
+      if (src.y > dst.y) {
+        plotLineHigh(shapes, dst, src);
+      } else {
+        plotLineHigh(shapes, src, dst);
+      }
+    }
+
+    shapes.set(ShapeRenderer.ShapeType.Line);
+  }
+
+  private void plotLineLow(ShapeRenderer shapes, Vector3 src, Vector3 dst) {
+    float dx = dst.x - src.x;
+    float dy = dst.y - src.y;
+    int yi = 1;
+    if (dy < 0) {
+      yi = -1;
+      dy = -dy;
+    }
+
+    float D = 2*dy - dx;
+    float y = src.y;
+    for (float x = src.x; x <= dst.x; x++) {
+      float px = +((int) x * Tile.SUBTILE_WIDTH50)  - ((int) y * Tile.SUBTILE_WIDTH50)  - Tile.SUBTILE_WIDTH50;
+      float py = -((int) x * Tile.SUBTILE_HEIGHT50) - ((int) y * Tile.SUBTILE_HEIGHT50) - Tile.SUBTILE_HEIGHT50;
+      drawDiamondSolid(shapes, px, py, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      if (D > 0) {
+        y = y + yi;
+        D = D - 2*dx;
+      }
+
+      D = D + 2*dy;
+    }
+  }
+
+  private void plotLineHigh(ShapeRenderer shapes, Vector3 src, Vector3 dst) {
+    float dx = dst.x - src.x;
+    float dy = dst.y - src.y;
+    int xi = 1;
+    if (dx < 0) {
+      xi = -1;
+      dx = -dx;
+    }
+
+    float D = 2*dx - dy;
+    float x = src.x;
+    for (float y = src.y; y <= dst.y; y++) {
+      float px = +((int) x * Tile.SUBTILE_WIDTH50)  - ((int) y * Tile.SUBTILE_WIDTH50)  - Tile.SUBTILE_WIDTH50;
+      float py = -((int) x * Tile.SUBTILE_HEIGHT50) - ((int) y * Tile.SUBTILE_HEIGHT50) - Tile.SUBTILE_HEIGHT50;
+      drawDiamondSolid(shapes, px, py, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      if (D > 0) {
+        x = x + xi;
+        D = D - 2*dy;
+      }
+
+      D = D + 2*dx;
+    }
+  }
+
+  public void renderDebugPath2(ShapeRenderer shapes, GraphPath<MapUtils.Point2> path) {
+    shapes.setColor(Color.TAN);
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+    final int size = path.getCount();
+    for (int i = 0; i < size; i++) {
+      MapUtils.Point2 point = path.get(i);
+      float px = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50)  - Tile.SUBTILE_WIDTH50;
+      float py = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50) - Tile.SUBTILE_HEIGHT50;
+      drawDiamondSolid(shapes, px, py, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    }
+
+    shapes.set(ShapeRenderer.ShapeType.Line);
+  }
+
   private static void drawDiamond(ShapeRenderer shapes, float x, float y, int width, int height) {
     int hw = width  >>> 1;
     int hh = height >>> 1;
@@ -859,5 +958,12 @@ public class MapRenderer {
     shapes.line(x + hw   , y + height, x + width, y + hh    );
     shapes.line(x + width, y + hh    , x + hw   , y         );
     shapes.line(x + hw   , y         , x        , y + hh    );
+  }
+
+  private static void drawDiamondSolid(ShapeRenderer shapes, float x, float y, int width, int height) {
+    int hw = width  >>> 1;
+    int hh = height >>> 1;
+    shapes.triangle(x, y + hh, x + hw, y + height, x + width, y + hh);
+    shapes.triangle(x, y + hh, x + hw, y         , x + width, y + hh);
   }
 }

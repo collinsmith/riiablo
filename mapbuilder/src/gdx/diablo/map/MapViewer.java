@@ -6,9 +6,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,6 +18,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -39,6 +42,7 @@ import gdx.diablo.loader.COFLoader;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.loader.DCCLoader;
 import gdx.diablo.loader.TXTLoader;
+import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.mpq.MPQFileHandleResolver;
 
 public class MapViewer extends ApplicationAdapter {
@@ -69,6 +73,10 @@ public class MapViewer extends ApplicationAdapter {
   BitmapFont font;
 
   int x, y;
+
+  Vector3 src;
+  Vector3 dst;
+  GraphPath<MapUtils.Point2> path;
 
   boolean drawCrosshair;
   boolean drawGrid;
@@ -126,6 +134,50 @@ public class MapViewer extends ApplicationAdapter {
     mapRenderer.resize();
 
     InputMultiplexer multiplexer = new InputMultiplexer();
+    multiplexer.addProcessor(new InputAdapter() {
+      @Override
+      public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        switch (button) {
+          case Input.Buttons.LEFT:
+            src = mapRenderer.getCursor();
+            dst = null;
+            break;
+          case Input.Buttons.RIGHT:
+            src = dst = null;
+            break;
+        }
+        return true;
+      }
+
+      @Override
+      public boolean touchDragged(int screenX, int screenY, int button) {
+        if (src != null) {
+          dst = mapRenderer.getCursor();
+        }
+        return true;
+      }
+
+      @Override
+      public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        switch (button) {
+          case Input.Buttons.LEFT:
+            dst = mapRenderer.getCursor();
+            System.out.println("src = " + src);
+            System.out.println("dst = " + dst);
+
+            //float srcX = +(src.x * Tile.SUBTILE_WIDTH50)  - (src.y * Tile.SUBTILE_WIDTH50);
+            //float srcY = -(src.x * Tile.SUBTILE_HEIGHT50) - (src.y * Tile.SUBTILE_HEIGHT50);
+            //float dstX = +(dst.x * Tile.SUBTILE_WIDTH50)  - (dst.y * Tile.SUBTILE_WIDTH50);
+            //float dstY = -(dst.x * Tile.SUBTILE_HEIGHT50) - (dst.y * Tile.SUBTILE_HEIGHT50);
+            //System.out.println(new Vector2(dstX, dstY).dst(srcX, srcY));
+            System.out.println(src.dst(dst));
+
+            path = map.path(src, dst);
+            break;
+        }
+        return true;
+      }
+    });
     multiplexer.addProcessor(new InputAdapter() {
       private final float ZOOM_AMOUNT = 0.1f;
 
@@ -321,6 +373,19 @@ public class MapViewer extends ApplicationAdapter {
     shapes.setAutoShapeType(true);
     shapes.begin(ShapeRenderer.ShapeType.Line);
     mapRenderer.renderDebug(shapes);
+    if (src != null && dst != null) {
+      //mapRenderer.renderDebugPath(shapes, src, dst);
+      if (path != null) mapRenderer.renderDebugPath2(shapes, path);
+      float srcX = +(src.x * Tile.SUBTILE_WIDTH50)  - (src.y * Tile.SUBTILE_WIDTH50);
+      float srcY = -(src.x * Tile.SUBTILE_HEIGHT50) - (src.y * Tile.SUBTILE_HEIGHT50);
+      float dstX = +(dst.x * Tile.SUBTILE_WIDTH50)  - (dst.y * Tile.SUBTILE_WIDTH50);
+      float dstY = -(dst.x * Tile.SUBTILE_HEIGHT50) - (dst.y * Tile.SUBTILE_HEIGHT50);
+      shapes.setColor(Color.WHITE);
+      shapes.circle(srcX, srcY, 32);
+      shapes.set(ShapeRenderer.ShapeType.Filled);
+      shapes.setColor(Color.ORANGE);
+      shapes.rectLine(srcX, srcY, dstX, dstY, 1);
+    }
     shapes.end();
 
     final int width  = Gdx.graphics.getWidth();

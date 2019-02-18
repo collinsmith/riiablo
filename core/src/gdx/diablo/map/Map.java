@@ -3,11 +3,14 @@ package gdx.diablo.map;
 import com.google.common.base.Preconditions;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Disposable;
@@ -543,6 +546,11 @@ public class Map implements Disposable {
     }
   }
 
+  public GraphPath<MapUtils.Point2> path(Vector3 src, Vector3 dst) {
+    //return new MapGraph(this).path(src, dst);
+    return MapUtils.path(this, src, dst, new DefaultGraphPath<MapUtils.Point2>());
+  }
+
   static class Zone {
     static final Array<Entity> EMPTY_ARRAY = new Array<>(0);
 
@@ -660,6 +668,14 @@ public class Map implements Disposable {
 
     public Preset getGrid(int tx, int ty) {
       return presets[(tx - this.tx) / gridSizeX][(ty - this.ty) / gridSizeY];
+    }
+
+    public int flags(int x, int y) {
+      x -= this.x;
+      if (x < 0 || x > width ) return 0xFF;
+      y -= this.y;
+      if (y < 0 || y > height) return 0xFF;
+      return flags[x][y] & 0xFF;
     }
 
     void load(DT1s dt1s) {
