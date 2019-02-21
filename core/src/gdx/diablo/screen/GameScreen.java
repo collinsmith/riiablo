@@ -447,6 +447,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       }
     }
 
+    /*
     updateTask = Timer.schedule(new Timer.Task() {
       GridPoint2 position = new GridPoint2();
 
@@ -458,6 +459,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         out.println(moveTo);
       }
     }, 0, 1 / 25f);
+    */
   }
 
   @Override
@@ -476,7 +478,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.input.removeProcessor(stage);
     Diablo.input.removeProcessor(inputProcessorTest);
 
-    updateTask.cancel();
+    //updateTask.cancel();
   }
 
   @Override
