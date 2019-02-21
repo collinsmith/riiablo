@@ -491,7 +491,7 @@ public class MapRenderer {
     }
 
     if (RENDER_DEBUG_PATHS)
-      drawDebugPaths(shapes);
+      drawDebugPaths(batch, shapes);
 
     if (RENDER_DEBUG_CAMERA) {
       float viewportWidth  = width;
@@ -883,7 +883,7 @@ public class MapRenderer {
     }
   }
 
-  private void drawDebugPaths(ShapeRenderer shapes) {
+  private void drawDebugPaths(PaletteIndexedBatch batch, ShapeRenderer shapes) {
     shapes.set(ShapeRenderer.ShapeType.Filled);
     int startX2 = startX;
     int startY2 = startY;
@@ -901,7 +901,7 @@ public class MapRenderer {
             Vector3 position = entity.position();
             if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
              && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
-              entity.drawDebugPath(shapes);
+              entity.drawDebugPath(batch, shapes);
             }
           }
         }

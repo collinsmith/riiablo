@@ -432,7 +432,7 @@ public class Entity {
     shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
-  public void drawDebugPath(ShapeRenderer shapes) {}
+  public void drawDebugPath(PaletteIndexedBatch batch, ShapeRenderer shapes) {}
 
   public void draw(Batch batch) {
     draw((PaletteIndexedBatch) batch);

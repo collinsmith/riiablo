@@ -53,7 +53,7 @@ public class Monster extends Entity {
   }
 
   @Override
-  public void drawDebugPath(ShapeRenderer shapes) {
+  public void drawDebugPath(PaletteIndexedBatch batch, ShapeRenderer shapes) {
     DS1.Path path = object.path;
     if (path == null) return;
     float p1x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
@@ -91,6 +91,19 @@ public class Monster extends Entity {
       shapes.setColor(Color.WHITE);
       shapes.rect(p1x - HALF_BOX, p1y - HALF_BOX, BOX_SIZE, BOX_SIZE);
     }
+
+    shapes.end();
+    batch.begin();
+    batch.setShader(null);
+    for (int i = 0; i < path.numPoints; i++) {
+      DS1.Path.Point point = path.points[i];
+      p1x = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50);
+      p1y = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50);
+      Diablo.fonts.consolas16.draw(batch, Integer.toString(point.action), p1x, p1y - BOX_SIZE, 0, Align.center, false);
+    }
+    batch.end();
+    batch.setShader(Diablo.shader);
+    shapes.begin(ShapeRenderer.ShapeType.Filled);
   }
 
   @Override
