@@ -619,12 +619,14 @@ public class Map implements Disposable {
     }
 
     private void loadEntities(DS1 ds1, int gridX, int gridY) {
+      final int x = this.x + (gridX * DT1.Tile.SUBTILE_SIZE);
+      final int y = this.y + (gridY * DT1.Tile.SUBTILE_SIZE);
       if (entities == EMPTY_ARRAY) entities = new Array<>();
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
         Entity entity = Entity.create(ds1, obj);
         if (entity == null) continue;
-        entity.position().set(x + gridX + obj.x, y + gridY + obj.y, 0);
+        entity.position().set(x + obj.x, y + obj.y, 0);
         entities.add(entity);
       }
     }
