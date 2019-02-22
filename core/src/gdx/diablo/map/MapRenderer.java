@@ -508,8 +508,8 @@ public class MapRenderer {
       shapes.rect(
           tpx - renderWidth  / 2 + Tile.WIDTH50,
           tpy - renderHeight / 2 + Tile.HEIGHT50 + renderHeight,
-          renderWidth, 96);
-      shapes.setColor(Color.GRAY);*/
+          renderWidth, 96);*/
+      shapes.setColor(Color.GRAY);
       shapes.rect(
           tpx - renderWidth  / 2 + Tile.WIDTH50,
           tpy - renderHeight / 2 + Tile.HEIGHT50,
