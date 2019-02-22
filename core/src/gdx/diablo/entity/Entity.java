@@ -328,10 +328,7 @@ public class Entity {
     if (DEBUG_COF) Gdx.app.debug(TAG, "" + cof);
 
     boolean changed = updateAnimation(cof);
-    if (changed) {
-      dirty = Dirty.ALL;
-      animation.setDirection(getDirection());
-    }
+    if (changed) dirty = Dirty.ALL;
 
     if (DEBUG_DIRTY) Gdx.app.debug(TAG, "dirty layers: " + Dirty.toString(dirty));
     for (int l = 0; l < cof.getNumLayers(); l++) {
