@@ -9,6 +9,7 @@ import gdx.diablo.codec.excel.Objects;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
+import gdx.diablo.map.Map;
 
 public class StaticEntity extends Entity {
   private static final String TAG = "StaticEntity";
@@ -24,7 +25,7 @@ public class StaticEntity extends Entity {
     init();
   }
 
-  public static StaticEntity create(DS1 ds1, DS1.Object obj) {
+  public static StaticEntity create(Map map, DS1 ds1, DS1.Object obj) {
     assert obj.type == DS1.Object.STATIC_TYPE;
 
     int id = Diablo.files.obj.getType2(ds1.getAct(), obj.id);

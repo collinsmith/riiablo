@@ -39,6 +39,7 @@ public class MapRenderer {
   private static final boolean DEBUG_MOUSE    = DEBUG && true;
   private static final boolean DEBUG_PATHS    = DEBUG && true;
   private static final boolean DEBUG_POPPADS  = DEBUG && !true;
+  private static final boolean DEBUG_ENTITIES = DEBUG && true;
 
   public static boolean RENDER_DEBUG_SUBTILE  = DEBUG_SUBTILE;
   public static boolean RENDER_DEBUG_TILE     = DEBUG_TILE;
@@ -434,6 +435,11 @@ public class MapRenderer {
       Vector3 position = entity.position();
       if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
        && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
+        entity.update(Gdx.graphics.getDeltaTime());
+        if (!entity.position().epsilonEquals(entity.target())) {
+          entity.setAngle(angle(entity.position(), entity.target()));
+        }
+
         entity.draw(batch);
       }
     }
@@ -488,6 +494,16 @@ public class MapRenderer {
     if (RENDER_DEBUG_SUBTILE) {
       shapes.setColor(Color.WHITE);
       drawDiamond(shapes, spx, spy, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    }
+
+    if (DEBUG_ENTITIES) {
+      Map.Zone zone = map.getZone(stx, sty);
+      if (zone != null) {
+        // TODO: limit range
+        for (Entity entity : zone.entities) {
+          entity.drawDebug(shapes);
+        }
+      }
     }
 
     if (RENDER_DEBUG_PATHS)
@@ -921,7 +937,7 @@ public class MapRenderer {
     shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
-  private static void drawDiamond(ShapeRenderer shapes, float x, float y, int width, int height) {
+  public static void drawDiamond(ShapeRenderer shapes, float x, float y, int width, int height) {
     int hw = width  >>> 1;
     int hh = height >>> 1;
     shapes.line(x        , y + hh    , x + hw   , y + height);

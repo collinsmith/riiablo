@@ -513,14 +513,14 @@ public class Map implements Disposable {
   }
 
   Zone addZone(Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
-    Zone zone = new Zone(level, diff, gridSizeX, gridSizeY);
+    Zone zone = new Zone(this, level, diff, gridSizeX, gridSizeY);
     if (DEBUG_ZONES) Gdx.app.debug(TAG, zone.toString());
     zones.add(zone);
     return zone;
   }
 
   Zone addZone(Levels.Entry level, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
-    Zone zone = new Zone(level, gridSizeX, gridSizeY, gridsX, gridsY);
+    Zone zone = new Zone(this, level, gridSizeX, gridSizeY, gridsX, gridsY);
     if (DEBUG_ZONES) Gdx.app.debug(TAG, zone.toString());
     zones.add(zone);
     return zone;
@@ -569,6 +569,7 @@ public class Map implements Disposable {
     int tx, ty;
     int tilesX, tilesY;
 
+    Map            map;
     Levels.Entry   level;
     LvlTypes.Entry type;
     Preset         presets[][];
@@ -581,7 +582,8 @@ public class Map implements Disposable {
     /**
      * Constructs a zone using sizing info from levels.txt
      */
-    Zone(Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
+    Zone(Map map, Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
+      this.map       = map;
       this.level     = level;
       this.type      = Diablo.files.LvlTypes.get(level.LevelType);
       this.gridSizeX = gridSizeX;
@@ -601,7 +603,8 @@ public class Map implements Disposable {
     /**
      * Constructs a zone using custom sizing info
      */
-    Zone(Levels.Entry level, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
+    Zone(Map map, Levels.Entry level, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
+      this.map       = map;
       this.level     = level;
       this.type      = Diablo.files.LvlTypes.get(level.LevelType);
       this.gridSizeX = gridSizeX;
@@ -624,7 +627,7 @@ public class Map implements Disposable {
       if (entities == EMPTY_ARRAY) entities = new Array<>();
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        Entity entity = Entity.create(ds1, obj);
+        Entity entity = Entity.create(map, ds1, obj);
         if (entity == null) continue;
         entity.position().set(x + obj.x, y + obj.y, 0);
         entities.add(entity);

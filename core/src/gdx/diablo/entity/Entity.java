@@ -31,6 +31,7 @@ import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.map.Map;
 import gdx.diablo.map.MapGraph;
+import gdx.diablo.map.MapRenderer;
 import gdx.diablo.widget.Label;
 
 public class Entity {
@@ -128,6 +129,10 @@ public class Entity {
   Vector3 velocity = new Vector3();
   float   angle    = MathUtils.PI * 3 / 2;
 
+  boolean running   = false;
+  float   walkSpeed = 6;
+  float   runSpeed  = 9;
+
   Animation animation;
   public boolean   over = true;
   Label label;
@@ -136,13 +141,13 @@ public class Entity {
   MapGraph.MapGraphPath path = new MapGraph.MapGraphPath();
   Iterator<MapGraph.Point2> targets = Collections.emptyIterator();
 
-  public static Entity create(DS1 ds1, DS1.Object obj) {
+  public static Entity create(Map map, DS1 ds1, DS1.Object obj) {
     final int type = obj.type;
     switch (type) {
       case DS1.Object.DYNAMIC_TYPE:
-        return Monster.create(ds1, obj);
+        return Monster.create(map, ds1, obj);
       case DS1.Object.STATIC_TYPE:
-        return StaticEntity.create(ds1, obj);
+        return StaticEntity.create(map, ds1, obj);
       default:
         throw new AssertionError("Unexpected type: " + type);
     }
@@ -232,6 +237,32 @@ public class Entity {
     return path;
   }
 
+  public Iterator<MapGraph.Point2> targets() {
+    return targets;
+  }
+
+  public boolean isRunning() {
+    return running;
+  }
+
+  public void setRunning(boolean b) {
+    if (running != b) {
+      running = b;
+    }
+  }
+
+  public void setWalkSpeed(float speed) {
+    if (walkSpeed != speed) {
+      walkSpeed = speed;
+    }
+  }
+
+  public void setRunSpeed(float speed) {
+    if (runSpeed != speed) {
+      runSpeed = speed;
+    }
+  }
+
   public void setPath(Map map, Vector3 dst) {
     setPath(map, dst, -1);
   }
@@ -264,14 +295,13 @@ public class Entity {
     if (position.epsilonEquals(target)) {
       if (!targets.hasNext()) {
         path.clear();
-        setMode("NU");
+        if (mode.equalsIgnoreCase(running ? "RN" : "WL")) setMode("NU");
         return;
       }
     }
 
-    setMode("RN");
-    //float targetLen = target.len();
-    float speed     = 9f * 2f;
+    setMode(running ? "RN" : "WL");
+    float speed     = (running ? walkSpeed + runSpeed : walkSpeed);
     float distance  = speed * delta;
     float traveled  = 0;
     while (traveled < distance) {
@@ -410,12 +440,16 @@ public class Entity {
 
   public void drawDebug(ShapeRenderer shapes) {
     drawDebugStatus(shapes);
-    drawDebugTarget(shapes);
+    if (DEBUG_TARGET) drawDebugTarget(shapes);
   }
 
   public void drawDebugStatus(ShapeRenderer shapes) {
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+
+    shapes.setColor(Color.WHITE);
+    MapRenderer.drawDiamond(shapes, x - Tile.SUBTILE_WIDTH50, y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    //shapes.ellipse(x - Tile.SUBTILE_WIDTH50, y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
 
     final float R = 32;
     shapes.setColor(Color.RED);

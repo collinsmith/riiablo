@@ -71,6 +71,9 @@ public class Player extends Entity {
   public Player(D2S d2s) {
     super(Diablo.files.PlrType.get(d2s.charClass).Token, EntType.PLAYER);
     setMode("TN");
+    setWalkSpeed(6);
+    setRunSpeed(9);
+    setRunning(true);
 
     stats = new D2SStats(d2s);
     loadEquipped(d2s.items.equipped);
@@ -80,6 +83,9 @@ public class Player extends Entity {
   public Player(String name, int classId) {
     super(Diablo.files.PlrType.get(classId).Token, EntType.PLAYER);
     setMode("TN");
+    setWalkSpeed(6);
+    setRunSpeed(9);
+    setRunning(true);
 
     stats = new StatsImpl(name, classId);
   }
