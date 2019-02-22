@@ -233,8 +233,18 @@ public class Entity {
   }
 
   public void setPath(Map map, Vector3 dst) {
+    setPath(map, dst, -1);
+  }
+
+  public void setPath(Map map, Vector3 dst, int maxSteps) {
     boolean success = map.findPath(position, dst, path);
     if (!success) return;
+    if (maxSteps != -1 && path.getCount() > maxSteps) {
+      path.clear();
+      targets = Collections.emptyIterator();
+      return;
+    }
+
     if (DEBUG_PATH) Gdx.app.debug(TAG, "path=" + path);
     map.smoothPath(path);
     targets = new Array.ArrayIterator<>(path.nodes);

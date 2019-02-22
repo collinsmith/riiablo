@@ -371,7 +371,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         float rad = MathUtils.atan2(y, x);
         x = Direction.getOffX(rad);
         y = Direction.getOffY(rad);
-        player.setPath(map, new Vector3(x, y, 0).add(player.position()));
+        player.setPath(map, new Vector3(x, y, 0).add(player.position()), 3);
       }
     } else {
       if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
