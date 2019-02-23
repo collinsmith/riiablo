@@ -40,6 +40,12 @@ public class EscapePanel extends WidgetGroup implements Disposable {
     Diablo.assets.load(optionsDescriptor);
     Diablo.assets.finishLoadingAsset(optionsDescriptor);
     options = new EscapeButton(Diablo.assets.get(optionsDescriptor).getTexture(0));
+    options.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        Diablo.audio.play(2, true); // select.wav
+      }
+    });
 
     Diablo.assets.load(exitDescriptor);
     Diablo.assets.finishLoadingAsset(exitDescriptor);
@@ -47,6 +53,7 @@ public class EscapePanel extends WidgetGroup implements Disposable {
     exit.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
+        Diablo.audio.play(2, true); // select.wav
         Diablo.client.clearAndSet(new MenuScreen());
       }
     });
@@ -57,6 +64,7 @@ public class EscapePanel extends WidgetGroup implements Disposable {
     returntogame.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
+        Diablo.audio.play(2, true); // select.wav
         setVisible(false);
       }
     });
@@ -116,7 +124,7 @@ public class EscapePanel extends WidgetGroup implements Disposable {
     setFillParent(true);
     setVisible(false);
     setTouchable(Touchable.childrenOnly);
-    setDebug(true, true);
+    //setDebug(true, true);
   }
 
   @Override
