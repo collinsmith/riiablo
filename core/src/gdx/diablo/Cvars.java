@@ -134,6 +134,14 @@ public class Cvars {
           .validator(NumberRangeValidator.of(Byte.class, (byte) 0, (byte) 4))
           .build();
 
+      Cvar<Boolean> StatusBar = Cvar.builder(Boolean.class)
+          .alias("Client.Display.StatusBar")
+          .description(
+              "Whether or not to force the status bar on. (Android)")
+          .defaultValue(Boolean.FALSE)
+          .validator(Validator.ACCEPT_NON_NULL)
+          .build();
+
       Cvar<Short> BackgroundFPSLimit = Cvar.builder(Short.class)
           .alias("Client.Display.BackgroundFPSLimit")
           .description(
