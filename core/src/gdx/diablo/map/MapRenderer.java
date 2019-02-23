@@ -436,7 +436,7 @@ public class MapRenderer {
       if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
        && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
         entity.update(Gdx.graphics.getDeltaTime());
-        if (!entity.position().epsilonEquals(entity.target())) {
+        if (!entity.position().epsilonEquals(entity.target()) && !entity.target().isZero()) {
           entity.setAngle(angle(entity.position(), entity.target()));
         }
 

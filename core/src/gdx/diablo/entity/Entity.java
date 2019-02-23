@@ -127,7 +127,7 @@ public class Entity {
   String  weaponClass;
   Vector3 position = new Vector3();
   Vector3 velocity = new Vector3();
-  float   angle    = MathUtils.atan2(-1, -2);//MathUtils.PI * 3 / 2;
+  float   angle    = MathUtils.atan2(-1, -2);
 
   boolean running   = false;
   float   walkSpeed = 6;
@@ -470,10 +470,12 @@ public class Entity {
     shapes.setColor(Color.RED);
     shapes.line(x, y, x + MathUtils.cos(angle) * R, y + MathUtils.sin(angle) * R);
 
-    // FIXME: Should be number of direction dependent, not 16, one of 4,8,16,32
-    float rounded = Direction.radiansToDirection16Radians(angle);
-    shapes.setColor(Color.GREEN);
-    shapes.line(x, y, x + MathUtils.cos(rounded) * R * 0.5f, y + MathUtils.sin(rounded) * R * 0.5f);
+    if (animation != null) {
+      int numDirs = animation.getNumDirections();
+      float rounded = Direction.snapToDirection(angle, numDirs);
+      shapes.setColor(Color.GREEN);
+      shapes.line(x, y, x + MathUtils.cos(rounded) * R * 0.5f, y + MathUtils.sin(rounded) * R * 0.5f);
+    }
   }
 
   public void drawDebugTarget(ShapeRenderer shapes) {
