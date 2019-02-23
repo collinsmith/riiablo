@@ -28,11 +28,13 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
 
   Map map;
   IntMap<Point2> points = new IntMap<>();
+  MapRaycastCollisionDetector rayCaster;
   PathSmoother<Point2, Vector2> pathSmoother;
 
   public MapGraph(Map map) {
     this.map = map;
-    pathSmoother = new PathSmoother<>(new MapRaycastCollisionDetector(this));
+    rayCaster = new MapRaycastCollisionDetector(this);
+    pathSmoother = new PathSmoother<>(rayCaster);
   }
 
   public GraphPath<Point2> path(Vector3 src, Vector3 dst, GraphPath<Point2> path) {
@@ -294,8 +296,65 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     }
 
     @Override
-    public boolean findCollision(Collision<Vector2> outputCollision, Ray<Vector2> inputRay) {
-      throw new UnsupportedOperationException();
+    public boolean findCollision(Collision<Vector2> dst, Ray<Vector2> ray) {
+      int x0 = (int) ray.start.x;
+      int y0 = (int) ray.start.y;
+      int x1 = (int) ray.end.x;
+      int y1 = (int) ray.end.y;
+
+      int tmp;
+      boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
+      if (steep) {
+        // Swap x0 and y0
+        tmp = x0;
+        x0 = y0;
+        y0 = tmp;
+        // Swap x1 and y1
+        tmp = x1;
+        x1 = y1;
+        y1 = tmp;
+      }
+      if (x0 > x1) {
+        // Swap x0 and x1
+        tmp = x0;
+        x0 = x1;
+        x1 = tmp;
+        // Swap y0 and y1
+        tmp = y0;
+        y0 = y1;
+        y1 = tmp;
+      }
+
+      int deltax = x1 - x0;
+      int deltay = Math.abs(y1 - y0);
+      int error = 0;
+      int y = y0;
+      int ystep = (y0 < y1 ? 1 : -1);
+      dst.point.set(steep ? y0 : x0, steep ? x0 : y0);
+      //dst.normal.setZero();
+      for (int x = x0; x <= x1; x++) {
+        if (steep) {
+          Map.Zone zone = map.getZone(y, x);
+          if (zone == null || zone.flags(y, x) != 0) {
+            //dst.normal.set(y, x);
+            return true;
+          }
+        } else {
+          Map.Zone zone = map.getZone(x, y);
+          if (zone == null || zone.flags(x, y) != 0) {
+            //dst.normal.set(x, y);
+            return true;
+          }
+        }
+        dst.point.set(steep ? y : x, steep ? x : y);
+        error += deltay;
+        if (error + error >= deltax) {
+          y += ystep;
+          error -= deltax;
+        }
+      }
+
+      return false;
     }
   }
 }

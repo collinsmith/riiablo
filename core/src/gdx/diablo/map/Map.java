@@ -6,6 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
+import com.badlogic.gdx.ai.utils.Collision;
+import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -557,6 +559,10 @@ public class Map implements Disposable {
 
   public void smoothPath(SmoothableGraphPath<MapGraph.Point2, Vector2> path) {
     mapGraph.smoothPath(path);
+  }
+
+  public boolean castRay(Collision<Vector2> dst, Ray<Vector2> ray) {
+    return mapGraph.rayCaster.findCollision(dst, ray);
   }
 
   static class Zone {

@@ -6,12 +6,14 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.ai.utils.Collision;
+import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -34,13 +36,13 @@ import java.io.PrintWriter;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.Keys;
-import gdx.diablo.entity.Direction;
 import gdx.diablo.entity.Entity;
 import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.key.MappedKey;
 import gdx.diablo.key.MappedKeyStateAdapter;
+import gdx.diablo.map.DT1;
 import gdx.diablo.map.Map;
 import gdx.diablo.map.MapLoader;
 import gdx.diablo.map.MapRenderer;
@@ -368,10 +370,50 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       if (x == 0 && y == 0) {
         player.setPath(map, null);
       } else {
-        float rad = MathUtils.atan2(y, x);
-        x = Direction.getOffX(rad);
-        y = Direction.getOffY(rad);
-        player.setPath(map, new Vector3(x, y, 0).add(player.position()), 3);
+        //float rad = MathUtils.atan2(y, x);
+        //x = Direction.getOffX(rad);
+        //y = Direction.getOffY(rad);
+        //player.setPath(map, new Vector3(x, y, 0).add(player.position()), 3);
+
+        Vector2 position = new Vector2(player.position().x, player.position().y);
+        Vector2 target = new Vector2(x, y).scl(DT1.Tile.WIDTH).add(mapRenderer.project(position.x, position.y, new Vector2()));
+        GridPoint2 coords = mapRenderer.coords(target.x, target.y, new GridPoint2());
+        target.set(coords.x, coords.y);
+        Ray<Vector2> ray = new Ray<>(position, target);
+        Collision<Vector2> collision = new Collision<>(new Vector2(), new Vector2());
+        boolean hit = map.castRay(collision, ray);
+        if (hit) {
+          if (position.epsilonEquals(collision.point, 1.0f)) {
+            /*System.out.println("against wall");
+
+            float rad = MathUtils.atan2(y, x);
+            if (rad > MathUtils.PI - 0.46365f) {
+              rad -= MathUtils.PI - 0.46365f;
+              System.out.println("1 " + rad);
+            } else if (rad < -0.46365f) {
+              rad += MathUtils.PI + 0.46365f;
+              System.out.println("2 " + rad);
+            }
+
+            if (rad > 2.0944f) {
+              Vector3 newTarget = new Vector3(player.position()).add(1, 0, 0);
+              player.setPath(map, newTarget, 2);
+              System.out.println("down " + player.position() + "; " + newTarget);
+            } else if (rad > 0 && rad < 1.0472f) {
+              Vector3 newTarget = new Vector3(player.position()).add(-1, 0, 0);
+              player.setPath(map, newTarget, 2);
+              System.out.println("up " + player.position() + "; " + newTarget);
+            }*/
+          } else {
+            //System.out.println("headed for wall " + position + ", " + collision.point);
+            player.setPath(map, new Vector3(collision.point, 0), 3);
+          }
+        } else {
+          //System.out.println("freedom baby");
+          player.target().set(target, 0);
+        }
+
+        //System.out.println("hit " + hit + "; " + collision.point + "; " + collision.normal);
       }
     } else {
       if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {

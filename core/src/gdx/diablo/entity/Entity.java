@@ -263,17 +263,24 @@ public class Entity {
     }
   }
 
-  public void setPath(Map map, Vector3 dst) {
-    setPath(map, dst, -1);
+  public boolean setPath(Map map, Vector3 dst) {
+    return setPath(map, dst, -1);
   }
 
-  public void setPath(Map map, Vector3 dst, int maxSteps) {
+  public boolean setPath(Map map, Vector3 dst, int maxSteps) {
+    if (dst == null) {
+      path.clear();
+      targets = Collections.emptyIterator();
+      target.set(position);
+      return false;
+    }
+
     boolean success = map.findPath(position, dst, path);
-    if (!success) return;
+    if (!success) return false;
     if (maxSteps != -1 && path.getCount() > maxSteps) {
       path.clear();
       targets = Collections.emptyIterator();
-      return;
+      return false;
     }
 
     if (DEBUG_PATH) Gdx.app.debug(TAG, "path=" + path);
@@ -288,6 +295,7 @@ public class Entity {
     }
 
     //if (DEBUG_TARGET) Gdx.app.debug(TAG, "target=" + target);
+    return true;
   }
 
   public void update(float delta) {
