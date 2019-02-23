@@ -3,6 +3,7 @@ package gdx.diablo.entity;
 import com.google.common.base.Preconditions;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -71,6 +72,7 @@ public class Player extends Entity {
   public Player(D2S d2s) {
     super(Diablo.files.PlrType.get(d2s.charClass).Token, EntType.PLAYER);
     setMode("TN");
+    setAngle(-MathUtils.PI / 2);
     setWalkSpeed(6);
     setRunSpeed(9);
     setRunning(true);
@@ -83,6 +85,7 @@ public class Player extends Entity {
   public Player(String name, int classId) {
     super(Diablo.files.PlrType.get(classId).Token, EntType.PLAYER);
     setMode("TN");
+    setAngle(-MathUtils.PI / 2);
     setWalkSpeed(6);
     setRunSpeed(9);
     setRunning(true);

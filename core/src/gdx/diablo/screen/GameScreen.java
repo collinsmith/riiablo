@@ -424,7 +424,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     for (Entity entity : entities.values()) {
       entity.update(delta);
-      if (!entity.position().epsilonEquals(entity.target())) {
+      if (!entity.target().isZero() && !entity.position().epsilonEquals(entity.target())) {
         float angle = mapRenderer.angle(entity.position(), entity.target());
         entity.setAngle(angle);
       }

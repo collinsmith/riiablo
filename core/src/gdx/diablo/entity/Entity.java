@@ -428,9 +428,9 @@ public class Entity {
 
     // TODO: This seems to work well with the default movement speeds of most entities I've seen
     if (mode.equalsIgnoreCase("WL")) {
-      //animation.setFrameDelta(128);
+      animation.setFrameDelta(128);
     } else if (mode.equalsIgnoreCase("RN")) {
-      //animation.setFrameDelta(128);
+      animation.setFrameDelta(128);
     }
 
     dirty = 0;
@@ -439,6 +439,7 @@ public class Entity {
   private boolean updateAnimation(COF cof) {
     if (animation == null) {
       animation = Animation.newAnimation(cof);
+      animation.setDirection(getDirection());
       return true;
     } else {
       return animation.reset(cof);
