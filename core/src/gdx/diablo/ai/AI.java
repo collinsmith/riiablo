@@ -3,6 +3,7 @@ package gdx.diablo.ai;
 import gdx.diablo.entity.Monster;
 
 public abstract class AI {
+  public static final AI IDLE = new Idle();
 
   protected Monster entity;
 

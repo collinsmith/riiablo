@@ -60,7 +60,9 @@ public class Monster extends Entity {
     //if (!object.Draw) return null; // TODO: Not yet
 
     Monster monster = new Monster(map, obj, monstats);
-    if (monstats.AI.equalsIgnoreCase("Npc")) {
+    if (monstats.AI.equalsIgnoreCase("Idle")) {
+      monster.ai = AI.IDLE;
+    } else if (monstats.AI.equalsIgnoreCase("Npc")) {
       monster.ai = new Npc(monster);
     }
 

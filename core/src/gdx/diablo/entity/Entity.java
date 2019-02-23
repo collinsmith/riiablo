@@ -127,7 +127,7 @@ public class Entity {
   String  weaponClass;
   Vector3 position = new Vector3();
   Vector3 velocity = new Vector3();
-  float   angle    = MathUtils.PI * 3 / 2;
+  float   angle    = MathUtils.atan2(-1, -2);//MathUtils.PI * 3 / 2;
 
   boolean running   = false;
   float   walkSpeed = 6;
@@ -529,4 +529,6 @@ public class Entity {
   public String getName() {
     return name;
   }
+
+  public void select(Player player) {}
 }
