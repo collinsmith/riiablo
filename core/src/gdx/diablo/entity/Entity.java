@@ -426,6 +426,13 @@ public class Entity {
       */
     }
 
+    // TODO: This seems to work well with the default movement speeds of most entities I've seen
+    if (mode.equalsIgnoreCase("WL")) {
+      //animation.setFrameDelta(128);
+    } else if (mode.equalsIgnoreCase("RN")) {
+      //animation.setFrameDelta(128);
+    }
+
     dirty = 0;
   }
 
