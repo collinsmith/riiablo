@@ -296,7 +296,7 @@ public class Animation extends BaseDrawable {
 
     if (layer.regions[d] == null) layer.load(d);
     TextureRegion region = layer.regions[d][f];
-    batch.setBlendMode(BlendMode.TINT_BLACKS, SHADOW_TINT);
+    batch.setBlendMode(BlendMode.SOLID, SHADOW_TINT);
     batch.draw(region, region.getRegionWidth(), region.getRegionHeight(), SHADOW_TRANSFORM);
   }
 
