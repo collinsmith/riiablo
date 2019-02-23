@@ -140,7 +140,8 @@ public class Direction {
     }
   }
 
-  private static int radiansToDirection4(float radians) {
+  @Deprecated
+  static int _radiansToDirection4(float radians) {
     for (int i = 0; i < 4; i++) {
       if (radians < RADIANS_4M[i]) {
         return DIRS_4M[i];
@@ -150,7 +151,15 @@ public class Direction {
     return DIRS_4M[0];
   }
 
-  private static int radiansToDirection8(float radians) {
+  static int radiansToDirection4(float radians) {
+    if (radians >= RADIANS_4M[3]) return DIRS_4M[0];
+    int index = (radians < RADIANS_4M[1])  ? 0 : 2;
+    index |= (radians < RADIANS_4M[index]) ? 0 : 1;
+    return DIRS_4M[index];
+  }
+
+  @Deprecated
+  static int _radiansToDirection8(float radians) {
     for (int i = 0; i < 8; i++) {
       if (radians < RADIANS_8M[i]) {
         return DIRS_8M[i];
@@ -160,7 +169,16 @@ public class Direction {
     return DIRS_8M[0];
   }
 
-  private static int radiansToDirection16(float radians) {
+  static int radiansToDirection8(float radians) {
+    if (radians >= RADIANS_8M[7]) return DIRS_8M[0];
+    int index = (radians < RADIANS_8M[3])    ? 0 : 4;
+    index |= (radians < RADIANS_8M[index|1]) ? 0 : 2;
+    index |= (radians < RADIANS_8M[index  ]) ? 0 : 1;
+    return DIRS_8M[index];
+  }
+
+  @Deprecated
+  static int _radiansToDirection16(float radians) {
     for (int i = 0; i < 16; i++) {
       if (radians < RADIANS_16M[i]) {
         return DIRS_16M[i];
@@ -170,7 +188,17 @@ public class Direction {
     return DIRS_16M[0];
   }
 
-  private static int radiansToDirection32(float radians) {
+  static int radiansToDirection16(float radians) {
+    if (radians >= RADIANS_16M[15]) return DIRS_16M[0];
+    int index = (radians < RADIANS_16M[7])    ? 0 : 8;
+    index |= (radians < RADIANS_16M[index|3]) ? 0 : 4;
+    index |= (radians < RADIANS_16M[index|1]) ? 0 : 2;
+    index |= (radians < RADIANS_16M[index  ]) ? 0 : 1;
+    return DIRS_16M[index];
+  }
+
+  @Deprecated
+  static int _radiansToDirection32(float radians) {
     for (int i = 0; i < 32; i++) {
       if (radians < RADIANS_32M[i]) {
         return DIRS_32M[i];
@@ -178,6 +206,16 @@ public class Direction {
     }
 
     return DIRS_32M[0];
+  }
+
+  static int radiansToDirection32(float radians) {
+    if (radians >= RADIANS_32M[31]) return DIRS_32M[0];
+    int index = (radians < RADIANS_32M[15])   ? 0 : 16;
+    index |= (radians < RADIANS_32M[index|7]) ? 0 : 8;
+    index |= (radians < RADIANS_32M[index|3]) ? 0 : 4;
+    index |= (radians < RADIANS_32M[index|1]) ? 0 : 2;
+    index |= (radians < RADIANS_32M[index  ]) ? 0 : 1;
+    return DIRS_32M[index];
   }
 
   public static float snapToDirection(float radians, int directions) {

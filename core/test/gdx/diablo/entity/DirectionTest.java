@@ -93,28 +93,32 @@ public class DirectionTest {
   @Test
   public void test_radiansToDirection4() {
     for (float f : Direction.RADIANS_8M) {
-      System.out.println(f + " : " + Direction.radiansToDirection(f, 4));
+      System.out.println(f + " : " + Direction._radiansToDirection4(f) + " : " + Direction.radiansToDirection4(f));
+      Assert.assertEquals(Direction._radiansToDirection4(f), Direction.radiansToDirection4(f));
     }
   }
 
   @Test
   public void test_radiansToDirection8() {
     for (float f : Direction.RADIANS_16M) {
-      System.out.println(f + " : " + Direction.radiansToDirection(f, 8));
+      System.out.println(f + " : " + Direction._radiansToDirection8(f) + " : " + Direction.radiansToDirection8(f));
+      Assert.assertEquals(Direction._radiansToDirection8(f), Direction.radiansToDirection8(f));
     }
   }
 
   @Test
   public void test_radiansToDirection16() {
     for (float f : Direction.RADIANS_32M) {
-      System.out.println(f + " : " + Direction.radiansToDirection(f, 16));
+      System.out.println(f + " : " + Direction._radiansToDirection16(f) + " : " + Direction.radiansToDirection16(f));
+      Assert.assertEquals(Direction._radiansToDirection16(f), Direction.radiansToDirection16(f));
     }
   }
 
   @Test
   public void test_radiansToDirection32() {
     for (float f : Direction.RADIANS_32M) {
-      System.out.println(f + " : " + Direction.radiansToDirection(f, 32));
+      System.out.println(f + " : " + Direction._radiansToDirection32(f) + " : " + Direction.radiansToDirection32(f));
+      Assert.assertEquals(Direction._radiansToDirection32(f), Direction.radiansToDirection32(f));
     }
   }
 }
