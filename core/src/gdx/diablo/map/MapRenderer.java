@@ -263,8 +263,8 @@ public class MapRenderer {
     Vector3 pos = src.position();
     if (pos.epsilonEquals(currentPos) && !force) return;
     currentPos.set(pos);
-    this.x = (int) pos.x;
-    this.y = (int) pos.y;
+    this.x = Map.round(pos.x);//(int) pos.x;
+    this.y = Map.round(pos.y);//(int) pos.y;
     spx =  (x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
     spy = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
     float spxf =  (pos.x * Tile.SUBTILE_WIDTH50)  - (pos.y * Tile.SUBTILE_WIDTH50);

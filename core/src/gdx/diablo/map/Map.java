@@ -272,6 +272,10 @@ public class Map implements Disposable {
     }
   }
 
+  static int round(float i) {
+    return MathUtils.round(i);
+  }
+
   // TODO: maybe replace with R-tree? // https://en.wikipedia.org/wiki/R-tree
   Array<Zone> zones = new Array<>();
   IntMap<DT1s> dt1s;

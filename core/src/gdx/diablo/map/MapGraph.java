@@ -14,6 +14,7 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.ai.utils.Collision;
 import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.ai.utils.RaycastCollisionDetector;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -67,8 +68,12 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   public boolean searchNodePath(PathFinder<Point2> pathFinder, Vector3 src, Vector3 dst, GraphPath<Point2> path) {
     path.clear();
     if (dst == null) return false;
-    Map.Zone zone = map.getZone((int) dst.x, (int) dst.y);
-    if (zone != null && zone.flags((int) dst.x, (int) dst.y) != 0) {
+    //Map.Zone zone = map.getZone((int) dst.x, (int) dst.y);
+    //if (zone != null && zone.flags((int) dst.x, (int) dst.y) != 0) {
+    int x = Map.round(dst.x);
+    int y = Map.round(dst.y);
+    Map.Zone zone = map.getZone(x, y);
+    if (zone != null && zone.flags(x, y) != 0) {
       return false;
     }
 
@@ -158,7 +163,8 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     }
 
     Point2(Vector3 src) {
-      this((int) src.x, (int) src.y);
+      //this((int) src.x, (int) src.y);
+      this(Map.round(src.x), Map.round(src.y));
     }
 
     @Override
@@ -167,7 +173,8 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     }
 
     static int hash(Vector3 src) {
-      return hash((int) src.x, (int) src.y);
+      //return hash((int) src.x, (int) src.y);
+      return hash(Map.round(src.x), Map.round(src.y));
     }
 
     static int hash(int x, int y) {
