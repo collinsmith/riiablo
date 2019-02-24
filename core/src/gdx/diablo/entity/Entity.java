@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -512,6 +513,15 @@ public class Entity {
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
     label.setPosition(x, y + animation.getMinHeight() + label.getHeight(), Align.center);
     label.draw(batch, 1);
+  }
+
+  public boolean contains(Vector2 coords) {
+    if (animation == null) return false;
+    BBox box = animation.getBox();
+    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50)  - (box.width / 2);
+    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50) - box.yMax;
+    return x <= coords.x && coords.x <= x + box.width
+       &&  y <= coords.y && coords.y <= y + box.height;
   }
 
   public boolean contains(Vector3 coords) {

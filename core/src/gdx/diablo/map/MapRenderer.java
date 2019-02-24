@@ -258,7 +258,7 @@ public class MapRenderer {
   }
 
   public void update(boolean force) {
-    hitAll();
+    //hitAll();
     if (src == null) return;
     Vector3 pos = src.position();
     if (pos.epsilonEquals(currentPos) && !force) return;

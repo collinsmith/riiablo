@@ -44,6 +44,7 @@ import gdx.diablo.key.MappedKey;
 import gdx.diablo.key.MappedKeyStateAdapter;
 import gdx.diablo.map.DT1;
 import gdx.diablo.map.Map;
+import gdx.diablo.map.MapListener;
 import gdx.diablo.map.MapLoader;
 import gdx.diablo.map.MapRenderer;
 import gdx.diablo.panel.CharacterPanel;
@@ -89,6 +90,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   final AssetDescriptor<Map> mapDescriptor = new AssetDescriptor<>("Act 1", Map.class, MapLoader.MapParameters.of(0, 0, 0));
   Map map;
   MapRenderer mapRenderer;
+  MapListener mapListener;
   InputProcessor inputProcessorTest;
 
   public TextArea input;
@@ -463,6 +465,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       mapRenderer.zoom(0.80f);
     }
     mapRenderer.resize();
+    mapListener = new MapListener(this, map, mapRenderer);
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     player.position().set(origin.x, origin.y, 0);
@@ -475,6 +478,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Enter.addStateListener(mappedKeyStateListener);
     Diablo.input.addProcessor(stage);
     Diablo.input.addProcessor(inputProcessorTest);
+    Diablo.input.addProcessor(mapListener);
 
     if (socket != null && socket.isConnected()) {
       Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
@@ -519,6 +523,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Enter.removeStateListener(mappedKeyStateListener);
     Diablo.input.removeProcessor(stage);
     Diablo.input.removeProcessor(inputProcessorTest);
+    Diablo.input.removeProcessor(mapListener);
 
     //updateTask.cancel();
   }
