@@ -177,9 +177,9 @@ public class MapRenderer {
     }
   }
 
-  public Vector2 project2(Vector2 dst) {
+  public Vector2 projectScaled(Vector2 dst) {
     tmpVec3.set(dst.x, dst.y, 0);
-    camera.project(tmpVec3);
+    camera.project(tmpVec3, 0, 0, camera.viewportWidth, camera.viewportHeight);
     return dst.set(tmpVec3.x, tmpVec3.y);
   }
 

@@ -13,6 +13,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.net.Socket;
@@ -460,8 +461,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     }
     b.end();*/
 
-    //layoutLabels();
-    mapRenderer.prepare(b);
+    layoutLabels();
+    //mapRenderer.prepare(b);
     b.begin();
     for (Actor label : labels) label.draw(b, 1);
     b.end();
@@ -582,11 +583,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     for (Actor label : labels) {
       tmp.x = label.getX();
       tmp.y = label.getY();
-      //mapRenderer.camera.
-      mapRenderer.project2(tmp);
+      mapRenderer.projectScaled(tmp);
+      tmp.x = MathUtils.clamp(tmp.x, 0, Diablo.VIRTUAL_WIDTH  - label.getWidth());
+      tmp.y = MathUtils.clamp(tmp.y, 0, Diablo.VIRTUAL_HEIGHT - label.getHeight());
       label.setPosition(tmp.x, tmp.y);
-      System.out.println(tmp);
-      //if (label.getX() < 0) label.setX(0);
     }
   }
 }
