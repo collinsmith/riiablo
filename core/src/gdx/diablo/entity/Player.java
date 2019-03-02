@@ -28,7 +28,7 @@ import gdx.diablo.server.Connect;
 public class Player extends Entity {
   private static final String TAG = "Player";
   private static final boolean DEBUG       = true;
-  private static final boolean DEBUG_STATE = DEBUG && true;
+  private static final boolean DEBUG_STATE = DEBUG && !true;
 
   public static final int MAX_NAME_LENGTH = 15;
 
