@@ -108,11 +108,12 @@ public class Animation extends BaseDrawable {
   }
 
   public Animation setLayer(int component, DC dc) {
-    Layer layer = layers[component] = dc != null ? new Layer(dc).load(direction) : null;
-    if (layer != null) {
-      //box.reset();
-      //dc.getBox()
-    }
+    return setLayer(component, dc, true);
+  }
+
+  public Animation setLayer(int component, DC dc, boolean updateBox) {
+    layers[component] = dc != null ? new Layer(dc).load(direction) : null;
+    if (updateBox) updateBox();
     return this;
   }
 
@@ -193,7 +194,9 @@ public class Animation extends BaseDrawable {
   }
 
   public void drawDebug(ShapeRenderer shapes, float x, float y) {
-    if (cof == null) {
+    if (DEBUG_MODE == 0) {
+      return;
+    } else if (DEBUG_MODE == 1 || cof == null) {
       boolean reset = !shapes.isDrawing();
       if (reset) {
         shapes.begin(ShapeRenderer.ShapeType.Line);
@@ -207,50 +210,9 @@ public class Animation extends BaseDrawable {
       //shapes.line(x, y, x, y + 50);
       //shapes.setColor(Color.BLUE);
       //shapes.line(x, y, x + 15, y - 20);
-
-      BBox box = getBox();
-      shapes.setColor(layers[0].DEBUG_COLOR);
-      shapes.rect(x + box.xMin, y - box.yMax, box.width, box.height);
-
-      if (reset) {
-        shapes.end();
-      }
-    } else if (DEBUG_MODE == 1) {
-      boolean reset = !shapes.isDrawing();
-      if (reset) {
-        shapes.begin(ShapeRenderer.ShapeType.Line);
-      } else {
-        shapes.set(ShapeRenderer.ShapeType.Line);
-      }
-
-      if (cof.getNumLayers() == 1) {
-        int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
-        int f = frame;
-        int component = cof.getLayerOrder(d, f, 0);
-        Layer layer = layers[component];
-        box.set(layer.dc.getBox(d, f));
-      } else {
-        box.reset();
-        BBox dcBox;
-        int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
-        int f = frame;
-        for (int l = 0; l < cof.getNumLayers(); l++) {
-          int component = cof.getLayerOrder(d, f, l);
-          Layer layer = layers[component];
-          if (layer != null) {
-            dcBox = layer.dc.getBox();
-            box.max(dcBox);
-          }
-        }
-      }
-
-      //BBox box = getBox();
       shapes.setColor(Color.GREEN);
       shapes.rect(x + box.xMin, y - box.yMax, box.width, box.height);
-
-      if (reset) {
-        shapes.end();
-      }
+      if (reset) shapes.end();
     } else if (DEBUG_MODE == 2) {
       int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
@@ -343,6 +305,28 @@ public class Animation extends BaseDrawable {
 
   public void drawLayer(PaletteIndexedBatch batch, Layer layer, float x, float y) {
     layer.draw(batch, direction, frame, x, y);
+  }
+
+  public void updateBox() {
+    if (cof == null) {
+      box.reset();
+      for (int l = 0; l < NUM_LAYERS; l++) {
+        Layer layer = layers[l];
+        if (layer == null) break;
+        box.max(layer.dc.getBox(direction));
+      }
+    } else {
+      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+      int f = frame;
+      box.reset();
+      for (int l = 0; l < cof.getNumLayers(); l++) {
+        int component = cof.getLayerOrder(d, f, l);
+        Layer layer = layers[component];
+        if (layer != null) {
+          box.max(layer.dc.getBox());
+        }
+      }
+    }
   }
 
   public BBox getBox() {

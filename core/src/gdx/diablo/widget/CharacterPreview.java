@@ -73,9 +73,11 @@ public class CharacterPreview extends Widget implements Disposable {
       Diablo.assets.load(assets[i]);
       Diablo.assets.finishLoadingAsset(assets[i]);
       DCC dcc = Diablo.assets.get(assets[i].fileName, DCC.class);
-      anim.setLayer(layer.component, dcc);
+      anim.setLayer(layer.component, dcc, false);
       anim.getLayer(layer.component).setTransform(d2s.colors[layer.component]);
     }
+
+    anim.updateBox();
   }
 
   @Override

@@ -371,6 +371,7 @@ public class Entity {
 
     boolean changed = updateAnimation(cof);
     if (changed) dirty = Dirty.ALL;
+    if (dirty == Dirty.NONE) return;
 
     if (DEBUG_DIRTY) Gdx.app.debug(TAG, "dirty layers: " + Dirty.toString(dirty));
     for (int l = 0; l < cof.getNumLayers(); l++) {
@@ -387,7 +388,7 @@ public class Entity {
       String weaponClass = layer.weaponClass;
       path = entType.PATH + type + "\\" + component + "\\" + type + component + armType + mode + weaponClass + ".dcc";
       if (armType.isEmpty()) {
-        animation.setLayer(c, null);
+        animation.setLayer(c, null, false);
         continue;
       }
       if (DEBUG_DIRTY) Gdx.app.log(TAG, path);
@@ -396,7 +397,7 @@ public class Entity {
       Diablo.assets.load(descriptor);
       Diablo.assets.finishLoadingAsset(descriptor);
       DCC dcc = Diablo.assets.get(descriptor);
-      animation.setLayer(c, dcc);
+      animation.setLayer(c, dcc, false);
 
       /*Runnable loader = new Runnable() {
         @Override
@@ -437,6 +438,7 @@ public class Entity {
       animation.setFrameDelta(128);
     }
 
+    animation.updateBox();
     dirty = 0;
   }
 
