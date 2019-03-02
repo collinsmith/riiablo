@@ -80,17 +80,11 @@ public class MapRenderer {
   PaletteIndexedBatch batch;
   OrthographicCamera  camera;
   Map                 map;
-  int viewBuffer[];
-  //int viewBuffer2[]; // lower walls
-  //int viewBuffer3[]; // upper walls
+  int                 viewBuffer[];
+  Array<Entity>       cache[][][];
 
   Entity  src;
   Vector3 currentPos = new Vector3();
-  Array<Entity> cache[] = new Array[] {
-      new Array<Entity>(Tile.NUM_SUBTILES),
-      new Array<Entity>(1), // better size TBD
-      new Array<Entity>(Tile.SUBTILE_SIZE + Tile.SUBTILE_SIZE - 1), // only upper walls
-  };
 
   // sub-tile index in world-space
   int x, y;
@@ -183,6 +177,12 @@ public class MapRenderer {
     }
   }
 
+  public Vector2 project2(Vector2 dst) {
+    tmpVec3.set(dst.x, dst.y, 0);
+    camera.project(tmpVec3);
+    return dst.set(tmpVec3.x, tmpVec3.y);
+  }
+
   public Vector2 project(Vector2 dst) {
     return project(dst.x, dst.y, dst);
   }
@@ -238,6 +238,7 @@ public class MapRenderer {
     return MathUtils.atan2(tmpVec2b.y, tmpVec2b.x);
   }
 
+  @SuppressWarnings("unchecked")
   public void resize() {
     updateBounds();
     final int viewBufferLen = tilesX + tilesY - 1;
@@ -252,6 +253,19 @@ public class MapRenderer {
       int len = 0;
       for (int i : viewBuffer) len += i;
       Gdx.app.debug(TAG, "viewBuffer[" + len + "]=" + Arrays.toString(viewBuffer));
+    }
+
+    cache = new Array[viewBufferLen][][];
+    for (int i = 0; i < viewBufferLen; i++) {
+      int viewBufferRun = viewBuffer[i];
+      cache[i] = new Array[viewBufferRun][];
+      for (int j = 0; j < viewBufferRun; j++) {
+        cache[i][j] = new Array[] {
+            new Array<Entity>(Tile.NUM_SUBTILES), // TODO: Really {@code (Tile.SUBTILE_SIZE - 1) * (Tile.SUBTILE_SIZE - 1)}
+            new Array<Entity>(1), // better size TBD
+            new Array<Entity>(Tile.SUBTILE_SIZE + Tile.SUBTILE_SIZE - 1), // only upper walls
+        };
+      }
     }
   }
 
@@ -372,8 +386,74 @@ public class MapRenderer {
   public void draw(float delta) {
     prepare(batch);
     updateEntities(delta);
+    buildCaches();
     drawBackground();
     drawForeground();
+  }
+
+  /**
+   * TODO: This is still a fairly expensive calculation because it needs to read all entities
+   *       viewbuffer size times -- this can be sped up using some kind of cache within entities
+   *       themselves (so each time position changes, update viewbuffer cache position) or by
+   *       storing the entity at its position in array within the zone (similar to how the collision
+   *       map works -- this may very well be how the actual game works, but some spaces might allow
+   *       more than 1 entity, e.g., player + item, or monsters that don't have collision -- I'll
+   *       look into this more when I add entity collision detection.
+   */
+  void buildCaches() {
+    int x, y;
+    int startX2 = startX;
+    int startY2 = startY;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) buildCache(cache[y][x], zone, stx, sty);
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+      } else {
+        startX2--;
+      }
+    }
+  }
+
+  void buildCache(Array<Entity>[] cache, Map.Zone zone, int stx, int sty) {
+    cache[0].size = cache[1].size = cache[2].size = 0;
+    int orderFlag;
+    for (Entity entity : zone.entities) {
+      Vector3 pos = entity.position();
+      if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
+       && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
+        if ((entity instanceof StaticEntity)) {
+          orderFlag = ((StaticEntity) entity).getOrderFlag();
+        } else {
+          orderFlag = stx == pos.x || sty == pos.y ? 2 : 0;
+        }
+
+        cache[orderFlag].add(entity);
+      }
+    }
+    if (entities != null) {
+      for (Entity entity : entities.values()) {
+        Vector3 pos = entity.position();
+        if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
+         && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
+          cache[stx == pos.x || sty == pos.y ? 2 : 0].add(entity);
+        }
+      }
+    }
+    cache[0].sort(SUBTILE_ORDER);
+    cache[1].sort(SUBTILE_ORDER);
+    cache[2].sort(SUBTILE_ORDER);
   }
 
   void drawBackground() {
@@ -393,11 +473,10 @@ public class MapRenderer {
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(stx, sty);
         if (zone != null) {
-          // TODO: Create caches for all cells at once? ~O(25t) memory usage
-          buildCaches(zone, stx, sty);
+          //buildCaches(zone, stx, sty);
           drawLowerWalls(batch, zone, tx, ty, px, py);
           drawFloors(batch, zone, tx, ty, px, py);
-          drawShadows(batch, zone, tx, ty, px, py);
+          drawShadows(batch, zone, tx, ty, px, py, cache[y][x]);
         }
 
         tx++;
@@ -434,13 +513,13 @@ public class MapRenderer {
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(stx, sty);
         if (zone != null) {
-          // TODO: Create caches for all cells at once? ~O(25t) memory usage
-          buildCaches(zone, stx, sty);
-          drawEntities(1); // floors
-          drawEntities(2); // walls/doors
+          //buildCaches(zone, stx, sty);
+          Array<Entity>[] cache = this.cache[y][x];
+          drawEntities(cache, 1); // floors
+          drawEntities(cache, 2); // walls/doors
           drawWalls(batch, zone, tx, ty, px, py);
           //drawWalls (trees and maybe columns?)
-          drawEntities(0); // objects
+          drawEntities(cache, 0); // objects
           drawRoofs(batch, zone, tx, ty, px, py);
         }
 
@@ -461,37 +540,7 @@ public class MapRenderer {
     }
   }
 
-  void buildCaches(Map.Zone zone, int stx, int sty) {
-    cache[0].size = cache[1].size = cache[2].size = 0;
-    int orderFlag;
-    for (Entity entity : zone.entities) {
-      Vector3 pos = entity.position();
-      if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
-       && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
-        if ((entity instanceof StaticEntity)) {
-          orderFlag = ((StaticEntity) entity).getOrderFlag();
-        } else {
-          orderFlag = stx == pos.x || sty == pos.y ? 2 : 0;
-        }
-
-        cache[orderFlag].add(entity);
-      }
-    }
-    if (entities != null) {
-      for (Entity entity : entities.values()) {
-        Vector3 pos = entity.position();
-        if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
-         && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
-          cache[stx == pos.x || sty == pos.y ? 2 : 0].add(entity);
-        }
-      }
-    }
-    cache[0].sort(SUBTILE_ORDER);
-    cache[1].sort(SUBTILE_ORDER);
-    cache[2].sort(SUBTILE_ORDER);
-  }
-
-  void drawEntities(int i) {
+  void drawEntities(Array<Entity>[] cache, int i) {
     for (Entity entity : cache[i]) {
       if (!entity.target().isZero() && !entity.position().epsilonEquals(entity.target())) {
         entity.setAngle(angle(entity.position(), entity.target()));
@@ -530,8 +579,8 @@ public class MapRenderer {
     }
   }
 
-  void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
-    batch.setBlendMode(BlendMode.SOLID, Diablo.colors.modal50);
+  void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py, Array<Entity>[] cache) {
+    batch.setBlendMode(BlendMode.SOLID, Diablo.colors.modal75);
     for (int i = Map.SHADOW_OFFSET; i < Map.SHADOW_OFFSET + Map.MAX_SHADOWS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
       if (tile == null) continue;
@@ -545,8 +594,8 @@ public class MapRenderer {
       TextureRegion texture = tile.tile.texture;
       batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
     }
-    for (Array<Entity> cache : cache) {
-      for (Entity entity : cache) entity.drawShadow(batch);
+    for (Array<Entity> c : cache) {
+      for (Entity entity : c) entity.drawShadow(batch);
     }
     batch.resetBlendMode();
   }
