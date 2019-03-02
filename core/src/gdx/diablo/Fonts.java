@@ -8,6 +8,7 @@ import gdx.diablo.codec.FontTBL;
 import gdx.diablo.loader.BitmapFontLoader;
 
 public class Fonts {
+  public final BitmapFont         consolas12;
   public final BitmapFont         consolas16;
   public final FontTBL.BitmapFont font16;
   public final FontTBL.BitmapFont font24;
@@ -20,6 +21,7 @@ public class Fonts {
   public final FontTBL.BitmapFont ReallyTheLastSucker;
 
   public Fonts(AssetManager assets) {
+    consolas12   = loadEx(assets, "consolas12.fnt");
     consolas16   = loadEx(assets, "consolas16.fnt");
     font16       = load(assets, "font16", BlendMode.LUMINOSITY_TINT);
     font24       = load(assets, "font24", BlendMode.ID);
