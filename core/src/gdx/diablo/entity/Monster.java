@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 
@@ -18,6 +19,8 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.map.Map;
+import gdx.diablo.screen.GameScreen;
+import gdx.diablo.widget.Label;
 
 public class Monster extends Entity {
   private static final String TAG = "Monster";
@@ -35,6 +38,7 @@ public class Monster extends Entity {
     this.object = object;
     this.monstats = monstats;
     this.monstats2 = Diablo.files.monstats2.get(monstats.MonStatsEx);
+    className = monstats.Id;
     setName(monstats.NameStr);
     setWeaponClass(monstats2.BaseW);
     setMode(monstats.spawnmode.isEmpty() ? "NU" : monstats.spawnmode);
@@ -50,7 +54,7 @@ public class Monster extends Entity {
     }
   }
 
-  public static Monster create(Map map, DS1 ds1, DS1.Object obj) {
+  public static Monster create(Map map, Map.Zone zone, DS1 ds1, DS1.Object obj) {
     assert obj.type == DS1.Object.DYNAMIC_TYPE;
 
     String id = Diablo.files.obj.getType1(ds1.getAct(), obj.id);
@@ -127,11 +131,14 @@ public class Monster extends Entity {
   }
 
   @Override
-  public void drawLabel(PaletteIndexedBatch batch) {
-    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    label.setPosition(x, y + monstats2.pixHeight + label.getHeight(), Align.center);
-    label.draw(batch, 1);
+  protected void updateLabel(Label label, float x, float y) {
+    label.setPosition(x, y + monstats2.pixHeight + label.getHeight() / 2, Align.center);
+  }
+
+  @Override
+  public boolean contains(Vector2 coords) {
+    if (!monstats2.isSel) return false;
+    return super.contains(coords);
   }
 
   @Override
@@ -144,5 +151,22 @@ public class Monster extends Entity {
   public void update(float delta) {
     if (ai != null) ai.update(delta);
     super.update(delta);
+  }
+
+  @Override
+  public float getInteractRange() {
+    // FIXME: SizeX and SizeY appear to always be equal -- is this method sufficient?
+    return monstats2.SizeX;
+  }
+
+  @Override
+  public void interact(GameScreen gameScreen) {
+    if (!monstats.interact) return;
+    if (ai != null) ai.interact(gameScreen);
+  }
+
+  @Override
+  public void drawShadow(PaletteIndexedBatch batch) {
+    if (monstats2.Shadow) super.drawShadow(batch);
   }
 }

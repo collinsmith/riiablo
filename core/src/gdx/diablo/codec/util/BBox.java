@@ -12,7 +12,28 @@ public class BBox implements Pool.Poolable {
   public BBox() {}
 
   @Override
-  public void reset() {}
+  public void reset() {
+    xMin = xMax = width  = 0;
+    yMin = yMax = height = 0;
+  }
+
+  public void set(BBox src) {
+    xMin   = src.xMin;
+    xMax   = src.xMax;
+    yMin   = src.yMin;
+    yMax   = src.yMax;
+    width  = src.width;
+    height = src.height;
+  }
+
+  public void max(BBox src) {
+    if (src.xMin < xMin) xMin = src.xMin;
+    if (src.yMin < yMin) yMin = src.yMin;
+    if (src.xMax > xMax) xMax = src.xMax;
+    if (src.yMax > yMax) yMax = src.yMax;
+    width  = xMax - xMin;
+    height = yMax - yMin;
+  }
 
   @Override
   public String toString() {

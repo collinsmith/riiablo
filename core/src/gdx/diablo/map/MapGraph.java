@@ -217,6 +217,10 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   public static class MapGraphPath extends DefaultGraphPath<Point2> implements SmoothableGraphPath<Point2, Vector2> {
     private Vector2 tmp = new Vector2();
 
+    public boolean isEmpty() {
+      return nodes.isEmpty();
+    }
+
     @Override
     public Vector2 getNodePosition(int index) {
       Point2 src = nodes.get(index);

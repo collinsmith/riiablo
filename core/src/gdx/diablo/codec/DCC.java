@@ -152,8 +152,19 @@ public class DCC extends DC {
   }
 
   @Override
-  public BBox getBox(int d, int f) {
+  public BBox getBox() {
+    return box;
+  }
+
+  @Override
+  public BBox getBox(int d) {
     return directions[d].box;
+  }
+
+  @Override
+  public BBox getBox(int d, int f) {
+    return getBox(d);
+    //return frames[d][f].box;
   }
 
   /*

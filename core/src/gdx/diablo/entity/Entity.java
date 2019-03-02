@@ -33,6 +33,7 @@ import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.map.Map;
 import gdx.diablo.map.MapGraph;
 import gdx.diablo.map.MapRenderer;
+import gdx.diablo.screen.GameScreen;
 import gdx.diablo.widget.Label;
 
 public class Entity {
@@ -40,7 +41,7 @@ public class Entity {
   private static final boolean DEBUG            = true;
   private static final boolean DEBUG_COMPONENTS = DEBUG && true;
   private static final boolean DEBUG_COF        = DEBUG && !true;
-  private static final boolean DEBUG_DIRTY      = DEBUG && true;
+  private static final boolean DEBUG_DIRTY      = DEBUG && !true;
   private static final boolean DEBUG_ASSETS     = DEBUG && true;
   private static final boolean DEBUG_STATE      = DEBUG && true;
   private static final boolean DEBUG_PATH       = DEBUG && !true;
@@ -120,6 +121,7 @@ public class Entity {
 
   String  type;
   EntType entType;
+  String  className;
 
   int     dirty;
   String  mode;
@@ -142,13 +144,13 @@ public class Entity {
   MapGraph.MapGraphPath path = new MapGraph.MapGraphPath();
   Iterator<MapGraph.Point2> targets = Collections.emptyIterator();
 
-  public static Entity create(Map map, DS1 ds1, DS1.Object obj) {
+  public static Entity create(Map map, Map.Zone zone, DS1 ds1, DS1.Object obj) {
     final int type = obj.type;
     switch (type) {
       case DS1.Object.DYNAMIC_TYPE:
-        return Monster.create(map, ds1, obj);
+        return Monster.create(map, zone, ds1, obj);
       case DS1.Object.STATIC_TYPE:
-        return StaticEntity.create(map, ds1, obj);
+        return StaticEntity.create(map, zone, ds1, obj);
       default:
         throw new AssertionError("Unexpected type: " + type);
     }
@@ -168,6 +170,7 @@ public class Entity {
 
     // TODO: LabelStyle should be made static
     label = new Label(Diablo.fonts.font16);
+    label.setAlignment(Align.center);
     label.getStyle().background = new PaletteIndexedColorDrawable(Diablo.colors.modal75) {{
       final float padding = 2;
       setLeftWidth(padding);
@@ -183,7 +186,7 @@ public class Entity {
 
   public void setMode(String mode, String code) {
     if (!this.mode.equalsIgnoreCase(mode)) {
-      if (DEBUG_STATE) Gdx.app.debug(TAG, "mode: " + this.mode + " -> " + mode);
+      if (DEBUG_STATE) Gdx.app.debug(TAG, className + " " + "mode: " + this.mode + " -> " + mode);
       this.mode = mode;
       invalidate();
     }
@@ -193,7 +196,7 @@ public class Entity {
 
   public void setWeaponClass(String weaponClass) {
     if (!this.weaponClass.equalsIgnoreCase(weaponClass)) {
-      if (DEBUG_STATE) Gdx.app.debug(TAG, "weaponClass: " + this.weaponClass + " -> " + weaponClass);
+      if (DEBUG_STATE) Gdx.app.debug(TAG, className + " " + "weaponClass: " + this.weaponClass + " -> " + weaponClass);
       this.weaponClass = weaponClass;
       invalidate();
     }
@@ -387,7 +390,7 @@ public class Entity {
         animation.setLayer(c, null);
         continue;
       }
-      Gdx.app.log(TAG, path);
+      if (DEBUG_DIRTY) Gdx.app.log(TAG, path);
 
       AssetDescriptor<DCC> descriptor = new AssetDescriptor<>(path, DCC.class);
       Diablo.assets.load(descriptor);
@@ -455,14 +458,15 @@ public class Entity {
     return Diablo.cofs.active;
   }
 
-  public void drawDebug(ShapeRenderer shapes) {
-    drawDebugStatus(shapes);
+  public void drawDebug(PaletteIndexedBatch batch, ShapeRenderer shapes) {
+    drawDebugStatus(batch, shapes);
     if (DEBUG_TARGET) drawDebugTarget(shapes);
   }
 
-  public void drawDebugStatus(ShapeRenderer shapes) {
+  public void drawDebugStatus(PaletteIndexedBatch batch, ShapeRenderer shapes) {
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    if (animation != null && !(this instanceof Player)) animation.drawDebug(shapes, x, y);
 
     shapes.setColor(Color.WHITE);
     MapRenderer.drawDiamond(shapes, x - Tile.SUBTILE_WIDTH50, y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
@@ -478,10 +482,18 @@ public class Entity {
       shapes.setColor(Color.GREEN);
       shapes.line(x, y, x + MathUtils.cos(rounded) * R * 0.5f, y + MathUtils.sin(rounded) * R * 0.5f);
     }
+
+    shapes.end();
+    batch.begin();
+    batch.setShader(null);
+    Diablo.fonts.consolas12.draw(batch, getClassName() + "\n" + type + " " + mode + " " + weaponClass, x, y - Tile.SUBTILE_HEIGHT50, 0, Align.center, false);
+    batch.end();
+    batch.setShader(Diablo.shader);
+    shapes.begin(ShapeRenderer.ShapeType.Line);
   }
 
   public void drawDebugTarget(ShapeRenderer shapes) {
-    if (target.equals(Vector3.Zero)) return;
+    if (target.equals(Vector3.Zero) || !path.isEmpty()) return;
     float srcX = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float srcY = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
     float dstX = +(target.x * Tile.SUBTILE_WIDTH50)  - (target.y * Tile.SUBTILE_WIDTH50);
@@ -504,9 +516,15 @@ public class Entity {
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
     animation.draw(batch, x, y);
-    if (over) drawLabel(batch);
+    updateLabel(label, x, y);
+    //if (over) drawLabel(batch);
   }
 
+  protected void updateLabel(Label label, float x, float y) {
+    label.setPosition(x, y + animation.getMinHeight() + label.getHeight() / 2, Align.center);
+  }
+
+  /*
   public void drawLabel(PaletteIndexedBatch batch) {
     if (label.getText().length == 0) return;
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
@@ -514,11 +532,24 @@ public class Entity {
     label.setPosition(x, y + animation.getMinHeight() + label.getHeight(), Align.center);
     label.draw(batch, 1);
   }
+  */
+
+  public Label getLabel() {
+    if (label.getText().length == 0) return null;
+    return label;
+  }
+
+  public void drawShadow(PaletteIndexedBatch batch) {
+    if (animation == null) return; // FIXME: drawing previous frame because animation not updated until draw is called
+    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    animation.drawShadow(batch, x, y, false);
+  }
 
   public boolean contains(Vector2 coords) {
     if (animation == null) return false;
     BBox box = animation.getBox();
-    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50)  - (box.width / 2);
+    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50)  + box.xMin;
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50) - box.yMax;
     return x <= coords.x && coords.x <= x + box.width
        &&  y <= coords.y && coords.y <= y + box.height;
@@ -527,7 +558,7 @@ public class Entity {
   public boolean contains(Vector3 coords) {
     if (animation == null) return false;
     BBox box = animation.getBox();
-    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50)  - (box.width / 2);
+    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50)  + box.xMin;
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50) - box.yMax;
     return x <= coords.x && coords.x <= x + box.width
        &&  y <= coords.y && coords.y <= y + box.height;
@@ -543,5 +574,13 @@ public class Entity {
     return name;
   }
 
-  public void select(Player player) {}
+  public String getClassName() {
+    return className;
+  }
+
+  public float getInteractRange() {
+    return 0;
+  }
+
+  public void interact(GameScreen gameScreen) {}
 }

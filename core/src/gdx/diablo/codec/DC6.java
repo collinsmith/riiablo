@@ -237,6 +237,16 @@ public class DC6 extends DC {
   }
 
   @Override
+  public BBox getBox() {
+    return box;
+  }
+
+  @Override
+  public BBox getBox(int d) {
+    return directions[d].box;
+  }
+
+  @Override
   public BBox getBox(int d, int f) {
     return frames[d][f].box;
   }

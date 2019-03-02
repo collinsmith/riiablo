@@ -17,10 +17,13 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 
+import gdx.diablo.BlendMode;
 import gdx.diablo.Diablo;
 import gdx.diablo.entity.Entity;
+import gdx.diablo.entity.StaticEntity;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.map.DT1.Tile;
 
@@ -57,7 +60,17 @@ public class MapRenderer {
 
   // Extra padding to ensure proper overscan, should be odd value
   private static final int TILES_PADDING_X = 3;
-  private static final int TILES_PADDING_Y = 3;
+  private static final int TILES_PADDING_Y = 7;
+
+  private static final Comparator<Entity> SUBTILE_ORDER = new Comparator<Entity>() {
+    @Override
+    public int compare(Entity e1, Entity e2) {
+      Vector3 pos1 = e1.position();
+      Vector3 pos2 = e2.position();
+      int i = Float.compare(pos1.y, pos2.y);
+      return i == 0 ? Float.compare(pos1.x, pos2.x): i;
+    }
+  };
 
   private final Vector3    tmpVec3  = new Vector3();
   private final Vector2    tmpVec2a = new Vector2();
@@ -73,6 +86,11 @@ public class MapRenderer {
 
   Entity  src;
   Vector3 currentPos = new Vector3();
+  Array<Entity> cache[] = new Array[] {
+      new Array<Entity>(Tile.NUM_SUBTILES),
+      new Array<Entity>(1), // better size TBD
+      new Array<Entity>(Tile.SUBTILE_SIZE + Tile.SUBTILE_SIZE - 1), // only upper walls
+  };
 
   // sub-tile index in world-space
   int x, y;
@@ -230,7 +248,11 @@ public class MapRenderer {
       viewBuffer[x] = viewBuffer[viewBufferLen - 1 - x] = y;
     while (viewBuffer[x] == 0)
       viewBuffer[x++] = viewBufferMax;
-    if (DEBUG_BUFFER) Gdx.app.debug(TAG, "viewBuffer=" + Arrays.toString(viewBuffer));
+    if (DEBUG_BUFFER) {
+      int len = 0;
+      for (int i : viewBuffer) len += i;
+      Gdx.app.debug(TAG, "viewBuffer[" + len + "]=" + Arrays.toString(viewBuffer));
+    }
   }
 
   private void updateBounds() {
@@ -258,7 +280,6 @@ public class MapRenderer {
   }
 
   public void update(boolean force) {
-    //hitAll();
     if (src == null) return;
     Vector3 pos = src.position();
     if (pos.epsilonEquals(currentPos) && !force) return;
@@ -335,141 +356,239 @@ public class MapRenderer {
     return builder.toString();
   }
 
-  private void hitAll() {
-    coords(tmpVec2i); // also sets tmpVec3 to unprojected coords -- TODO: tmpVec3 should be passed in explicitly
-    Map.Zone zone = map.getZone(tmpVec2i.x, tmpVec2i.y);
-    if (zone != null) {
-      for (Entity entity : zone.entities) {
-        entity.over = entity.contains(tmpVec3);
-      }
+  private void updateEntities(float delta) {
+    for (Map.Zone zone : new Array.ArrayIterator<>(map.zones)) {
+      for (Entity entity : zone.entities) entity.update(delta);
     }
+    if (entities != null) {
+      for (Entity entity : entities.values()) entity.update(delta);
+    }
+  }
+
+  public void prepare(PaletteIndexedBatch batch) {
+    batch.setProjectionMatrix(camera.combined);
   }
 
   public void draw(float delta) {
-    batch.setProjectionMatrix(camera.combined);
-    for (int i = 0, x, y; i < Map.MAX_LAYERS; i++) {
-      int startX2 = startX;
-      int startY2 = startY;
-      int startPx2 = startPx;
-      int startPy2 = startPy;
-      for (y = 0; y < viewBuffer.length; y++) {
-        int tx = startX2;
-        int ty = startY2;
-        int stx = tx * Tile.SUBTILE_SIZE;
-        int sty = ty * Tile.SUBTILE_SIZE;
-        int px = startPx2;
-        int py = startPy2;
-        int size = viewBuffer[y];
-        for (x = 0; x < size; x++) {
-          Map.Zone zone = map.getZone(stx, sty);
-          if (zone != null) {
-            //Map.Tile[][] tiles = zone.tiles[i];
-            //if (tiles != null) {
-              Map.Tile tile = zone.get(i, tx, ty);
-              switch (i) {
-                case Map.FLOOR_OFFSET: case Map.FLOOR_OFFSET + 1:
-                  // TODO: Expand upon this idea... Good idea to limit upper/lower walls too!
-                  if (px > renderMaxX || py > renderMaxY) break;
-                  if (px + Tile.WIDTH < renderMinX || py + Tile.HEIGHT < renderMinY) break;
-                  //drawWalls(batch, tile, px, py, false);
-                  drawFloor(batch, tile, px, py);
-                  break;
-                case Map.SHADOW_OFFSET:
-                  //batch.setBlendMode(BlendMode.SHADOW, SHADOW_TINT);
-                  //drawShadows(batch, tx, ty, px, py);
-                  //batch.resetBlendMode();
-                  break;
-                case Map.WALL_OFFSET:
-                  drawEntities(batch, stx, sty);
-                  drawObjects(batch, zone, stx, sty);
-                  // fall-through
-                case Map.WALL_OFFSET + 1: case Map.WALL_OFFSET + 2: case Map.WALL_OFFSET + 3:
-                  drawWall(batch, tile, px, py);
-                  break;
-                case Map.TAG_OFFSET:
-                  break;
-                default:
-                  //...
-              }
-            //}
-          }
+    prepare(batch);
+    updateEntities(delta);
+    drawBackground();
+    drawForeground();
+  }
 
-          tx++;
-          stx += Tile.SUBTILE_SIZE;
-          px += Tile.WIDTH50;
-          py -= Tile.HEIGHT50;
+  void drawBackground() {
+    int x, y;
+    int startX2 = startX;
+    int startY2 = startY;
+    int startPx2 = startPx;
+    int startPy2 = startPy;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      int px = startPx2;
+      int py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
+          // TODO: Create caches for all cells at once? ~O(25t) memory usage
+          buildCaches(zone, stx, sty);
+          drawLowerWalls(batch, zone, tx, ty, px, py);
+          drawFloors(batch, zone, tx, ty, px, py);
+          drawShadows(batch, zone, tx, ty, px, py);
         }
 
-        startY2++;
-        if (y >= tilesX - 1) {
-          startX2++;
-          startPy2 -= Tile.HEIGHT;
-        } else {
-          startX2--;
-          startPx2 -= Tile.WIDTH;
-        }
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
       }
     }
   }
 
-  void drawFloor(PaletteIndexedBatch batch, Map.Tile tile, int px, int py) {
-    if (tile == null) return;
-    TextureRegion texture = tile.tile.texture;
-    //if (texture.getTexture().getTextureObjectHandle() == 0) return;
-    batch.draw(texture, px, py, texture.getRegionWidth() + 1, texture.getRegionHeight() + 1);
-  }
+  void drawForeground() {
+    int x, y;
+    int startX2 = startX;
+    int startY2 = startY;
+    int startPx2 = startPx;
+    int startPy2 = startPy;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      int px = startPx2;
+      int py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
+          // TODO: Create caches for all cells at once? ~O(25t) memory usage
+          buildCaches(zone, stx, sty);
+          drawEntities(1); // floors
+          drawEntities(2); // walls/doors
+          drawWalls(batch, zone, tx, ty, px, py);
+          //drawWalls (trees and maybe columns?)
+          drawEntities(0); // objects
+          drawRoofs(batch, zone, tx, ty, px, py);
+        }
 
-  void drawEntities(PaletteIndexedBatch batch, int stx, int sty) {
-    if (entities == null) return;
-    for (Entity entity : entities.values()) {
-      Vector3 position = entity.position();
-      if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
-       && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
-        entity.draw(batch);
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
       }
     }
   }
 
-  void drawObjects(PaletteIndexedBatch batch, Map.Zone zone, int stx, int sty) {
+  void buildCaches(Map.Zone zone, int stx, int sty) {
+    cache[0].size = cache[1].size = cache[2].size = 0;
+    int orderFlag;
     for (Entity entity : zone.entities) {
-      Vector3 position = entity.position();
-      if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
-       && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
-        entity.update(Gdx.graphics.getDeltaTime());
-        if (!entity.position().epsilonEquals(entity.target()) && !entity.target().isZero()) {
-          entity.setAngle(angle(entity.position(), entity.target()));
+      Vector3 pos = entity.position();
+      if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
+       && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
+        if ((entity instanceof StaticEntity)) {
+          orderFlag = ((StaticEntity) entity).getOrderFlag();
+        } else {
+          orderFlag = stx == pos.x || sty == pos.y ? 2 : 0;
         }
 
-        entity.draw(batch);
+        cache[orderFlag].add(entity);
+      }
+    }
+    if (entities != null) {
+      for (Entity entity : entities.values()) {
+        Vector3 pos = entity.position();
+        if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
+         && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
+          cache[stx == pos.x || sty == pos.y ? 2 : 0].add(entity);
+        }
+      }
+    }
+    cache[0].sort(SUBTILE_ORDER);
+    cache[1].sort(SUBTILE_ORDER);
+    cache[2].sort(SUBTILE_ORDER);
+  }
+
+  void drawEntities(int i) {
+    for (Entity entity : cache[i]) {
+      if (!entity.target().isZero() && !entity.position().epsilonEquals(entity.target())) {
+        entity.setAngle(angle(entity.position(), entity.target()));
+      }
+
+      entity.draw(batch);
+    }
+  }
+
+  void drawLowerWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+    if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
+    for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
+      Map.Tile tile = zone.get(i, tx, ty);
+      if (tile == null || tile.tile == null) continue;
+      switch (tile.tile.orientation) {
+        case Orientation.LOWER_LEFT_WALL:
+        case Orientation.LOWER_RIGHT_WALL:
+        case Orientation.LOWER_NORTH_CORNER_WALL:
+        case Orientation.LOWER_SOUTH_CORNER_WALL:
+          batch.draw(tile.tile.texture, px, py);
+          // fall-through to continue
+        default:
       }
     }
   }
 
-  void drawWall(PaletteIndexedBatch batch, Map.Tile tile, int px, int py) {
-    if (tile == null) return;
-    if (Orientation.isSpecial(tile.cell.orientation)) {
-      /*if (!RENDER_DEBUG_SPECIAL) return;
-      batch.setShader(null);
-      BitmapFont font = Diablo.fonts.consolas16;
-      GlyphLayout layout = new GlyphLayout(font, Map.ID.getName(tile.cell.id));
-      font.draw(batch, layout,
-          px + Tile.WIDTH  / 2 - layout.width  / 2,
-          py + Tile.HEIGHT / 2 - layout.height / 2);
-      batch.setShader(Diablo.shader);*/
-      return;
+  void drawFloors(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+    if (px > renderMaxX || py > renderMaxY) return;
+    if (px + Tile.WIDTH < renderMinX || py + Tile.HEIGHT < renderMinY) return;
+    for (int i = Map.FLOOR_OFFSET; i < Map.FLOOR_OFFSET + Map.MAX_FLOORS; i++) {
+      Map.Tile tile = zone.get(i, tx, ty);
+      if (tile == null) continue;
+      TextureRegion texture = tile.tile.texture;
+      //if (texture.getTexture().getTextureObjectHandle() == 0) return;
+      batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight() + 1);
     }
+  }
 
-    if (tile.tile.isFloor()) {
-      return;
+  void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+    batch.setBlendMode(BlendMode.SOLID, Diablo.colors.modal50);
+    for (int i = Map.SHADOW_OFFSET; i < Map.SHADOW_OFFSET + Map.MAX_SHADOWS; i++) {
+      Map.Tile tile = zone.get(i, tx, ty);
+      if (tile == null) continue;
+      TextureRegion texture = tile.tile.texture;
+      batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
     }
-
-    if (popped.get(tile.tile.mainIndex)) {
-      return;
+    for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
+      Map.Tile tile = zone.get(i, tx, ty);
+      if (tile == null || tile.tile == null) continue;
+      if (tile.tile.orientation != Orientation.SHADOW) continue;
+      TextureRegion texture = tile.tile.texture;
+      batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
     }
+    for (Array<Entity> cache : cache) {
+      for (Entity entity : cache) entity.drawShadow(batch);
+    }
+    batch.resetBlendMode();
+  }
 
-    batch.draw(tile.tile.texture, px, tile.tile.orientation == Orientation.ROOF ? py + tile.tile.roofHeight : py);
-    if (tile.tile.orientation == Orientation.RIGHT_NORTH_CORNER_WALL) {
-      batch.draw(tile.sibling.texture, px, py);
+  void drawWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+    if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
+    for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
+      Map.Tile tile = zone.get(i, tx, ty);
+      if (tile == null || tile.tile == null) continue;
+      //if (popped.get(tile.tile.mainIndex)) continue;
+      switch (tile.tile.orientation) {
+        case Orientation.LEFT_WALL:
+        case Orientation.LEFT_NORTH_CORNER_WALL:
+        case Orientation.LEFT_END_WALL:
+        case Orientation.LEFT_WALL_DOOR:
+          //break;
+        case Orientation.RIGHT_WALL:
+        case Orientation.RIGHT_NORTH_CORNER_WALL:
+        case Orientation.RIGHT_END_WALL:
+        case Orientation.RIGHT_WALL_DOOR:
+          //break;
+        case Orientation.SOUTH_CORNER_WALL:
+        case Orientation.PILLAR:
+        case Orientation.TREE: // TODO: should be in-line rendered with entities
+          batch.draw(tile.tile.texture, px, py);
+          if (tile.tile.orientation == Orientation.RIGHT_NORTH_CORNER_WALL) {
+            batch.draw(tile.sibling.texture, px, py);
+          }
+          // fall-through to continue
+        default:
+      }
+    }
+  }
+
+  void drawRoofs(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+    if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
+    for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
+      Map.Tile tile = zone.get(i, tx, ty);
+      if (tile == null || tile.tile == null) continue;
+      if (popped.get(tile.tile.mainIndex)) continue;
+      if (!Orientation.isRoof(tile.tile.orientation)) continue;
+      batch.draw(tile.tile.texture, px, py + tile.tile.roofHeight);
     }
   }
 
@@ -481,7 +600,6 @@ public class MapRenderer {
 
     if (RENDER_DEBUG_WALKABLE > 0)
       drawDebugWalkable(shapes);
-
 
     if (RENDER_DEBUG_SPECIAL)
       drawDebugSpecial(shapes);
@@ -496,15 +614,8 @@ public class MapRenderer {
       drawDiamond(shapes, spx, spy, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }
 
-    if (DEBUG_ENTITIES) {
-      Map.Zone zone = map.getZone(stx, sty);
-      if (zone != null) {
-        // TODO: limit range
-        for (Entity entity : zone.entities) {
-          entity.drawDebug(shapes);
-        }
-      }
-    }
+    if (DEBUG_ENTITIES)
+      drawDebugObjects(batch, shapes);
 
     if (RENDER_DEBUG_PATHS)
       drawDebugPaths(batch, shapes);
@@ -514,8 +625,8 @@ public class MapRenderer {
       float viewportHeight = height;
       shapes.setColor(Color.GREEN);
       shapes.rect(
-          camera.position.x - MathUtils.ceil(viewportWidth  / 2),
-          camera.position.y - MathUtils.ceil(viewportHeight / 2),
+          camera.position.x - MathUtils.ceil(viewportWidth  / 2) - 1,
+          camera.position.y - MathUtils.ceil(viewportHeight / 2) - 1,
           viewportWidth + 2, viewportHeight + 2);
     }
 
@@ -897,6 +1008,44 @@ public class MapRenderer {
         }
       }
     }
+  }
+
+  private void drawDebugObjects(PaletteIndexedBatch batch, ShapeRenderer shapes) {
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+    int startX2 = startX;
+    int startY2 = startY;
+    int x, y;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
+          for (Entity entity : zone.entities) {
+            Vector3 position = entity.position();
+            if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
+             && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
+              entity.drawDebug(batch, shapes);
+            }
+          }
+        }
+
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+      } else {
+        startX2--;
+      }
+    }
+
+    shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
   private void drawDebugPaths(PaletteIndexedBatch batch, ShapeRenderer shapes) {

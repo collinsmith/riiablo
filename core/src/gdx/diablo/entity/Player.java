@@ -71,6 +71,7 @@ public class Player extends Entity {
 
   public Player(D2S d2s) {
     super(Diablo.files.PlrType.get(d2s.charClass).Token, EntType.PLAYER);
+    className = "player";
     setMode("TN");
     setAngle(-MathUtils.PI / 2);
     setWalkSpeed(6);
@@ -84,6 +85,7 @@ public class Player extends Entity {
 
   public Player(String name, int classId) {
     super(Diablo.files.PlrType.get(classId).Token, EntType.PLAYER);
+    className = "player";
     setMode("TN");
     setAngle(-MathUtils.PI / 2);
     setWalkSpeed(6);

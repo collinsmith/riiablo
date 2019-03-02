@@ -20,9 +20,8 @@ public abstract class DC implements Disposable {
   }
   public abstract Frame getFrame(int d, int f);
 
-  public final BBox getBox() {
-    return getBox(0, 0);
-  }
+  public abstract BBox getBox();
+  public abstract BBox getBox(int d);
   public abstract BBox getBox(int d, int f);
 
   public abstract boolean isLoaded(int d);

@@ -6,8 +6,10 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import gdx.diablo.Diablo;
 import gdx.diablo.entity.Monster;
 import gdx.diablo.map.DS1;
+import gdx.diablo.screen.GameScreen;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
@@ -18,6 +20,17 @@ public class Npc extends AI {
 
   public Npc(Monster entity) {
     super(entity);
+  }
+
+  @Override
+  public void interact(GameScreen gameScreen) {
+    String name = entity.getName().toLowerCase();
+    String id = name + "_greeting_1";
+    int index = Diablo.audio.play(id, false);
+    if (index == 0) {
+      id = name + "_greeting_inactive_1";
+      Diablo.audio.play(id, false);
+    }
   }
 
   public void update(float delta) {

@@ -58,7 +58,6 @@ public class CharacterPreview extends Widget implements Disposable {
 
     anim = Animation.newAnimation(cof);
     anim.setDirection(Direction.DOWN);
-    anim.setShadow(false);
     if (assets == null) assets = new AssetDescriptor[COF.Component.NUM_COMPONENTS];
     else dispose();
     for (int i = 0; i < cof.getNumLayers(); i++) {

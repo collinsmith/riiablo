@@ -22,12 +22,13 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 
 public class Animation extends BaseDrawable {
   private static final String TAG = "Animation";
+  private static final int DEBUG_MODE = 1; // 0=off, 1=box, 2=layer box
 
   private static final int   NUM_LAYERS = 16;
   private static final float FRAMES_PER_SECOND = 25f;
   private static final float FRAME_DURATION = 1 / FRAMES_PER_SECOND;
 
-  private static final Color   SHADOW_TINT      = new Color(0, 0, 0, 0.5f);
+  private static final Color   SHADOW_TINT      = Diablo.colors.modal75;
   private static final Affine2 SHADOW_TRANSFORM = new Affine2();
 
   private int     numDirections;
@@ -39,8 +40,8 @@ public class Animation extends BaseDrawable {
   private float   elapsedTime;
   private Layer   layers[];
   private COF     cof;
-  private boolean drawShadow;
   //private Bits  cache[];
+  private BBox    box;
 
   private final Set<AnimationListener> ANIMATION_LISTENERS;
 
@@ -57,8 +58,8 @@ public class Animation extends BaseDrawable {
     numFrames     = framesPerDir;
     this.layers   = layers;
     looping       = true;
-    drawShadow    = false;
     frameDuration = FRAME_DURATION;
+    box           = new BBox();
 
     ANIMATION_LISTENERS = new CopyOnWriteArraySet<>();
   }
@@ -78,7 +79,6 @@ public class Animation extends BaseDrawable {
       this.cof = cof;
       numDirections = cof.getNumDirections();
       numFrames = cof.getNumFramesPerDir();
-      drawShadow = true;
       setFrameDelta(cof.getAnimRate());
 
       if (direction >= numDirections) direction = 0;
@@ -108,18 +108,16 @@ public class Animation extends BaseDrawable {
   }
 
   public Animation setLayer(int component, DC dc) {
-    layers[component] = dc != null ? new Layer(dc).load(direction) : null;
+    Layer layer = layers[component] = dc != null ? new Layer(dc).load(direction) : null;
+    if (layer != null) {
+      //box.reset();
+      //dc.getBox()
+    }
     return this;
   }
 
   public Layer getLayer(int component) {
     return layers[component];
-  }
-
-  public void setShadow(boolean b) {
-    if (b != drawShadow) {
-      drawShadow = b;
-    }
   }
 
   public int getNumDirections() {
@@ -203,12 +201,12 @@ public class Animation extends BaseDrawable {
         shapes.set(ShapeRenderer.ShapeType.Line);
       }
 
-      shapes.setColor(Color.RED);
-      shapes.line(x, y, x + 50, y);
-      shapes.setColor(Color.GREEN);
-      shapes.line(x, y, x, y + 50);
-      shapes.setColor(Color.BLUE);
-      shapes.line(x, y, x + 15, y - 20);
+      //shapes.setColor(Color.RED);
+      //shapes.line(x, y, x + 50, y);
+      //shapes.setColor(Color.GREEN);
+      //shapes.line(x, y, x, y + 50);
+      //shapes.setColor(Color.BLUE);
+      //shapes.line(x, y, x + 15, y - 20);
 
       BBox box = getBox();
       shapes.setColor(layers[0].DEBUG_COLOR);
@@ -217,7 +215,43 @@ public class Animation extends BaseDrawable {
       if (reset) {
         shapes.end();
       }
-    } else {
+    } else if (DEBUG_MODE == 1) {
+      boolean reset = !shapes.isDrawing();
+      if (reset) {
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+      } else {
+        shapes.set(ShapeRenderer.ShapeType.Line);
+      }
+
+      if (cof.getNumLayers() == 1) {
+        int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+        int f = frame;
+        int component = cof.getLayerOrder(d, f, 0);
+        Layer layer = layers[component];
+        box.set(layer.dc.getBox(d, f));
+      } else {
+        box.reset();
+        BBox dcBox;
+        int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+        int f = frame;
+        for (int l = 0; l < cof.getNumLayers(); l++) {
+          int component = cof.getLayerOrder(d, f, l);
+          Layer layer = layers[component];
+          if (layer != null) {
+            dcBox = layer.dc.getBox();
+            box.max(dcBox);
+          }
+        }
+      }
+
+      //BBox box = getBox();
+      shapes.setColor(Color.GREEN);
+      shapes.rect(x + box.xMin, y - box.yMax, box.width, box.height);
+
+      if (reset) {
+        shapes.end();
+      }
+    } else if (DEBUG_MODE == 2) {
       int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
       for (int l = 0; l < cof.getNumLayers(); l++) {
@@ -239,14 +273,6 @@ public class Animation extends BaseDrawable {
 
   public void draw(PaletteIndexedBatch batch, float x, float y) {
     if (cof == null) {
-      if (drawShadow) {
-        for (Layer layer : layers) {
-          if (layer == null) continue;
-          drawShadow(batch, layer, x, y);
-        }
-        batch.resetBlendMode();
-      }
-
       for (Layer layer : layers) {
         if (layer == null) continue;
         drawLayer(batch, layer, x, y);
@@ -256,22 +282,10 @@ public class Animation extends BaseDrawable {
     } else {
       int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
-      if (drawShadow) {
-        for (int l = 0; l < cof.getNumLayers(); l++) {
-          int component = cof.getLayerOrder(d, f, l);
-          Layer layer = layers[component];
-          if (layer != null) {
-            COF.Layer cofLayer = cof.getComponent(component);
-            if (cofLayer.shadow == 0x1) {
-              drawShadow(batch, layer, x, y);
-            }
-          }
-        }
-        batch.resetBlendMode();
-      }
-
       // TODO: Layer blend modes should correspond with the cof trans levels
       for (int l = 0; l < cof.getNumLayers(); l++) {
+        //COF.Layer cofLayer = cof.getLayer(l);
+        //if (cofLayer.overrideTransLvl != 0) cofLayer.newTransLvl;
         int component = cof.getLayerOrder(d, f, l);
         Layer layer = layers[component];
         if (layer != null) drawLayer(batch, layer, x, y);
@@ -279,6 +293,34 @@ public class Animation extends BaseDrawable {
       batch.resetBlendMode();
       batch.resetColormap();
     }
+  }
+
+  public void drawShadow(PaletteIndexedBatch batch, float x, float y) {
+    drawShadow(batch, x, y, true);
+  }
+
+  public void drawShadow(PaletteIndexedBatch batch, float x, float y, boolean handleBlends) {
+    if (handleBlends) batch.setBlendMode(BlendMode.SOLID, SHADOW_TINT);
+    if (cof == null) {
+      for (Layer layer : layers) {
+        if (layer == null) continue;
+        drawShadow(batch, layer, x, y);
+      }
+    } else {
+      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+      int f = frame;
+      for (int l = 0; l < cof.getNumLayers(); l++) {
+        int component = cof.getLayerOrder(d, f, l);
+        Layer layer = layers[component];
+        if (layer != null) {
+          COF.Layer cofLayer = cof.getComponent(component);
+          if (cofLayer.shadow == 0x1) {
+            drawShadow(batch, layer, x, y);
+          }
+        }
+      }
+    }
+    if (handleBlends) batch.resetBlendMode();
   }
 
   public void drawShadow(PaletteIndexedBatch batch, Layer layer, float x, float y) {
@@ -296,7 +338,6 @@ public class Animation extends BaseDrawable {
 
     if (layer.regions[d] == null) layer.load(d);
     TextureRegion region = layer.regions[d][f];
-    batch.setBlendMode(BlendMode.SOLID, SHADOW_TINT);
     batch.draw(region, region.getRegionWidth(), region.getRegionHeight(), SHADOW_TRANSFORM);
   }
 
@@ -305,9 +346,10 @@ public class Animation extends BaseDrawable {
   }
 
   public BBox getBox() {
-    return cof == null
-        ? layers[0].dc.getDirection(direction).box
-        : cof.box;
+    //return cof == null
+    //    ? layers[0].dc.getDirection(direction).box
+    //    : cof.box;
+    return cof == null ? layers[0].dc.getBox(direction) : box;
   }
 
   @Override
@@ -426,12 +468,12 @@ public class Animation extends BaseDrawable {
         shapeRenderer.set(ShapeRenderer.ShapeType.Line);
       }
 
-      shapeRenderer.setColor(Color.RED);
-      shapeRenderer.line(x, y, x + 40, y);
-      shapeRenderer.setColor(Color.GREEN);
-      shapeRenderer.line(x, y, x, y + 20);
-      shapeRenderer.setColor(Color.BLUE);
-      shapeRenderer.line(x, y, x + 20, y - 10);
+      //shapeRenderer.setColor(Color.RED);
+      //shapeRenderer.line(x, y, x + 40, y);
+      //shapeRenderer.setColor(Color.GREEN);
+      //shapeRenderer.line(x, y, x, y + 20);
+      //shapeRenderer.setColor(Color.BLUE);
+      //shapeRenderer.line(x, y, x + 20, y - 10);
 
       BBox box = dc.getDirection(d).box;
       shapeRenderer.setColor(DEBUG_COLOR);

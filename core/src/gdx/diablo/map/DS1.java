@@ -300,7 +300,7 @@ public class DS1 {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         assert shadows[offset] == null;
-        shadows[offset] = new Cell().read(in);
+        shadows[offset] = new Cell().read(in, Orientation.SHADOW);
         offset += numShadows;
       }
     }
@@ -433,10 +433,14 @@ public class DS1 {
     short orientation;
 
     Cell read(InputStream in) throws IOException {
+      return read(in, Orientation.FLOOR);
+    }
+
+    Cell read(InputStream in, int orient) throws IOException {
       value       = EndianUtils.readSwappedInteger(in);
       mainIndex   = (short) ((value >>> MAIN_INDEX_OFFSET) & MAIN_INDEX_BITS);
       subIndex    = (short) ((value >>> SUB_INDEX_OFFSET)  & SUB_INDEX_BITS);
-      orientation = Orientation.FLOOR;
+      orientation = (short) orient;
       return updateIndex();
     }
 

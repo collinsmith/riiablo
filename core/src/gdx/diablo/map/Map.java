@@ -532,6 +532,16 @@ public class Map implements Disposable {
     return zone;
   }
 
+  public int flags(float x, float y) {
+    return flags((int) x, (int) y);
+  }
+
+  public int flags(int x, int y) {
+    Zone zone = getZone(x, y);
+    if (zone == null) return 0xFF;
+    return zone.flags(x, y);
+  }
+
   /**
    * @param x   world sub-tile
    * @param y   world sub-tile
@@ -569,7 +579,7 @@ public class Map implements Disposable {
     return mapGraph.rayCaster.findCollision(dst, ray);
   }
 
-  static class Zone {
+  public static class Zone {
     static final Array<Entity> EMPTY_ARRAY = new Array<>(0);
 
     int x, y;
@@ -579,8 +589,9 @@ public class Map implements Disposable {
     int tx, ty;
     int tilesX, tilesY;
 
-    Map            map;
-    Levels.Entry   level;
+    public Map          map;
+    public Levels.Entry level;
+
     LvlTypes.Entry type;
     Preset         presets[][];
     Tile           tiles[][][];
@@ -637,7 +648,7 @@ public class Map implements Disposable {
       if (entities == EMPTY_ARRAY) entities = new Array<>();
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        Entity entity = Entity.create(map, ds1, obj);
+        Entity entity = Entity.create(map, this, ds1, obj);
         if (entity == null) continue;
         entity.position().set(x + obj.x, y + obj.y, 0);
         entities.add(entity);
@@ -832,8 +843,9 @@ public class Map implements Disposable {
     }
 
     void copyTo(Zone zone, int tx, int ty) {
-      copyFloors(zone, Map.FLOOR_OFFSET, tx, ty);
-      copyWalls (zone, Map.WALL_OFFSET,  tx, ty);
+      copyFloors (zone, Map.FLOOR_OFFSET,  tx, ty);
+      copyWalls  (zone, Map.WALL_OFFSET,   tx, ty);
+      copyShadows(zone, Map.SHADOW_OFFSET, tx, ty);
     }
 
     void copyFloors(Zone zone, int layer, int tx, int ty) {
@@ -934,6 +946,29 @@ public class Map implements Disposable {
               tile.sibling = dt1s.get(Orientation.LEFT_NORTH_CORNER_WALL, cell.mainIndex, cell.subIndex);
               copyFlags(zone.flags, tx, ty, tile.sibling);
             }
+          }
+        }
+      }
+    }
+
+    void copyShadows(Zone zone, int layer, int tx, int ty) {
+      final int startTx = tx;
+      final int startTy = ty;
+      for (int l = 0; l < ds1.numShadows; l++, layer++, ty = startTy) {
+        if (zone.tiles[layer] == null) zone.tiles[layer] = new Tile[zone.tilesX][zone.tilesY];
+        for (int y = 0; y < ds1.height; y++, ty++, tx = startTx) {
+          int ptr = l + (y * ds1.shadowLine);
+          for (int x = 0; x < ds1.width; x++, tx++, ptr += ds1.numShadows) {
+            DS1.Cell cell = ds1.shadows[ptr];
+            if ((cell.value & DS1.Cell.HIDDEN_MASK) != 0) {
+              continue;
+            }
+
+            if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
+              continue;
+            }
+
+            zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
           }
         }
       }

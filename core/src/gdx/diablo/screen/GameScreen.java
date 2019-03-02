@@ -36,7 +36,6 @@ import java.io.PrintWriter;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.Keys;
-import gdx.diablo.entity.Entity;
 import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.graphics.PaletteIndexedColorDrawable;
@@ -92,6 +91,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   MapRenderer mapRenderer;
   MapListener mapListener;
   InputProcessor inputProcessorTest;
+  final Array<Actor> labels = new Array<>();
 
   public TextArea input;
   TextArea output;
@@ -418,12 +418,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         //System.out.println("hit " + hit + "; " + collision.point + "; " + collision.normal);
       }
     } else {
-      if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-        GridPoint2 coords = mapRenderer.coords();
-        player.setPath(map, new Vector3(coords.x, coords.y, 0));
-      }
+      mapListener.update();
+      //if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+      //  GridPoint2 coords = mapRenderer.coords();
+      //  player.setPath(map, new Vector3(coords.x, coords.y, 0));
+      //}
     }
 
+    /*
     for (Entity entity : entities.values()) {
       entity.update(delta);
       if (!entity.target().isZero() && !entity.position().epsilonEquals(entity.target())) {
@@ -431,6 +433,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         entity.setAngle(angle);
       }
     }
+    */
 
     mapRenderer.update();
 
@@ -442,13 +445,27 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.shapes.begin(ShapeRenderer.ShapeType.Line);
     mapRenderer.drawDebug(Diablo.shapes);
     mapRenderer.drawDebugPath(Diablo.shapes, player.path());
-    player.drawDebug(Diablo.shapes);
+    player.drawDebug(Diablo.batch, Diablo.shapes);
     Diablo.shapes.end();
 
     b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
 
     stage.act();
     stage.draw();
+
+    /*b.begin();
+    for (Entity entity : labels) {
+      entity.drawLabel(b);
+      System.out.println("label!");
+    }
+    b.end();*/
+
+    //layoutLabels();
+    mapRenderer.prepare(b);
+    b.begin();
+    for (Actor label : labels) label.draw(b, 1);
+    b.end();
+    b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
   }
 
   @Override
@@ -550,5 +567,26 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   @Override
   public void resume() {
     //escapePanel.setVisible(false);
+  }
+
+  public void clearLabels() {
+    labels.size = 0;
+  }
+
+  public void addLabel(Actor label) {
+    labels.add(label);
+  }
+
+  public void layoutLabels() {
+    Vector2 tmp = new Vector2();
+    for (Actor label : labels) {
+      tmp.x = label.getX();
+      tmp.y = label.getY();
+      //mapRenderer.camera.
+      mapRenderer.project2(tmp);
+      label.setPosition(tmp.x, tmp.y);
+      System.out.println(tmp);
+      //if (label.getX() < 0) label.setX(0);
+    }
   }
 }
