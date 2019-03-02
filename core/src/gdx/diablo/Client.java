@@ -503,6 +503,13 @@ public class Client extends Game {
       }
     });
 
+    Cvars.Client.Display.VSync.addStateListener(new CvarStateAdapter<Boolean>() {
+      @Override
+      public void onChanged(Cvar<Boolean> cvar, Boolean from, Boolean to) {
+        Gdx.graphics.setVSync(to);
+      }
+    });
+
     Cvars.Client.Realm.addStateListener(new CvarStateAdapter<String>() {
       @Override
       public void onChanged(Cvar<String> cvar, String from, String to) {

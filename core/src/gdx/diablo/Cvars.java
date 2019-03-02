@@ -167,6 +167,14 @@ public class Cvars {
           .defaultValue(1.0f)
           .validator(NumberRangeValidator.of(Float.class, 0.5f, 4.0f))
           .build();
+
+      Cvar<Boolean> VSync = Cvar.builder(Boolean.class)
+          .alias("Client.Display.VSync")
+          .description(
+              "Whether or not wait for vertical refresh is enabled.")
+          .defaultValue(Boolean.FALSE)
+          .validator(Validator.ACCEPT_NON_NULL)
+          .build();
     }
 
     interface Input {
