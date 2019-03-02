@@ -31,6 +31,11 @@ public class Npc extends AI {
       id = name + "_greeting_inactive_1";
       Diablo.audio.play(id, false);
     }
+
+    actionTimer = 4;
+    actionPerformed = false;
+    entity.target().set(entity.position());
+    entity.lookAt(gameScreen.player);
   }
 
   public void update(float delta) {

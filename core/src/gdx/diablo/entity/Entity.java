@@ -144,6 +144,8 @@ public class Entity {
   MapGraph.MapGraphPath path = new MapGraph.MapGraphPath();
   Iterator<MapGraph.Point2> targets = Collections.emptyIterator();
 
+  private static final Vector2 tmpVec2 = new Vector2();
+
   public static Entity create(Map map, Map.Zone zone, DS1 ds1, DS1.Object obj) {
     final int type = obj.type;
     switch (type) {
@@ -347,6 +349,15 @@ public class Entity {
   public int getDirection() {
     int numDirs = animation.getNumDirections();
     return Direction.radiansToDirection(angle, numDirs);
+  }
+
+  public void lookAt(Entity entity) {
+    float x1 = +(entity.position.x * Tile.SUBTILE_WIDTH50)  - (entity.position.y * Tile.SUBTILE_WIDTH50);
+    float y1 = -(entity.position.x * Tile.SUBTILE_HEIGHT50) - (entity.position.y * Tile.SUBTILE_HEIGHT50);
+    float x2 = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+    float y2 = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    tmpVec2.set(x1, y1).sub(x2, y2);
+    setAngle(MathUtils.atan2(tmpVec2.y, tmpVec2.x));
   }
 
   public final void invalidate() {
