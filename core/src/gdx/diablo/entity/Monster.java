@@ -169,4 +169,9 @@ public class Monster extends Entity {
   public void drawShadow(PaletteIndexedBatch batch) {
     if (monstats2.Shadow) super.drawShadow(batch);
   }
+
+  @Override
+  public boolean isSelectable() {
+    return monstats2.isSel;
+  }
 }

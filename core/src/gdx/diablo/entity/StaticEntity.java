@@ -209,4 +209,10 @@ public class StaticEntity extends Entity {
     int mode = Diablo.files.ObjMode.index(this.mode);
     if (base.BlocksLight[mode]) super.drawShadow(batch);
   }
+
+  @Override
+  public boolean isSelectable() {
+    int mode = Diablo.files.ObjMode.index(this.mode);
+    return base.Selectable[mode];
+  }
 }
