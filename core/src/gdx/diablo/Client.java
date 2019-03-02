@@ -285,6 +285,7 @@ public class Client extends Game {
       setScreen(new SplashScreen());
     }
 
+    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
     Gdx.gl.glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
   }
 
