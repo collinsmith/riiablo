@@ -84,10 +84,12 @@ public class Audio {
     play(sound, global);
   }
 
-  public void play(String id, boolean global) {
-    if (id.isEmpty()) return;
+  public int play(String id, boolean global) {
+    if (id.isEmpty()) return 0;
     Sounds.Entry sound = Diablo.files.Sounds.get(id);
+    if (sound == null) return 0;
     play(sound, global);
+    return sound.Index;
   }
 
 }
