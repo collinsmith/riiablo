@@ -106,6 +106,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   PrintWriter out;
   BufferedReader in;
 
+  private static final Vector2 tmpVec2 = new Vector2();
+
   @Override
   public Array<AssetDescriptor> getDependencies() {
     Array<AssetDescriptor> dependencies = new Array<>();
@@ -419,7 +421,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         //System.out.println("hit " + hit + "; " + collision.point + "; " + collision.normal);
       }
     } else {
-      mapListener.update();
+      stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+      Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, false);
+      if (hit == null) mapListener.update();
       //if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
       //  GridPoint2 coords = mapRenderer.coords();
       //  player.setPath(map, new Vector3(coords.x, coords.y, 0));
