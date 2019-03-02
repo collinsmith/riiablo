@@ -619,6 +619,10 @@ public class MapRenderer {
           //break;
         case Orientation.SOUTH_CORNER_WALL:
         case Orientation.PILLAR:
+          /**
+           * TODO: pseudocode: if TREE, assume only 1 tile in all 25 subtiles is unwalkable and use
+           *       that position as the tile position and render it as if its an entity
+           */
         case Orientation.TREE: // TODO: should be in-line rendered with entities
           batch.draw(tile.tile.texture, px, py);
           if (tile.tile.orientation == Orientation.RIGHT_NORTH_CORNER_WALL) {
