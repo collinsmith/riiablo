@@ -67,8 +67,10 @@ import gdx.diablo.widget.TextArea;
 
 public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
   private static final String TAG = "GameScreen";
+  private static final boolean DEBUG          = true;
   private static final boolean DEBUG_TOUCHPAD = !true;
   private static final boolean DEBUG_MOBILE   = true;
+  private static final boolean DEBUG_HIT      = DEBUG && !true;
 
   final AssetDescriptor<Sound> windowopenDescriptor = new AssetDescriptor<>("data\\global\\sfx\\cursor\\windowopen.wav", Sound.class);
 
@@ -428,6 +430,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
       Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, true);
       if (hit == null) mapListener.update();
+      else if (DEBUG_HIT) Gdx.app.debug(TAG, hit.toString());
       //if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
       //  GridPoint2 coords = mapRenderer.coords();
       //  player.setPath(map, new Vector3(coords.x, coords.y, 0));
