@@ -2,7 +2,6 @@ package gdx.diablo.map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -11,7 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import gdx.diablo.entity.Entity;
 import gdx.diablo.screen.GameScreen;
 
-public class MapListener extends InputAdapter {
+public class MapListener {
   private final Vector2    tmpVec2  = new Vector2();
   private final Vector3    tmpVec3  = new Vector3();
   private final GridPoint2 tmpVec2i = new GridPoint2();
@@ -27,35 +26,30 @@ public class MapListener extends InputAdapter {
     this.mapRenderer = mapRenderer;
   }
 
-  @Override
-  public boolean mouseMoved(int x, int y) {
-    mapRenderer.unproject(x, y, tmpVec2);
+  // TODO: assert only 1 entity can be selected at once, once found, deselect other and set new and return
+  private void updateLabel(Vector2 position) {
     gameScreen.clearLabels();
     for (Map.Zone zone : map.zones) {
       for (Entity entity : zone.entities) {
-        entity.over = entity.contains(tmpVec2);
+        entity.over = entity.contains(position);
         if (entity.over) gameScreen.addLabel(entity.getLabel());
       }
     }
-
-    return false;
   }
 
-  @Override
-  public boolean touchDown(int x, int y, int pointer, int button) {
-    setTarget(null);
-    mapRenderer.unproject(x, y, tmpVec2);
+  private boolean touchDown() {
+    //setTarget(null);
     for (Map.Zone zone : new Array.ArrayIterator<>(map.zones)) {
       for (Entity entity : zone.entities) {
         if (entity.over) {
           if (entity.position().dst(gameScreen.player.position()) <= entity.getInteractRange()) {
             setTarget(null);
             entity.interact(gameScreen);
-            return true;
           } else {
             setTarget(entity);
-            return true;
           }
+
+          return true;
         }
       }
     }
@@ -64,23 +58,25 @@ public class MapListener extends InputAdapter {
   }
 
   public void update() {
-    if (target != null) {
-      if (target.position().dst(gameScreen.player.position()) <= target.getInteractRange()) {
-        Entity entity = target;
-        setTarget(null);
-        entity.interact(gameScreen);
+    mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+    updateLabel(tmpVec2);
+    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+      if (gameScreen.getMenu() != null) gameScreen.setMenu(null, null);
+      boolean touched = touchDown();
+      if (!touched) {
+        mapRenderer.coords(tmpVec2.x, tmpVec2.y, tmpVec2i);
+        tmpVec3.set(tmpVec2i.x, tmpVec2i.y, 0);
+        gameScreen.player.setPath(map, tmpVec3);
       }
-
-      return;
+    } else {
+      if (target != null) {
+        if (target.position().dst(gameScreen.player.position()) <= target.getInteractRange()) {
+          Entity entity = target;
+          setTarget(null);
+          entity.interact(gameScreen);
+        }
+      }
     }
-
-    if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT)) return;
-    int x = Gdx.input.getX();
-    int y = Gdx.input.getY();
-    mapRenderer.unproject(x, y, tmpVec2);
-    mapRenderer.coords(tmpVec2.x, tmpVec2.y, tmpVec2i);
-    tmpVec3.set(tmpVec2i.x, tmpVec2i.y, 0);
-    gameScreen.player.setPath(map, tmpVec3);
   }
 
   private void setTarget(Entity entity) {

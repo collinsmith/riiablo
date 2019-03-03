@@ -37,12 +37,13 @@ import java.io.PrintWriter;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.Keys;
+import gdx.diablo.entity.Entity;
 import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.graphics.PaletteIndexedColorDrawable;
 import gdx.diablo.key.MappedKey;
 import gdx.diablo.key.MappedKeyStateAdapter;
-import gdx.diablo.map.DT1;
+import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.map.Map;
 import gdx.diablo.map.MapListener;
 import gdx.diablo.map.MapLoader;
@@ -61,6 +62,7 @@ import gdx.diablo.server.MoveTo;
 import gdx.diablo.server.Packet;
 import gdx.diablo.server.Packets;
 import gdx.diablo.server.PipedSocket;
+import gdx.diablo.widget.NpcMenu;
 import gdx.diablo.widget.TextArea;
 
 public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
@@ -93,6 +95,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   MapListener mapListener;
   InputProcessor inputProcessorTest;
   final Array<Actor> labels = new Array<>();
+  Actor menu;
 
   public TextArea input;
   TextArea output;
@@ -381,7 +384,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         //player.setPath(map, new Vector3(x, y, 0).add(player.position()), 3);
 
         Vector2 position = new Vector2(player.position().x, player.position().y);
-        Vector2 target = new Vector2(x, y).scl(DT1.Tile.WIDTH).add(mapRenderer.project(position.x, position.y, new Vector2()));
+        Vector2 target = new Vector2(x, y).scl(Tile.WIDTH).add(mapRenderer.project(position.x, position.y, new Vector2()));
         GridPoint2 coords = mapRenderer.coords(target.x, target.y, new GridPoint2());
         target.set(coords.x, coords.y);
         Ray<Vector2> ray = new Ray<>(position, target);
@@ -421,9 +424,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         //System.out.println("hit " + hit + "; " + collision.point + "; " + collision.normal);
       }
     } else {
+      // TODO: this requires a bit more thorough checking - touchable flags need to be checked on each panel and unset on output/input areas
       stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
       Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, false);
-      if (hit == null) mapListener.update();
+      if (hit == null || hit == output || hit == input) mapListener.update();
       //if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
       //  GridPoint2 coords = mapRenderer.coords();
       //  player.setPath(map, new Vector3(coords.x, coords.y, 0));
@@ -465,12 +469,12 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     }
     b.end();*/
 
-    layoutLabels();
-    //mapRenderer.prepare(b);
-    b.begin();
-    for (Actor label : labels) label.draw(b, 1);
-    b.end();
-    b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
+    if (menu == null && !labels.isEmpty()) {
+      layoutLabels();
+      b.begin();
+      for (Actor label : labels) label.draw(b, 1);
+      b.end();
+    }
   }
 
   @Override
@@ -500,7 +504,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Enter.addStateListener(mappedKeyStateListener);
     Diablo.input.addProcessor(stage);
     Diablo.input.addProcessor(inputProcessorTest);
-    Diablo.input.addProcessor(mapListener);
 
     if (socket != null && socket.isConnected()) {
       Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
@@ -545,7 +548,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Enter.removeStateListener(mappedKeyStateListener);
     Diablo.input.removeProcessor(stage);
     Diablo.input.removeProcessor(inputProcessorTest);
-    Diablo.input.removeProcessor(mapListener);
 
     //updateTask.cancel();
   }
@@ -591,6 +593,36 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       tmp.x = MathUtils.clamp(tmp.x, 0, Diablo.VIRTUAL_WIDTH  - label.getWidth());
       tmp.y = MathUtils.clamp(tmp.y, 0, Diablo.VIRTUAL_HEIGHT - label.getHeight());
       label.setPosition(tmp.x, tmp.y);
+    }
+  }
+
+  public Actor getMenu() {
+    return menu;
+  }
+
+  public void setMenu(Actor menu, Entity owner) {
+    if (this.menu != menu) {
+      if (this.menu != null) {
+        if (this.menu instanceof NpcMenu) ((NpcMenu) this.menu).cancel();
+        stage.getRoot().removeActor(this.menu);
+      }
+      this.menu = menu;
+      if (menu != null && owner != null) {
+        stage.addActor(menu);
+
+        Vector3 position = owner.position();
+        float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+        float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+        menu.setPosition(x, y + owner.getLabelOffset(), Align.center | Align.bottom);
+
+        Vector2 tmp = new Vector2();
+        tmp.x = menu.getX();
+        tmp.y = menu.getY();
+        mapRenderer.projectScaled(tmp);
+        tmp.x = MathUtils.clamp(tmp.x, 0, Diablo.VIRTUAL_WIDTH  - menu.getWidth());
+        tmp.y = MathUtils.clamp(tmp.y, 0, Diablo.VIRTUAL_HEIGHT - menu.getHeight());
+        menu.setPosition(tmp.x, tmp.y);
+      }
     }
   }
 }

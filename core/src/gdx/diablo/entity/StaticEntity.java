@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Align;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.excel.Objects;
@@ -12,7 +11,6 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.map.DS1;
 import gdx.diablo.map.Map;
 import gdx.diablo.screen.GameScreen;
-import gdx.diablo.widget.Label;
 
 public class StaticEntity extends Entity {
   private static final String TAG = "StaticEntity";
@@ -76,8 +74,8 @@ public class StaticEntity extends Entity {
   }
 
   @Override
-  protected void updateLabel(Label label, float x, float y) {
-    label.setPosition(x, y - base.NameOffset + label.getHeight() / 2, Align.center);
+  public float getLabelOffset() {
+    return -base.NameOffset;
   }
 
   @Override

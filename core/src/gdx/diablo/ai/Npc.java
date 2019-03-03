@@ -3,6 +3,8 @@ package gdx.diablo.ai;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -10,20 +12,25 @@ import gdx.diablo.Diablo;
 import gdx.diablo.entity.Monster;
 import gdx.diablo.map.DS1;
 import gdx.diablo.screen.GameScreen;
+import gdx.diablo.widget.NpcMenu;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
 
+  // data\\global\\ui\\MENU\\boxpieces.DC6
+
   int targetId = ArrayUtils.INDEX_NOT_FOUND;
   float actionTimer = 0;
   boolean actionPerformed = false;
+  NpcMenu menu;
+  int activeAudio;
 
   public Npc(Monster entity) {
     super(entity);
   }
 
   @Override
-  public void interact(GameScreen gameScreen) {
+  public void interact(final GameScreen gameScreen) {
     String name = entity.getName().toLowerCase();
     String id = name + "_greeting_1";
     int index = Diablo.audio.play(id, false);
@@ -32,10 +39,53 @@ public class Npc extends AI {
       Diablo.audio.play(id, false);
     }
 
-    actionTimer = 4;
+    actionTimer = Float.POSITIVE_INFINITY;
     actionPerformed = false;
     entity.target().set(entity.position());
     entity.lookAt(gameScreen.player);
+    entity.update(0);
+
+    if (menu == null) {
+      menu = new NpcMenu(entity, gameScreen, entity.getName());
+      menu
+          // Talk
+          .addItem(3381, new NpcMenu(3381)
+              // Introduction
+              .addItem(3399, new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                  String name = entity.getName().toLowerCase();
+                  String id = name + "_act1_intro";
+                  Diablo.audio.play(id, false);
+                }
+              })
+              // Gossip
+              .addItem(3395, new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                  String name = entity.getName().toLowerCase();
+                  String id = name + "_act1_gossip_1";
+                  Diablo.audio.play(id, false);
+                }
+              })
+              .addCancel(new NpcMenu.CancellationListener() {
+                @Override
+                public void onCancelled() {
+                  // TODO: stop audio
+                }
+              })
+              .build())
+          .addCancel(new NpcMenu.CancellationListener() {
+            @Override
+            public void onCancelled() {
+              actionTimer = 4;
+              entity.target().setZero();
+            }
+          })
+          .build();
+    }
+
+    gameScreen.setMenu(menu, entity);
   }
 
   public void update(float delta) {

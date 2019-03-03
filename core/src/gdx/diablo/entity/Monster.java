@@ -20,7 +20,6 @@ import gdx.diablo.map.DS1;
 import gdx.diablo.map.DT1.Tile;
 import gdx.diablo.map.Map;
 import gdx.diablo.screen.GameScreen;
-import gdx.diablo.widget.Label;
 
 public class Monster extends Entity {
   private static final String TAG = "Monster";
@@ -123,7 +122,7 @@ public class Monster extends Entity {
       point = path.points[i];
       p1x = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50);
       p1y = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50);
-      Diablo.fonts.consolas16.draw(batch, Integer.toString(point.action), p1x, p1y - BOX_SIZE, 0, Align.center, false);
+      Diablo.fonts.consolas12.draw(batch, Integer.toString(point.action), p1x, p1y - BOX_SIZE, 0, Align.center, false);
     }
     batch.end();
     batch.setShader(Diablo.shader);
@@ -131,8 +130,8 @@ public class Monster extends Entity {
   }
 
   @Override
-  protected void updateLabel(Label label, float x, float y) {
-    label.setPosition(x, y + monstats2.pixHeight + label.getHeight() / 2, Align.center);
+  public float getLabelOffset() {
+    return monstats2.pixHeight;
   }
 
   @Override

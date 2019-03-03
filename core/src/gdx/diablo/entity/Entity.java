@@ -534,7 +534,11 @@ public class Entity {
   }
 
   protected void updateLabel(Label label, float x, float y) {
-    label.setPosition(x, y + animation.getMinHeight() + label.getHeight() / 2, Align.center);
+    label.setPosition(x, y + getLabelOffset() + label.getHeight() / 2, Align.center);
+  }
+
+  public float getLabelOffset() {
+    return animation.getMinHeight();
   }
 
   /*
