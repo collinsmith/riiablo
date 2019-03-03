@@ -95,7 +95,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   MapListener mapListener;
   InputProcessor inputProcessorTest;
   final Array<Actor> labels = new Array<>();
-  Actor menu;
+  NpcMenu menu;
 
   public TextArea input;
   TextArea output;
@@ -596,14 +596,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     }
   }
 
-  public Actor getMenu() {
+  public NpcMenu getMenu() {
     return menu;
   }
 
-  public void setMenu(Actor menu, Entity owner) {
+  public void setMenu(NpcMenu menu, Entity owner) {
     if (this.menu != menu) {
       if (this.menu != null) {
-        if (this.menu instanceof NpcMenu) ((NpcMenu) this.menu).cancel();
+        // FIXME: Validate that cancel is only called if upnav, downnav -- looks good at a glance
+        if (menu == null || menu.getParent() != this.menu) this.menu.cancel();
         stage.getRoot().removeActor(this.menu);
       }
       this.menu = menu;

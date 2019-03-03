@@ -37,6 +37,14 @@ public class NpcMenu extends Table {
     add(new Label(id, Diablo.fonts.font16, Diablo.colors.gold)).space(SPACING).row();
   }
 
+  public boolean hasParent() {
+    return parent != null;
+  }
+
+  public NpcMenu getParent() {
+    return parent;
+  }
+
   public NpcMenu addItem(int id, ClickListener clickListener) {
     LabelButton button = new LabelButton(id, Diablo.fonts.font16);
     button.addListener(clickListener);
@@ -76,7 +84,6 @@ public class NpcMenu extends Table {
 
   public void cancel() {
     if (cancellationListener != null) cancellationListener.onCancelled();
-
   }
 
   public interface CancellationListener {
