@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
@@ -84,6 +85,7 @@ public class ControlPanel extends WidgetGroup implements Disposable {
 
     setWidth(healthWidget.getWidth() + controlWidget.getWidth() + manaWidget.getWidth());
     setHeight(height);
+    setTouchable(Touchable.enabled);
   }
 
   @Override

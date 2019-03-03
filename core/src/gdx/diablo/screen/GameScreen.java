@@ -154,6 +154,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     input.setPosition(Diablo.VIRTUAL_WIDTH_CENTER - input.getWidth() / 2, 100);
     input.setAlignment(Align.topLeft);
     input.setVisible(false);
+    input.setTouchable(Touchable.disabled);
 
     output = new TextArea("", new TextArea.TextFieldStyle() {{
       this.font = Diablo.fonts.fontformal12;
@@ -424,10 +425,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         //System.out.println("hit " + hit + "; " + collision.point + "; " + collision.normal);
       }
     } else {
-      // TODO: this requires a bit more thorough checking - touchable flags need to be checked on each panel and unset on output/input areas
       stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
-      Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, false);
-      if (hit == null || hit == output || hit == input) mapListener.update();
+      Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, true);
+      if (hit == null) mapListener.update();
       //if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
       //  GridPoint2 coords = mapRenderer.coords();
       //  player.setPath(map, new Vector3(coords.x, coords.y, 0));

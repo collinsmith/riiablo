@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -36,6 +37,7 @@ public class StashPanel extends WidgetGroup implements Disposable {
     Diablo.assets.finishLoadingAsset(TradeStashDescriptor);
     TradeStash = Diablo.assets.get(TradeStashDescriptor).getTexture();
     setSize(TradeStash.getRegionWidth(), TradeStash.getRegionHeight());
+    setTouchable(Touchable.enabled);
     setVisible(false);
 
     btnExit = new Button(new Button.ButtonStyle() {{

@@ -3,6 +3,7 @@ package gdx.diablo.panel;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -105,6 +106,7 @@ public class MobilePanel extends Table implements Disposable {
     //add(btnQuests).size(size);
     add(btnEscapeMenu).size(size);
     pack();
+    setTouchable(Touchable.enabled);
   }
 
   @Override

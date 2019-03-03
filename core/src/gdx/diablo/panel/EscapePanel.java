@@ -123,7 +123,8 @@ public class EscapePanel extends WidgetGroup implements Disposable {
 
     setFillParent(true);
     setVisible(false);
-    setTouchable(Touchable.childrenOnly);
+    //setTouchable(Touchable.childrenOnly);
+    setTouchable(Touchable.enabled);
     //setDebug(true, true);
   }
 

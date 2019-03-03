@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -39,6 +40,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     Diablo.assets.finishLoadingAsset(invcharDescriptor);
     invchar = Diablo.assets.get(invcharDescriptor).getTexture(0);
     setSize(invchar.getRegionWidth(), invchar.getRegionHeight());
+    setTouchable(Touchable.enabled);
     setVisible(false);
 
     btnExit = new Button(new Button.ButtonStyle() {{

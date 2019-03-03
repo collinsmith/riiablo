@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -66,6 +67,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     Diablo.assets.finishLoadingAsset(invcharDescriptor);
     invchar = Diablo.assets.get(invcharDescriptor).getTexture(1);
     setSize(invchar.getRegionWidth(), invchar.getRegionHeight());
+    setTouchable(Touchable.enabled);
     setVisible(false);
 
     Diablo.assets.load(invcharTabDescriptor);
