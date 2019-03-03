@@ -202,6 +202,8 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     gloves.setPosition(
         inventory.glovesLeft - inventory.invLeft,
         getHeight() - inventory.glovesBottom);
+    gloves.xOffs = -1;
+    gloves.yOffs = 2;
     addActor(gloves);
 
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
