@@ -286,7 +286,9 @@ public class Client extends Game {
     }
 
     Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-    Gdx.gl.glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+
+    final float color = 0;//0.025f;
+    Gdx.gl.glClearColor(color, color, color, 1.0f);
   }
 
   @Override
