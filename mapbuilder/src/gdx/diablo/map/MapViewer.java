@@ -33,6 +33,7 @@ import gdx.diablo.codec.DC6;
 import gdx.diablo.codec.DCC;
 import gdx.diablo.codec.FontTBL;
 import gdx.diablo.codec.Palette;
+import gdx.diablo.codec.StringTBLs;
 import gdx.diablo.codec.TXT;
 import gdx.diablo.codec.excel.Excel;
 import gdx.diablo.entity.Entity;
@@ -112,6 +113,7 @@ public class MapViewer extends ApplicationAdapter {
     Diablo.fonts = new Fonts(assets);
     Diablo.colors = new Colors();
     Diablo.textures = new Textures();
+    Diablo.string = new StringTBLs(resolver);
     Diablo.cofs = new COFs(assets);//COFD2.loadFromFile(resolver.resolve("data\\global\\cmncof_a1.d2"));
 
     TXT txt = TXT.loadFromFile(Gdx.files.local("data/ds1types.txt"));
@@ -131,6 +133,9 @@ public class MapViewer extends ApplicationAdapter {
 
     mapRenderer = new MapRenderer(batch);
     mapRenderer.resize();
+
+    MapRenderer.RENDER_DEBUG_TILE = true;
+    MapRenderer.RENDER_DEBUG_PATHS = true;
 
     InputMultiplexer multiplexer = new InputMultiplexer();
     multiplexer.addProcessor(new InputAdapter() {

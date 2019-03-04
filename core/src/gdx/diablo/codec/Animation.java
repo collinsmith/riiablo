@@ -22,7 +22,7 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 
 public class Animation extends BaseDrawable {
   private static final String TAG = "Animation";
-  private static final int DEBUG_MODE = 1; // 0=off, 1=box, 2=layer box
+  private static final int DEBUG_MODE = 0; // 0=off, 1=box, 2=layer box
 
   private static final int   NUM_LAYERS = 16;
   private static final float FRAMES_PER_SECOND = 25f;

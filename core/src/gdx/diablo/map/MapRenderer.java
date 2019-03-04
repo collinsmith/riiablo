@@ -33,14 +33,14 @@ public class MapRenderer {
   private static final boolean DEBUG_MATH     = DEBUG && !true;
   private static final boolean DEBUG_BUFFER   = DEBUG && true;
   private static final boolean DEBUG_SUBTILE  = DEBUG && true;
-  private static final boolean DEBUG_TILE     = DEBUG && true;
+  private static final boolean DEBUG_TILE     = DEBUG && !true;
   private static final boolean DEBUG_CAMERA   = DEBUG && true;
   private static final boolean DEBUG_OVERSCAN = DEBUG && true;
   private static final boolean DEBUG_GRID     = DEBUG && true;
   private static final boolean DEBUG_WALKABLE = DEBUG && !true;
   private static final boolean DEBUG_SPECIAL  = DEBUG && true;
   private static final boolean DEBUG_MOUSE    = DEBUG && true;
-  private static final boolean DEBUG_PATHS    = DEBUG && true;
+  private static final boolean DEBUG_PATHS    = DEBUG && !true;
   private static final boolean DEBUG_POPPADS  = DEBUG && !true;
   private static final boolean DEBUG_ENTITIES = DEBUG && true;
 

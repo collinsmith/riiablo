@@ -479,7 +479,7 @@ public class Entity {
   public void drawDebugStatus(PaletteIndexedBatch batch, ShapeRenderer shapes) {
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    if (animation != null && !(this instanceof Player) && isSelectable()) animation.drawDebug(shapes, x, y);
+    if (animation != null && isSelectable()) animation.drawDebug(shapes, x, y);
 
     shapes.setColor(Color.WHITE);
     MapRenderer.drawDiamond(shapes, x - Tile.SUBTILE_WIDTH50, y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
