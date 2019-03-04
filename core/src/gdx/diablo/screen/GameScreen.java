@@ -296,7 +296,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             break;
           case 1:
             if (UIUtils.ctrl()) {
-              mapRenderer.zoom(Math.min(2.50f, mapRenderer.zoom() + ZOOM_AMOUNT));
+              mapRenderer.zoom(Math.min(10.00f, mapRenderer.zoom() + ZOOM_AMOUNT));
             }
 
             break;

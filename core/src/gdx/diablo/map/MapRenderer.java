@@ -584,9 +584,12 @@ public class MapRenderer {
     for (int i = Map.SHADOW_OFFSET; i < Map.SHADOW_OFFSET + Map.MAX_SHADOWS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
       if (tile == null) continue;
+      if (px > renderMaxX || px + Tile.WIDTH  < renderMinX) continue;
       TextureRegion texture = tile.tile.texture;
+      if (py > renderMaxY || py + texture.getRegionHeight() < renderMinY) continue;
       batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
     }
+    /*
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
       if (tile == null || tile.tile == null) continue;
@@ -594,6 +597,7 @@ public class MapRenderer {
       TextureRegion texture = tile.tile.texture;
       batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
     }
+    */
     for (Array<Entity> c : cache) {
       for (Entity entity : c) entity.drawShadow(batch);
     }
@@ -624,6 +628,7 @@ public class MapRenderer {
            *       that position as the tile position and render it as if its an entity
            */
         case Orientation.TREE: // TODO: should be in-line rendered with entities
+          if (py + tile.tile.texture.getRegionHeight() < renderMinY) break;
           batch.draw(tile.tile.texture, px, py);
           if (tile.tile.orientation == Orientation.RIGHT_NORTH_CORNER_WALL) {
             batch.draw(tile.sibling.texture, px, py);
@@ -635,12 +640,14 @@ public class MapRenderer {
   }
 
   void drawRoofs(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
-    if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
+    if (px > renderMaxX || px + Tile.WIDTH < renderMinX) return;
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
       if (tile == null || tile.tile == null) continue;
       if (popped.get(tile.tile.mainIndex)) continue;
       if (!Orientation.isRoof(tile.tile.orientation)) continue;
+      if (py + tile.tile.roofHeight > renderMaxY) continue;
+      if (py + tile.tile.roofHeight + tile.tile.texture.getRegionHeight() < renderMinY) continue;
       batch.draw(tile.tile.texture, px, py + tile.tile.roofHeight);
     }
   }
