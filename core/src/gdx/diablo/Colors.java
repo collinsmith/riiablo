@@ -34,6 +34,11 @@ public class Colors {
   public Color modal50 = new Color(0, 0, 0, 0.50f);
   public Color modal75 = new Color(0, 0, 0, 0.75f);
 
+  public Color invBlue  = new Color(0.1f, 0.1f, 0.5f, 0.3f);
+  public Color invGreen = new Color(0.1f, 0.5f, 0.1f, 0.3f);
+  public Color invRed   = new Color(0.5f, 0.1f, 0.1f, 0.3f);
+  public Color invWhite = new Color(0.5f, 0.5f, 0.5f, 0.3f);
+
   public Colors() {}
 
   public void load() {

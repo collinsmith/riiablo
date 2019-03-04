@@ -69,14 +69,10 @@ public class ItemGrid extends Group {
     fill = new Texture(solidColorPixmap);
     solidColorPixmap.dispose();
 
-    backgroundColorR = Color.RED.cpy();
-    backgroundColorR.a = 0.20f;
-    backgroundColorG = Color.GREEN.cpy();
-    backgroundColorG.a = 0.20f;
-    backgroundColorB = Color.BLUE.cpy();
-    backgroundColorB.a = 0.20f;
-    backgroundColorW = Color.WHITE.cpy();
-    backgroundColorW.a = 0.20f;
+    backgroundColorR = Diablo.colors.invRed;
+    backgroundColorG = Diablo.colors.invGreen;
+    backgroundColorB = Diablo.colors.invBlue;
+    backgroundColorW = Diablo.colors.invWhite;
 
     setTouchable(Touchable.enabled);
     setSize(width * boxWidth, height * boxHeight);

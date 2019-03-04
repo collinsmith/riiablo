@@ -81,10 +81,8 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     fill = new Texture(solidColorPixmap);
     solidColorPixmap.dispose();
 
-    backgroundColorG = Color.GREEN.cpy();
-    backgroundColorG.a = 0.25f;
-    backgroundColorR = Color.RED.cpy();
-    backgroundColorR.a = 0.25f;
+    backgroundColorR = Diablo.colors.invRed;
+    backgroundColorG = Diablo.colors.invGreen;
 
     btnExit = new Button(new Button.ButtonStyle() {{
       Diablo.assets.load(buysellbtnDescriptor);
