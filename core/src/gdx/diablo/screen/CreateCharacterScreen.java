@@ -7,15 +7,12 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -31,6 +28,7 @@ import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.loader.DC6Loader;
 import gdx.diablo.widget.CharButton;
 import gdx.diablo.widget.TextButton;
+import gdx.diablo.widget.TextField;
 
 public class CreateCharacterScreen extends ScreenAdapter {
   final AssetDescriptor<DC6> CharacterCreateDescriptor = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\CharacterCreate.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
@@ -139,24 +137,21 @@ public class CreateCharacterScreen extends ScreenAdapter {
       Diablo.assets.finishLoadingAsset(textboxDescriptor);
       DC6 pages = Diablo.assets.get(textboxDescriptor);
       background = new TextureRegionDrawable(pages.getTexture(0)) {{
-        final float padding = 8;
+        final float padding = 4;
         setLeftWidth(padding);
-        //setTopHeight(padding);
+        setTopHeight(padding);
         setRightWidth(padding);
         setBottomHeight(padding);
       }};
       font = Diablo.fonts.fontformal12;
-      fontColor = Color.WHITE;
-
-      BitmapFont.Glyph glyph = font.getData().getGlyph('_');
-      TextureRegion cursorRegion = new TextureRegion(font.getRegion(glyph.page), glyph.srcX, glyph.srcY, glyph.width, glyph.height);
-      cursor = new TextureRegionDrawable(cursorRegion);
+      fontColor = Diablo.colors.white;
+      cursor = new TextureRegionDrawable(Diablo.textures.white);
     }});
     tfCharName.setPosition(Diablo.VIRTUAL_WIDTH_CENTER - (tfCharName.getWidth() / 2), 20);
     tfCharName.setOnlyFontChars(true);
-    tfCharName.setTextFieldListener(new TextField.TextFieldListener() {
+    tfCharName.setTextFieldListener(new com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldListener() {
       @Override
-      public void keyTyped(TextField textField, char c) {
+      public void keyTyped(com.badlogic.gdx.scenes.scene2d.ui.TextField textField, char c) {
         btnOK.setVisible(!textField.getText().isEmpty());
       }
     });
