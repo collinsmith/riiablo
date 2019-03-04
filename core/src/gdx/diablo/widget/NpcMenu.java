@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.entity.Entity;
-import gdx.diablo.graphics.PaletteIndexedColorDrawable;
+import gdx.diablo.graphics.BorderedPaletteIndexedDrawable;
 import gdx.diablo.screen.GameScreen;
 
 public class NpcMenu extends Table {
@@ -24,7 +24,7 @@ public class NpcMenu extends Table {
     parent = null;
     this.owner = owner;
     this.gameScreen = gameScreen;
-    setBackground(new PaletteIndexedColorDrawable(Diablo.colors.modal50));
+    setBackground(new BorderedPaletteIndexedDrawable());
     pad(PADDING);
     add(new Label(header, Diablo.fonts.font16) {{
       setColor(Diablo.colors.gold);
@@ -32,7 +32,7 @@ public class NpcMenu extends Table {
   }
 
   public NpcMenu(int id) {
-    setBackground(new PaletteIndexedColorDrawable(Diablo.colors.modal50));
+    setBackground(new BorderedPaletteIndexedDrawable());
     pad(PADDING);
     add(new Label(id, Diablo.fonts.font16, Diablo.colors.gold)).space(SPACING).row();
   }
