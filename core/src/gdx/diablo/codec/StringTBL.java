@@ -19,9 +19,9 @@ import java.util.Arrays;
 
 public class StringTBL {
   private static final String TAG = "StringTBL";
-  private static final boolean DEBUG         = false;
-  private static final boolean DEBUG_ENTRIES = DEBUG && false;
-  private static final boolean DEBUG_LOOKUP  = DEBUG && false;
+  private static final boolean DEBUG         = !true;
+  private static final boolean DEBUG_ENTRIES = DEBUG && !true;
+  private static final boolean DEBUG_LOOKUP  = DEBUG && !true;
 
   public static final short CLASSIC_OFFSET   = 0;
   public static final short PATCH_OFFSET     = 10000;
@@ -96,8 +96,9 @@ public class StringTBL {
         KEY.offset = entry.keyOffset - header.startIndex;
         KEY.length = entry.strOffset - entry.keyOffset - 1;
         if (key.contentEquals(KEY)) {
-          if (DEBUG_LOOKUP) Gdx.app.debug(TAG, "Took " + hashTries);
-          return new String(text, entry.strOffset - header.startIndex, entry.strLen - 1);
+          String value = new String(text, entry.strOffset - header.startIndex, entry.strLen - 1);
+          if (DEBUG_LOOKUP) Gdx.app.debug(TAG, key + " took " + hashTries + " : \"" + value + "\"");
+          return value;
         }
       } else {
         return null;

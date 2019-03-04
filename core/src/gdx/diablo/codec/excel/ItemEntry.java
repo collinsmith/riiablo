@@ -11,6 +11,7 @@ public class ItemEntry extends Excel.Entry {
   public String  code;
 
   @Column public String  name;
+  @Column public String  namestr;
   @Column public int     version;
   @Column public String  alternateGfx;
   @Column public String  type;

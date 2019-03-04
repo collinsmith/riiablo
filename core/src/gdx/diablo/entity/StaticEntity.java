@@ -27,30 +27,12 @@ public class StaticEntity extends Entity {
     className = base.Description;
     // FIXME: Find how this association is actually made
     if (base.SubClass == 64) {
-      String levelName;
-      int id = getLevelName(zone);
-      if (id != 0) {
-        levelName = Diablo.string.lookup(id);
-      } else {
-        levelName = zone.level.LevelName;
-      }
-      setName(String.format("%s\n%s", levelName, Diablo.string.lookup(3257)));
+      String levelName = Diablo.string.lookup(zone.level.LevelName);
+      setName(String.format("%s\n%s", levelName, Diablo.string.lookup(base.Name)));
     } else {
-      switch (base.Id) {
-        case 267: setName(Diablo.string.lookup(3292)); break;
-        default:  setName(base.Name);
-      }
+      setName(base.Name.equalsIgnoreCase("dummy") ? base.Description : Diablo.string.lookup(base.Name));
     }
     init();
-  }
-
-  private int getLevelName(Map.Zone zone) {
-    switch (zone.level.Id) {
-      case 1:  return 5055;
-      case 2:  return 5054;
-      case 8:  return 5048;
-      default: return 0;
-    }
   }
 
   public static StaticEntity create(Map map, Map.Zone zone, DS1 ds1, DS1.Object obj) {
@@ -173,7 +155,11 @@ public class StaticEntity extends Entity {
       case 0:
         break;
       case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
-      case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18:
+        break;
+      // Rogue Bonfire
+      case 10:
+        break;
+      case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18:
         break;
       default:
         Gdx.app.error(TAG, "Invalid ClientFn for " + getName() + ": " + base.ClientFn);

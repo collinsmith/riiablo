@@ -362,12 +362,12 @@ public class Item extends Actor implements Disposable {
       case HIGH:
         if ((flags & RUNEWORD) == RUNEWORD) {
           int runeword = RunewordData.id(runewordData);
-          name.append(Diablo.files.Runes.get(runeword).Rune_Name);
+          name.append(Diablo.string.lookup(Diablo.files.Runes.get(runeword).Name));
           break;
         } else if (socketsFilled > 0) {
           name.append(Diablo.string.lookup(1728)) // Gemmed
               .append(' ')
-              .append(base.name);
+              .append(Diablo.string.lookup(base.namestr));
           break;
         }
 
@@ -375,47 +375,47 @@ public class Item extends Actor implements Disposable {
           case LOW:
             name.append(Diablo.string.lookup(LowQuality.valueOf(qualityId).stringId))
                 .append(' ')
-                .append(base.name);
+                .append(Diablo.string.lookup(base.namestr));
             break;
 
           case HIGH:
             name.append(Diablo.string.lookup(1727)) // Superior
                 .append(' ')
-                .append(base.name);
+                .append(Diablo.string.lookup(base.namestr));
             break;
 
           default:
-            name.append(base.name);
+            name.append(Diablo.string.lookup(base.namestr));
         }
         break;
 
       case MAGIC:
         prefix = qualityId &   MAGIC_AFFIX_MASK;
         suffix = qualityId >>> MAGIC_AFFIX_SIZE;
-        if ((affix = Diablo.files.MagicPrefix.get(prefix)) != null) name.append(affix.name).append(' ');
-        name.append(base.name);
-        if ((affix = Diablo.files.MagicSuffix.get(suffix)) != null) name.append(' ').append(affix.name);
+        if ((affix = Diablo.files.MagicPrefix.get(prefix)) != null) name.append(Diablo.string.lookup(affix.name)).append(' ');
+        name.append(Diablo.string.lookup(base.namestr));
+        if ((affix = Diablo.files.MagicSuffix.get(suffix)) != null) name.append(' ').append(Diablo.string.lookup(affix.name));
         break;
 
       case RARE:
       case CRAFTED:
         prefix = qualityId &   RARE_AFFIX_MASK;
         suffix = qualityId >>> RARE_AFFIX_SIZE;
-        name.append(Diablo.files.RarePrefix.get(prefix).name)
+        name.append(Diablo.string.lookup(Diablo.files.RarePrefix.get(prefix).name))
             .append(' ')
-            .append(Diablo.files.RareSuffix.get(suffix).name);
+            .append(Diablo.string.lookup(Diablo.files.RareSuffix.get(suffix).name));
         break;
 
       case SET:
-        name.append(Diablo.files.SetItems.get(qualityId).index);
+        name.append(Diablo.string.lookup(Diablo.files.SetItems.get(qualityId).index));
         break;
 
       case UNIQUE:
-        name.append(Diablo.files.UniqueItems.get(qualityId).index);
+        name.append(Diablo.string.lookup(Diablo.files.UniqueItems.get(qualityId).index));
         break;
 
       default:
-        name.append(base.name);
+        name.append(Diablo.string.lookup(base.namestr));
     }
 
     this.name = name.toString();
@@ -590,7 +590,7 @@ public class Item extends Actor implements Disposable {
 
       BitmapFont font = Diablo.fonts.font16;
       name = new Label(Item.this.getName(), font);
-      type = new Label(base.name, font);
+      type = new Label(Diablo.string.lookup(base.namestr), font);
       switch (quality) {
         case LOW:
         case NORMAL:

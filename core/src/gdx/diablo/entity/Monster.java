@@ -38,7 +38,7 @@ public class Monster extends Entity {
     this.monstats = monstats;
     this.monstats2 = Diablo.files.monstats2.get(monstats.MonStatsEx);
     className = monstats.Id;
-    setName(monstats.NameStr);
+    setName(monstats.NameStr.equalsIgnoreCase("dummy") ? monstats.Id : Diablo.string.lookup(monstats.NameStr));
     setWeaponClass(monstats2.BaseW);
     setMode(monstats.spawnmode.isEmpty() ? "NU" : monstats.spawnmode);
     setWalkSpeed(monstats.Velocity);
