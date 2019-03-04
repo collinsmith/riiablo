@@ -23,6 +23,7 @@ import gdx.diablo.codec.excel.ItemEntry;
 import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.item.Item;
+import gdx.diablo.screen.GameScreen;
 
 public class ItemGrid extends Group {
   private static final String TAG = "ItemGrid";
@@ -41,6 +42,7 @@ public class ItemGrid extends Group {
 
   final ObjectSet<Actor> hits = new ObjectSet<>(8, 1);
 
+  final GameScreen gameScreen;
   final Player player;
 
   boolean blocked = true;
@@ -49,12 +51,13 @@ public class ItemGrid extends Group {
   Vector2 grid = new Vector2();
   Vector2 itemSize = new Vector2();
 
-  public ItemGrid(Player player, Inventory.Entry inv) {
-    this(player, inv.gridX, inv.gridY, inv.gridBoxWidth, inv.gridBoxHeight);
+  public ItemGrid(GameScreen gameScreen, Inventory.Entry inv) {
+    this(gameScreen, inv.gridX, inv.gridY, inv.gridBoxWidth, inv.gridBoxHeight);
   }
 
-  public ItemGrid(Player player, int width, int height, int boxWidth, int boxHeight) {
-    this.player = player;
+  public ItemGrid(GameScreen gameScreen, int width, int height, int boxWidth, int boxHeight) {
+    this.gameScreen = gameScreen;
+    this.player = gameScreen.player;
     this.width = width;
     this.height = height;
     this.boxWidth = boxWidth;
@@ -293,6 +296,9 @@ public class ItemGrid extends Group {
       b.draw(fill, getX(), getY(), getWidth(), getHeight());
       b.resetBlendMode();
       item.draw(b, 1);
+      if (clickListener.isOver() && Diablo.cursor.getItem() == null) {
+        gameScreen.setDetails(item.details, item, ItemGrid.this, item);
+      }
     }
   }
 }

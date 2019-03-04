@@ -257,7 +257,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       }
     });
 
-    ItemGrid grid = new ItemGrid(gameScreen.player, inventory);
+    ItemGrid grid = new ItemGrid(gameScreen, inventory);
     grid.populate(gameScreen.player.getInventory());
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
@@ -382,9 +382,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       }
 
       if (isOver && item != null && cursorItem == null) {
-        //Item.Details label = item.label;
-        //label.setPosition(getX() + getWidth() / 2 - label.getWidth() / 2, getY() - label.getHeight());
-        //label.draw(b, a);
+        gameScreen.setDetails(item.details, item, InventoryPanel.this, this);
       }
     }
   }

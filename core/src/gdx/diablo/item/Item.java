@@ -2,8 +2,10 @@ package gdx.diablo.item;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -24,6 +26,8 @@ import gdx.diablo.codec.util.BBox;
 import gdx.diablo.codec.util.BitStream;
 import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
+import gdx.diablo.graphics.PaletteIndexedColorDrawable;
+import gdx.diablo.widget.Label;
 
 import static gdx.diablo.item.Quality.SET;
 
@@ -83,6 +87,8 @@ public class Item extends Actor implements Disposable {
   public Index    charColormap;
   public int      charColorIndex;
 
+  public Details  details;
+
   public static Item loadFromStream(BitStream bitStream) {
     return new Item().read(bitStream);
   }
@@ -90,8 +96,15 @@ public class Item extends Actor implements Disposable {
   private Item() {
     addListener(new ClickListener() {
       @Override
-      public void clicked(InputEvent event, float x, float y) {
-        //...
+      public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+        super.enter(event, x, y, pointer, fromActor);
+        if (isOver()) System.out.println("OVER");
+      }
+
+      @Override
+      public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+        super.exit(event, x, y, pointer, toActor);
+        if (!isOver()) System.out.println("!OVER");
       }
     });
   }
@@ -177,6 +190,7 @@ public class Item extends Actor implements Disposable {
       }
     }
 
+    details = new Details();
     return this;
   }
 
@@ -186,6 +200,7 @@ public class Item extends Actor implements Disposable {
     Diablo.assets.load(invFileDescriptor);
     Diablo.assets.finishLoadingAsset(invFileDescriptor);
     invFile = Diablo.assets.get(invFileDescriptor);
+    resize();
 
     invColormap     = Diablo.colormaps.get(base.InvTrans);
     String invColor = getInvColor();
@@ -559,6 +574,59 @@ public class Item extends Actor implements Disposable {
 
     static int extra(int pack) {
       return (pack & RUNEWORD_EXTRA_MASK) >>> RUNEWORD_EXTRA_SHIFT;
+    }
+  }
+
+  public class Details extends Table {
+    private static final float SPACING = 2;
+    private static final float PADDING = 6;
+
+    Label name;
+    Label type;
+
+    Details() {
+      setBackground(new PaletteIndexedColorDrawable(Diablo.colors.modal75));
+      pad(PADDING);
+
+      BitmapFont font = Diablo.fonts.font16;
+      name = new Label(Item.this.getName(), font);
+      type = new Label(base.name, font);
+      switch (quality) {
+        case LOW:
+        case NORMAL:
+        case HIGH:
+          if ((flags & RUNEWORD) == RUNEWORD)
+            name.setColor(Diablo.colors.gold);
+          if ((flags & (ETHEREAL|SOCKETED)) != 0)
+            type.setColor(Diablo.colors.grey);
+          break;
+        case MAGIC:
+          name.setColor(Diablo.colors.blue);
+          type.setColor(Diablo.colors.blue);
+          break;
+        case SET:
+          name.setColor(Diablo.colors.green);
+          type.setColor(Diablo.colors.green);
+          break;
+        case RARE:
+          name.setColor(Diablo.colors.yellow);
+          type.setColor(Diablo.colors.yellow);
+          break;
+        case UNIQUE:
+          name.setColor(Diablo.colors.gold);
+          type.setColor(Diablo.colors.gold);
+          break;
+        case CRAFTED:
+          name.setColor(Diablo.colors.orange);
+          type.setColor(Diablo.colors.orange);
+          break;
+
+      }
+
+      add(name).center().space(SPACING).row();
+      if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
+        add(type).center().space(SPACING).row();
+      pack();
     }
   }
 }

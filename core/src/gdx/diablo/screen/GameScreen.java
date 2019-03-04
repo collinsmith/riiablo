@@ -41,6 +41,7 @@ import gdx.diablo.entity.Entity;
 import gdx.diablo.entity.Player;
 import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.graphics.PaletteIndexedColorDrawable;
+import gdx.diablo.item.Item;
 import gdx.diablo.key.MappedKey;
 import gdx.diablo.key.MappedKeyStateAdapter;
 import gdx.diablo.map.DT1.Tile;
@@ -98,6 +99,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   InputProcessor inputProcessorTest;
   final Array<Actor> labels = new Array<>();
   NpcMenu menu;
+  Actor details;
 
   public TextArea input;
   TextArea output;
@@ -462,6 +464,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     b.setProjectionMatrix(Diablo.viewport.getCamera().combined);
 
+    details = null;
     stage.act();
     stage.draw();
 
@@ -476,6 +479,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       layoutLabels();
       b.begin();
       for (Actor label : labels) label.draw(b, 1);
+      b.end();
+    } else if (menu == null && details != null) {
+      b.begin();
+      details.draw(b, 1);
       b.end();
     }
   }
@@ -596,6 +603,38 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       tmp.x = MathUtils.clamp(tmp.x, 0, Diablo.VIRTUAL_WIDTH  - label.getWidth());
       tmp.y = MathUtils.clamp(tmp.y, 0, Diablo.VIRTUAL_HEIGHT - label.getHeight());
       label.setPosition(tmp.x, tmp.y);
+    }
+  }
+
+  public void setDetails(Actor details, Item item, Actor parent, Actor slot) {
+    if (this.details != details) {
+      this.details = details;
+
+      if (slot != null) {
+        details.setPosition(slot.getX() + slot.getWidth() / 2, slot.getY() + slot.getHeight(), Align.bottom | Align.center);
+        tmpVec2.set(details.getX(), details.getY());
+        parent.localToStageCoordinates(tmpVec2);
+        tmpVec2.x = MathUtils.clamp(tmpVec2.x, 0, Diablo.VIRTUAL_WIDTH  - details.getWidth());
+        tmpVec2.y = MathUtils.clamp(tmpVec2.y, 0, Diablo.VIRTUAL_HEIGHT - details.getHeight());
+        details.setPosition(tmpVec2.x, tmpVec2.y);
+        tmpVec2.set(slot.getX(), slot.getY());
+        parent.localToStageCoordinates(tmpVec2);
+        if (details.getY() < tmpVec2.y + slot.getHeight()) {
+          details.setPosition(slot.getX() + slot.getWidth() / 2, slot.getY(), Align.top | Align.center);
+          tmpVec2.set(details.getX(), details.getY());
+          parent.localToStageCoordinates(tmpVec2);
+          tmpVec2.x = MathUtils.clamp(tmpVec2.x, 0, Diablo.VIRTUAL_WIDTH  - details.getWidth());
+          tmpVec2.y = MathUtils.clamp(tmpVec2.y, 0, Diablo.VIRTUAL_HEIGHT - details.getHeight());
+          details.setPosition(tmpVec2.x, tmpVec2.y);
+        }
+      } else {
+        details.setPosition(item.getX() + item.getWidth() / 2, item.getY(), Align.top | Align.center);
+        tmpVec2.set(details.getX(), details.getY());
+        parent.localToStageCoordinates(tmpVec2);
+        tmpVec2.x = MathUtils.clamp(tmpVec2.x, 0, Diablo.VIRTUAL_WIDTH  - details.getWidth());
+        tmpVec2.y = MathUtils.clamp(tmpVec2.y, 0, Diablo.VIRTUAL_HEIGHT - details.getHeight());
+        details.setPosition(tmpVec2.x, tmpVec2.y);
+      }
     }
   }
 

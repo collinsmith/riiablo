@@ -57,7 +57,7 @@ public class StashPanel extends WidgetGroup implements Disposable {
 
     inventory = Diablo.files.inventory.get("Big Bank Page 1");
 
-    ItemGrid grid = new ItemGrid(gameScreen.player, inventory);
+    ItemGrid grid = new ItemGrid(gameScreen, inventory);
     //grid.populate(gameScreen.player.getStash());
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
