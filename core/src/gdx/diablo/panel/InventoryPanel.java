@@ -166,6 +166,8 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     neck.setPosition(
         inventory.neckLeft - inventory.invLeft,
         getHeight() - inventory.neckBottom);
+    neck.xOffs = -1;
+    neck.yOffs = 1;
     addActor(neck);
 
     BodyPart rHand = bodyParts[BodyLocs.RRIN] = new BodyPart(BodyLoc.RRIN, inv_ring_amulet.getTexture(1));
@@ -173,6 +175,8 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     rHand.setPosition(
         inventory.rHandLeft - inventory.invLeft,
         getHeight() - inventory.rHandBottom);
+    rHand.xOffs = -1;
+    rHand.yOffs = 1;
     addActor(rHand);
 
     BodyPart lHand = bodyParts[BodyLocs.LRIN] = new BodyPart(BodyLoc.LRIN, inv_ring_amulet.getTexture(1));
@@ -180,6 +184,8 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     lHand.setPosition(
         inventory.lHandLeft - inventory.invLeft,
         getHeight() - inventory.lHandBottom);
+    lHand.xOffs = -1;
+    lHand.yOffs = 1;
     addActor(lHand);
 
     BodyPart belt = bodyParts[BodyLocs.BELT] = new BodyPart(BodyLoc.BELT, inv_belt.getTexture());
