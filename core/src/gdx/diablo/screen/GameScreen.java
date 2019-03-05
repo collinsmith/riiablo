@@ -384,6 +384,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       float y = touchpad.getKnobPercentY();
       if (x == 0 && y == 0) {
         player.setPath(map, null);
+      } else if (getDialog() != null) {
+        setDialog(null);
+      } else if (getMenu() != null) {
+        setMenu(null, null);
       } else {
         //float rad = MathUtils.atan2(y, x);
         //x = Direction.getOffX(rad);
