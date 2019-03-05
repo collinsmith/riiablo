@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.IntSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -17,6 +18,19 @@ import gdx.diablo.widget.NpcMenu;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
+
+  static final IntSet TALKERS    = new IntSet();
+  static final IntSet REPAIRERS  = new IntSet();
+  static final IntSet TRADERS    = new IntSet();
+  static final IntSet GAMBLERS   = new IntSet();
+  static final IntSet HIRERERS   = new IntSet();
+  static {
+    TALKERS.addAll(146, 147, 148, 150, 154, 155);
+    REPAIRERS.addAll(154);
+    TRADERS.addAll(147, 148, 154);
+    GAMBLERS.addAll(147);
+    HIRERERS.addAll(150);
+  }
 
   int targetId = ArrayUtils.INDEX_NOT_FOUND;
   float actionTimer = 0;
@@ -49,56 +63,75 @@ public class Npc extends AI {
 
     if (menu == null) {
       menu = new NpcMenu(entity, gameScreen, entity.getName());
-      menu
-          // Talk
-          .addItem(3381, new NpcMenu(3381)
-              // Introduction
-              .addItem(3399, new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                  String name = entity.getName().toLowerCase();
-                  String id = name + "_act1_intro";
-                  Diablo.audio.play(id, false);
 
-                  gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
-                    @Override
-                    public void onCompleted(NpcDialogBox d) {
-                      gameScreen.setDialog(null);
-                    }
-                  }));
-                }
-              })
-              // Gossip
-              .addItem(3395, new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                  String name = entity.getName().toLowerCase();
-                  String id = name + "_act1_gossip_1";
-                  Diablo.audio.play(id, false);
+      final int entType = entity.monstats.hcIdx;
+      if (TALKERS.contains(entType)) {
+        // talk
+        menu.addItem(3381, new NpcMenu(3381)
+            // introduction
+            .addItem(3399, new ClickListener() {
+              @Override
+              public void clicked(InputEvent event, float x, float y) {
+                String name = entity.getName().toLowerCase();
+                String id = name + "_act1_intro";
+                Diablo.audio.play(id, false);
 
-                  gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
-                    @Override
-                    public void onCompleted(NpcDialogBox d) {
-                      gameScreen.setDialog(null);
-                    }
-                  }));
-                }
-              })
-              .addCancel(new NpcMenu.CancellationListener() {
-                @Override
-                public void onCancelled() {
-                  // TODO: stop audio
-                }
-              })
-              .build())
-          .addCancel(new NpcMenu.CancellationListener() {
-            @Override
-            public void onCancelled() {
-              actionTimer = 4;
-              entity.target().setZero();
-            }
-          })
-          .build();
+                gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
+
+                  @Override
+                  public void onCompleted(NpcDialogBox d) {
+                    gameScreen.setDialog(null);
+                  }
+                }));
+              }
+            })
+            // gossip
+            .addItem(3395, new ClickListener() {
+              @Override
+              public void clicked(InputEvent event, float x, float y) {
+                String name = entity.getName().toLowerCase();
+                String id = name + "_act1_gossip_1";
+                Diablo.audio.play(id, false);
+
+                gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
+                  @Override
+                  public void onCompleted(NpcDialogBox d) {
+                    gameScreen.setDialog(null);
+                  }
+                }));
+              }
+            })
+            .addCancel(new NpcMenu.CancellationListener() {
+              @Override
+              public void onCancelled() {
+                // TODO: stop audio
+              }
+            })
+            .build());
+      }
+
+      if (REPAIRERS.contains(entType)) {
+        menu.addItem(3334, new ClickListener()); // trade/repair
+      } else if (TRADERS.contains(entType)) {
+        menu.addItem(3396, new ClickListener()); // trade
+      }
+
+      if (HIRERERS.contains(entType)) {
+        menu.addItem(3397, new ClickListener()); // gamble
+      }
+
+      if (GAMBLERS.contains(entType)) {
+        menu.addItem(3398, new ClickListener()); // gamble
+      }
+
+      menu.addCancel(new NpcMenu.CancellationListener() {
+          @Override
+          public void onCancelled() {
+            actionTimer = 4;
+            entity.target().setZero();
+          }
+        })
+        .build();
     }
 
     gameScreen.setMenu(menu, entity);
