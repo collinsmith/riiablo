@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.IntSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import gdx.diablo.Audio;
 import gdx.diablo.Diablo;
 import gdx.diablo.entity.Monster;
 import gdx.diablo.map.DS1;
@@ -36,7 +37,6 @@ public class Npc extends AI {
   float actionTimer = 0;
   boolean actionPerformed = false;
   NpcMenu menu;
-  int activeAudio;
 
   public Npc(Monster entity) {
     super(entity);
@@ -49,8 +49,8 @@ public class Npc extends AI {
     //       I.e., akara_act1_intro -> akara_act1_intro_sor automatically if it exists
     String name = entity.getName().toLowerCase();
     String id = name + "_greeting_1";
-    int index = Diablo.audio.play(id, false);
-    if (index == 0) {
+    Audio.Instance instance = Diablo.audio.play(id, false);
+    if (instance == null) {
       id = name + "_greeting_inactive_1";
       Diablo.audio.play(id, false);
     }
@@ -74,10 +74,7 @@ public class Npc extends AI {
               public void clicked(InputEvent event, float x, float y) {
                 String name = entity.getName().toLowerCase();
                 String id = name + "_act1_intro";
-                Diablo.audio.play(id, false);
-
-                gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
-
+                gameScreen.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
                   @Override
                   public void onCompleted(NpcDialogBox d) {
                     gameScreen.setDialog(null);
@@ -91,9 +88,7 @@ public class Npc extends AI {
               public void clicked(InputEvent event, float x, float y) {
                 String name = entity.getName().toLowerCase();
                 String id = name + "_act1_gossip_1";
-                Diablo.audio.play(id, false);
-
-                gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
+                gameScreen.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
                   @Override
                   public void onCompleted(NpcDialogBox d) {
                     gameScreen.setDialog(null);
@@ -101,12 +96,7 @@ public class Npc extends AI {
                 }));
               }
             })
-            .addCancel(new NpcMenu.CancellationListener() {
-              @Override
-              public void onCancelled() {
-                // TODO: stop audio
-              }
-            })
+            .addCancel(null)
             .build());
       }
 

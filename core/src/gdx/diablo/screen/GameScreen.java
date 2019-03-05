@@ -682,6 +682,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     if (this.dialog != dialog) {
       if (this.dialog != null) {
         this.dialog.remove();
+        this.dialog.dispose();
         if (menu != null) menu.setVisible(true);
       }
 
