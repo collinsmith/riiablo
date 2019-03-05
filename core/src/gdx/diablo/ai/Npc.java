@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.ObjectMap;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -18,25 +17,6 @@ import gdx.diablo.widget.NpcMenu;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
-
-  // TODO: I'm betting it's possible to hash to the other using one of the below, possibly
-  //       WarrivAct1IntroGossip1 hashes to warriv_act1_intro? This will be time consuming if
-  //       I have to figure out each association, and I doubt it's the case that every single
-  //       file is hard coded, so the associations must be somewhere.
-  private static ObjectMap<String, String> SOUND_TO_DIALOG = new ObjectMap<>();
-  static {
-    SOUND_TO_DIALOG.put("warriv_act1_intro", "WarrivAct1IntroGossip1");
-    SOUND_TO_DIALOG.put("kashya_act1_intro", "KashyaIntroGossip1");
-    SOUND_TO_DIALOG.put("gheed_act1_intro",  "GheedIntroGossip1");
-    SOUND_TO_DIALOG.put("charsi_act1_intro", "CharsiIntroGossip1");
-    SOUND_TO_DIALOG.put("akara_act1_intro",  "AkaraIntroGossip1");
-
-    SOUND_TO_DIALOG.put("warriv_act1_gossip_1", "WarrivGossip2");
-    SOUND_TO_DIALOG.put("kashya_act1_gossip_1", "KashyaGossip2");
-    SOUND_TO_DIALOG.put("gheed_act1_gossip_1",  "GheedGossip2");
-    SOUND_TO_DIALOG.put("charsi_act1_gossip_1", "CharsiGossip2");
-    SOUND_TO_DIALOG.put("akara_act1_gossip_1",  "AkaraGossip2");
-  };
 
   int targetId = ArrayUtils.INDEX_NOT_FOUND;
   float actionTimer = 0;
@@ -80,7 +60,7 @@ public class Npc extends AI {
                   String id = name + "_act1_intro";
                   Diablo.audio.play(id, false);
 
-                  gameScreen.setDialog(new NpcDialogBox(SOUND_TO_DIALOG.get(id), new NpcDialogBox.DialogCompletionListener() {
+                  gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
                     @Override
                     public void onCompleted(NpcDialogBox d) {
                       gameScreen.setDialog(null);
@@ -96,7 +76,7 @@ public class Npc extends AI {
                   String id = name + "_act1_gossip_1";
                   Diablo.audio.play(id, false);
 
-                  gameScreen.setDialog(new NpcDialogBox(SOUND_TO_DIALOG.get(id), new NpcDialogBox.DialogCompletionListener() {
+                  gameScreen.setDialog(new NpcDialogBox(Diablo.files.speech.get(id).soundstr, new NpcDialogBox.DialogCompletionListener() {
                     @Override
                     public void onCompleted(NpcDialogBox d) {
                       gameScreen.setDialog(null);

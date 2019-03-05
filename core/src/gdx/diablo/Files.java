@@ -36,12 +36,14 @@ import gdx.diablo.codec.excel.RareSuffix;
 import gdx.diablo.codec.excel.Runes;
 import gdx.diablo.codec.excel.SetItems;
 import gdx.diablo.codec.excel.Sounds;
+import gdx.diablo.codec.excel.Speech;
 import gdx.diablo.codec.excel.UniqueItems;
 import gdx.diablo.codec.excel.WeaponClass;
 import gdx.diablo.codec.excel.Weapons;
 
 public class Files {
-  public final Obj obj;
+  public final Obj    obj;
+  public final Speech speech;
 
   public final Armor        armor;
   public final ArmType      ArmType;
@@ -78,7 +80,8 @@ public class Files {
   public final Weapons      weapons;
 
   public Files(AssetManager assets) {
-    obj      = loadObj();
+    obj    = loadInternal(Obj.class);//loadObj();
+    speech = loadInternal(Speech.class);
 
     armor        = load(assets, Armor.class);
     ArmType      = load(assets, ArmType.class);
@@ -115,10 +118,21 @@ public class Files {
     weapons      = load(assets, Weapons.class);
   }
 
+  @Deprecated
   private Obj loadObj() {
     FileHandle handle = Gdx.files.internal("data/obj.txt");
     TXT txt = TXT.loadFromFile(handle);
     return Excel.parse(txt, Obj.class);
+  }
+
+  private <T extends Excel> T loadInternal(Class<T> clazz) {
+    return loadInternal(clazz, clazz.getSimpleName().toLowerCase());
+  }
+
+  private <T extends Excel> T loadInternal(Class<T> clazz, String filename) {
+    FileHandle handle = Gdx.files.internal("data/" + filename + ".txt");
+    TXT txt = TXT.loadFromFile(handle);
+    return Excel.parse(txt, clazz);
   }
 
   private <T extends Excel> T load(AssetManager assets, Class<T> clazz, ObjectSet<String> ignore) {
