@@ -17,6 +17,12 @@ public class Audio {
   private static final String GLOBAL = "data\\global\\sfx\\";
   private static final String LOCAL  = "data\\local\\sfx\\";
 
+  // TODO: Add support for different channels -- will require API change in gdx.diablo.audio
+  //       Audio should maintain a list of all instances and adjust volumes as needed
+  public enum Channel {
+    SFX, MUSIC, ENVIRONMENT, SPEECH
+  }
+
   private final AssetManager assets;
   private final ObjectMap<Sounds.Entry, AssetDescriptor<?>> descriptors = new ObjectMap<>();
 
