@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import gdx.diablo.Diablo;
+import gdx.diablo.codec.FontTBL;
 import gdx.diablo.graphics.BorderedPaletteIndexedDrawable;
 
 public class NpcDialogBox extends Table {
@@ -26,12 +27,13 @@ public class NpcDialogBox extends Table {
     // FIXME: scrollSpeed should be in pixels/sec, but timing is off by about 10-15%
     //        problem seems to be with fontformat11 metrics, applying scalar to line height
     final float lineScalar = 0.85f;
+    final FontTBL.BitmapFont FONT = Diablo.fonts.fontformal11;
     String text = Diablo.string.lookup(key);
     String[] parts = text.split("\n", 2);
-    scrollSpeed = NumberUtils.toFloat(parts[0]) / 60 * Diablo.fonts.fontformal11.getLineHeight() * lineScalar;
+    scrollSpeed = NumberUtils.toFloat(parts[0]) / 60 * FONT.getLineHeight() * lineScalar;
     final int count = StringUtils.countMatches(parts[1], '\n');
     textArea = new TextArea(parts[1], new TextArea.TextFieldStyle() {{
-      font = Diablo.fonts.fontformal11;
+      font = FONT;
       fontColor = Diablo.colors.white;
     }}) {
       final float prefHeight = count * getStyle().font.getLineHeight();
