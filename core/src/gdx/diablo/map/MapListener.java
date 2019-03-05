@@ -20,6 +20,8 @@ public class MapListener {
   MapRenderer mapRenderer;
   Entity target;
 
+  boolean requireRelease;
+
   public MapListener(GameScreen gameScreen, Map map, MapRenderer mapRenderer) {
     this.gameScreen = gameScreen;
     this.map = map;
@@ -60,15 +62,24 @@ public class MapListener {
   public void update() {
     mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
     updateLabel(tmpVec2);
-    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-      if (gameScreen.getMenu() != null) gameScreen.setMenu(null, null);
+    boolean pressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+    if (pressed && !requireRelease) {
+      // exiting dialog should block all input until button is released to prevent menu from closing the following frame
+      if (gameScreen.getDialog() != null) {
+        gameScreen.setDialog(null);
+        requireRelease = true;
+        return;
+      } else if (gameScreen.getMenu() != null) {
+        gameScreen.setMenu(null, null);
+      }
       boolean touched = touchDown();
       if (!touched) {
         mapRenderer.coords(tmpVec2.x, tmpVec2.y, tmpVec2i);
         tmpVec3.set(tmpVec2i.x, tmpVec2i.y, 0);
         gameScreen.player.setPath(map, tmpVec3);
       }
-    } else {
+    } else if (!pressed) {
+      requireRelease = false;
       if (target != null) {
         if (target.position().dst(gameScreen.player.position()) <= target.getInteractRange()) {
           Entity entity = target;

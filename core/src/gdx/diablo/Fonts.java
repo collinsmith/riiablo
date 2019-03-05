@@ -15,6 +15,7 @@ public class Fonts {
   public final FontTBL.BitmapFont font30;
   public final FontTBL.BitmapFont font42;
   public final FontTBL.BitmapFont fontformal10;
+  public final FontTBL.BitmapFont fontformal11;
   public final FontTBL.BitmapFont fontformal12;
   public final FontTBL.BitmapFont fontexocet10;
   public final FontTBL.BitmapFont fontridiculous;
@@ -28,6 +29,7 @@ public class Fonts {
     font30       = load(assets, "font30", BlendMode.ID);
     font42       = load(assets, "font42", BlendMode.ID);
     fontformal10 = load(assets, "fontformal10", BlendMode.LUMINOSITY_TINT);
+    fontformal11 = load(assets, "fontformal11", BlendMode.LUMINOSITY_TINT);
     fontformal12 = load(assets, "fontformal12", BlendMode.LUMINOSITY_TINT);
     fontexocet10 = load(assets, "fontexocet10", BlendMode.TINT_BLACKS);
     fontridiculous = load(assets, "fontridiculous", BlendMode.TINT_BLACKS);
@@ -43,6 +45,11 @@ public class Fonts {
     data.lineHeight = data.xHeight = data.capHeight = 14;
     data.ascent = 14;
     data.down = -14;
+
+    data = fontformal11.getData();
+    data.lineHeight = data.xHeight = data.capHeight = 18;
+    data.ascent = 18;
+    data.down = -18;
 
     data = fontformal12.getData();
     data.lineHeight = data.xHeight = data.capHeight = 16;

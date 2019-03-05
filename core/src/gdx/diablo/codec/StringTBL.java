@@ -49,6 +49,16 @@ public class StringTBL {
     return new String(text, entry.strOffset - header.startIndex, entry.strLen - 1);
   }
 
+  public String getKey(int index) {
+    index = indexes[index];
+    HashTable.Entry entry = hashTable.entries[index];
+    if (entry.keyOffset == 0) {
+      return null;
+    }
+
+    return new String(text, entry.keyOffset - header.startIndex, entry.strOffset - entry.keyOffset);
+  }
+
   /*
   public CharSequence lookup(int index) {
     final HashTable.Entry entry = hashTable.entries[indexes[index]];

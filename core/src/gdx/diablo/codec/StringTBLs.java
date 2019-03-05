@@ -8,7 +8,7 @@ public class StringTBLs {
   private static final String TAG = "StringTBLs";
   private static final boolean DEBUG = false;
 
-  private final StringTBL string, expansionstring, patchstring;
+  public final StringTBL string, expansionstring, patchstring;
 
   public StringTBLs(MPQFileHandleResolver resolver) {
     string          = StringTBL.loadFromFile(resolver.resolve("data\\local\\lng\\eng\\string.tbl"));

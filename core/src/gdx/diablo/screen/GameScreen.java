@@ -63,6 +63,7 @@ import gdx.diablo.server.MoveTo;
 import gdx.diablo.server.Packet;
 import gdx.diablo.server.Packets;
 import gdx.diablo.server.PipedSocket;
+import gdx.diablo.widget.NpcDialogBox;
 import gdx.diablo.widget.NpcMenu;
 import gdx.diablo.widget.TextArea;
 
@@ -99,6 +100,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   InputProcessor inputProcessorTest;
   final Array<Actor> labels = new Array<>();
   NpcMenu menu;
+  NpcDialogBox dialog;
   Actor details;
 
   public TextArea input;
@@ -646,7 +648,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     if (this.menu != menu) {
       if (this.menu != null) {
         // FIXME: Validate that cancel is only called if upnav, downnav -- looks good at a glance
-        if (menu == null || menu.getParent() != this.menu) this.menu.cancel();
+        if (menu == null || menu.getParent() != this.menu) {
+          NpcMenu parent = this.menu;
+          do parent.cancel(); while ((parent = parent.getParent()) != menu);
+        }
         stage.getRoot().removeActor(this.menu);
       }
       this.menu = menu;
@@ -665,6 +670,26 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         tmp.x = MathUtils.clamp(tmp.x, 0, Diablo.VIRTUAL_WIDTH  - menu.getWidth());
         tmp.y = MathUtils.clamp(tmp.y, 0, Diablo.VIRTUAL_HEIGHT - menu.getHeight());
         menu.setPosition(tmp.x, tmp.y);
+      }
+    }
+  }
+
+  public NpcDialogBox getDialog() {
+    return dialog;
+  }
+
+  public void setDialog(NpcDialogBox dialog) {
+    if (this.dialog != dialog) {
+      if (this.dialog != null) {
+        this.dialog.remove();
+        if (menu != null) menu.setVisible(true);
+      }
+
+      this.dialog = dialog;
+      if (dialog != null) {
+        if (menu != null) menu.setVisible(false);
+        dialog.setPosition(Diablo.VIRTUAL_WIDTH_CENTER, Diablo.VIRTUAL_HEIGHT, Align.top | Align.center);
+        stage.addActor(dialog);
       }
     }
   }

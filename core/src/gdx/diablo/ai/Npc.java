@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -12,12 +13,30 @@ import gdx.diablo.Diablo;
 import gdx.diablo.entity.Monster;
 import gdx.diablo.map.DS1;
 import gdx.diablo.screen.GameScreen;
+import gdx.diablo.widget.NpcDialogBox;
 import gdx.diablo.widget.NpcMenu;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
 
-  // data\\global\\ui\\MENU\\boxpieces.DC6
+  // TODO: I'm betting it's possible to hash to the other using one of the below, possibly
+  //       WarrivAct1IntroGossip1 hashes to warriv_act1_intro? This will be time consuming if
+  //       I have to figure out each association, and I doubt it's the case that every single
+  //       file is hard coded, so the associations must be somewhere.
+  private static ObjectMap<String, String> SOUND_TO_DIALOG = new ObjectMap<>();
+  static {
+    SOUND_TO_DIALOG.put("warriv_act1_intro", "WarrivAct1IntroGossip1");
+    SOUND_TO_DIALOG.put("kashya_act1_intro", "KashyaIntroGossip1");
+    SOUND_TO_DIALOG.put("gheed_act1_intro",  "GheedIntroGossip1");
+    SOUND_TO_DIALOG.put("charsi_act1_intro", "CharsiIntroGossip1");
+    SOUND_TO_DIALOG.put("akara_act1_intro",  "AkaraIntroGossip1");
+
+    SOUND_TO_DIALOG.put("warriv_act1_gossip_1", "WarrivGossip2");
+    SOUND_TO_DIALOG.put("kashya_act1_gossip_1", "KashyaGossip2");
+    SOUND_TO_DIALOG.put("gheed_act1_gossip_1",  "GheedGossip2");
+    SOUND_TO_DIALOG.put("charsi_act1_gossip_1", "CharsiGossip2");
+    SOUND_TO_DIALOG.put("akara_act1_gossip_1",  "AkaraGossip2");
+  };
 
   int targetId = ArrayUtils.INDEX_NOT_FOUND;
   float actionTimer = 0;
@@ -31,6 +50,9 @@ public class Npc extends AI {
 
   @Override
   public void interact(final GameScreen gameScreen) {
+    // TODO: need some kind of static method that can take in some state params, e.g., character
+    //       class, player mode and spit out the proper file index.
+    //       I.e., akara_act1_intro -> akara_act1_intro_sor automatically if it exists
     String name = entity.getName().toLowerCase();
     String id = name + "_greeting_1";
     int index = Diablo.audio.play(id, false);
@@ -57,6 +79,13 @@ public class Npc extends AI {
                   String name = entity.getName().toLowerCase();
                   String id = name + "_act1_intro";
                   Diablo.audio.play(id, false);
+
+                  gameScreen.setDialog(new NpcDialogBox(SOUND_TO_DIALOG.get(id), new NpcDialogBox.DialogCompletionListener() {
+                    @Override
+                    public void onCompleted(NpcDialogBox d) {
+                      gameScreen.setDialog(null);
+                    }
+                  }));
                 }
               })
               // Gossip
@@ -66,6 +95,13 @@ public class Npc extends AI {
                   String name = entity.getName().toLowerCase();
                   String id = name + "_act1_gossip_1";
                   Diablo.audio.play(id, false);
+
+                  gameScreen.setDialog(new NpcDialogBox(SOUND_TO_DIALOG.get(id), new NpcDialogBox.DialogCompletionListener() {
+                    @Override
+                    public void onCompleted(NpcDialogBox d) {
+                      gameScreen.setDialog(null);
+                    }
+                  }));
                 }
               })
               .addCancel(new NpcMenu.CancellationListener() {
@@ -97,6 +133,10 @@ public class Npc extends AI {
       } else if (actionTimer > 0) {
         actionTimer -= delta;
         actionPerformed = actionTimer < 0;
+        // TODO: need gameScreen reference
+        //if (entity.position().dst(gameScreen.player.position()) <= 10) {
+        //  entity.lookAt(gameScreen.player);
+        //}
         return;
       } else if (actionPerformed) {
         actionPerformed = false;

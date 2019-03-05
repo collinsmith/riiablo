@@ -24,7 +24,7 @@ public class BorderedPaletteIndexedDrawable extends PaletteIndexedColorDrawable 
   TextureRegion TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT;
   TextureRegion LEFT[], RIGHT[], TOP[], BOTTOM[];
 
-  private static final float PADDING = 4;
+  public static final float PADDING = 8;
 
   public BorderedPaletteIndexedDrawable() {
     super(Diablo.colors.modal75);
@@ -40,7 +40,7 @@ public class BorderedPaletteIndexedDrawable extends PaletteIndexedColorDrawable 
 
   @Override
   public void draw(Batch batch, float x, float y, float width, float height) {
-    super.draw(batch, x, y, width, height);
+    super.draw(batch, x + 2, y + 2, width - 4, height - 4);
     if (!(batch instanceof PaletteIndexedBatch)) {
       return;
     } else if (boxpieces == null) {
