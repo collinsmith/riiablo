@@ -54,7 +54,7 @@ public class NpcDialogBox extends Table {
     add(scrollPane).size(330, 128);
     pack();
 
-    scrollPane.setScrollY(-scrollPane.getScrollHeight() + textArea.getStyle().font.getLineHeight());
+    scrollPane.setScrollY(-scrollPane.getScrollHeight() + textArea.getStyle().font.getLineHeight() / 2);
   }
 
   @Override
