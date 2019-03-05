@@ -122,6 +122,7 @@ public class MapRenderer {
   final Bits popped = new Bits();
 
   IntMap<? extends Entity> entities;
+  final Array<Entity> nearbyEntities = new Array<>();
 
   public MapRenderer(PaletteIndexedBatch batch) {
     this.batch  = batch;
@@ -159,6 +160,10 @@ public class MapRenderer {
 
   public void setEntities(IntMap<? extends Entity> entities) {
     this.entities = entities;
+  }
+
+  public Array<Entity> getNearbyEntities() {
+    return nearbyEntities;
   }
 
   public float zoom() {
@@ -422,6 +427,16 @@ public class MapRenderer {
         startX2++;
       } else {
         startX2--;
+      }
+    }
+
+    nearbyEntities.size = 0;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        nearbyEntities.addAll(cache[y][x][0]);
+        nearbyEntities.addAll(cache[y][x][1]);
+        nearbyEntities.addAll(cache[y][x][2]);
       }
     }
   }

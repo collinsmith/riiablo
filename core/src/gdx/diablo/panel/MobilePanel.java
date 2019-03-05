@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 import gdx.diablo.Diablo;
 import gdx.diablo.codec.DC6;
+import gdx.diablo.entity.Entity;
 import gdx.diablo.screen.GameScreen;
 import gdx.diablo.widget.Button;
 
@@ -45,7 +46,16 @@ public class MobilePanel extends Table implements Disposable {
         } else if (actor == btnParty) {
 
         } else if (actor == btnMap) {
-
+          if (!gameScreen.labels.isEmpty()) {
+            for (Actor label : gameScreen.labels) {
+              Object obj = label.getUserObject();
+              if (obj instanceof Entity) {
+                Entity entity = (Entity) obj;
+                if (entity.isSelectable()) entity.interact(gameScreen);
+                break;
+              }
+            }
+          }
         } else if (actor == btnMessages) {
           gameScreen.input.setVisible(!gameScreen.input.isVisible());
           gameScreen.input.getStage().setKeyboardFocus(gameScreen.input);
@@ -105,6 +115,7 @@ public class MobilePanel extends Table implements Disposable {
     add(btnMessages).size(size);
     //add(btnQuests).size(size);
     add(btnEscapeMenu).size(size);
+    add(btnMap).size(size);
     pack();
     setTouchable(Touchable.enabled);
   }

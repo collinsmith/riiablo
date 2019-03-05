@@ -172,6 +172,7 @@ public class Entity {
 
     // TODO: LabelStyle should be made static
     label = new Label(Diablo.fonts.font16);
+    label.setUserObject(this);
     label.setAlignment(Align.center);
     label.getStyle().background = new PaletteIndexedColorDrawable(Diablo.colors.modal75) {{
       final float padding = 2;

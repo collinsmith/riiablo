@@ -70,7 +70,7 @@ import gdx.diablo.widget.TextArea;
 public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
   private static final String TAG = "GameScreen";
   private static final boolean DEBUG          = true;
-  private static final boolean DEBUG_TOUCHPAD = !true;
+  private static final boolean DEBUG_TOUCHPAD = true;
   private static final boolean DEBUG_MOBILE   = true;
   private static final boolean DEBUG_HIT      = DEBUG && !true;
 
@@ -98,7 +98,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   MapRenderer mapRenderer;
   MapListener mapListener;
   InputProcessor inputProcessorTest;
-  final Array<Actor> labels = new Array<>();
+  public final Array<Actor> labels = new Array<>();
   NpcMenu menu;
   NpcDialogBox dialog;
   Actor details;
@@ -429,6 +429,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         }
 
         //System.out.println("hit " + hit + "; " + collision.point + "; " + collision.normal);
+      }
+
+      clearLabels();
+      Array<Entity> nearby = mapRenderer.getNearbyEntities();
+      for (Entity entity : nearby) {
+        if (entity.isSelectable() && entity.position().dst(player.position()) <= entity.getInteractRange() * 2) {
+          entity.over = true;
+          addLabel(entity.getLabel());
+        }
       }
     } else {
       stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
