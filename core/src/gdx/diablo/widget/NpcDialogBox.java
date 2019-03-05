@@ -54,6 +54,7 @@ public class NpcDialogBox extends Table implements Disposable {
     scrollPane.setFlingTime(0);
     scrollPane.setOverscroll(false, false);
     scrollPane.setClamp(false);
+    scrollPane.setScrollX(-15); // FIXME: actual preferred width of text isn't calculated anywhere, this is best guess
     add(scrollPane).size(330, 128);
     pack();
 

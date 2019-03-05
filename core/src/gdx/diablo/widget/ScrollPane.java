@@ -445,7 +445,7 @@ public class ScrollPane extends WidgetGroup {
 				maxX -= scrollbarWidth;
 			}
 		}
-		scrollX(MathUtils.clamp(amountX, 0, maxX));
+		scrollX(amountX);
 		scrollY(amountY);
 
 		// Set the bounds and scroll knob sizes if scrollbars are needed.
@@ -522,7 +522,7 @@ public class ScrollPane extends WidgetGroup {
 			y -= (int)(maxY - visualAmountY);
 
 		float x = widgetAreaBounds.x;
-		if (scrollX) x -= (int)visualAmountX;
+		/*if (scrollX) */x -= (int)visualAmountX;
 
 		if (!fadeScrollBars && scrollbarsOnTop) {
 			if (scrollX && hScrollOnBottom) {
@@ -767,7 +767,8 @@ public class ScrollPane extends WidgetGroup {
 	}
 
 	public void setScrollX (float pixels) {
-		scrollX(MathUtils.clamp(pixels, 0, maxX));
+		//scrollX(MathUtils.clamp(pixels, 0, maxX));
+		scrollX(pixels);
 	}
 
 	/** Returns the x scroll position in pixels, where 0 is the left of the scroll pane. */
