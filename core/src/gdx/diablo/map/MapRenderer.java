@@ -247,7 +247,7 @@ public class MapRenderer {
   public void resize() {
     updateBounds();
     final int viewBufferLen = tilesX + tilesY - 1;
-    final int viewBufferMax = tilesY * 2 - 1; // was tilesX, but seems better if bound to height
+    final int viewBufferMax = tilesX * 2 - 1; // FIXME: double check when adding support for other aspect ratios, need a ternary operation
     viewBuffer = new int[viewBufferLen];
     int x, y;
     for (x = 0, y = 1; y < viewBufferMax; x++, y += 2)
