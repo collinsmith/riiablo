@@ -182,6 +182,8 @@ public class MapRenderer {
     }
   }
 
+  // FIXME: result is slightly off -- more obvious with higher/lower zooms
+  //        possibly caused by trying to use the projection in Diablo.viewport.camera space
   public Vector2 projectScaled(Vector2 dst) {
     tmpVec3.set(dst.x, dst.y, 0);
     camera.project(tmpVec3, 0, 0, camera.viewportWidth, camera.viewportHeight);
