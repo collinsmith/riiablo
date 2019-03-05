@@ -90,7 +90,7 @@ public class StaticEntity extends Entity {
       case 9 : case 10: case 11: case 12: case 13: case 14: case 15: case 16:
         break;
       case 17: // waypoint
-        // TODO: Automatically sets on
+        // TODO: Set ON based on save file
         setMode("ON");
         break;
       case 18:
@@ -107,6 +107,12 @@ public class StaticEntity extends Entity {
     }
   }
 
+  @Override
+  public void animate(String mode1, String mode2) {
+    assert !base.CycleAnim[Diablo.files.ObjMode.index(mode1)];
+    super.animate(mode1, mode2);
+  }
+
   private void operate(GameScreen gameScreen) {
     switch (base.OperateFn) {
       case 0:
@@ -117,8 +123,8 @@ public class StaticEntity extends Entity {
         break;
       case 23: // waypoint
         if (mode.equalsIgnoreCase("NU")) {
-          setMode("OP");
-          //setMode("OP".."ON");
+          animate("OP", "ON");
+          Diablo.audio.play("object_waypoint_open", true);
         }
         break;
       case 24: case 25: case 26: case 27: case 28: case 29:

@@ -126,6 +126,7 @@ public class Entity {
   int     dirty;
   String  mode;
   String  code;
+  String  mode2;
   String  layers[];
   String  weaponClass;
   Vector3 position = new Vector3();
@@ -226,6 +227,11 @@ public class Entity {
 
   protected byte getTransform(Component component) {
     return (byte) 0xFF;
+  }
+
+  public void animate(String mode1, String mode2) {
+    setMode(mode1);
+    this.mode2 = mode2;
   }
 
   public Vector3 position() {
@@ -532,6 +538,10 @@ public class Entity {
     animation.draw(batch, x, y);
     updateLabel(label, x, y);
     //if (over) drawLabel(batch);
+    if (mode2 != null && animation.isFinished()) {
+      setMode(mode2);
+      mode2 = null;
+    }
   }
 
   protected void updateLabel(Label label, float x, float y) {

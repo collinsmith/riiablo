@@ -189,6 +189,10 @@ public class Animation extends BaseDrawable {
     }
   }
 
+  public boolean isFinished() {
+    return frame == numFrames - 1;
+  }
+
   public boolean isLooping() {
     return looping;
   }
