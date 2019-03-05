@@ -70,7 +70,7 @@ import gdx.diablo.widget.TextArea;
 public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
   private static final String TAG = "GameScreen";
   private static final boolean DEBUG          = true;
-  private static final boolean DEBUG_TOUCHPAD = true;
+  private static final boolean DEBUG_TOUCHPAD = !true;
   private static final boolean DEBUG_MOBILE   = true;
   private static final boolean DEBUG_HIT      = DEBUG && !true;
 

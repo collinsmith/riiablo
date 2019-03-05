@@ -400,7 +400,7 @@ public class Entity {
       String weaponClass = layer.weaponClass;
       path = entType.PATH + type + "\\" + component + "\\" + type + component + armType + mode + weaponClass + ".dcc";
       if (armType.isEmpty()) {
-        animation.setLayer(c, null, false);
+        animation.setLayer(layer, null, false);
         continue;
       }
       if (DEBUG_DIRTY) Gdx.app.log(TAG, path);
@@ -409,7 +409,7 @@ public class Entity {
       Diablo.assets.load(descriptor);
       Diablo.assets.finishLoadingAsset(descriptor);
       DCC dcc = Diablo.assets.get(descriptor);
-      animation.setLayer(c, dcc, false);
+      animation.setLayer(layer, dcc, false);
 
       /*Runnable loader = new Runnable() {
         @Override

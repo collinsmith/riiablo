@@ -18,26 +18,32 @@ public class Colors {
   public static final Color PURPLE = new Color(0xAE00FFFF); // 11 #AE00FF
   public static final Color C12    = new Color(0x00C800FF); // 12 #00C800
 
-  public Color white   = WHITE.cpy();
-  public Color red     = RED.cpy();
-  public Color green   = GREEN.cpy();
-  public Color blue    = BLUE.cpy();
-  public Color gold    = GOLD.cpy();
-  public Color grey    = GREY.cpy();
-  public Color black   = BLACK.cpy();
-  public Color c7      = C7.cpy();
-  public Color orange  = ORANGE.cpy();
-  public Color yellow  = YELLOW.cpy();
-  public Color c10     = C10.cpy();
-  public Color purple  = PURPLE.cpy();
-  public Color c12     = C12.cpy();
-  public Color modal50 = new Color(0, 0, 0, 0.50f);
-  public Color modal75 = new Color(0, 0, 0, 0.75f);
+  public Color white  = WHITE.cpy();
+  public Color red    = RED.cpy();
+  public Color green  = GREEN.cpy();
+  public Color blue   = BLUE.cpy();
+  public Color gold   = GOLD.cpy();
+  public Color grey   = GREY.cpy();
+  public Color black  = BLACK.cpy();
+  public Color c7     = C7.cpy();
+  public Color orange = ORANGE.cpy();
+  public Color yellow = YELLOW.cpy();
+  public Color c10    = C10.cpy();
+  public Color purple = PURPLE.cpy();
+  public Color c12    = C12.cpy();
 
   public Color invBlue  = new Color(0.1f, 0.1f, 0.5f, 0.3f);
   public Color invGreen = new Color(0.1f, 0.5f, 0.1f, 0.3f);
   public Color invRed   = new Color(0.5f, 0.1f, 0.1f, 0.3f);
   public Color invWhite = new Color(0.5f, 0.5f, 0.5f, 0.3f);
+
+  public Color modal25 = new Color(0, 0, 0, 0.25f);
+  public Color modal50 = new Color(0, 0, 0, 0.50f);
+  public Color modal75 = new Color(0, 0, 0, 0.75f);
+
+  public Color trans25 = new Color(1, 1, 1, 0.25f);
+  public Color trans50 = new Color(1, 1, 1, 0.50f);
+  public Color trans75 = new Color(1, 1, 1, 0.75f);
 
   public Colors() {}
 

@@ -117,6 +117,41 @@ public class Animation extends BaseDrawable {
     return this;
   }
 
+  public Layer setLayer(COF.Layer cofLayer, DC dc, boolean updateBox) {
+    setLayer(cofLayer.component, dc, updateBox);
+    Layer layer = layers[cofLayer.component];
+    if (layer != null && cofLayer.overrideTransLvl != 0) {
+      applyTransform(layer, cofLayer.newTransLvl & 0xFF);
+    }
+
+    return layer;
+  }
+
+  private void applyTransform(Layer layer, int transform) {
+    switch (transform) {
+      case 0x00:
+        layer.setBlendMode(layer.blendMode, Diablo.colors.trans75);
+        break;
+      case 0x01:
+        layer.setBlendMode(layer.blendMode, Diablo.colors.trans50);
+        break;
+      case 0x02:
+        layer.setBlendMode(layer.blendMode, Diablo.colors.trans25);
+        break;
+      case 0x03:
+        layer.setBlendMode(BlendMode.LUMINOSITY);
+        break;
+      case 0x04:
+        layer.setBlendMode(BlendMode.LUMINOSITY); // not sure
+        break;
+      case 0x06:
+        layer.setBlendMode(BlendMode.LUMINOSITY); // not sure
+        break;
+      default:
+        Gdx.app.error(TAG, "Unknown transform: " + transform);
+    }
+  }
+
   public Layer getLayer(int component) {
     return layers[component];
   }
@@ -246,11 +281,11 @@ public class Animation extends BaseDrawable {
       int f = frame;
       // TODO: Layer blend modes should correspond with the cof trans levels
       for (int l = 0; l < cof.getNumLayers(); l++) {
-        //COF.Layer cofLayer = cof.getLayer(l);
-        //if (cofLayer.overrideTransLvl != 0) cofLayer.newTransLvl;
         int component = cof.getLayerOrder(d, f, l);
         Layer layer = layers[component];
-        if (layer != null) drawLayer(batch, layer, x, y);
+        if (layer != null) {
+          drawLayer(batch, layer, x, y);
+        }
       }
       batch.resetBlendMode();
       batch.resetColormap();
@@ -379,6 +414,7 @@ public class Animation extends BaseDrawable {
     final int numFrames;
 
     int   blendMode;
+    Color tint;
     Index transform;
     int   transformColor;
 
@@ -389,6 +425,7 @@ public class Animation extends BaseDrawable {
     Layer(DC dc, int blendMode) {
       this.dc        = dc;
       this.blendMode = blendMode;
+      tint           = Color.WHITE;
       numDirections  = dc.getNumDirections();
       numFrames      = dc.getNumFramesPerDir();
       regions        = new TextureRegion[numDirections][];
@@ -416,7 +453,12 @@ public class Animation extends BaseDrawable {
     }
 
     public void setBlendMode(int blendMode) {
+      setBlendMode(blendMode, Color.WHITE);
+    }
+
+    public void setBlendMode(int blendMode, Color tint) {
       this.blendMode = blendMode;
+      this.tint      = tint;
     }
 
     public void setTransform(Index colormap, int id) {
@@ -439,7 +481,7 @@ public class Animation extends BaseDrawable {
       y -= box.yMax;
       if (regions[d] == null) load(d);
       PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
-      b.setBlendMode(blendMode);
+      b.setBlendMode(blendMode, tint);
       b.setColormap(transform, transformColor);
       b.draw(regions[d][f], x, y);
     }
