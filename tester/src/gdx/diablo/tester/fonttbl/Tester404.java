@@ -93,7 +93,7 @@ public class Tester404 extends ApplicationAdapter {
     Diablo.palettes = new Palettes(assets);
     Diablo.fonts    = new Fonts(assets);
     Diablo.colors   = new Colors();
-    active     = Diablo.fonts.fontformal10;
+    active     = Diablo.fonts.fontformal11;
     activeData = active.getData();
 
     ShaderProgram.pedantic = false;

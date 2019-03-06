@@ -6,6 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.ai.utils.Collision;
+import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -16,6 +18,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -169,6 +172,11 @@ public class MapViewer extends ApplicationAdapter {
           case Input.Buttons.LEFT:
             GridPoint2 dstCoords = mapRenderer.coords();
             dst = new Vector3(dstCoords.x, dstCoords.y, 0);
+            Collision<Vector2> collision = new Collision<>(new Vector2(), null);
+            boolean hit = map.castRay(collision, new Ray<>(new Vector2(src.x, src.y), new Vector2(dst.x, dst.y)));
+            if (hit) ent.position().set(collision.point, 0);
+            // FIXME: only works coming from top onto bottom left or bottom right
+
             map.findPath(src, dst, path);
             smoothedPath.nodes.clear();
             smoothedPath.nodes.addAll(path.nodes);
@@ -358,8 +366,10 @@ public class MapViewer extends ApplicationAdapter {
 
     PaletteIndexedBatch batch = Diablo.batch;
     batch.begin(palette);
+    //batch.disableBlending();
     mapRenderer.draw(Gdx.graphics.getDeltaTime());
     batch.end();
+    //batch.enableBlending();
 
     shapes.setAutoShapeType(true);
     shapes.begin(ShapeRenderer.ShapeType.Line);

@@ -50,7 +50,7 @@ public class SplashScreen extends ScreenAdapter {
 
   @Override
   public void show() {
-    Diablo.music.enqueue("data/global/music/Act1/tristram.wav");
+    Diablo.music.enqueue("data/global/music/Act4/diablo.wav");
 
     Diablo.assets.finishLoadingAsset(TitleScreenDescriptor);
     TitleScreen = Diablo.assets.get(TitleScreenDescriptor).getTexture();
