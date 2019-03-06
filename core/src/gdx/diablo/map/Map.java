@@ -272,13 +272,14 @@ public class Map implements Disposable {
     }
   }
 
-  static int round(float i) {
+  public static int round(float i) {
     return MathUtils.round(i);
   }
 
   // TODO: maybe replace with R-tree? // https://en.wikipedia.org/wiki/R-tree
   Array<Zone> zones = new Array<>();
   IntMap<DT1s> dt1s;
+  public static Map instance; // TODO: remove
 
   private Map() {}
 
@@ -501,7 +502,7 @@ public class Map implements Disposable {
     }
   }
 
-  Zone getZone(int x, int y) {
+  public Zone getZone(int x, int y) {
     for (Zone zone : zones) {
       if (zone.contains(x, y)) {
         return zone;
@@ -540,6 +541,12 @@ public class Map implements Disposable {
     Zone zone = getZone(x, y);
     if (zone == null) return 0xFF;
     return zone.flags(x, y);
+  }
+
+  public DT1.Tile getTile(int l, int x, int y) {
+    Zone zone = getZone(x, y);
+    if (zone == null) return null;
+    return zone.get(l, x, y).tile;
   }
 
   /**

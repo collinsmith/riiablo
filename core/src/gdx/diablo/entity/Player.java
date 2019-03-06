@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.EnumMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -21,8 +20,11 @@ import gdx.diablo.codec.COFD2;
 import gdx.diablo.codec.D2S;
 import gdx.diablo.codec.excel.Armor;
 import gdx.diablo.codec.excel.Weapons;
+import gdx.diablo.graphics.PaletteIndexedBatch;
 import gdx.diablo.item.BodyLoc;
 import gdx.diablo.item.Item;
+import gdx.diablo.map.DT1.Tile;
+import gdx.diablo.map.Map;
 import gdx.diablo.server.Connect;
 
 public class Player extends Entity {
@@ -108,9 +110,39 @@ public class Player extends Entity {
     }
   }
 
+  boolean ignoreFootstep = false;
+
+  @Override
+  public void draw(PaletteIndexedBatch batch) {
+    super.draw(batch);
+    if (mode.equalsIgnoreCase("RN") || mode.equalsIgnoreCase("WL")) {
+      int frame = animation.getFrame();
+      int numFrames = animation.getNumFramesPerDir();
+      if (frame == 0 || frame == numFrames >>> 1) {
+        if (ignoreFootstep) return;
+        ignoreFootstep = true;
+        int x = Map.round(position.x);
+        int y = Map.round(position.y);
+        int tx = x < 0
+            ? ((x + 1) / Tile.SUBTILE_SIZE) - 1
+            : (x / Tile.SUBTILE_SIZE);
+        int ty = y < 0
+            ? ((y + 1) / Tile.SUBTILE_SIZE) - 1
+            : (y / Tile.SUBTILE_SIZE);
+        Map map = Map.instance;
+        Map.Zone zone = map.getZone(x, y);
+        Tile tile = map.getTile(0, tx, ty);
+        String type = DT1Sound.getType(zone.level, tile);
+        Diablo.audio.play("light_run_" + type + "_1", true);
+      } else {
+        ignoreFootstep = false;
+      }
+    }
+  }
+
   private void loadEquipped(EnumMap<BodyLoc, Item> items) {
     equipped.putAll(items);
-    for (Map.Entry<BodyLoc, Item> entry : items.entrySet()) {
+    for (java.util.Map.Entry<BodyLoc, Item> entry : items.entrySet()) {
       entry.getValue().load();
       //if (DEBUG_EQUIPPED) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
     }

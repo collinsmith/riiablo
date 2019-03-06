@@ -507,7 +507,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Diablo.music.stop();
     Diablo.assets.get(windowopenDescriptor).play();
 
-    map = Diablo.assets.get(mapDescriptor);
+    Map.instance = map = Diablo.assets.get(mapDescriptor); // TODO: remove Map.instance
     mapRenderer = new MapRenderer(Diablo.batch);
     mapRenderer.setMap(map);
     mapRenderer.setSrc(player);
