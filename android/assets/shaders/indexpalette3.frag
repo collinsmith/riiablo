@@ -63,6 +63,12 @@ void main() {
       color.a = color.r;
       color.rgb = tint.rgb;
     }
+
+  // Same as 1, except adds tint
+  } else if (blendMode == 7) {
+    if (color.a > 0.0) {
+      color.rgb += tint.rgb;
+    }
   }
 
   vec3 colorRGB = pow(color.rgb, vec3(1.0 / gamma));

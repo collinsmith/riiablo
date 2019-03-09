@@ -4,21 +4,26 @@ ways to go, but a lot of the core is there. The game itself uses 100% original
 Diablo II assets which are not (and will never) be provided, i.e., you should
 already own a copy of the game to play this. I am going to do my best to remain
 faithful to the original game, however I am planning on changing and adding
-additional features as I think they become necessary. I will write articles in
-the future explaining how I was able to accomplish certain things, and how
-some core systems work.
+additional features as I think they become necessary (e.g., auto gold pickup).
+I will write articles in the future explaining how I was able to accomplish
+certain things, and how some core systems work.
 
-Some important changes that I will note are that this version supports a 16:9
-aspect ratio (the original was 640x480 and expansion was 800x600), and will
-eventually support wider. Because I'm limited to the original game assets, the
-game will be upscaled to the desired resolution, and 480p seems to work well on
-a smart phone, however I want to target 360p for the menus because components
-are sized much better. This does run on Android, and I have been using a Galaxy
-Note 5 as the min spec when testing, but older phones may work as well. I can
-already play Diablo II on PC, my goal is to be able to sit back and play it
-casually with my friends while also supporting cross-platform play. This game
-supports local play that can then be taken online (similar to Open Battle.net),
-with a more secure option being far beyond that.
+Unlike the original game, this version supports just about any reasonable
+aspect ratio (4:3, 16:9, 18:9, 21:9), however by design I'm locking the game to
+480px in height because the original game assets are all geared for that (i.e.,
+the width is dynamic). The expansion did introduce 800x600 support, and I may
+end up supporting that for the desktop version in the future (specifically for
+some of the multiplayer lobby stuff), but it's not necessary for the core
+functionality. The mobile version currently uses 360px height to make selecting
+UI elements easier, however since much of the UI panels are 480px, in-game is
+locked at 480px, but I will change this in the future or at least provide
+scaling on a per-component basis (text). This does run on Android, and I have
+been using a Galaxy Note 5 as the min spec when testing, but older phones may
+work as well, especially after optimizations have been made. I can already play
+Diablo II on PC, my goal is to be able to sit back and play it casually with my
+friends while also supporting cross-platform play. This game supports local
+play that can then be taken online (similar to Open Battle.net), with a more
+secure option being far beyond that.
 
 *NOTE: This is not playable yet, but the game runs and you can load save files,
 walk around a bit and look at your characters.* Game saves are not modified
@@ -33,8 +38,8 @@ compatible with playing with users using the original game client.
 - Cross-platform multiplayer
 - Dedicated servers, TCP/IP (listen servers) connections, and single player
 - Full console, including CVAR support and key bindings
-- TODO Controller support
-- TODO Platform-specific features (Android touch, PC mouse, etc)
+- Controller support
+- Platform-specific features (Android touch, PC mouse, etc)
 
 # Screenshots
 ![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-1.png)

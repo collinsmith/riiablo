@@ -5,6 +5,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.riiablo.codec.TXT;
 
 import gdx.diablo.mpq.MPQFileHandleResolver;
 
@@ -26,6 +27,16 @@ public class Tester extends ApplicationAdapter {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
     MPQFileHandleResolver resolver = new MPQFileHandleResolver();
     resolver.add(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\patch_d2.mpq"));
+
+    long total = 0;
+    for (int i = 0; i < 100; i++) {
+      long start = System.nanoTime();
+      TXT.loadFromFile(resolver.resolve("data\\global\\excel\\Weapons.txt"));
+      long elapsed = (System.nanoTime() - start);
+      total += elapsed;
+      System.out.println(elapsed + " ns");
+    }
+    System.out.println("AVG: " + (total / 100));
 
     /*
     FileHandle obj = Gdx.files.internal("data/obj.txt");
