@@ -1114,6 +1114,13 @@ public class MapRenderer {
             }
           }
         }
+        for (Entity entity : entities.values()) {
+          Vector2 position = entity.position();
+          if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
+           && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
+            entity.drawDebug(batch, shapes);
+          }
+        }
 
         tx++;
         stx += Tile.SUBTILE_SIZE;

@@ -37,6 +37,10 @@ public class MapListener {
         if (entity.over) gameScreen.addLabel(entity.getLabel());
       }
     }
+    for (Entity entity : gameScreen.entities.values()) {
+      entity.over = entity.contains(position);
+      if (entity.over) gameScreen.addLabel(entity.getLabel());
+    }
   }
 
   private boolean touchDown() {

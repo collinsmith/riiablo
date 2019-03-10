@@ -30,6 +30,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.entity.Entity;
+import com.riiablo.entity.ItemHolder;
 import com.riiablo.entity.Player;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
@@ -108,7 +109,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   //Char character;
   public Player player;
-  IntMap<Player> entities = new IntMap<>();
+  public IntMap<Entity> entities = new IntMap<>();
   Timer.Task updateTask;
 
   Socket socket;
@@ -361,7 +362,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             break;
           case Packets.MOVETO:
             MoveTo moveTo = packet.readValue(MoveTo.class);
-            Player p = entities.get(moveTo.id);
+            Entity p = entities.get(moveTo.id);
             //if (p == player) break; // Disable forced update positions for now
             if (p != null) {
               p.setPath(map, new Vector2(moveTo.x, moveTo.y));
@@ -448,7 +449,17 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     } else {
       stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
       Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, true);
-      if (hit == null) mapListener.update();
+      if (hit == null) {
+        Item cursor = Riiablo.cursor.getItem();
+        if (cursor != null && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+          Riiablo.cursor.setItem(null);
+          Entity item = new ItemHolder(cursor);
+          item.position().set(player.position());
+          entities.put(entities.size + 1, item);
+        } else {
+          mapListener.update();
+        }
+      }
       else if (DEBUG_HIT) Gdx.app.debug(TAG, hit.toString());
       //if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
       //  GridPoint2 coords = mapRenderer.coords();
@@ -476,7 +487,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Riiablo.shapes.begin(ShapeRenderer.ShapeType.Line);
     mapRenderer.drawDebug(Riiablo.shapes);
     mapRenderer.drawDebugPath(Riiablo.shapes, player.path());
-    player.drawDebug(Riiablo.batch, Riiablo.shapes);
     Riiablo.shapes.end();
 
     b.setProjectionMatrix(Riiablo.viewport.getCamera().combined);

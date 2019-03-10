@@ -1,7 +1,5 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
 public class ItemEntry extends Excel.Entry {
   @Override
   public String toString() {
@@ -19,6 +17,7 @@ public class ItemEntry extends Excel.Entry {
   @Column public String  type;
   @Column public String  type2;
   @Column public int     component;
+  @Column public String  flippyfile;
   @Column public String  invfile;
   @Column public String  uniqueinvfile;
   @Column public String  setinvfile;

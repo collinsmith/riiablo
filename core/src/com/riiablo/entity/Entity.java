@@ -87,7 +87,10 @@ public abstract class Entity {
           COFD2 getCOFs() {
             return Riiablo.cofs.chars_cof;
           }
-        };
+        },
+    ITM("ITEMS",
+        new String[] {"NU"},
+        new String[] {"NIL"});
 
     public final String PATH;
     public final String MODE[];
