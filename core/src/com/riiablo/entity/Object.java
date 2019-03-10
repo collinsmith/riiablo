@@ -37,8 +37,11 @@ public class Object extends Entity {
     assert object.type == DS1.Object.STATIC_TYPE;
     int id = Riiablo.files.obj.getType2(ds1.getAct(), object.id);
     Objects.Entry base = Riiablo.files.objects.get(id);
-    if (base == null) return null; // TODO: Which ones fall under this case?
-    if (!base.Draw) return null; // TODO: Not yet
+    if (base == null) {
+      Gdx.app.error(TAG, "Unknown static entity id: " + id + "; object=" + object);
+      return null;
+    }
+    //if (!base.Draw) return null;
     return new Object(map, zone, object, base);
   }
 
@@ -83,7 +86,7 @@ public class Object extends Entity {
 
   @Override
   public void drawShadow(PaletteIndexedBatch batch) {
-    if (base.BlocksLight[mode]) super.drawShadow(batch);
+    if (base.Draw && base.BlocksLight[mode]) super.drawShadow(batch);
   }
 
   @Override

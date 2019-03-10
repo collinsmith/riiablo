@@ -1,5 +1,6 @@
 package com.riiablo.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -50,7 +51,10 @@ public class Monster extends Entity {
     assert object.type == DS1.Object.DYNAMIC_TYPE;
     String id = Riiablo.files.obj.getType1(ds1.getAct(), object.id);
     MonStats.Entry monstats = Riiablo.files.monstats.get(id);
-    if (monstats == null) return null; // TODO: Which ones fall under this case?
+    if (monstats == null) {
+      Gdx.app.error(TAG, "Unknown dynamic entity id: " + id + "; object=" + object);
+      return null;
+    }
 
     Monster monster = new Monster(map, zone, object, monstats);
     if (monstats.AI.equalsIgnoreCase("Idle")) {

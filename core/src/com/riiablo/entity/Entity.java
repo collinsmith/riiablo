@@ -3,12 +3,14 @@ package com.riiablo.entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.COF;
@@ -23,6 +25,8 @@ import com.riiablo.map.MapGraph;
 import com.riiablo.map.MapRenderer;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Label;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -447,10 +451,19 @@ public abstract class Entity {
     shapes.end();
     batch.begin();
     batch.setShader(null);
-    Riiablo.fonts.consolas12.draw(batch, String.format("%s%n%s %s %s%n%02d/%02d %d",
-        classname, token, type.MODE[mode], WCLASS[wclass],
-        animation.getFrame(), (animation.getNumFramesPerDir() - 1), animation.getFrameDelta()),
-        x, y - Tile.SUBTILE_HEIGHT50, 0, Align.center, false);
+    StringBuilder builder = new StringBuilder(64)
+        .append(classname).append('\n')
+        .append(token).append(' ').append(type.MODE[mode]).append(' ').append(WCLASS[wclass]).append('\n');
+    if (animation != null) {
+      builder
+          .append(StringUtils.leftPad(Integer.toString(animation.getFrame()), 2))
+          .append('/')
+          .append(StringUtils.leftPad(Integer.toString(animation.getNumFramesPerDir() - 1), 2))
+          .append(' ')
+          .append(animation.getFrameDelta());
+    }
+    GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), x, y - Tile.SUBTILE_HEIGHT50, 0, Align.center, false);
+    Pools.free(layout);
     batch.end();
     batch.setShader(Diablo.shader);
     shapes.begin(ShapeRenderer.ShapeType.Line);
