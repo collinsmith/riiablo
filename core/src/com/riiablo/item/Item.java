@@ -582,6 +582,7 @@ public class Item extends Actor implements Disposable {
 
     Label name;
     Label type;
+    Label usable;
 
     Details() {
       setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.modal75));
@@ -619,12 +620,27 @@ public class Item extends Actor implements Disposable {
           name.setColor(Riiablo.colors.orange);
           type.setColor(Riiablo.colors.orange);
           break;
-
       }
 
       add(name).center().space(SPACING).row();
       if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
         add(type).center().space(SPACING).row();
+
+      // TODO: This seems a bit hacky, check and see if this is located somewhere (doesn't look like it)
+      if (base.useable) {
+        String string;
+        if (base.code.equalsIgnoreCase("box")) {
+          string = Riiablo.string.lookup("RightClicktoOpen");
+        } else if (base.code.equalsIgnoreCase("bkd")) {
+          string = Riiablo.string.lookup("RightClicktoRead");
+        } else {
+          string = Riiablo.string.lookup("RightClicktoUse");
+        }
+        usable = new Label(string, font);
+        usable.setColor(name.getColor());
+        add(usable).center().space(SPACING).row();
+      }
+
       pack();
     }
   }
