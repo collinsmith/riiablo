@@ -594,7 +594,7 @@ public class Item extends Actor implements Disposable {
         case LOW:
         case NORMAL:
         case HIGH:
-          if ((flags & RUNEWORD) == RUNEWORD)
+          if ((flags & RUNEWORD) == RUNEWORD || base.quest > 0)
             name.setColor(Riiablo.colors.gold);
           if ((flags & (ETHEREAL|SOCKETED)) != 0)
             type.setColor(Riiablo.colors.grey);

@@ -30,4 +30,5 @@ public class ItemEntry extends Excel.Entry {
   @Column public boolean stackable;
   @Column public boolean useable;
   @Column public String  usesound;
+  @Column public int     quest;
 }
