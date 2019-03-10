@@ -217,7 +217,7 @@ public abstract class Entity {
 
   String  name;
   Label   label;
-  public boolean over = true;
+  boolean over;
 
   byte    nextMode = -1;
 
@@ -549,6 +549,17 @@ public abstract class Entity {
 
   public float getLabelOffset() {
     return animation.getMinHeight();
+  }
+
+  public boolean isOver() {
+    return over;
+  }
+
+  public void setOver(boolean b) {
+    if (over != b) {
+      over = b;
+      animation.setHighlighted(b);
+    }
   }
 
   public void animate(byte transition, byte mode) {

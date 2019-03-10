@@ -442,7 +442,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       Array<Entity> nearby = mapRenderer.getNearbyEntities();
       for (Entity entity : nearby) {
         if (entity.isSelectable() && entity.position().dst(player.position()) <= entity.getInteractRange() * 2) {
-          entity.over = true;
+          entity.setOver(true);
           addLabel(entity.getLabel());
         }
       }

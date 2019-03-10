@@ -23,7 +23,7 @@ public class Animation extends BaseDrawable {
   private static final String TAG = "Animation";
   private static final int DEBUG_MODE = 0; // 0=off, 1=box, 2=layer box
 
-  private static final int   NUM_LAYERS = 16;
+  private static final int   NUM_LAYERS = COF.Component.NUM_COMPONENTS;
   private static final float FRAMES_PER_SECOND = 25f;
   private static final float FRAME_DURATION = 1 / FRAMES_PER_SECOND;
 
@@ -41,6 +41,7 @@ public class Animation extends BaseDrawable {
   private COF     cof;
   //private Bits  cache[];
   private BBox    box;
+  private boolean highlighted;
 
   private final Set<AnimationListener> ANIMATION_LISTENERS;
 
@@ -198,6 +199,53 @@ public class Animation extends BaseDrawable {
 
   public void setLooping(boolean b) {
     looping = b;
+  }
+
+  public boolean isHighlighted() {
+    return highlighted;
+  }
+
+  public void setHighlighted(boolean b) {
+    if (highlighted != b) {
+      highlighted = b;
+      if (b) {
+        if (cof == null) {
+          for (int l = 0; l < NUM_LAYERS; l++) {
+            Layer layer = layers[l];
+            if (layer == null) break;
+            if (layer.blendMode == BlendMode.ID) {
+              layer.setBlendMode(BlendMode.TINT_ID, Riiablo.colors.highlight);
+            }
+          }
+        } else {
+          for (int l = 0; l < cof.getNumLayers(); l++) {
+            COF.Layer cofLayer = cof.getLayer(l);
+            Layer layer = layers[cofLayer.component];
+            if (layer.blendMode == BlendMode.ID) {
+              layer.setBlendMode(BlendMode.TINT_ID, Riiablo.colors.highlight);
+            }
+          }
+        }
+      } else {
+        if (cof == null) {
+          for (int l = 0; l < NUM_LAYERS; l++) {
+            Layer layer = layers[l];
+            if (layer == null) break;
+            if (layer.blendMode == BlendMode.TINT_ID) {
+              layer.setBlendMode(BlendMode.ID);
+            }
+          }
+        } else {
+          for (int l = 0; l < cof.getNumLayers(); l++) {
+            COF.Layer cofLayer = cof.getLayer(l);
+            Layer layer = layers[cofLayer.component];
+            if (layer.blendMode == BlendMode.TINT_ID) {
+              layer.setBlendMode(BlendMode.ID);
+            }
+          }
+        }
+      }
+    }
   }
 
   public float getFrameDuration() {

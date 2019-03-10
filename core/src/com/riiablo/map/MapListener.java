@@ -33,13 +33,13 @@ public class MapListener {
     gameScreen.clearLabels();
     for (Map.Zone zone : map.zones) {
       for (Entity entity : zone.entities) {
-        entity.over = entity.contains(position);
-        if (entity.over) gameScreen.addLabel(entity.getLabel());
+        entity.setOver(entity.contains(position));
+        if (entity.isOver()) gameScreen.addLabel(entity.getLabel());
       }
     }
     for (Entity entity : gameScreen.entities.values()) {
-      entity.over = entity.contains(position);
-      if (entity.over) gameScreen.addLabel(entity.getLabel());
+      entity.setOver(entity.contains(position));
+      if (entity.isOver()) gameScreen.addLabel(entity.getLabel());
     }
   }
 
@@ -47,7 +47,7 @@ public class MapListener {
     //setTarget(null);
     for (Map.Zone zone : new Array.ArrayIterator<>(map.zones)) {
       for (Entity entity : zone.entities) {
-        if (entity.over) {
+        if (entity.isOver()) {
           if (entity.position().dst(gameScreen.player.position()) <= entity.getInteractRange()) {
             setTarget(null);
             entity.interact(gameScreen);
