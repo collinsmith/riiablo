@@ -69,7 +69,7 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
     } else {
       setColor(over ? Riiablo.colors.highlight : Color.WHITE);
     }
-    if (over) batch.setBlendMode(BlendMode.TINT_ID);
+    if (over) batch.setBlendMode(BlendMode.BRIGHTEN);
     super.draw(batch, parentAlpha);
     if (over) batch.resetBlendMode();
   }

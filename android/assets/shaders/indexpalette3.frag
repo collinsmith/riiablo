@@ -69,6 +69,18 @@ void main() {
     if (color.a > 0.0) {
       color.rgb += tint.rgb;
     }
+
+  // Same as 1, except adds contrast and brightness
+  } else if (blendMode == 8) {
+    if (color.a > 0.0) {
+      // Apply contrast
+      color.rgb -= 0.5;
+      color.rgb *= 1.8;
+      color.rgb += 0.5;
+
+      // Apply brightness
+      color.rgb += 0.4;
+    }
   }
 
   vec3 colorRGB = pow(color.rgb, vec3(1.0 / gamma));

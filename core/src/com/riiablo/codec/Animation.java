@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Animation extends BaseDrawable {
   private static final String TAG = "Animation";
-  private static final int DEBUG_MODE = 0; // 0=off, 1=box, 2=layer box
+  private static final int DEBUG_MODE = 1; // 0=off, 1=box, 2=layer box
 
   private static final int   NUM_LAYERS = COF.Component.NUM_COMPONENTS;
   private static final float FRAMES_PER_SECOND = 25f;
@@ -214,7 +214,7 @@ public class Animation extends BaseDrawable {
             Layer layer = layers[l];
             if (layer == null) break;
             if (layer.blendMode == BlendMode.ID) {
-              layer.setBlendMode(BlendMode.TINT_ID, Riiablo.colors.highlight);
+              layer.setBlendMode(BlendMode.BRIGHTEN, Riiablo.colors.highlight);
             }
           }
         } else {
@@ -222,7 +222,7 @@ public class Animation extends BaseDrawable {
             COF.Layer cofLayer = cof.getLayer(l);
             Layer layer = layers[cofLayer.component];
             if (layer.blendMode == BlendMode.ID) {
-              layer.setBlendMode(BlendMode.TINT_ID, Riiablo.colors.highlight);
+              layer.setBlendMode(BlendMode.BRIGHTEN, Riiablo.colors.highlight);
             }
           }
         }
@@ -231,7 +231,7 @@ public class Animation extends BaseDrawable {
           for (int l = 0; l < NUM_LAYERS; l++) {
             Layer layer = layers[l];
             if (layer == null) break;
-            if (layer.blendMode == BlendMode.TINT_ID) {
+            if (layer.blendMode == BlendMode.BRIGHTEN) {
               layer.setBlendMode(BlendMode.ID);
             }
           }
@@ -239,7 +239,7 @@ public class Animation extends BaseDrawable {
           for (int l = 0; l < cof.getNumLayers(); l++) {
             COF.Layer cofLayer = cof.getLayer(l);
             Layer layer = layers[cofLayer.component];
-            if (layer.blendMode == BlendMode.TINT_ID) {
+            if (layer.blendMode == BlendMode.BRIGHTEN) {
               layer.setBlendMode(BlendMode.ID);
             }
           }

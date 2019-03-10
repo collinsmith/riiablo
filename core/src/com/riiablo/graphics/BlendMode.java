@@ -14,4 +14,5 @@ public interface BlendMode {
   int TINT_BLACKS     = 5;
   int TINT_WHITES     = 6;
   int TINT_ID         = 7;
+  int BRIGHTEN        = 8;
 }
