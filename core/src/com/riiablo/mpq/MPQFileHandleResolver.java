@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MPQFileHandleResolver implements FileHandleResolver {
   private static final String TAG = "MPQFileHandleResolver";
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = !true;
 
   private final CopyOnWriteArrayList<MPQ> mpqs = new CopyOnWriteArrayList<>();
 
@@ -21,10 +21,6 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   }
 
   public boolean contains(String fileName) {
-    if (fileName.startsWith("virtual:")) {
-      return true;
-    }
-
     for (MPQ mpq : mpqs) {
       if (mpq.contains(fileName)) {
         return true;
@@ -38,12 +34,6 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   public FileHandle resolve(String fileName) {
     if (DEBUG) Gdx.app.debug(TAG, "Resolving " + fileName);
     if (fileName == null) return null;
-    if (fileName.startsWith("virtual:")) {
-      fileName = fileName.substring(8);
-      if (DEBUG) Gdx.app.debug(TAG, "Resolving virtual file " + fileName);
-      return new VirtualMPQFileHandle(fileName);
-    }
-
     for (MPQ mpq : mpqs) {
       if (mpq.contains(fileName)) {
         if (DEBUG) Gdx.app.debug(TAG, fileName + " found in " + mpq);

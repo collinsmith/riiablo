@@ -10,7 +10,7 @@ import java.io.InputStream;
 public class MPQFileHandle extends FileHandle {
   private static final String TAG = "MPQFileHandle";
 
-  public final MPQ    mpq;
+  public final MPQ mpq;
   public final String fileName;
 
   public MPQFileHandle(MPQ mpq, String fileName) {

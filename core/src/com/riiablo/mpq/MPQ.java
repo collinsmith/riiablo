@@ -5,6 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.riiablo.mpq.util.Decryptor;
+import com.riiablo.util.BufferUtils;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -18,11 +19,9 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.Objects;
 
-import com.riiablo.util.BufferUtils;
-
 public class MPQ {
   private static final String TAG = MPQ.class.getSimpleName();
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = !true;
 
   final FileHandle file;
   final Header     header;
