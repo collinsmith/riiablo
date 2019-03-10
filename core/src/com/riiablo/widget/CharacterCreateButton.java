@@ -196,9 +196,9 @@ public class CharacterCreateButton extends Widget implements Disposable {
       }
       fw = builder.build();
       fw.setLooping(false);
-      fw.addAnimationListener(new Animation.AnimationListener() {
+      fw.addAnimationListener(-1, new Animation.AnimationListener() {
         @Override
-        public void onFinished(Animation fw) {
+        public void onTrigger(Animation fw, int frame) {
           state = State.NU3;
           if (nu3 == null) {
             Riiablo.assets.finishLoadingAsset(nu3Desc);
@@ -236,9 +236,9 @@ public class CharacterCreateButton extends Widget implements Disposable {
       }
       bw = builder.build();
       bw.setLooping(false);
-      bw.addAnimationListener(new Animation.AnimationListener() {
+      bw.addAnimationListener(-1, new Animation.AnimationListener() {
         @Override
-        public void onFinished(Animation bw) {
+        public void onTrigger(Animation bw, int frame) {
           state = State.NU1;
           if (clickListener.isOver()) {
             assert nu2 != null;

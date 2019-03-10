@@ -44,11 +44,11 @@ public class ItemHolder extends Entity {
         .build();
     animation.setLooping(false);
     animation.updateBox();
-    animation.addAnimationListener(new Animation.AnimationListener() {
+    animation.addAnimationListener(item.base.dropsfxframe, new Animation.AnimationListener() {
       @Override
-      public void onFinished(Animation animation) {
+      public void onTrigger(Animation animation, int frame) {
         Riiablo.audio.play(item.base.dropsound, true);
-        animation.removeAnimationListener(this);
+        animation.removeAnimationListener(frame, this);
       }
     });
 

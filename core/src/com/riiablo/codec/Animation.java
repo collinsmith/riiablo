@@ -10,14 +10,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
+import com.badlogic.gdx.utils.IntMap;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
-
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Animation extends BaseDrawable {
   private static final String TAG = "Animation";
@@ -29,6 +28,8 @@ public class Animation extends BaseDrawable {
 
   private static final Color   SHADOW_TINT      = Riiablo.colors.modal75;
   private static final Affine2 SHADOW_TRANSFORM = new Affine2();
+
+  private final IntMap<Array<AnimationListener>> EMPTY_MAP = new IntMap<>(0);
 
   private int     numDirections;
   private int     numFrames;
@@ -43,7 +44,7 @@ public class Animation extends BaseDrawable {
   private BBox    box;
   private boolean highlighted;
 
-  private final Set<AnimationListener> ANIMATION_LISTENERS;
+  private IntMap<Array<AnimationListener>> animationListeners;
 
   Animation() {
     this(0, 0, new Layer[NUM_LAYERS]);
@@ -61,7 +62,7 @@ public class Animation extends BaseDrawable {
     frameDuration = FRAME_DURATION;
     box           = new BBox();
 
-    ANIMATION_LISTENERS = new CopyOnWriteArraySet<>();
+    animationListeners = EMPTY_MAP;
   }
 
   public static Animation newAnimation(com.riiablo.codec.DC dc) {
@@ -280,6 +281,7 @@ public class Animation extends BaseDrawable {
   public void act(float delta) {
     elapsedTime += delta;
     frame = getKeyFrameIndex(elapsedTime);
+    notifyListeners(frame);
     if (frame == numFrames - 1) notifyAnimationFinished();
   }
 
@@ -437,26 +439,44 @@ public class Animation extends BaseDrawable {
   }
 
   private void notifyAnimationFinished() {
-    for (AnimationListener l : ANIMATION_LISTENERS) {
-      l.onFinished(this);
-    }
+    if (animationListeners == EMPTY_MAP) return;
+    Array<AnimationListener> listeners = animationListeners.get(-1);
+    if (listeners == null) return;
+    for (AnimationListener l : listeners) l.onTrigger(this, -1);
   }
 
-  public boolean addAnimationListener(AnimationListener l) {
+  private void notifyListeners(int frame) {
+    if (animationListeners == EMPTY_MAP) return;
+    Array<AnimationListener> listeners = animationListeners.get(frame);
+    if (listeners == null) return;
+    for (AnimationListener l : listeners) l.onTrigger(this, frame);
+  }
+
+  public boolean addAnimationListener(int frame, AnimationListener l) {
     Preconditions.checkArgument(l != null, "l cannot be null");
-    return ANIMATION_LISTENERS.add(l);
+    if (animationListeners == EMPTY_MAP) animationListeners = new IntMap<>(1);
+    Array<AnimationListener> listeners = animationListeners.get(frame);
+    if (listeners == null) animationListeners.put(frame, listeners = new Array<>(1));
+    listeners.add(l);
+    return true;
   }
 
-  public boolean removeAnimationListener(Object o) {
-    return o != null && ANIMATION_LISTENERS.remove(o);
+  public boolean removeAnimationListener(int frame, AnimationListener l) {
+    if (l == null || animationListeners == EMPTY_MAP) return false;
+    Array<AnimationListener> listeners = animationListeners.get(frame);
+    if (listeners == null) return false;
+    return listeners.removeValue(l, true);
   }
 
-  public boolean containsAnimationListener(Object o) {
-    return o != null && ANIMATION_LISTENERS.contains(o);
+  public boolean containsAnimationListener(int frame, AnimationListener l) {
+    if (l == null || animationListeners == EMPTY_MAP) return false;
+    Array<AnimationListener> listeners = animationListeners.get(frame);
+    if (listeners == null) return false;
+    return listeners.contains(l, true);
   }
 
   public interface AnimationListener {
-    void onFinished(Animation animation);
+    void onTrigger(Animation animation, int frame);
   }
 
   public static class Layer {

@@ -59,9 +59,9 @@ public class AudioUnpackerScreen extends ScreenAdapter {
     Riiablo.assets.finishLoadingAsset(DownloadPatchBall2Descriptor);
     Animation DownloadPatchBall2 = Animation.newAnimation(Riiablo.assets.get(DownloadPatchBall2Descriptor));
     DownloadPatchBall2.setFrameDuration(Float.MAX_VALUE);
-    DownloadPatchBall2.addAnimationListener(new Animation.AnimationListener() {
+    DownloadPatchBall2.addAnimationListener(-1, new Animation.AnimationListener() {
       @Override
-      public void onFinished(Animation animation) {
+      public void onTrigger(Animation animation, int frame) {
         Riiablo.client.setScreen(new SplashScreen());
       }
     });

@@ -26,6 +26,7 @@ public class ItemEntry extends Excel.Entry {
   @Column public int     invwidth;
   @Column public int     invheight;
   @Column public String  dropsound;
+  @Column public int     dropsfxframe;
   @Column public boolean stackable;
   @Column public boolean useable;
   @Column public String  usesound;
