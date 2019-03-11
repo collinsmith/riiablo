@@ -444,6 +444,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         if (entity.isSelectable() && entity.position().dst(player.position()) <= entity.getInteractRange() * 2) {
           entity.setOver(true);
           addLabel(entity.getLabel());
+        } else {
+          entity.setOver(false);
         }
       }
     } else {
@@ -489,18 +491,11 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     mapRenderer.drawDebugPath(Riiablo.shapes, player.path());
     Riiablo.shapes.end();
 
-    b.setProjectionMatrix(Riiablo.viewport.getCamera().combined);
+    b.setProjectionMatrix(viewport.getCamera().combined);
 
     details = null;
     stage.act();
     stage.draw();
-
-    /*b.begin();
-    for (Entity entity : labels) {
-      entity.drawLabel(b);
-      System.out.println("label!");
-    }
-    b.end();*/
 
     if (menu == null && !labels.isEmpty()) {
       layoutLabels();
@@ -526,7 +521,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     mapRenderer.setMap(map);
     mapRenderer.setSrc(player);
     mapRenderer.setEntities(entities);
-    if (Gdx.app.getType() == Application.ApplicationType.Android) {
+    if (Gdx.app.getType() == Application.ApplicationType.Android
+     || Riiablo.defaultViewport.getWorldHeight() == Riiablo.MOBILE_VIEWPORT_HEIGHT) {
       mapRenderer.zoom(0.80f);
     }
     mapRenderer.resize();
