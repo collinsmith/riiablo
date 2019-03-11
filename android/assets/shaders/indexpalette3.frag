@@ -84,5 +84,12 @@ void main() {
   }
 
   vec3 colorRGB = pow(color.rgb, vec3(1.0 / gamma));
+
+  // TODO: Move this effect and gamma effect to a separate shader
+  // TODO: Add configs to this effect for contrast + brightness
+  colorRGB -= 0.5;
+  colorRGB *= 1.20;
+  colorRGB += 0.60;
+
   gl_FragColor = vec4(colorRGB, color.a);
 }
