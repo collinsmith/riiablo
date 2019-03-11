@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
@@ -128,6 +129,11 @@ public class Audio {
     if (id.isEmpty()) return null;
     Sounds.Entry sound = Riiablo.files.Sounds.get(id);
     if (sound == null) return null;
+    if (sound.Group_Size > 0) {
+      int randomId = sound.Index + MathUtils.random.nextInt(sound.Group_Size);
+      sound = Riiablo.files.Sounds.get(randomId);
+    }
+
     return play(sound, global);
   }
 }
