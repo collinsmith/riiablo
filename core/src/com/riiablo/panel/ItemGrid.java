@@ -89,6 +89,7 @@ public class ItemGrid extends Group {
 
         Item cursor = Riiablo.cursor.getItem();
         if (cursor != null) {
+          Riiablo.audio.play(cursor.base.dropsound, true);
           if (swap != null) {
             Riiablo.cursor.setItem(swap.item);
             removeActor(swap);

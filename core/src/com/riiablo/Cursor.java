@@ -78,9 +78,7 @@ public class Cursor {
   }
 
   public void setItem(Item item) {
-    if (this.item != null) {
-      Riiablo.audio.play(this.item.base.dropsound, true);
-    } else if (item != null) {
+    if (this.item == null && item != null) {
       Riiablo.audio.play("item_pickup", true);
     }
 
