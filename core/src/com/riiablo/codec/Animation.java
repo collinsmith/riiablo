@@ -598,6 +598,12 @@ public class Animation extends BaseDrawable {
       return layer(new Layer(dc, blendMode));
     }
 
+    public Builder layer(DC dc, int blendMode, byte packedTransform) {
+      Layer layer = new Layer(dc, blendMode);
+      layer.setTransform(packedTransform);
+      return layer(layer);
+    }
+
     public Builder layer(Layer layer) {
       layers[size++] = layer;
       return this;

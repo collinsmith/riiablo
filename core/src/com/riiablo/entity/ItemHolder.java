@@ -5,6 +5,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
+import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.Item;
 import com.riiablo.map.DT1;
@@ -39,8 +40,9 @@ public class ItemHolder extends Entity {
     Riiablo.assets.load(flippyDescriptor);
     Riiablo.assets.finishLoadingAsset(flippyDescriptor);
     flippy = Riiablo.assets.get(flippyDescriptor);
+    byte packedTransform = (byte) ((item.base.Transform << 5) | (item.charColorIndex & 0x1F));
     animation = Animation.builder()
-        .layer(flippy)
+        .layer(flippy, BlendMode.ID, packedTransform)
         .build();
     animation.setLooping(false);
     animation.updateBox();
