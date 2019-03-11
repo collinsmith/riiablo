@@ -59,6 +59,18 @@ public class MapListener {
         }
       }
     }
+    for (Entity entity : gameScreen.entities.values()) {
+      if (entity.isOver()) {
+        if (entity.position().dst(gameScreen.player.position()) <= entity.getInteractRange()) {
+          setTarget(null);
+          entity.interact(gameScreen);
+        } else {
+          setTarget(entity);
+        }
+
+        return true;
+      }
+    }
 
     return false;
   }
