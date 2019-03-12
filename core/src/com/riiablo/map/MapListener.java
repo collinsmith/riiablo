@@ -3,6 +3,7 @@ package com.riiablo.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -87,7 +88,9 @@ public class MapListener {
         Riiablo.cursor.setItem(null);
         Entity item = new ItemHolder(cursor);
         item.position().set(gameScreen.player.position());
-        gameScreen.entities.put(gameScreen.entities.size + 1, item);
+        int randomId;
+        while (gameScreen.entities.get(randomId = MathUtils.random.nextInt(Integer.MAX_VALUE)) != null);
+        gameScreen.entities.put(randomId, item);
         requireRelease = true;
         return;
       }

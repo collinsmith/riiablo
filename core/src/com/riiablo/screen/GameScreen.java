@@ -103,6 +103,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   NpcMenu menu;
   NpcDialogBox dialog;
   Actor details;
+  boolean showItems;
 
   public TextArea input;
   TextArea output;
@@ -502,6 +503,23 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     } else if (menu == null && details != null) {
       b.begin();
       details.draw(b, 1);
+      b.end();
+    }
+
+
+    showItems = UIUtils.alt();
+    if (showItems) {
+      clearLabels();
+      for (Entity entity : entities.values()) {
+        if (entity instanceof ItemHolder) {
+          Actor label = entity.getLabel();
+          addLabel(label);
+        }
+      }
+      layoutLabels();
+
+      b.begin();
+      for (Actor label : labels) label.draw(b, 1);
       b.end();
     }
   }
