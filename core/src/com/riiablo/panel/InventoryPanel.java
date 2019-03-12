@@ -319,7 +319,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
               return;
             }
 
-            Riiablo.audio.play(cursor.base.dropsound, true);
+            Riiablo.audio.play(cursor.getDropSound(), true);
             Riiablo.cursor.setItem(item);
             item = cursor;
             gameScreen.player.setSlot(InventoryPanel.BodyPart.this.bodyLoc, item);

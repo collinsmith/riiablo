@@ -89,7 +89,7 @@ public class ItemGrid extends Group {
 
         Item cursor = Riiablo.cursor.getItem();
         if (cursor != null) {
-          Riiablo.audio.play(cursor.base.dropsound, true);
+          Riiablo.audio.play(cursor.getDropSound(), true);
           if (swap != null) {
             Riiablo.cursor.setItem(swap.item);
             removeActor(swap);
@@ -260,7 +260,7 @@ public class ItemGrid extends Group {
         public void clicked(InputEvent event, float x, float y) {
           ItemEntry entry = StoredItem.this.item.base;
           if (entry.useable) {
-            Riiablo.audio.play(entry.usesound, true);
+            Riiablo.audio.play(StoredItem.this.item.getUseSound(), true);
           }/* else if (Riiablo.cursor.getItem() == null) {
             String[] BodyLocs = item.type.BodyLoc;
             for (String BodyLoc : BodyLocs) {

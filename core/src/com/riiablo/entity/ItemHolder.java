@@ -22,7 +22,7 @@ public class ItemHolder extends Entity {
     this.item = item;
     name(item.getName());
 
-    flippyDescriptor = new AssetDescriptor<>(Type.ITM.PATH + "\\" + item.base.flippyfile + ".dc6", DC6.class);
+    flippyDescriptor = new AssetDescriptor<>(Type.ITM.PATH + "\\" + item.getFlippyFile() + ".dc6", DC6.class);
   }
 
   @Override
@@ -40,16 +40,15 @@ public class ItemHolder extends Entity {
     Riiablo.assets.load(flippyDescriptor);
     Riiablo.assets.finishLoadingAsset(flippyDescriptor);
     flippy = Riiablo.assets.get(flippyDescriptor);
-    byte packedTransform = (byte) ((item.base.Transform << 5) | (item.charColorIndex & 0x1F));
     animation = Animation.builder()
-        .layer(flippy, BlendMode.ID, packedTransform)
+        .layer(flippy, BlendMode.ID, (byte) ((item.base.Transform << 5) | (item.charColorIndex & 0x1F)))
         .build();
     animation.setLooping(false);
     animation.updateBox();
-    animation.addAnimationListener(item.base.dropsfxframe, new Animation.AnimationListener() {
+    animation.addAnimationListener(item.getDropFxFrame(), new Animation.AnimationListener() {
       @Override
       public void onTrigger(Animation animation, int frame) {
-        Riiablo.audio.play(item.base.dropsound, true);
+        Riiablo.audio.play(item.getDropSound(), true);
         animation.removeAnimationListener(frame, this);
       }
     });

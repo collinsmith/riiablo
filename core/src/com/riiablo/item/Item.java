@@ -421,7 +421,16 @@ public class Item extends Actor implements Disposable {
   }
 
   private String getInvFileName() {
-    if (pictureId >= 0) return type.InvGfx[pictureId];
+    if (pictureId >= 0) {
+      if (isIdentified() && quality == Quality.UNIQUE) {
+        if (qualityId == 381) { // Annihilus
+          return "invmss";
+        } else if (qualityId == 400) { // Hellfire Torch
+          return "invtrch";
+        }
+      }
+      return type.InvGfx[pictureId];
+    }
     switch (quality) {
       case SET:
         return !base.setinvfile.isEmpty()
@@ -516,6 +525,61 @@ public class Item extends Actor implements Disposable {
     }
   }
 
+  public String getFlippyFile() {
+    if (isIdentified() && quality == Quality.UNIQUE) {
+      if (qualityId == 381) { // Annihilus
+        return findBase("mss").flippyfile;
+      } else if (qualityId == 400) { // Hellfire Torch
+        return findBase("tch").flippyfile;
+      }
+    }
+
+    return base.flippyfile;
+  }
+
+  public int getDropFxFrame() {
+    if (isIdentified() && quality == Quality.UNIQUE) {
+      if (qualityId == 381) { // Annihilus
+        return findBase("mss").dropsfxframe;
+      } else if (qualityId == 400) { // Hellfire Torch
+        return findBase("tch").dropsfxframe;
+      }
+    }
+
+    return base.dropsfxframe;
+  }
+
+  public String getDropSound() {
+    if (isIdentified() && quality == Quality.UNIQUE) {
+      if (qualityId == 381) { // Annihilus
+        return "item_gem";
+      } else if (qualityId == 400) { // Hellfire Torch
+        return "item_gem";
+      }
+    }
+
+    return base.dropsound;
+  }
+
+  public String getUseSound() {
+    /*
+    // Neither are usable
+    if (isIdentified() && quality == Quality.UNIQUE) {
+      if (qualityId == 381) { // Annihilus
+        return "item_gem";
+      } else if (qualityId == 400) { // Hellfire Torch
+        return "item_gem";
+      }
+    }
+    */
+
+    return base.usesound;
+  }
+
+  public boolean isIdentified() {
+    return (flags & IDENTIFIED) == IDENTIFIED;
+  }
+
   public boolean isEthereal() {
     return (flags & ETHEREAL) == ETHEREAL;
   }
@@ -585,8 +649,14 @@ public class Item extends Actor implements Disposable {
     Label usable;
 
     Details() {
-      setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.modal75));
-      pad(PADDING);
+      // TODO: Change this to a static object ref
+      setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.modal75) {{
+        setLeftWidth(PADDING);
+        setTopHeight(PADDING - 2); // font16 has extra top padding, changing this would require propagating elsewhere
+        setRightWidth(PADDING);
+        setBottomHeight(PADDING);
+      }});
+      //pad(PADDING);
 
       BitmapFont font = Riiablo.fonts.font16;
       name = new Label(Item.this.getName(), font);
