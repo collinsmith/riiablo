@@ -237,6 +237,7 @@ public class Client extends Game {
     Riiablo.mpqs = mpqs = new MPQFileHandleResolver();
     mpqs.add(home.child("patch_d2.mpq"));
     mpqs.add(home.child("d2exp.mpq"));
+    mpqs.delete("data\\global\\sfx\\Item\\gem.wav"); // workaround for issue #9
     mpqs.add(home.child("d2xmusic.mpq"));
     mpqs.add(home.child("d2xtalk.mpq"));
     mpqs.add(home.child("d2xvideo.mpq"));

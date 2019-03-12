@@ -20,6 +20,12 @@ public class MPQFileHandleResolver implements FileHandleResolver {
     add(MPQ.loadFromFile(file));
   }
 
+  public boolean delete(String fileName) {
+    boolean deleted = false;
+    for (MPQ mpq : mpqs) deleted = mpq.delete(fileName);
+    return deleted;
+  }
+
   public boolean contains(String fileName) {
     for (MPQ mpq : mpqs) {
       if (mpq.contains(fileName)) {

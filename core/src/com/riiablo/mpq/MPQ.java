@@ -49,6 +49,11 @@ public class MPQ {
     return hashTable.contains(fileName);
   }
 
+  public boolean delete(String fileName) {
+    fileName = fileName.replaceAll("/", "\\\\");
+    return hashTable.deleteEntry(fileName);
+  }
+
   public long length(String fileName) {
     fileName = fileName.replaceAll("/", "\\\\");
     HashTable.Entry entry = hashTable.getEntry(fileName);
@@ -238,6 +243,15 @@ public class MPQ {
       return index != -1 ? entries[index] : null;
     }
 
+    boolean deleteEntry(String file) {
+      Entry entry = getEntry(file);
+      System.out.println("deleting entry " + entry);
+      if (entry == null || entry.blockIndex == Entry.DELETED) return false;
+      entry.blockIndex = Entry.DELETED;
+      System.out.println("-> " + entry);
+      return true;
+    }
+
     public boolean contains(String file) {
       return getIndex(File.key(file), File.offset(file), Entry.DEFAULT_LOCALE) != -1;
     }
@@ -276,7 +290,7 @@ public class MPQ {
       final long  key;        // QWORD
       final short locale;     // WORD
       final short platform;   // WORD
-      final int   blockIndex; // DWORD
+            int   blockIndex; // DWORD
 
       Entry(ByteBuffer in) {
         key        = in.getLong();
