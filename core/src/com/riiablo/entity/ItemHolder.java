@@ -9,10 +9,11 @@ import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.Item;
 import com.riiablo.map.DT1;
+import com.riiablo.screen.GameScreen;
 
 public class ItemHolder extends Entity {
 
-  Item item;
+  public Item item;
 
   AssetDescriptor<DC6> flippyDescriptor;
   DC flippy;
@@ -33,6 +34,16 @@ public class ItemHolder extends Entity {
   @Override
   public float getLabelOffset() {
     return DT1.Tile.SUBTILE_HEIGHT;
+  }
+
+  @Override
+  public float getInteractRange() {
+    return 2;
+  }
+
+  @Override
+  public void interact(GameScreen gameScreen) {
+    gameScreen.pickup(this);
   }
 
   @Override

@@ -6,8 +6,10 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-
+import com.riiablo.Riiablo;
 import com.riiablo.entity.Entity;
+import com.riiablo.entity.ItemHolder;
+import com.riiablo.item.Item;
 import com.riiablo.screen.GameScreen;
 
 public class MapListener {
@@ -20,7 +22,7 @@ public class MapListener {
   MapRenderer mapRenderer;
   Entity      target;
 
-  boolean requireRelease;
+  public boolean requireRelease;
 
   public MapListener(GameScreen gameScreen, Map map, MapRenderer mapRenderer) {
     this.gameScreen = gameScreen;
@@ -80,6 +82,16 @@ public class MapListener {
     updateLabel(tmpVec2);
     boolean pressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
     if (pressed && !requireRelease) {
+      Item cursor = Riiablo.cursor.getItem();
+      if (cursor != null) {
+        Riiablo.cursor.setItem(null);
+        Entity item = new ItemHolder(cursor);
+        item.position().set(gameScreen.player.position());
+        gameScreen.entities.put(gameScreen.entities.size + 1, item);
+        requireRelease = true;
+        return;
+      }
+
       // exiting dialog should block all input until button is released to prevent menu from closing the following frame
       if (gameScreen.getDialog() != null) {
         gameScreen.setDialog(null);

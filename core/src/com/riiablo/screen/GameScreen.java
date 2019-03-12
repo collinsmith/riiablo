@@ -452,21 +452,18 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
       Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, true);
       if (hit == null) {
+        /*boolean pressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
         Item cursor = Riiablo.cursor.getItem();
-        if (cursor != null && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+        if (cursor != null && pressed) {
           Riiablo.cursor.setItem(null);
           Entity item = new ItemHolder(cursor);
           item.position().set(player.position());
           entities.put(entities.size + 1, item);
-        } else {
+        } else {*/
           mapListener.update();
-        }
+        //}
       }
       else if (DEBUG_HIT) Gdx.app.debug(TAG, hit.toString());
-      //if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-      //  GridPoint2 coords = mapRenderer.coords();
-      //  player.setPath(map, new Vector3(coords.x, coords.y, 0));
-      //}
     }
 
     /*
@@ -715,6 +712,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         dialog.setPosition(stage.getWidth() / 2, stage.getHeight(), Align.top | Align.center);
         stage.addActor(dialog);
       }
+    }
+  }
+
+  public void pickup(ItemHolder entity) {
+    Riiablo.cursor.setItem(entity.item);
+    int key = entities.findKey(entity, true, -1);
+    if (key != -1) {
+      entities.remove(key);
+      mapListener.requireRelease = true;
     }
   }
 }
