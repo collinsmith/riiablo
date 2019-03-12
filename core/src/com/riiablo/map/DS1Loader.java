@@ -18,14 +18,14 @@ public class DS1Loader extends AsynchronousAssetLoader<DS1, DS1Loader.DS1LoaderP
 
   @Override
   public void loadAsync(AssetManager assets, String fileName, FileHandle file, DS1LoaderParameters params) {
-    ds1 = DS1.loadFromStream(file.read());
+    ds1 = DS1.loadFromFile(file);
   }
 
   @Override
   public DS1 loadSync(AssetManager assets, String fileName, FileHandle file, DS1LoaderParameters params) {
     DS1 ds1 = this.ds1;
     if (ds1 == null) {
-      ds1 = DS1.loadFromStream(file.read());
+      ds1 = DS1.loadFromFile(file);
     } else {
       this.ds1 = null;
     }

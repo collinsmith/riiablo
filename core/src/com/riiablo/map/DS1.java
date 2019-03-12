@@ -136,6 +136,7 @@ public class DS1 {
 
   public static DS1 loadFromStream(InputStream in) {
     try {
+      in = IOUtils.buffer(in, 16384);
       DS1 ds1 = new DS1().read(in);
       if (DEBUG) Gdx.app.debug(TAG, ds1.toString());
       if (ds1.version < 9 || 13 < ds1.version) {
