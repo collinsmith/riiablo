@@ -495,9 +495,42 @@ public class MapRenderer {
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(stx, sty);
         if (zone != null) {
-          //buildCaches(zone, stx, sty);
           drawLowerWalls(batch, zone, tx, ty, px, py);
           drawFloors(batch, zone, tx, ty, px, py);
+        }
+
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
+      }
+    }
+
+    startX2 = startX;
+    startY2 = startY;
+    startPx2 = startPx;
+    startPy2 = startPy;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      int px = startPx2;
+      int py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
+          //buildCaches(zone, stx, sty);
           drawShadows(batch, zone, tx, ty, px, py, cache[y][x]);
         }
 

@@ -25,6 +25,7 @@ import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
 import com.riiablo.entity.Entity;
+import com.riiablo.entity.Warp;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -135,6 +136,25 @@ public class Map implements Disposable {
     public static final int TOWN_ENTRY_2    = DT1.Tile.Index.create(Orientation.SPECIAL_10, 31, 0);
     public static final int CORPSE_LOCATION = DT1.Tile.Index.create(Orientation.SPECIAL_10, 32, 0);
     public static final int TP_LOCATION     = DT1.Tile.Index.create(Orientation.SPECIAL_10, 33, 0);
+
+
+    static IntSet WARPS;
+    static {
+      WARPS = new IntSet();
+      WARPS.addAll(
+          VIS_0_00, VIS_0_01, VIS_0_02, VIS_0_03, VIS_0_04, VIS_0_05, VIS_0_06, VIS_0_07, VIS_0_08, VIS_0_09, VIS_0_10,
+          VIS_1_11, VIS_1_12, VIS_1_13, VIS_1_14, VIS_1_15, VIS_1_16, VIS_1_17, VIS_1_18, VIS_1_19,
+          VIS_2_20, VIS_2_21, VIS_2_22, VIS_2_23, VIS_2_24, VIS_2_25, VIS_2_26, VIS_2_27, VIS_2_28, VIS_2_29,
+          VIS_3_30, VIS_3_31, VIS_3_32, VIS_3_33, VIS_3_34, VIS_3_35, VIS_3_36,
+          VIS_4_37, VIS_4_38, VIS_4_39, VIS_4_40, VIS_4_41,
+          VIS_5_81, VIS_5_42, VIS_5_43,
+          VIS_6_44, VIS_6_45, VIS_6_82,
+          VIS_7_46, VIS_7_83);
+    }
+
+    public static int getWarpIndex(DS1.Cell cell) {
+      return cell.mainIndex;
+    }
 
     static IntSet POPPADS;
     static {
@@ -344,6 +364,9 @@ public class Map implements Disposable {
     zone.presets[3][zone.gridsY - 1] = LB;
 
     zone.presets[6][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(47), 1);
+
+    // ID_VIS_5_42
+    zone.presets[5][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(52), 0);
 
     zone.generator = new Zone.Generator() {
       @Override
@@ -585,7 +608,7 @@ public class Map implements Disposable {
   }
 
   public static class Zone {
-    static final Array<Entity> EMPTY_ARRAY = new Array<>(0);
+    static final Array<Entity> EMPTY_ENTITY_ARRAY = new Array<>(0);
 
     int x, y;
     int width, height;
@@ -623,7 +646,7 @@ public class Map implements Disposable {
       gridsY   = tilesY / gridSizeY;
       presets  = new Preset[gridsX][gridsY];
       flags    = new byte[width][height];
-      entities = EMPTY_ARRAY;
+      entities = EMPTY_ENTITY_ARRAY;
     }
 
     /**
@@ -644,13 +667,13 @@ public class Map implements Disposable {
       height   = gridsY * DT1.Tile.SUBTILE_SIZE;
       presets  = new Preset[gridsX][gridsY];
       flags    = new byte[width][height];
-      entities = EMPTY_ARRAY;
+      entities = EMPTY_ENTITY_ARRAY;
     }
 
     private void loadEntities(DS1 ds1, int gridX, int gridY) {
       final int x = this.x + (gridX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (gridY * DT1.Tile.SUBTILE_SIZE);
-      if (entities == EMPTY_ARRAY) entities = new Array<>();
+      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
         Entity entity = Entity.create(map, this, ds1, obj);
@@ -658,6 +681,14 @@ public class Map implements Disposable {
         entity.position().set(x + obj.x, y + obj.y);
         entities.add(entity);
       }
+    }
+
+    private void addWarp(Tile tile, int warpX, int warpY) {
+      final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
+      final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
+      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
+      Warp warp = new Warp(map, this, tile.cell.mainIndex, x, y);
+      entities.add(warp);
     }
 
     public void setPosition(int x, int y) {
@@ -904,7 +935,7 @@ public class Map implements Disposable {
             DS1.Cell cell = ds1.walls[ptr];
 
             if (Orientation.isSpecial(cell.orientation)) {
-              zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
+              Tile tile = zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
               if (ID.POPPADS.contains(cell.id)) {
                 if (popPads == null) popPads = new IntMap<>();
                 PopPad popPad = popPads.get(cell.id);
@@ -914,6 +945,8 @@ public class Map implements Disposable {
                   popPad.setEnd(
                       x * DT1.Tile.SUBTILE_SIZE + DT1.Tile.SUBTILE_SIZE + preset.PopPad,
                       y * DT1.Tile.SUBTILE_SIZE + DT1.Tile.SUBTILE_SIZE + preset.PopPad);
+              } else if (ID.WARPS.contains(cell.id)) {
+                zone.addWarp(tile, tx, ty);
               }
             }
 

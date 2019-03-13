@@ -90,6 +90,9 @@ public abstract class Entity {
         },
     ITM("ITEMS",
         new String[] {"NU"},
+        new String[] {"NIL"}),
+    WRP("WARPS",
+        new String[] {"NU"},
         new String[] {"NIL"});
 
     public final String PATH;
@@ -558,7 +561,7 @@ public abstract class Entity {
   public void setOver(boolean b) {
     if (over != b) {
       over = b;
-      animation.setHighlighted(b);
+      if (animation != null) animation.setHighlighted(b);
     }
   }
 
