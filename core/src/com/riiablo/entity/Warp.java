@@ -58,6 +58,15 @@ public class Warp extends Entity {
     /**
      * TODO: warp.LitVersion determines whether or not warp has special highlighted tiles
      *       warp.Tile is added to subindex of tile to find corresponding highlighted tiles (if warp.LitVersion set)
+     *       Above info is wrong --  unhighlighted 21/2 highlighted 21/6 -- might be hard-coded? table?
+     *       All vanilla warps have warp.Tile == 2, only different ones are A5 barricade
+     *         caves\cavedr.dt1     up   replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
+     *         caves\cavedr.dt1     down replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
+     *         sewer\chamb.dt1      up   replaces 2 tiles -- value == 2 and replaces 0-1 with 2-3
+     *         sewer\chamb.dt1      down replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
+     *         spider\spiderent.dt1 down replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
+     *
+     *       Subindex of special warp tile is the main index of the tiles it replaces
      */
   }
 
@@ -86,7 +95,7 @@ public class Warp extends Entity {
 
   @Override
   public void draw(PaletteIndexedBatch batch) {
-    label.setPosition(pixelLoc.x, pixelLoc.y + getLabelOffset() + label.getHeight() / 2, Align.center);
+    label.setPosition(pixelLoc.x + box.xMin + box.width / 2, pixelLoc.y - box.yMax + box.height / 2 + getLabelOffset() + label.getHeight() / 2, Align.center);
   }
 
   @Override

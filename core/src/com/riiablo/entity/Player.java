@@ -162,7 +162,7 @@ public class Player extends Entity {
   @Override
   public void act(float delta) {
     super.act(delta);
-    if (animation != null && mode == getWalkMode() || mode == getRunMode()) {
+    if (animation != null && (mode == getWalkMode() || mode == getRunMode())) {
       int frame = animation.getFrame();
       int numFrames = animation.getNumFramesPerDir();
       if (frame == 0 || frame == numFrames >>> 1) {
