@@ -628,7 +628,13 @@ public class MapRenderer {
     for (int i = Map.FLOOR_OFFSET; i < Map.FLOOR_OFFSET + Map.MAX_FLOORS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
       if (tile == null) continue;
-      TextureRegion texture = tile.tile.texture;
+      TextureRegion texture;
+      int subst = tile.cell != null ? map.warpSubsts.get(tile.cell.id, -1) : -1;
+      if (subst != -1) { // TODO: Performance can be improved if the reference is updated to below subst
+        texture = map.dt1s.get(zone.level.LevelType).get(subst).texture;
+      } else {
+        texture = tile.tile.texture;
+      }
       //if (texture.getTexture().getTextureObjectHandle() == 0) return;
       batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight() + 1);
     }

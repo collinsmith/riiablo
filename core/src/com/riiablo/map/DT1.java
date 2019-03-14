@@ -396,7 +396,7 @@ public class DT1 implements Disposable {
       }
     }
 
-    static class Index {
+    public static class Index {
       private static final int MAIN_INDEX_OFFSET  = 16;
       private static final int MAIN_INDEX_BITS    = 0xFF;
 

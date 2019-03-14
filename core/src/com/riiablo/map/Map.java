@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -295,8 +296,9 @@ public class Map implements Disposable {
   }
 
   // TODO: maybe replace with R-tree? // https://en.wikipedia.org/wiki/R-tree
-  Array<Zone>  zones = new Array<>();
+  final Array<Zone>  zones = new Array<>();
   IntMap<DT1s> dt1s;
+  final IntIntMap warpSubsts = new IntIntMap();
   public static Map instance; // TODO: remove
 
   private Map() {}
@@ -592,6 +594,16 @@ public class Map implements Disposable {
     }
   }
 
+  public void addWarpSubsts(IntIntMap warps) {
+    this.warpSubsts.putAll(warps);
+  }
+
+  public void clearWarpSubsts(IntIntMap warps) {
+    for (IntIntMap.Entry entry : warps.entries()) {
+      this.warpSubsts.remove(entry.key, entry.value);
+    }
+  }
+
   private MapGraph                                mapGraph   = new MapGraph(this);
   private IndexedAStarPathFinder<MapGraph.Point2> pathFinder = new IndexedAStarPathFinder<>(mapGraph, true);
 
@@ -687,7 +699,7 @@ public class Map implements Disposable {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
       if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
-      Warp warp = new Warp(map, this, tile.cell.mainIndex, x, y);
+      Warp warp = new Warp(map, this, tile.cell.orientation, tile.cell.mainIndex, tile.cell.subIndex, x, y);
       entities.add(warp);
     }
 
@@ -945,7 +957,7 @@ public class Map implements Disposable {
                   popPad.setEnd(
                       x * DT1.Tile.SUBTILE_SIZE + DT1.Tile.SUBTILE_SIZE + preset.PopPad,
                       y * DT1.Tile.SUBTILE_SIZE + DT1.Tile.SUBTILE_SIZE + preset.PopPad);
-              } else if (ID.WARPS.contains(cell.id)) {
+              } else if (ID.WARPS.contains(cell.id) && cell.subIndex != 1) {
                 zone.addWarp(tile, tx, ty);
               }
             }

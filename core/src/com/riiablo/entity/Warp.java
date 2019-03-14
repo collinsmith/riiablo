@@ -4,20 +4,22 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlWarp;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
 
 import static com.riiablo.map.DT1.Tile;
 
 public class Warp extends Entity {
+  private static final IntIntMap EMPTY_INT_INT_MAP = new IntIntMap();
 
   public final Map      map;
   public final Map.Zone zone;
-  public final int      index;
 
   public final LvlWarp.Entry warp;
   public final Levels.Entry  dstLevel;
@@ -25,16 +27,16 @@ public class Warp extends Entity {
   public final Vector2 pixelLoc;
 
   BBox box;
+  public final IntIntMap substs;
 
-  public Warp(Map map, Map.Zone zone, int index, int x, int y) {
+  public Warp(Map map, Map.Zone zone, int orientation, int mainIndex, int subIndex, int x, int y) {
     super(Type.WRP, "warp", null);
-    this.map   = map;
-    this.zone  = zone;
-    this.index = index;
+    this.map  = map;
+    this.zone = zone;
 
-    int dst = zone.level.Vis[index];
+    int dst = zone.level.Vis[mainIndex];
     assert dst > 0 : "Warp to unknown level!";
-    int wrp = zone.level.Warp[index];
+    int wrp = zone.level.Warp[mainIndex];
     assert wrp >= 0 : "Invalid warp";
 
     dstLevel = Riiablo.files.Levels.get(dst);
@@ -55,19 +57,32 @@ public class Warp extends Entity {
     pixelLoc.x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     pixelLoc.y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
 
-    /**
-     * TODO: warp.LitVersion determines whether or not warp has special highlighted tiles
-     *       warp.Tile is added to subindex of tile to find corresponding highlighted tiles (if warp.LitVersion set)
-     *       Above info is wrong --  unhighlighted 21/2 highlighted 21/6 -- might be hard-coded? table?
-     *       All vanilla warps have warp.Tile == 2, only different ones are A5 barricade
-     *         caves\cavedr.dt1     up   replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
-     *         caves\cavedr.dt1     down replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
-     *         sewer\chamb.dt1      up   replaces 2 tiles -- value == 2 and replaces 0-1 with 2-3
-     *         sewer\chamb.dt1      down replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
-     *         spider\spiderent.dt1 down replaces 4 tiles -- value == 2 and replaces 0-3 with 4-7
-     *
-     *       Subindex of special warp tile is the main index of the tiles it replaces
-     */
+    if (warp.LitVersion) {
+      substs = new IntIntMap();
+      if (subIndex < 2) {
+        substs.put(DT1.Tile.Index.create(orientation, mainIndex, 0), DT1.Tile.Index.create(orientation, mainIndex, 2));
+        substs.put(DT1.Tile.Index.create(orientation, mainIndex, 1), DT1.Tile.Index.create(orientation, mainIndex, 3));
+      } else {
+        substs.put(DT1.Tile.Index.create(0, subIndex, 0), DT1.Tile.Index.create(0, subIndex, 4));
+        substs.put(DT1.Tile.Index.create(0, subIndex, 1), DT1.Tile.Index.create(0, subIndex, 5));
+        substs.put(DT1.Tile.Index.create(0, subIndex, 2), DT1.Tile.Index.create(0, subIndex, 6));
+        substs.put(DT1.Tile.Index.create(0, subIndex, 3), DT1.Tile.Index.create(0, subIndex, 7));
+      }
+    } else {
+      substs = EMPTY_INT_INT_MAP;
+    }
+  }
+
+  @Override
+  public void setOver(boolean b) {
+    super.setOver(b);
+    if (substs != EMPTY_INT_INT_MAP) {
+      if (b) {
+        map.addWarpSubsts(substs);
+      } else {
+        map.clearWarpSubsts(substs);
+      }
+    }
   }
 
   @Override
