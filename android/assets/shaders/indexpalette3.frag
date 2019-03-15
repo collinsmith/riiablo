@@ -87,7 +87,8 @@ void main() {
     if (color.a > 0.0) {
       color.a = tint.a;
       color.r += 0.04;
-      color.gb = 0.0;
+      color.g = 0.0;
+      color.b = 0.0;
     }
   }
 
