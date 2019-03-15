@@ -56,7 +56,7 @@ public class MapLoader extends AsynchronousAssetLoader<Map, MapLoader.MapParamet
   @Override
   public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file, MapLoader.MapParameters params) {
     Array<AssetDescriptor> dependencies = new Array<>();
-    for (int def = Map.ACT_DEF[params.act]; def < 53/*Map.ACT_DEF[params.act + 1]*/; def++) {
+    for (int def = Map.ACT_DEF[params.act]; def < /*53*/Map.ACT_DEF[params.act + 1]; def++) {
       LvlPrest.Entry preset = Riiablo.files.LvlPrest.get(def);
       for (int i = 0; i < preset.File.length; i++) {
         if (preset.File[i].charAt(0) != '0') {
@@ -66,7 +66,7 @@ public class MapLoader extends AsynchronousAssetLoader<Map, MapLoader.MapParamet
     }
 
     for (LvlTypes.Entry type : Riiablo.files.LvlTypes) {
-      if ((type.Act - 1) == params.act && type.Id < 3) {
+      if ((type.Act - 1) == params.act && type.Id <= 3) {
         for (int i = 0; type.File[i].charAt(0) != '0'; i++) {
           dependencies.add(new AssetDescriptor<>(Map.TILES_PATH + type.File[i], DT1.class));
         }

@@ -383,6 +383,13 @@ public class Map implements Disposable {
       }
     };
 
+    level = Riiablo.files.Levels.get(8);
+    zone = map.addZone(level, diff, 24, 24);
+    zone.setPosition(level.OffsetX, level.OffsetY);
+    zone.presets[0][1] = Preset.of(Riiablo.files.LvlPrest.get(84), 0);
+    zone.presets[1][1] = Preset.of(Riiablo.files.LvlPrest.get(61), 1);
+    zone.presets[1][0] = Preset.of(Riiablo.files.LvlPrest.get(97), 0);
+
     return map;
   }
 
@@ -438,7 +445,6 @@ public class Map implements Disposable {
               dependencies.add(new AssetDescriptor<>(TILES_PATH + zone.type.File[i], DT1.class));
             }
           }
-
         }
       }
     }
@@ -523,6 +529,14 @@ public class Map implements Disposable {
         }
       }
     }
+  }
+
+  public Zone findZone(Levels.Entry level) {
+    for (Zone zone : zones) {
+      if (zone.level == level) return zone;
+    }
+
+    return null;
   }
 
   public Zone getZone(int x, int y) {
@@ -710,6 +724,11 @@ public class Map implements Disposable {
       ty = y / DT1.Tile.SUBTILE_SIZE;
     }
 
+    // TODO: define entrance, exit to eliminate x,y
+    public GridPoint2 find(int x, int y, int id) {
+      return presets[x][y].ds1.find(id);
+    }
+
     @Override
     public String toString() {
       return new ToStringBuilder(this)
@@ -732,6 +751,8 @@ public class Map implements Disposable {
 
     public int getLocalTX(int tx) { return tx - this.tx; }
     public int getLocalTY(int ty) { return ty - this.ty; }
+    public int getGlobalX(int x) { return this.x + x; }
+    public int getGlobalY(int y) { return this.y + y; }
 
     public boolean contains(int x, int y) {
       x -= this.x;
@@ -767,7 +788,7 @@ public class Map implements Disposable {
         for (int y = 0; y < gridsY; y++, gridY += gridSizeY) {
           Preset preset = presets[x][y];
           if (preset == null) {
-            generator.generate(this, dt1s, gridX, gridY);
+            if (generator != null) generator.generate(this, dt1s, gridX, gridY);
             continue;
           }
 
@@ -927,6 +948,12 @@ public class Map implements Disposable {
             }
 
             Tile tile = zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
+            // FIXME: These are "empty"/"unknown" tiles, in caves, they fill in the gaps
+            if (tile.tile == null) System.out.println(cell.orientation + ":" + cell.mainIndex + ":" + cell.subIndex + ": " + cell.prop1() + " " + cell.prop2() + " " + cell.prop3() + " " + cell.prop4());
+            if (tile.tile == null) {
+              zone.tiles[layer][tx][ty] = null;
+              continue;
+            }
             copyFlags(zone.flags, tx, ty, tile.tile);
             if (NO_FLOOR) {
               orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);

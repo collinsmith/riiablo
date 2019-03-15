@@ -8,10 +8,12 @@ public class DT1Sound {
   private DT1Sound() {}
 
   public static String getType(Levels.Entry levels, DT1.Tile tile) {
+    if (tile == null) return "dirt";
     int soundIndex = tile.soundIndex & 0xFF;
     switch (levels.LevelType) {
       case 1:  return getType1(soundIndex);
       case 2:  return getType2(soundIndex);
+      case 3:  return getType3(soundIndex);
       default: return "dirt";
     }
 
@@ -36,6 +38,13 @@ public class DT1Sound {
     switch (soundIndex) {
       case 0:   return "dirt";
       case 128: return "wood";
+      default:  return "dirt";
+    }
+  }
+
+  private static String getType3(int soundIndex) {
+    switch (soundIndex) {
+      case 0:   return "dirt";
       default:  return "dirt";
     }
   }

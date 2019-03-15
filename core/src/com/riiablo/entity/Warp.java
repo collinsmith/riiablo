@@ -2,6 +2,7 @@ package com.riiablo.entity;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -12,6 +13,7 @@ import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
+import com.riiablo.screen.GameScreen;
 
 import static com.riiablo.map.DT1.Tile;
 
@@ -71,6 +73,21 @@ public class Warp extends Entity {
     } else {
       substs = EMPTY_INT_INT_MAP;
     }
+  }
+
+  @Override
+  public void interact(GameScreen gameScreen) {
+    System.out.println("zim zim zala bim");
+    Map.Zone dst = map.findZone(dstLevel);
+    GridPoint2 point = dst.find(0, 1, Map.ID.VIS_0_03);
+    System.out.println(point);
+    gameScreen.player.position.set(dst.getGlobalX(point.x * 5) + 2, dst.getGlobalY(point.y * 5) + 24 * 5 + 5);
+    gameScreen.player.setPath(map, null);
+  }
+
+  @Override
+  public float getInteractRange() {
+    return 2;
   }
 
   @Override
