@@ -88,10 +88,10 @@ public class Warp extends Entity {
     System.out.println("zim zim zala bim");
     Map.Zone dst = map.findZone(dstLevel);
     int dstIndex = zone.getWarp(index);
-    Vector2 dstPos = dst.find(dstIndex);
-    if (dstPos == null) throw new AssertionError("Invalid dstPos: " + dstIndex);
-    gameScreen.player.position.set(dstPos);
-    gameScreen.player.setPath(map, null);
+    Warp dstWarp = dst.findWarp(dstIndex);
+    if (dstWarp == null) throw new AssertionError("Invalid dstWarp: " + dstIndex);
+    gameScreen.player.position().set(dstWarp.position());
+    gameScreen.player.setPath(map, new Vector2(dstWarp.warp.ExitWalkX, dstWarp.warp.ExitWalkY).add(dstWarp.position()));
   }
 
   @Override

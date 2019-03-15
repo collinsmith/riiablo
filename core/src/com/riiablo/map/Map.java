@@ -744,12 +744,12 @@ public class Map implements Disposable {
       return presets[x][y].ds1.find(id);
     }
 
-    public Vector2 find(int id) {
+    public Warp findWarp(int id) {
       for (Entity entity : entities) {
         if (entity instanceof Warp) {
           Warp warp = (Warp) entity;
           if (warp.index == id) {
-            return warp.position();
+            return warp;
           }
         }
       }
