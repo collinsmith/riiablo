@@ -2,7 +2,6 @@ package com.riiablo.entity;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -23,6 +22,7 @@ public class Warp extends Entity {
   public final Map      map;
   public final Map.Zone zone;
 
+  public final int index;
   public final LvlWarp.Entry warp;
   public final Levels.Entry  dstLevel;
 
@@ -31,10 +31,15 @@ public class Warp extends Entity {
   BBox box;
   public final IntIntMap substs;
 
-  public Warp(Map map, Map.Zone zone, int orientation, int mainIndex, int subIndex, int x, int y) {
+  public Warp(Map map, Map.Zone zone, int index, int x, int y) {
     super(Type.WRP, "warp", null);
-    this.map  = map;
-    this.zone = zone;
+    this.map   = map;
+    this.zone  = zone;
+    this.index = index;
+
+    final int mainIndex   = DT1.Tile.Index.mainIndex(index);
+    final int subIndex    = DT1.Tile.Index.subIndex(index);
+    final int orientation = DT1.Tile.Index.orientation(index);
 
     int dst = zone.level.Vis[mainIndex];
     assert dst > 0 : "Warp to unknown level!";
@@ -61,9 +66,12 @@ public class Warp extends Entity {
 
     if (warp.LitVersion) {
       substs = new IntIntMap();
+      // FIXME: Below will cover overwhelming majority of cases -- need to solve act 5 ice cave case where 3 tiles are used
+      //        I think this can be done by checking if there's a texture with the same id, else it's a floor warp
       if (subIndex < 2) {
-        substs.put(DT1.Tile.Index.create(orientation, mainIndex, 0), DT1.Tile.Index.create(orientation, mainIndex, 2));
-        substs.put(DT1.Tile.Index.create(orientation, mainIndex, 1), DT1.Tile.Index.create(orientation, mainIndex, 3));
+        for (int i = 0; i < 2; i++) {
+          substs.put(DT1.Tile.Index.create(orientation, mainIndex, i), DT1.Tile.Index.create(orientation, mainIndex, i + warp.Tiles));
+        }
       } else {
         substs.put(DT1.Tile.Index.create(0, subIndex, 0), DT1.Tile.Index.create(0, subIndex, 4));
         substs.put(DT1.Tile.Index.create(0, subIndex, 1), DT1.Tile.Index.create(0, subIndex, 5));
@@ -79,9 +87,10 @@ public class Warp extends Entity {
   public void interact(GameScreen gameScreen) {
     System.out.println("zim zim zala bim");
     Map.Zone dst = map.findZone(dstLevel);
-    GridPoint2 point = dst.find(0, 1, Map.ID.VIS_0_03);
-    System.out.println(point);
-    gameScreen.player.position.set(dst.getGlobalX(point.x * 5) + 2, dst.getGlobalY(point.y * 5) + 24 * 5 + 5);
+    int dstIndex = zone.getWarp(index);
+    Vector2 dstPos = dst.find(dstIndex);
+    if (dstPos == null) throw new AssertionError("Invalid dstPos: " + dstIndex);
+    gameScreen.player.position.set(dstPos);
     gameScreen.player.setPath(map, null);
   }
 

@@ -369,6 +369,7 @@ public class Map implements Disposable {
 
     // ID_VIS_5_42
     zone.presets[5][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(52), 0);
+    zone.setWarp(ID.VIS_5_42, ID.VIS_0_03);
 
     zone.generator = new Zone.Generator() {
       @Override
@@ -389,6 +390,7 @@ public class Map implements Disposable {
     zone.presets[0][1] = Preset.of(Riiablo.files.LvlPrest.get(84), 0);
     zone.presets[1][1] = Preset.of(Riiablo.files.LvlPrest.get(61), 1);
     zone.presets[1][0] = Preset.of(Riiablo.files.LvlPrest.get(97), 0);
+    zone.setWarp(ID.VIS_0_03, ID.VIS_5_42);
 
     return map;
   }
@@ -635,6 +637,7 @@ public class Map implements Disposable {
 
   public static class Zone {
     static final Array<Entity> EMPTY_ENTITY_ARRAY = new Array<>(0);
+    static final IntIntMap     EMPTY_INT_INT_MAP = new IntIntMap(0);
 
     int x, y;
     int width, height;
@@ -651,6 +654,7 @@ public class Map implements Disposable {
     Tile           tiles[][][];
     byte           flags[][];
     Array<Entity>  entities;
+    IntIntMap      warps;
 
     Generator generator;
 
@@ -673,6 +677,7 @@ public class Map implements Disposable {
       presets  = new Preset[gridsX][gridsY];
       flags    = new byte[width][height];
       entities = EMPTY_ENTITY_ARRAY;
+      warps    = EMPTY_INT_INT_MAP;
     }
 
     /**
@@ -694,6 +699,7 @@ public class Map implements Disposable {
       presets  = new Preset[gridsX][gridsY];
       flags    = new byte[width][height];
       entities = EMPTY_ENTITY_ARRAY;
+      warps    = EMPTY_INT_INT_MAP;
     }
 
     private void loadEntities(DS1 ds1, int gridX, int gridY) {
@@ -713,8 +719,17 @@ public class Map implements Disposable {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
       if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
-      Warp warp = new Warp(map, this, tile.cell.orientation, tile.cell.mainIndex, tile.cell.subIndex, x, y);
+      Warp warp = new Warp(map, this, tile.cell.id, x, y);
       entities.add(warp);
+    }
+
+    void setWarp(int src, int dst) {
+      if (warps == EMPTY_INT_INT_MAP) warps = new IntIntMap(4);
+      warps.put(src, dst);
+    }
+
+    public int getWarp(int src) {
+      return warps.get(src, -1);
     }
 
     public void setPosition(int x, int y) {
@@ -727,6 +742,19 @@ public class Map implements Disposable {
     // TODO: define entrance, exit to eliminate x,y
     public GridPoint2 find(int x, int y, int id) {
       return presets[x][y].ds1.find(id);
+    }
+
+    public Vector2 find(int id) {
+      for (Entity entity : entities) {
+        if (entity instanceof Warp) {
+          Warp warp = (Warp) entity;
+          if (warp.index == id) {
+            return warp.position();
+          }
+        }
+      }
+
+      return null;
     }
 
     @Override
