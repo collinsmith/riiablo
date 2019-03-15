@@ -447,7 +447,7 @@ public class DS1 {
     public int prop4() { return (value >>> 24) & 0xFF; }
     public int prop3() { return (value >>> 16) & 0xFF; }
     public int prop2() { return (value >>>  8) & 0xFF; }
-    public int prop1() { return (value >>>  0) & 0xFF; }
+    public int prop1() { return (value       ) & 0xFF; }
 
     void setOrientation(int orientation) {
       this.orientation = (short) orientation;

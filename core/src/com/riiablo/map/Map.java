@@ -971,6 +971,12 @@ public class Map implements Disposable {
               orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
             }
 
+            if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
+              // TODO: Technically this might not be needed since the level can be assumed enclosed
+              orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+              continue;
+            }
+
             if ((cell.value & DS1.Cell.HIDDEN_MASK) != 0) {
               continue;
             }
@@ -982,6 +988,7 @@ public class Map implements Disposable {
               zone.tiles[layer][tx][ty] = null;
               continue;
             }
+
             copyFlags(zone.flags, tx, ty, tile.tile);
             if (NO_FLOOR) {
               orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
@@ -1000,7 +1007,6 @@ public class Map implements Disposable {
           int ptr = l + (y * ds1.wallLine);
           for (int x = 0; x < ds1.width; x++, tx++, ptr += ds1.numWalls) {
             DS1.Cell cell = ds1.walls[ptr];
-
             if (Orientation.isSpecial(cell.orientation)) {
               Tile tile = zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
               if (ID.POPPADS.contains(cell.id)) {
@@ -1015,6 +1021,10 @@ public class Map implements Disposable {
               } else if (ID.WARPS.contains(cell.id) && cell.subIndex != 1) {
                 zone.addWarp(tile, tx, ty);
               }
+            }
+
+            if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
+              continue;
             }
 
             if ((cell.value & DS1.Cell.HIDDEN_MASK) != 0) {
@@ -1065,11 +1075,11 @@ public class Map implements Disposable {
           int ptr = l + (y * ds1.shadowLine);
           for (int x = 0; x < ds1.width; x++, tx++, ptr += ds1.numShadows) {
             DS1.Cell cell = ds1.shadows[ptr];
-            if ((cell.value & DS1.Cell.HIDDEN_MASK) != 0) {
+            if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
               continue;
             }
 
-            if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
+            if ((cell.value & DS1.Cell.HIDDEN_MASK) != 0) {
               continue;
             }
 
