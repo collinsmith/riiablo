@@ -295,13 +295,16 @@ public class Map implements Disposable {
     return MathUtils.round(i);
   }
 
+  public final int act;
   // TODO: maybe replace with R-tree? // https://en.wikipedia.org/wiki/R-tree
   final Array<Zone>  zones = new Array<>();
   IntMap<DT1s> dt1s;
   final IntIntMap warpSubsts = new IntIntMap();
   public static Map instance; // TODO: remove
 
-  private Map() {}
+  private Map(int act) {
+    this.act = act;
+  }
 
   public static Map build(MapLoader.MapParameters params) {
     return build(params.seed, params.act, params.diff);
@@ -310,7 +313,7 @@ public class Map implements Disposable {
   public static Map build(int seed, int act, int diff) {
     MathUtils.random.setSeed(seed);
 
-    Map map = new Map();
+    Map map = new Map(act);
 
     int def = ACT_DEF[act];
     LvlPrest.Entry preset = Riiablo.files.LvlPrest.get(def);

@@ -1,7 +1,5 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
 public class Levels extends Excel<Levels.Entry> {
   public static class Entry extends Excel.Entry {
     @Override
@@ -84,7 +82,7 @@ public class Levels extends Excel<Levels.Entry> {
     @Column public int     Waypoint;
     @Column public String  LevelName;
     @Column public String  LevelWarp;
-    @Column public int     EntryFile;
+    @Column public String  EntryFile;
     @Column(endIndex = 8)
     public int     ObjGrp[];
     @Column(endIndex = 8)

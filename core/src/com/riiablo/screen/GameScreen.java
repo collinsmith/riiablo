@@ -13,30 +13,36 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.DC6;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.ItemHolder;
 import com.riiablo.entity.Player;
+import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
 import com.riiablo.item.Item;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
+import com.riiablo.loader.DC6Loader;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
 import com.riiablo.map.MapListener;
@@ -56,6 +62,7 @@ import com.riiablo.server.MoveTo;
 import com.riiablo.server.Packet;
 import com.riiablo.server.Packets;
 import com.riiablo.server.PipedSocket;
+import com.riiablo.widget.DCWrapper;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
@@ -104,6 +111,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   NpcDialogBox dialog;
   Actor details;
   boolean showItems;
+
+  final String[] ACT_NAME = { "act1", "act2", "act3", "act4", "expansion" };
+  Map.Zone curZone;
+  DCWrapper enteringImage;
 
   public TextArea input;
   TextArea output;
@@ -477,7 +488,12 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     }
     */
 
+    Map.Zone prevZone = curZone;
     mapRenderer.update();
+    curZone = map.getZone(player.position());
+    if (prevZone != curZone && prevZone != null) {
+      displayEntry();
+    }
 
     b.begin();
     mapRenderer.draw(delta);
@@ -740,5 +756,30 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       entities.remove(key);
       mapListener.requireRelease = true;
     }
+  }
+
+  private void displayEntry() {
+    if (enteringImage == null) {
+      enteringImage = new DCWrapper();
+      enteringImage.setScaling(Scaling.none);
+      enteringImage.setAlign(Align.center);
+      enteringImage.setBlendMode(BlendMode.TINT_ID_RED);
+      stage.addActor(enteringImage);
+    }
+
+    // TODO: i18n? Not sure if these have translations.
+    String entryFile = "data\\local\\ui\\eng\\" + ACT_NAME[map.act] + "\\" + curZone.level.EntryFile + ".dc6";
+    AssetDescriptor<DC6> entryDescriptor = new AssetDescriptor<>(entryFile, DC6.class, DC6Loader.DC6Parameters.COMBINE);
+    Riiablo.assets.load(entryDescriptor);
+    Riiablo.assets.finishLoadingAsset(entryDescriptor);
+    enteringImage.setDrawable(Riiablo.assets.get(entryDescriptor));
+    enteringImage.setPosition(stage.getWidth() / 2, stage.getHeight() * 0.75f, Align.center);
+    System.out.println(enteringImage.getWidth() + ", " + enteringImage.getHeight());
+    enteringImage.clearActions();
+    enteringImage.addAction(Actions.sequence(
+        Actions.show(),
+        Actions.alpha(1),
+        Actions.delay(4, Actions.fadeOut(1, Interpolation.pow2In)),
+        Actions.hide()));
   }
 }

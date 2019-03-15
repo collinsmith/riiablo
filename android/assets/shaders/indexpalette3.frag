@@ -81,6 +81,14 @@ void main() {
       // Apply brightness
       color.rgb += 0.4;
     }
+
+  // Same as 1, except hard coded red
+  } else if (blendMode == 9) {
+    if (color.a > 0.0) {
+      color.a = tint.a;
+      color.r += 0.04;
+      color.gb = 0.0;
+    }
   }
 
   vec3 colorRGB = pow(color.rgb, vec3(1.0 / gamma));
