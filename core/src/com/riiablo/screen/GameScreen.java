@@ -768,8 +768,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     }
 
     // TODO: i18n? Not sure if these have translations.
-    String entryFile = "data\\local\\ui\\eng\\" + ACT_NAME[map.act] + "\\" + curZone.level.EntryFile + ".dc6";
-    AssetDescriptor<DC6> entryDescriptor = new AssetDescriptor<>(entryFile, DC6.class, DC6Loader.DC6Parameters.COMBINE);
+    String entryFile = curZone.level.Id == 8 ? "A1Q1" : curZone.level.EntryFile;
+    AssetDescriptor<DC6> entryDescriptor = new AssetDescriptor<>("data\\local\\ui\\eng\\" + ACT_NAME[map.act] + "\\" + entryFile + ".dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
     Riiablo.assets.load(entryDescriptor);
     Riiablo.assets.finishLoadingAsset(entryDescriptor);
     enteringImage.setDrawable(Riiablo.assets.get(entryDescriptor));

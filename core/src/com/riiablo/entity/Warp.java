@@ -47,7 +47,7 @@ public class Warp extends Entity {
     assert wrp >= 0 : "Invalid warp";
 
     dstLevel = Riiablo.files.Levels.get(dst);
-    name(dstLevel.LevelWarp);
+    name(Riiablo.string.lookup(dstLevel.LevelWarp));
 
     warp = Riiablo.files.LvlWarp.get(wrp);
     position.set(x, y).add(warp.OffsetX, warp.OffsetY);
@@ -91,7 +91,7 @@ public class Warp extends Entity {
     Warp dstWarp = dst.findWarp(dstIndex);
     if (dstWarp == null) throw new AssertionError("Invalid dstWarp: " + dstIndex);
     gameScreen.player.position().set(dstWarp.position());
-    gameScreen.player.setPath(map, new Vector2(dstWarp.warp.ExitWalkX, dstWarp.warp.ExitWalkY).add(dstWarp.position()));
+    gameScreen.player.setPath(map, dstWarp.position().cpy().add(dstWarp.warp.ExitWalkX, dstWarp.warp.ExitWalkY));
   }
 
   @Override
