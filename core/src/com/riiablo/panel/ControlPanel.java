@@ -71,6 +71,8 @@ public class ControlPanel extends WidgetGroup implements Disposable {
     healthWidget = new HealthWidget(ctrlpnl.getTexture(0));
     manaWidget = new ManaWidget(ctrlpnl.getTexture(numFrames - 2));
     controlWidget = new ControlWidget(new Texture(new PixmapTextureData(pixmap, null, false, false, false)));
+    healthWidget.setHeight(controlWidget.getHeight());
+    manaWidget.setHeight(controlWidget.getHeight());
 
     healthWidget.setX(0);
     healthWidget.setY(1);
