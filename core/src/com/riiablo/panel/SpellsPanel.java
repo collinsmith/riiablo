@@ -3,12 +3,12 @@ package com.riiablo.panel;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -18,6 +18,8 @@ import com.riiablo.codec.excel.Skills;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
+import com.riiablo.widget.Label;
+import com.riiablo.widget.LabelButton;
 
 public class SpellsPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "SpellsPanel";
@@ -58,10 +60,21 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       addActor(tab);
     }
 
+    StringBuilder builder = new StringBuilder(32);
     float x = getWidth() - 90, y = 0;
-    Actor[] actors = new Actor[3];
+    LabelButton[] actors = new LabelButton[3];
     for (int i = 0; i < actors.length; i++) {
-      final Actor actor = actors[i] = new Actor();
+      String[] spellTree = charClass.spellTree[i];
+      builder.setLength(0);
+      for (int j = 0; j < spellTree.length; j++) {
+        builder
+            .append(Riiablo.string.lookup(spellTree[j]))
+            .append('\n');
+      }
+      builder.setLength(builder.length() - 1);
+      final LabelButton actor = actors[i] = new LabelButton(builder.toString(), Riiablo.fonts.font16);
+      actor.setWrap(true);
+      actor.setAlignment(Align.center);
       actor.setPosition(x, y);
       actor.setSize(90, getHeight() / 4);
       actor.setUserObject(tabs[i + 1]);
@@ -76,6 +89,17 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       addActor(actor);
       y += actor.getHeight();
     }
+
+    Label header = new Label(
+        Riiablo.string.lookup("StrSklTree1") + " "
+      + Riiablo.string.lookup("StrSklTree2") + " "
+      + Riiablo.string.lookup("StrSklTree3"),
+        Riiablo.fonts.font16);
+    header.setWrap(true);
+    header.setAlignment(Align.center);
+    header.setSize(90, getHeight() / 8);
+    header.setPosition(x, y + header.getHeight());
+    addActor(header);
 
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
@@ -92,6 +116,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       tab.addActor(button);
     }
 
+    tabs[1].setVisible(true);
     setDebug(true, true);
   }
 
