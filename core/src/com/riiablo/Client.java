@@ -317,7 +317,8 @@ public class Client extends Game {
       setScreen(new SplashScreen());
     }
 
-    final float color = 0;//0.025f;
+    // TODO: This needs to be updated if some shader settings change to match the "new" black
+    final float color = 10/255f;//0.025f;
     Gdx.gl.glClearColor(color, color, color, 1.0f);
 
     Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
