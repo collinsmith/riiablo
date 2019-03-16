@@ -123,6 +123,12 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     header.setPosition(x, y + header.getHeight());
     addActor(header);
 
+    Label skillsRemaining = new Label("0", Riiablo.fonts.font16);
+    skillsRemaining.setAlignment(Align.center);
+    skillsRemaining.setSize(40, 21);
+    skillsRemaining.setPosition(256, 348);
+    addActor(skillsRemaining);
+
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
@@ -139,7 +145,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     }
 
     tabs[1].setVisible(true);
-    setDebug(true, true);
+    //setDebug(true, true);
   }
 
   @Override
