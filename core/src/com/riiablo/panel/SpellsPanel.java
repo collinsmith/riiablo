@@ -169,8 +169,15 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       button.setPosition(X[desc.SkillColumn], Y[desc.SkillRow]);
       //button.setSize(48, 48);
 
+      Label skillLevel = new Label("0", Riiablo.fonts.font16);
+      skillLevel.setAlignment(Align.center);
+      skillLevel.setSize(16, 14);
+      skillLevel.setPosition(X[desc.SkillColumn] + 44, Y[desc.SkillRow] - 12);
+      button.setUserObject(skillLevel);
+
       Tab tab = tabs[desc.SkillPage];
       tab.addActor(button);
+      tab.addActor(skillLevel);
     }
 
     tabs[1].setVisible(true);
