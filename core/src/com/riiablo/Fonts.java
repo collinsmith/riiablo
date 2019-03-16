@@ -49,7 +49,7 @@ public class Fonts {
 
     data = fontformal10.getData();
     data.lineHeight = data.xHeight = data.capHeight = 14;
-    data.ascent = 14;
+    data.ascent = 17;
     data.down = -14;
 
     data = fontformal11.getData();

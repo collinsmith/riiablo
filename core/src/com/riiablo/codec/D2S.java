@@ -601,15 +601,15 @@ public class D2S {
     }
   }
 
-  static class SkillData {
+  public static class SkillData {
     static final byte[] SECTION_HEADER = {0x69, 0x66};
 
     static final int NUM_TREES  = 3;
     static final int NUM_SKILLS = 10;
     static final int SIZE = SECTION_HEADER.length + (NUM_TREES * NUM_SKILLS);
 
-    byte header[];
-    byte data[];
+    public byte header[];
+    public byte data[];
 
     static SkillData obtain(ByteBuffer buffer) {
       return new SkillData().read(buffer);

@@ -86,6 +86,7 @@ public class Player extends Entity {
   boolean alternate;
   boolean ignoreUpdate;
   public Stats stats;
+  public Skills skills;
   public final CharacterClass charClass;
 
   Array<Item> inventory = new Array<>();
@@ -96,11 +97,13 @@ public class Player extends Entity {
   public Player(String name, CharacterClass characterClass) {
     this(name, characterClass.id);
     stats = new StatsImpl(name, characterClass.id);
+    skills = new SkillsImpl();
   }
 
   public Player(D2S d2s) {
     this(d2s.name, d2s.charClass);
     stats = new D2SStats(d2s);
+    skills = new D2SSkills(d2s);
     loadEquipped(d2s.items.equipped);
     loadInventory(d2s.items.inventory);
   }
@@ -539,6 +542,32 @@ public class Player extends Entity {
 
     public int getPoisonResistance() {
       return 0;
+    }
+  }
+
+  public interface Skills {
+    int getLevel(int skill);
+  }
+
+  public class SkillsImpl implements Skills {
+    SkillsImpl() {}
+
+    @Override
+    public int getLevel(int skill) {
+      return 0;
+    }
+  }
+
+  public class D2SSkills implements Skills {
+    public final D2S.SkillData skills;
+    D2SSkills(D2S d2s) {
+      this.skills = d2s.skills;
+    }
+
+    @Override
+    public int getLevel(int skill) {
+      skill -= charClass.firstSpell;
+      return skills.data[skill];
     }
   }
 }

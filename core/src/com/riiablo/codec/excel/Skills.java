@@ -20,5 +20,11 @@ public class Skills extends Excel<Skills.Entry> {
     @Column public String  monanim;
     @Column public int     seqnum;
     @Column public int     seqinput;
+    @Column public int     reqlevel;
+    @Column public int     startmana;
+    @Column public int     minmana;
+    @Column public int     manashift;
+    @Column public int     mana;
+    @Column public int     lvlmana;
   }
 }

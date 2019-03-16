@@ -2,6 +2,7 @@ package com.riiablo.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -138,13 +139,14 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
-      Skills.Entry skill = Riiablo.files.skills.get(i);
+      final Skills.Entry skill = Riiablo.files.skills.get(i);
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       final Table details = new Table() {{
         final float SPACING = 2;
+        final BitmapFont font = Riiablo.fonts.font16;
         setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
-        add(new Label(Riiablo.string.lookup(desc.str_name), Riiablo.fonts.font16, Riiablo.colors.green)).center().space(SPACING).row();
-        add(new Label(Riiablo.fonts.font16) {{
+        add(new Label(Riiablo.string.lookup(desc.str_name), font, Riiablo.colors.green)).center().space(SPACING).row();
+        add(new Label(font) {{
           // TODO: It might possible to optimize this more -- goal is to reverse lines since they are backwards for some reason
           String text = Riiablo.string.lookup(desc.str_long);
           String[] lines = StringUtils.split(text, '\n');
@@ -153,11 +155,17 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
           setText(text);
           setAlignment(Align.center);
         }}).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("skilldesc3") + skill.reqlevel, font)).center().space(SPACING).row();
+        add().height(font.getLineHeight()).center().space(SPACING).row();
+        add().height(font.getLineHeight()).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("StrSkill2") + 0, font)).center().space(SPACING).row();
         pack();
       }};
       Button button = new Button(new Button.ButtonStyle(
           new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel)),
-          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel + 1)))) {
+          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel + 1))) {{
+            disabled = up;
+      }}) {
         @Override
         public void draw(PaletteIndexedBatch batch, float parentAlpha) {
           super.draw(batch, parentAlpha);
@@ -169,11 +177,15 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       button.setPosition(X[desc.SkillColumn], Y[desc.SkillRow]);
       //button.setSize(48, 48);
 
-      Label skillLevel = new Label("0", Riiablo.fonts.font16);
+      // TODO: can be lazily init if default is 0
+      int sLvl = gameScreen.player.skills.getLevel(i);
+      Label skillLevel = new Label(sLvl > 0 ? Integer.toString(sLvl) : "", sLvl > 9 ? Riiablo.fonts.fontformal10 : Riiablo.fonts.font16);
       skillLevel.setAlignment(Align.center);
-      skillLevel.setSize(16, 14);
-      skillLevel.setPosition(X[desc.SkillColumn] + 44, Y[desc.SkillRow] - 12);
+      //skillLevel.setSize(16, 14);
+      //skillLevel.setPosition(X[desc.SkillColumn] + 44, Y[desc.SkillRow] - 12);
+      skillLevel.setPosition(X[desc.SkillColumn] + 52, Y[desc.SkillRow] - 5, Align.center);
       button.setUserObject(skillLevel);
+      button.setDisabled(sLvl <= 0);
 
       Tab tab = tabs[desc.SkillPage];
       tab.addActor(button);
