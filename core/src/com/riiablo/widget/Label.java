@@ -33,6 +33,11 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
     super(text, new LabelStyle(font, null));
   }
 
+  public Label(String text, BitmapFont font, Color color) {
+    this(text, font);
+    setColor(color);
+  }
+
   public Label(BitmapFont font) {
     this(null, font);
   }

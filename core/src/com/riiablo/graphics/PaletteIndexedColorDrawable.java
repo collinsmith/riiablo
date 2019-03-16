@@ -6,6 +6,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.riiablo.Riiablo;
 
 public class PaletteIndexedColorDrawable extends TextureRegionDrawable {
+  public static final PaletteIndexedColorDrawable MODAL_FONT16 = new PaletteIndexedColorDrawable(Riiablo.colors.modal75) {{
+    final float PADDING = 6;
+    setLeftWidth(PADDING);
+    setTopHeight(PADDING - 2); // font16 has extra top padding, changing this would require propagating elsewhere
+    setRightWidth(PADDING);
+    setBottomHeight(PADDING);
+  }};
 
   public Color tint;
 

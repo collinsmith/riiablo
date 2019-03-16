@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -16,11 +17,16 @@ import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
+import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.graphics.PaletteIndexedColorDrawable;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.LabelButton;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class SpellsPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "SpellsPanel";
@@ -126,17 +132,40 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     Label skillsRemaining = new Label("0", Riiablo.fonts.font16);
     skillsRemaining.setAlignment(Align.center);
     skillsRemaining.setSize(40, 21);
-    skillsRemaining.setPosition(256, 348);
+    skillsRemaining.setPosition(256, 348); // 276, 359 middle
     addActor(skillsRemaining);
 
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
       Skills.Entry skill = Riiablo.files.skills.get(i);
-      SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+      final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+      final Table details = new Table() {{
+        final float SPACING = 2;
+        setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
+        add(new Label(Riiablo.string.lookup(desc.str_name), Riiablo.fonts.font16, Riiablo.colors.green)).center().space(SPACING).row();
+        add(new Label(Riiablo.fonts.font16) {{
+          // TODO: It might possible to optimize this more -- goal is to reverse lines since they are backwards for some reason
+          String text = Riiablo.string.lookup(desc.str_long);
+          String[] lines = StringUtils.split(text, '\n');
+          ArrayUtils.reverse(lines);
+          text = StringUtils.join(lines, '\n');
+          setText(text);
+          setAlignment(Align.center);
+        }}).center().space(SPACING).row();
+        pack();
+      }};
       Button button = new Button(new Button.ButtonStyle(
           new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel)),
-          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel + 1))));
+          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel + 1)))) {
+        @Override
+        public void draw(PaletteIndexedBatch batch, float parentAlpha) {
+          super.draw(batch, parentAlpha);
+          if (isOver()) {
+            gameScreen.setDetails(details, null, SpellsPanel.this, this);
+          }
+        }
+      };
       button.setPosition(X[desc.SkillColumn], Y[desc.SkillRow]);
       //button.setSize(48, 48);
 

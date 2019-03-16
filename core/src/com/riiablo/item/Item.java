@@ -642,22 +642,13 @@ public class Item extends Actor implements Disposable {
 
   public class Details extends Table {
     private static final float SPACING = 2;
-    private static final float PADDING = 6;
 
     Label name;
     Label type;
     Label usable;
 
     Details() {
-      // TODO: Change this to a static object ref
-      setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.modal75) {{
-        setLeftWidth(PADDING);
-        setTopHeight(PADDING - 2); // font16 has extra top padding, changing this would require propagating elsewhere
-        setRightWidth(PADDING);
-        setBottomHeight(PADDING);
-      }});
-      //pad(PADDING);
-
+      setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
       BitmapFont font = Riiablo.fonts.font16;
       name = new Label(Item.this.getName(), font);
       type = new Label(Riiablo.string.lookup(base.namestr), font);
