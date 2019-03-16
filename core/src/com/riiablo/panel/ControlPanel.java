@@ -228,7 +228,7 @@ public class ControlPanel extends WidgetGroup implements Disposable {
             } else if (actor == btnInventory) {
               gameScreen.inventoryPanel.setVisible(!gameScreen.inventoryPanel.isVisible());
             } else if (actor == btnSkillTree) {
-
+              gameScreen.spellsPanel.setVisible(!gameScreen.spellsPanel.isVisible());
             } else if (actor == btnParty) {
 
             } else if (actor == btnMap) {

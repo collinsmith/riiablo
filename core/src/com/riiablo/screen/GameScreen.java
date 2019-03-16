@@ -53,6 +53,7 @@ import com.riiablo.panel.ControlPanel;
 import com.riiablo.panel.EscapePanel;
 import com.riiablo.panel.InventoryPanel;
 import com.riiablo.panel.MobilePanel;
+import com.riiablo.panel.SpellsPanel;
 import com.riiablo.panel.StashPanel;
 import com.riiablo.server.Connect;
 import com.riiablo.server.ConnectResponse;
@@ -95,6 +96,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   MobilePanel mobilePanel;
   public InventoryPanel inventoryPanel;
   public CharacterPanel characterPanel;
+  public SpellsPanel spellsPanel;
   public StashPanel stashPanel;
   MappedKeyStateAdapter mappedKeyStateListener;
 
@@ -210,6 +212,11 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         stage.getWidth() - inventoryPanel.getWidth(),
         stage.getHeight() - inventoryPanel.getHeight());
 
+    spellsPanel = new SpellsPanel(this);
+    spellsPanel.setPosition(
+        stage.getWidth() - spellsPanel.getWidth(),
+        stage.getHeight() - spellsPanel.getHeight());
+
     characterPanel = new CharacterPanel(this);
     characterPanel.setPosition(
         0,
@@ -227,6 +234,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     stage.addActor(controlPanel);
     stage.addActor(escapePanel);
     stage.addActor(inventoryPanel);
+    stage.addActor(spellsPanel);
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
     controlPanel.toFront();
@@ -263,8 +271,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           } else if (input.isVisible()) {
             input.setVisible(false);
           } else if (inventoryPanel.isVisible()
+                  || spellsPanel.isVisible()
                   || characterPanel.isVisible()) {
             inventoryPanel.setVisible(false);
+            spellsPanel.setVisible(false);
             characterPanel.setVisible(false);
           } else {
             escapePanel.setVisible(true);
@@ -287,6 +297,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           }
         } else if (key == Keys.Inventory) {
           inventoryPanel.setVisible(!inventoryPanel.isVisible());
+        } else if (key == Keys.Spells) {
+          spellsPanel.setVisible(!spellsPanel.isVisible());
         } else if (key == Keys.Character) {
           stashPanel.setVisible(false);
           characterPanel.setVisible(!characterPanel.isVisible());
@@ -564,6 +576,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     Keys.Esc.addStateListener(mappedKeyStateListener);
     Keys.Inventory.addStateListener(mappedKeyStateListener);
+    Keys.Spells.addStateListener(mappedKeyStateListener);
     Keys.Character.addStateListener(mappedKeyStateListener);
     Keys.Stash.addStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.addStateListener(mappedKeyStateListener);
@@ -608,6 +621,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     Keys.Esc.removeStateListener(mappedKeyStateListener);
     Keys.Inventory.removeStateListener(mappedKeyStateListener);
+    Keys.Spells.removeStateListener(mappedKeyStateListener);
     Keys.Character.removeStateListener(mappedKeyStateListener);
     Keys.Stash.removeStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.removeStateListener(mappedKeyStateListener);
@@ -624,6 +638,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     escapePanel.dispose();
     controlPanel.dispose();
     inventoryPanel.dispose();
+    spellsPanel.dispose();
     characterPanel.dispose();
     if (mobilePanel != null) mobilePanel.dispose();
     if (Riiablo.assets.isLoaded(touchpadBackgroundDescriptor)) Riiablo.assets.load(touchpadBackgroundDescriptor);

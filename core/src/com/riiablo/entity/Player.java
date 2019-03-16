@@ -86,6 +86,7 @@ public class Player extends Entity {
   boolean alternate;
   boolean ignoreUpdate;
   public Stats stats;
+  public final CharacterClass charClass;
 
   Array<Item> inventory = new Array<>();
 
@@ -115,6 +116,7 @@ public class Player extends Entity {
 
   Player(String name, int classId) {
     super(Type.PLR, "player", TOKENS[classId]);
+    charClass = CharacterClass.get(classId);
     setMode(MODE_TN);
     setWalkSpeed(6);
     setRunSpeed(9);
