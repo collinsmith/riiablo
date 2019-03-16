@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
@@ -27,10 +28,11 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
 
   final AssetDescriptor<DC6> skltreeDescriptor;
   TextureRegion skltree;
-  TextureRegion skltreeTabs[];
 
   final AssetDescriptor<DC6> SkilliconDescriptor;
   DC6 Skillicon;
+
+  final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
 
   final GameScreen gameScreen;
 
@@ -51,6 +53,20 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
     Skillicon = Riiablo.assets.get(SkilliconDescriptor);
 
+    Riiablo.assets.load(buysellbtnDescriptor);
+    Riiablo.assets.finishLoadingAsset(buysellbtnDescriptor);
+    DC buysellbtn = Riiablo.assets.get(buysellbtnDescriptor);
+    TextureRegionDrawable exitUp   = new TextureRegionDrawable(buysellbtn.getTexture(10));
+    TextureRegionDrawable exitDown = new TextureRegionDrawable(buysellbtn.getTexture(11));
+    Button.ButtonStyle exitButtonStyle = new Button.ButtonStyle(exitUp, exitDown);
+
+    ClickListener closeListener = new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        SpellsPanel.this.setVisible(false);
+      }
+    };
+    final float[] exitY = {31, 115, 187};
     final Tab[] tabs = new Tab[4];
     for (int i = 1; i < tabs.length; i++) {
       Tab tab = tabs[i] = new Tab(Riiablo.assets.get(skltreeDescriptor).getTexture(i));
@@ -58,6 +74,11 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       tab.setPosition(0, 0);
       tab.setVisible(false);
       addActor(tab);
+
+      Button exit = new Button(exitButtonStyle);
+      exit.addListener(closeListener);
+      exit.setPosition(exitY[charClass.spellCloseCol[i - 1]], 31, Align.center);
+      tab.addActor(exit);
     }
 
     StringBuilder builder = new StringBuilder(32);
@@ -73,7 +94,6 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       }
       builder.setLength(builder.length() - 1);
       final LabelButton actor = actors[i] = new LabelButton(builder.toString(), Riiablo.fonts.font16);
-      actor.setWrap(true);
       actor.setAlignment(Align.center);
       actor.setPosition(x, y);
       actor.setSize(90, getHeight() / 4);
@@ -90,12 +110,14 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       y += actor.getHeight();
     }
 
-    Label header = new Label(
-        Riiablo.string.lookup("StrSklTree1") + " "
-      + Riiablo.string.lookup("StrSklTree2") + " "
-      + Riiablo.string.lookup("StrSklTree3"),
-        Riiablo.fonts.font16);
-    header.setWrap(true);
+    builder.setLength(0);
+    builder
+        .append(Riiablo.string.lookup("StrSklTree1"))
+        .append('\n')
+        .append(Riiablo.string.lookup("StrSklTree2"))
+        .append('\n')
+        .append(Riiablo.string.lookup("StrSklTree3"));
+    Label header = new Label(builder.toString(), Riiablo.fonts.font16);
     header.setAlignment(Align.center);
     header.setSize(90, getHeight() / 8);
     header.setPosition(x, y + header.getHeight());
@@ -110,7 +132,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
           new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel)),
           new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel + 1))));
       button.setPosition(X[desc.SkillColumn], Y[desc.SkillRow]);
-      button.setSize(48, 48);
+      //button.setSize(48, 48);
 
       Tab tab = tabs[desc.SkillPage];
       tab.addActor(button);
@@ -130,6 +152,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
   public void dispose() {
     Riiablo.assets.unload(skltreeDescriptor.fileName);
     Riiablo.assets.unload(SkilliconDescriptor.fileName);
+    Riiablo.assets.unload(buysellbtnDescriptor.fileName);
   }
 
   private static class Tab extends WidgetGroup {

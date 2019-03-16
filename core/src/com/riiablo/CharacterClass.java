@@ -10,6 +10,7 @@ public enum CharacterClass {
     description = 5128;
     spellsBackground = "skltree_a_back";
     spellIcons = "AmSkillicon";
+    spellCloseCol = new int[]{2, 1, 0};
     spellTree = new String[][]{
         {"StrSklTree10", "StrSklTree11", "StrSklTree4"},
         {"StrSklTree8", "StrSklTree9", "StrSklTree4"},
@@ -22,6 +23,7 @@ public enum CharacterClass {
     name = 4010;
     description = 5131;
     spellsBackground = "skltree_s_back";
+    spellCloseCol = new int[] {0, 0, 2};
     spellIcons = "SoSkillicon";
     spellTree = new String[][] {
         {"StrSklTree25", "StrSklTree5"},
@@ -37,6 +39,7 @@ public enum CharacterClass {
     name = 4009;
     description = 5129;
     spellsBackground = "skltree_n_back";
+    spellCloseCol = new int[]{0, 2, 0};
     spellIcons = "NeSkillicon";
     spellTree = new String[][]{
         {"StrSklTree10", "StrSklTree5"},
@@ -52,6 +55,7 @@ public enum CharacterClass {
     name = 4008;
     description = 5132;
     spellsBackground = "skltree_p_back";
+    spellCloseCol = new int[]{0, 1, 0};
     spellIcons = "PaSkillicon";
     spellTree = new String[][]{
         {"StrSklTree15", "StrSklTree4"},
@@ -67,6 +71,7 @@ public enum CharacterClass {
     name = 4007;
     description = 5130;
     spellsBackground = "skltree_b_back";
+    spellCloseCol = new int[]{2, 0, 2};
     spellIcons = "BaSkillicon";
     spellTree = new String[][]{
         {"StrSklTree21", "StrSklTree4"},
@@ -82,6 +87,7 @@ public enum CharacterClass {
     name = 4012;
     description = 22518;
     spellsBackground = "skltree_d_back";
+    spellCloseCol = new int[]{2, 2, 2};
     spellIcons = "DrSkillicon";
     spellTree = new String[][]{
         {"StrSklTree26", "StrSklTree4"},
@@ -95,6 +101,7 @@ public enum CharacterClass {
     name = 4013;
     description = 22519;
     spellsBackground = "skltree_i_back";
+    spellCloseCol = new int[]{1, 2, 0};
     spellIcons = "AsSkillicon";
     spellTree = new String[][]{
         {"StrSklTree30"},
@@ -114,6 +121,7 @@ public enum CharacterClass {
   public String spellsBackground;
   public String spellIcons;
   public String spellTree[][];
+  public int spellCloseCol[];
   public int firstSpell, lastSpell;
 
   CharacterClass(String shortName, int id) {
