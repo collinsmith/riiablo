@@ -847,17 +847,19 @@ public class MapRenderer {
           for (x = 0; x < size; x++) {
             Map.Zone zone = map.getZone(tx * Tile.SUBTILE_SIZE, ty * Tile.SUBTILE_SIZE);
             if (zone != null) {
-              int modX = tx < 0
-                  ? (tx + 1) % zone.gridSizeX + (zone.gridSizeX - 1)
-                  : tx % zone.gridSizeX;
+              int localTX = zone.getLocalTX(tx);
+              int modX = localTX < 0
+                  ? (localTX + 1) % zone.gridSizeX + (zone.gridSizeX - 1)
+                  : localTX % zone.gridSizeX;
               if (modX == 0)
                 shapes.rectLine(px, py + Tile.HEIGHT50, px + Tile.WIDTH50, py + Tile.HEIGHT, LINE_WIDTH);
               else if (modX == zone.gridSizeX - 1)
                 shapes.rectLine(px + Tile.WIDTH, py + Tile.HEIGHT50, px + Tile.WIDTH50, py, LINE_WIDTH);
 
-              int modY = ty < 0
-                  ? (ty + 1) % zone.gridSizeY + (zone.gridSizeY - 1)
-                  : ty % zone.gridSizeY;
+              int localTY = zone.getLocalTY(ty);
+              int modY = localTY < 0
+                  ? (localTY + 1) % zone.gridSizeY + (zone.gridSizeY - 1)
+                  : localTY % zone.gridSizeY;
               if (modY == 0)
                 shapes.rectLine(px + Tile.WIDTH50, py + Tile.HEIGHT, px + Tile.WIDTH, py + Tile.HEIGHT50, LINE_WIDTH);
               else if (modY == zone.gridSizeY - 1)
