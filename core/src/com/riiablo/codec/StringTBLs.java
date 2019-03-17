@@ -63,15 +63,19 @@ public class StringTBLs {
     }
   }
 
-  public String format(int index, Object... args) {
-    return String.format(lookup(index), args);
-  }
-
   public String lookup(String key) {
     String str;
     if ((str = patchstring.lookup(key)) != null) return str;
     if ((str = expansionstring.lookup(key)) != null) return str;
     if ((str = string.lookup(key)) != null) return str;
     return "ERROR: " + key;
+  }
+
+  public String format(int index, Object... args) {
+    return String.format(lookup(index), args);
+  }
+
+  public String format(String index, Object... args) {
+    return String.format(lookup(index), args);
   }
 }

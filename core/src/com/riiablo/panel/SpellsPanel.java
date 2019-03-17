@@ -1,6 +1,7 @@
 package com.riiablo.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -28,6 +29,7 @@ import com.riiablo.widget.LabelButton;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class SpellsPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "SpellsPanel";
@@ -156,15 +158,38 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
           setText(text);
           setAlignment(Align.center);
         }}).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("skilldesc3") + skill.reqlevel, font)).center().space(SPACING).row();
+        if (sLvl <= 0) {
+          add(new Label(Riiablo.string.lookup("skilldesc3") + skill.reqlevel, font)).center().space(SPACING).row();
+        }
         add().height(font.getLineHeight()).center().space(SPACING).row();
         for (int i = 0; i < desc.dsc2line.length; i++) {
           if (desc.dsc2line[i] <= 0) break;
-          String str = calc(desc.dsc2line[i], desc, i, skill, sLvl);
+          String str = calc(desc, i, desc.descline, desc.dsc2texta, desc.dsc2textb, desc.dsc2calca, desc.dsc2calcb, skill, sLvl);
           if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
         }
         add().height(font.getLineHeight()).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("StrSkill2") + sLvl, font)).center().space(SPACING).row();
+        add(new Label(sLvl <= 0 ? Riiablo.string.lookup("StrSkill17") : Riiablo.string.lookup("StrSkill2") + sLvl, font)).center().space(SPACING).row();
+        for (int i = 0; i < desc.descline.length; i++) {
+          if (desc.descline[i] <= 0) break;
+          String str = calc(desc, i, desc.descline, desc.desctexta, desc.desctextb, desc.desccalca, desc.desccalcb, skill, sLvl);
+          if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
+        }
+        if (sLvl > 0) {
+          add().height(font.getLineHeight()).center().space(SPACING).row();
+          add(new Label(Riiablo.string.lookup("StrSkill1"), font)).center().space(SPACING).row();
+          for (int i = 0; i < desc.descline.length; i++) {
+            if (desc.descline[i] <= 0) break;
+            String str = calc(desc, i, desc.descline, desc.desctexta, desc.desctextb, desc.desccalca, desc.desccalcb, skill, sLvl + 1);
+            if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
+          }
+        }
+        add().height(font.getLineHeight()).center().space(SPACING).row();
+        //add(new Label(Riiablo.string.format("Sksyn", Riiablo.string.lookup(desc.str_name)), font, Riiablo.colors.green)).center().space(SPACING).row();
+        for (int i = 0; i < desc.dsc3line.length; i++) {
+          if (desc.dsc3line[i] <= 0) break;
+          String str = calc(desc, i, desc.dsc3line, desc.dsc3texta, desc.dsc3textb, desc.dsc3calca, desc.dsc3calcb, skill, sLvl);
+          if (str != null) add(new Label(str, Riiablo.fonts.font16, desc.dsc3line[i] == 40 ? SpellsPanel.getColor(desc.dsc3calca[i]) : Riiablo.colors.white)).center().space(SPACING).row();
+        }
         pack();
       }};
       Button button = new Button(new Button.ButtonStyle(
@@ -201,13 +226,45 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     //setDebug(true, true);
   }
 
-  private String calc(int func, SkillDesc.Entry desc, int i, Skills.Entry skill, int lvl) {
-    switch(func) {
-      case 1:  return String.format("%s%s", Riiablo.string.lookup(desc.str_mana), getManaCost(skill, lvl)); // fire bolt
-      case 3:  return String.format("%s%s%s", Riiablo.string.lookup(desc.dsc2texta[i]), eval(skill, lvl, desc.dsc2calca[i]), Riiablo.string.lookup(desc.dsc2textb[i])); // static field
-      case 5:  return String.format("%s%s", Riiablo.string.lookup(desc.dsc2texta[i]), eval(skill, lvl, desc.dsc2calca[i])); // inferno
-      case 19: return String.format("%s%s%s%s", (desc.dsc2textb[i].length() > 0 ? Riiablo.string.lookup(desc.dsc2textb[i]) : ""), Riiablo.string.lookup(desc.dsc2texta[i]), eval(skill, lvl, desc.dsc2calca[i]) * 2f/3f, Riiablo.string.lookup("StrSkill26")); // glacial spike
-      case 28: return String.format("%s1%s", Riiablo.string.lookup("StrSkill18"), Riiablo.string.lookup("StrSkill36")); // fire ball
+  private static Color getColor(String str) {
+    int i = NumberUtils.toInt(str, 0);
+    switch (i) {
+      case 0:  return Riiablo.colors.white;
+      case 1:  return Riiablo.colors.red;
+      case 2:  return Riiablo.colors.green;
+      case 3:  return Riiablo.colors.blue;
+      case 4:  return Riiablo.colors.gold;
+      case 5:  return Riiablo.colors.grey;
+      case 6:  return Color.CLEAR;
+      case 7:  return Riiablo.colors.c7;
+      case 8:  return Riiablo.colors.orange;
+      case 9:  return Riiablo.colors.yellow;
+      default: return Riiablo.colors.white;
+    }
+  }
+
+  private String calc(SkillDesc.Entry desc, int i, int[] descline, String[] desctexta, String[] desctextb, String[] desccalca, String[] desccalcb, Skills.Entry skill, int lvl) {
+    switch(descline[i]) {
+      case 1:  return String.format("%s%s", Riiablo.string.lookup(desc.str_mana), getManaCost(skill, lvl)); // Mana Cost: 3
+      case 2:  return String.format("%s+%s%s", Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i]), Riiablo.string.lookup(desctextb[i])); // Fire Damage: +30 percent
+      case 3:  return String.format("%s%s%s", Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i]), Riiablo.string.lookup(desctextb[i])); // Weakens enemies by 25 percent
+      case 4:  return String.format("%s+%s", Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i])); // Heals +2
+      case 5:  return String.format("%s%s", Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i])); // Minimum mana to cast: 4
+      case 6:  return String.format("+%s%s", eval(skill, lvl, desccalca[i]), Riiablo.string.lookup(desctexta[i])); // +30 percent
+      case 7:  return String.format("%s%s", eval(skill, lvl, desccalca[i]), Riiablo.string.lookup(desctexta[i])); // 13 percent chance
+      case 8:  return String.format("%s%s", Riiablo.string.lookup(desctexta[i]), Riiablo.string.lookup(desctextb[i])); // 200 Attack Rating
+      case 9:  return String.format("%s%s%s+%s", Riiablo.string.lookup(desctexta[i]), Riiablo.string.lookup(desctextb[i]), Riiablo.string.lookup("StrSkill4"), eval(skill, lvl, desccalca[i])); // Damage bonus
+      //case 10: return String.format("%s%s", Riiablo.string.lookup(desctexta[i]), Riiablo.string.lookup(desctextb[i])); // (Elem) Damage: X-Y
+      //case 11: return String.format("%s%s", Riiablo.string.lookup(desctexta[i]), Riiablo.string.lookup(desctextb[i])); // Same as above?
+      case 12: return String.format("%s%s%s", Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i]), Riiablo.string.lookup("StrSkill16")); // Duration: 4 seconds
+      case 13: return String.format("%s%s", Riiablo.string.lookup("StrSkill42"), eval(skill, lvl, desccalca[i])); // Life: 100
+      //case 14: return String.format()
+      //case 15: return String.format("%s:%s", Riiablo.string.lookup(desctexta[i]), Riiablo.string.lookup(desctextb[i]));
+      case 19: return String.format("%s%s%s%s", (desctextb[i].length() > 0 ? Riiablo.string.lookup(desctextb[i]) : ""), Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i]) * 2f/3f, Riiablo.string.lookup("StrSkill26")); // Radius: 2.6 yards
+      case 28: return String.format("%s1%s", Riiablo.string.lookup("StrSkill18"), Riiablo.string.lookup("StrSkill36")); // Radius 1 yard
+      case 40: return String.format(Riiablo.string.lookup(desctexta[i]), Riiablo.string.lookup(desctextb[i]));
+      case 63: return String.format("%s: +%s%% %s", Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i]), Riiablo.string.lookup(desctextb[i]));
+      case 67: return String.format("%s: +%s%s", Riiablo.string.lookup(desctexta[i]), eval(skill, lvl, desccalca[i]), Riiablo.string.lookup(desctextb[i]));
       default: return null;
     }
   }

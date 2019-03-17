@@ -26,5 +26,7 @@ public class Skills extends Excel<Skills.Entry> {
     @Column public int     manashift;
     @Column public int     mana;
     @Column public int     lvlmana;
+    @Column(startIndex = 1, endIndex = 9)
+    public int     Param[];
   }
 }

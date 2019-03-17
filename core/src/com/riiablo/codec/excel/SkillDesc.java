@@ -44,90 +44,35 @@ public class SkillDesc extends Excel<SkillDesc.Entry> {
     @Column public String  descmissile1;
     @Column public String  descmissile2;
     @Column public String  descmissile3;
-    @Column public int     descline1;
-    @Column public String  desctexta1;
-    @Column public String  desctextb1;
-    @Column public String  desccalca1;
-    @Column public String  desccalcb1;
-    @Column public int     descline2;
-    @Column public String  desctexta2;
-    @Column public String  desctextb2;
-    @Column public String  desccalca2;
-    @Column public String  desccalcb2;
-    @Column public int     descline3;
-    @Column public String  desctexta3;
-    @Column public String  desctextb3;
-    @Column public String  desccalca3;
-    @Column public String  desccalcb3;
-    @Column public int     descline4;
-    @Column public String  desctexta4;
-    @Column public String  desctextb4;
-    @Column public String  desccalca4;
-    @Column public String  desccalcb4;
-    @Column public int     descline5;
-    @Column public String  desctexta5;
-    @Column public String  desctextb5;
-    @Column public String  desccalca5;
-    @Column public String  desccalcb5;
-    @Column public int     descline6;
-    @Column public String  desctexta6;
-    @Column public String  desctextb6;
-    @Column public String  desccalca6;
-    @Column public String  desccalcb6;
-    @Column public int     dsc2line1;
-    @Column public String  dsc2texta1;
-    @Column public String  dsc2textb1;
-    @Column public String  dsc2calca1;
-    @Column public String  dsc2calcb1;
-    @Column public int     dsc2line2;
-    @Column public String  dsc2texta2;
-    @Column public String  dsc2textb2;
-    @Column public String  dsc2calca2;
-    @Column public String  dsc2calcb2;
-    @Column public int     dsc2line3;
-    @Column public String  dsc2texta3;
-    @Column public String  dsc2textb3;
-    @Column public String  dsc2calca3;
-    @Column public String  dsc2calcb3;
-    @Column public int     dsc2line4;
-    @Column public String  dsc2texta4;
-    @Column public String  dsc2textb4;
-    @Column public String  dsc2calca4;
-    @Column public String  dsc2calcb4;
-    @Column public int     dsc3line1;
-    @Column public String  dsc3texta1;
-    @Column public String  dsc3textb1;
-    @Column public String  dsc3calca1;
-    @Column public String  dsc3calcb1;
-    @Column public int     dsc3line2;
-    @Column public String  dsc3texta2;
-    @Column public String  dsc3textb2;
-    @Column public String  dsc3calca2;
-    @Column public String  dsc3calcb2;
-    @Column public int     dsc3line3;
-    @Column public String  dsc3texta3;
-    @Column public String  dsc3textb3;
-    @Column public String  dsc3calca3;
-    @Column public String  dsc3calcb3;
-    @Column public int     dsc3line4;
-    @Column public String  dsc3texta4;
-    @Column public String  dsc3textb4;
-    @Column public String  dsc3calca4;
-    @Column public String  dsc3calcb4;
-    @Column public int     dsc3line5;
-    @Column public String  dsc3texta5;
-    @Column public String  dsc3textb5;
-    @Column public String  dsc3calca5;
-    @Column public String  dsc3calcb5;
-    @Column public int     dsc3line6;
-    @Column public String  dsc3texta6;
-    @Column public String  dsc3textb6;
-    @Column public String  dsc3calca6;
-    @Column public String  dsc3calcb6;
-    @Column public int     dsc3line7;
-    @Column public String  dsc3texta7;
-    @Column public String  dsc3textb7;
-    @Column public String  dsc3calca7;
-    @Column public String  dsc3calcb7;
+    @Column(startIndex = 1, endIndex = 7)
+    public int     descline[];
+    @Column(startIndex = 1, endIndex = 7)
+    public String  desctexta[];
+    @Column(startIndex = 1, endIndex = 7)
+    public String  desctextb[];
+    @Column(startIndex = 1, endIndex = 7)
+    public String  desccalca[];
+    @Column(startIndex = 1, endIndex = 7)
+    public String  desccalcb[];
+    @Column(startIndex = 1, endIndex = 5)
+    public int     dsc2line[];
+    @Column(startIndex = 1, endIndex = 5)
+    public String  dsc2texta[];
+    @Column(startIndex = 1, endIndex = 5)
+    public String  dsc2textb[];
+    @Column(startIndex = 1, endIndex = 5)
+    public String  dsc2calca[];
+    @Column(startIndex = 1, endIndex = 5)
+    public String  dsc2calcb[];
+    @Column(startIndex = 1, endIndex = 8)
+    public int     dsc3line[];
+    @Column(startIndex = 1, endIndex = 8)
+    public String  dsc3texta[];
+    @Column(startIndex = 1, endIndex = 8)
+    public String  dsc3textb[];
+    @Column(startIndex = 1, endIndex = 8)
+    public String  dsc3calca[];
+    @Column(startIndex = 1, endIndex = 8)
+    public String  dsc3calcb[];
   }
 }
