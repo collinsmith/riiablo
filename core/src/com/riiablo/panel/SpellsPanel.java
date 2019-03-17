@@ -139,6 +139,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
+      final int sLvl = gameScreen.player.skills.getLevel(i);
       final Skills.Entry skill = Riiablo.files.skills.get(i);
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       final Table details = new Table() {{
@@ -157,8 +158,13 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
         }}).center().space(SPACING).row();
         add(new Label(Riiablo.string.lookup("skilldesc3") + skill.reqlevel, font)).center().space(SPACING).row();
         add().height(font.getLineHeight()).center().space(SPACING).row();
+        for (int i = 0; i < desc.dsc2line.length; i++) {
+          if (desc.dsc2line[i] <= 0) break;
+          String str = calc(desc.dsc2line[i], desc, i, skill, sLvl);
+          if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
+        }
         add().height(font.getLineHeight()).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("StrSkill2") + 0, font)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("StrSkill2") + sLvl, font)).center().space(SPACING).row();
         pack();
       }};
       Button button = new Button(new Button.ButtonStyle(
@@ -178,7 +184,6 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
       //button.setSize(48, 48);
 
       // TODO: can be lazily init if default is 0
-      int sLvl = gameScreen.player.skills.getLevel(i);
       Label skillLevel = new Label(sLvl > 0 ? Integer.toString(sLvl) : "", sLvl > 9 ? Riiablo.fonts.fontformal10 : Riiablo.fonts.font16);
       skillLevel.setAlignment(Align.center);
       //skillLevel.setSize(16, 14);
@@ -194,6 +199,37 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
 
     tabs[1].setVisible(true);
     //setDebug(true, true);
+  }
+
+  private String calc(int func, SkillDesc.Entry desc, int i, Skills.Entry skill, int lvl) {
+    switch(func) {
+      case 1:  return String.format("%s%s", Riiablo.string.lookup(desc.str_mana), getManaCost(skill, lvl)); // fire bolt
+      case 3:  return String.format("%s%s%s", Riiablo.string.lookup(desc.dsc2texta[i]), eval(skill, lvl, desc.dsc2calca[i]), Riiablo.string.lookup(desc.dsc2textb[i])); // static field
+      case 5:  return String.format("%s%s", Riiablo.string.lookup(desc.dsc2texta[i]), eval(skill, lvl, desc.dsc2calca[i])); // inferno
+      case 19: return String.format("%s%s%s%s", (desc.dsc2textb[i].length() > 0 ? Riiablo.string.lookup(desc.dsc2textb[i]) : ""), Riiablo.string.lookup(desc.dsc2texta[i]), eval(skill, lvl, desc.dsc2calca[i]) * 2f/3f, Riiablo.string.lookup("StrSkill26")); // glacial spike
+      case 28: return String.format("%s1%s", Riiablo.string.lookup("StrSkill18"), Riiablo.string.lookup("StrSkill36")); // fire ball
+      default: return null;
+    }
+  }
+
+  private float eval(Skills.Entry skill, int lvl, String calc) {
+    if (calc.startsWith("par")) {
+      return skill.Param[calc.charAt(3) - '1'];
+    } else if (calc.startsWith("ln")) {
+      int a = skill.Param[calc.charAt(2) - '1'];
+      int b = skill.Param[calc.charAt(3) - '1'];
+      return a + lvl * b;
+    } else if (calc.startsWith("dm")) {
+      int a = skill.Param[calc.charAt(2) - '1'];
+      int b = skill.Param[calc.charAt(3) - '1'];
+      return ((110*lvl) * (b-a))/(100 * (lvl+6)) + a;
+    } else {
+      return -1;
+    }
+  }
+
+  private float getManaCost(Skills.Entry skill, int lvl) {
+    return (1 << skill.manashift) / 256f * skill.mana + skill.lvlmana * lvl;
   }
 
   @Override
