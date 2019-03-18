@@ -8,6 +8,7 @@ import com.riiablo.codec.util.BBox;
 import com.riiablo.util.BufferUtils;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.IOException;
@@ -135,6 +136,14 @@ public class COF {
 
   public byte[] getLayerOrder() {
     return layerOrder;
+  }
+
+  public Keyframe getKeyframe(int f) {
+    return keyframe[f];
+  }
+
+  public int getKeyframeFrame(Keyframe keyframe) {
+    return ArrayUtils.indexOf(this.keyframe, keyframe);
   }
 
   public static COF loadFromFile(FileHandle handle) {
@@ -308,7 +317,7 @@ public class COF {
           .build();
     }
   }
-  enum Keyframe {
+  public enum Keyframe {
     NONE,
     ATTACK,
     MISSILE,
