@@ -327,6 +327,7 @@ public class Map implements Disposable {
     if (DEBUG_BUILD) Gdx.app.debug(TAG, "Select " + fileName);
 
     Zone zone = map.addZone(level, diff, preset, select);
+    zone.town = true;
     Zone prev = zone;
 
     level = Riiablo.files.Levels.get(2);
@@ -658,6 +659,7 @@ public class Map implements Disposable {
     byte           flags[][];
     Array<Entity>  entities;
     IntIntMap      warps;
+    boolean        town;
 
     Generator generator;
 
@@ -733,6 +735,10 @@ public class Map implements Disposable {
 
     public int getWarp(int src) {
       return warps.get(src, -1);
+    }
+
+    public boolean isTown() {
+      return town;
     }
 
     public void setPosition(int x, int y) {

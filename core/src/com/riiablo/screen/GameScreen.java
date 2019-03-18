@@ -502,7 +502,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     Map.Zone prevZone = curZone;
     mapRenderer.update();
-    curZone = map.getZone(player.position());
+    curZone = player.curZone = map.getZone(player.position());
     if (prevZone != curZone && prevZone != null) {
       displayEntry();
     }
@@ -558,7 +558,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Riiablo.music.stop();
     Riiablo.assets.get(windowopenDescriptor).play();
 
-    Map.instance = map = Riiablo.assets.get(mapDescriptor); // TODO: remove Map.instance
+    Map.instance = map = player.map = Riiablo.assets.get(mapDescriptor); // TODO: remove Map.instance
     mapRenderer = new MapRenderer(Riiablo.batch, viewport.getWorldWidth(), viewport.getWorldHeight());
     //mapRenderer = new MapRenderer(Riiablo.batch, 480f * 16f / 9f, 480f);
     mapRenderer.setMap(map);

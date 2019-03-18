@@ -87,6 +87,8 @@ public class Player extends Entity {
   boolean ignoreUpdate;
   public Stats stats;
   public Skills skills;
+  public Map map;
+  public Map.Zone curZone;
   public final CharacterClass charClass;
 
   Array<Item> inventory = new Array<>();
@@ -149,12 +151,12 @@ public class Player extends Entity {
 
   @Override
   public byte getNeutralMode() {
-    return MODE_NU;
+    return (curZone != null && curZone.isTown()) ? MODE_TN : MODE_NU;
   }
 
   @Override
   public byte getWalkMode() {
-    return MODE_WL;
+    return (curZone != null && curZone.isTown()) ? MODE_TW : MODE_WL;
   }
 
   @Override
