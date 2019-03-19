@@ -55,6 +55,7 @@ import com.riiablo.panel.InventoryPanel;
 import com.riiablo.panel.MobileControls;
 import com.riiablo.panel.MobilePanel;
 import com.riiablo.panel.SpellsPanel;
+import com.riiablo.panel.SpellsQuickPanel;
 import com.riiablo.panel.StashPanel;
 import com.riiablo.server.Connect;
 import com.riiablo.server.ConnectResponse;
@@ -93,13 +94,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   Actor left;
   Actor right;
 
-  ControlPanel controlPanel;
+  public ControlPanel controlPanel;
   MobilePanel mobilePanel;
   MobileControls mobileControls;
   public InventoryPanel inventoryPanel;
   public CharacterPanel characterPanel;
   public SpellsPanel spellsPanel;
   public StashPanel stashPanel;
+  public SpellsQuickPanel spellsQuickPanelL;
+  public SpellsQuickPanel spellsQuickPanelR;
   MappedKeyStateAdapter mappedKeyStateListener;
 
   Stage stage;
@@ -232,6 +235,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         0,
         stage.getHeight() - stashPanel.getHeight());
 
+    spellsQuickPanelL = new SpellsQuickPanel(this, true);
+    spellsQuickPanelL.setPosition(0, 100, Align.bottomLeft);
+    spellsQuickPanelL.setVisible(false);
+
+    spellsQuickPanelR = new SpellsQuickPanel(this, false);
+    spellsQuickPanelR.setPosition(stage.getWidth(), 100, Align.bottomRight);
+    spellsQuickPanelR.setVisible(false);
+
     //stage.setDebugAll(true);
     if (mobilePanel != null) stage.addActor(mobilePanel);
     if (mobileControls != null) stage.addActor(mobileControls);
@@ -243,6 +254,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     stage.addActor(spellsPanel);
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
+    stage.addActor(spellsQuickPanelL);
+    stage.addActor(spellsQuickPanelR);
     controlPanel.toFront();
     if (mobilePanel != null) mobilePanel.toFront();
     output.toFront();
@@ -493,6 +506,22 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         } else {*/
           mapListener.update();
         //}
+
+        if (Gdx.input.isKeyPressed(Input.Keys.F1) || Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+          mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+          player.lookAt(tmpVec2.x, tmpVec2.y);
+          boolean cast = player.cast(54);
+          if (cast) {
+            GridPoint2 dst = mapRenderer.coords(tmpVec2.x, tmpVec2.y);
+            player.position().set(dst.x, dst.y);
+            player.target().setZero();
+            player.setPath(null, null);
+          }
+        } else if (Gdx.input.isKeyPressed(Input.Keys.F2)) {
+          mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+          player.lookAt(tmpVec2.x, tmpVec2.y);
+          boolean cast = player.cast(36);
+        }
       }
       else if (DEBUG_HIT) Gdx.app.debug(TAG, hit.toString());
     }
@@ -781,6 +810,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   }
 
   private void displayEntry() {
+    if (curZone == null) return;
     if (enteringImage == null) {
       enteringImage = new DCWrapper();
       enteringImage.setScaling(Scaling.none);
@@ -795,8 +825,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Riiablo.assets.load(entryDescriptor);
     Riiablo.assets.finishLoadingAsset(entryDescriptor);
     enteringImage.setDrawable(Riiablo.assets.get(entryDescriptor));
-    enteringImage.setPosition(stage.getWidth() / 2, stage.getHeight() * 0.75f, Align.center);
-    System.out.println(enteringImage.getWidth() + ", " + enteringImage.getHeight());
+    enteringImage.setPosition(stage.getWidth() / 2, stage.getHeight() * 0.8f, Align.center);
     enteringImage.clearActions();
     enteringImage.addAction(Actions.sequence(
         Actions.show(),

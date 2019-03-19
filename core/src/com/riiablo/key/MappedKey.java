@@ -53,6 +53,10 @@ public class MappedKey implements Iterable<Integer> {
   private final Set<AssignmentListener> ASSIGNMENT_LISTENERS = new CopyOnWriteArraySet<>();
   private final Set<StateListener>      STATE_LISTENERS      = new CopyOnWriteArraySet<>();
 
+  public MappedKey(String name, String alias) {
+    this(name, alias, NOT_MAPPED, NOT_MAPPED);
+  }
+
   public MappedKey(String name, String alias, @Keycode int primary) {
     this(name, alias, primary, NOT_MAPPED);
   }
@@ -60,8 +64,9 @@ public class MappedKey implements Iterable<Integer> {
   public MappedKey(String name, String alias, @Keycode int primary, @Keycode int secondary) {
     Preconditions.checkArgument(!name.isEmpty(), "name cannot be empty");
     Preconditions.checkArgument(!alias.isEmpty(), "alias cannot be empty");
-    Preconditions.checkArgument(primary != NOT_MAPPED, "primary key mapping must be mapped");
-    Preconditions.checkArgument(primary != secondary, "key mappings must be unique");
+    //Preconditions.checkArgument(primary != NOT_MAPPED, "primary key mapping must be mapped");
+    //Preconditions.checkArgument(primary != secondary, "key mappings must be unique");
+    Preconditions.checkArgument(primary == NOT_MAPPED || primary != secondary, "key mappings must be unique");
 
     NAME = name;
     ALIAS = alias;

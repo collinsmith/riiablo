@@ -29,6 +29,7 @@ import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Obj;
 import com.riiablo.codec.excel.ObjMode;
 import com.riiablo.codec.excel.Objects;
+import com.riiablo.codec.excel.Overlay;
 import com.riiablo.codec.excel.PlrMode;
 import com.riiablo.codec.excel.PlrType;
 import com.riiablo.codec.excel.QualityItems;
@@ -70,6 +71,7 @@ public class Files {
   public final MonStats2       monstats2;
   public final Objects         objects;
   public final ObjMode         ObjMode;
+  public final Overlay         Overlay;
   public final PlrMode         PlrMode;
   public final PlrType         PlrType;
   public final QualityItems    QualityItems;
@@ -115,6 +117,7 @@ public class Files {
     Runes           = load(assets, Runes.class);
     objects         = load(assets, Objects.class);
     ObjMode         = load(assets, ObjMode.class);
+    Overlay         = load(assets, Overlay.class, Excel.EXPANSION);
     PlrMode         = load(assets, PlrMode.class);
     PlrType         = load(assets, PlrType.class);
     QualityItems    = load(assets, QualityItems.class);

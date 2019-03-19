@@ -17,6 +17,12 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
 
   private static final AssetDescriptor<Sound> buttonDescriptor = new AssetDescriptor<>("data\\global\\sfx\\cursor\\button.wav", Sound.class);
 
+  int disabledBlendMode = BlendMode.DARKEN;
+  Color disabledColor = Riiablo.colors.darken;
+
+  int highlightedBlendMode = BlendMode.BRIGHTEN;
+  Color highlightedColor = Riiablo.colors.highlight;
+
   @Override
   public void setStyle(com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle style) {
     super.setStyle(style);
@@ -47,6 +53,16 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
     });
   }
 
+  public void setDisabledBlendMode(int blendMode, Color color) {
+    disabledBlendMode = blendMode;
+    disabledColor = color;
+  }
+
+  public void setHighlightedBlendMode(int blendMode, Color color) {
+    highlightedBlendMode = blendMode;
+    highlightedColor = color;
+  }
+
   @Override
   public void dispose() {
     Riiablo.assets.unload(buttonDescriptor.fileName);
@@ -63,15 +79,19 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
 
   // FIXME: super.draw(Batch,float) sets color and applies to batch, circumventing my own color -- workaround is to set actor's color
   public void draw(PaletteIndexedBatch batch, float parentAlpha) {
-    final boolean over = isOver() && !isDisabled();
-    if (isDisabled()) {
-      setColor(Riiablo.colors.trans50);
+    final boolean disabled = isDisabled();
+    final boolean over = isOver();
+    if (disabled) {
+      setColor(disabledColor);
+      batch.setBlendMode(disabledBlendMode);
+    } else if (over) {
+      setColor(highlightedColor);
+      batch.setBlendMode(highlightedBlendMode);
     } else {
-      setColor(over ? Riiablo.colors.highlight : Color.WHITE);
+      setColor(Color.WHITE);
     }
-    if (over) batch.setBlendMode(BlendMode.BRIGHTEN);
     super.draw(batch, parentAlpha);
-    if (over) batch.resetBlendMode();
+    if (disabled || over) batch.resetBlendMode();
   }
 
   public static class ButtonStyle extends com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle {

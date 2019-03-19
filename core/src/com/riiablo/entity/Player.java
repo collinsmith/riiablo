@@ -52,6 +52,10 @@ public class Player extends Entity {
   //public static final byte MODE_GH = 18;
   //public static final byte MODE_GH = 19;
 
+  private static final int MOVING_MODES = (1 << MODE_WL) | (1 << MODE_RN) | (1 << MODE_TW);
+  private static final int CASTING_MODES = (1 << MODE_SC);
+  private static final int CASTABLE_MODES = (1 << MODE_NU) | (1 << MODE_TN) | MOVING_MODES;
+
   private static final String[] TOKENS = {"AM", "SO", "NE", "PA", "BA", "DZ", "AI"};
 
   public static String getToken(int type) {
@@ -87,6 +91,7 @@ public class Player extends Entity {
   boolean ignoreUpdate;
   public Stats stats;
   public Skills skills;
+  public int[] skillBar;
   public Map map;
   public Map.Zone curZone;
   public final CharacterClass charClass;
@@ -100,12 +105,14 @@ public class Player extends Entity {
     this(name, characterClass.id);
     stats = new StatsImpl(name, characterClass.id);
     skills = new SkillsImpl();
+    skillBar = new int[16];
   }
 
   public Player(D2S d2s) {
     this(d2s.name, d2s.charClass);
     stats = new D2SStats(d2s);
     skills = new D2SSkills(d2s);
+    skillBar = d2s.skillBar;
     loadEquipped(d2s.items.equipped);
     loadInventory(d2s.items.inventory);
   }
@@ -357,6 +364,21 @@ public class Player extends Entity {
         notifyAlternate(LH, RH);
       }
     }
+  }
+
+  @Override
+  public boolean isCasting(byte mode) {
+    return (CASTING_MODES & (1 << mode)) != 0;
+  }
+
+  @Override
+  public boolean isCastable(byte mode) {
+    return (CASTABLE_MODES & (1 << mode)) != 0;
+  }
+
+  @Override
+  public boolean isMoving(byte mode) {
+    return (MOVING_MODES & (1 << mode)) != 0;
   }
 
   private void notifySlotChanged(BodyLoc bodyLoc, Item oldItem, Item item) {

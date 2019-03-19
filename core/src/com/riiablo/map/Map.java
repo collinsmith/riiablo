@@ -555,6 +555,10 @@ public class Map implements Disposable {
     return null;
   }
 
+  public Zone getZone(Vector2 pos) {
+    return getZone(Map.round(pos.x), Map.round(pos.y));
+  }
+
   Zone addZone(Levels.Entry level, int diff, LvlPrest.Entry preset, int ds1) {
     assert preset.LevelId != 0 : "presets should have an assigned level id";
     Zone zone = addZone(level, diff, level.SizeX[diff], level.SizeY[diff]);

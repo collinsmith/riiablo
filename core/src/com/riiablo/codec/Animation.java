@@ -23,8 +23,8 @@ public class Animation extends BaseDrawable {
   private static final int DEBUG_MODE = 1; // 0=off, 1=box, 2=layer box
 
   private static final int   NUM_LAYERS = COF.Component.NUM_COMPONENTS;
-  private static final float FRAMES_PER_SECOND = 25f;
-  private static final float FRAME_DURATION = 1 / FRAMES_PER_SECOND;
+  public  static final float FRAMES_PER_SECOND = 25f;
+  public  static final float FRAME_DURATION = 1 / FRAMES_PER_SECOND;
 
   private static final Color   SHADOW_TINT      = Riiablo.colors.modal75;
   private static final Affine2 SHADOW_TRANSFORM = new Affine2();
@@ -36,6 +36,7 @@ public class Animation extends BaseDrawable {
   private int     direction;
   private int     frame;
   private boolean looping;
+  private boolean clamp;
   private float   frameDuration;
   private float   elapsedTime;
   private Layer   layers[];
@@ -59,23 +60,28 @@ public class Animation extends BaseDrawable {
     numFrames     = framesPerDir;
     this.layers   = layers;
     looping       = true;
+    clamp         = true;
     frameDuration = FRAME_DURATION;
     box           = new BBox();
 
     animationListeners = EMPTY_MAP;
   }
 
-  public static Animation newAnimation(com.riiablo.codec.DC dc) {
+  public static Animation newAnimation(DC dc) {
     return Animation.builder().layer(dc).build();
   }
 
-  public static Animation newAnimation(com.riiablo.codec.COF cof) {
+  public static Animation newAnimation(COF cof) {
     Animation animation = new Animation();
     animation.reset(cof);
     return animation;
   }
 
-  public boolean reset(com.riiablo.codec.COF cof) {
+  public COF getCOF() {
+    return cof;
+  }
+
+  public boolean reset(COF cof) {
     if (this.cof != cof) {
       this.cof = cof;
       numDirections = cof.getNumDirections();
@@ -83,10 +89,10 @@ public class Animation extends BaseDrawable {
       setFrameDelta(cof.getAnimRate());
 
       if (direction >= numDirections) direction = 0;
-      if (frame >= numFrames) {
+      //if (frame >= numFrames) {
         frame = 0;
         elapsedTime = 0;
-      }
+      //}
 
       return true;
     }
@@ -108,17 +114,17 @@ public class Animation extends BaseDrawable {
     for (Layer l : layers) if (l != null) l.load(d);
   }
 
-  public Animation setLayer(int component, com.riiablo.codec.DC dc) {
+  public Animation setLayer(int component, DC dc) {
     return setLayer(component, dc, true);
   }
 
-  public Animation setLayer(int component, com.riiablo.codec.DC dc, boolean updateBox) {
+  public Animation setLayer(int component, DC dc, boolean updateBox) {
     layers[component] = dc != null ? new Layer(dc).load(direction) : null;
     if (updateBox) updateBox();
     return this;
   }
 
-  public Layer setLayer(com.riiablo.codec.COF.Layer cofLayer, com.riiablo.codec.DC dc, boolean updateBox) {
+  public Layer setLayer(COF.Layer cofLayer, DC dc, boolean updateBox) {
     setLayer(cofLayer.component, dc, updateBox);
     Layer layer = layers[cofLayer.component];
     if (layer != null && cofLayer.overrideTransLvl != 0) {
@@ -186,7 +192,7 @@ public class Animation extends BaseDrawable {
       Preconditions.checkArgument(0 <= f && f < numFrames, "Invalid frame: " + f);
       frame = f;
       elapsedTime = frameDuration * frame;
-      if (frame == numFrames - 1) notifyAnimationFinished();
+      //if (frame == numFrames - 1) notifyAnimationFinished();
     }
   }
 
@@ -200,6 +206,14 @@ public class Animation extends BaseDrawable {
 
   public void setLooping(boolean b) {
     looping = b;
+  }
+
+  public boolean isClamped() {
+    return clamp;
+  }
+
+  public void setClamp(boolean b) {
+    clamp = b;
   }
 
   public boolean isHighlighted() {
@@ -271,7 +285,7 @@ public class Animation extends BaseDrawable {
     int frameNumber = (int) (stateTime / frameDuration);
     return looping
         ? frameNumber % numFrames
-        : Math.min(numFrames - 1, frameNumber);
+        : Math.min(clamp ? numFrames - 1 : numFrames, frameNumber);
   }
 
   public void act() {
@@ -305,8 +319,8 @@ public class Animation extends BaseDrawable {
       shapes.setColor(Color.GREEN);
       shapes.rect(x + box.xMin, y - box.yMax, box.width, box.height);
       if (reset) shapes.end();
-    } else if (DEBUG_MODE == 2) {
-      int d = com.riiablo.codec.DC.Direction.toReadDir(direction, cof.getNumDirections());
+    } else if (DEBUG_MODE == 2 && frame < numFrames) {
+      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
       for (int l = 0; l < cof.getNumLayers(); l++) {
         int component = cof.getLayerOrder(d, f, l);
@@ -326,15 +340,15 @@ public class Animation extends BaseDrawable {
   }
 
   public void draw(PaletteIndexedBatch batch, float x, float y) {
-    if (cof == null) {
+    if (cof == null && frame < numFrames) {
       for (Layer layer : layers) {
         if (layer == null) continue;
         drawLayer(batch, layer, x, y);
       }
       batch.resetBlendMode();
       batch.resetColormap();
-    } else {
-      int d = com.riiablo.codec.DC.Direction.toReadDir(direction, cof.getNumDirections());
+    } else if (frame < numFrames) {
+      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
       // TODO: Layer blend modes should correspond with the cof trans levels
       for (int l = 0; l < cof.getNumLayers(); l++) {
@@ -360,8 +374,8 @@ public class Animation extends BaseDrawable {
         if (layer == null) continue;
         drawShadow(batch, layer, x, y);
       }
-    } else {
-      int d = com.riiablo.codec.DC.Direction.toReadDir(direction, cof.getNumDirections());
+    } else if (frame < numFrames) {
+      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
       for (int l = 0; l < cof.getNumLayers(); l++) {
         int component = cof.getLayerOrder(d, f, l);
@@ -378,6 +392,10 @@ public class Animation extends BaseDrawable {
   }
 
   public void drawShadow(PaletteIndexedBatch batch, Layer layer, float x, float y) {
+    if (frame >= numFrames) {
+      return;
+    }
+
     int d = direction;
     int f = frame;
 
@@ -407,8 +425,8 @@ public class Animation extends BaseDrawable {
         if (layer == null) break;
         box.max(layer.dc.getBox(direction));
       }
-    } else {
-      int d = com.riiablo.codec.DC.Direction.toReadDir(direction, cof.getNumDirections());
+    } else if (frame < numFrames) {
+      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
       box.reset();
       for (int l = 0; l < cof.getNumLayers(); l++) {
@@ -493,11 +511,11 @@ public class Animation extends BaseDrawable {
     Index transform;
     int   transformColor;
 
-    Layer(com.riiablo.codec.DC dc) {
+    Layer(DC dc) {
       this(dc, BlendMode.ID);
     }
 
-    Layer(com.riiablo.codec.DC dc, int blendMode) {
+    Layer(DC dc, int blendMode) {
       this.dc        = dc;
       this.blendMode = blendMode;
       tint           = Color.WHITE;
@@ -590,7 +608,7 @@ public class Animation extends BaseDrawable {
     int size = 0;
     Layer layers[] = new Layer[NUM_LAYERS];
 
-    public Builder layer(com.riiablo.codec.DC dc) {
+    public Builder layer(DC dc) {
       return layer(new Layer(dc));
     }
 

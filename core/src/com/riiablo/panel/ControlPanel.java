@@ -21,6 +21,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
+import com.riiablo.widget.HotkeyButton;
 
 public class ControlPanel extends Table implements Disposable {
   private static final String TAG = "ControlPanel";
@@ -39,11 +40,11 @@ public class ControlPanel extends Table implements Disposable {
 
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
   DC6 Skillicon;
-  Button leftSkill, rightSkill;
+  HotkeyButton leftSkill, rightSkill;
 
   GameScreen gameScreen;
 
-  public ControlPanel(GameScreen gameScreen) {
+  public ControlPanel(final GameScreen gameScreen) {
     this.gameScreen = gameScreen;
     Riiablo.assets.load(hlthmanaDescriptor);
     Riiablo.assets.finishLoadingAsset(hlthmanaDescriptor);
@@ -66,14 +67,20 @@ public class ControlPanel extends Table implements Disposable {
     manaWidget = new ManaWidget(ctrlpnl.getTexture(numFrames - 2));
 
     if (!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      leftSkill = new Button(new Button.ButtonStyle() {{
-        up   = new TextureRegionDrawable(Skillicon.getTexture(0));
-        down = new TextureRegionDrawable(Skillicon.getTexture(1));
-      }});
-      rightSkill = new Button(new Button.ButtonStyle() {{
-        up   = new TextureRegionDrawable(Skillicon.getTexture(0));
-        down = new TextureRegionDrawable(Skillicon.getTexture(1));
-      }});
+      leftSkill = new HotkeyButton(Skillicon, 0);
+      leftSkill.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+          gameScreen.spellsQuickPanelL.setVisible(!gameScreen.spellsQuickPanelL.isVisible());
+        }
+      });
+      rightSkill = new HotkeyButton(Skillicon, 0);
+      rightSkill.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+          gameScreen.spellsQuickPanelR.setVisible(!gameScreen.spellsQuickPanelR.isVisible());
+        }
+      });
 
       int width = 0;
       int height = Integer.MIN_VALUE;
@@ -106,6 +113,14 @@ public class ControlPanel extends Table implements Disposable {
     //setY(0);
     setTouchable(Touchable.enabled);
     //setDebug(true, true);
+  }
+
+  public HotkeyButton getLeftSkill() {
+    return leftSkill;
+  }
+
+  public HotkeyButton getRightSkill() {
+    return rightSkill;
   }
 
   @Override

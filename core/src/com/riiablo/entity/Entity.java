@@ -16,6 +16,8 @@ import com.riiablo.codec.Animation;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.COFD2;
 import com.riiablo.codec.DCC;
+import com.riiablo.codec.excel.Overlay;
+import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DS1;
@@ -32,15 +34,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
+import gdx.diablo.BlendMode;
 import gdx.diablo.Diablo;
 
-public abstract class Entity {
+public abstract class Entity implements Animation.AnimationListener {
   private static final String TAG = "Entity";
 
   private static final boolean DEBUG        = true;
-  private static final boolean DEBUG_STATE  = DEBUG && true;
-  private static final boolean DEBUG_DIRTY  = DEBUG && true;
-  private static final boolean DEBUG_COF    = DEBUG && true;
+  private static final boolean DEBUG_STATE  = DEBUG && !true;
+  private static final boolean DEBUG_DIRTY  = DEBUG && !true;
+  private static final boolean DEBUG_COF    = DEBUG && !true;
   private static final boolean DEBUG_TARGET = DEBUG && true;
   private static final boolean DEBUG_PATH   = DEBUG && !true;
 
@@ -99,11 +102,14 @@ public abstract class Entity {
     public final String MODE[];
     public final String COMP[];
 
+    private ObjectIntMap<String> MODES;
     private ObjectIntMap<String> COMPS;
 
     Type(String path, String[] modes, String[] comps) {
       PATH = "data\\global\\" + path;
       MODE = modes;
+      MODES = new ObjectIntMap<>();
+      for (int i = 0; i < modes.length; i++) MODES.put(modes[i].toLowerCase(), i);
       COMP = comps;
       COMPS = new ObjectIntMap<>();
       for (int i = 0; i < comps.length; i++) COMPS.put(comps[i].toLowerCase(), i);
@@ -111,6 +117,10 @@ public abstract class Entity {
 
     COFD2 getCOFs() {
       return Riiablo.cofs.active;
+    }
+
+    public byte getMode(String mode) {
+      return (byte) MODES.get(mode.toLowerCase(), -1);
     }
 
     public int getComponent(String comp) {
@@ -231,6 +241,9 @@ public abstract class Entity {
   boolean running = false;
   float   walkSpeed = 6;
   float   runSpeed  = 9;
+
+  Overlay.Entry overlayEntry;
+  Animation overlay;
 
   private static final Vector2 tmpVec2 = new Vector2();
 
@@ -390,12 +403,23 @@ public abstract class Entity {
   private boolean updateAnimation(COF cof) {
     if (animation == null) {
       animation = Animation.newAnimation(cof);
+      animation.addAnimationListener(-1, this);
       updateDirection();
       return true;
     } else {
       return animation.reset(cof);
     }
   }
+
+  @Override
+  public void onTrigger(Animation animation, int frame) {
+    switch (frame) {
+      case -1: onAnimationFinished(animation); break;
+      default: // do nothing
+    }
+  }
+
+  protected void onAnimationFinished(Animation animation) {}
 
   public String getCOF() {
     return cof;
@@ -406,6 +430,7 @@ public abstract class Entity {
   }
 
   public void act(float delta) {
+    if (overlay != null) overlay.act(delta);
     if (animation != null) animation.act(delta);
   }
 
@@ -413,12 +438,14 @@ public abstract class Entity {
     validate();
     float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
     float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    if (overlayEntry != null && overlayEntry.PreDraw) overlay.draw(batch, x, y);
     animation.draw(batch, x, y);
+    if (overlayEntry != null && !overlayEntry.PreDraw) overlay.draw(batch, x, y);
     label.setPosition(x, y + getLabelOffset() + label.getHeight() / 2, Align.center);
-    if (nextMode >= 0 && animation.isFinished()) {
-      setMode(nextMode);
-      nextMode = -1;
-    }
+    //if (animation.isFinished() && nextMode >= 0) {
+    //  setMode(nextMode);
+    //  nextMode = -1;
+    //}
   }
 
   public void drawShadow(PaletteIndexedBatch batch) {
@@ -523,6 +550,13 @@ public abstract class Entity {
     angle(MathUtils.atan2(tmpVec2.y, tmpVec2.x));
   }
 
+  public void lookAt(float x, float y) {
+    float x2 = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+    float y2 = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    tmpVec2.set(x, y).sub(x2, y2);
+    angle(MathUtils.atan2(tmpVec2.y, tmpVec2.x));
+  }
+
   public int direction() {
     int numDirs = animation.getNumDirections();
     return Direction.radiansToDirection(angle, numDirs);
@@ -565,9 +599,11 @@ public abstract class Entity {
     }
   }
 
-  public void animate(byte transition, byte mode) {
+  public boolean sequence(byte transition, byte mode) {
+    boolean changed = this.mode != transition;
     setMode(transition);
     nextMode = mode;
+    return changed;
   }
 
   public Vector2 target() {
@@ -648,11 +684,16 @@ public abstract class Entity {
   }
 
   public void update(float delta) {
+    if (animation != null && animation.isFinished() && nextMode >= 0) {
+      setMode(nextMode);
+      nextMode = -1;
+    }
+
     if (target.isZero()) return;
     if (position.epsilonEquals(target)) {
       if (!targets.hasNext()) {
         path.clear();
-        if (mode == (running ? getRunMode() : getWalkMode())) setMode(getNeutralMode());
+        if (isMoving(mode)) setMode(getNeutralMode());
         return;
       }
     }
@@ -676,5 +717,47 @@ public abstract class Entity {
         }
       }
     }
+  }
+
+  public boolean isCasting(byte mode) {
+    return false;
+  }
+
+  public boolean isMoving(byte mode) {
+    return false;
+  }
+
+  public boolean isCastable(byte mode) {
+    return false;
+  }
+
+  public boolean cast(final int spell) {
+    if (!isCastable(mode)) return false;
+    setPath(null, null);
+    //if (mode == getNeutralMode()) return;
+    //animating = true;
+    final Skills.Entry skill = Riiablo.files.skills.get(spell);
+    byte tm = mode;
+    boolean changed = sequence(type.getMode(skill.anim), getNeutralMode());
+    if (!changed) return false;
+
+    System.out.println("cast " + type.MODE[tm] + "->" + type.MODE[mode]);
+    Riiablo.audio.play(skill.stsound, true);
+
+    if (!skill.castoverlay.isEmpty()) {
+      overlayEntry = Riiablo.files.Overlay.get(skill.castoverlay);
+      AssetDescriptor<DCC> descriptor = new AssetDescriptor<>("data\\global\\overlays\\" + overlayEntry.Filename + ".dcc", DCC.class);
+      Riiablo.assets.load(descriptor);
+      Riiablo.assets.finishLoadingAsset(descriptor);
+      DCC dcc = Riiablo.assets.get(descriptor);
+      overlay = Animation.builder()
+          .layer(dcc, overlayEntry.Trans == 3 ? BlendMode.LUMINOSITY : BlendMode.ID)
+          .build();
+      overlay.setLooping(false);
+      overlay.setClamp(false);
+      //overlay.setFrameDuration(1f / overlayEntry.AnimRate);
+    }
+
+    return true;
   }
 }

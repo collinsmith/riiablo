@@ -90,9 +90,9 @@ public class Object extends Entity {
   }
 
   @Override
-  public void animate(byte transition, byte mode) {
+  public boolean sequence(byte transition, byte mode) {
     assert !base.CycleAnim[transition];
-    super.animate(transition, mode);
+    return super.sequence(transition, mode);
   }
 
   @Override
@@ -158,7 +158,7 @@ public class Object extends Entity {
         break;
       case 23: // waypoint
         if (mode == MODE_NU) {
-          animate(MODE_OP, MODE_ON);
+          sequence(MODE_OP, MODE_ON);
           Riiablo.audio.play("object_waypoint_open", true);
         }
         break;
