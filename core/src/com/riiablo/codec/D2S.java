@@ -681,10 +681,11 @@ public class D2S {
           assert socket.location == Location.SOCKET;
         }
 
-        if (BufferUtils.lookahead(buffer, SECTION_FOOTER)) {
-          break;
-        }
+        //if (BufferUtils.lookahead(buffer, SECTION_FOOTER)) {
+        //  break;
+        //}
       }
+      assert BufferUtils.lookahead(buffer, SECTION_FOOTER);
       //assert !buffer.hasRemaining();
       return this;
     }
