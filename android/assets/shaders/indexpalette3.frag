@@ -75,11 +75,11 @@ void main() {
     if (color.a > 0.0) {
       // Apply contrast
       color.rgb -= 0.5;
-      color.rgb *= 1.8;
+      color.rgb *= 1.5; // 1.8
       color.rgb += 0.5;
 
       // Apply brightness
-      color.rgb += 0.4;
+      color.rgb += 0.3; // 0.4
     }
 
   // Same as 1, except hard coded red
