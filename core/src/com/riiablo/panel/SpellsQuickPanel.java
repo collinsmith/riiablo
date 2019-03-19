@@ -14,6 +14,7 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.entity.Player;
+import com.riiablo.graphics.BlendMode;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.screen.GameScreen;
@@ -64,6 +65,9 @@ public class SpellsQuickPanel extends Table implements Disposable {
       Table table = tables[desc.ListRow];
       if (table == null) table = tables[desc.ListRow] = new Table();
       final HotkeyButton button = new HotkeyButton(CharSkillicon, desc.IconCel);
+      if (skill.aura) {
+        button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
+      }
 
       int index = ArrayUtils.indexOf(player.skillBar, i);
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
@@ -81,6 +85,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
           } else {
             controlPanel.getRightSkill().copy(button);
           }
+          SpellsQuickPanel.this.setVisible(false);
         }
       });
       table.add(button);

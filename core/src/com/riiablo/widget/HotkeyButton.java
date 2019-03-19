@@ -25,7 +25,7 @@ public class HotkeyButton extends Button {
     pad(2);
     pack();
 
-    setDisabledBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenR);
+    setDisabledBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenRed);
   }
 
   public void map(MappedKey mapping) {

@@ -32,9 +32,10 @@ public class Colors {
   public Color purple = PURPLE.cpy();
   public Color c12    = C12.cpy();
 
-  public Color highlight = new Color(0.15f, 0.15f, 0.12f, 0);
-  public Color darken    = new Color(0.40f, 0.40f, 0.40f, 0);
-  public Color darkenR   = new Color(1.00f, 0.20f, 0.20f, 0);
+  public Color highlight  = new Color(0.15f, 0.15f, 0.12f, 0);
+  public Color darken     = new Color(0.40f, 0.40f, 0.40f, 0);
+  public Color darkenRed  = RED.cpy();//new Color(1.00f, 0.20f, 0.20f, 0);
+  public Color darkenGold = GOLD.cpy();
 
   public Color invBlue  = new Color(0.1f, 0.1f, 0.5f, 0.3f);
   public Color invGreen = new Color(0.1f, 0.5f, 0.1f, 0.3f);

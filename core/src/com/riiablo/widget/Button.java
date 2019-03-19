@@ -23,6 +23,9 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
   int highlightedBlendMode = BlendMode.BRIGHTEN;
   Color highlightedColor = Riiablo.colors.highlight;
 
+  int blendMode = BlendMode.ID;
+  Color color = Riiablo.colors.white;
+
   @Override
   public void setStyle(com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle style) {
     super.setStyle(style);
@@ -51,6 +54,11 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
         return super.touchDown(event, x, y, pointer, b);
       }
     });
+  }
+
+  public void setBlendMode(int blendMode, Color color) {
+    this.blendMode = blendMode;
+    this.color = color;
   }
 
   public void setDisabledBlendMode(int blendMode, Color color) {
@@ -88,10 +96,11 @@ public class Button extends com.badlogic.gdx.scenes.scene2d.ui.Button implements
       setColor(highlightedColor);
       batch.setBlendMode(highlightedBlendMode);
     } else {
-      setColor(Color.WHITE);
+      setColor(color);
+      batch.setBlendMode(blendMode);
     }
     super.draw(batch, parentAlpha);
-    if (disabled || over) batch.resetBlendMode();
+    batch.resetBlendMode();
   }
 
   public static class ButtonStyle extends com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle {

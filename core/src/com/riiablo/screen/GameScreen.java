@@ -815,7 +815,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       enteringImage = new DCWrapper();
       enteringImage.setScaling(Scaling.none);
       enteringImage.setAlign(Align.center);
-      enteringImage.setBlendMode(BlendMode.TINT_ID_RED);
+      enteringImage.setBlendMode(BlendMode.DARKEN);
+      enteringImage.setColor(Riiablo.colors.darkenRed);
       stage.addActor(enteringImage);
     }
 

@@ -30,5 +30,6 @@ public class Skills extends Excel<Skills.Entry> {
     public int     Param[];
     @Column public boolean leftskill;
     @Column public boolean passive;
+    @Column public boolean aura;
   }
 }
