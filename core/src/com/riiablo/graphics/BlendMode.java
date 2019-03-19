@@ -16,4 +16,5 @@ public interface BlendMode {
   int TINT_ID         = 7;
   int BRIGHTEN        = 8;
   int TINT_ID_RED     = 9;
+  int DARKEN          = 10;
 }

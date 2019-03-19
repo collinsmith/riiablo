@@ -90,6 +90,12 @@ void main() {
       color.g = 0.0;
       color.b = 0.0;
     }
+
+  // Same as 8, except darker
+  } else if (blendMode == 10) {
+    if (color.a > 0.0) {
+      color.rgb *= tint.rgb;
+    }
   }
 
   vec3 colorRGB = pow(color.rgb, vec3(1.0 / gamma));
