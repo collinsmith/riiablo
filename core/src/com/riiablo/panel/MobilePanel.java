@@ -8,10 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
-
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
-import com.riiablo.entity.Entity;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 
@@ -33,6 +31,7 @@ public class MobilePanel extends Table implements Disposable {
     this.gameScreen = gameScreen;
     Riiablo.assets.load(minipanelbtnDescriptor);
     Riiablo.assets.finishLoadingAsset(minipanelbtnDescriptor);
+    final DC6 minipanelbtn = Riiablo.assets.get(minipanelbtnDescriptor);
     ClickListener clickListener = new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
@@ -46,16 +45,7 @@ public class MobilePanel extends Table implements Disposable {
         } else if (actor == btnParty) {
 
         } else if (actor == btnMap) {
-          if (!gameScreen.labels.isEmpty()) {
-            for (Actor label : gameScreen.labels) {
-              Object obj = label.getUserObject();
-              if (obj instanceof Entity) {
-                Entity entity = (Entity) obj;
-                if (entity.isSelectable()) entity.interact(gameScreen);
-                break;
-              }
-            }
-          }
+
         } else if (actor == btnMessages) {
           gameScreen.input.setVisible(!gameScreen.input.isVisible());
           gameScreen.input.getStage().setKeyboardFocus(gameScreen.input);
@@ -67,57 +57,58 @@ public class MobilePanel extends Table implements Disposable {
       }
     };
     btnCharacter = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(0));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(1));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(0));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(1));
     }});
     btnCharacter.addListener(clickListener);
     btnInventory = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(2));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(3));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(2));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(3));
     }});
     btnInventory.addListener(clickListener);
     btnSkillTree = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(4));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(5));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(4));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(5));
     }});
     btnSkillTree.addListener(clickListener);
     btnParty = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(6));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(7));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(6));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(7));
     }});
     btnParty.addListener(clickListener);
     btnMap = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(8));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(9));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(8));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(9));
     }});
     btnMap.addListener(clickListener);
     btnMessages = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(10));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(11));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(10));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(11));
     }});
     btnMessages.addListener(clickListener);
     btnQuests = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(12));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(13));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(12));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(13));
     }});
     btnQuests.addListener(clickListener);
     btnEscapeMenu = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(14));
-      down = new TextureRegionDrawable(Riiablo.assets.get(minipanelbtnDescriptor).getTexture(15));
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(14));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(15));
     }});
     btnEscapeMenu.addListener(clickListener);
     final float size = 50;
     add(btnCharacter).size(size);
+    add(btnParty).size(size);
+    add(btnQuests).size(size);
+    add().expandX();
     add(btnInventory).size(size);
     add(btnSkillTree).size(size);
-    //add(btnParty).size(size);
     //add(btnMap).size(size);
     add(btnMessages).size(size);
-    //add(btnQuests).size(size);
     add(btnEscapeMenu).size(size);
-    add(btnMap).size(size);
     pack();
-    setTouchable(Touchable.enabled);
+    setTouchable(Touchable.childrenOnly);
+    //setDebug(true, true);
   }
 
   @Override

@@ -1,5 +1,7 @@
 package com.riiablo.panel;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -21,7 +22,9 @@ import com.riiablo.codec.DC6;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 
-public class ControlPanel extends WidgetGroup implements Disposable {
+public class ControlPanel extends Table implements Disposable {
+  private static final String TAG = "ControlPanel";
+  private static final boolean DEBUG_MOBILE = !true;
 
   final AssetDescriptor<DC6> ctrlpnlDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\ctrlpnl7.DC6", DC6.class);
   HealthWidget healthWidget;
@@ -33,6 +36,10 @@ public class ControlPanel extends WidgetGroup implements Disposable {
 
   final AssetDescriptor<DC6> overlapDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\overlap.DC6", DC6.class);
   DC6 overlap;
+
+  final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
+  DC6 Skillicon;
+  Button leftSkill, rightSkill;
 
   GameScreen gameScreen;
 
@@ -50,49 +57,55 @@ public class ControlPanel extends WidgetGroup implements Disposable {
     Riiablo.assets.finishLoadingAsset(ctrlpnlDescriptor);
     DC6 ctrlpnl = Riiablo.assets.get(ctrlpnlDescriptor);
 
-    int width = 0;
-    int height = Integer.MIN_VALUE;
+    Riiablo.assets.load(SkilliconDescriptor);
+    Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
+    Skillicon = Riiablo.assets.get(SkilliconDescriptor);
+
     final int numFrames = ctrlpnl.getNumFramesPerDir();
-    for (int i = 1; i < numFrames - 2; i++) {
-      Pixmap frame = ctrlpnl.getPixmap(0, i);
-      width += frame.getWidth();
-      height = Math.max(height, frame.getHeight());
-    }
-
-    Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-    pixmap.setBlending(Pixmap.Blending.None);
-    int x = 0;
-    for (int i = 1; i < numFrames - 2; i++) {
-      Pixmap frame = ctrlpnl.getPixmap(0, i);
-      pixmap.drawPixmap(frame, x, pixmap.getHeight() - frame.getHeight());
-      x += frame.getWidth();
-    }
-
     healthWidget = new HealthWidget(ctrlpnl.getTexture(0));
     manaWidget = new ManaWidget(ctrlpnl.getTexture(numFrames - 2));
-    controlWidget = new ControlWidget(new Texture(new PixmapTextureData(pixmap, null, false, false, false)));
-    healthWidget.setHeight(controlWidget.getHeight());
-    manaWidget.setHeight(controlWidget.getHeight());
 
-    healthWidget.setX(0);
-    healthWidget.setY(1);
-    controlWidget.setX(healthWidget.getWidth());
-    manaWidget.setX(healthWidget.getWidth() + controlWidget.getWidth());
-    manaWidget.setY(1);
+    if (!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop) {
+      leftSkill = new Button(new Button.ButtonStyle() {{
+        up   = new TextureRegionDrawable(Skillicon.getTexture(0));
+        down = new TextureRegionDrawable(Skillicon.getTexture(1));
+      }});
+      rightSkill = new Button(new Button.ButtonStyle() {{
+        up   = new TextureRegionDrawable(Skillicon.getTexture(0));
+        down = new TextureRegionDrawable(Skillicon.getTexture(1));
+      }});
 
-    addActor(healthWidget);
-    addActor(controlWidget);
-    addActor(manaWidget);
+      int width = 0;
+      int height = Integer.MIN_VALUE;
+      for (int i = 1; i < numFrames - 2; i++) {
+        Pixmap frame = ctrlpnl.getPixmap(0, i);
+        width += frame.getWidth();
+        height = Math.max(height, frame.getHeight());
+      }
+      Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+      pixmap.setBlending(Pixmap.Blending.None);
+      int x = 0;
+      for (int i = 1; i < numFrames - 2; i++) {
+        Pixmap frame = ctrlpnl.getPixmap(0, i);
+        pixmap.drawPixmap(frame, x, pixmap.getHeight() - frame.getHeight());
+        x += frame.getWidth();
+      }
 
-    setWidth(healthWidget.getWidth() + controlWidget.getWidth() + manaWidget.getWidth());
-    setHeight(height);
+      controlWidget = new ControlWidget(new Texture(new PixmapTextureData(pixmap, null, false, false, false)));
+    }
+
+    final float height = controlWidget == null ? 0 : controlWidget.background.getHeight() - 7;
+    add(healthWidget).height(height).bottom();
+    if (leftSkill != null) add(leftSkill).bottom();
+    if (controlWidget != null) add(controlWidget).size(controlWidget.background.getWidth(), height).bottom();
+    if (rightSkill != null) add(rightSkill).bottom();
+    add(manaWidget).height(height).bottom();
+    pack();
+
+    //setHeight(controlWidget.background.getHeight() - 7);
+    //setY(0);
     setTouchable(Touchable.enabled);
-  }
-
-  @Override
-  public void draw(Batch batch, float a) {
-    //batch.draw(ctrlpnl, getX(), getY());
-    super.draw(batch, a);
+    //setDebug(true, true);
   }
 
   @Override
@@ -100,48 +113,53 @@ public class ControlPanel extends WidgetGroup implements Disposable {
     Riiablo.assets.unload(ctrlpnlDescriptor.fileName);
     Riiablo.assets.unload(overlapDescriptor.fileName);
     Riiablo.assets.unload(hlthmanaDescriptor.fileName);
-    controlWidget.dispose();
+    Riiablo.assets.unload(SkilliconDescriptor.fileName);
+    if (controlWidget != null) controlWidget.dispose();
   }
 
-  private class HealthWidget extends Widget {
+  private class HealthWidget extends Actor {
     TextureRegion background;
     TextureRegion health;
     TextureRegion overlay;
 
     HealthWidget(TextureRegion background) {
       this.background = background;
-      setSize(background.getRegionWidth(), background.getRegionHeight());
-
+      //setSize(background.getRegionWidth(), background.getRegionHeight());
+      setWidth(background.getRegionWidth());
       health = hlthmana.getTexture(0);
       overlay = overlap.getTexture(0);
     }
 
     @Override
     public void draw(Batch batch, float a) {
-      batch.draw(background, getX(), getY());
-      batch.draw(health, 30, 14);
-      batch.draw(overlay, 28, 6);
+      final float x = getX();
+      final float y = getY();
+      batch.draw(background, x, y);
+      batch.draw(health,  x + 30, y + 14);
+      batch.draw(overlay, x + 28, y +  6);
       super.draw(batch, a);
     }
   }
-  private class ManaWidget extends Widget {
+  private class ManaWidget extends Actor {
     TextureRegion background;
     TextureRegion mana;
     TextureRegion overlay;
 
     ManaWidget(TextureRegion background) {
       this.background = background;
-      setSize(background.getRegionWidth(), background.getRegionHeight());
-
+      //setSize(background.getRegionWidth(), background.getRegionHeight());
+      setWidth(background.getRegionWidth());
       mana = hlthmana.getTexture(1);
       overlay = overlap.getTexture(1);
     }
 
     @Override
     public void draw(Batch batch, float a) {
-      batch.draw(background, getX(), getY());
-      batch.draw(mana, 435, 14);
-      batch.draw(overlay, 435, 10);
+      final float x = getX();
+      final float y = getY();
+      batch.draw(background, x, y);
+      batch.draw(mana,    x + 8, y + 14);
+      batch.draw(overlay, x + 8, y + 10);
       super.draw(batch, a);
     }
   }

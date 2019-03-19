@@ -52,6 +52,7 @@ import com.riiablo.panel.CharacterPanel;
 import com.riiablo.panel.ControlPanel;
 import com.riiablo.panel.EscapePanel;
 import com.riiablo.panel.InventoryPanel;
+import com.riiablo.panel.MobileControls;
 import com.riiablo.panel.MobilePanel;
 import com.riiablo.panel.SpellsPanel;
 import com.riiablo.panel.StashPanel;
@@ -94,6 +95,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   ControlPanel controlPanel;
   MobilePanel mobilePanel;
+  MobileControls mobileControls;
   public InventoryPanel inventoryPanel;
   public CharacterPanel characterPanel;
   public SpellsPanel spellsPanel;
@@ -196,15 +198,18 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     escapePanel = new EscapePanel();
 
     controlPanel = new ControlPanel(this);
-    controlPanel.setPosition(
-        stage.getWidth() / 2 - (controlPanel.getWidth() / 2),
-        0);
+    controlPanel.setPosition(stage.getWidth() / 2, 0, Align.bottom | Align.center);
+    controlPanel.pack();
 
     if (Gdx.app.getType() == Application.ApplicationType.Android || DEBUG_MOBILE) {
       mobilePanel = new MobilePanel(this);
-      mobilePanel.setPosition(
-          stage.getWidth()  - mobilePanel.getWidth(),
-          0);//Diablo.VIRTUAL_HEIGHT - mobilePanel.getHeight());
+      mobilePanel.setPosition(0, 0);
+      mobilePanel.setWidth(stage.getWidth());
+
+      mobileControls = new MobileControls(this);
+      mobileControls.setPosition(
+          stage.getWidth() - mobileControls.getWidth(),
+          mobilePanel.getHeight());
     }
 
     inventoryPanel = new InventoryPanel(this);
@@ -229,6 +234,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     //stage.setDebugAll(true);
     if (mobilePanel != null) stage.addActor(mobilePanel);
+    if (mobileControls != null) stage.addActor(mobileControls);
     stage.addActor(input);
     stage.addActor(output);
     stage.addActor(controlPanel);
@@ -254,7 +260,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         knob = new TextureRegionDrawable(Riiablo.assets.get(touchpadKnobDescriptor));
       }});
       touchpad.setSize(164, 164);
-      touchpad.setPosition(0, 0);
+      touchpad.setPosition(0, mobilePanel != null ? mobilePanel.getHeight() : 0);
+      touchpad.toBack();
       stage.addActor(touchpad);
     }
 
