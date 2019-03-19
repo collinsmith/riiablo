@@ -33,7 +33,7 @@ public class Colors {
   public Color c12    = C12.cpy();
 
   public Color highlight  = new Color(0.15f, 0.15f, 0.12f, 0);
-  public Color darken     = new Color(0.40f, 0.40f, 0.40f, 0);
+  public Color darken     = GREY.cpy();//new Color(0.40f, 0.40f, 0.40f, 0);
   public Color darkenRed  = RED.cpy();//new Color(1.00f, 0.20f, 0.20f, 0);
   public Color darkenGold = GOLD.cpy();
 
