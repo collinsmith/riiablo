@@ -28,6 +28,8 @@ public class Player extends Entity {
   private static final String TAG = "Player";
   private static final boolean DEBUG       = true;
   private static final boolean DEBUG_STATE = DEBUG && !true;
+  private static final boolean DEBUG_INV   = DEBUG && !true;
+  private static final boolean DEBUG_EQUIP = DEBUG && !true;
 
   public static final int MAX_NAME_LENGTH = 15;
 
@@ -140,7 +142,7 @@ public class Player extends Entity {
     equipped.putAll(items);
     for (java.util.Map.Entry<BodyLoc, Item> entry : items.entrySet()) {
       entry.getValue().load();
-      //if (DEBUG_EQUIPPED) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
+      if (DEBUG_EQUIP) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
     }
   }
 
@@ -148,7 +150,7 @@ public class Player extends Entity {
     inventory.addAll(items);
     for (Item item : items) {
       item.load();
-      //if (DEBUG_INVENTORY) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
+      if (DEBUG_INV) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
     }
   }
 

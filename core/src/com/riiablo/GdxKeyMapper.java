@@ -1,5 +1,6 @@
 package com.riiablo;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.Application;
@@ -13,12 +14,30 @@ import com.riiablo.key.SaveableKeyMapper;
 import com.riiablo.serializer.IntArrayStringSerializer;
 import com.riiablo.serializer.SerializeException;
 
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.Trie;
+import org.apache.commons.collections4.trie.PatriciaTrie;
+
 import java.util.Arrays;
+import java.util.SortedMap;
 
 public class GdxKeyMapper extends SaveableKeyMapper {
   private static final String TAG = "GdxKeyMapper";
 
   private final Preferences PREFERENCES = Gdx.app.getPreferences(TAG);
+  private final Trie<String, MappedKey> KEYS = new PatriciaTrie<>();
+
+  @NonNull
+  public SortedMap<String, MappedKey> prefixMap(String alias) {
+    if (alias == null) return (SortedMap<String, MappedKey>) MapUtils.EMPTY_SORTED_MAP;
+    return KEYS.prefixMap(alias.toLowerCase());
+  }
+
+  @Nullable
+  public MappedKey get(String alias) {
+    if (alias == null) return null;
+    return KEYS.get(alias.toLowerCase());
+  }
 
   @Nullable
   @Override
@@ -43,6 +62,7 @@ public class GdxKeyMapper extends SaveableKeyMapper {
           key.getName(), key.getAlias(), Arrays.toString(keycodeNames), serializedValue));
     }
 
+    KEYS.put(alias.toLowerCase(), key);
     return assignments;
   }
 

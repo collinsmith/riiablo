@@ -39,6 +39,9 @@ public class HotkeyButton extends Button {
 
   public void copy(HotkeyButton other) {
     setStyle(other.getStyle());
+    setBlendMode(other.blendMode, other.color);
+    setDisabledBlendMode(other.disabledBlendMode, other.disabledColor);
+    setHighlightedBlendMode(other.highlightedBlendMode, other.highlightedColor);
     label.setText(other.label.getText());
   }
 }

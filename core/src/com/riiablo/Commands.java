@@ -3,6 +3,7 @@ package com.riiablo;
 import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -10,15 +11,18 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.riiablo.command.Action;
 import com.riiablo.command.Command;
 import com.riiablo.command.CommandManager;
+import com.riiablo.command.OptionalParameter;
 import com.riiablo.command.Parameter;
 import com.riiablo.command.ParameterException;
 import com.riiablo.cvar.Cvar;
+import com.riiablo.key.MappedKey;
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.serializer.StringSerializer;
 import com.riiablo.validator.ValidationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 public class Commands {
   public static Collection<Throwable> addTo(CommandManager commandManager) {
@@ -139,6 +143,69 @@ public class Commands {
           } catch (ValidationException e) {
             throw new ParameterException("Invalid value specified: \"%s\". %s", value, e.getMessage());
           }
+        }
+      })
+      .build();
+
+  public static final Command bind = Command.builder()
+      .alias("bind")
+      .description("Binds a specified key")
+      .params(
+          Parameter.of(MappedKey.class).suggester(KeySuggester.INSTANCE),
+          OptionalParameter.of(String.class).suggester(KeyValueSuggester.INSTANCE))
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          String alias = instance.getArg(0);
+          MappedKey key = Riiablo.keys.get(alias);
+          if (key == null) {
+            throw new ParameterException("Failed to find key by alias: " + alias);
+          }
+
+          if (instance.numArgs() == 1) {
+            int[] assignments = key.getAssignments();
+            Array<String> keynames = new Array<>(assignments.length);
+            for (int assignment : assignments) {
+              if (assignment != MappedKey.NOT_MAPPED) keynames.add(Input.Keys.toString(assignment));
+            }
+
+            Riiablo.console.out.println(key + " = " + keynames);
+            return;
+          }
+
+          String value = instance.getArg(1);
+          int keycode = KeyValueSuggester.INSTANCE.get(value);
+          if (keycode == -1) {
+            throw new ParameterException("Failed to find key by value: " + value);
+          }
+
+          Set<MappedKey> existingBinds = Riiablo.keys.get(keycode);
+          for (MappedKey existingBind : existingBinds) {
+            existingBind.unassignKey(keycode);
+          }
+
+          boolean assigned = key.assignFirst(keycode);
+          if (!assigned) {
+            throw new ParameterException("Unable to bind \"%s\", too many assignments", alias);
+          }
+        }
+      })
+      .build();
+
+  public static final Command unbind = Command.builder()
+      .alias("unbind")
+      .description("Unbinds a specified key")
+      .params(Parameter.of(MappedKey.class).suggester(KeySuggester.INSTANCE))
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          String alias = instance.getArg(0);
+          MappedKey key = Riiablo.keys.get(alias);
+          if (key == null) {
+            throw new ParameterException("Failed to find key by alias: " + alias);
+          }
+
+          key.unassign();
         }
       })
       .build();

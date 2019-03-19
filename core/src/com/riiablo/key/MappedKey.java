@@ -171,6 +171,7 @@ public class MappedKey implements Iterable<Integer> {
       for (AssignmentListener l : ASSIGNMENT_LISTENERS) l.onUnassigned(this, i, keycode);
     }
 
+    assignments = this.assignments = Arrays.copyOf(keycodes, keycodes.length);
     for (@Assignment int i = 0; i < assignments.length; i++) {
       @Keycode int keycode = assignments[i];
       for (AssignmentListener l : ASSIGNMENT_LISTENERS) l.onAssigned(this, i, keycode);
@@ -193,6 +194,17 @@ public class MappedKey implements Iterable<Integer> {
     }
 
     return previous;
+  }
+
+  public boolean assignFirst(@Keycode int keycode) {
+    for (@Assignment int i = 0; i < assignments.length; i++) {
+      if (assignments[i] == NOT_MAPPED) {
+        assign(i, keycode);
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public boolean unassign(@Assignment int assignment) {
@@ -222,6 +234,23 @@ public class MappedKey implements Iterable<Integer> {
     }
 
     return unassigned;
+  }
+
+  public boolean unassignKey(@Keycode int keycode) {
+    for (@Assignment int i = 0; i < assignments.length; i++) {
+      if (assignments[i] == keycode) {
+        if (i + 1 < assignments.length) {
+          System.arraycopy(assignments, i + 1, assignments, i, assignments.length - i - 1);
+          assignments[assignments.length - 1] = NOT_MAPPED;
+        } else {
+          assignments[i] = NOT_MAPPED;
+        }
+        for (AssignmentListener l : ASSIGNMENT_LISTENERS) l.onUnassigned(this, i, keycode);
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public boolean isAssigned() {
