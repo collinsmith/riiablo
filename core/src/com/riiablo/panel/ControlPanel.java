@@ -17,11 +17,20 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+import com.riiablo.CharacterClass;
+import com.riiablo.Keys;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
+import com.riiablo.codec.excel.SkillDesc;
+import com.riiablo.codec.excel.Skills;
+import com.riiablo.key.MappedKey;
+import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class ControlPanel extends Table implements Disposable {
   private static final String TAG = "ControlPanel";
@@ -40,6 +49,28 @@ public class ControlPanel extends Table implements Disposable {
 
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
   DC6 Skillicon;
+
+  final AssetDescriptor<DC6> CharSkilliconDescriptor[];
+  DC6 CharSkillicon[];
+
+  private static int getClassId(String charClass) {
+    switch (charClass.charAt(0)) {
+      case 'a': return charClass.charAt(1) == 'm' ? CharacterClass.AMAZON.id : CharacterClass.ASSASSIN.id;
+      case 'b': return CharacterClass.BARBARIAN.id;
+      case 'd': return CharacterClass.DRUID.id;
+      case 'n': return CharacterClass.NECROMANCER.id;
+      case 'p': return CharacterClass.PALADIN.id;
+      case 's': return CharacterClass.SORCERESS.id;
+      default:  return -1;
+    }
+  }
+
+  private DC getSkillicon(String charClass, int i) {
+    int classId = getClassId(charClass);
+    DC icons = classId == -1 ? Skillicon : CharSkillicon[classId];
+    return i < icons.getNumPages() ? icons : null;
+  }
+
   HotkeyButton leftSkill, rightSkill;
 
   GameScreen gameScreen;
@@ -62,12 +93,40 @@ public class ControlPanel extends Table implements Disposable {
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
     Skillicon = Riiablo.assets.get(SkilliconDescriptor);
 
+    CharSkilliconDescriptor = new AssetDescriptor[7];
+    CharSkillicon = new DC6[CharSkilliconDescriptor.length];
+    for (int i = 0; i < CharSkilliconDescriptor.length; i++) {
+      CharSkilliconDescriptor[i] = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\" + CharacterClass.get(i).spellIcons + ".DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
+      Riiablo.assets.load(CharSkilliconDescriptor[i]);
+      Riiablo.assets.finishLoadingAsset(CharSkilliconDescriptor[i]);
+      CharSkillicon[i] = Riiablo.assets.get(CharSkilliconDescriptor[i]);
+    }
+
     final int numFrames = ctrlpnl.getNumFramesPerDir();
     healthWidget = new HealthWidget(ctrlpnl.getTexture(0));
     manaWidget = new ManaWidget(ctrlpnl.getTexture(numFrames - 2));
 
     if (!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      leftSkill = new HotkeyButton(Skillicon, 0, -1);
+      int leftSkillId = gameScreen.player.actions[0][0];
+      if (leftSkillId > 0) {
+        final Skills.Entry skill = Riiablo.files.skills.get(leftSkillId);
+        final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+        int iconCel = desc.IconCel;
+        DC icons = getSkillicon(skill.charclass, iconCel);
+        if (icons == null) {
+          icons = Skillicon;
+          iconCel = 20;
+        }
+
+        leftSkill = new HotkeyButton(icons, iconCel, skill.Id);
+        int index = ArrayUtils.indexOf(gameScreen.player.skillBar, leftSkillId);
+        if (index != ArrayUtils.INDEX_NOT_FOUND) {
+          MappedKey mapping = Keys.Skill[index];
+          leftSkill.map(mapping);
+        }
+      } else {
+        leftSkill = new HotkeyButton(Skillicon, 0, -1);
+      }
       leftSkill.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
@@ -75,23 +134,32 @@ public class ControlPanel extends Table implements Disposable {
         }
       });
 
-      int leftSkillId = gameScreen.player.actions[0][0];
-      if (leftSkillId > 0) {
+      int rightSkillId = gameScreen.player.actions[0][1];
+      if (rightSkillId > 0) {
+        final Skills.Entry skill = Riiablo.files.skills.get(rightSkillId);
+        final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+        int iconCel = desc.IconCel;
+        DC icons = getSkillicon(skill.charclass, iconCel);
+        if (icons == null) {
+          icons = Skillicon;
+          iconCel = 20;
+        }
 
+        rightSkill = new HotkeyButton(icons, iconCel, skill.Id);
+        int index = ArrayUtils.indexOf(gameScreen.player.skillBar, rightSkillId);
+        if (index != ArrayUtils.INDEX_NOT_FOUND) {
+          MappedKey mapping = Keys.Skill[index];
+          rightSkill.map(mapping);
+        }
+      } else {
+        rightSkill = new HotkeyButton(Skillicon, 0, -1);
       }
-
-      rightSkill = new HotkeyButton(Skillicon, 0, -1);
       rightSkill.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
           gameScreen.spellsQuickPanelR.setVisible(!gameScreen.spellsQuickPanelR.isVisible());
         }
       });
-
-      int rightSkillId = gameScreen.player.actions[0][1];
-      if (rightSkillId > 0) {
-
-      }
 
       int width = 0;
       int height = Integer.MIN_VALUE;
