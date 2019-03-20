@@ -95,7 +95,7 @@ public class MobileControls extends WidgetGroup implements Disposable {
 
       @Override
       public void tap(InputEvent event, float x, float y, int count, int button) {
-        //...
+        gameScreen.spellsQuickPanelR.setVisible(false);
       }
     };
     gestureListener.getGestureDetector().setLongPressSeconds(0.5f);
