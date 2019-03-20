@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
@@ -17,17 +18,38 @@ import com.riiablo.entity.Player;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
+import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.HotkeyButton;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 public class SpellsQuickPanel extends Table implements Disposable {
+  private static final String SPELLS_PATH = "data\\global\\ui\\SPELLS\\";
+
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
   DC6 Skillicon;
 
-  final AssetDescriptor<DC6> CharSkilliconDescriptor;
-  DC6 CharSkillicon;
+  final AssetDescriptor<DC6> CharSkilliconDescriptor[];
+  DC6 CharSkillicon[];
+
+  private static int getClassId(String charClass) {
+    switch (charClass.charAt(0)) {
+      case 'a': return charClass.charAt(1) == 'm' ? CharacterClass.AMAZON.id : CharacterClass.ASSASSIN.id;
+      case 'b': return CharacterClass.BARBARIAN.id;
+      case 'd': return CharacterClass.DRUID.id;
+      case 'n': return CharacterClass.NECROMANCER.id;
+      case 'p': return CharacterClass.PALADIN.id;
+      case 's': return CharacterClass.SORCERESS.id;
+      default:  return -1;
+    }
+  }
+
+  private DC getSkillicon(String charClass, int i) {
+    int classId = getClassId(charClass);
+    DC icons = classId == -1 ? Skillicon : CharSkillicon[classId];
+    return i < icons.getNumPages() ? icons : null;
+  }
 
   GameScreen gameScreen;
   ObjectMap<MappedKey, HotkeyButton> keyMappings;
@@ -40,13 +62,17 @@ public class SpellsQuickPanel extends Table implements Disposable {
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
     Skillicon = Riiablo.assets.get(SkilliconDescriptor);
 
+    CharSkilliconDescriptor = new AssetDescriptor[7];
+    CharSkillicon = new DC6[CharSkilliconDescriptor.length];
+    for (int i = 0; i < CharSkilliconDescriptor.length; i++) {
+      CharSkilliconDescriptor[i] = new AssetDescriptor<>(SPELLS_PATH + CharacterClass.get(i).spellIcons + ".DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
+      Riiablo.assets.load(CharSkilliconDescriptor[i]);
+      Riiablo.assets.finishLoadingAsset(CharSkilliconDescriptor[i]);
+      CharSkillicon[i] = Riiablo.assets.get(CharSkilliconDescriptor[i]);
+    }
+
     Player player = gameScreen.player;
     CharacterClass charClass = player.charClass;
-    CharSkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\" + charClass.spellIcons + ".DC6", DC6.class);
-    Riiablo.assets.load(CharSkilliconDescriptor);
-    Riiablo.assets.finishLoadingAsset(CharSkilliconDescriptor);
-    CharSkillicon = Riiablo.assets.get(CharSkilliconDescriptor);
-
     keyMappings = new ObjectMap<>(31);
     Table top = new Table() {{
       add(new HotkeyButton(Skillicon, 14));
@@ -54,6 +80,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
       pack();
     }};
     Table[] tables = new Table[5];
+    // TODO: Include non-class spells gained from items
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
       if (player.skills.getLevel(i) <= 0) continue;
 
@@ -64,7 +91,13 @@ public class SpellsQuickPanel extends Table implements Disposable {
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       Table table = tables[desc.ListRow];
       if (table == null) table = tables[desc.ListRow] = new Table();
-      final HotkeyButton button = new HotkeyButton(CharSkillicon, desc.IconCel);
+      int iconCel = desc.IconCel;
+      DC icons = getSkillicon(skill.charclass, iconCel);
+      if (icons == null) {
+        icons = Skillicon;
+        iconCel = 20;
+      }
+      final HotkeyButton button = new HotkeyButton(icons, iconCel);
       if (skill.aura) {
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
@@ -127,6 +160,6 @@ public class SpellsQuickPanel extends Table implements Disposable {
   public void dispose() {
     for (MappedKey Skill : Keys.Skill) Skill.removeStateListener(mappedKeyListener);
     Riiablo.assets.unload(SkilliconDescriptor.fileName);
-    Riiablo.assets.unload(CharSkilliconDescriptor.fileName);
+    for (AssetDescriptor assetDescriptor : CharSkilliconDescriptor) Riiablo.assets.unload(assetDescriptor.fileName);
   }
 }
