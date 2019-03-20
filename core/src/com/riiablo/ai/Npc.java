@@ -56,6 +56,7 @@ public class Npc extends AI {
 
     actionTimer = Float.POSITIVE_INFINITY;
     actionPerformed = false;
+    entity.setMode(Monster.MODE_NU);
     entity.target().set(entity.position());
     entity.lookAt(gameScreen.player);
     entity.update(0);
