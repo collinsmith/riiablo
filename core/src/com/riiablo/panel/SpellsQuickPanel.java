@@ -1,5 +1,7 @@
 package com.riiablo.panel;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -73,12 +75,14 @@ public class SpellsQuickPanel extends Table implements Disposable {
       CharSkillicon[i] = Riiablo.assets.get(CharSkilliconDescriptor[i]);
     }
 
+    final float SIZE = Gdx.app.getType() == Application.ApplicationType.Android ? 64 : 48;
+
     Player player = gameScreen.player;
     CharacterClass charClass = player.charClass;
     keyMappings = new ObjectMap<>(31);
     Table top = new Table() {{
-      add(new HotkeyButton(Skillicon, 14, -1));
-      add(new HotkeyButton(Skillicon, 18, -1));
+      add(new HotkeyButton(Skillicon, 14, -1)).size(SIZE);
+      add(new HotkeyButton(Skillicon, 18, -1)).size(SIZE);
       pack();
     }};
     Table[] tables = new Table[5];
@@ -118,12 +122,12 @@ public class SpellsQuickPanel extends Table implements Disposable {
           SpellsQuickPanel.this.setVisible(false);
         }
       });
-      table.add(button);
+      table.add(button).size(SIZE);
     }
     Table bottom = new Table() {{
-      add(new HotkeyButton(Skillicon, 4, -1));
-      add(new HotkeyButton(Skillicon, 6, -1));
-      add(new HotkeyButton(Skillicon, 2, -1));
+      add(new HotkeyButton(Skillicon, 4, -1)).size(SIZE);
+      add(new HotkeyButton(Skillicon, 6, -1)).size(SIZE);
+      add(new HotkeyButton(Skillicon, 2, -1)).size(SIZE);
       pack();
     }};
     add(top).align(leftSkills ? Align.left : Align.right).row();
