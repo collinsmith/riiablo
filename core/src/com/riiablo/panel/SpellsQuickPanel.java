@@ -54,9 +54,11 @@ public class SpellsQuickPanel extends Table implements Disposable {
   GameScreen gameScreen;
   ObjectMap<MappedKey, HotkeyButton> keyMappings;
   MappedKeyStateAdapter mappedKeyListener;
+  HotkeyButton observer;
 
-  public SpellsQuickPanel(final GameScreen gameScreen, final boolean leftSkills) {
+  public SpellsQuickPanel(final GameScreen gameScreen, final HotkeyButton o, final boolean leftSkills) {
     this.gameScreen = gameScreen;
+    this.observer = o;
 
     Riiablo.assets.load(SkilliconDescriptor);
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
@@ -112,12 +114,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
       button.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          ControlPanel controlPanel = gameScreen.controlPanel;
-          if (leftSkills) {
-            controlPanel.getLeftSkill().copy(button);
-          } else {
-            controlPanel.getRightSkill().copy(button);
-          }
+          observer.copy(button);
           SpellsQuickPanel.this.setVisible(false);
         }
       });
@@ -154,6 +151,10 @@ public class SpellsQuickPanel extends Table implements Disposable {
       }
     };
     for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
+  }
+
+  public void setObserver(HotkeyButton observer) {
+    this.observer = observer;
   }
 
   @Override

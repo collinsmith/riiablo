@@ -235,11 +235,11 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         0,
         stage.getHeight() - stashPanel.getHeight());
 
-    spellsQuickPanelL = new SpellsQuickPanel(this, true);
+    spellsQuickPanelL = new SpellsQuickPanel(this, controlPanel.getLeftSkill(), true);
     spellsQuickPanelL.setPosition(0, 100, Align.bottomLeft);
     spellsQuickPanelL.setVisible(false);
 
-    spellsQuickPanelR = new SpellsQuickPanel(this, false);
+    spellsQuickPanelR = new SpellsQuickPanel(this, controlPanel.getRightSkill(), false);
     spellsQuickPanelR.setPosition(stage.getWidth(), 100, Align.bottomRight);
     spellsQuickPanelR.setVisible(false);
 

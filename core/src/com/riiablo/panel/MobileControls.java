@@ -16,6 +16,7 @@ import com.riiablo.codec.DC6;
 import com.riiablo.entity.Entity;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
+import com.riiablo.widget.HotkeyButton;
 
 public class MobileControls extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
@@ -27,7 +28,7 @@ public class MobileControls extends WidgetGroup implements Disposable {
   GameScreen gameScreen;
 
   Button interact;
-  Button skills[];
+  HotkeyButton skills[];
 
   final float SIZE = 64;
 
@@ -63,23 +64,14 @@ public class MobileControls extends WidgetGroup implements Disposable {
       }
     });
 
-    skills = new Button[3];
-    skills[0] = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(SoSkillicon.getTexture(36));
-      down = new TextureRegionDrawable(SoSkillicon.getTexture(37));
-    }});
+    skills = new HotkeyButton[3];
+    skills[0] = new HotkeyButton(Skillicon, 0);
     skills[0].setSize(SIZE, SIZE);
 
-    skills[1] = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Skillicon.getTexture(0));
-      down = new TextureRegionDrawable(Skillicon.getTexture(1));
-    }});
+    skills[1] = new HotkeyButton(Skillicon, 0);
     skills[1].setSize(SIZE, SIZE);
 
-    skills[2] = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Skillicon.getTexture(0));
-      down = new TextureRegionDrawable(Skillicon.getTexture(1));
-    }});
+    skills[2] = new HotkeyButton(Skillicon, 0);
     skills[2].setSize(SIZE, SIZE);
 
     ActorGestureListener gestureListener = new ActorGestureListener() {
@@ -90,6 +82,8 @@ public class MobileControls extends WidgetGroup implements Disposable {
         SpellsQuickPanel spellsQuickPanel = gameScreen.spellsQuickPanelR;
         final boolean visible = !spellsQuickPanel.isVisible();
         if (visible) {
+          HotkeyButton dst = (HotkeyButton) actor;
+          spellsQuickPanel.setObserver(dst);
           // FIXME: Scale this better
           tmpVec2.set(actor.getWidth(), actor.getHeight());
           actor.localToStageCoordinates(tmpVec2);
