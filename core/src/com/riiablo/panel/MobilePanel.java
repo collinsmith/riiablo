@@ -26,6 +26,7 @@ public class MobilePanel extends Table implements Disposable {
   Button btnMessages;
   Button btnQuests;
   Button btnEscapeMenu;
+  Button btnSwapWeapons;
 
   public MobilePanel(final GameScreen gameScreen) {
     this.gameScreen = gameScreen;
@@ -38,6 +39,8 @@ public class MobilePanel extends Table implements Disposable {
         Actor actor = event.getListenerActor();
         if (actor == btnCharacter) {
           gameScreen.characterPanel.setVisible(!gameScreen.characterPanel.isVisible());
+        } else if (actor == btnSwapWeapons) {
+          gameScreen.player.setAlternate(!gameScreen.player.isAlternate());
         } else if (actor == btnInventory) {
           gameScreen.inventoryPanel.setVisible(!gameScreen.inventoryPanel.isVisible());
         } else if (actor == btnSkillTree) {
@@ -96,10 +99,16 @@ public class MobilePanel extends Table implements Disposable {
       down = new TextureRegionDrawable(minipanelbtn.getTexture(15));
     }});
     btnEscapeMenu.addListener(clickListener);
+    btnSwapWeapons = new Button(new Button.ButtonStyle() {{
+      up   = new TextureRegionDrawable(minipanelbtn.getTexture(16));
+      down = new TextureRegionDrawable(minipanelbtn.getTexture(17));
+    }});
+    btnSwapWeapons.addListener(clickListener);
     final float size = 50;
     add(btnCharacter).size(size);
     add(btnParty).size(size);
     add(btnQuests).size(size);
+    add(btnSwapWeapons).size(size);
     add().expandX();
     add(btnInventory).size(size);
     add(btnSkillTree).size(size);
