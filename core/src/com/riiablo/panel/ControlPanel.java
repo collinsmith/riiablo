@@ -67,20 +67,31 @@ public class ControlPanel extends Table implements Disposable {
     manaWidget = new ManaWidget(ctrlpnl.getTexture(numFrames - 2));
 
     if (!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      leftSkill = new HotkeyButton(Skillicon, 0);
+      leftSkill = new HotkeyButton(Skillicon, 0, -1);
       leftSkill.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
           gameScreen.spellsQuickPanelL.setVisible(!gameScreen.spellsQuickPanelL.isVisible());
         }
       });
-      rightSkill = new HotkeyButton(Skillicon, 0);
+
+      int leftSkillId = gameScreen.player.actions[0][0];
+      if (leftSkillId > 0) {
+
+      }
+
+      rightSkill = new HotkeyButton(Skillicon, 0, -1);
       rightSkill.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
           gameScreen.spellsQuickPanelR.setVisible(!gameScreen.spellsQuickPanelR.isVisible());
         }
       });
+
+      int rightSkillId = gameScreen.player.actions[0][1];
+      if (rightSkillId > 0) {
+
+      }
 
       int width = 0;
       int height = Integer.MIN_VALUE;

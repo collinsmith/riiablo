@@ -77,8 +77,8 @@ public class SpellsQuickPanel extends Table implements Disposable {
     CharacterClass charClass = player.charClass;
     keyMappings = new ObjectMap<>(31);
     Table top = new Table() {{
-      add(new HotkeyButton(Skillicon, 14));
-      add(new HotkeyButton(Skillicon, 18));
+      add(new HotkeyButton(Skillicon, 14, -1));
+      add(new HotkeyButton(Skillicon, 18, -1));
       pack();
     }};
     Table[] tables = new Table[5];
@@ -99,7 +99,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
         icons = Skillicon;
         iconCel = 20;
       }
-      final HotkeyButton button = new HotkeyButton(icons, iconCel);
+      final HotkeyButton button = new HotkeyButton(icons, iconCel, skill.Id);
       if (skill.aura) {
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
@@ -121,9 +121,9 @@ public class SpellsQuickPanel extends Table implements Disposable {
       table.add(button);
     }
     Table bottom = new Table() {{
-      add(new HotkeyButton(Skillicon, 4));
-      add(new HotkeyButton(Skillicon, 6));
-      add(new HotkeyButton(Skillicon, 2));
+      add(new HotkeyButton(Skillicon, 4, -1));
+      add(new HotkeyButton(Skillicon, 6, -1));
+      add(new HotkeyButton(Skillicon, 2, -1));
       pack();
     }};
     add(top).align(leftSkills ? Align.left : Align.right).row();

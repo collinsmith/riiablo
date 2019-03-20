@@ -65,13 +65,13 @@ public class MobileControls extends WidgetGroup implements Disposable {
     });
 
     skills = new HotkeyButton[3];
-    skills[0] = new HotkeyButton(Skillicon, 0);
+    skills[0] = new HotkeyButton(Skillicon, 0, -1);
     skills[0].setSize(SIZE, SIZE);
 
-    skills[1] = new HotkeyButton(Skillicon, 0);
+    skills[1] = new HotkeyButton(Skillicon, 0, -1);
     skills[1].setSize(SIZE, SIZE);
 
-    skills[2] = new HotkeyButton(Skillicon, 0);
+    skills[2] = new HotkeyButton(Skillicon, 0, -1);
     skills[2].setSize(SIZE, SIZE);
 
     ActorGestureListener gestureListener = new ActorGestureListener() {
@@ -96,6 +96,8 @@ public class MobileControls extends WidgetGroup implements Disposable {
       @Override
       public void tap(InputEvent event, float x, float y, int count, int button) {
         gameScreen.spellsQuickPanelR.setVisible(false);
+        Button actor = (Button) event.getListenerActor();
+        // TODO: cast spell
       }
     };
     gestureListener.getGestureDetector().setLongPressSeconds(0.5f);

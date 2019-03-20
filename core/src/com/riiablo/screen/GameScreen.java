@@ -66,6 +66,7 @@ import com.riiablo.server.Packet;
 import com.riiablo.server.Packets;
 import com.riiablo.server.PipedSocket;
 import com.riiablo.widget.DCWrapper;
+import com.riiablo.widget.HotkeyButton;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
@@ -507,20 +508,17 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           mapListener.update();
         //}
 
-        if (Gdx.input.isKeyPressed(Input.Keys.F1) || Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
           mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
           player.lookAt(tmpVec2.x, tmpVec2.y);
-          boolean cast = player.cast(54);
-          if (cast) {
+          HotkeyButton rightSkill = controlPanel.getRightSkill();
+          boolean cast = player.cast(rightSkill.getSkill());
+          if (cast && rightSkill.getSkill() == 54) {
             GridPoint2 dst = mapRenderer.coords(tmpVec2.x, tmpVec2.y);
             player.position().set(dst.x, dst.y);
             player.target().setZero();
             player.setPath(null, null);
           }
-        } else if (Gdx.input.isKeyPressed(Input.Keys.F2)) {
-          mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
-          player.lookAt(tmpVec2.x, tmpVec2.y);
-          boolean cast = player.cast(36);
         }
       }
       else if (DEBUG_HIT) Gdx.app.debug(TAG, hit.toString());
