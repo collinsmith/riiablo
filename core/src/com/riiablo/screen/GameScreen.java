@@ -275,8 +275,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       }});
       touchpad.setSize(164, 164);
       touchpad.setPosition(0, mobilePanel != null ? mobilePanel.getHeight() : 0);
-      touchpad.toBack();
       stage.addActor(touchpad);
+      touchpad.toBack();
     }
 
     mappedKeyStateListener = new MappedKeyStateAdapter() {
