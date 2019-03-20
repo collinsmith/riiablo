@@ -64,15 +64,11 @@ public class MobileControls extends WidgetGroup implements Disposable {
       }
     });
 
-    skills = new HotkeyButton[3];
-    skills[0] = new HotkeyButton(Skillicon, 0, -1);
-    skills[0].setSize(SIZE, SIZE);
-
-    skills[1] = new HotkeyButton(Skillicon, 0, -1);
-    skills[1].setSize(SIZE, SIZE);
-
-    skills[2] = new HotkeyButton(Skillicon, 0, -1);
-    skills[2].setSize(SIZE, SIZE);
+    skills = new HotkeyButton[5];
+    for (int i = 0; i < skills.length; i++) {
+      skills[i] = new HotkeyButton(Skillicon, 0, -1);
+      skills[i].setSize(SIZE, SIZE);
+    }
 
     ActorGestureListener gestureListener = new ActorGestureListener() {
       private final Vector2 tmpVec2 = new Vector2();
@@ -113,6 +109,8 @@ public class MobileControls extends WidgetGroup implements Disposable {
     skills[0].setPosition(getWidth(), 72, Align.bottomRight);
     skills[1].setPosition(getWidth() - 72, 72, Align.bottomRight);
     skills[2].setPosition(getWidth() - 72, 0, Align.bottomRight);
+    skills[3].setPosition(getWidth() - 144, 72, Align.bottomRight);
+    skills[4].setPosition(getWidth() - 144, 0, Align.bottomRight);
   }
 
   @Override
