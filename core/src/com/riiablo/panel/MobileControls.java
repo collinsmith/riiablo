@@ -96,8 +96,8 @@ public class MobileControls extends WidgetGroup implements Disposable {
       @Override
       public void tap(InputEvent event, float x, float y, int count, int button) {
         gameScreen.spellsQuickPanelR.setVisible(false);
-        Button actor = (Button) event.getListenerActor();
-        // TODO: cast spell
+        HotkeyButton actor = (HotkeyButton) event.getListenerActor();
+        gameScreen.player.cast(actor.getSkill());
       }
     };
     gestureListener.getGestureDetector().setLongPressSeconds(0.5f);
