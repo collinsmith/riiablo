@@ -1,10 +1,12 @@
 package com.riiablo.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
@@ -25,8 +27,7 @@ public class MobileControls extends WidgetGroup implements Disposable {
   GameScreen gameScreen;
 
   Button interact;
-  Button teleport;
-  Button foo1, foo2;
+  Button skills[];
 
   final float SIZE = 64;
 
@@ -62,36 +63,60 @@ public class MobileControls extends WidgetGroup implements Disposable {
       }
     });
 
-    teleport = new Button(new Button.ButtonStyle() {{
+    skills = new Button[3];
+    skills[0] = new Button(new Button.ButtonStyle() {{
       up   = new TextureRegionDrawable(SoSkillicon.getTexture(36));
       down = new TextureRegionDrawable(SoSkillicon.getTexture(37));
     }});
-    teleport.setSize(SIZE, SIZE);
+    skills[0].setSize(SIZE, SIZE);
 
-    foo1 = new Button(new Button.ButtonStyle() {{
+    skills[1] = new Button(new Button.ButtonStyle() {{
       up   = new TextureRegionDrawable(Skillicon.getTexture(0));
       down = new TextureRegionDrawable(Skillicon.getTexture(1));
     }});
-    foo1.setSize(SIZE, SIZE);
+    skills[1].setSize(SIZE, SIZE);
 
-    foo2 = new Button(new Button.ButtonStyle() {{
+    skills[2] = new Button(new Button.ButtonStyle() {{
       up   = new TextureRegionDrawable(Skillicon.getTexture(0));
       down = new TextureRegionDrawable(Skillicon.getTexture(1));
     }});
-    foo2.setSize(SIZE, SIZE);
+    skills[2].setSize(SIZE, SIZE);
+
+    ActorGestureListener gestureListener = new ActorGestureListener() {
+      private final Vector2 tmpVec2 = new Vector2();
+
+      @Override
+      public boolean longPress(Actor actor, float x, float y) {
+        SpellsQuickPanel spellsQuickPanel = gameScreen.spellsQuickPanelR;
+        final boolean visible = !spellsQuickPanel.isVisible();
+        if (visible) {
+          // FIXME: Scale this better
+          tmpVec2.set(actor.getWidth(), actor.getHeight());
+          actor.localToStageCoordinates(tmpVec2);
+          spellsQuickPanel.setPosition(tmpVec2.x, tmpVec2.y, Align.bottomRight);
+        }
+        spellsQuickPanel.setVisible(visible);
+        return true;
+      }
+
+      @Override
+      public void tap(InputEvent event, float x, float y, int count, int button) {
+        //...
+      }
+    };
+    gestureListener.getGestureDetector().setLongPressSeconds(0.5f);
+    for (Actor button : skills) button.addListener(gestureListener);
 
     addActor(interact);
-    addActor(teleport);
-    addActor(foo1);
-    addActor(foo2);
+    for (Actor button : skills) addActor(button);
 
     setSize(256, 256);
     setTouchable(Touchable.childrenOnly);
 
     interact.setPosition(getWidth(), 0, Align.bottomRight);
-    teleport.setPosition(getWidth(), 72, Align.bottomRight);
-    foo1.setPosition(getWidth() - 72, 72, Align.bottomRight);
-    foo2.setPosition(getWidth() - 72, 0, Align.bottomRight);
+    skills[0].setPosition(getWidth(), 72, Align.bottomRight);
+    skills[1].setPosition(getWidth() - 72, 72, Align.bottomRight);
+    skills[2].setPosition(getWidth() - 72, 0, Align.bottomRight);
   }
 
   @Override
