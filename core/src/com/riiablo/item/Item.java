@@ -189,11 +189,12 @@ public class Item extends Actor implements Disposable {
       }
     }
 
-    details = new Details();
     return this;
   }
 
   public void load() {
+    details = new Details();
+
     if (invFileDescriptor != null) return;
     invFileDescriptor = new AssetDescriptor<>("data\\global\\items\\" + getInvFileName() + '.' + DC6.EXT, DC6.class);
     Riiablo.assets.load(invFileDescriptor);
