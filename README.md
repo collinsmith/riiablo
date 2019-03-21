@@ -40,6 +40,7 @@ compatible with playing with users using the original game client.
 - Full console, including CVAR support and key bindings
 - Controller support
 - Platform-specific features (Android touch, PC mouse, etc)
+- Scalable UI (Partial for now)
 
 # Screenshots
 ![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-1.png)
