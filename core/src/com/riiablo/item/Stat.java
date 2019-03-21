@@ -382,6 +382,12 @@ public enum Stat {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1
   };
 
+  private final ItemStatCost.Entry entry;
+
+  Stat() {
+    entry = Riiablo.files.ItemStatCost.get(ordinal());
+  }
+
   public static int getStatCount(int stat) {
     return ENCODED_COUNT[stat];
   }
@@ -393,11 +399,32 @@ public enum Stat {
   }
 
   public ItemStatCost.Entry entry() {
-    return Riiablo.files.ItemStatCost.get(ordinal());
+    return entry;
   }
 
-  public int read(BitStream bitStream) {
-    ItemStatCost.Entry entry = entry();
-    return bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
+  public Instance read(BitStream bitStream) {
+    int value = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add; // TODO: Support entry.ValShift
+    int param = entry.Save_Param_Bits > 0 ? bitStream.readUnsigned31OrLess(entry.Save_Param_Bits) : 0;
+    return new Instance(this, value, param);
+  }
+
+  public static class Instance {
+    final Stat stat;
+    final int  value;
+    final int  param;
+
+    Instance(Stat stat, int value, int param) {
+      this.stat  = stat;
+      this.value = value;
+      this.param = param;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder builder = new StringBuilder();
+      builder.append(value);
+      if (stat.entry.Save_Param_Bits > 0) builder.append(':').append(param);
+      return builder.toString();
+    }
   }
 }

@@ -28,6 +28,7 @@ import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 
 import static com.riiablo.item.Quality.SET;
@@ -77,7 +78,7 @@ public class Item extends Actor implements Disposable {
   public int     runewordData;
   public String  inscription;
 
-  public EnumMap<Stat, Integer> stats;
+  public EnumMap<Stat, Stat.Instance> stats[];
 
   public ItemEntry       base;
   public ItemTypes.Entry type;
@@ -198,24 +199,22 @@ public class Item extends Actor implements Disposable {
 
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
 
-      stats = new EnumMap<>(Stat.class);
+      stats = (EnumMap<Stat, Stat.Instance>[]) new EnumMap[7];
+      stats[0] = new EnumMap<>(Stat.class);
       if (type.is("armo")) {
-        int defense = Stat.armorclass.read(bitStream);
-        stats.put(Stat.armorclass, defense);
+        stats[0].put(Stat.armorclass, Stat.armorclass.read(bitStream));
       }
 
       if (type.is("armo") || type.is("weap")) {
-        int maxdurability = Stat.maxdurability.read(bitStream);
-        stats.put(Stat.maxdurability, maxdurability);
-        if (maxdurability > 0) {
-          int durability = Stat.durability.read(bitStream);
-          stats.put(Stat.durability, durability);
+        Stat.Instance maxdurability = Stat.maxdurability.read(bitStream);
+        stats[0].put(Stat.maxdurability, maxdurability);
+        if (maxdurability.value > 0) {
+          stats[0].put(Stat.durability, Stat.durability.read(bitStream));
         }
       }
 
       if ((flags & SOCKETED) == SOCKETED && (type.is("armo") || type.is("weap"))) {
-        int sockets = Stat.item_numsockets.read(bitStream);
-        stats.put(Stat.item_numsockets, sockets);
+        stats[0].put(Stat.item_numsockets, Stat.item_numsockets.read(bitStream));
       }
 
       if (type.is("book")) {
@@ -224,7 +223,7 @@ public class Item extends Actor implements Disposable {
 
       if (base.stackable) {
         int quantity = bitStream.readUnsigned15OrLess(9);
-        stats.put(Stat.quantity, quantity);
+        stats[0].put(Stat.quantity, new Stat.Instance(Stat.quantity, quantity, 0));
       }
 
       if (quality == SET) {
@@ -232,13 +231,26 @@ public class Item extends Actor implements Disposable {
         listsFlags |= (lists << 1);
       }
 
+      if (type.is("book")) {
+        listsFlags = 0;
+      }
+
       for (int i = 0; i < 7; i++) {
-        if ((listsFlags & (1 << i)) != 0) {
-          // TODO: READ PROPERTY LIST
+        if (((listsFlags >> i) & 1) == 1) {
+          if (i > 0) stats[i] = new EnumMap<>(Stat.class);
+          EnumMap<Stat, Stat.Instance> stats = this.stats[i];
+          for (;;) {
+            int prop = bitStream.readUnsigned15OrLess(9);
+            if (prop == 0x1ff) break;
+            for (int j = 0, size = Stat.getStatCount(prop); j < size; j++) {
+              Stat stat = Stat.valueOf(prop + j);
+              stats.put(stat, stat.read(bitStream));
+            }
+          }
         }
       }
 
-      System.out.println(getName() + " : " + stats.toString() + " : " + Integer.toBinaryString(listsFlags));
+      //System.out.println(getName() + " : " + Arrays.toString(stats) + " : " + Integer.toBinaryString(listsFlags));
     }
 
     return this;
@@ -307,7 +319,8 @@ public class Item extends Actor implements Disposable {
           .append("qualityData", qualityData)
           .append("runewordData", String.format("0x%04X", runewordData))
           .append("inscription", inscription)
-          .append("socketed", socketed);
+          .append("socketed", socketed)
+          .append("attrs", Arrays.toString(stats));
     } else {
       builder.append("location", location);
       switch (location) {
@@ -378,6 +391,8 @@ public class Item extends Actor implements Disposable {
         if ((flags & SOCKETED) == SOCKETED && socketsFilled > 0) {
           builder.append("socketed", socketed);
         }
+
+        builder.append("attrs", Arrays.toString(stats));
       }
     }
 
