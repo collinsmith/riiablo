@@ -209,6 +209,15 @@ project(":server") {
     }
 }
 
+project(":mpqlib") {
+    apply plugin: "java"
+
+    dependencies {
+        compile project(":core")
+        compile "com.badlogicgames.gdx:gdx-jnigen:$gdxVersion"
+    }
+}
+
 tasks.eclipse.doLast {
     delete ".project"
 }
