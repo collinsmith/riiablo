@@ -24,6 +24,7 @@ import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
+import com.riiablo.graphics.BlendMode;
 import com.riiablo.key.MappedKey;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
@@ -119,6 +120,7 @@ public class ControlPanel extends Table implements Disposable {
         }
 
         leftSkill = new HotkeyButton(icons, iconCel, skill.Id);
+        if (skill.aura) leftSkill.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
         int index = ArrayUtils.indexOf(gameScreen.player.skillBar, leftSkillId);
         if (index != ArrayUtils.INDEX_NOT_FOUND) {
           MappedKey mapping = Keys.Skill[index];
@@ -146,6 +148,7 @@ public class ControlPanel extends Table implements Disposable {
         }
 
         rightSkill = new HotkeyButton(icons, iconCel, skill.Id);
+        if (skill.aura) rightSkill.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
         int index = ArrayUtils.indexOf(gameScreen.player.skillBar, rightSkillId);
         if (index != ArrayUtils.INDEX_NOT_FOUND) {
           MappedKey mapping = Keys.Skill[index];

@@ -136,7 +136,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
         getHeight() - inventory.rArmBottom);
     rArm.yOffs = 2;
     rArm.xOffsAlt = 4;
-    rArm.yOffsAlt = 5;
+    rArm.yOffsAlt = 4;
     addActor(rArm);
 
     BodyPart lArm = bodyParts[BodyLocs.LARM] = new BodyPart(BodyLoc.LARM, inv_weapons.getTexture());
@@ -146,7 +146,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
         getHeight() - inventory.lArmBottom);
     lArm.yOffs = 2;
     lArm.xOffsAlt = 4;
-    lArm.yOffsAlt = 5;
+    lArm.yOffsAlt = 4;
     addActor(lArm);
 
     BodyPart head = bodyParts[BodyLocs.HEAD] = new BodyPart(BodyLoc.HEAD, inv_helm_glove.getTexture(1));
