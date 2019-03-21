@@ -732,13 +732,16 @@ public abstract class Entity implements Animation.AnimationListener {
   }
 
   public boolean cast(final int spell) {
+    if (spell < 0) return false;
     if (!isCastable(mode)) return false;
     setPath(null, null);
     //if (mode == getNeutralMode()) return;
     //animating = true;
     final Skills.Entry skill = Riiablo.files.skills.get(spell);
     byte tm = mode;
-    boolean changed = sequence(type.getMode(skill.anim), getNeutralMode());
+    byte newMode = type.getMode(skill.anim);
+    if (newMode == -1) newMode = type.getMode("SC");
+    boolean changed = sequence(newMode, getNeutralMode());
     if (!changed) return false;
 
     System.out.println("cast " + type.MODE[tm] + "->" + type.MODE[mode]);

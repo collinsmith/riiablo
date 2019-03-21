@@ -94,6 +94,7 @@ public class Player extends Entity {
   public Stats stats;
   public Skills skills;
   public int[] skillBar;
+  public int[][] actions;
   public Map map;
   public Map.Zone curZone;
   public final CharacterClass charClass;
@@ -108,6 +109,7 @@ public class Player extends Entity {
     stats = new StatsImpl(name, characterClass.id);
     skills = new SkillsImpl();
     skillBar = new int[16];
+    actions = new int[2][2];
   }
 
   public Player(D2S d2s) {
@@ -115,6 +117,7 @@ public class Player extends Entity {
     stats = new D2SStats(d2s);
     skills = new D2SSkills(d2s);
     skillBar = d2s.skillBar;
+    actions = d2s.actions;
     loadEquipped(d2s.items.equipped);
     loadInventory(d2s.items.inventory);
   }
