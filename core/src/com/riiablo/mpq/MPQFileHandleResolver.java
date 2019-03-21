@@ -66,10 +66,6 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   public FileHandle resolve(String fileName) {
     if (DEBUG) Gdx.app.debug(TAG, "Resolving " + fileName);
     if (fileName == null) return null;
-    if (fileName.endsWith("gem.wav")) {
-      return new MPQFileHandle(d2sfx, fileName);
-    }
-
     for (MPQ mpq : mpqs) {
       if (mpq.contains(fileName)) {
         if (DEBUG) Gdx.app.debug(TAG, fileName + " found in " + mpq);

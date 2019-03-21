@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.StreamUtils;
 import com.riiablo.mpq.util.Decompressor;
 import com.riiablo.mpq.util.Decryptor;
 import com.riiablo.mpq.util.Exploder;
+import com.riiablo.util.BufferUtils;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -18,11 +19,9 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
-import com.riiablo.util.BufferUtils;
-
 public class MPQInputStream extends InputStream {
   private static final String TAG = "MPQInputStream";
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = !true;
 
   private static final int[] ZERO_ARRAY = new int[] { 0 };
 
@@ -232,7 +231,11 @@ public class MPQInputStream extends InputStream {
       if (DEBUG) Gdx.app.debug(TAG, "Exploding sector...");
       final int FSize = Math.min(block.FSize - finalSize, sectorSize);
       buffer.rewind().limit(FSize);
-      Exploder.pkexplode(sector, buffer);
+      if (CSize == sectorSize) {
+        buffer.put(sector);
+      } else {
+        Exploder.pkexplode(sector, buffer);
+      }
       if (DEBUG) Gdx.app.debug(TAG, "Exploded to " + buffer.position() + " bytes");
       buffer.rewind();
 
@@ -363,7 +366,11 @@ public class MPQInputStream extends InputStream {
             if (DEBUG) Gdx.app.debug(TAG, "Exploding sector...");
             final int FSize = Math.min(block.FSize - finalSize, sectorSize);
             ByteBuffer slice = BufferUtils.slice(buffer, FSize);
-            Exploder.pkexplode(sector, slice);
+            if (CSize == sectorSize) {
+              slice.put(sector);
+            } else {
+              Exploder.pkexplode(sector, slice);
+            }
             if (DEBUG) Gdx.app.debug(TAG, "Exploded to " + slice.limit() + " bytes");
             buffer.position(buffer.position() + slice.limit());
           }
