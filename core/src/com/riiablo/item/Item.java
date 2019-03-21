@@ -28,6 +28,8 @@ import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.EnumMap;
+
 import static com.riiablo.item.Quality.SET;
 
 public class Item extends Actor implements Disposable {
@@ -75,6 +77,8 @@ public class Item extends Actor implements Disposable {
   public int     runewordData;
   public String  inscription;
 
+  public EnumMap<Stat, Integer> stats;
+
   public ItemEntry       base;
   public ItemTypes.Entry type;
 
@@ -121,7 +125,9 @@ public class Item extends Actor implements Disposable {
     if ((flags & EAR) == EAR) {
       typeCode      = "play"; // Player Body Part
       socketsFilled = 0;
-      // TODO: read ear data
+      qualityId     = bitStream.readUnsigned7OrLess(3); // class
+      qualityData   = bitStream.readUnsigned7OrLess(7); // level
+      inscription   = bitStream.readString2(Player.MAX_NAME_LENGTH + 1, 7); // name
     } else {
       typeCode      = bitStream.readString(4).trim();
       socketsFilled = bitStream.readUnsigned7OrLess(3);
@@ -148,6 +154,7 @@ public class Item extends Actor implements Disposable {
       quality   = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
       pictureId = bitStream.readBoolean() ? bitStream.readUnsigned7OrLess(3)   : -1;
       classOnly = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(11) : -1;
+      int listsFlags = 1 << 0;
       switch (quality) {
         case LOW:
         case HIGH:
@@ -182,11 +189,56 @@ public class Item extends Actor implements Disposable {
 
       if ((flags & RUNEWORD) == RUNEWORD) {
         runewordData = bitStream.read16BitsOrLess(Short.SIZE);
+        listsFlags |= (1 << 6);
       }
 
       if ((flags & INSCRIBED) == INSCRIBED) {
         inscription = bitStream.readString2(Player.MAX_NAME_LENGTH + 1, 7);
       }
+
+      bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
+
+      stats = new EnumMap<>(Stat.class);
+      if (type.is("armo")) {
+        int defense = Stat.armorclass.read(bitStream);
+        stats.put(Stat.armorclass, defense);
+      }
+
+      if (type.is("armo") || type.is("weap")) {
+        int maxdurability = Stat.maxdurability.read(bitStream);
+        stats.put(Stat.maxdurability, maxdurability);
+        if (maxdurability > 0) {
+          int durability = Stat.durability.read(bitStream);
+          stats.put(Stat.durability, durability);
+        }
+      }
+
+      if ((flags & SOCKETED) == SOCKETED && (type.is("armo") || type.is("weap"))) {
+        int sockets = Stat.item_numsockets.read(bitStream);
+        stats.put(Stat.item_numsockets, sockets);
+      }
+
+      if (type.is("book")) {
+        bitStream.skip(5); // TODO: Tomes have an extra 5 bits inserted at this point.  I have no idea what purpose they serve.  It looks like the value is 0 on all of my tomes.
+      }
+
+      if (base.stackable) {
+        int quantity = bitStream.readUnsigned15OrLess(9);
+        stats.put(Stat.quantity, quantity);
+      }
+
+      if (quality == SET) {
+        int lists = bitStream.readUnsigned7OrLess(5);
+        listsFlags |= (lists << 1);
+      }
+
+      for (int i = 0; i < 7; i++) {
+        if ((listsFlags & (1 << i)) != 0) {
+          // TODO: READ PROPERTY LIST
+        }
+      }
+
+      System.out.println(getName() + " : " + stats.toString() + " : " + Integer.toBinaryString(listsFlags));
     }
 
     return this;

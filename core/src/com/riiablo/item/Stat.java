@@ -1,5 +1,9 @@
 package com.riiablo.item;
 
+import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.ItemStatCost;
+import com.riiablo.codec.util.BitStream;
+
 public enum Stat {
   strength,
   energy,
@@ -386,5 +390,14 @@ public enum Stat {
 
   public static Stat valueOf(int i) {
     return i == NONE ? null : values[i];
+  }
+
+  public ItemStatCost.Entry entry() {
+    return Riiablo.files.ItemStatCost.get(ordinal());
+  }
+
+  public int read(BitStream bitStream) {
+    ItemStatCost.Entry entry = entry();
+    return bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
   }
 }
