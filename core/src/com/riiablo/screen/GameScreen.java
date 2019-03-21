@@ -505,10 +505,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           item.position().set(player.position());
           entities.put(entities.size + 1, item);
         } else {*/
-          mapListener.update();
+          //mapListener.update();
         //}
 
-        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && UIUtils.shift()) {
+          mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+          player.lookAt(tmpVec2.x, tmpVec2.y);
+          HotkeyButton leftSkill = controlPanel.getLeftSkill();
+          player.cast(leftSkill.getSkill());
+        } else if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
           mapRenderer.unproject(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
           player.lookAt(tmpVec2.x, tmpVec2.y);
           HotkeyButton rightSkill = controlPanel.getRightSkill();
@@ -519,6 +524,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             player.target().setZero();
             player.setPath(null, null);
           }
+        } else {
+          mapListener.update();
         }
       }
       else if (DEBUG_HIT) Gdx.app.debug(TAG, hit.toString());
