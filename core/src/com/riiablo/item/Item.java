@@ -29,6 +29,7 @@ import com.riiablo.widget.Label;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumMap;
 
 import static com.riiablo.item.Quality.SET;
@@ -54,6 +55,8 @@ public class Item extends Actor implements Disposable {
   private static final int ETHEREAL   = 0x00400000;
   private static final int INSCRIBED  = 0x01000000;
   private static final int RUNEWORD   = 0x04000000;
+
+  private static final EnumMap<Stat, Stat.Instance>[] EMPTY_STAT_ARRAY = (EnumMap<Stat, Stat.Instance>[]) new EnumMap[0];
 
   public int      flags;
   public int      version; // 0 = pre-1.08; 1 = 1.08/1.09 normal; 2 = 1.10 normal; 100 = 1.08/1.09 expansion; 101 = 1.10 expansion
@@ -149,6 +152,7 @@ public class Item extends Actor implements Disposable {
       qualityData  = null;
       runewordData = 0;
       inscription  = null;
+      stats = EMPTY_STAT_ARRAY;
     } else {
       id        = bitStream.read32BitsOrLess(Integer.SIZE);
       level     = bitStream.readUnsigned7OrLess(7);
@@ -768,6 +772,24 @@ public class Item extends Actor implements Disposable {
         usable = new Label(string, font);
         usable.setColor(name.getColor());
         add(usable).center().space(SPACING).row();
+      }
+
+      for (int i = 0; i < stats.length; i++) {
+        EnumMap<Stat, Stat.Instance> stats = Item.this.stats[i];
+        if (stats == null) continue;
+        Array<Stat.Instance> values = new Array<>();
+        for (Stat.Instance stat : stats.values()) values.add(stat);
+        values.sort(new Comparator<Stat.Instance>() {
+          @Override
+          public int compare(Stat.Instance o1, Stat.Instance o2) {
+            return o1.stat.entry().descpriority - o2.stat.entry().descpriority;
+          }
+        });
+
+        for (Stat.Instance stat : values) {
+          Label label = new Label(stat.stat + ": " + stat, font);
+          add(label).center().space(SPACING).row();
+        }
       }
 
       pack();
