@@ -764,6 +764,21 @@ public class Item extends Actor implements Disposable {
       if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
         add(type).center().space(SPACING).row();
 
+      if (socketed.size > 0) {
+        String runequote = Riiablo.string.lookup("RuneQuote");
+        StringBuilder runewordBuilder = null;
+        for (Item socket : socketed) {
+          if (socket.type.is("rune")) {
+            if (runewordBuilder == null) runewordBuilder = new StringBuilder(runequote);
+            runewordBuilder.append(Riiablo.string.lookup(socket.base.namestr + "L")); // TODO: Is there a r##L reference somewhere?
+          }
+        }
+        if (runewordBuilder != null) {
+          runewordBuilder.append(runequote);
+          add(new Label(runewordBuilder.toString(), font, Riiablo.colors.gold)).center().space(SPACING).row();
+        }
+      }
+
       // TODO: This seems a bit hacky, check and see if this is located somewhere (doesn't look like it)
       if (base.useable) {
         String string;
