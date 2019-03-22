@@ -2,6 +2,7 @@ package com.riiablo;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.graphics.BlendMode;
 
 public enum CharacterClass {
@@ -127,6 +128,10 @@ public enum CharacterClass {
   CharacterClass(String shortName, int id) {
     this.shortName = shortName;
     this.id = id;
+  }
+
+  public CharStats.Entry entry() {
+    return Riiablo.files.CharStats.get(id);
   }
 
   public static CharacterClass get(int classId) {

@@ -1,7 +1,11 @@
 package com.riiablo.item;
 
+import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.ItemStatCost;
+import com.riiablo.codec.excel.SkillDesc;
+import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BitStream;
 
 public enum Stat {
@@ -418,6 +422,60 @@ public enum Stat {
       this.stat  = stat;
       this.value = value;
       this.param = param;
+    }
+
+    public String format() {
+      CharStats.Entry entry;
+      Skills.Entry skill;
+      SkillDesc.Entry desc;
+      switch (stat.entry.descfunc) {
+        case 1:  return String.format("+%d %s", value, descstr());
+        case 2:  return String.format("%d%% %s", value, descstr());
+        case 3:  return String.format("%d %s", value, descstr());
+        case 4:  return String.format("+%d%% %s", value, descstr());
+        case 5:  return String.format("%d%% %s", value * 100 / 128, descstr()); // TODO: item_howl -- verify
+        case 6:  return String.format("+%d %s %s", value, descstr(), descstr2());
+        case 7:  return String.format("%d%% %s %s", value, descstr(), descstr2());
+        case 8:  return String.format("+%d%% %s %s", value, descstr(), descstr2());
+        case 9:  return String.format("%d %s %s", value, descstr(), descstr2());
+        case 11: return Riiablo.string.format("ModStre9u", 1, value / 100);
+        case 12: return String.format("+%d %s", value, descstr());
+        case 13: return String.format("+%d %s", value, Riiablo.string.lookup(CharacterClass.get(param).entry().StrAllSkills));
+        case 14:
+          entry = CharacterClass.get((param >>> 3) & 0x3).entry();
+          return String.format("%s %s", Riiablo.string.format(entry.StrSkillTab[param & 0x7], value), Riiablo.string.lookup(entry.StrClassOnly));
+        case 15: return toString();
+        case 16: return toString();
+        case 20: return String.format("%d%% %s", -value, descstr());
+        case 22: return toString();
+        case 23: return toString();
+        case 24:
+          int e3p1 = (param >>> 6) & 0x3FF;
+          int e3p2 = param & 0x3F;
+          int e3p3 = (value >>> 8) & 0xFF;
+          int e3p4 = value & 0xFF;
+          skill = Riiablo.files.skills.get(e3p1);
+          desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+          return String.format("%s %d %s %s", Riiablo.string.lookup("ModStre10b"), e3p2, Riiablo.string.lookup(desc.str_name), Riiablo.string.format(stat.entry.descstrpos, e3p3, e3p4));
+        case 27:
+          skill = Riiablo.files.skills.get(param);
+          desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+          entry = Riiablo.files.skills.getClass(skill.charclass).entry();
+          return String.format("+%d %s %s %s", value, Riiablo.string.lookup("ItemStast1k"), Riiablo.string.lookup(desc.str_name), Riiablo.string.lookup(entry.StrClassOnly));
+        case 28:
+          skill = Riiablo.files.skills.get(param);
+          desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+          return String.format("+%d %s %s", value, Riiablo.string.lookup("ItemStast1k"), Riiablo.string.lookup(desc.str_name));
+        default: return toString();
+      }
+    }
+
+    private String descstr() {
+      return Riiablo.string.lookup(value < 0 ? stat.entry.descstrneg : stat.entry.descstrpos);
+    }
+
+    private String descstr2() {
+      return Riiablo.string.lookup(stat.entry.descstr2);
     }
 
     @Override

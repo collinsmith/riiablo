@@ -55,6 +55,7 @@ public class ControlPanel extends Table implements Disposable {
   DC6 CharSkillicon[];
 
   private static int getClassId(String charClass) {
+    if (charClass.isEmpty()) return -1;
     switch (charClass.charAt(0)) {
       case 'a': return charClass.charAt(1) == 'm' ? CharacterClass.AMAZON.id : CharacterClass.ASSASSIN.id;
       case 'b': return CharacterClass.BARBARIAN.id;

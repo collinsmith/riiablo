@@ -1,6 +1,26 @@
 package com.riiablo.codec.excel;
 
+import com.riiablo.CharacterClass;
+
 public class Skills extends Excel<Skills.Entry> {
+  public static int getClassId(String charClass) {
+    if (charClass.isEmpty()) return -1;
+    switch (charClass.charAt(0)) {
+      case 'a': return charClass.charAt(1) == 'm' ? CharacterClass.AMAZON.id : CharacterClass.ASSASSIN.id;
+      case 'b': return CharacterClass.BARBARIAN.id;
+      case 'd': return CharacterClass.DRUID.id;
+      case 'n': return CharacterClass.NECROMANCER.id;
+      case 'p': return CharacterClass.PALADIN.id;
+      case 's': return CharacterClass.SORCERESS.id;
+      default:  return -1;
+    }
+  }
+
+  public static CharacterClass getClass(String charClass) {
+    int classId = getClassId(charClass);
+    return classId != -1 ? CharacterClass.get(classId) : null;
+  }
+
   public static class Entry extends Excel.Entry {
     @Override
     public String toString() {

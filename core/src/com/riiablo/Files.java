@@ -8,6 +8,7 @@ import com.riiablo.codec.TXT;
 import com.riiablo.codec.excel.ArmType;
 import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.BodyLocs;
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.Colors;
 import com.riiablo.codec.excel.CompCode;
 import com.riiablo.codec.excel.Composit;
@@ -52,6 +53,7 @@ public class Files {
   public final Armor           armor;
   public final ArmType         ArmType;
   public final BodyLocs        bodylocs;
+  public final CharStats       CharStats;
   public final Colors          colors;
   public final Composit        Composit;
   public final CompCode        compcode;
@@ -95,6 +97,7 @@ public class Files {
     armor           = load(assets, Armor.class);
     ArmType         = load(assets, ArmType.class);
     bodylocs        = load(assets, BodyLocs.class);
+    CharStats       = load(assets, CharStats.class, Excel.EXPANSION);
     colors          = load(assets, Colors.class);
     Composit        = load(assets, Composit.class);
     compcode        = load(assets, CompCode.class);

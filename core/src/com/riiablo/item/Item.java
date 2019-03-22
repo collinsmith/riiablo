@@ -788,7 +788,7 @@ public class Item extends Actor implements Disposable {
         });
 
         for (Stat.Instance stat : stats) {
-          Label label = new Label(stat.stat + ": " + stat, font);
+          Label label = new Label(stat.format(), font);
           add(label).center().space(SPACING).row();
         }
       }
