@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.IntSet;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
@@ -780,6 +782,41 @@ public class Item extends Actor implements Disposable {
       for (int i = 0; i < stats.length; i++) {
         Array<Stat.Instance> stats = Item.this.stats[i];
         if (stats == null) continue;
+
+        // TODO: This can be cleaned up later
+        IntMap<Array<Stat.Instance>> groups = new IntMap<>();
+        for (Stat.Instance stat : stats) {
+          int dgrp = stat.stat.entry().dgrp;
+          if (dgrp > 0) {
+            Array<Stat.Instance> group = groups.get(dgrp);
+            if (group == null) groups.put(dgrp, group = new Array<>());
+            group.add(stat);
+          }
+        }
+
+        IntSet groupReplaced = new IntSet();
+        IntMap<Stat.Instance> groupReplacements = new IntMap<>();
+        for (IntMap.Entry<Array<Stat.Instance>> group : groups) {
+          switch (group.key) {
+            case 1:
+            case 2:
+              if (group.value.size == 4) {
+                boolean allEqual = true;
+                Stat.Instance first = group.value.first();
+                for (int j = 1; allEqual && j < group.value.size; j++) {
+                  Stat.Instance stat = group.value.get(j);
+                  allEqual = (stat.value == first.value) && (stat.param == first.param);
+                }
+
+                if (allEqual) {
+                  groupReplacements.put(group.key, first);
+                }
+              }
+              break;
+            default:
+          }
+        }
+
         stats.sort(new Comparator<Stat.Instance>() {
           @Override
           public int compare(Stat.Instance o1, Stat.Instance o2) {
@@ -788,7 +825,20 @@ public class Item extends Actor implements Disposable {
         });
 
         for (Stat.Instance stat : stats) {
-          Label label = new Label(stat.format(), font);
+          Label label;
+          int dgrp = stat.stat.entry().dgrp;
+          boolean group = false;
+          if (dgrp > 0) {
+            if (groupReplaced.contains(dgrp)) continue;
+            Stat.Instance grp = groupReplacements.get(dgrp);
+            if (grp != null) {
+              stat = grp;
+              group = true;
+              groupReplaced.add(dgrp);
+            }
+          }
+
+          label = new Label(stat.format(group), font);
           add(label).center().space(SPACING).row();
         }
       }

@@ -424,12 +424,12 @@ public enum Stat {
       this.param = param;
     }
 
-    public String format() {
+    public String format(boolean group) {
       CharStats.Entry entry;
       Skills.Entry skill;
       SkillDesc.Entry desc;
-      switch (stat.entry.descfunc) {
-        case 1:  return String.format("+%d %s", value, descstr());
+      switch (group ? stat.entry.dgrpfunc : stat.entry.descfunc) {
+        case 1:  return String.format("+%d %s", value, descstr(group));
         case 2:  return String.format("%d%% %s", value, descstr());
         case 3:  return String.format("%d %s", value, descstr());
         case 4:  return String.format("+%d%% %s", value, descstr());
@@ -455,6 +455,7 @@ public enum Stat {
           skill = Riiablo.files.skills.get(param);
           desc = Riiablo.files.skilldesc.get(skill.skilldesc);
           return Riiablo.string.format(stat.entry.descstrpos, value, Riiablo.string.lookup(desc.str_name));
+        case 19: return String.format(descstr(group), value);
         case 20: return String.format("%d%% %s", -value, descstr());
         case 22: return toString();
         case 23: return toString();
@@ -481,6 +482,14 @@ public enum Stat {
 
     private String descstr() {
       return Riiablo.string.lookup(value < 0 ? stat.entry.descstrneg : stat.entry.descstrpos);
+    }
+
+    private String descstr(boolean group) {
+      if (group) {
+        return Riiablo.string.lookup(value < 0 ? stat.entry.dgrpstrneg : stat.entry.dgrpstrpos);
+      } else {
+        return Riiablo.string.lookup(value < 0 ? stat.entry.descstrneg : stat.entry.descstrpos);
+      }
     }
 
     private String descstr2() {
