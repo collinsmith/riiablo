@@ -843,6 +843,30 @@ public class Item extends Actor implements Disposable {
         }
       }
 
+      // TODO: This can be cleaned up later -- add support for set detection
+      if (quality == SET) {
+        add().height(font.getLineHeight()).space(SPACING).row();
+
+        final SetItems.Entry set = Riiablo.files.SetItems.get(qualityId);
+        add(new Label(Riiablo.string.lookup(set.set), font, Riiablo.colors.gold)).space(SPACING).row();
+
+        int id = qualityId;
+        for (;;) {
+          if (id - 1 >= 0 && set.set.equalsIgnoreCase(Riiablo.files.SetItems.get(id - 1).set)) {
+            id--;
+          } else {
+            break;
+          }
+        }
+
+        for (;;) {
+          if (id >= Riiablo.files.SetItems.size()) break;
+          SetItems.Entry setSibling = Riiablo.files.SetItems.get(id++);
+          if (!set.set.equalsIgnoreCase(setSibling.set)) break;
+          add(new Label(Riiablo.string.lookup(setSibling.index), font, Riiablo.colors.red)).space(SPACING).row();
+        }
+      }
+
       pack();
     }
   }
