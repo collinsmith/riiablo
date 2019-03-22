@@ -444,8 +444,17 @@ public enum Stat {
         case 14:
           entry = CharacterClass.get((param >>> 3) & 0x3).entry();
           return String.format("%s %s", Riiablo.string.format(entry.StrSkillTab[param & 0x7], value), Riiablo.string.lookup(entry.StrClassOnly));
-        case 15: return toString();
-        case 16: return toString();
+        case 15:
+          int e2p1 = (param >>> 6) & 0x3FF;
+          int e2p2 = param & 0x3F;
+          int e2p3 = value;
+          skill = Riiablo.files.skills.get(e2p1);
+          desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+          return Riiablo.string.format(stat.entry.descstrpos, e2p3, e2p2, Riiablo.string.lookup(desc.str_name));
+        case 16:
+          skill = Riiablo.files.skills.get(param);
+          desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+          return Riiablo.string.format(stat.entry.descstrpos, value, Riiablo.string.lookup(desc.str_name));
         case 20: return String.format("%d%% %s", -value, descstr());
         case 22: return toString();
         case 23: return toString();
