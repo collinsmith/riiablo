@@ -30,7 +30,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.EnumMap;
 
 import static com.riiablo.item.Quality.SET;
 
@@ -48,7 +47,11 @@ public class Item extends Actor implements Disposable {
 
   private static final int QUEST      = 0x00000001;
   private static final int IDENTIFIED = 0x00000010;
+  private static final int SWITCHIN   = 0x00000040; // Unconfirmed
+  private static final int SWITCHOUT  = 0x00000080; // Unconfirmed
+  private static final int BROKEN     = 0x00000100; // Unconfirmed (0 durability?)
   private static final int SOCKETED   = 0x00000800;
+  private static final int INSTORE    = 0x00002000; // Unconfirmed (must be bought)
   private static final int EAR        = 0x00010000;
   private static final int STARTER    = 0x00020000;
   private static final int COMPACT    = 0x00200000;
@@ -56,7 +59,7 @@ public class Item extends Actor implements Disposable {
   private static final int INSCRIBED  = 0x01000000;
   private static final int RUNEWORD   = 0x04000000;
 
-  private static final EnumMap<Stat, Stat.Instance>[] EMPTY_STAT_ARRAY = (EnumMap<Stat, Stat.Instance>[]) new EnumMap[0];
+  private static final Array<Stat.Instance>[] EMPTY_STAT_ARRAY = (Array<Stat.Instance>[]) new Array[0];
 
   public int      flags;
   public int      version; // 0 = pre-1.08; 1 = 1.08/1.09 normal; 2 = 1.10 normal; 100 = 1.08/1.09 expansion; 101 = 1.10 expansion
@@ -81,7 +84,7 @@ public class Item extends Actor implements Disposable {
   public int     runewordData;
   public String  inscription;
 
-  public EnumMap<Stat, Stat.Instance> stats[];
+  public Array<Stat.Instance> stats[];
 
   public ItemEntry       base;
   public ItemTypes.Entry type;
@@ -203,22 +206,22 @@ public class Item extends Actor implements Disposable {
 
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
 
-      stats = (EnumMap<Stat, Stat.Instance>[]) new EnumMap[7];
-      stats[0] = new EnumMap<>(Stat.class);
+      stats = (Array<Stat.Instance>[]) new Array[7];
+      stats[0] = new Array<>(Stat.Instance.class);
       if (type.is("armo")) {
-        stats[0].put(Stat.armorclass, Stat.armorclass.read(bitStream));
+        stats[0].add(Stat.armorclass.read(bitStream));
       }
 
       if (type.is("armo") || type.is("weap")) {
         Stat.Instance maxdurability = Stat.maxdurability.read(bitStream);
-        stats[0].put(Stat.maxdurability, maxdurability);
+        stats[0].add(maxdurability);
         if (maxdurability.value > 0) {
-          stats[0].put(Stat.durability, Stat.durability.read(bitStream));
+          stats[0].add(Stat.durability.read(bitStream));
         }
       }
 
       if ((flags & SOCKETED) == SOCKETED && (type.is("armo") || type.is("weap"))) {
-        stats[0].put(Stat.item_numsockets, Stat.item_numsockets.read(bitStream));
+        stats[0].add(Stat.item_numsockets.read(bitStream));
       }
 
       if (type.is("book")) {
@@ -227,7 +230,7 @@ public class Item extends Actor implements Disposable {
 
       if (base.stackable) {
         int quantity = bitStream.readUnsigned15OrLess(9);
-        stats[0].put(Stat.quantity, new Stat.Instance(Stat.quantity, quantity, 0));
+        stats[0].add(new Stat.Instance(Stat.quantity, quantity, 0));
       }
 
       if (quality == SET) {
@@ -241,14 +244,14 @@ public class Item extends Actor implements Disposable {
 
       for (int i = 0; i < 7; i++) {
         if (((listsFlags >> i) & 1) == 1) {
-          if (i > 0) stats[i] = new EnumMap<>(Stat.class);
-          EnumMap<Stat, Stat.Instance> stats = this.stats[i];
+          if (i > 0) stats[i] = new Array<>(Stat.Instance.class);
+          Array<Stat.Instance> stats = this.stats[i];
           for (;;) {
             int prop = bitStream.readUnsigned15OrLess(9);
             if (prop == 0x1ff) break;
             for (int j = 0, size = Stat.getStatCount(prop); j < size; j++) {
               Stat stat = Stat.valueOf(prop + j);
-              stats.put(stat, stat.read(bitStream));
+              stats.add(stat.read(bitStream));
             }
           }
         }
@@ -775,18 +778,16 @@ public class Item extends Actor implements Disposable {
       }
 
       for (int i = 0; i < stats.length; i++) {
-        EnumMap<Stat, Stat.Instance> stats = Item.this.stats[i];
+        Array<Stat.Instance> stats = Item.this.stats[i];
         if (stats == null) continue;
-        Array<Stat.Instance> values = new Array<>();
-        for (Stat.Instance stat : stats.values()) values.add(stat);
-        values.sort(new Comparator<Stat.Instance>() {
+        stats.sort(new Comparator<Stat.Instance>() {
           @Override
           public int compare(Stat.Instance o1, Stat.Instance o2) {
             return o1.stat.entry().descpriority - o2.stat.entry().descpriority;
           }
         });
 
-        for (Stat.Instance stat : values) {
+        for (Stat.Instance stat : stats) {
           Label label = new Label(stat.stat + ": " + stat, font);
           add(label).center().space(SPACING).row();
         }

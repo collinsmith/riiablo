@@ -374,7 +374,7 @@ public enum Stat {
       1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-      2, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 4, 0, 0, 0, 0, 0,
+      2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3,
       3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
@@ -403,8 +403,9 @@ public enum Stat {
   }
 
   public Instance read(BitStream bitStream) {
+    int param = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
     int value = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add; // TODO: Support entry.ValShift
-    int param = entry.Save_Param_Bits > 0 ? bitStream.readUnsigned31OrLess(entry.Save_Param_Bits) : 0;
+    System.out.println(this + " " + param + " " + value);
     return new Instance(this, value, param);
   }
 
@@ -421,10 +422,25 @@ public enum Stat {
 
     @Override
     public String toString() {
-      StringBuilder builder = new StringBuilder();
-      builder.append(value);
-      if (stat.entry.Save_Param_Bits > 0) builder.append(':').append(param);
-      return builder.toString();
+      switch (stat.entry.Encode) {
+        case 0: return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
+        case 1: return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param); // no encoding?
+        case 2:
+          int e2p1 = (param >>> 6) & 0x3FF;
+          int e2p2 = param & 0x3F;
+          int e2p3 = value;
+          return stat + "=" + e2p1 + ":" + e2p2 + ":" + e2p3;
+        case 3:
+          int e3p1 = (param >>> 6) & 0x3FF;
+          int e3p2 = param & 0x3F;
+          int e3p3 = (value >>> 8) & 0xFF;
+          int e3p4 = value & 0xFF;
+          return stat + "=" + e3p1 + ":" + e3p2 + ":" + e3p3 + ":" + e3p4;
+        case 4: // item by-time -- not used by game, e.g., str based on time of day
+          // fall-through
+        default:
+          return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
+      }
     }
   }
 }
