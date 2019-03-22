@@ -30,6 +30,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.riiablo.Client;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
@@ -125,6 +126,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   DCWrapper enteringImage;
 
   public TextArea input;
+  Client.ScreenBoundsListener screenBoundsListener;
   TextArea output;
 
   //Char character;
@@ -169,22 +171,27 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       background.setTopHeight(padding);
       background.setRightWidth(padding);
       background.setBottomHeight(padding);
-    }}) {{
+    }}) {
+      {
         writeEnters = false;
       }
 
       @Override
       public void setVisible(boolean visible) {
         if (!visible) input.setText("");
+        else {
+          stage.setKeyboardFocus(this);
+          Gdx.input.setOnscreenKeyboardVisible(true);
+        }
         super.setVisible(visible);
       }
     };
-    input.setDebug(true);
+    //input.setDebug(true);
     input.setSize(stage.getWidth() * 0.75f, Riiablo.fonts.fontformal12.getLineHeight() * 3);
     input.setPosition(stage.getWidth() / 2 - input.getWidth() / 2, 100);
     input.setAlignment(Align.topLeft);
     input.setVisible(false);
-    input.setTouchable(Touchable.disabled);
+    if (Gdx.app.getType() != Application.ApplicationType.Android) input.setTouchable(Touchable.disabled);
 
     output = new TextArea("", new TextArea.TextFieldStyle() {{
       this.font = Riiablo.fonts.fontformal12;
@@ -624,6 +631,18 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Enter.addStateListener(mappedKeyStateListener);
     Riiablo.input.addProcessor(stage);
     Riiablo.input.addProcessor(inputProcessorTest);
+    Riiablo.client.addScreenBoundsListener(screenBoundsListener = new Client.ScreenBoundsListener() {
+      final float THRESHOLD = 150;
+      float prevY = 0;
+
+      @Override
+      public void updateScreenBounds(float x, float y, float width, float height) {
+        if (y < THRESHOLD && prevY >= THRESHOLD) input.setVisible(false);
+        input.setPosition(stage.getWidth() / 2, y + 100, Align.bottom | Align.center);
+        prevY = y;
+      }
+    });
+    screenBoundsListener.updateScreenBounds(0, 0, 0, 0);
 
     if (socket != null && socket.isConnected()) {
       Gdx.app.log(TAG, "connecting to " + socket.getRemoteAddress() + "...");
@@ -669,6 +688,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Enter.removeStateListener(mappedKeyStateListener);
     Riiablo.input.removeProcessor(stage);
     Riiablo.input.removeProcessor(inputProcessorTest);
+    Riiablo.client.removeScreenBoundsListener(screenBoundsListener);
 
     //updateTask.cancel();
   }
