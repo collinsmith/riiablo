@@ -91,7 +91,11 @@ public class MobileControls extends WidgetGroup implements Disposable {
 
       @Override
       public void tap(InputEvent event, float x, float y, int count, int button) {
-        gameScreen.spellsQuickPanelR.setVisible(false);
+        if (gameScreen.spellsQuickPanelR.isVisible()) {
+          gameScreen.spellsQuickPanelR.setVisible(false);
+          return;
+        }
+
         HotkeyButton actor = (HotkeyButton) event.getListenerActor();
         gameScreen.player.cast(actor.getSkill());
       }
