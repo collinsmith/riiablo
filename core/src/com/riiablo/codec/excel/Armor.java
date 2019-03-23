@@ -1,8 +1,5 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-import com.riiablo.codec.excel.ItemEntry;
-
 public class Armor extends Excel<Armor.Entry> {
   public static class Entry extends ItemEntry {
     @Column public int     Torso;
@@ -11,5 +8,8 @@ public class Armor extends Excel<Armor.Entry> {
     @Column public int     lArm;
     @Column public int     lSPad;
     @Column public int     rSPad;
+    @Column public int     reqstr;
+    @Column public int     durability;
+    @Column public int     block;
   }
 }

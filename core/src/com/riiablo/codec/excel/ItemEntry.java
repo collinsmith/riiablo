@@ -28,7 +28,15 @@ public class ItemEntry extends Excel.Entry {
   @Column public String  dropsound;
   @Column public int     dropsfxframe;
   @Column public boolean stackable;
+  @Column public int     minstack;
+  @Column public int     maxstack;
   @Column public boolean useable;
   @Column public String  usesound;
   @Column public int     quest;
+  @Column public boolean nodurability;
+  @Column public int     level;
+  @Column public int     levelreq;
+  @Column public int     mindam;
+  @Column public int     maxdam;
+  @Column public int     speed;
 }
