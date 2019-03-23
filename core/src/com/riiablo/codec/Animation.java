@@ -545,26 +545,34 @@ public class Animation extends BaseDrawable {
       return this;
     }
 
-    public void setBlendMode(int blendMode) {
-      setBlendMode(blendMode, Color.WHITE);
+    public Layer setBlendMode(int blendMode) {
+      return setBlendMode(blendMode, Color.WHITE);
     }
 
-    public void setBlendMode(int blendMode, Color tint) {
+    public Layer setBlendMode(int blendMode, Color tint) {
       this.blendMode = blendMode;
       this.tint      = tint;
+      return this;
     }
 
-    public void setTransform(Index colormap, int id) {
+    public Layer setAlpha(float a) {
+      if (tint == Color.WHITE) tint = tint.cpy();
+      tint.a = a;
+      return this;
+    }
+
+    public Layer setTransform(Index colormap, int id) {
       transform      = colormap;
       transformColor = colormap == null ? 0 : id;
+      return this;
     }
 
-    public void setTransform(byte packedTransform) {
+    public Layer setTransform(byte packedTransform) {
       int transform = packedTransform & 0xFF;
       if (transform == 0xFF) {
-        setTransform(null, 0);
+        return setTransform(null, 0);
       } else {
-        setTransform(Riiablo.colormaps.get(transform >>> 5), transform & 0x1F);
+        return setTransform(Riiablo.colormaps.get(transform >>> 5), transform & 0x1F);
       }
     }
 

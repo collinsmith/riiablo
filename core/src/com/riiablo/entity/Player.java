@@ -322,6 +322,10 @@ public class Player extends Entity {
     setComponent(COF.Component.RH, RH != null ? (byte) Type.PLR.getComponent(RH.base.alternateGfx) : 0);
     setComponent(COF.Component.LH, LH != null ? (byte) Type.PLR.getComponent(LH.base.alternateGfx) : 0);
     setComponent(COF.Component.SH, SH != null ? (byte) Type.PLR.getComponent(SH.base.alternateGfx) : 0);
+
+    setAlpha(COF.Component.RH, RH != null && RH.isEthereal() ? Item.ETHEREAL_ALPHA : 1.0f);
+    setAlpha(COF.Component.LH, LH != null && LH.isEthereal() ? Item.ETHEREAL_ALPHA : 1.0f);
+    setAlpha(COF.Component.SH, SH != null && SH.isEthereal() ? Item.ETHEREAL_ALPHA : 1.0f);
   }
 
   public Item getSlot(Slot slot) {

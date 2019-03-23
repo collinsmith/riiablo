@@ -211,6 +211,11 @@ public abstract class Entity implements Animation.AnimationListener {
     DEFAULT_TRANS = new byte[COF.Component.NUM_COMPONENTS];
     Arrays.fill(DEFAULT_TRANS, (byte) 0xFF);
   }
+  private static final float[] DEFAULT_ALPHA;
+  static {
+    DEFAULT_ALPHA = new float[COF.Component.NUM_COMPONENTS];
+    Arrays.fill(DEFAULT_ALPHA, 1.0f);
+  }
 
   String  classname;
   Type    type;
@@ -223,6 +228,7 @@ public abstract class Entity implements Animation.AnimationListener {
   String  cof;
   byte    comp[];
   byte    trans[]; // TODO: Could also assign DEFAULT_TRANS and lazy change
+  float   alpha[];
   float   angle = DEFAULT_ANGLE;
   Vector2 position = new Vector2();
 
@@ -272,6 +278,7 @@ public abstract class Entity implements Animation.AnimationListener {
     wclass = WEAPON_HTH;
     comp = components;
     trans = transforms;
+    alpha = DEFAULT_ALPHA.clone();
     invalidate();
 
     // TODO: lazy init
@@ -329,6 +336,14 @@ public abstract class Entity implements Animation.AnimationListener {
     }
   }
 
+  public void setAlpha(byte component, float a) {
+    if (alpha[component] != a) {
+      if (DEBUG_STATE) Gdx.app.debug(TAG, classname + " alpha: " + alpha[component] + " -> " + a);
+      alpha[component] = a;
+      if (animation != null) animation.getLayer(component).setAlpha(a);
+    }
+  }
+
   public final void invalidate() {
     dirty = Dirty.ALL;
   }
@@ -383,6 +398,7 @@ public abstract class Entity implements Animation.AnimationListener {
       DCC dcc = Riiablo.assets.get(descriptor);
       animation.setLayer(layer, dcc, false)
           .setTransform(trans[layer.component])
+          .setAlpha(alpha[layer.component])
           ;
       // FIXME: colors don't look right for sorc Tirant circlet changing hair color
       //        putting a ruby in a white circlet not change color on item or character
