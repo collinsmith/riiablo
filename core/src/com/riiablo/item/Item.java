@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
@@ -890,6 +891,9 @@ public class Item extends Actor implements Disposable {
         }
         if (!Item.this.base.nodurability && (stat = stats.get(Stat.durability)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + stat.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + stats.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (Item.this.type.is("clas")) {
+          add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.type.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
+        }
         if ((stat = stats.get(Stat.dexterity)) != null && stat.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if ((stat = stats.get(Stat.strength)) != null && stat.value > 0)

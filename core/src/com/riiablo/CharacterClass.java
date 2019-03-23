@@ -146,4 +146,17 @@ public enum CharacterClass {
       default: throw new GdxRuntimeException("Invalid class id: " + classId);
     }
   }
+
+  public static CharacterClass get(String charClass) {
+    if (charClass == null || charClass.length() < 3) throw new GdxRuntimeException("Invalid class id: " + charClass);
+    switch (charClass.charAt(0)) {
+      case 'a': return charClass.charAt(1) == 'm' ? CharacterClass.AMAZON : CharacterClass.ASSASSIN;
+      case 'b': return CharacterClass.BARBARIAN;
+      case 'd': return CharacterClass.DRUID;
+      case 'n': return CharacterClass.NECROMANCER;
+      case 'p': return CharacterClass.PALADIN;
+      case 's': return CharacterClass.SORCERESS;
+      default:  throw new GdxRuntimeException("Invalid class id: " + charClass);
+    }
+  }
 }
