@@ -538,7 +538,7 @@ public enum Stat {
           builder
               .append(PLUS).append(value)
               .append(SPACE)
-              .append(CharacterClass.get(param).entry().StrAllSkills);
+              .append(Riiablo.string.lookup(CharacterClass.get(param).entry().StrAllSkills));
           return builder.toString();
         case 14: // %s %s | +1 to Fire Skills (Sorceress Only)
           value = this.value;
