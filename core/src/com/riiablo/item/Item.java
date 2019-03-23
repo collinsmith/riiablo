@@ -18,6 +18,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.StringTBL;
+import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
 import com.riiablo.codec.excel.ItemTypes;
@@ -25,6 +26,7 @@ import com.riiablo.codec.excel.MagicAffix;
 import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.codec.excel.UniqueItems;
+import com.riiablo.codec.excel.Weapons;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.entity.Player;
@@ -181,6 +183,24 @@ public class Item extends Actor implements Disposable {
     type = Riiablo.files.ItemTypes.get(base.type);
 
     props = new EnumMap<>(Stat.class);
+    props.put(Stat.item_levelreq, new Stat.Instance(Stat.item_levelreq, base.levelreq, 0));
+    if (base instanceof Weapons.Entry) {
+      Weapons.Entry weapon = getBase();
+      props.put(Stat.mindamage, new Stat.Instance(Stat.mindamage, weapon.mindam, 0));
+      props.put(Stat.maxdamage, new Stat.Instance(Stat.maxdamage, weapon.maxdam, 0));
+      props.put(Stat.secondary_mindamage, new Stat.Instance(Stat.secondary_mindamage, weapon._2handmindam, 0));
+      props.put(Stat.secondary_maxdamage, new Stat.Instance(Stat.secondary_maxdamage, weapon._2handmaxdam, 0));
+      props.put(Stat.item_throw_mindamage, new Stat.Instance(Stat.item_throw_mindamage, weapon.minmisdam, 0));
+      props.put(Stat.item_throw_maxdamage, new Stat.Instance(Stat.item_throw_maxdamage, weapon.maxmisdam, 0));
+      props.put(Stat.strength, new Stat.Instance(Stat.strength, weapon.reqstr, 0));
+      props.put(Stat.dexterity, new Stat.Instance(Stat.dexterity, weapon.reqdex, 0));
+    } else if (base instanceof Armor.Entry) {
+      Armor.Entry armor = getBase();
+      props.put(Stat.strength, new Stat.Instance(Stat.strength, armor.reqstr, 0));
+      props.put(Stat.toblock, new Stat.Instance(Stat.toblock, armor.block, 0));
+      props.put(Stat.mindamage, new Stat.Instance(Stat.mindamage, armor.mindam, 0));
+      props.put(Stat.maxdamage, new Stat.Instance(Stat.maxdamage, armor.maxdam, 0));
+    }
     // TODO: copy base items stats
 
     if ((flags & COMPACT) == COMPACT) {
@@ -847,17 +867,25 @@ public class Item extends Actor implements Disposable {
         EnumMap<Stat, Stat.Instance> stats = Item.this.props;
         if ((stat = stats.get(Stat.armorclass)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1h") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((stat = stats.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
-          add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if (Item.this.type.is("shie")) {
-          add(new Label(Riiablo.string.lookup("ItemStats1r") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
-          // TODO: if paladin, show smite damage -- ItemStats1o %d to %d
+        if (Item.this.type.is("weap")) {
+          if ((stat = stats.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
+            add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + stats.get(Stat.mindamage).value + " to " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if ((stat = stats.get(Stat.durability)) != null)
+        if (Item.this.type.is("shld")) {
+          if ((stat = stats.get(Stat.toblock)) != null)
+            add(new Label(Riiablo.string.lookup("ItemStats1r") + stat.value + "%", font, Riiablo.colors.white)).center().space(SPACING).row();
+          // TODO: if paladin, show smite damage -- ItemStats1o %d to %d
+          if ((stat = stats.get(Stat.maxdamage)) != null && stat.value > 0)
+            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + stats.get(Stat.mindamage).value + " to " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        }
+        if (!Item.this.base.nodurability && (stat = stats.get(Stat.durability)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + stat.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + stats.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((stat = stats.get(Stat.dexterity)) != null && stat.value > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((stat = stats.get(Stat.strength)) != null && stat.value > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((stat = stats.get(Stat.item_levelreq)) != null && stat.value > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if ((stat = stats.get(Stat.quantity)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is("weap")) {
