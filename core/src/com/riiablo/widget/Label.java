@@ -42,6 +42,11 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
     this(null, font);
   }
 
+  public Label(Label src) {
+    super(src.getText(), src.getStyle());
+    setColor(src.getColor());
+  }
+
   @Override
   public void draw(Batch batch, float a) {
     if (batch instanceof PaletteIndexedBatch) {

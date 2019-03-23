@@ -775,6 +775,8 @@ public class Item extends Actor implements Disposable {
   public class Details extends Table {
     private static final float SPACING = 2;
 
+    public final Table header;
+
     Label name;
     Label type;
     Label usable;
@@ -818,6 +820,14 @@ public class Item extends Actor implements Disposable {
       add(name).center().space(SPACING).row();
       if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
         add(type).center().space(SPACING).row();
+
+      header = new Table() {{
+        setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
+        add(new Label(name)).center().space(SPACING).row();
+        if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
+          add(new Label(type)).center().space(SPACING).row();
+        pack();
+      }};
 
       if (socketed.size > 0) {
         String runequote = Riiablo.string.lookup("RuneQuote");

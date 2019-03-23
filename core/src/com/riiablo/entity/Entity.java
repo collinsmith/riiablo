@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
@@ -235,7 +236,7 @@ public abstract class Entity implements Animation.AnimationListener {
   Animation animation;
 
   String  name;
-  Label   label;
+  Actor   label;
   boolean over;
 
   byte    nextMode = -1;
@@ -282,10 +283,11 @@ public abstract class Entity implements Animation.AnimationListener {
     invalidate();
 
     // TODO: lazy init
-    label = new Label(Riiablo.fonts.font16);
+    Label label = new Label(Riiablo.fonts.font16);
     label.setUserObject(this);
     label.setAlignment(Align.center);
     label.getStyle().background = Label.MODAL;
+    this.label = label;
   }
 
   public void setMode(byte mode) {
@@ -593,10 +595,13 @@ public abstract class Entity implements Animation.AnimationListener {
   }
 
   public void name(String name) {
-    label.setText(this.name = name);
+    this.name = name;
+    if (label instanceof Label) {
+      ((Label) label).setText(name);
+    }
   }
 
-  public Label getLabel() {
+  public Actor getLabel() {
     return label;
   }
 
