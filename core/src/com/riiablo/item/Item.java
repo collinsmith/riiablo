@@ -816,6 +816,8 @@ public class Item extends Actor implements Disposable {
 
       if (Item.this.type.is("book")) {
         add(new Label(Riiablo.string.lookup("InsertScrolls"), font, Riiablo.colors.white)).center().space(SPACING).row();
+      } else if (Item.this.type.is("char")) {
+        add(new Label(Riiablo.string.lookup("ItemExpcharmdesc"), font, Riiablo.colors.white)).center().space(SPACING).row();
       }
 
       // TODO: This seems a bit hacky, check and see if this is located somewhere (doesn't look like it)
