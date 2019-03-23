@@ -412,8 +412,7 @@ public enum Stat {
 
   public Instance read(BitStream bitStream) {
     int param = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
-    int value = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add; // TODO: Support entry.ValShift
-    System.out.println(this + " " + param + " " + value);
+    int value = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
     return new Instance(this, value, param);
   }
 
@@ -633,6 +632,15 @@ public enum Stat {
       return value1();
     }
 
+    // Looks like this is unused outside character stats
+    // fortitude is calculated using OP (statvalue * basevalue) / (2 ^ param) -- (10 * 89) / (2 ^ 3) = 111.25
+    public float toFloat() {
+      int shift = stat.entry.ValShift;
+      int pow   = (1 << shift);
+      int mask  = pow - 1;
+      return ((value >>> shift) + ((value & mask) / (float) pow));
+    }
+
     public int param() {
       return param1();
     }
@@ -695,23 +703,12 @@ public enum Stat {
     @Override
     public String toString() {
       switch (stat.entry.Encode) {
-        case 0: return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
-        case 1: return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param); // no encoding?
-        case 2:
-          int e2p1 = (param >>> 6) & 0x3FF;
-          int e2p2 = param & 0x3F;
-          int e2p3 = value;
-          return stat + "=" + e2p1 + ":" + e2p2 + ":" + e2p3;
-        case 3:
-          int e3p1 = (param >>> 6) & 0x3FF;
-          int e3p2 = param & 0x3F;
-          int e3p3 = (value >>> 8) & 0xFF;
-          int e3p4 = value & 0xFF;
-          return stat + "=" + e3p1 + ":" + e3p2 + ":" + e3p3 + ":" + e3p4;
-        case 4: // item by-time -- not used by game, e.g., str based on time of day
-          // fall-through
-        default:
-          return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
+        case 0:  return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
+        case 1:  return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
+        case 2:  return stat + "=" + param2() + ":" + param1() + ":" + value();
+        case 3:  return stat + "=" + param2() + ":" + param1() + ":" + value2() + ":" + value1();
+        case 4:  return stat + "=" + value1() + ":" + value2() + ":" + value3();
+        default: return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
       }
     }
   }
