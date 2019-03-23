@@ -1,5 +1,6 @@
 package com.riiablo.item;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -12,13 +13,16 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
+import com.riiablo.codec.StringTBL;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
 import com.riiablo.codec.excel.ItemTypes;
 import com.riiablo.codec.excel.MagicAffix;
+import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.util.BBox;
@@ -32,6 +36,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumMap;
 
 import static com.riiablo.item.Quality.SET;
 
@@ -63,6 +68,33 @@ public class Item extends Actor implements Disposable {
 
   private static final Array<Stat.Instance>[] EMPTY_STAT_ARRAY = (Array<Stat.Instance>[]) new Array[0];
 
+  private static final ObjectMap<String, String> WEAPON_DESC = new ObjectMap<>();
+  static {
+    WEAPON_DESC.put("mace", "WeaponDescMace");
+    WEAPON_DESC.put("club", "WeaponDescMace");
+    WEAPON_DESC.put("hamm", "WeaponDescMace");
+    WEAPON_DESC.put("scep", "WeaponDescMace");
+    WEAPON_DESC.put("axe", "WeaponDescAxe");
+    WEAPON_DESC.put("taxe", "WeaponDescAxe");
+    WEAPON_DESC.put("swor", "WeaponDescSword");
+    WEAPON_DESC.put("knif", "WeaponDescDagger");
+    WEAPON_DESC.put("tkni", "WeaponDescDagger");
+    WEAPON_DESC.put("tpot", "WeaponDescThrownPotion");
+    WEAPON_DESC.put("jave", "WeaponDescJavelin");
+    WEAPON_DESC.put("ajav", "WeaponDescJavelin");
+    WEAPON_DESC.put("spea", "WeaponDescSpear");
+    WEAPON_DESC.put("aspe", "WeaponDescSpear");
+    WEAPON_DESC.put("bow", "WeaponDescBow");
+    WEAPON_DESC.put("abow", "WeaponDescBow");
+    WEAPON_DESC.put("staf", "WeaponDescStaff");
+    WEAPON_DESC.put("pole", "WeaponDescPoleArm");
+    WEAPON_DESC.put("xbow", "WeaponDescCrossBow");
+    WEAPON_DESC.put("h2h", "WeaponDescH2H");
+    WEAPON_DESC.put("h2h2", "WeaponDescH2H");
+    WEAPON_DESC.put("wand", "WeaponDescOrb");
+    WEAPON_DESC.put("orb", "WeaponDescOrb");
+  }
+
   public int      flags;
   public int      version; // 0 = pre-1.08; 1 = 1.08/1.09 normal; 2 = 1.10 normal; 100 = 1.08/1.09 expansion; 101 = 1.10 expansion
   public Location location;
@@ -86,6 +118,7 @@ public class Item extends Actor implements Disposable {
   public int     runewordData;
   public String  inscription;
 
+  public EnumMap<Stat, Stat.Instance> props;
   public Array<Stat.Instance> stats[];
 
   public ItemEntry       base;
@@ -146,6 +179,9 @@ public class Item extends Actor implements Disposable {
 
     base = findBase(typeCode);
     type = Riiablo.files.ItemTypes.get(base.type);
+
+    props = new EnumMap<>(Stat.class);
+    // TODO: copy base items stats
 
     if ((flags & COMPACT) == COMPACT) {
       id           = 0;
@@ -208,22 +244,20 @@ public class Item extends Actor implements Disposable {
 
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
 
-      stats = (Array<Stat.Instance>[]) new Array[7];
-      stats[0] = new Array<>(Stat.Instance.class);
       if (type.is("armo")) {
-        stats[0].add(Stat.armorclass.read(bitStream));
+        props.put(Stat.armorclass, Stat.armorclass.read(bitStream));
       }
 
       if (type.is("armo") || type.is("weap")) {
         Stat.Instance maxdurability = Stat.maxdurability.read(bitStream);
-        stats[0].add(maxdurability);
+        props.put(Stat.maxdurability, maxdurability);
         if (maxdurability.value > 0) {
-          stats[0].add(Stat.durability.read(bitStream));
+          props.put(Stat.durability, Stat.durability.read(bitStream));
         }
       }
 
       if ((flags & SOCKETED) == SOCKETED && (type.is("armo") || type.is("weap"))) {
-        stats[0].add(Stat.item_numsockets.read(bitStream));
+        props.put(Stat.item_numsockets, Stat.item_numsockets.read(bitStream));
       }
 
       if (type.is("book")) {
@@ -232,7 +266,7 @@ public class Item extends Actor implements Disposable {
 
       if (base.stackable) {
         int quantity = bitStream.readUnsigned15OrLess(9);
-        stats[0].add(new Stat.Instance(Stat.quantity, quantity, 0));
+        props.put(Stat.quantity, new Stat.Instance(Stat.quantity, quantity, 0));
       }
 
       if (quality == SET) {
@@ -244,9 +278,10 @@ public class Item extends Actor implements Disposable {
         listsFlags = 0;
       }
 
+      stats = (Array<Stat.Instance>[]) new Array[7];
       for (int i = 0; i < 7; i++) {
         if (((listsFlags >> i) & 1) == 1) {
-          if (i > 0) stats[i] = new Array<>(Stat.Instance.class);
+          stats[i] = new Array<>(Stat.Instance.class);
           Array<Stat.Instance> stats = this.stats[i];
           for (;;) {
             int prop = bitStream.readUnsigned15OrLess(9);
@@ -786,6 +821,13 @@ public class Item extends Actor implements Disposable {
           string = Riiablo.string.lookup("RightClicktoOpen");
         } else if (base.code.equalsIgnoreCase("bkd")) {
           string = Riiablo.string.lookup("RightClicktoRead");
+        } else if (base instanceof Misc.Entry) {
+          Misc.Entry misc = (Misc.Entry) base;
+          if (misc.spelldesc > 0) {
+            string = Riiablo.string.lookup(misc.spelldescstr);
+          } else {
+            string = Riiablo.string.lookup("RightClicktoUse");
+          }
         } else {
           string = Riiablo.string.lookup("RightClicktoUse");
         }
@@ -793,6 +835,33 @@ public class Item extends Actor implements Disposable {
         usable.setColor(name.getColor());
         add(usable).center().space(SPACING).row();
       }
+
+      if ((flags & COMPACT) == 0) {
+        Stat.Instance stat;
+        EnumMap<Stat, Stat.Instance> stats = Item.this.props;
+        if ((stat = stats.get(Stat.armorclass)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1h") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((stat = stats.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
+          add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (Item.this.type.is("shie")) {
+          add(new Label(Riiablo.string.lookup("ItemStats1r") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
+          // TODO: if paladin, show smite damage -- ItemStats1o %d to %d
+        }
+        if ((stat = stats.get(Stat.durability)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + stat.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + stats.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (Item.this.type.is("weap")) {
+          add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
+        }
+
+        //for (Stat.Instance stat : stats.values()) {
+        //  add(new Label(stat.stat.toString(), font, Riiablo.colors.white)).center().space(SPACING).row();
+        //}
+      }
+
+      // TODO: Detect stats with encoded groupings and auto join them into a grouped stat
 
       for (int i = 0; i < stats.length; i++) {
         Array<Stat.Instance> stats = Item.this.stats[i];
@@ -835,7 +904,7 @@ public class Item extends Actor implements Disposable {
         stats.sort(new Comparator<Stat.Instance>() {
           @Override
           public int compare(Stat.Instance o1, Stat.Instance o2) {
-            return o1.stat.entry().descpriority - o2.stat.entry().descpriority;
+            return o2.stat.entry().descpriority - o1.stat.entry().descpriority;
           }
         });
 
@@ -853,9 +922,30 @@ public class Item extends Actor implements Disposable {
             }
           }
 
-          label = new Label(stat.format(group), font);
+          String text = stat.format(group);
+          if (text == null) continue;
+          label = new Label(text, font, Riiablo.colors.blue); // Conditionally, set should be green
           add(label).center().space(SPACING).row();
         }
+      }
+
+      StringBuilder itemFlags = null;
+      if ((Item.this.flags & ETHEREAL) == ETHEREAL) {
+        itemFlags = new StringBuilder(32);
+        itemFlags.append(Riiablo.string.lookup(StringTBL.EXPANSION_OFFSET + 2745));
+      }
+      if ((Item.this.flags & SOCKETED) == SOCKETED) {
+        if (itemFlags != null) itemFlags.append(',').append(' ');
+        else itemFlags = new StringBuilder(16);
+        Stat.Instance stat = props.get(Stat.item_numsockets);
+        if (stat != null) {
+          itemFlags.append(Riiablo.string.lookup("Socketable")).append(' ').append('(').append(stat.value).append(')');
+        } else {
+          Gdx.app.error(TAG, "Item marked socketed, but missing item_numsockets: " + Item.this.getName());
+        }
+      }
+      if (itemFlags != null) {
+        add(new Label(itemFlags.toString(), font, Riiablo.colors.blue)).center().space(SPACING).row();
       }
 
       // TODO: This can be cleaned up later -- add support for set detection

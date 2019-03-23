@@ -386,6 +386,10 @@ public enum Stat {
       1, 1, 1, 1, 1, 1, 1,                                                                            // 352
   };
 
+  private static final String[] BY_TIME = {
+      "ModStre9e", "ModStre9g", "ModStre9d", "ModStre9f",
+  };
+
   private final ItemStatCost.Entry entry;
 
   Stat() {
@@ -424,76 +428,268 @@ public enum Stat {
       this.param = param;
     }
 
+    private static final StringBuilder builder = new StringBuilder(32);
+    private static final CharSequence SPACE   = Riiablo.string.lookup("space");
+    private static final CharSequence DASH    = Riiablo.string.lookup("dash");
+    private static final CharSequence PERCENT = Riiablo.string.lookup("percent");
+    private static final CharSequence PLUS    = Riiablo.string.lookup("plus");
+    private static final CharSequence TO      = Riiablo.string.lookup("ItemStast1k");
+
     public String format(boolean group) {
+      ItemStatCost.Entry entry = stat.entry;
+      return group
+          ? format(entry.dgrpfunc, entry.dgrpval, entry.dgrpstrpos, entry.dgrpstrneg, entry.dgrpstr2)
+          : format(entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
+    }
+
+    public String format(int func, int valmode, String strpos, String strneg, String str2) {
+      int value;
       CharStats.Entry entry;
       Skills.Entry skill;
       SkillDesc.Entry desc;
-      switch (group ? stat.entry.dgrpfunc : stat.entry.descfunc) {
-        case 1:  return String.format("+%d %s", value, descstr(group));
-        case 2:  return String.format("%d%% %s", value, descstr());
-        case 3:  return String.format("%d %s", value, descstr());
-        case 4:  return String.format("+%d%% %s", value, descstr());
-        case 5:  return String.format("%d%% %s", value * 100 / 128, descstr()); // TODO: item_howl -- verify
-        case 6:  return String.format("+%d %s %s", value, descstr(), descstr2());
-        case 7:  return String.format("%d%% %s %s", value, descstr(), descstr2());
-        case 8:  return String.format("+%d%% %s %s", value, descstr(), descstr2());
-        case 9:  return String.format("%d %s %s", value, descstr(), descstr2());
-        case 11: return Riiablo.string.format("ModStre9u", 1, value / 100);
-        case 12: return String.format("+%d %s", value, descstr());
-        case 13: return String.format("+%d %s", value, Riiablo.string.lookup(CharacterClass.get(param).entry().StrAllSkills));
-        case 14:
+      builder.setLength(0);
+      switch (func) {
+        case 1: // +%d %s1
+          value = this.value;
+          if (valmode == 1) builder.append(PLUS).append(value).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(PLUS).append(value);
+          return builder.toString();
+        case 2: // %d%% %s1
+          value = this.value;
+          if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
+          return builder.toString();
+        case 3: // %d %s1
+          value = this.value;
+          if (valmode == 1) builder.append(value).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(value);
+          return builder.toString();
+        case 4: // +%d%% %s1
+          value = this.value;
+          if (valmode == 1) builder.append(PLUS).append(value).append(PERCENT).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(PLUS).append(value).append(PERCENT);
+          return builder.toString();
+        case 5: // %d%% %s1
+          value = this.value * 100 / 128;
+          if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
+          return builder.toString();
+        case 6: // +%d %s1 %s2
+          value = this.value;
+          if (valmode == 1) builder.append(PLUS).append(value).append(SPACE);
+          builder
+              .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
+              .append(SPACE)
+              .append(Riiablo.string.lookup(str2));
+          if (valmode == 2) builder.append(SPACE).append(PLUS).append(value);
+          return builder.toString();
+        case 7: // %d%% %s1 %s2
+          value = this.value;
+          if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
+          builder
+              .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
+              .append(SPACE)
+              .append(Riiablo.string.lookup(str2));
+          if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
+          return builder.toString();
+        case 8: // +%d%% %s1 %s2
+          value = this.value;
+          if (valmode == 1) builder.append(PLUS).append(value).append(PERCENT).append(SPACE);
+          builder
+              .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
+              .append(SPACE)
+              .append(Riiablo.string.lookup(str2));
+          if (valmode == 2) builder.append(SPACE).append(PLUS).append(value).append(PERCENT);
+          return builder.toString();
+        case 9: // %d %s1 %s2
+          value = this.value;
+          if (valmode == 1) builder.append(value).append(SPACE);
+          builder
+              .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
+              .append(SPACE)
+              .append(Riiablo.string.lookup(str2));
+          if (valmode == 2) builder.append(SPACE).append(value);
+          return builder.toString();
+        case 10: // %d%% %s1 %s2
+          value = this.value * 100 / 128;
+          if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
+          builder
+              .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
+              .append(SPACE)
+              .append(Riiablo.string.lookup(str2));
+          if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
+          return builder.toString();
+        case 11: // Repairs 1 Durability in %d Seconds
+          value = 100 / this.value;
+          return Riiablo.string.format("ModStre9u", 1, value);
+        case 12: // +%d %s1
+          value = this.value;
+          if (valmode == 1) builder.append(PLUS).append(value).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(PLUS).append(value);
+          return builder.toString();
+        case 13: // +%d %s | +1 to Paladin Skills
+          value = this.value;
+          builder
+              .append(PLUS).append(value)
+              .append(SPACE)
+              .append(CharacterClass.get(param).entry().StrAllSkills);
+          return builder.toString();
+        case 14: // %s %s | +1 to Fire Skills (Sorceress Only)
+          value = this.value;
           entry = CharacterClass.get((param >>> 3) & 0x3).entry();
-          return String.format("%s %s", Riiablo.string.format(entry.StrSkillTab[param & 0x7], value), Riiablo.string.lookup(entry.StrClassOnly));
-        case 15:
-          int e2p1 = (param >>> 6) & 0x3FF;
-          int e2p2 = param & 0x3F;
-          int e2p3 = value;
-          skill = Riiablo.files.skills.get(e2p1);
+          builder
+              .append(Riiablo.string.format(entry.StrSkillTab[param & 0x7], value))
+              .append(SPACE)
+              .append(Riiablo.string.lookup(entry.StrClassOnly));
+          return builder.toString();
+        case 15: // 15% chance to cast Level 5 Life Tap on Striking
+          value = this.value;
+          skill = Riiablo.files.skills.get(param2());
           desc = Riiablo.files.skilldesc.get(skill.skilldesc);
-          return Riiablo.string.format(stat.entry.descstrpos, e2p3, e2p2, Riiablo.string.lookup(desc.str_name));
-        case 16:
+          return Riiablo.string.format(strpos, value, param1(), Riiablo.string.lookup(desc.str_name));
+        case 16: // Level 16 Defiance Aura When Equipped
+          value = this.value;
           skill = Riiablo.files.skills.get(param);
           desc = Riiablo.files.skilldesc.get(skill.skilldesc);
-          return Riiablo.string.format(stat.entry.descstrpos, value, Riiablo.string.lookup(desc.str_name));
-        case 19: return String.format(descstr(group), value);
-        case 20: return String.format("%d%% %s", -value, descstr());
-        case 22: return toString();
-        case 23: return toString();
+          return Riiablo.string.format(strpos, value, Riiablo.string.lookup(desc.str_name));
+        case 17: // +10 to Dexterity (Increases Near Dawn) // TODO: untested
+          // value needs to update based on time of day
+          if (valmode == 1) builder.append(PLUS).append(value3()).append(SPACE);
+          builder.append(Riiablo.string.lookup(strpos));
+          if (valmode == 2) builder.append(SPACE).append(PLUS).append(value3());
+          builder.append(SPACE).append(Riiablo.string.lookup(BY_TIME[value1()]));
+          return builder.toString();
+        case 18: // 50% Enhanced Defense (Increases Near Dawn) // TODO: untested
+          // value needs to update based on time of day
+          if (valmode == 1) builder.append(value3()).append(PERCENT).append(SPACE);
+          builder.append(Riiablo.string.lookup(strpos));
+          if (valmode == 2) builder.append(SPACE).append(value3()).append(PERCENT);
+          builder.append(SPACE).append(Riiablo.string.lookup(BY_TIME[value1()]));
+          return builder.toString();
+        case 19: // Formats strpos/strneg with value
+          value = this.value;
+          return Riiablo.string.format(value < 0 ? strneg : strpos, value);
+        case 20: // -%d%% %s1
+          value = -this.value;
+          if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
+          return builder.toString();
+        case 21: // -%d %s1
+          value = -this.value;
+          if (valmode == 1) builder.append(value).append(SPACE);
+          builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
+          if (valmode == 2) builder.append(SPACE).append(value);
+          return builder.toString();
+        case 22: // +%d%% %s1 %s | +3% Attack Rating Versus: %s // TODO: unsupported for now
+          return "ERROR 22";
+        case 23: // %d%% %s1 %s | 3% ReanimateAs: %s // TODO: unsupported for now
+          return "ERROR 23";
         case 24:
-          int e3p1 = (param >>> 6) & 0x3FF;
-          int e3p2 = param & 0x3F;
-          int e3p3 = (value >>> 8) & 0xFF;
-          int e3p4 = value & 0xFF;
-          skill = Riiablo.files.skills.get(e3p1);
+          skill = Riiablo.files.skills.get(param2());
           desc = Riiablo.files.skilldesc.get(skill.skilldesc);
-          return String.format("%s %d %s %s", Riiablo.string.lookup("ModStre10b"), e3p2, Riiablo.string.lookup(desc.str_name), Riiablo.string.format(stat.entry.descstrpos, e3p3, e3p4));
-        case 27:
+          builder
+              .append(Riiablo.string.lookup("ModStre10b")).append(SPACE)
+              .append(param1()).append(SPACE)
+              .append(Riiablo.string.lookup(desc.str_name)).append(SPACE)
+              .append(Riiablo.string.format(stat.entry.descstrpos, value1(), value2()));
+          return builder.toString();
+        case 25: // TODO: unsupported
+          return "ERROR 25";
+        case 26: // TODO: unsupported
+          return "ERROR 26";
+        case 27: // +1 to Lightning (Sorceress Only)
+          value = this.value;
           skill = Riiablo.files.skills.get(param);
           desc = Riiablo.files.skilldesc.get(skill.skilldesc);
           entry = Riiablo.files.skills.getClass(skill.charclass).entry();
-          return String.format("+%d %s %s %s", value, Riiablo.string.lookup("ItemStast1k"), Riiablo.string.lookup(desc.str_name), Riiablo.string.lookup(entry.StrClassOnly));
-        case 28:
+          builder
+              .append(PLUS).append(value).append(SPACE)
+              .append(TO).append(SPACE)
+              .append(Riiablo.string.lookup(desc.str_name)).append(SPACE)
+              .append(Riiablo.string.lookup(entry.StrClassOnly));
+          return builder.toString();
+        case 28: // +1 to Teleport
+          value = this.value;
           skill = Riiablo.files.skills.get(param);
           desc = Riiablo.files.skilldesc.get(skill.skilldesc);
-          return String.format("+%d %s %s", value, Riiablo.string.lookup("ItemStast1k"), Riiablo.string.lookup(desc.str_name));
-        default: return toString();
+          builder
+              .append(PLUS).append(value).append(SPACE)
+              .append(TO).append(SPACE)
+              .append(Riiablo.string.lookup(desc.str_name));
+          return builder.toString();
+        default:
+          return null;
       }
     }
 
-    private String descstr() {
-      return Riiablo.string.lookup(value < 0 ? stat.entry.descstrneg : stat.entry.descstrpos);
+    public int value() {
+      return value1();
     }
 
-    private String descstr(boolean group) {
-      if (group) {
-        return Riiablo.string.lookup(value < 0 ? stat.entry.dgrpstrneg : stat.entry.dgrpstrpos);
-      } else {
-        return Riiablo.string.lookup(value < 0 ? stat.entry.descstrneg : stat.entry.descstrpos);
+    public int param() {
+      return param1();
+    }
+
+    public int value1() {
+      switch (stat.entry.Encode) {
+        case 0:  return value;
+        case 1:  return value;
+        case 2:  return value;
+        case 3:  return value & 0xFF;
+        case 4:  return value & 0x3;
+        default: return value;
       }
     }
 
-    private String descstr2() {
-      return Riiablo.string.lookup(stat.entry.descstr2);
+    public int value2() {
+      switch (stat.entry.Encode) {
+        case 0:  return 0;
+        case 1:  return 0;
+        case 2:  return 0;
+        case 3:  return (value >>> 8) & 0xFF;
+        case 4:  return (value >>> 2) & 0x3FF;
+        default: return 0;
+      }
+    }
+
+    public int value3() {
+      switch (stat.entry.Encode) {
+        case 0:  return 0;
+        case 1:  return 0;
+        case 2:  return 0;
+        case 3:  return 0;
+        case 4:  return (value >>> 12) & 0x3FF;
+        default: return 0;
+      }
+    }
+
+    public int param1() {
+      switch (stat.entry.Encode) {
+        case 0:  return param;
+        case 1:  return param;
+        case 2:  return param & 0x3F;
+        case 3:  return param & 0x3F;
+        case 4:  return param;
+        default: return param;
+      }
+    }
+
+    public int param2() {
+      switch (stat.entry.Encode) {
+        case 0:  return 0;
+        case 1:  return 0;
+        case 2:  return (param >>> 6) & 0x3FF;
+        case 3:  return (param >>> 6) & 0x3FF;
+        case 4:  return 0;
+        default: return 0;
+      }
     }
 
     @Override
