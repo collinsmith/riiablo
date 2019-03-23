@@ -87,11 +87,11 @@ public class Item extends Actor implements Disposable {
     WEAPON_DESC.put("bow", "WeaponDescBow");
     WEAPON_DESC.put("abow", "WeaponDescBow");
     WEAPON_DESC.put("staf", "WeaponDescStaff");
+    WEAPON_DESC.put("wand", "WeaponDescStaff");
     WEAPON_DESC.put("pole", "WeaponDescPoleArm");
     WEAPON_DESC.put("xbow", "WeaponDescCrossBow");
     WEAPON_DESC.put("h2h", "WeaponDescH2H");
     WEAPON_DESC.put("h2h2", "WeaponDescH2H");
-    WEAPON_DESC.put("wand", "WeaponDescOrb");
     WEAPON_DESC.put("orb", "WeaponDescOrb");
   }
 
@@ -814,6 +814,10 @@ public class Item extends Actor implements Disposable {
         }
       }
 
+      if (Item.this.type.is("book")) {
+        add(new Label(Riiablo.string.lookup("InsertScrolls"), font, Riiablo.colors.white)).center().space(SPACING).row();
+      }
+
       // TODO: This seems a bit hacky, check and see if this is located somewhere (doesn't look like it)
       if (base.useable) {
         String string;
@@ -852,6 +856,8 @@ public class Item extends Actor implements Disposable {
         add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
         add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
         add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((stat = stats.get(Stat.quantity)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is("weap")) {
           add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
@@ -941,6 +947,7 @@ public class Item extends Actor implements Disposable {
         if (stat != null) {
           itemFlags.append(Riiablo.string.lookup("Socketable")).append(' ').append('(').append(stat.value).append(')');
         } else {
+          if (itemFlags.length() == 0) itemFlags = null;
           Gdx.app.error(TAG, "Item marked socketed, but missing item_numsockets: " + Item.this.getName());
         }
       }
