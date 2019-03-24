@@ -1,6 +1,7 @@
 package com.riiablo.graphics;
 
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.utils.BufferUtils;
 
 public class PaletteIndexedPixmap extends Pixmap {
   public PaletteIndexedPixmap(int width, int height) {
@@ -11,6 +12,6 @@ public class PaletteIndexedPixmap extends Pixmap {
 
   public PaletteIndexedPixmap(int width, int height, byte[] data) {
     this(width, height);
-    getPixels().put(data).rewind();
+    BufferUtils.copy(data, 0, getPixels(), data.length);
   }
 }
