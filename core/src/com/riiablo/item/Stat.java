@@ -8,370 +8,376 @@ import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BitStream;
 
-public enum Stat {
-  strength,
-  energy,
-  dexterity,
-  vitality,
-  statpts,
-  newskills,
-  hitpoints,
-  maxhp,
-  mana,
-  maxmana,
-  stamina,
-  maxstamina,
-  level,
-  experience,
-  gold,
-  goldbank,
-  item_armor_percent,
-  item_maxdamage_percent,
-  item_mindamage_percent,
-  tohit,
-  toblock,
-  mindamage,
-  maxdamage,
-  secondary_mindamage,
-  secondary_maxdamage,
-  damagepercent,
-  manarecovery,
-  manarecoverybonus,
-  staminarecoverybonus,
-  lastexp,
-  nextexp,
-  armorclass,
-  armorclass_vs_missile,
-  armorclass_vs_hth,
-  normal_damage_reduction,
-  magic_damage_reduction,
-  damageresist,
-  magicresist,
-  maxmagicresist,
-  fireresist,
-  maxfireresist,
-  lightresist,
-  maxlightresist,
-  coldresist,
-  maxcoldresist,
-  poisonresist,
-  maxpoisonresist,
-  damageaura,
-  firemindam,
-  firemaxdam,
-  lightmindam,
-  lightmaxdam,
-  magicmindam,
-  magicmaxdam,
-  coldmindam,
-  coldmaxdam,
-  coldlength,
-  poisonmindam,
-  poisonmaxdam,
-  poisonlength,
-  lifedrainmindam,
-  lifedrainmaxdam,
-  manadrainmindam,
-  manadrainmaxdam,
-  stamdrainmindam,
-  stamdrainmaxdam,
-  stunlength,
-  velocitypercent,
-  attackrate,
-  other_animrate,
-  quantity,
-  value,
-  durability,
-  maxdurability,
-  hpregen,
-  item_maxdurability_percent,
-  item_maxhp_percent,
-  item_maxmana_percent,
-  item_attackertakesdamage,
-  item_goldbonus,
-  item_magicbonus,
-  item_knockback,
-  item_timeduration,
-  item_addclassskills,
-  unsentparam1,
-  item_addexperience,
-  item_healafterkill,
-  item_reducedprices,
-  item_doubleherbduration,
-  item_lightradius,
-  item_lightcolor,
-  item_req_percent,
-  item_levelreq,
-  item_fasterattackrate,
-  item_levelreqpct,
-  lastblockframe,
-  item_fastermovevelocity,
-  item_nonclassskill,
-  state,
-  item_fastergethitrate,
-  monster_playercount,
-  skill_poison_override_length,
-  item_fasterblockrate,
-  skill_bypass_undead,
-  skill_bypass_demons,
-  item_fastercastrate,
-  skill_bypass_beasts,
-  item_singleskill,
-  item_restinpeace,
-  curse_resistance,
-  item_poisonlengthresist,
-  item_normaldamage,
-  item_howl,
-  item_stupidity,
-  item_damagetomana,
-  item_ignoretargetac,
-  item_fractionaltargetac,
-  item_preventheal,
-  item_halffreezeduration,
-  item_tohit_percent,
-  item_damagetargetac,
-  item_demondamage_percent,
-  item_undeaddamage_percent,
-  item_demon_tohit,
-  item_undead_tohit,
-  item_throwable,
-  item_elemskill,
-  item_allskills,
-  item_attackertakeslightdamage,
-  ironmaiden_level,
-  lifetap_level,
-  thorns_percent,
-  bonearmor,
-  bonearmormax,
-  item_freeze,
-  item_openwounds,
-  item_crushingblow,
-  item_kickdamage,
-  item_manaafterkill,
-  item_healafterdemonkill,
-  item_extrablood,
-  item_deadlystrike,
-  item_absorbfire_percent,
-  item_absorbfire,
-  item_absorblight_percent,
-  item_absorblight,
-  item_absorbmagic_percent,
-  item_absorbmagic,
-  item_absorbcold_percent,
-  item_absorbcold,
-  item_slow,
-  item_aura,
-  item_indesctructible,
-  item_cannotbefrozen,
-  item_staminadrainpct,
-  item_reanimate,
-  item_pierce,
-  item_magicarrow,
-  item_explosivearrow,
-  item_throw_mindamage,
-  item_throw_maxdamage,
-  skill_handofathena,
-  skill_staminapercent,
-  skill_passive_staminapercent,
-  skill_concentration,
-  skill_enchant,
-  skill_pierce,
-  skill_conviction,
-  skill_chillingarmor,
-  skill_frenzy,
-  skill_decrepify,
-  skill_armor_percent,
-  alignment,
-  target0,
-  target1,
-  goldlost,
-  conversion_level,
-  conversion_maxhp,
-  unit_dooverlay,
-  attack_vs_montype,
-  damage_vs_montype,
-  fade,
-  armor_override_percent,
-  unused183,
-  unused184,
-  unused185,
-  unused186,
-  unused187,
-  item_addskill_tab,
-  unused189,
-  unused190,
-  unused191,
-  unused192,
-  unused193,
-  item_numsockets,
-  item_skillonattack,
-  item_skillonkill,
-  item_skillondeath,
-  item_skillonhit,
-  item_skillonlevelup,
-  unused200,
-  item_skillongethit,
-  unused202,
-  unused203,
-  item_charged_skill,
-  unused204,
-  unused205,
-  unused206,
-  unused207,
-  unused208,
-  unused209,
-  unused210,
-  unused211,
-  unused212,
-  item_armor_perlevel,
-  item_armorpercent_perlevel,
-  item_hp_perlevel,
-  item_mana_perlevel,
-  item_maxdamage_perlevel,
-  item_maxdamage_percent_perlevel,
-  item_strength_perlevel,
-  item_dexterity_perlevel,
-  item_energy_perlevel,
-  item_vitality_perlevel,
-  item_tohit_perlevel,
-  item_tohitpercent_perlevel,
-  item_cold_damagemax_perlevel,
-  item_fire_damagemax_perlevel,
-  item_ltng_damagemax_perlevel,
-  item_pois_damagemax_perlevel,
-  item_resist_cold_perlevel,
-  item_resist_fire_perlevel,
-  item_resist_ltng_perlevel,
-  item_resist_pois_perlevel,
-  item_absorb_cold_perlevel,
-  item_absorb_fire_perlevel,
-  item_absorb_ltng_perlevel,
-  item_absorb_pois_perlevel,
-  item_thorns_perlevel,
-  item_find_gold_perlevel,
-  item_find_magic_perlevel,
-  item_regenstamina_perlevel,
-  item_stamina_perlevel,
-  item_damage_demon_perlevel,
-  item_damage_undead_perlevel,
-  item_tohit_demon_perlevel,
-  item_tohit_undead_perlevel,
-  item_crushingblow_perlevel,
-  item_openwounds_perlevel,
-  item_kick_damage_perlevel,
-  item_deadlystrike_perlevel,
-  item_find_gems_perlevel,
-  item_replenish_durability,
-  item_replenish_quantity,
-  item_extra_stack,
-  item_find_item,
-  item_slash_damage,
-  item_slash_damage_percent,
-  item_crush_damage,
-  item_crush_damage_percent,
-  item_thrust_damage,
-  item_thrust_damage_percent,
-  item_absorb_slash,
-  item_absorb_crush,
-  item_absorb_thrust,
-  item_absorb_slash_percent,
-  item_absorb_crush_percent,
-  item_absorb_thrust_percent,
-  item_armor_bytime,
-  item_armorpercent_bytime,
-  item_hp_bytime,
-  item_mana_bytime,
-  item_maxdamage_bytime,
-  item_maxdamage_percent_bytime,
-  item_strength_bytime,
-  item_dexterity_bytime,
-  item_energy_bytime,
-  item_vitality_bytime,
-  item_tohit_bytime,
-  item_tohitpercent_bytime,
-  item_cold_damagemax_bytime,
-  item_fire_damagemax_bytime,
-  item_ltng_damagemax_bytime,
-  item_pois_damagemax_bytime,
-  item_resist_cold_bytime,
-  item_resist_fire_bytime,
-  item_resist_ltng_bytime,
-  item_resist_pois_bytime,
-  item_absorb_cold_bytime,
-  item_absorb_fire_bytime,
-  item_absorb_ltng_bytime,
-  item_absorb_pois_bytime,
-  item_find_gold_bytime,
-  item_find_magic_bytime,
-  item_regenstamina_bytime,
-  item_stamina_bytime,
-  item_damage_demon_bytime,
-  item_damage_undead_bytime,
-  item_tohit_demon_bytime,
-  item_tohit_undead_bytime,
-  item_crushingblow_bytime,
-  item_openwounds_bytime,
-  item_kick_damage_bytime,
-  item_deadlystrike_bytime,
-  item_find_gems_bytime,
-  item_pierce_cold,
-  item_pierce_fire,
-  item_pierce_ltng,
-  item_pierce_pois,
-  item_damage_vs_monster,
-  item_damage_percent_vs_monster,
-  item_tohit_vs_monster,
-  item_tohit_percent_vs_monster,
-  item_ac_vs_monster,
-  item_ac_percent_vs_monster,
-  firelength,
-  burningmin,
-  burningmax,
-  progressive_damage,
-  progressive_steal,
-  progressive_other,
-  progressive_fire,
-  progressive_cold,
-  progressive_lightning,
-  item_extra_charges,
-  progressive_tohit,
-  poison_count,
-  damage_framerate,
-  pierce_idx,
-  passive_fire_mastery,
-  passive_ltng_mastery,
-  passive_cold_mastery,
-  passive_pois_mastery,
-  passive_fire_pierce,
-  passive_ltng_pierce,
-  passive_cold_pierce,
-  passive_pois_pierce,
-  passive_critical_strike,
-  passive_dodge,
-  passive_avoid,
-  passive_evade,
-  passive_warmth,
-  passive_mastery_melee_th,
-  passive_mastery_melee_dmg,
-  passive_mastery_melee_crit,
-  passive_mastery_throw_th,
-  passive_mastery_throw_dmg,
-  passive_mastery_throw_crit,
-  passive_weaponblock,
-  passive_summon_resist,
-  modifierlist_skill,
-  modifierlist_level,
-  last_sent_hp_pct,
-  source_unit_type,
-  source_unit_id,
-  shortparam1,
-  questitemdifficulty,
-  passive_mag_mastery,
-  passive_mag_pierce;
+@SuppressWarnings("unused")
+public class Stat {
+  public static final int strength                        = 0;
+  public static final int energy                          = 1;
+  public static final int dexterity                       = 2;
+  public static final int vitality                        = 3;
+  public static final int statpts                         = 4;
+  public static final int newskills                       = 5;
+  public static final int hitpoints                       = 6;
+  public static final int maxhp                           = 7;
+  public static final int mana                            = 8;
+  public static final int maxmana                         = 9;
+  public static final int stamina                         = 10;
+  public static final int maxstamina                      = 11;
+  public static final int level                           = 12;
+  public static final int experience                      = 13;
+  public static final int gold                            = 14;
+  public static final int goldbank                        = 15;
+  public static final int item_armor_percent              = 16;
+  public static final int item_maxdamage_percent          = 17;
+  public static final int item_mindamage_percent          = 18;
+  public static final int tohit                           = 19;
+  public static final int toblock                         = 20;
+  public static final int mindamage                       = 21;
+  public static final int maxdamage                       = 22;
+  public static final int secondary_mindamage             = 23;
+  public static final int secondary_maxdamage             = 24;
+  public static final int damagepercent                   = 25;
+  public static final int manarecovery                    = 26;
+  public static final int manarecoverybonus               = 27;
+  public static final int staminarecoverybonus            = 28;
+  public static final int lastexp                         = 29;
+  public static final int nextexp                         = 30;
+  public static final int armorclass                      = 31;
+  public static final int armorclass_vs_missile           = 32;
+  public static final int armorclass_vs_hth               = 33;
+  public static final int normal_damage_reduction         = 34;
+  public static final int magic_damage_reduction          = 35;
+  public static final int damageresist                    = 36;
+  public static final int magicresist                     = 37;
+  public static final int maxmagicresist                  = 38;
+  public static final int fireresist                      = 39;
+  public static final int maxfireresist                   = 40;
+  public static final int lightresist                     = 41;
+  public static final int maxlightresist                  = 42;
+  public static final int coldresist                      = 43;
+  public static final int maxcoldresist                   = 44;
+  public static final int poisonresist                    = 45;
+  public static final int maxpoisonresist                 = 46;
+  public static final int damageaura                      = 47;
+  public static final int firemindam                      = 48;
+  public static final int firemaxdam                      = 49;
+  public static final int lightmindam                     = 50;
+  public static final int lightmaxdam                     = 51;
+  public static final int magicmindam                     = 52;
+  public static final int magicmaxdam                     = 53;
+  public static final int coldmindam                      = 54;
+  public static final int coldmaxdam                      = 55;
+  public static final int coldlength                      = 56;
+  public static final int poisonmindam                    = 57;
+  public static final int poisonmaxdam                    = 58;
+  public static final int poisonlength                    = 59;
+  public static final int lifedrainmindam                 = 60;
+  public static final int lifedrainmaxdam                 = 61;
+  public static final int manadrainmindam                 = 62;
+  public static final int manadrainmaxdam                 = 63;
+  public static final int stamdrainmindam                 = 64;
+  public static final int stamdrainmaxdam                 = 65;
+  public static final int stunlength                      = 66;
+  public static final int velocitypercent                 = 67;
+  public static final int attackrate                      = 68;
+  public static final int other_animrate                  = 69;
+  public static final int quantity                        = 70;
+  public static final int value                           = 71;
+  public static final int durability                      = 72;
+  public static final int maxdurability                   = 73;
+  public static final int hpregen                         = 74;
+  public static final int item_maxdurability_percent      = 75;
+  public static final int item_maxhp_percent              = 76;
+  public static final int item_maxmana_percent            = 77;
+  public static final int item_attackertakesdamage        = 78;
+  public static final int item_goldbonus                  = 79;
+  public static final int item_magicbonus                 = 80;
+  public static final int item_knockback                  = 81;
+  public static final int item_timeduration               = 82;
+  public static final int item_addclassskills             = 83;
+  public static final int unsentparam1                    = 84;
+  public static final int item_addexperience              = 85;
+  public static final int item_healafterkill              = 86;
+  public static final int item_reducedprices              = 87;
+  public static final int item_doubleherbduration         = 88;
+  public static final int item_lightradius                = 89;
+  public static final int item_lightcolor                 = 90;
+  public static final int item_req_percent                = 91;
+  public static final int item_levelreq                   = 92;
+  public static final int item_fasterattackrate           = 93;
+  public static final int item_levelreqpct                = 94;
+  public static final int lastblockframe                  = 95;
+  public static final int item_fastermovevelocity         = 96;
+  public static final int item_nonclassskill              = 97;
+  public static final int state                           = 98;
+  public static final int item_fastergethitrate           = 99;
+  public static final int monster_playercount             = 100;
+  public static final int skill_poison_override_length    = 101;
+  public static final int item_fasterblockrate            = 102;
+  public static final int skill_bypass_undead             = 103;
+  public static final int skill_bypass_demons             = 104;
+  public static final int item_fastercastrate             = 105;
+  public static final int skill_bypass_beasts             = 106;
+  public static final int item_singleskill                = 107;
+  public static final int item_restinpeace                = 108;
+  public static final int curse_resistance                = 109;
+  public static final int item_poisonlengthresist         = 110;
+  public static final int item_normaldamage               = 111;
+  public static final int item_howl                       = 112;
+  public static final int item_stupidity                  = 113;
+  public static final int item_damagetomana               = 114;
+  public static final int item_ignoretargetac             = 115;
+  public static final int item_fractionaltargetac         = 116;
+  public static final int item_preventheal                = 117;
+  public static final int item_halffreezeduration         = 118;
+  public static final int item_tohit_percent              = 119;
+  public static final int item_damagetargetac             = 120;
+  public static final int item_demondamage_percent        = 121;
+  public static final int item_undeaddamage_percent       = 122;
+  public static final int item_demon_tohit                = 123;
+  public static final int item_undead_tohit               = 124;
+  public static final int item_throwable                  = 125;
+  public static final int item_elemskill                  = 126;
+  public static final int item_allskills                  = 127;
+  public static final int item_attackertakeslightdamage   = 128;
+  public static final int ironmaiden_level                = 129;
+  public static final int lifetap_level                   = 130;
+  public static final int thorns_percent                  = 131;
+  public static final int bonearmor                       = 132;
+  public static final int bonearmormax                    = 133;
+  public static final int item_freeze                     = 134;
+  public static final int item_openwounds                 = 135;
+  public static final int item_crushingblow               = 136;
+  public static final int item_kickdamage                 = 137;
+  public static final int item_manaafterkill              = 138;
+  public static final int item_healafterdemonkill         = 139;
+  public static final int item_extrablood                 = 140;
+  public static final int item_deadlystrike               = 141;
+  public static final int item_absorbfire_percent         = 142;
+  public static final int item_absorbfire                 = 143;
+  public static final int item_absorblight_percent        = 144;
+  public static final int item_absorblight                = 145;
+  public static final int item_absorbmagic_percent        = 146;
+  public static final int item_absorbmagic                = 147;
+  public static final int item_absorbcold_percent         = 148;
+  public static final int item_absorbcold                 = 149;
+  public static final int item_slow                       = 150;
+  public static final int item_aura                       = 151;
+  public static final int item_indesctructible            = 152;
+  public static final int item_cannotbefrozen             = 153;
+  public static final int item_staminadrainpct            = 154;
+  public static final int item_reanimate                  = 155;
+  public static final int item_pierce                     = 156;
+  public static final int item_magicarrow                 = 157;
+  public static final int item_explosivearrow             = 158;
+  public static final int item_throw_mindamage            = 159;
+  public static final int item_throw_maxdamage            = 160;
+  public static final int skill_handofathena              = 161;
+  public static final int skill_staminapercent            = 162;
+  public static final int skill_passive_staminapercent    = 163;
+  public static final int skill_concentration             = 164;
+  public static final int skill_enchant                   = 165;
+  public static final int skill_pierce                    = 166;
+  public static final int skill_conviction                = 167;
+  public static final int skill_chillingarmor             = 168;
+  public static final int skill_frenzy                    = 169;
+  public static final int skill_decrepify                 = 170;
+  public static final int skill_armor_percent             = 171;
+  public static final int alignment                       = 172;
+  public static final int target0                         = 173;
+  public static final int target1                         = 174;
+  public static final int goldlost                        = 175;
+  public static final int conversion_level                = 176;
+  public static final int conversion_maxhp                = 177;
+  public static final int unit_dooverlay                  = 178;
+  public static final int attack_vs_montype               = 179;
+  public static final int damage_vs_montype               = 180;
+  public static final int fade                            = 181;
+  public static final int armor_override_percent          = 182;
+  public static final int unused183                       = 183;
+  public static final int unused184                       = 184;
+  public static final int unused185                       = 185;
+  public static final int unused186                       = 186;
+  public static final int unused187                       = 187;
+  public static final int item_addskill_tab               = 188;
+  public static final int unused189                       = 189;
+  public static final int unused190                       = 190;
+  public static final int unused191                       = 191;
+  public static final int unused192                       = 192;
+  public static final int unused193                       = 193;
+  public static final int item_numsockets                 = 194;
+  public static final int item_skillonattack              = 195;
+  public static final int item_skillonkill                = 196;
+  public static final int item_skillondeath               = 197;
+  public static final int item_skillonhit                 = 198;
+  public static final int item_skillonlevelup             = 199;
+  public static final int unused200                       = 200;
+  public static final int item_skillongethit              = 201;
+  public static final int unused202                       = 202;
+  public static final int unused203                       = 203;
+  public static final int item_charged_skill              = 204;
+  public static final int unused204                       = 205;
+  public static final int unused205                       = 206;
+  public static final int unused206                       = 207;
+  public static final int unused207                       = 208;
+  public static final int unused208                       = 209;
+  public static final int unused209                       = 210;
+  public static final int unused210                       = 211;
+  public static final int unused211                       = 212;
+  public static final int unused212                       = 213;
+  public static final int item_armor_perlevel             = 214;
+  public static final int item_armorpercent_perlevel      = 215;
+  public static final int item_hp_perlevel                = 216;
+  public static final int item_mana_perlevel              = 217;
+  public static final int item_maxdamage_perlevel         = 218;
+  public static final int item_maxdamage_percent_perlevel = 219;
+  public static final int item_strength_perlevel          = 220;
+  public static final int item_dexterity_perlevel         = 221;
+  public static final int item_energy_perlevel            = 222;
+  public static final int item_vitality_perlevel          = 223;
+  public static final int item_tohit_perlevel             = 224;
+  public static final int item_tohitpercent_perlevel      = 225;
+  public static final int item_cold_damagemax_perlevel    = 226;
+  public static final int item_fire_damagemax_perlevel    = 227;
+  public static final int item_ltng_damagemax_perlevel    = 228;
+  public static final int item_pois_damagemax_perlevel    = 229;
+  public static final int item_resist_cold_perlevel       = 230;
+  public static final int item_resist_fire_perlevel       = 231;
+  public static final int item_resist_ltng_perlevel       = 232;
+  public static final int item_resist_pois_perlevel       = 233;
+  public static final int item_absorb_cold_perlevel       = 234;
+  public static final int item_absorb_fire_perlevel       = 235;
+  public static final int item_absorb_ltng_perlevel       = 236;
+  public static final int item_absorb_pois_perlevel       = 237;
+  public static final int item_thorns_perlevel            = 238;
+  public static final int item_find_gold_perlevel         = 239;
+  public static final int item_find_magic_perlevel        = 240;
+  public static final int item_regenstamina_perlevel      = 241;
+  public static final int item_stamina_perlevel           = 242;
+  public static final int item_damage_demon_perlevel      = 243;
+  public static final int item_damage_undead_perlevel     = 244;
+  public static final int item_tohit_demon_perlevel       = 245;
+  public static final int item_tohit_undead_perlevel      = 246;
+  public static final int item_crushingblow_perlevel      = 247;
+  public static final int item_openwounds_perlevel        = 248;
+  public static final int item_kick_damage_perlevel       = 249;
+  public static final int item_deadlystrike_perlevel      = 250;
+  public static final int item_find_gems_perlevel         = 251;
+  public static final int item_replenish_durability       = 252;
+  public static final int item_replenish_quantity         = 253;
+  public static final int item_extra_stack                = 254;
+  public static final int item_find_item                  = 255;
+  public static final int item_slash_damage               = 256;
+  public static final int item_slash_damage_percent       = 257;
+  public static final int item_crush_damage               = 258;
+  public static final int item_crush_damage_percent       = 259;
+  public static final int item_thrust_damage              = 260;
+  public static final int item_thrust_damage_percent      = 261;
+  public static final int item_absorb_slash               = 262;
+  public static final int item_absorb_crush               = 263;
+  public static final int item_absorb_thrust              = 264;
+  public static final int item_absorb_slash_percent       = 265;
+  public static final int item_absorb_crush_percent       = 266;
+  public static final int item_absorb_thrust_percent      = 267;
+  public static final int item_armor_bytime               = 268;
+  public static final int item_armorpercent_bytime        = 269;
+  public static final int item_hp_bytime                  = 270;
+  public static final int item_mana_bytime                = 271;
+  public static final int item_maxdamage_bytime           = 272;
+  public static final int item_maxdamage_percent_bytime   = 273;
+  public static final int item_strength_bytime            = 274;
+  public static final int item_dexterity_bytime           = 275;
+  public static final int item_energy_bytime              = 276;
+  public static final int item_vitality_bytime            = 277;
+  public static final int item_tohit_bytime               = 278;
+  public static final int item_tohitpercent_bytime        = 279;
+  public static final int item_cold_damagemax_bytime      = 280;
+  public static final int item_fire_damagemax_bytime      = 281;
+  public static final int item_ltng_damagemax_bytime      = 282;
+  public static final int item_pois_damagemax_bytime      = 283;
+  public static final int item_resist_cold_bytime         = 284;
+  public static final int item_resist_fire_bytime         = 285;
+  public static final int item_resist_ltng_bytime         = 286;
+  public static final int item_resist_pois_bytime         = 287;
+  public static final int item_absorb_cold_bytime         = 288;
+  public static final int item_absorb_fire_bytime         = 289;
+  public static final int item_absorb_ltng_bytime         = 290;
+  public static final int item_absorb_pois_bytime         = 291;
+  public static final int item_find_gold_bytime           = 292;
+  public static final int item_find_magic_bytime          = 293;
+  public static final int item_regenstamina_bytime        = 294;
+  public static final int item_stamina_bytime             = 295;
+  public static final int item_damage_demon_bytime        = 296;
+  public static final int item_damage_undead_bytime       = 297;
+  public static final int item_tohit_demon_bytime         = 298;
+  public static final int item_tohit_undead_bytime        = 299;
+  public static final int item_crushingblow_bytime        = 300;
+  public static final int item_openwounds_bytime          = 301;
+  public static final int item_kick_damage_bytime         = 302;
+  public static final int item_deadlystrike_bytime        = 303;
+  public static final int item_find_gems_bytime           = 304;
+  public static final int item_pierce_cold                = 305;
+  public static final int item_pierce_fire                = 306;
+  public static final int item_pierce_ltng                = 307;
+  public static final int item_pierce_pois                = 308;
+  public static final int item_damage_vs_monster          = 309;
+  public static final int item_damage_percent_vs_monster  = 310;
+  public static final int item_tohit_vs_monster           = 311;
+  public static final int item_tohit_percent_vs_monster   = 312;
+  public static final int item_ac_vs_monster              = 313;
+  public static final int item_ac_percent_vs_monster      = 314;
+  public static final int firelength                      = 315;
+  public static final int burningmin                      = 316;
+  public static final int burningmax                      = 317;
+  public static final int progressive_damage              = 318;
+  public static final int progressive_steal               = 319;
+  public static final int progressive_other               = 320;
+  public static final int progressive_fire                = 321;
+  public static final int progressive_cold                = 322;
+  public static final int progressive_lightning           = 323;
+  public static final int item_extra_charges              = 324;
+  public static final int progressive_tohit               = 325;
+  public static final int poison_count                    = 326;
+  public static final int damage_framerate                = 327;
+  public static final int pierce_idx                      = 328;
+  public static final int passive_fire_mastery            = 329;
+  public static final int passive_ltng_mastery            = 330;
+  public static final int passive_cold_mastery            = 331;
+  public static final int passive_pois_mastery            = 332;
+  public static final int passive_fire_pierce             = 333;
+  public static final int passive_ltng_pierce             = 334;
+  public static final int passive_cold_pierce             = 335;
+  public static final int passive_pois_pierce             = 336;
+  public static final int passive_critical_strike         = 337;
+  public static final int passive_dodge                   = 338;
+  public static final int passive_avoid                   = 339;
+  public static final int passive_evade                   = 340;
+  public static final int passive_warmth                  = 341;
+  public static final int passive_mastery_melee_th        = 342;
+  public static final int passive_mastery_melee_dmg       = 343;
+  public static final int passive_mastery_melee_crit      = 344;
+  public static final int passive_mastery_throw_th        = 345;
+  public static final int passive_mastery_throw_dmg       = 346;
+  public static final int passive_mastery_throw_crit      = 347;
+  public static final int passive_weaponblock             = 348;
+  public static final int passive_summon_resist           = 349;
+  public static final int modifierlist_skill              = 350;
+  public static final int modifierlist_level              = 351;
+  public static final int last_sent_hp_pct                = 352;
+  public static final int source_unit_type                = 353;
+  public static final int source_unit_id                  = 354;
+  public static final int shortparam1                     = 355;
+  public static final int questitemdifficulty             = 356;
+  public static final int passive_mag_mastery             = 357;
+  public static final int passive_mag_pierce              = 358;
 
-  private static final int NONE = 0x1FF;
+  public static final int BITS                            = 9;
+  public static final int NONE                            = (1 << BITS) - 1; // 0x1FF
 
-  private static final int[] ENCODED_COUNT = {
+  // These don't actually exist in the game
+  public static final int reqstr                          = NONE - 1;
+  public static final int reqdex                          = NONE - 2;
+
+  static final int[] ENCODED_COUNT = {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, // 32
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 64
@@ -386,45 +392,53 @@ public enum Stat {
       1, 1, 1, 1, 1, 1, 1,                                                                            // 352
   };
 
-  private static final String[] BY_TIME = {
-      "ModStre9e", "ModStre9g", "ModStre9d", "ModStre9f",
-  };
-
-  private final ItemStatCost.Entry entry;
-
-  Stat() {
-    entry = Riiablo.files.ItemStatCost.get(ordinal());
-  }
-
-  public static int getStatCount(int stat) {
+  static int getNumEncoded(int stat) {
     return ENCODED_COUNT[stat];
   }
 
-  private static final Stat[] values = values();
-
-  public static Stat valueOf(int i) {
-    return i == NONE ? null : values[i];
+  static int hash(int stat, int param) {
+    return stat | (param << 16);
   }
 
-  public ItemStatCost.Entry entry() {
-    return entry;
+  static Stat.Instance read(int stat, BitStream bitStream) {
+    return new Instance(stat, bitStream);
   }
 
-  public Instance read(BitStream bitStream) {
-    int param = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
-    int value = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
-    return new Instance(this, value, param);
+  static Stat.Instance create(int stat, int value) {
+    return new Instance(stat, value);
   }
 
-  public static class Instance {
-    final Stat stat;
-    final int  value;
-    final int  param;
+  static class Instance {
+    final int stat;
+    final int param; // can probably safely be truncated to short
+    final int hash;
+    final ItemStatCost.Entry entry;
 
-    Instance(Stat stat, int value, int param) {
-      this.stat  = stat;
+    int value;
+
+    Instance(int stat, BitStream bitStream) {
+      this.stat = stat;
+      entry = Riiablo.files.ItemStatCost.get(stat);
+      param = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
+      value = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
+      hash = Stat.hash(stat, param);
+    }
+
+    Instance(int stat, int value) {
+      this.stat = stat;
       this.value = value;
-      this.param = param;
+      entry = Riiablo.files.ItemStatCost.get(stat);
+      param = 0;
+      hash = Stat.hash(stat, param);
+    }
+
+    @Override
+    public int hashCode() {
+      return hash;
+    }
+
+    public void add(Instance other) {
+      // TODO
     }
 
     private static final StringBuilder builder = new StringBuilder(32);
@@ -434,8 +448,11 @@ public enum Stat {
     private static final CharSequence PLUS    = Riiablo.string.lookup("plus");
     private static final CharSequence TO      = Riiablo.string.lookup("ItemStast1k");
 
+    private static final String[] BY_TIME = {
+        "ModStre9e", "ModStre9g", "ModStre9d", "ModStre9f",
+    };
+
     public String format(boolean group) {
-      ItemStatCost.Entry entry = stat.entry;
       return group
           ? format(entry.dgrpfunc, entry.dgrpval, entry.dgrpstrpos, entry.dgrpstrneg, entry.dgrpstr2)
           : format(entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
@@ -597,7 +614,7 @@ public enum Stat {
               .append(Riiablo.string.lookup("ModStre10b")).append(SPACE)
               .append(param1()).append(SPACE)
               .append(Riiablo.string.lookup(desc.str_name)).append(SPACE)
-              .append(Riiablo.string.format(stat.entry.descstrpos, value1(), value2()));
+              .append(Riiablo.string.format(strpos, value1(), value2()));
           return builder.toString();
         case 25: // TODO: unsupported
           return "ERROR 25";
@@ -635,7 +652,7 @@ public enum Stat {
     // Looks like this is unused outside character stats
     // fortitude is calculated using OP (statvalue * basevalue) / (2 ^ param) -- (10 * 89) / (2 ^ 3) = 111.25
     public float toFloat() {
-      int shift = stat.entry.ValShift;
+      int shift = entry.ValShift;
       int pow   = (1 << shift);
       int mask  = pow - 1;
       return ((value >>> shift) + ((value & mask) / (float) pow));
@@ -646,7 +663,7 @@ public enum Stat {
     }
 
     public int value1() {
-      switch (stat.entry.Encode) {
+      switch (entry.Encode) {
         case 0:  return value;
         case 1:  return value;
         case 2:  return value;
@@ -657,7 +674,7 @@ public enum Stat {
     }
 
     public int value2() {
-      switch (stat.entry.Encode) {
+      switch (entry.Encode) {
         case 0:  return 0;
         case 1:  return 0;
         case 2:  return 0;
@@ -668,7 +685,7 @@ public enum Stat {
     }
 
     public int value3() {
-      switch (stat.entry.Encode) {
+      switch (entry.Encode) {
         case 0:  return 0;
         case 1:  return 0;
         case 2:  return 0;
@@ -679,7 +696,7 @@ public enum Stat {
     }
 
     public int param1() {
-      switch (stat.entry.Encode) {
+      switch (entry.Encode) {
         case 0:  return param;
         case 1:  return param;
         case 2:  return param & 0x3F;
@@ -690,7 +707,7 @@ public enum Stat {
     }
 
     public int param2() {
-      switch (stat.entry.Encode) {
+      switch (entry.Encode) {
         case 0:  return 0;
         case 1:  return 0;
         case 2:  return (param >>> 6) & 0x3FF;
@@ -702,13 +719,13 @@ public enum Stat {
 
     @Override
     public String toString() {
-      switch (stat.entry.Encode) {
-        case 0:  return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
-        case 1:  return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
-        case 2:  return stat + "=" + param2() + ":" + param1() + ":" + value();
-        case 3:  return stat + "=" + param2() + ":" + param1() + ":" + value2() + ":" + value1();
-        case 4:  return stat + "=" + value1() + ":" + value2() + ":" + value3();
-        default: return stat + "=" + (stat.entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
+      switch (entry.Encode) {
+        case 0:  return stat + "(" + entry + ")" + "=" + (entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
+        case 1:  return stat + "(" + entry + ")" + "=" + param() + ":" + value();
+        case 2:  return stat + "(" + entry + ")" + "=" + param1() + ":" + param2() + ":" + value();
+        case 3:  return stat + "(" + entry + ")" + "=" + param1() + ":" + param2() + ":" + value1() + ":" + value2();
+        case 4:  return stat + "(" + entry + ")" + "=" + value1() + ":" + value2() + ":" + value3();
+        default: return stat + "(" + entry + ")" + "=" + (entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
       }
     }
   }

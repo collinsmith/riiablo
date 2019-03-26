@@ -5,9 +5,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -39,7 +37,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.EnumMap;
 
 import static com.riiablo.item.Quality.SET;
 
@@ -69,7 +66,7 @@ public class Item extends Actor implements Disposable {
   private static final int INSCRIBED  = 0x01000000;
   private static final int RUNEWORD   = 0x04000000;
 
-  private static final Array<Stat.Instance>[] EMPTY_STAT_ARRAY = (Array<Stat.Instance>[]) new Array[0];
+  private static final PropertyList[] EMPTY_STAT_ARRAY = new PropertyList[0];
 
   private static final ObjectMap<String, String> WEAPON_DESC = new ObjectMap<>();
   static {
@@ -121,8 +118,8 @@ public class Item extends Actor implements Disposable {
   public int     runewordData;
   public String  inscription;
 
-  public EnumMap<Stat, Stat.Instance> props;
-  public Array<Stat.Instance> stats[];
+  public PropertyList props;
+  public PropertyList stats[];
 
   public ItemEntry       base;
   public ItemTypes.Entry type;
@@ -141,21 +138,7 @@ public class Item extends Actor implements Disposable {
     return new Item().read(bitStream);
   }
 
-  private Item() {
-    addListener(new ClickListener() {
-      @Override
-      public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-        super.enter(event, x, y, pointer, fromActor);
-        if (isOver()) System.out.println("OVER");
-      }
-
-      @Override
-      public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-        super.exit(event, x, y, pointer, toActor);
-        if (!isOver()) System.out.println("!OVER");
-      }
-    });
-  }
+  Item() {}
 
   private Item read(BitStream bitStream) {
     flags    = bitStream.read32BitsOrLess(Integer.SIZE);
@@ -183,24 +166,25 @@ public class Item extends Actor implements Disposable {
     base = findBase(typeCode);
     type = Riiablo.files.ItemTypes.get(base.type);
 
-    props = new EnumMap<>(Stat.class);
-    props.put(Stat.item_levelreq, new Stat.Instance(Stat.item_levelreq, base.levelreq, 0));
+    props = new PropertyList();
+    props.put(Stat.item_levelreq, base.levelreq);
     if (base instanceof Weapons.Entry) {
       Weapons.Entry weapon = getBase();
-      props.put(Stat.mindamage, new Stat.Instance(Stat.mindamage, weapon.mindam, 0));
-      props.put(Stat.maxdamage, new Stat.Instance(Stat.maxdamage, weapon.maxdam, 0));
-      props.put(Stat.secondary_mindamage, new Stat.Instance(Stat.secondary_mindamage, weapon._2handmindam, 0));
-      props.put(Stat.secondary_maxdamage, new Stat.Instance(Stat.secondary_maxdamage, weapon._2handmaxdam, 0));
-      props.put(Stat.item_throw_mindamage, new Stat.Instance(Stat.item_throw_mindamage, weapon.minmisdam, 0));
-      props.put(Stat.item_throw_maxdamage, new Stat.Instance(Stat.item_throw_maxdamage, weapon.maxmisdam, 0));
-      props.put(Stat.strength, new Stat.Instance(Stat.strength, weapon.reqstr, 0));
-      props.put(Stat.dexterity, new Stat.Instance(Stat.dexterity, weapon.reqdex, 0));
+      props.put(Stat.mindamage, weapon.mindam);
+      props.put(Stat.maxdamage, weapon.maxdam);
+      props.put(Stat.secondary_mindamage, weapon._2handmindam);
+      props.put(Stat.secondary_maxdamage, weapon._2handmaxdam);
+      props.put(Stat.item_throw_mindamage, weapon.minmisdam);
+      props.put(Stat.item_throw_maxdamage, weapon.maxmisdam);
+      props.put(Stat.reqstr, weapon.reqstr);
+      props.put(Stat.reqdex, weapon.reqdex);
     } else if (base instanceof Armor.Entry) {
       Armor.Entry armor = getBase();
-      props.put(Stat.strength, new Stat.Instance(Stat.strength, armor.reqstr, 0));
-      props.put(Stat.toblock, new Stat.Instance(Stat.toblock, armor.block, 0));
-      props.put(Stat.mindamage, new Stat.Instance(Stat.mindamage, armor.mindam, 0));
-      props.put(Stat.maxdamage, new Stat.Instance(Stat.maxdamage, armor.maxdam, 0));
+      props.put(Stat.reqstr, armor.reqstr);
+      props.put(Stat.reqdex, 0);
+      props.put(Stat.toblock, armor.block);
+      props.put(Stat.mindamage, armor.mindam);
+      props.put(Stat.maxdamage, armor.maxdam);
     }
     // TODO: copy base items stats
 
@@ -266,19 +250,18 @@ public class Item extends Actor implements Disposable {
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
 
       if (type.is("armo")) {
-        props.put(Stat.armorclass, Stat.armorclass.read(bitStream));
+        props.read(Stat.armorclass, bitStream);
       }
 
       if (type.is("armo") || type.is("weap")) {
-        Stat.Instance maxdurability = Stat.maxdurability.read(bitStream);
-        props.put(Stat.maxdurability, maxdurability);
-        if (maxdurability.value > 0) {
-          props.put(Stat.durability, Stat.durability.read(bitStream));
+        int maxdurability = props.read(Stat.maxdurability, bitStream);
+        if (maxdurability > 0) {
+          props.read(Stat.durability, bitStream);
         }
       }
 
       if ((flags & SOCKETED) == SOCKETED && (type.is("armo") || type.is("weap"))) {
-        props.put(Stat.item_numsockets, Stat.item_numsockets.read(bitStream));
+        props.read(Stat.item_numsockets, bitStream);
       }
 
       if (type.is("book")) {
@@ -287,7 +270,7 @@ public class Item extends Actor implements Disposable {
 
       if (base.stackable) {
         int quantity = bitStream.readUnsigned15OrLess(9);
-        props.put(Stat.quantity, new Stat.Instance(Stat.quantity, quantity, 0));
+        props.put(Stat.quantity, quantity);
       }
 
       if (quality == SET) {
@@ -299,19 +282,10 @@ public class Item extends Actor implements Disposable {
         listsFlags = 0;
       }
 
-      stats = (Array<Stat.Instance>[]) new Array[7];
+      stats = new PropertyList[7];
       for (int i = 0; i < 7; i++) {
         if (((listsFlags >> i) & 1) == 1) {
-          stats[i] = new Array<>(Stat.Instance.class);
-          Array<Stat.Instance> stats = this.stats[i];
-          for (;;) {
-            int prop = bitStream.readUnsigned15OrLess(9);
-            if (prop == 0x1ff) break;
-            for (int j = 0, size = Stat.getStatCount(prop); j < size; j++) {
-              Stat stat = Stat.valueOf(prop + j);
-              stats.add(stat.read(bitStream));
-            }
-          }
+          stats[i] = new PropertyList().read(bitStream);
         }
       }
 
@@ -875,7 +849,7 @@ public class Item extends Actor implements Disposable {
 
       if ((flags & COMPACT) == 0) {
         Stat.Instance stat;
-        EnumMap<Stat, Stat.Instance> stats = Item.this.props;
+        PropertyList stats = Item.this.props;
         if ((stat = stats.get(Stat.armorclass)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1h") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is("weap")) {
@@ -894,9 +868,9 @@ public class Item extends Actor implements Disposable {
         if (Item.this.type.is("clas")) {
           add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.type.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if ((stat = stats.get(Stat.dexterity)) != null && stat.value > 0)
+        if ((stat = stats.get(Stat.reqdex)) != null && stat.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((stat = stats.get(Stat.strength)) != null && stat.value > 0)
+        if ((stat = stats.get(Stat.reqstr)) != null && stat.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if ((stat = stats.get(Stat.item_levelreq)) != null && stat.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
@@ -914,13 +888,14 @@ public class Item extends Actor implements Disposable {
       // TODO: Detect stats with encoded groupings and auto join them into a grouped stat
 
       for (int i = 0; i < stats.length; i++) {
-        Array<Stat.Instance> stats = Item.this.stats[i];
-        if (stats == null) continue;
+        PropertyList props = Item.this.stats[i];
+        if (props == null) continue;
+        Array<Stat.Instance> propsArray = props.toArray();
 
         // TODO: This can be cleaned up later
         IntMap<Array<Stat.Instance>> groups = new IntMap<>();
-        for (Stat.Instance stat : stats) {
-          int dgrp = stat.stat.entry().dgrp;
+        for (Stat.Instance stat : propsArray) {
+          int dgrp = stat.entry.dgrp;
           if (dgrp > 0) {
             Array<Stat.Instance> group = groups.get(dgrp);
             if (group == null) groups.put(dgrp, group = new Array<>());
@@ -951,16 +926,16 @@ public class Item extends Actor implements Disposable {
           }
         }
 
-        stats.sort(new Comparator<Stat.Instance>() {
+        propsArray.sort(new Comparator<Stat.Instance>() {
           @Override
           public int compare(Stat.Instance o1, Stat.Instance o2) {
-            return o2.stat.entry().descpriority - o1.stat.entry().descpriority;
+            return o2.entry.descpriority - o1.entry.descpriority;
           }
         });
 
-        for (Stat.Instance stat : stats) {
+        for (Stat.Instance stat : propsArray) {
           Label label;
-          int dgrp = stat.stat.entry().dgrp;
+          int dgrp = stat.entry.dgrp;
           boolean group = false;
           if (dgrp > 0) {
             if (groupReplaced.contains(dgrp)) continue;
