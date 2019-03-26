@@ -147,8 +147,13 @@ public enum CharacterClass {
     }
   }
 
+  /**
+   * This method isn't supposed to be quite as technically correct as the others and the data should
+   * be known to be interpretable as a char class. This should be helpful in checking 2- and 3-char
+   * variants (AM, SO, BA, AMA, SOR, ASS, AI, etc)
+   */
   public static CharacterClass get(String charClass) {
-    if (charClass == null || charClass.length() < 3) throw new GdxRuntimeException("Invalid class id: " + charClass);
+    if (charClass == null || charClass.length() < 2) throw new GdxRuntimeException("Invalid class id: " + charClass);
     switch (charClass.charAt(0)) {
       case 'a': return charClass.charAt(1) == 'm' ? CharacterClass.AMAZON : CharacterClass.ASSASSIN;
       case 'b': return CharacterClass.BARBARIAN;
