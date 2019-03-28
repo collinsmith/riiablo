@@ -13,6 +13,7 @@ import com.riiablo.codec.excel.Colors;
 import com.riiablo.codec.excel.CompCode;
 import com.riiablo.codec.excel.Composit;
 import com.riiablo.codec.excel.Excel;
+import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.ItemTypes;
@@ -33,6 +34,7 @@ import com.riiablo.codec.excel.Objects;
 import com.riiablo.codec.excel.Overlay;
 import com.riiablo.codec.excel.PlrMode;
 import com.riiablo.codec.excel.PlrType;
+import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.excel.QualityItems;
 import com.riiablo.codec.excel.RarePrefix;
 import com.riiablo.codec.excel.RareSuffix;
@@ -57,6 +59,7 @@ public class Files {
   public final Colors          colors;
   public final Composit        Composit;
   public final CompCode        compcode;
+  public final Gems            Gems;
   public final Inventory       inventory;
   public final ItemStatCost    ItemStatCost;
   public final ItemTypes       ItemTypes;
@@ -76,6 +79,7 @@ public class Files {
   public final Overlay         Overlay;
   public final PlrMode         PlrMode;
   public final PlrType         PlrType;
+  public final Properties      Properties;
   public final QualityItems    QualityItems;
   public final RarePrefix      RarePrefix;
   public final RareSuffix      RareSuffix;
@@ -101,6 +105,7 @@ public class Files {
     colors          = load(assets, Colors.class);
     Composit        = load(assets, Composit.class);
     compcode        = load(assets, CompCode.class);
+    Gems            = load(assets, Gems.class, Excel.EXPANSION);
     inventory       = load(assets, Inventory.class);
     ItemStatCost    = load(assets, ItemStatCost.class);
     ItemTypes       = load(assets, ItemTypes.class);
@@ -123,6 +128,7 @@ public class Files {
     Overlay         = load(assets, Overlay.class, Excel.EXPANSION);
     PlrMode         = load(assets, PlrMode.class);
     PlrType         = load(assets, PlrType.class);
+    Properties      = load(assets, Properties.class, Excel.EXPANSION);
     QualityItems    = load(assets, QualityItems.class);
     SetItems        = load(assets, SetItems.class, Excel.EXPANSION);
     skills          = load(assets, Skills.class);
