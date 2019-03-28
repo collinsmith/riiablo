@@ -79,9 +79,8 @@ public class Item extends Actor implements Disposable {
 
   private static final int WEAPON_PROPS  = 0;
   private static final int ARMOR_PROPS   = 1;
-  private static final int HELM_PROPS    = 2;
-  private static final int SHIELD_PROPS  = 3;
-  private static final int NUM_GEM_PROPS = 4;
+  private static final int SHIELD_PROPS  = 2;
+  private static final int NUM_GEM_PROPS = 3;
 
   private static final PropertyList[] EMPTY_STAT_ARRAY = new PropertyList[NUM_PROPS];
 
@@ -222,7 +221,6 @@ public class Item extends Actor implements Disposable {
         stats = new PropertyList[NUM_GEM_PROPS];
         stats[WEAPON_PROPS] = new PropertyList().add(gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
         stats[ARMOR_PROPS ] = new PropertyList().add(gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
-        stats[HELM_PROPS  ] = stats[ARMOR_PROPS];
         stats[SHIELD_PROPS] = new PropertyList().add(gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
       } else {
         stats = EMPTY_STAT_ARRAY;
@@ -862,8 +860,9 @@ public class Item extends Actor implements Disposable {
         assert stats.length == NUM_GEM_PROPS;
         add().height(font.getLineHeight()).space(SPACING).row();
         add(new Label(Riiablo.string.lookup("GemXp3") + " " + stats[WEAPON_PROPS].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp4") + " " + stats[ARMOR_PROPS ].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp1") + " " + stats[HELM_PROPS  ].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
+        String tmp = stats[ARMOR_PROPS].copy().reduce().get().format();
+        add(new Label(Riiablo.string.lookup("GemXp4") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("GemXp1") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
         add(new Label(Riiablo.string.lookup("GemXp2") + " " + stats[SHIELD_PROPS].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
         add().height(font.getLineHeight()).space(SPACING).row();
       }
@@ -931,19 +930,7 @@ public class Item extends Actor implements Disposable {
           PropertyList magicPropsAggregate = magicProps.copy();
           for (Item socket : socketed) {
             if (socket.type.is("gem") | socket.type.is("rune")) {
-              int socketType;
-              if (Item.this.type.is("weap")) {
-                socketType = WEAPON_PROPS;
-              } else if (Item.this.type.is("shld")) {
-                socketType = SHIELD_PROPS;
-              } else if (Item.this.type.is("helm")) {
-                socketType = HELM_PROPS;
-              } else {
-                assert Item.this.type.is("armo");
-                socketType = ARMOR_PROPS;
-              }
-
-              magicPropsAggregate.addAll(socket.stats[socketType]);
+              magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
             } else {
               magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);
             }

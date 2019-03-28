@@ -39,4 +39,5 @@ public class ItemEntry extends Excel.Entry {
   @Column public int     mindam;
   @Column public int     maxdam;
   @Column public int     speed;
+  @Column public int     gemapplytype;
 }
