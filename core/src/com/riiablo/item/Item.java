@@ -9,8 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -66,7 +64,19 @@ public class Item extends Actor implements Disposable {
   private static final int INSCRIBED  = 0x01000000;
   private static final int RUNEWORD   = 0x04000000;
 
-  private static final PropertyList[] EMPTY_STAT_ARRAY = new PropertyList[0];
+  private static final int MAGIC_PROPS = 0;
+  private static final int SET_PROPS   = 1;
+  private static final int RUNE_PROPS  = 6;
+  private static final int NUM_PROPS   = 7;
+  private static final int MAGIC_PROPS_FLAG = 1 << MAGIC_PROPS;
+  private static final int SET_2_PROPS_FLAG = 1 << SET_PROPS + 0;
+  private static final int SET_3_PROPS_FLAG = 1 << SET_PROPS + 1;
+  private static final int SET_4_PROPS_FLAG = 1 << SET_PROPS + 2;
+  private static final int SET_5_PROPS_FLAG = 1 << SET_PROPS + 3;
+  private static final int SET_6_PROPS_FLAG = 1 << SET_PROPS + 4;
+  private static final int RUNE_PROPS_FLAG  = 1 << RUNE_PROPS;
+
+  private static final PropertyList[] EMPTY_STAT_ARRAY = new PropertyList[NUM_PROPS];
 
   private static final ObjectMap<String, String> WEAPON_DESC = new ObjectMap<>();
   static {
@@ -205,7 +215,7 @@ public class Item extends Actor implements Disposable {
       quality   = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
       pictureId = bitStream.readBoolean() ? bitStream.readUnsigned7OrLess(3)   : -1;
       classOnly = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(11) : -1;
-      int listsFlags = 1 << 0;
+      int listsFlags = MAGIC_PROPS_FLAG;
       switch (quality) {
         case LOW:
         case HIGH:
@@ -240,7 +250,7 @@ public class Item extends Actor implements Disposable {
 
       if ((flags & RUNEWORD) == RUNEWORD) {
         runewordData = bitStream.read16BitsOrLess(Short.SIZE);
-        listsFlags |= (1 << 6);
+        listsFlags |= RUNE_PROPS_FLAG;
       }
 
       if ((flags & INSCRIBED) == INSCRIBED) {
@@ -275,15 +285,15 @@ public class Item extends Actor implements Disposable {
 
       if (quality == SET) {
         int lists = bitStream.readUnsigned7OrLess(5);
-        listsFlags |= (lists << 1);
+        listsFlags |= (lists << SET_PROPS);
       }
 
       if (type.is("book")) {
         listsFlags = 0;
       }
 
-      stats = new PropertyList[7];
-      for (int i = 0; i < 7; i++) {
+      stats = new PropertyList[NUM_PROPS];
+      for (int i = 0; i < NUM_PROPS; i++) {
         if (((listsFlags >> i) & 1) == 1) {
           stats[i] = new PropertyList().read(bitStream);
         }
@@ -879,80 +889,36 @@ public class Item extends Actor implements Disposable {
         if (Item.this.type.is("weap")) {
           add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-
-        //for (Stat.Instance stat : stats.values()) {
-        //  add(new Label(stat.stat.toString(), font, Riiablo.colors.white)).center().space(SPACING).row();
-        //}
       }
 
-      // TODO: Detect stats with encoded groupings and auto join them into a grouped stat
-
-      for (int i = 0; i < stats.length; i++) {
-        PropertyList props = Item.this.stats[i];
-        if (props == null) continue;
-        Array<Stat.Instance> propsArray = props.toArray();
-
-        // TODO: This can be cleaned up later
-        IntMap<Array<Stat.Instance>> groups = new IntMap<>();
-        for (Stat.Instance stat : propsArray) {
-          int dgrp = stat.entry.dgrp;
-          if (dgrp > 0) {
-            Array<Stat.Instance> group = groups.get(dgrp);
-            if (group == null) groups.put(dgrp, group = new Array<>());
-            group.add(stat);
-          }
+      // magic props
+      PropertyList magicProps = stats[MAGIC_PROPS];
+      PropertyList runeProps  = stats[RUNE_PROPS];
+      if (magicProps != null) {
+        PropertyList magicPropsAggregate = magicProps.copy();
+        if (runeProps != null) magicPropsAggregate.addAll(runeProps);
+        magicPropsAggregate.reduce();
+        System.out.println(Item.this.getName());
+        for (Stat.Instance stat : magicPropsAggregate.props.values()) {
+          System.out.println(stat);
         }
 
-        IntSet groupReplaced = new IntSet();
-        IntMap<Stat.Instance> groupReplacements = new IntMap<>();
-        for (IntMap.Entry<Array<Stat.Instance>> group : groups) {
-          switch (group.key) {
-            case 1:
-            case 2:
-              if (group.value.size == 4) {
-                boolean allEqual = true;
-                Stat.Instance first = group.value.first();
-                for (int j = 1; allEqual && j < group.value.size; j++) {
-                  Stat.Instance stat = group.value.get(j);
-                  allEqual = (stat.value == first.value) && (stat.param == first.param);
-                }
-
-                if (allEqual) {
-                  groupReplacements.put(group.key, first);
-                }
-              }
-              break;
-            default:
-          }
-        }
-
-        propsArray.sort(new Comparator<Stat.Instance>() {
+        Array<Stat.Instance> aggregate = magicPropsAggregate.toArray();
+        aggregate.sort(new Comparator<Stat.Instance>() {
           @Override
           public int compare(Stat.Instance o1, Stat.Instance o2) {
             return o2.entry.descpriority - o1.entry.descpriority;
           }
         });
-
-        for (Stat.Instance stat : propsArray) {
-          Label label;
-          int dgrp = stat.entry.dgrp;
-          boolean group = false;
-          if (dgrp > 0) {
-            if (groupReplaced.contains(dgrp)) continue;
-            Stat.Instance grp = groupReplacements.get(dgrp);
-            if (grp != null) {
-              stat = grp;
-              group = true;
-              groupReplaced.add(dgrp);
-            }
-          }
-
-          String text = stat.format(group);
+        for (Stat.Instance stat : aggregate) {
+          String text = stat.format(false);
           if (text == null) continue;
-          label = new Label(text, font, Riiablo.colors.blue); // Conditionally, set should be green
-          add(label).center().space(SPACING).row();
+          add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
         }
       }
+
+      //PropertyList setProps = stats[SET_PROPS + 0]; // TODO: + num equipped set items
+      // TODO: add set property support
 
       StringBuilder itemFlags = null;
       if ((Item.this.flags & ETHEREAL) == ETHEREAL) {

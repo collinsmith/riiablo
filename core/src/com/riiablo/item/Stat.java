@@ -8,6 +8,8 @@ import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BitStream;
 
+import java.util.Arrays;
+
 @SuppressWarnings("unused")
 public class Stat {
   public static final int strength                        = 0;
@@ -376,6 +378,15 @@ public class Stat {
   // These don't actually exist in the game
   public static final int reqstr                          = NONE - 1;
   public static final int reqdex                          = NONE - 2;
+  public static final int all_attributes                  = NONE - 3;
+  public static final int all_resistances                 = NONE - 4;
+  public static final int mindam                          = NONE - 5;
+  public static final int enhanceddam                     = NONE - 6;
+  public static final int firedam                         = NONE - 7;
+  public static final int lightdam                        = NONE - 8;
+  public static final int magicdam                        = NONE - 9;
+  public static final int colddam                         = NONE - 10;
+  public static final int poisondam                       = NONE - 11;
 
   static final int[] ENCODED_COUNT = {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0
@@ -437,8 +448,35 @@ public class Stat {
       return hash;
     }
 
-    public void add(Instance other) {
-      // TODO
+    /**
+     * Encodings: param -- value (in bits)
+     * 0 : 0    | X
+     * 1 : Y    | X
+     * 2 : 6,10 | X
+     * 3 : 6,10 | 8,8
+     * 4 : 0    | 2,10,10
+     */
+    public Instance add(Instance other) {
+      int value1, value2, value3;
+      switch (entry.Encode) {
+        case 3:
+          value1 = Math.min(value1() + other.value1(), (1 << 8) - 1);
+          value2 = Math.min(value2() + other.value2(), (1 << 8) - 1);
+          value = (value2 << 8) | value1;
+          break;
+        case 4:
+          // TODO: see issue #24
+          value2 = Math.min(value2() + other.value2(), (1 << 10) - 1);
+          value3 = Math.min(value3() + other.value3(), (1 << 10) - 1);
+          value = (value3 << 12) | (value2 << 2) | (value & 0x3);
+          break;
+        case 0:
+        case 1:
+        case 2:
+        default:
+          value += other.value;
+      }
+      return this;
     }
 
     private static final StringBuilder builder = new StringBuilder(32);
@@ -727,6 +765,42 @@ public class Stat {
         case 4:  return stat + "(" + entry + ")" + "=" + value1() + ":" + value2() + ":" + value3();
         default: return stat + "(" + entry + ")" + "=" + (entry.Save_Param_Bits == 0 ? Integer.toString(value) : value + ":" + param);
       }
+    }
+  }
+
+  static class Aggregate extends Instance {
+    int encoding = 19;
+    String str;
+    String str2;
+    Instance[] stats;
+    Aggregate(int stat, String str, String str2, Instance... stats) {
+      super(stat, 0);
+      this.stats = stats;
+      this.str = str;
+      this.str2 = str2;
+    }
+
+    @Override
+    public String format(int unused1, int unused2, String unused3, String unused4, String unused5) {
+      if (stats.length == 2) {
+        if (stats[0].value == stats[1].value) {
+          return Riiablo.string.format(str, stats[1].value);
+        } else {
+          return Riiablo.string.format(str2, stats[0].value, stats[1].value);
+        }
+      } else {
+        assert stats.length == 3;
+        if (stats[0].value == stats[1].value) {
+          return Riiablo.string.format(str, stats[1].value, stats[2].value);
+        } else {
+          return Riiablo.string.format(str2, stats[0].value, stats[1].value, stats[2].value);
+        }
+      }
+    }
+
+    @Override
+    public String toString() {
+      return stat + "(" + entry + ")" + "=" + Arrays.toString(stats) + " : " + format(0, 0, null, null, null);
     }
   }
 }
