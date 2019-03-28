@@ -11,7 +11,7 @@ import gdx.diablo.audio.MusicController;
 import gdx.diablo.codec.StringTBLs;
 import gdx.diablo.console.RenderedConsole;
 import gdx.diablo.graphics.PaletteIndexedBatch;
-import gdx.diablo.map2.DT1s;
+import gdx.diablo.map.DT1s;
 import gdx.diablo.mpq.MPQFileHandleResolver;
 
 public class Diablo {
