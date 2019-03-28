@@ -53,7 +53,6 @@ public class MenuScreen extends ScreenAdapter {
   private Button btnSinglePlayer;
   private Button btnMultiplayer;
   private Button btnExitDiablo;
-  private Button btnExit;
   private Label  lbVersion;
 
   ControllerListener controllerListener;
@@ -112,7 +111,7 @@ public class MenuScreen extends ScreenAdapter {
           Riiablo.client.pushScreen(new SelectCharacterScreen());
         } else if (actor == btnMultiplayer) {
           Riiablo.client.pushScreen(new MultiplayerScreen(MenuScreen.this.D2logoLeft, MenuScreen.this.D2logoRight));
-        } else if (actor == btnExitDiablo || actor == btnExit) {
+        } else if (actor == btnExitDiablo) {
           Gdx.app.exit();
         }
       }
@@ -141,11 +140,6 @@ public class MenuScreen extends ScreenAdapter {
         down = new TextureRegionDrawable(MediumButtonBlank.getTexture(1));
         font = Riiablo.fonts.fontexocet10;
     }};
-    btnExit = new TextButton(5101, mediumButtonStyle);
-    btnExit.addListener(clickListener);
-    btnExit.setPosition(20, 20, Align.bottomLeft);
-    //btnExit.setVisible(Gdx.app.getType() == Application.ApplicationType.Android);
-    stage.addActor(btnExit);
 
     lbVersion = new Label(Riiablo.bundle.get("version"), Riiablo.fonts.font16);
     lbVersion.setPosition(stage.getWidth() - 20, 20, Align.bottomRight);
