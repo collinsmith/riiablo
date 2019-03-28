@@ -929,6 +929,25 @@ public class Item extends Actor implements Disposable {
         PropertyList runeProps = stats[RUNE_PROPS];
         if (magicProps != null) {
           PropertyList magicPropsAggregate = magicProps.copy();
+          for (Item socket : socketed) {
+            if (socket.type.is("gem") | socket.type.is("rune")) {
+              int socketType;
+              if (Item.this.type.is("weap")) {
+                socketType = WEAPON_PROPS;
+              } else if (Item.this.type.is("shld")) {
+                socketType = SHIELD_PROPS;
+              } else if (Item.this.type.is("helm")) {
+                socketType = HELM_PROPS;
+              } else {
+                assert Item.this.type.is("armo");
+                socketType = ARMOR_PROPS;
+              }
+
+              magicPropsAggregate.addAll(socket.stats[socketType]);
+            } else {
+              magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);
+            }
+          }
           if (runeProps != null) magicPropsAggregate.addAll(runeProps);
           magicPropsAggregate.reduce();
           System.out.println(Item.this.getName());
