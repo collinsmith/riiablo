@@ -1,5 +1,7 @@
 package com.riiablo.item;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.riiablo.Riiablo;
@@ -8,12 +10,14 @@ import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.util.BitStream;
 
 public class PropertyList {
+  private static final String TAG = "PropertyList";
+
   private static final int[] ATTRIBUTES  = {Stat.strength, Stat.energy, Stat.dexterity, Stat.vitality};
   private static final int[] RESISTS     = {Stat.fireresist, Stat.lightresist, Stat.coldresist, Stat.poisonresist};
   private static final int[] FIREDMG     = {Stat.firemindam, Stat.firemaxdam};
   private static final int[] LIGHTDMG    = {Stat.lightmindam, Stat.lightmaxdam};
   private static final int[] MAGICDMG    = {Stat.magicmindam, Stat.magicmaxdam};
-  private static final int[] COLDDMG     = {Stat.coldmindam, Stat.coldmaxdam};
+  private static final int[] COLDDMG     = {Stat.coldmindam, Stat.coldmaxdam, Stat.coldlength};
   private static final int[] POISONDMG   = {Stat.poisonmindam, Stat.poisonmaxdam, Stat.poisonlength};
   private static final int[] ENHANCEDDMG = {Stat.item_mindamage_percent, Stat.item_maxdamage_percent};
   private static final int[] MINDMG      = {Stat.mindamage, Stat.maxdamage};
@@ -39,7 +43,7 @@ public class PropertyList {
   }
 
   Stat.Instance get() {
-    assert props.size == 1;
+    //assert props.size == 1;
     return props.entries().next().value;
   }
 
@@ -168,17 +172,144 @@ public class PropertyList {
       String c = code[i];
       if (c.isEmpty()) break;
       Properties.Entry prop = Riiablo.files.Properties.get(c);
-      for (int j = 0; j < prop.stat.length; j++) {
-        int[] value = j == 0 ? min : max;
-        String stat = prop.stat[j];
-        if (stat.isEmpty()) break;
-        ItemStatCost.Entry desc = Riiablo.files.ItemStatCost.get(stat);
-        Stat.Instance inst = Stat.create(desc.ID, param[i], value[i]);
-        props.put(inst.hash, inst);
-        //System.out.println(inst);
+      int value = Integer.MIN_VALUE;
+      for (int j = 0; j < prop.func.length; j++) {
+        if (prop.func[j] == 0) break;
+        value = add(prop, i, j, value, code, param, min, max);
       }
     }
 
     return this;
+  }
+
+  // TODO: These might need support for assigning ranges if used when generating item stats
+  private int add(Properties.Entry prop, int i, int j, int value, String[] code, int[] params, int[] min, int[] max) {
+    // NOTE: some stats have a function without a stat, e.g., dmg-min -- func 5
+    ItemStatCost.Entry desc = Riiablo.files.ItemStatCost.get(prop.stat[j]);
+    Stat.Instance inst;
+    int param;
+    switch (prop.func[j]) {
+      case 1: // vit, str, hp, etc.
+        value = MathUtils.random(min[i], max[i]);
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 2: // item_armor_percent
+        value = MathUtils.random(min[i], max[i]);
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 3: // res-all, all-stats, etc -- reference previous index for values
+        assert value != Integer.MIN_VALUE;
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 5: // dmg-min
+        value = MathUtils.random(min[i], max[i]);
+        put(Stat.mindamage, value);
+        return value;
+      case 6: // dmg-max
+        value = MathUtils.random(min[i], max[i]);
+        put(Stat.maxdamage, value);
+        return value;
+      case 7: // dmg%
+        value = MathUtils.random(min[i], max[i]);
+        put(Stat.item_mindamage_percent, value);
+        put(Stat.item_maxdamage_percent, value);
+        return value;
+      case 8: // fcr, fwr, fbr, fhr, etc
+        value = MathUtils.random(min[i], max[i]);
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 10: // skilltab
+        value = MathUtils.random(min[i], max[i]);
+        inst = Stat.create(desc.ID, params[i], value);
+        props.put(inst.hash, inst);
+        return value;
+      case 11: // att-skill, hit-skill, gethit-skill, kill-skill, death-skill, levelup-skill
+        value = min[i]; // skill
+        param = Stat.encodeParam(desc.Encode, max[i], params[i]); // %, level
+        inst = Stat.create(desc.ID, param, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 12: // skill-rand (Ormus' Robes)
+        value = params[i]; // skill level
+        param = MathUtils.random(min[i], max[i]); // random skill
+        inst = Stat.create(desc.ID, param, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 13: // dur%
+        value = MathUtils.random(min[i], max[i]);
+        put(desc.ID, value);
+        return value;
+      case 14: // sock
+        // TODO: set item SOCKETED flag?
+        value = MathUtils.random(min[i], max[i]);
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 15: // dmg-* (min)
+        value = min[i];
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 16: // dmg-* (max)
+        value = max[i];
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 17: // dmg-* (length) and */lvl
+        value = params[i];
+        inst = Stat.create(desc.ID, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 18: // */time // TODO: Add support
+        Gdx.app.error(TAG, "Unsupported property function: " + prop.func[i]);
+        return Integer.MIN_VALUE;
+      case 19: // charged (skill)
+        value = Stat.encodeValue(3, min[i], min[i]); // charges
+        param = Stat.encodeParam(3, max[i], params[i]); // level, skill
+        inst = Stat.create(desc.ID, param, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 20: // indestruct
+        // TODO: set item maxdurability to 0?
+        value = 1;
+        put(Stat.item_indesctructible, value);
+        return value;
+      case 21: // ama, pal, nec, etc. (item_addclassskills) and fireskill
+        value = MathUtils.random(min[i], max[i]);
+        param = prop.val[j];
+        inst = Stat.create(desc.ID, param, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 22: // skill, aura, oskill
+        value = MathUtils.random(min[i], max[i]);
+        param = params[i];
+        inst = Stat.create(desc.ID, param, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 23: // ethereal
+        // TODO: set item ETHEREAL flag?
+        return Integer.MIN_VALUE;
+      case 24: // reanimate, att-mon%, dmg-mon%, state
+        value = MathUtils.random(min[i], max[i]);
+        param = params[i];
+        inst = Stat.create(desc.ID, param, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 36: // randclassskill
+        value = prop.val[j]; // skill levels
+        param = MathUtils.random(min[i], max[i]); // random class
+        inst = Stat.create(desc.ID, param, value);
+        props.put(inst.hash, inst);
+        return value;
+      case 4:
+      case 9:
+      default:
+        Gdx.app.error(TAG, "Unsupported property function: " + prop.func[i]);
+        return Integer.MIN_VALUE;
+    }
   }
 }

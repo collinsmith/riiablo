@@ -411,6 +411,44 @@ public class Stat {
     return stat | (param << 16);
   }
 
+  static int encodeValue(int encoding, int... values) {
+    int value1, value2, value3;
+    switch (encoding) {
+      case 3:
+        value1 = Math.min(values[0], (1 << 8) - 1);
+        value2 = Math.min(values[1], (1 << 8) - 1);
+        return (value2 << 8) | value1;
+      case 4:
+        // TODO: see issue #24
+        value2 = Math.min(values[1], (1 << 10) - 1);
+        value3 = Math.min(values[2], (1 << 10) - 1);
+        return (value3 << 12) | (value2 << 2) | (values[0] & 0x3);
+      case 0:
+      case 1:
+      case 2:
+      default:
+        assert values.length == 1;
+        return values[0];
+    }
+  }
+
+  static int encodeParam(int encoding, int... params) {
+    int param1, param2;
+    switch (encoding) {
+      case 2:
+      case 3:
+        param1 = Math.min(params[0], (1 <<  6) - 1);
+        param2 = Math.min(params[1], (1 << 10) - 1);
+        return (param2 << 6) | param1;
+      case 0:
+      case 1:
+      case 4:
+      default:
+        assert params.length == 1;
+        return params[0];
+    }
+  }
+
   static Stat.Instance read(int stat, BitStream bitStream) {
     return new Instance(stat, bitStream);
   }
