@@ -416,7 +416,11 @@ public class Stat {
   }
 
   static Stat.Instance create(int stat, int value) {
-    return new Instance(stat, value);
+    return create(stat, 0, value);
+  }
+
+  static Stat.Instance create(int stat, int param, int value) {
+    return new Instance(stat, param, value);
   }
 
   static class Instance {
@@ -435,11 +439,11 @@ public class Stat {
       hash = Stat.hash(stat, param);
     }
 
-    Instance(int stat, int value) {
+    Instance(int stat, int param, int value) {
       this.stat = stat;
+      this.param = param;
       this.value = value;
       entry = Riiablo.files.ItemStatCost.get(stat);
-      param = 0;
       hash = Stat.hash(stat, param);
     }
 
@@ -489,6 +493,10 @@ public class Stat {
     private static final String[] BY_TIME = {
         "ModStre9e", "ModStre9g", "ModStre9d", "ModStre9f",
     };
+
+    public String format() {
+      return format(false);
+    }
 
     public String format(boolean group) {
       return group
@@ -774,7 +782,7 @@ public class Stat {
     String str2;
     Instance[] stats;
     Aggregate(int stat, String str, String str2, Instance... stats) {
-      super(stat, 0);
+      super(stat, 0, 0);
       this.stats = stats;
       this.str = str;
       this.str2 = str2;

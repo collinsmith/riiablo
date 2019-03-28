@@ -1,11 +1,78 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
+import com.riiablo.item.Stat;
 
 public class ItemStatCost extends Excel<ItemStatCost.Entry> {
   @Override
   protected void put(int id, Entry value) {
     super.put(value.ID, value);
+  }
+
+  @Override
+  protected void init() {
+    put(Stat.all_attributes, new Entry() {{
+      Stat = "all_attributes";
+      ID = com.riiablo.item.Stat.all_attributes;
+      Encode = 0;
+      descpriority = 63;
+      descfunc = 1;
+      descval = 1;
+      descstrpos = "Moditem2allattrib";
+      descstrneg = "Moditem2allattrib";
+      descstr2 = "";
+    }});
+    put(Stat.all_resistances, new Entry() {{
+      Stat = "all_resistances";
+      ID = com.riiablo.item.Stat.all_resistances;
+      Encode = 0;
+      descpriority = 34;
+      descfunc = 19;
+      descval = 0;
+      descstrpos = "strModAllResistances";
+      descstrneg = "strModAllResistances";
+      descstr2 = "";
+    }});
+    put(Stat.enhanceddam, new Entry() {{
+      Stat = "enhanceddam";
+      ID = com.riiablo.item.Stat.enhanceddam;
+      Encode = 0;
+      descpriority = 129;
+      descfunc = 4;
+      descval = 1;
+      descstrpos = "strModEnhancedDamage";
+      descstrneg = "strModEnhancedDamage";
+      descstr2 = "";
+    }});
+    put(Stat.mindam, new Entry() {{
+      Stat = "mindam";
+      ID = com.riiablo.item.Stat.mindam;
+      descpriority = 126;
+    }});
+    put(Stat.firedam, new Entry() {{
+      Stat = "firedam";
+      ID = com.riiablo.item.Stat.firedam;
+      descpriority = 101;
+    }});
+    put(Stat.lightdam, new Entry() {{
+      Stat = "lightdam";
+      ID = com.riiablo.item.Stat.lightdam;
+      descpriority = 98;
+    }});
+    put(Stat.magicdam, new Entry() {{
+      Stat = "magicdam";
+      ID = com.riiablo.item.Stat.magicdam;
+      descpriority = 103;
+    }});
+    put(Stat.colddam, new Entry() {{
+      Stat = "colddam";
+      ID = com.riiablo.item.Stat.colddam;
+      descpriority = 95;
+    }});
+    put(Stat.poisondam, new Entry() {{
+      Stat = "poisondam";
+      ID = com.riiablo.item.Stat.poisondam;
+      descpriority = 91;
+    }});
   }
 
   public static class Entry extends Excel.Entry {

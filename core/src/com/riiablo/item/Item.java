@@ -16,11 +16,14 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.StringTBL;
 import com.riiablo.codec.excel.Armor;
+import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
+import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.ItemTypes;
 import com.riiablo.codec.excel.MagicAffix;
 import com.riiablo.codec.excel.Misc;
+import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
@@ -195,6 +198,8 @@ public class Item extends Actor implements Disposable {
       props.put(Stat.toblock, armor.block);
       props.put(Stat.mindamage, armor.mindam);
       props.put(Stat.maxdamage, armor.maxdam);
+    } else if (base instanceof Misc.Entry) {
+      Misc.Entry misc = getBase();
     }
     // TODO: copy base items stats
 
@@ -802,6 +807,9 @@ public class Item extends Actor implements Disposable {
           break;
       }
 
+      if (Item.this.type.is("rune"))
+        name.setColor(Riiablo.colors.orange);
+
       add(name).center().space(SPACING).row();
       if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
         add(type).center().space(SPACING).row();
@@ -833,6 +841,35 @@ public class Item extends Actor implements Disposable {
         add(new Label(Riiablo.string.lookup("InsertScrolls"), font, Riiablo.colors.white)).center().space(SPACING).row();
       } else if (Item.this.type.is("char")) {
         add(new Label(Riiablo.string.lookup("ItemExpcharmdesc"), font, Riiablo.colors.white)).center().space(SPACING).row();
+      } else if (Item.this.type.is("sock")) {
+        add(new Label(Riiablo.string.lookup("ExInsertSocketsX"), font, Riiablo.colors.white)).center().space(SPACING).row();
+      }
+
+      if (Item.this.type.is("gem") || Item.this.type.is("rune")) {
+        add().height(font.getLineHeight()).space(SPACING).row();
+
+        Gems.Entry gem = Riiablo.files.Gems.get(base.code);
+        //System.out.println(gem);
+        PropertyList tmp = new PropertyList();
+
+        // weapon
+        formatProperty(tmp, gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
+        tmp.reduce();
+        add(new Label(Riiablo.string.lookup("GemXp3") + " " + tmp.get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
+
+        tmp.clear();
+        formatProperty(tmp, gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
+        tmp.reduce();
+        String text = tmp.get().format();
+        add(new Label(Riiablo.string.lookup("GemXp4") + " " + text, font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("GemXp1") + " " + text, font, Riiablo.colors.white)).center().space(SPACING).row();
+
+        tmp.clear();
+        formatProperty(tmp, gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
+        tmp.reduce();
+        add(new Label(Riiablo.string.lookup("GemXp2") + " " + tmp.get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
+
+        add().height(font.getLineHeight()).space(SPACING).row();
       }
 
       // TODO: This seems a bit hacky, check and see if this is located somewhere (doesn't look like it)
@@ -857,39 +894,38 @@ public class Item extends Actor implements Disposable {
         add(usable).center().space(SPACING).row();
       }
 
-      if ((flags & COMPACT) == 0) {
-        Stat.Instance stat;
-        PropertyList stats = Item.this.props;
-        if ((stat = stats.get(Stat.armorclass)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1h") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+      //if ((flags & COMPACT) == 0) {
+        Stat.Instance prop;
+        if ((prop = props.get(Stat.armorclass)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1h") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is("weap")) {
-          if ((stat = stats.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
-            add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + stats.get(Stat.mindamage).value + " to " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          if ((prop = props.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
+            add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + props.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
         if (Item.this.type.is("shld")) {
-          if ((stat = stats.get(Stat.toblock)) != null)
-            add(new Label(Riiablo.string.lookup("ItemStats1r") + stat.value + "%", font, Riiablo.colors.white)).center().space(SPACING).row();
+          if ((prop = props.get(Stat.toblock)) != null)
+            add(new Label(Riiablo.string.lookup("ItemStats1r") + prop.value + "%", font, Riiablo.colors.white)).center().space(SPACING).row();
           // TODO: if paladin, show smite damage -- ItemStats1o %d to %d
-          if ((stat = stats.get(Stat.maxdamage)) != null && stat.value > 0)
-            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + stats.get(Stat.mindamage).value + " to " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          if ((prop = props.get(Stat.maxdamage)) != null && prop.value > 0)
+            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if (!Item.this.base.nodurability && (stat = stats.get(Stat.durability)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + stat.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + stats.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (!Item.this.base.nodurability && (prop = props.get(Stat.durability)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is("clas")) {
           add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.type.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if ((stat = stats.get(Stat.reqdex)) != null && stat.value > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((stat = stats.get(Stat.reqstr)) != null && stat.value > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((stat = stats.get(Stat.item_levelreq)) != null && stat.value > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((stat = stats.get(Stat.quantity)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + stat.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.get(Stat.reqdex)) != null && prop.value > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.get(Stat.reqstr)) != null && prop.value > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.get(Stat.item_levelreq)) != null && prop.value > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.get(Stat.quantity)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is("weap")) {
           add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-      }
+      //}
 
       // magic props
       PropertyList magicProps = stats[MAGIC_PROPS];
@@ -911,7 +947,7 @@ public class Item extends Actor implements Disposable {
           }
         });
         for (Stat.Instance stat : aggregate) {
-          String text = stat.format(false);
+          String text = stat.format();
           if (text == null) continue;
           add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
         }
@@ -951,6 +987,23 @@ public class Item extends Actor implements Disposable {
       }
 
       pack();
+    }
+
+    public void formatProperty(PropertyList props, String[] modCode, int[] modParam, int[] modMin, int[] modMax) {
+      for (int i = 0; i < modCode.length; i++) {
+        String code = modCode[i];
+        if (code.isEmpty()) break;
+        Properties.Entry prop = Riiablo.files.Properties.get(code);
+        for (int j = 0; j < prop.stat.length; j++) {
+          int[] mod = j == 0 ? modMin : modMax;
+          String stat = prop.stat[j];
+          if (stat.isEmpty()) break;
+          ItemStatCost.Entry desc = Riiablo.files.ItemStatCost.get(stat);
+          Stat.Instance inst = Stat.create(desc.ID, modParam[i], mod[i]);
+          props.add(inst);
+          //System.out.println(inst);
+        }
+      }
     }
   }
 }

@@ -27,8 +27,21 @@ public class PropertyList {
     return new PropertyList(this);
   }
 
+  public void clear() {
+    props.clear();
+  }
+
   public void put(int stat, int value) {
     props.put(stat, Stat.create(stat, value));
+  }
+
+  void add(Stat.Instance stat) {
+    props.put(stat.hash, stat);
+  }
+
+  Stat.Instance get() {
+    assert props.size == 1;
+    return props.entries().next().value;
   }
 
   public int read(int stat, BitStream bitStream) {
