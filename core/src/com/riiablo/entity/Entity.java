@@ -761,6 +761,9 @@ public abstract class Entity implements Animation.AnimationListener {
     final Skills.Entry skill = Riiablo.files.skills.get(spell);
     byte tm = mode;
     byte newMode = type.getMode(skill.anim);
+    // FIXME: NOTE: I'm think SQ (sequence) used by player spells are hard-coded and indicate
+    //              something like cast + wait. It's possible this is used to block the player
+    //              from using other spells, or somehow resetting the cooldown.
     if (newMode == -1) newMode = type.getMode("SC");
     boolean changed = sequence(newMode, getNeutralMode());
     if (!changed) return false;
