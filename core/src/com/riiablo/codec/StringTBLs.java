@@ -14,6 +14,8 @@ public class StringTBLs {
     expansionstring = StringTBL.loadFromFile(resolver.resolve("data\\local\\lng\\eng\\expansionstring.tbl"));
     patchstring     = StringTBL.loadFromFile(resolver.resolve("data\\local\\lng\\eng\\patchstring.tbl"));
 
+    patchstring.getEntry("strModEnhancedDamage").strOffset--;
+
     int duplicates = 0;
     duplicates += patch(StringTBL.CLASSIC_OFFSET, string, StringTBL.EXPANSION_OFFSET, expansionstring);
     duplicates += patch(StringTBL.CLASSIC_OFFSET, string, StringTBL.PATCH_OFFSET, patchstring);

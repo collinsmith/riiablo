@@ -153,6 +153,33 @@ public class StringTBL {
     return hashTable.entries[indexes[index]].ptr;
   }
 
+  HashTable.Entry getEntry(String key) {
+    if (key.equalsIgnoreCase("x")) {
+      return null;
+    }
+
+    int hash = hash(key);
+    int hashTries = 0;
+    while (hashTries < header.maxTries) {
+      HashTable.Entry entry = hashTable.entries[hash];
+      if (entry.used != 0) {
+        KEY.offset = entry.keyOffset - header.startIndex;
+        KEY.length = entry.strOffset - entry.keyOffset - 1;
+        if (key.contentEquals(KEY)) {
+          return entry;
+        }
+      } else {
+        return null;
+      }
+
+      hash++;
+      hash %= header.hashTableSize;
+      hashTries++;
+    }
+
+    return null;
+  }
+
   private final InPlaceCharSequence KEY = new InPlaceCharSequence();
   private class InPlaceCharSequence implements CharSequence {
     int offset;
