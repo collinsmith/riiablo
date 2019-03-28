@@ -2,6 +2,9 @@ package com.riiablo.item;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.ItemStatCost;
+import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.util.BitStream;
 
 public class PropertyList {
@@ -33,10 +36,6 @@ public class PropertyList {
 
   public void put(int stat, int value) {
     props.put(stat, Stat.create(stat, value));
-  }
-
-  void add(Stat.Instance stat) {
-    props.put(stat.hash, stat);
   }
 
   Stat.Instance get() {
@@ -162,5 +161,24 @@ public class PropertyList {
     }
 
     return true;
+  }
+
+  public PropertyList add(String[] code, int[] param, int[] min, int[] max) {
+    for (int i = 0; i < code.length; i++) {
+      String c = code[i];
+      if (c.isEmpty()) break;
+      Properties.Entry prop = Riiablo.files.Properties.get(c);
+      for (int j = 0; j < prop.stat.length; j++) {
+        int[] value = j == 0 ? min : max;
+        String stat = prop.stat[j];
+        if (stat.isEmpty()) break;
+        ItemStatCost.Entry desc = Riiablo.files.ItemStatCost.get(stat);
+        Stat.Instance inst = Stat.create(desc.ID, param[i], value[i]);
+        props.put(inst.hash, inst);
+        //System.out.println(inst);
+      }
+    }
+
+    return this;
   }
 }

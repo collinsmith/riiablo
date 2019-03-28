@@ -19,11 +19,9 @@ import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
-import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.ItemTypes;
 import com.riiablo.codec.excel.MagicAffix;
 import com.riiablo.codec.excel.Misc;
-import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
@@ -78,6 +76,12 @@ public class Item extends Actor implements Disposable {
   private static final int SET_5_PROPS_FLAG = 1 << SET_PROPS + 3;
   private static final int SET_6_PROPS_FLAG = 1 << SET_PROPS + 4;
   private static final int RUNE_PROPS_FLAG  = 1 << RUNE_PROPS;
+
+  private static final int WEAPON_PROPS  = 0;
+  private static final int ARMOR_PROPS   = 1;
+  private static final int HELM_PROPS    = 2;
+  private static final int SHIELD_PROPS  = 3;
+  private static final int NUM_GEM_PROPS = 4;
 
   private static final PropertyList[] EMPTY_STAT_ARRAY = new PropertyList[NUM_PROPS];
 
@@ -213,7 +217,16 @@ public class Item extends Actor implements Disposable {
       qualityData  = null;
       runewordData = 0;
       inscription  = null;
-      stats = EMPTY_STAT_ARRAY;
+      if (type.is("gem") || type.is("rune")) {
+        Gems.Entry gem = Riiablo.files.Gems.get(base.code);
+        stats = new PropertyList[NUM_GEM_PROPS];
+        stats[WEAPON_PROPS] = new PropertyList().add(gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
+        stats[ARMOR_PROPS ] = new PropertyList().add(gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
+        stats[HELM_PROPS  ] = stats[ARMOR_PROPS];
+        stats[SHIELD_PROPS] = new PropertyList().add(gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
+      } else {
+        stats = EMPTY_STAT_ARRAY;
+      }
     } else {
       id        = bitStream.read32BitsOrLess(Integer.SIZE);
       level     = bitStream.readUnsigned7OrLess(7);
@@ -846,29 +859,12 @@ public class Item extends Actor implements Disposable {
       }
 
       if (Item.this.type.is("gem") || Item.this.type.is("rune")) {
+        assert stats.length == NUM_GEM_PROPS;
         add().height(font.getLineHeight()).space(SPACING).row();
-
-        Gems.Entry gem = Riiablo.files.Gems.get(base.code);
-        //System.out.println(gem);
-        PropertyList tmp = new PropertyList();
-
-        // weapon
-        formatProperty(tmp, gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
-        tmp.reduce();
-        add(new Label(Riiablo.string.lookup("GemXp3") + " " + tmp.get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
-
-        tmp.clear();
-        formatProperty(tmp, gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
-        tmp.reduce();
-        String text = tmp.get().format();
-        add(new Label(Riiablo.string.lookup("GemXp4") + " " + text, font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp1") + " " + text, font, Riiablo.colors.white)).center().space(SPACING).row();
-
-        tmp.clear();
-        formatProperty(tmp, gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
-        tmp.reduce();
-        add(new Label(Riiablo.string.lookup("GemXp2") + " " + tmp.get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
-
+        add(new Label(Riiablo.string.lookup("GemXp3") + " " + stats[WEAPON_PROPS].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("GemXp4") + " " + stats[ARMOR_PROPS ].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("GemXp1") + " " + stats[HELM_PROPS  ].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("GemXp2") + " " + stats[SHIELD_PROPS].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
         add().height(font.getLineHeight()).space(SPACING).row();
       }
 
@@ -928,28 +924,30 @@ public class Item extends Actor implements Disposable {
       //}
 
       // magic props
-      PropertyList magicProps = stats[MAGIC_PROPS];
-      PropertyList runeProps  = stats[RUNE_PROPS];
-      if (magicProps != null) {
-        PropertyList magicPropsAggregate = magicProps.copy();
-        if (runeProps != null) magicPropsAggregate.addAll(runeProps);
-        magicPropsAggregate.reduce();
-        System.out.println(Item.this.getName());
-        for (Stat.Instance stat : magicPropsAggregate.props.values()) {
-          System.out.println(stat);
-        }
-
-        Array<Stat.Instance> aggregate = magicPropsAggregate.toArray();
-        aggregate.sort(new Comparator<Stat.Instance>() {
-          @Override
-          public int compare(Stat.Instance o1, Stat.Instance o2) {
-            return o2.entry.descpriority - o1.entry.descpriority;
+      if ((flags & COMPACT) == 0) {
+        PropertyList magicProps = stats[MAGIC_PROPS];
+        PropertyList runeProps = stats[RUNE_PROPS];
+        if (magicProps != null) {
+          PropertyList magicPropsAggregate = magicProps.copy();
+          if (runeProps != null) magicPropsAggregate.addAll(runeProps);
+          magicPropsAggregate.reduce();
+          System.out.println(Item.this.getName());
+          for (Stat.Instance stat : magicPropsAggregate.props.values()) {
+            System.out.println(stat);
           }
-        });
-        for (Stat.Instance stat : aggregate) {
-          String text = stat.format();
-          if (text == null) continue;
-          add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
+
+          Array<Stat.Instance> aggregate = magicPropsAggregate.toArray();
+          aggregate.sort(new Comparator<Stat.Instance>() {
+            @Override
+            public int compare(Stat.Instance o1, Stat.Instance o2) {
+              return o2.entry.descpriority - o1.entry.descpriority;
+            }
+          });
+          for (Stat.Instance stat : aggregate) {
+            String text = stat.format();
+            if (text == null) continue;
+            add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
+          }
         }
       }
 
@@ -987,23 +985,6 @@ public class Item extends Actor implements Disposable {
       }
 
       pack();
-    }
-
-    public void formatProperty(PropertyList props, String[] modCode, int[] modParam, int[] modMin, int[] modMax) {
-      for (int i = 0; i < modCode.length; i++) {
-        String code = modCode[i];
-        if (code.isEmpty()) break;
-        Properties.Entry prop = Riiablo.files.Properties.get(code);
-        for (int j = 0; j < prop.stat.length; j++) {
-          int[] mod = j == 0 ? modMin : modMax;
-          String stat = prop.stat[j];
-          if (stat.isEmpty()) break;
-          ItemStatCost.Entry desc = Riiablo.files.ItemStatCost.get(stat);
-          Stat.Instance inst = Stat.create(desc.ID, modParam[i], mod[i]);
-          props.add(inst);
-          //System.out.println(inst);
-        }
-      }
     }
   }
 }
