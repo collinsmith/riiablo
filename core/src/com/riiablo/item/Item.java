@@ -970,10 +970,29 @@ public class Item extends Actor implements Disposable {
             add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
           }
         }
-      }
 
-      //PropertyList setProps = stats[SET_PROPS + 0]; // TODO: + num equipped set items
-      // TODO: add set property support
+        if (quality == SET) {
+          SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
+          int setId = Riiablo.files.Sets.index(setItem.set);
+          int numEquipped = owner.SETS_EQUIP.get(setId, 0);
+          assert numEquipped >= 1;
+          if (numEquipped >= 2) {
+            PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
+            Array<Stat.Instance> aggregate = setProps.toArray();
+            aggregate.sort(new Comparator<Stat.Instance>() {
+              @Override
+              public int compare(Stat.Instance o1, Stat.Instance o2) {
+                return o2.entry.descpriority - o1.entry.descpriority;
+              }
+            });
+            for (Stat.Instance stat : aggregate) {
+              String text = stat.format(owner);
+              if (text == null) continue;
+              add(new Label(text, font, Riiablo.colors.green)).center().space(SPACING).row();
+            }
+          }
+        }
+      }
 
       StringBuilder itemFlags = null;
       if ((Item.this.flags & ETHEREAL) == ETHEREAL) {
