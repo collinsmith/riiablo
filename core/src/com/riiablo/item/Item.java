@@ -138,7 +138,8 @@ public class Item extends Actor implements Disposable {
   public PropertyList stats[];
 
   public ItemEntry       base;
-  public ItemTypes.Entry type;
+  public ItemTypes.Entry typeEntry;
+  public Type            type;
 
   private String  name;
   private AssetDescriptor<DC6> invFileDescriptor;
@@ -180,7 +181,8 @@ public class Item extends Actor implements Disposable {
     socketed = new Array<>(6);
 
     base = findBase(typeCode);
-    type = Riiablo.files.ItemTypes.get(base.type);
+    typeEntry = Riiablo.files.ItemTypes.get(base.type);
+    type = Type.get(typeEntry);
 
     props = new PropertyList();
     props.put(Stat.item_levelreq, base.levelreq);
@@ -216,7 +218,7 @@ public class Item extends Actor implements Disposable {
       qualityData  = null;
       runewordData = 0;
       inscription  = null;
-      if (type.is("gem") || type.is("rune")) {
+      if (type.is(Type.GEM) || type.is(Type.RUNE)) {
         Gems.Entry gem = Riiablo.files.Gems.get(base.code);
         stats = new PropertyList[NUM_GEM_PROPS];
         stats[WEAPON_PROPS] = new PropertyList().add(gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
@@ -275,22 +277,22 @@ public class Item extends Actor implements Disposable {
 
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
 
-      if (type.is("armo")) {
+      if (type.is(Type.ARMO)) {
         props.read(Stat.armorclass, bitStream);
       }
 
-      if (type.is("armo") || type.is("weap")) {
+      if (type.is(Type.ARMO) || type.is(Type.WEAP)) {
         int maxdurability = props.read(Stat.maxdurability, bitStream);
         if (maxdurability > 0) {
           props.read(Stat.durability, bitStream);
         }
       }
 
-      if ((flags & SOCKETED) == SOCKETED && (type.is("armo") || type.is("weap"))) {
+      if ((flags & SOCKETED) == SOCKETED && (type.is(Type.ARMO) || type.is(Type.WEAP))) {
         props.read(Stat.item_numsockets, bitStream);
       }
 
-      if (type.is("book")) {
+      if (type.is(Type.BOOK)) {
         bitStream.skip(5); // TODO: Tomes have an extra 5 bits inserted at this point.  I have no idea what purpose they serve.  It looks like the value is 0 on all of my tomes.
       }
 
@@ -304,7 +306,7 @@ public class Item extends Actor implements Disposable {
         listsFlags |= (lists << SET_PROPS);
       }
 
-      if (type.is("book")) {
+      if (type.is(Type.BOOK)) {
         listsFlags = 0;
       }
 
@@ -562,7 +564,7 @@ public class Item extends Actor implements Disposable {
           return "invtrch";
         }
       }
-      return type.InvGfx[pictureId];
+      return typeEntry.InvGfx[pictureId];
     }
     switch (quality) {
       case SET:
@@ -818,7 +820,7 @@ public class Item extends Actor implements Disposable {
           break;
       }
 
-      if (Item.this.type.is("rune"))
+      if (Item.this.type.is(Type.RUNE))
         name.setColor(Riiablo.colors.orange);
 
       add(name).center().space(SPACING).row();
@@ -837,7 +839,7 @@ public class Item extends Actor implements Disposable {
         String runequote = Riiablo.string.lookup("RuneQuote");
         StringBuilder runewordBuilder = null;
         for (Item socket : socketed) {
-          if (socket.type.is("rune")) {
+          if (socket.type.is(Type.RUNE)) {
             if (runewordBuilder == null) runewordBuilder = new StringBuilder(runequote);
             runewordBuilder.append(Riiablo.string.lookup(socket.base.namestr + "L")); // TODO: Is there a r##L reference somewhere?
           }
@@ -848,15 +850,15 @@ public class Item extends Actor implements Disposable {
         }
       }
 
-      if (Item.this.type.is("book")) {
+      if (Item.this.type.is(Type.BOOK)) {
         add(new Label(Riiablo.string.lookup("InsertScrolls"), font, Riiablo.colors.white)).center().space(SPACING).row();
-      } else if (Item.this.type.is("char")) {
+      } else if (Item.this.type.is(Type.CHAR)) {
         add(new Label(Riiablo.string.lookup("ItemExpcharmdesc"), font, Riiablo.colors.white)).center().space(SPACING).row();
-      } else if (Item.this.type.is("sock")) {
+      } else if (Item.this.type.is(Type.SOCK)) {
         add(new Label(Riiablo.string.lookup("ExInsertSocketsX"), font, Riiablo.colors.white)).center().space(SPACING).row();
       }
 
-      if (Item.this.type.is("gem") || Item.this.type.is("rune")) {
+      if (Item.this.type.is(Type.GEM) || Item.this.type.is(Type.RUNE)) {
         assert stats.length == NUM_GEM_PROPS;
         add().height(font.getLineHeight()).space(SPACING).row();
         add(new Label(Riiablo.string.lookup("GemXp3") + " " + stats[WEAPON_PROPS].copy().reduce().get().format(), font, Riiablo.colors.white)).center().space(SPACING).row();
@@ -893,11 +895,11 @@ public class Item extends Actor implements Disposable {
         Stat.Instance prop;
         if ((prop = props.get(Stat.armorclass)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1h") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if (Item.this.type.is("weap")) {
+        if (Item.this.type.is(Type.WEAP)) {
           if ((prop = props.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
             add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + props.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if (Item.this.type.is("shld")) {
+        if (Item.this.type.is(Type.SHLD)) {
           if ((prop = props.get(Stat.toblock)) != null)
             add(new Label(Riiablo.string.lookup("ItemStats1r") + prop.value + "%", font, Riiablo.colors.white)).center().space(SPACING).row();
           // TODO: if paladin, show smite damage -- ItemStats1o %d to %d
@@ -906,8 +908,8 @@ public class Item extends Actor implements Disposable {
         }
         if (!Item.this.base.nodurability && (prop = props.get(Stat.durability)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if (Item.this.type.is("clas")) {
-          add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.type.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (Item.this.type.is(Type.CLAS)) {
+          add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.typeEntry.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
         }
         if ((prop = props.get(Stat.reqdex)) != null && prop.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
@@ -917,7 +919,7 @@ public class Item extends Actor implements Disposable {
           add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if ((prop = props.get(Stat.quantity)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if (Item.this.type.is("weap")) {
+        if (Item.this.type.is(Type.WEAP)) {
           add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
       //}
@@ -929,7 +931,7 @@ public class Item extends Actor implements Disposable {
         if (magicProps != null) {
           PropertyList magicPropsAggregate = magicProps.copy();
           for (Item socket : socketed) {
-            if (socket.type.is("gem") | socket.type.is("rune")) {
+            if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
               magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
             } else {
               magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);

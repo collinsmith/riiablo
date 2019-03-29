@@ -259,18 +259,18 @@ public class Player extends Entity {
     Item RH = null, LH = null, SH = null;
     Item rArm = getSlot(Slot.RARM);
     if (rArm != null) {
-      if (rArm.type.is("weap")) {
+      if (rArm.type.is(com.riiablo.item.Type.WEAP)) {
         RH = rArm;
-      } else if (rArm.type.is("shld")) {
+      } else if (rArm.type.is(com.riiablo.item.Type.SHLD)) {
         SH = rArm;
       }
     }
 
     Item lArm = getSlot(Slot.LARM);
     if (lArm != null) {
-      if (lArm.type.is("weap")) {
+      if (lArm.type.is(com.riiablo.item.Type.WEAP)) {
         LH = lArm;
-      } else if (lArm.type.is("shld")) {
+      } else if (lArm.type.is(com.riiablo.item.Type.SHLD)) {
         SH = lArm;
       }
     }
@@ -292,9 +292,9 @@ public class Player extends Entity {
         setWeapon(WEAPON_1JS); // Left Jab Right Swing
       } else if (LHEntry.wclass.equals("1ht") && RHEntry.wclass.equals("1ht")) {
         setWeapon(WEAPON_1JT); // Left Jab Right Thrust
-      } else if (LH.type.is("miss") || RH.type.is("miss")) {
-        setWeapon((byte) Riiablo.files.WeaponClass.index(LH.type.is("miss") ? LHEntry.wclass : RHEntry.wclass));
-      } else if (LH.type.is("h2h")  || RH.type.is("h2h")) {
+      } else if (LH.type.is(com.riiablo.item.Type.MISS) || RH.type.is(com.riiablo.item.Type.MISS)) {
+        setWeapon((byte) Riiablo.files.WeaponClass.index(LH.type.is(com.riiablo.item.Type.MISS) ? LHEntry.wclass : RHEntry.wclass));
+      } else if (LH.type.is(com.riiablo.item.Type.H2H)  || RH.type.is(com.riiablo.item.Type.H2H)) {
         setWeapon(WEAPON_HT2); // Two Hand-to-Hand
       } else {
         setWeapon(WEAPON_HTH);
@@ -304,12 +304,12 @@ public class Player extends Entity {
     } else if (LH != null || RH != null) {
       RH = ObjectUtils.firstNonNull(RH, LH);
       LH = null;
-      if (RH.type.is("bow")) {
+      if (RH.type.is(com.riiablo.item.Type.BOW)) {
         LH = RH;
         RH = null;
         Weapons.Entry LHEntry = LH.getBase();
         setWeapon((byte) Riiablo.files.WeaponClass.index(LHEntry.wclass));
-      } else if (RH.type.is("weap")) { // make sure weap and not e.g. misl, might not be required
+      } else if (RH.type.is(com.riiablo.item.Type.WEAP)) { // make sure weap and not e.g. misl, might not be required
         Weapons.Entry RHEntry = RH.getBase();
         setWeapon((byte) Riiablo.files.WeaponClass.index(RHEntry.wclass));
       } else {

@@ -314,7 +314,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
         public void clicked(InputEvent event, float x, float y) {
           Item cursor = Riiablo.cursor.getItem();
           if (cursor != null) {
-            if (!ArrayUtils.contains(cursor.type.BodyLoc, bodyPart)) {
+            if (!ArrayUtils.contains(cursor.typeEntry.BodyLoc, bodyPart)) {
               Riiablo.audio.play(gameScreen.player.stats.getCharClass().name().toLowerCase() + "_impossible_1", false);
               return;
             }
@@ -357,7 +357,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       boolean blocked = false;
       Item cursorItem = Riiablo.cursor.getItem();
       if (cursorItem != null) {
-        blocked = !ArrayUtils.contains(cursorItem.type.BodyLoc, bodyPart);
+        blocked = !ArrayUtils.contains(cursorItem.typeEntry.BodyLoc, bodyPart);
       }
 
       // TODO: red if does not meet item requirements
