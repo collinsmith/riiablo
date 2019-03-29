@@ -9,8 +9,26 @@ public class Type extends Bits {
   static {
     TYPES = new Type[128];
     for (int i = 0, size = Riiablo.files.ItemTypes.size(); i < size; i++) {
-      if (TYPES[i] == null) TYPES[i] = new Type(Riiablo.files.ItemTypes.get(i));
+      build(TYPES, Riiablo.files.ItemTypes.get(i).Code);
     }
+  }
+
+  private static Type build(Type[] types, String type) {
+    int id = Riiablo.files.ItemTypes.index(type);
+    if (types[id] != null) {
+      return types[id];
+    }
+
+    Type t = types[id] = new Type();
+    t.set(id);
+
+    ItemTypes.Entry entry = Riiablo.files.ItemTypes.get(id);
+    for (String equiv : entry.Equiv) {
+      if (equiv.isEmpty()) break;
+      t.or(build(types, equiv));
+    }
+
+    return t;
   }
 
   public static Type get(ItemTypes.Entry type) {
@@ -18,37 +36,26 @@ public class Type extends Bits {
   }
 
   public static Type get(String type) {
-    return TYPES[Riiablo.files.ItemTypes.index(type)];
-  }
-
-  Type(String type) {
-    super(128);
-    setAll(type);
-  }
-
-  Type(ItemTypes.Entry type) {
-    this(type.Code);
-  }
-
-  private void setAll(String type) {
     int id = Riiablo.files.ItemTypes.index(type);
-    if (TYPES[id] != null) {
-      or(TYPES[id]);
-      return;
-    } else {
-      TYPES[id] = this;
-      set(id);
-    }
-    
-    ItemTypes.Entry entry = Riiablo.files.ItemTypes.get(id);
-    for (String equiv : entry.Equiv) {
-      if (equiv.isEmpty()) break;
-      setAll(equiv);
-    }
+    return TYPES[id];
+  }
+
+  Type() {
+    super(128);
   }
 
   public boolean is(int index) {
     return get(index);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    for (int i = -1; (i = nextSetBit(i + 1)) != -1;) {
+      builder.append(Riiablo.files.ItemTypes.get(i).Code).append(',');
+    }
+    if (builder.length() > 0) builder.setLength(builder.length() - 1);
+    return builder.toString();
   }
 
   public static final int SHIE = Riiablo.files.ItemTypes.index("shie");
