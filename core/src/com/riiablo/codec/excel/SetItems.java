@@ -1,29 +1,17 @@
 package com.riiablo.codec.excel;
 
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
-
 public class SetItems extends Excel<SetItems.Entry> {
-  private final ObjectMap<String, Array<SetItems.Entry>> sets = new ObjectMap<>();
-
-  @Override
-  protected void init() {
-    for (SetItems.Entry item : this) {
-      Array<SetItems.Entry> items = sets.get(item.set);
-      if (items == null) sets.put(item.set, items = new Array<>(6));
-      items.add(item);
-    }
-  }
-
-  public Array<SetItems.Entry> getItems(SetItems.Entry item) {
-    return sets.get(item.set);
-  }
-
   public static class Entry extends Excel.Entry {
     @Override
     public String toString() {
       return index;
     }
+
+    public Sets.Entry getSet() {
+      return parentSet;
+    }
+
+    Sets.Entry parentSet;
 
     @Key
     @Column

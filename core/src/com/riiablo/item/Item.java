@@ -23,6 +23,7 @@ import com.riiablo.codec.excel.ItemTypes;
 import com.riiablo.codec.excel.MagicAffix;
 import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.SetItems;
+import com.riiablo.codec.excel.Sets;
 import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.codec.util.BBox;
@@ -985,9 +986,9 @@ public class Item extends Actor implements Disposable {
       // TODO: This can be cleaned up later -- add support for set detection
       if (quality == SET) {
         add().height(font.getLineHeight()).space(SPACING).row();
-        final SetItems.Entry set = Riiablo.files.SetItems.get(qualityId);
-        add(new Label(Riiablo.string.lookup(set.set), font, Riiablo.colors.gold)).space(SPACING).row();
-        for (SetItems.Entry item : Riiablo.files.SetItems.getItems(set)) {
+        Sets.Entry set = Riiablo.files.SetItems.get(qualityId).getSet();
+        add(new Label(Riiablo.string.lookup(set.name), font, Riiablo.colors.gold)).space(SPACING).row();
+        for (SetItems.Entry item : set.getItems()) {
           add(new Label(Riiablo.string.lookup(item.index), font, Riiablo.colors.red)).space(SPACING).row();
         }
       }

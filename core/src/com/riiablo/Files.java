@@ -40,6 +40,7 @@ import com.riiablo.codec.excel.RarePrefix;
 import com.riiablo.codec.excel.RareSuffix;
 import com.riiablo.codec.excel.Runes;
 import com.riiablo.codec.excel.SetItems;
+import com.riiablo.codec.excel.Sets;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.excel.Sounds;
@@ -84,6 +85,7 @@ public class Files {
   public final RarePrefix      RarePrefix;
   public final RareSuffix      RareSuffix;
   public final Runes           Runes;
+  public final Sets            Sets;
   public final SetItems        SetItems;
   public final Skills          skills;
   public final SkillDesc       skilldesc;
@@ -130,6 +132,7 @@ public class Files {
     PlrType         = load(assets, PlrType.class);
     Properties      = load(assets, Properties.class, Excel.EXPANSION);
     QualityItems    = load(assets, QualityItems.class);
+    Sets            = load(assets, Sets.class, Excel.EXPANSION);
     SetItems        = load(assets, SetItems.class, Excel.EXPANSION);
     skills          = load(assets, Skills.class);
     skilldesc       = load(assets, SkillDesc.class);
@@ -139,6 +142,8 @@ public class Files {
     //UniqueSuffix  = load(assets, UniqueSuffix.class);
     WeaponClass     = load(assets, WeaponClass.class);
     weapons         = load(assets, Weapons.class);
+
+    Sets.index(SetItems);
   }
 
   @Deprecated
