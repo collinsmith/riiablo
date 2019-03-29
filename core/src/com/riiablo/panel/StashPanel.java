@@ -49,13 +49,14 @@ public class StashPanel extends WidgetGroup implements Disposable {
       @Override
       public void clicked(InputEvent event, float x, float y) {
         setVisible(false);
+        StashPanel.this.gameScreen.inventoryPanel.setVisible(false);
       }
     });
     addActor(btnExit);
 
     inventory = Riiablo.files.inventory.get("Big Bank Page 1");
 
-    ItemGrid grid = new ItemGrid(gameScreen, inventory);
+    ItemGrid grid = new ItemGrid(this.gameScreen, inventory);
     //grid.populate(gameScreen.player.getStash());
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,

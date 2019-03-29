@@ -302,6 +302,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
                   || spellsPanel.isVisible()
                   || characterPanel.isVisible()) {
             inventoryPanel.setVisible(false);
+            stashPanel.setVisible(false);
             spellsPanel.setVisible(false);
             characterPanel.setVisible(false);
           } else {
@@ -325,6 +326,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           }
         } else if (key == Keys.Inventory) {
           inventoryPanel.setVisible(!inventoryPanel.isVisible());
+          if (stashPanel.isVisible())
+            stashPanel.setVisible(false);
         } else if (key == Keys.Spells) {
           spellsPanel.setVisible(!spellsPanel.isVisible());
         } else if (key == Keys.Character) {

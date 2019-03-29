@@ -93,6 +93,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       @Override
       public void clicked(InputEvent event, float x, float y) {
         setVisible(false);
+        InventoryPanel.this.gameScreen.stashPanel.setVisible(false);
       }
     });
     addActor(btnExit);
