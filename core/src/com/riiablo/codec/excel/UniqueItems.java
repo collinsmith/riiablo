@@ -1,7 +1,5 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
 public class UniqueItems extends Excel<UniqueItems.Entry> {
   public static class Entry extends Excel.Entry {
     @Override
@@ -35,7 +33,7 @@ public class UniqueItems extends Excel<UniqueItems.Entry> {
     @Column public String  flippyfile;
     @Column public String  invfile;
     @Column public String  dropsound;
-    @Column public String  dropsfxframe;
+    @Column public int     dropsfxframe;
     @Column public String  usesound;
     @Column public String  prop1;
     @Column public int     par1;

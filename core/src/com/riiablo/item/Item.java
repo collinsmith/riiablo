@@ -569,32 +569,26 @@ public class Item extends Actor implements Disposable {
   }
 
   private String getInvFileName() {
-    if (pictureId >= 0) {
-      if (isIdentified() && quality == Quality.UNIQUE) {
-        if (qualityId == 381) { // Annihilus
-          return "invmss";
-        } else if (qualityId == 400) { // Hellfire Torch
-          return "invtrch";
-        }
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (!setItem.invfile.isEmpty()) return setItem.invfile;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (!uniqueItem.invfile.isEmpty()) return uniqueItem.invfile;
+          break;
+        default:
+          // do nothing
       }
-      return typeEntry.InvGfx[pictureId];
     }
-    switch (quality) {
-      case SET:
-        return !base.setinvfile.isEmpty()
-            ? base.setinvfile
-            : base.invfile;
-      case UNIQUE:
-        return !base.uniqueinvfile.isEmpty()
-            ? base.uniqueinvfile
-            : base.invfile;
-      default:
-        return base.invfile;
-    }
+
+    return pictureId >= 0 ? typeEntry.InvGfx[pictureId] : base.invfile;
   }
 
   public String getInvColor() {
-    if (base.InvTrans == 0) return null;
+    if (base.InvTrans == 0 || !isIdentified()) return null;
     switch (quality) {
       case MAGIC: {
         MagicAffix affix;
@@ -634,7 +628,7 @@ public class Item extends Actor implements Disposable {
   }
 
   public String getCharColor() {
-    if (base.Transform == 0) return null;
+    if (base.Transform == 0 || !isIdentified()) return null;
     switch (quality) {
       case MAGIC: {
         MagicAffix affix;
@@ -674,11 +668,18 @@ public class Item extends Actor implements Disposable {
   }
 
   public String getFlippyFile() {
-    if (isIdentified() && quality == Quality.UNIQUE) {
-      if (qualityId == 381) { // Annihilus
-        return findBase("mss").flippyfile;
-      } else if (qualityId == 400) { // Hellfire Torch
-        return findBase("tch").flippyfile;
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (!setItem.flippyfile.isEmpty()) return setItem.flippyfile;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (!uniqueItem.flippyfile.isEmpty()) return uniqueItem.flippyfile;
+          break;
+        default:
+          // do nothing
       }
     }
 
@@ -686,11 +687,18 @@ public class Item extends Actor implements Disposable {
   }
 
   public int getDropFxFrame() {
-    if (isIdentified() && quality == Quality.UNIQUE) {
-      if (qualityId == 381) { // Annihilus
-        return findBase("mss").dropsfxframe;
-      } else if (qualityId == 400) { // Hellfire Torch
-        return findBase("tch").dropsfxframe;
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (setItem.dropsfxframe > 0) return setItem.dropsfxframe;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (uniqueItem.dropsfxframe > 0) return uniqueItem.dropsfxframe;
+          break;
+        default:
+          // do nothing
       }
     }
 
@@ -698,11 +706,18 @@ public class Item extends Actor implements Disposable {
   }
 
   public String getDropSound() {
-    if (isIdentified() && quality == Quality.UNIQUE) {
-      if (qualityId == 381) { // Annihilus
-        return "item_gem";
-      } else if (qualityId == 400) { // Hellfire Torch
-        return "item_gem";
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (!setItem.dropsound.isEmpty()) return setItem.dropsound;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (!uniqueItem.dropsound.isEmpty()) return uniqueItem.dropsound;
+          break;
+        default:
+          // do nothing
       }
     }
 
@@ -710,16 +725,20 @@ public class Item extends Actor implements Disposable {
   }
 
   public String getUseSound() {
-    /*
-    // Neither are usable
-    if (isIdentified() && quality == Quality.UNIQUE) {
-      if (qualityId == 381) { // Annihilus
-        return "item_gem";
-      } else if (qualityId == 400) { // Hellfire Torch
-        return "item_gem";
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (!setItem.usesound.isEmpty()) return setItem.usesound;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (!uniqueItem.usesound.isEmpty()) return uniqueItem.usesound;
+          break;
+        default:
+          // do nothing
       }
     }
-    */
 
     return base.usesound;
   }

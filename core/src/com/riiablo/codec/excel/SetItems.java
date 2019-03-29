@@ -29,7 +29,7 @@ public class SetItems extends Excel<SetItems.Entry> {
     @Column public String   invfile;
     @Column public String   flippyfile;
     @Column public String   dropsound;
-    @Column public String   dropsfxframe;
+    @Column public int      dropsfxframe;
     @Column public String   usesound;
     @Column(format = "cost mult")
     public int     cost_mult;
