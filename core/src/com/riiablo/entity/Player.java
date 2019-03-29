@@ -6,14 +6,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.D2S;
 import com.riiablo.codec.excel.Armor;
+import com.riiablo.codec.excel.Sets;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
+import com.riiablo.item.Quality;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
 import com.riiablo.server.Connect;
@@ -104,6 +107,11 @@ public class Player extends Entity {
   EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
   final Set<SlotListener> SLOT_LISTENERS = new CopyOnWriteArraySet<>();
 
+  /** total number of items equipped for each set */
+  public final IntIntMap SETS_EQUIP = new IntIntMap();
+  /** total number of owned items for each set item */
+  public final IntIntMap SETS_OWNS = new IntIntMap();
+
   public Player(String name, CharacterClass characterClass) {
     this(name, characterClass.id);
     stats = new StatsImpl(name, characterClass.id);
@@ -144,7 +152,15 @@ public class Player extends Entity {
   private void loadEquipped(EnumMap<BodyLoc, Item> items) {
     equipped.putAll(items);
     for (java.util.Map.Entry<BodyLoc, Item> entry : items.entrySet()) {
-      entry.getValue().load();
+      Item item = entry.getValue();
+      item.setOwner(this);
+      if (item.quality == Quality.SET) {
+        SETS_OWNS.getAndIncrement(item.qualityId, 0, 1);
+        Sets.Entry set = Riiablo.files.SetItems.get(item.qualityId).getSet();
+        int id = Riiablo.files.Sets.index(set.index);
+        SETS_EQUIP.getAndIncrement(id, 0, 1);
+      }
+      item.load();
       if (DEBUG_EQUIP) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
     }
   }
@@ -152,6 +168,10 @@ public class Player extends Entity {
   private void loadInventory(Array<Item> items) {
     inventory.addAll(items);
     for (Item item : items) {
+      item.setOwner(this);
+      if (item.quality == Quality.SET) {
+        SETS_OWNS.getAndIncrement(item.qualityId, 0, 1);
+      }
       item.load();
       if (DEBUG_INV) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
     }

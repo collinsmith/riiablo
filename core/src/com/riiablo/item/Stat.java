@@ -7,6 +7,7 @@ import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BitStream;
+import com.riiablo.entity.Player;
 
 import java.util.Arrays;
 
@@ -532,17 +533,18 @@ public class Stat {
         "ModStre9e", "ModStre9g", "ModStre9d", "ModStre9f",
     };
 
-    public String format() {
-      return format(false);
+    public String format(Player owner) {
+      return format(owner, entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
     }
 
-    public String format(boolean group) {
+    @Deprecated
+    public String format(Player owner, boolean group) {
       return group
-          ? format(entry.dgrpfunc, entry.dgrpval, entry.dgrpstrpos, entry.dgrpstrneg, entry.dgrpstr2)
-          : format(entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
+          ? format(owner, entry.dgrpfunc, entry.dgrpval, entry.dgrpstrpos, entry.dgrpstrneg, entry.dgrpstr2)
+          : format(owner, entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
     }
 
-    public String format(int func, int valmode, String strpos, String strneg, String str2) {
+    public String format(Player owner, int func, int valmode, String strpos, String strneg, String str2) {
       int value;
       CharStats.Entry entry;
       Skills.Entry skill;
@@ -827,7 +829,7 @@ public class Stat {
     }
 
     @Override
-    public String format(int unused1, int unused2, String unused3, String unused4, String unused5) {
+    public String format(Player unused0, int unused1, int unused2, String unused3, String unused4, String unused5) {
       if (stats.length == 2) {
         if (stats[0].value == stats[1].value) {
           return Riiablo.string.format(str, stats[1].value);
@@ -846,7 +848,7 @@ public class Stat {
 
     @Override
     public String toString() {
-      return stat + "(" + entry + ")" + "=" + Arrays.toString(stats) + " : " + format(0, 0, null, null, null);
+      return stat + "(" + entry + ")" + "=" + Arrays.toString(stats) + " : " + format(null, 0, 0, null, null, null);
     }
   }
 }
