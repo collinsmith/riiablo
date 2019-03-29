@@ -3,16 +3,16 @@ package com.riiablo.item;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.entity.Entity;
 
-import static gdx.diablo.entity.Entity.Dirty.HD;
-import static gdx.diablo.entity.Entity.Dirty.LA;
-import static gdx.diablo.entity.Entity.Dirty.LG;
-import static gdx.diablo.entity.Entity.Dirty.LH;
-import static gdx.diablo.entity.Entity.Dirty.RA;
-import static gdx.diablo.entity.Entity.Dirty.RH;
-import static gdx.diablo.entity.Entity.Dirty.S1;
-import static gdx.diablo.entity.Entity.Dirty.S2;
-import static gdx.diablo.entity.Entity.Dirty.SH;
-import static gdx.diablo.entity.Entity.Dirty.TR;
+import static com.riiablo.entity.Entity.Dirty.HD;
+import static com.riiablo.entity.Entity.Dirty.LA;
+import static com.riiablo.entity.Entity.Dirty.LG;
+import static com.riiablo.entity.Entity.Dirty.LH;
+import static com.riiablo.entity.Entity.Dirty.RA;
+import static com.riiablo.entity.Entity.Dirty.RH;
+import static com.riiablo.entity.Entity.Dirty.S1;
+import static com.riiablo.entity.Entity.Dirty.S2;
+import static com.riiablo.entity.Entity.Dirty.SH;
+import static com.riiablo.entity.Entity.Dirty.TR;
 
 public enum BodyLoc {
   NONE,

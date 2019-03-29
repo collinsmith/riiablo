@@ -18,8 +18,6 @@ import com.riiablo.screen.GameScreen;
 
 import org.apache.commons.lang3.StringUtils;
 
-import gdx.diablo.Diablo;
-
 public class Monster extends Entity {
   private static final String TAG = "Monster";
 
@@ -185,10 +183,10 @@ public class Monster extends Entity {
       point = path.points[i];
       p1x = +(point.x * Tile.SUBTILE_WIDTH50)  - (point.y * Tile.SUBTILE_WIDTH50);
       p1y = -(point.x * Tile.SUBTILE_HEIGHT50) - (point.y * Tile.SUBTILE_HEIGHT50);
-      Diablo.fonts.consolas12.draw(batch, Integer.toString(point.action), p1x, p1y - BOX_SIZE, 0, Align.center, false);
+      Riiablo.fonts.consolas12.draw(batch, Integer.toString(point.action), p1x, p1y - BOX_SIZE, 0, Align.center, false);
     }
     batch.end();
-    batch.setShader(Diablo.shader);
+    batch.setShader(Riiablo.shader);
     shapes.begin(ShapeRenderer.ShapeType.Filled);
   }
 }

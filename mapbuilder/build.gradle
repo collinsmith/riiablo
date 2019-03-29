@@ -3,7 +3,7 @@ apply plugin: "java"
 sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = ["src/"]
 
-project.ext.mainClassName = "gdx.diablo.map.MapViewer"
+project.ext.mainClassName = "com.riiablo.map.MapViewer"
 project.ext.assetsDir = new File("../android/assets");
 
 task run(dependsOn: classes, type: JavaExec) {

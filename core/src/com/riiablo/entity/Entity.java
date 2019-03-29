@@ -20,6 +20,7 @@ import com.riiablo.codec.DCC;
 import com.riiablo.codec.excel.Overlay;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BBox;
+import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DT1.Tile;
@@ -34,9 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-
-import gdx.diablo.BlendMode;
-import gdx.diablo.Diablo;
 
 public abstract class Entity implements Animation.AnimationListener {
   private static final String TAG = "Entity";
@@ -516,7 +514,7 @@ public abstract class Entity implements Animation.AnimationListener {
     GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), x, y - Tile.SUBTILE_HEIGHT50, 0, Align.center, false);
     Pools.free(layout);
     batch.end();
-    batch.setShader(Diablo.shader);
+    batch.setShader(Riiablo.shader);
     shapes.begin(ShapeRenderer.ShapeType.Line);
   }
 
