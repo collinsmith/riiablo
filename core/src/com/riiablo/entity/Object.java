@@ -160,6 +160,8 @@ public class Object extends Entity {
         if (mode == MODE_NU) {
           sequence(MODE_OP, MODE_ON);
           Riiablo.audio.play("object_waypoint_open", true);
+        } else {
+          gameScreen.waygatePanel.setVisible(true);
         }
         break;
       case 24: case 25: case 26: case 27: case 28: case 29:

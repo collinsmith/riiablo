@@ -111,7 +111,7 @@ public class Files {
     inventory       = load(assets, Inventory.class);
     ItemStatCost    = load(assets, ItemStatCost.class);
     ItemTypes       = load(assets, ItemTypes.class);
-    Levels          = load(assets, Levels.class);
+    Levels          = load(assets, Levels.class, Excel.EXPANSION);
     LowQualityItems = load(assets, LowQualityItems.class);
     LvlPrest        = load(assets, LvlPrest.class);
     LvlTypes        = load(assets, LvlTypes.class);

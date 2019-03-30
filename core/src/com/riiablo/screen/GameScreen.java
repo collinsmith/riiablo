@@ -58,6 +58,7 @@ import com.riiablo.panel.MobilePanel;
 import com.riiablo.panel.SpellsPanel;
 import com.riiablo.panel.SpellsQuickPanel;
 import com.riiablo.panel.StashPanel;
+import com.riiablo.panel.WaygatePanel;
 import com.riiablo.server.Connect;
 import com.riiablo.server.ConnectResponse;
 import com.riiablo.server.Disconnect;
@@ -103,6 +104,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   public CharacterPanel characterPanel;
   public SpellsPanel spellsPanel;
   public StashPanel stashPanel;
+  public WaygatePanel waygatePanel;
   public SpellsQuickPanel spellsQuickPanelL;
   public SpellsQuickPanel spellsQuickPanelR;
   MappedKeyStateAdapter mappedKeyStateListener;
@@ -234,14 +236,13 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         stage.getHeight() - spellsPanel.getHeight());
 
     characterPanel = new CharacterPanel(this);
-    characterPanel.setPosition(
-        0,
-        stage.getHeight() - characterPanel.getHeight());
+    characterPanel.setPosition(0, stage.getHeight() - characterPanel.getHeight());
 
     stashPanel = new StashPanel(this);
-    stashPanel.setPosition(
-        0,
-        stage.getHeight() - stashPanel.getHeight());
+    stashPanel.setPosition(0, stage.getHeight() - stashPanel.getHeight());
+
+    waygatePanel = new WaygatePanel(this);
+    waygatePanel.setPosition(0, stage.getHeight() - waygatePanel.getHeight());
 
     spellsQuickPanelL = new SpellsQuickPanel(this, controlPanel.getLeftSkill(), true);
     spellsQuickPanelL.setPosition(0, 100, Align.bottomLeft);
@@ -262,6 +263,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     stage.addActor(spellsPanel);
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
+    stage.addActor(waygatePanel);
     stage.addActor(spellsQuickPanelL);
     stage.addActor(spellsQuickPanelR);
     controlPanel.toFront();
@@ -501,6 +503,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         }
       }
     } else {
+      // FIXME: mapListener should update when not hit, but only for non-movement events?
       stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
       Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, true);
       if (hit == null) {
