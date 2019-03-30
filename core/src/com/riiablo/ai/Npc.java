@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.IntSet;
 import com.riiablo.Riiablo;
 import com.riiablo.audio.Audio;
+import com.riiablo.entity.Entity;
 import com.riiablo.entity.Monster;
 import com.riiablo.map.DS1;
 import com.riiablo.screen.GameScreen;
@@ -36,6 +37,7 @@ public class Npc extends AI {
   float actionTimer = 0;
   boolean actionPerformed = false;
   NpcMenu menu;
+  Entity lookAt;
 
   public Npc(Monster entity) {
     super(entity);
@@ -58,7 +60,8 @@ public class Npc extends AI {
     actionPerformed = false;
     entity.setMode(Monster.MODE_NU);
     entity.target().set(entity.position());
-    entity.lookAt(gameScreen.player);
+    lookAt = gameScreen.player;
+    entity.lookAt(lookAt);
     entity.update(0);
 
     if (menu == null) {
@@ -134,15 +137,20 @@ public class Npc extends AI {
       if (targetId == ArrayUtils.INDEX_NOT_FOUND) {
         targetId = 0;
       } else if (actionTimer > 0) {
+        if (lookAt != null) {
+          if (entity.position().dst(lookAt.position()) <= 10) {
+            entity.lookAt(lookAt);
+          } else
+            actionTimer = -1;
+        }
+
         actionTimer -= delta;
         actionPerformed = actionTimer < 0;
-        // TODO: need gameScreen reference
-        //if (entity.position().dst(gameScreen.player.position()) <= 10) {
-        //  entity.lookAt(gameScreen.player);
-        //}
+
         return;
       } else if (actionPerformed) {
         actionPerformed = false;
+        lookAt = null;
         targetId = MathUtils.random(path.numPoints - 1);
       } else {
         entity.setMode(Monster.MODE_NU);
