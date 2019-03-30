@@ -44,7 +44,7 @@ public class Sets extends Excel<Sets.Entry> {
     @Column(format = "PMax2%s", endIndex = 2, values = {"a", "b"})
     public int     PMax2[];
     @Column(format = "PCode3%s", endIndex = 2, values = {"a", "b"})
-    public int     PCode3[];
+    public String  PCode3[];
     @Column(format = "PParam3%s", endIndex = 2, values = {"a", "b"})
     public int     PParam3[];
     @Column(format = "PMin3%s", endIndex = 2, values = {"a", "b"})
@@ -52,7 +52,7 @@ public class Sets extends Excel<Sets.Entry> {
     @Column(format = "PMax3%s", endIndex = 2, values = {"a", "b"})
     public int     PMax3[];
     @Column(format = "PCode4%s", endIndex = 2, values = {"a", "b"})
-    public int     PCode4[];
+    public String  PCode4[];
     @Column(format = "PParam4%s", endIndex = 2, values = {"a", "b"})
     public int     PParam4[];
     @Column(format = "PMin4%s", endIndex = 2, values = {"a", "b"})
@@ -60,7 +60,7 @@ public class Sets extends Excel<Sets.Entry> {
     @Column(format = "PMax4%s", endIndex = 2, values = {"a", "b"})
     public int     PMax4[];
     @Column(format = "PCode5%s", endIndex = 2, values = {"a", "b"})
-    public int     PCode5[];
+    public String  PCode5[];
     @Column(format = "PParam5%s", endIndex = 2, values = {"a", "b"})
     public int     PParam5[];
     @Column(format = "PMin5%s", endIndex = 2, values = {"a", "b"})

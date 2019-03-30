@@ -36,7 +36,6 @@ import com.riiablo.widget.Label;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 import static com.riiablo.item.Quality.SET;
 
@@ -977,38 +976,11 @@ public class Item extends Actor implements Disposable {
           }
 
           Array<Stat.Instance> aggregate = magicPropsAggregate.toArray();
-          aggregate.sort(new Comparator<Stat.Instance>() {
-            @Override
-            public int compare(Stat.Instance o1, Stat.Instance o2) {
-              return o2.entry.descpriority - o1.entry.descpriority;
-            }
-          });
+          aggregate.sort();
           for (Stat.Instance stat : aggregate) {
             String text = stat.format(owner);
             if (text == null) continue;
             add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
-          }
-        }
-
-        if (quality == SET) {
-          SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
-          int setId = Riiablo.files.Sets.index(setItem.set);
-          int numEquipped = owner.SETS_EQUIP.get(setId, 0);
-          assert numEquipped >= 1;
-          if (numEquipped >= 2) {
-            PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
-            Array<Stat.Instance> aggregate = setProps.toArray();
-            aggregate.sort(new Comparator<Stat.Instance>() {
-              @Override
-              public int compare(Stat.Instance o1, Stat.Instance o2) {
-                return o2.entry.descpriority - o1.entry.descpriority;
-              }
-            });
-            for (Stat.Instance stat : aggregate) {
-              String text = stat.format(owner);
-              if (text == null) continue;
-              add(new Label(text, font, Riiablo.colors.green)).center().space(SPACING).row();
-            }
           }
         }
       }
@@ -1034,6 +1006,56 @@ public class Item extends Actor implements Disposable {
       }
 
       if (quality == SET) {
+        SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
+        int setId = Riiablo.files.Sets.index(setItem.set);
+        int numEquipped = owner.SETS_EQUIP.get(setId, 0);
+        assert numEquipped >= 1;
+        if (numEquipped >= 2) {
+          PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
+          Array<Stat.Instance> aggregate = setProps.toArray();
+          aggregate.sort();
+          for (Stat.Instance stat : aggregate) {
+            String text = stat.format(owner);
+            if (text == null) continue;
+            add(new Label(text, font, Riiablo.colors.green)).center().space(SPACING).row();
+          }
+
+          Sets.Entry set = setItem.getSet();
+          PropertyList setBonus = null;
+          if (numEquipped == set.getItems().size) { // full set bonus
+            setBonus = new PropertyList().add(set.FCode, set.FParam, set.FMin, set.FMax);
+          } else { // partial set bonus
+            switch (numEquipped) {
+              case 2:
+                setBonus = new PropertyList().add(set.PCode2, set.PParam2, set.PMin2, set.PMax2);
+                break;
+              case 3:
+                setBonus = new PropertyList().add(set.PCode3, set.PParam3, set.PMin3, set.PMax3);
+                break;
+              case 4:
+                setBonus = new PropertyList().add(set.PCode4, set.PParam4, set.PMin4, set.PMax4);
+                break;
+              case 5:
+                setBonus = new PropertyList().add(set.PCode5, set.PParam5, set.PMin5, set.PMax5);
+                break;
+              default:
+                // do nothing
+            }
+          }
+
+          if (setBonus != null && setBonus.size() > 0) {
+            add().height(font.getLineHeight()).space(SPACING).row();
+            setBonus.reduce().toArray();
+            aggregate = setBonus.toArray();
+            aggregate.sort();
+            for (Stat.Instance stat : aggregate) {
+              String text = stat.format(owner);
+              if (text == null) continue;
+              add(new Label(text, font, Riiablo.colors.gold)).center().space(SPACING).row();
+            }
+          }
+        }
+
         add().height(font.getLineHeight()).space(SPACING).row();
         Sets.Entry set = Riiablo.files.SetItems.get(qualityId).getSet();
         add(new Label(Riiablo.string.lookup(set.name), font, Riiablo.colors.gold)).space(SPACING).row();

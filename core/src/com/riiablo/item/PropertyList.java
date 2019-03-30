@@ -38,6 +38,10 @@ public class PropertyList {
     props.clear();
   }
 
+  public int size() {
+    return props.size;
+  }
+
   public void put(int stat, int value) {
     props.put(stat, Stat.create(stat, value));
   }

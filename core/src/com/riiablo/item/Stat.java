@@ -462,7 +462,7 @@ public class Stat {
     return new Instance(stat, param, value);
   }
 
-  static class Instance {
+  static class Instance implements Comparable<Instance> {
     final int stat;
     final int param; // can probably safely be truncated to short
     final int hash;
@@ -484,6 +484,11 @@ public class Stat {
       this.value = value;
       entry = Riiablo.files.ItemStatCost.get(stat);
       hash = Stat.hash(stat, param);
+    }
+
+    @Override
+    public int compareTo(Instance o) {
+      return o.entry.descpriority - this.entry.descpriority;
     }
 
     @Override
