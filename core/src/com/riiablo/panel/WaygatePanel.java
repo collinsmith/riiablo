@@ -90,13 +90,14 @@ public class WaygatePanel extends WidgetGroup implements Disposable {
         waypoints[level.Act].add(level);
       }
     }
+    Comparator<Levels.Entry> comparator = new Comparator<Levels.Entry>() {
+      @Override
+      public int compare(Levels.Entry o1, Levels.Entry o2) {
+        return o1.Waypoint - o2.Waypoint;
+      }
+    };
     for (Array<Levels.Entry> waypoint : waypoints) {
-      waypoint.sort(new Comparator<Levels.Entry>() {
-        @Override
-        public int compare(Levels.Entry o1, Levels.Entry o2) {
-          return o1.Waypoint - o2.Waypoint;
-        }
-      });
+      waypoint.sort(comparator);
     }
 
     final Tab[] tabs = new Tab[5];
