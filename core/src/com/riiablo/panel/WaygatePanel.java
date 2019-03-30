@@ -83,7 +83,8 @@ public class WaygatePanel extends WidgetGroup implements Disposable {
       down     = new TextureRegionDrawable(waygateicons.getTexture(4));
     }};
 
-    Array<Levels.Entry>[] waypoints = new Array[5];
+    @SuppressWarnings("unchecked")
+    Array<Levels.Entry>[] waypoints = (Array<Levels.Entry>[]) new Array[5];
     for (int i = 0; i < waypoints.length; i++) waypoints[i] = new Array<>(9);
     for (Levels.Entry level : Riiablo.files.Levels) {
       if (level.Waypoint != 0xFF) {
