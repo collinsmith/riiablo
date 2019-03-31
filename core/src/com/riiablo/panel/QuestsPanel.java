@@ -55,6 +55,7 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
   Button btnExit;
 
   final GameScreen gameScreen;
+  Tab activeTab;
 
   private static final int[] QUESTS = { 6, 6, 6, 3, 6 };
 
@@ -76,11 +77,6 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
       down = new TextureRegionDrawable(Riiablo.assets.get(questlastDescriptor).getTexture(1));
     }});
     btnPlayQuest.setPosition(227, 10);
-    btnPlayQuest.addListener(new ClickListener() {
-      @Override
-      public void clicked(InputEvent event, float x, float y) {
-      }
-    });
     addActor(btnPlayQuest);
 
     btnExit = new Button(new Button.ButtonStyle() {{
@@ -109,7 +105,6 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
     Riiablo.assets.load(questdoneDescriptor);
     Riiablo.assets.finishLoadingAsset(questdoneDescriptor);
     questdone = Riiablo.assets.get(questdoneDescriptor);
-
 
     @SuppressWarnings("unchecked")
     Array<Quests.Entry>[] quests = (Array<Quests.Entry>[]) new Array[5];
@@ -178,8 +173,8 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
         @Override
         public void clicked(InputEvent event, float x, float y) {
           for (Tab tab : tabs) if (tab != null) tab.setVisible(false);
-          Tab tab = (Tab) actor.getUserObject();
-          tab.setVisible(true);
+          activeTab = (Tab) actor.getUserObject();
+          activeTab.setVisible(true);
         }
       });
       addActor(actor);
@@ -190,7 +185,17 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
     tabGroup.add(actors);
     tabGroup.setMinCheckCount(1);
     tabGroup.setMaxCheckCount(1);
-    tabs[0].setVisible(true);
+    activeTab = tabs[0];
+    activeTab.setVisible(true);
+
+    btnPlayQuest.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        if (activeTab != null) {
+          activeTab.questDialog.play("akara_act1_q1_init");
+        }
+      }
+    });
 
     //setDebug(true, true);
   }
@@ -245,7 +250,8 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
         selected = quest;
         quest.setSelected(true);
         questName.setText(Riiablo.string.lookup(quest.getName()));
-        questDialog.play("akara_act1_q1_init");
+        questDialog.dispose();
+        questDialog.setTextId(quest.quest.qsts[0]);
       }
     }
 
@@ -263,6 +269,7 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
     private static final int FRAME_DOWN     = 25;
     private static final int FRAME_DISABLED = 26;
 
+    final Quests.Entry quest;
     final Tab parent;
     final Animation anim;
     final DCWrapper overlay;
@@ -270,7 +277,8 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
 
     QuestButton(Tab tab, Quests.Entry quest, int q) {
       this.parent = tab;
-      setName(quest.qsts);
+      this.quest = quest;
+      setName(quest.qstr);
 
       DCWrapper background = new DCWrapper();
       background.setDrawable(questdone.getTexture(quest.questdone));

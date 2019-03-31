@@ -59,6 +59,17 @@ public class DialogScroller extends Table implements Disposable {
     pack();
   }
 
+  public void setTextId(String str) {
+    setText(Riiablo.string.lookup(str));
+  }
+
+  public void setText(String str) {
+    textArea.setText(str);
+    scrollPane.layout();
+    scrollSpeed = 0;
+    scrollPane.setScrollY(0);
+  }
+
   public void play(String dialog) {
     // FIXME: scrollSpeed should be in pixels/sec, but timing is off by about 10-15%
     //        problem seems to be with fontformat11 metrics, applying scalar to line height
@@ -86,7 +97,7 @@ public class DialogScroller extends Table implements Disposable {
 
   @Override
   public void dispose() {
-    audio.stop();
+    if (audio != null) audio.stop();
   }
 
   public interface DialogCompletionListener {

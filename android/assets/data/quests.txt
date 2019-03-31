@@ -1,32 +1,32 @@
-id	name	act	qsts	order	visible	icon	questdone
-0	Act 1 Prologue 	0	qstsa1q0				
-1	Den of Evil	0	qstsa1q1	1	1	a1q1	0
-2	Sisters' Burial Grounds	0	qstsa1q2	2	1	a1q2	1
-3	Tools of the Trade	0	qstsa1q3	5	1	a1q3	2
-4	The Search for Cain	0	qstsa1q4	3	1	a1q4	3
-5	The Forgotten Tower	0	qstsa1q5	4	1	a1q5	4
-6	Sisters to the Slaughter	0	qstsa1q6	6	1	a1q6	5
-7	Act 2 Prologue 	1	qstsa2q0				
-8	Radament's Lair 	1	qstsa2q1	1	1	a2q1	6
-9	The Horadric Staff 	1	qstsa2q2	2	1	a2q2	7
-10	Tainted Sun 	1	qstsa2q3	3	1	a2q3	8
-11	Arcane Sanctuary 	1	qstsa2q4	4	1	a2q4	9
-12	The Summoner 	1	qstsa2q5	5	1	a2q5	10
-13	The Seven Tombs 	1	qstsa2q6	6	1	a2q6	11
-14	Act 3 Prologue	2	qstsa3q0				
-15	Lam Esen's Tome	2	qstsa3q1	4	1	a3q1	12
-16	Khalim's Will	2	qstsa3q2	3	1	a3q2	13
-17	Blade of the Old Religion	2	qstsa3q3	2	1	a3q3	14
-18	The Golden Bird	2	qstsa3q4	1	1	a3q4	15
-19	The Blackened Temple	2	qstsa3q5	5	1	a3q5	16
-20	The Guardian	2	qstsa3q6	6	1	a3q6	17
-21	Act 4 Prologue	3	qstsa4q0				
-22	The Fallen Angel	3	qstsa4q1	1	1	a4q1	18
-23	Terror's End	3	qstsa4q2	3	1	a4q3	20
-24	Hell's Forge	3	qstsa4q3	2	1	a4q2	19
-25	Siege on Harrogath	4	qstsa5q1	1	1	a5q1	21
-26	Rescue on Mount Arreat	4	qstsa5q2	2	1	a5q2	22
-27	Prison of Ice	4	qstsa5q3	3	1	a5q3	23
-28	Betrayal of Harrogath	4	qstsa5q4	4	1	a5q4	24
-29	Rite of Passage	4	qstsa5q5	5	1	a5q5	25
-30	Eve of Destruction	4	qstsa5q6	6	1	a5q6	26
+id	name	act	order	visible	icon	questdone	qstr	qsts1	qsts1a	qsts1b	qsts2	qsts2a	qsts2b	qsts3	qsts3a	qsts3b	qsts4	qsts4a	qsts4b	qsts5	qsts5a	qsts5b	qsts6	qsts6a	qsts6b
+0	Act 1 Prologue 	0					qstsa1q0	qstsa1qt																	
+1	Den of Evil	0	1	1	a1q1	0	qstsa1q1	qstsa1q11			qstsa1q12			qstsa1q13			qstsa1q14	qstsa1q140		qstsa1q15					
+2	Sisters' Burial Grounds	0	2	1	a1q2	1	qstsa1q2	qstsa1q21			qstsa1q22			qstsa1q23											
+3	Tools of the Trade	0	5	1	a1q3	2	qstsa1q3	qstsa1q31			qstsa1q32		qstsa1q32b												
+4	The Search for Cain	0	3	1	a1q4	3	qstsa1q4	qstsa1q41			qstsa1q42			qstsa1q43			qstsa1q44			qstsa1q45			qstsa1q46	qstsa1q46b	
+5	The Forgotten Tower	0	4	1	a1q5	4	qstsa1q5	qstsa1q51	qstsa1q51a	qstsa1q51b	qstsa1q52														
+6	Sisters to the Slaughter	0	6	1	a1q6	5	qstsa1q6	qstsa1q61			qstsa1q62		qstsa1q62b	qstsa1q63											
+7	Act 2 Prologue 	1					qstsa2q0	qstsa2q01																	
+8	Radament's Lair 	1	1	1	a2q1	6	qstsa2q1	qstsa2q11			qstsa2q12			qstsa2q13											
+9	The Horadric Staff 	1	2	1	a2q2	7	qstsa2q2	qstsa2q21			qstsa2q22			qstsa2q23			qstsa2q24			qstsa2q25					
+10	Tainted Sun 	1	3	1	a2q3	8	qstsa2q3	qstsa2q31	qstsa2q31a		qstsa2q32			qstsa2q33											
+11	Arcane Sanctuary 	1	4	1	a2q4	9	qstsa2q4	qstsa2q41	qstsa2q41a		qstsa2q42			qstsa2q43											
+12	The Summoner 	1	5	1	a2q5	10	qstsa2q5	qstsa2q51			qstsa2q52			qstsa2q53											
+13	The Seven Tombs 	1	6	1	a2q6	11	qstsa2q6	qstsa2q61	qstsa2q61a		qstsa2q62			qstsa2q63	qstsa2q63a		qstsa2q64			qstsa2q65					
+14	Act 3 Prologue	2					qstsa3q0	qstsa3q01																	
+15	Lam Esen's Tome	2	4	1	a3q1	12	qstsa3q1	qstsa3q11			qstsa3q12														
+16	Khalim's Will	2	3	1	a3q2	13	qstsa3q2	qstsa3q21	qstsa3q21a		qstsa3q22			qstsa3q23			qstsa3q24			qstsa3q25			qstsa3q26		
+17	Blade of the Old Religion	2	2	1	a3q3	14	qstsa3q3	qstsa3q31	qstsa3q31a		qstsa3q32			qstsa3q33			qstsa3q34			qstsa3q35					
+18	The Golden Bird	2	1	1	a3q4	15	qstsa3q4	qstsa3q41			qstsa3q42			qstsa3q43			qstsa3q44			qstsa3q45					
+19	The Blackened Temple	2	5	1	a3q5	16	qstsa3q5	qstsa3q51	qstsa3q51a		qstsa3q52			qstsa3q53											
+20	The Guardian	2	6	1	a3q6	17	qstsa3q6	qstsa3q61	qstsa3q61a		qstsa3q62			qstsa3q63											
+21	Act 4 Prologue	3					qstsa4q0																		
+22	The Fallen Angel	3	1	1	a4q1	18	qstsa4q1	qstsa4q11			qstsa4q12			qstsa4q13	qstsa4q13a										
+23	Terror's End	3	3	1	a4q3	20	qstsa4q2	qstsa4q21			qstsa4q22			qstsa4q23			qstsa4q24								
+24	Hell's Forge	3	2	1	a4q2	19	qstsa4q3	qstsa4q31			qstsa4q32			qstsa4q33											
+25	Siege on Harrogath	4	1	1	a5q1	21	qstsa5q1	qsta5q11			qsta5q12			qsta5q13											
+26	Rescue on Mount Arreat	4	2	1	a5q2	22	qstsa5q2	qstsa5q21			qstsa5q22			qstsa5q23			qstsa5q24								
+27	Prison of Ice	4	3	1	a5q3	23	qstsa5q3	qstsa5q31			qstsa5q32			qstsa5q33			qstsa5q34			qstsa5q35					
+28	Betrayal of Harrogath	4	4	1	a5q4	24	qstsa5q4	qstsa5q41			qstsa5q42			qstsa5q43											
+29	Rite of Passage	4	5	1	a5q5	25	qstsa5q5	qstsa5q51			qstsa5q52			qstsa5q53											
+30	Eve of Destruction	4	6	1	a5q6	26	qstsa5q6	qstsa5q61			qstsa5q62			qstsa5q63			qstsa5q64								
