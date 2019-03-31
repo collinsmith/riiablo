@@ -9,9 +9,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
@@ -25,6 +27,7 @@ import com.riiablo.item.Item;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
+import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -139,6 +142,136 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
       bodyParts[i].item = gameScreen.player.merc.items.items.equipped.get(BodyLoc.valueOf(i));
       bodyParts[i].setBodyPart(Riiablo.files.bodylocs.get(i).Code);
     }
+
+    Label name = new Label("UNIMPLEMENTED", Riiablo.fonts.ReallyTheLastSucker);
+    name.setSize(150, 16);
+    name.setPosition(6, 216);
+    name.setAlignment(Align.left);
+    addActor(name);
+
+    Table health = new Table();
+    health.setSize(151, 16);
+    health.setPosition(163, 216);
+    health.add(Label.i18n("strchrlif", Riiablo.fonts.ReallyTheLastSucker));
+    health.add(new Label(Integer.toString(0), Riiablo.fonts.font8, Align.center)).growX().row();
+    addActor(health);
+
+    Table exp = new Table();
+    exp.setSize(120, 30);
+    exp.setPosition(8, 177);
+    exp.add(Label.i18n("strchrexp", Riiablo.fonts.ReallyTheLastSucker)).row();
+    exp.add(new Label(Integer.toString(0), Riiablo.fonts.font8)).growY().row();
+    addActor(exp);
+
+    Table level = new Table();
+    level.setSize(45, 30);
+    level.setPosition(138, 177);
+    level.add(Label.i18n("strchrlvl", Riiablo.fonts.ReallyTheLastSucker)).row();
+    level.add(new Label(Integer.toString(0), Riiablo.fonts.font8)).growY().row();
+    addActor(level);
+
+    Table nextLevel = new Table();
+    nextLevel.setSize(120, 30);
+    nextLevel.setPosition(194, 177);
+    nextLevel.add(Label.i18n("strchrnxtlvl", Riiablo.fonts.ReallyTheLastSucker)).row();
+    nextLevel.add(new Label(Integer.toString(0), Riiablo.fonts.font8)).growY().row();
+    addActor(nextLevel);
+
+    Label strLabel = Label.i18n("strchrstr", Riiablo.fonts.ReallyTheLastSucker);
+    strLabel.setSize(96, 16);
+    strLabel.setPosition(8, 149);
+    strLabel.setAlignment(Align.left);
+    addActor(strLabel);
+
+    Label str = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    str.setSize(46, 16);
+    str.setPosition(109, 149);
+    str.setAlignment(Align.right);
+    addActor(str);
+
+    Label dexLabel = Label.i18n("strchrdex", Riiablo.fonts.ReallyTheLastSucker);
+    dexLabel.setSize(96, 16);
+    dexLabel.setPosition(8, 125);
+    strLabel.setAlignment(Align.left);
+    addActor(dexLabel);
+
+    Label dex = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    dex.setSize(46, 16);
+    dex.setPosition(109, 125);
+    dex.setAlignment(Align.right);
+    addActor(dex);
+
+    Label damLabel = Label.i18n("strchrskm", Riiablo.fonts.ReallyTheLastSucker);
+    damLabel.setSize(96, 16);
+    damLabel.setPosition(8, 101);
+    strLabel.setAlignment(Align.left);
+    addActor(damLabel);
+
+    Label dam = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    dam.setSize(46, 16);
+    dam.setPosition(109, 101);
+    dam.setAlignment(Align.right);
+    addActor(dam);
+
+    Label defLabel = Label.i18n("strchrdef", Riiablo.fonts.ReallyTheLastSucker);
+    defLabel.setSize(96, 16);
+    defLabel.setPosition(8, 77);
+    strLabel.setAlignment(Align.left);
+    addActor(defLabel);
+
+    Label def = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    def.setSize(46, 16);
+    def.setPosition(109, 77);
+    def.setAlignment(Align.right);
+    addActor(def);
+
+    Label fireResLabel = Label.i18n("strchrfir", Riiablo.fonts.ReallyTheLastSucker);
+    fireResLabel.setSize(96, 16);
+    fireResLabel.setPosition(165, 149);
+    fireResLabel.setAlignment(Align.center);
+    addActor(fireResLabel);
+
+    Label fireRes = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    fireRes.setSize(46, 16);
+    fireRes.setPosition(266, 149);
+    fireRes.setAlignment(Align.right);
+    addActor(fireRes);
+
+    Label coldResLabel = Label.i18n("strchrcol", Riiablo.fonts.ReallyTheLastSucker);
+    coldResLabel.setSize(96, 16);
+    coldResLabel.setPosition(165, 125);
+    coldResLabel.setAlignment(Align.center);
+    addActor(coldResLabel);
+
+    Label coldRes = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    coldRes.setSize(46, 16);
+    coldRes.setPosition(266, 125);
+    coldRes.setAlignment(Align.right);
+    addActor(coldRes);
+
+    Label lightResLabel = Label.i18n("strchrlit", Riiablo.fonts.ReallyTheLastSucker);
+    lightResLabel.setSize(96, 16);
+    lightResLabel.setPosition(165, 101);
+    lightResLabel.setAlignment(Align.center);
+    addActor(lightResLabel);
+
+    Label lightRes = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    lightRes.setSize(46, 16);
+    lightRes.setPosition(266, 101);
+    lightRes.setAlignment(Align.right);
+    addActor(lightRes);
+
+    Label poisonResLabel = Label.i18n("strchrpos", Riiablo.fonts.ReallyTheLastSucker);
+    poisonResLabel.setSize(96, 16);
+    poisonResLabel.setPosition(165, 77);
+    poisonResLabel.setAlignment(Align.center);
+    addActor(poisonResLabel);
+
+    Label poisonRes = new Label(Integer.toString(0), Riiablo.fonts.font8);
+    poisonRes.setSize(46, 16);
+    poisonRes.setPosition(266, 77);
+    poisonRes.setAlignment(Align.right);
+    addActor(poisonRes);
 
     //setDebug(true, true);
   }

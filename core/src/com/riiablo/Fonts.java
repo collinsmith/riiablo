@@ -11,6 +11,7 @@ import com.riiablo.loader.BitmapFontLoader;
 public class Fonts {
   public final BitmapFont         consolas12;
   public final BitmapFont         consolas16;
+  public final FontTBL.BitmapFont font8;
   public final FontTBL.BitmapFont font16;
   public final FontTBL.BitmapFont font24;
   public final FontTBL.BitmapFont font30;
@@ -25,6 +26,7 @@ public class Fonts {
   public Fonts(AssetManager assets) {
     consolas12   = loadEx(assets, "consolas12.fnt");
     consolas16   = loadEx(assets, "consolas16.fnt");
+    font8        = load(assets, "font8",  BlendMode.LUMINOSITY_TINT);
     font16       = load(assets, "font16", BlendMode.LUMINOSITY_TINT);
     font24       = load(assets, "font24", BlendMode.ID);
     font30       = load(assets, "font30", BlendMode.ID);

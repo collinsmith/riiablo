@@ -29,6 +29,11 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
     setColor(color);
   }
 
+  public Label(String text, BitmapFont font, int align) {
+    super(text, new LabelStyle(font, null));
+    setAlignment(align);
+  }
+
   public Label(String text, BitmapFont font) {
     super(text, new LabelStyle(font, null));
   }
@@ -45,6 +50,14 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
   public Label(Label src) {
     super(src.getText(), src.getStyle());
     setColor(src.getColor());
+  }
+
+  public static Label i18n(String id, BitmapFont font) {
+    return new Label(Riiablo.string.lookup(id), font);
+  }
+
+  public static Label i18n(String id, BitmapFont font, Color color) {
+    return new Label(Riiablo.string.lookup(id), font, color);
   }
 
   @Override
