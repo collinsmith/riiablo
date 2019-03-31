@@ -245,6 +245,17 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
       add(questDialog).grow().row();
     }
 
+    @Override
+    public void setVisible(boolean visible) {
+      super.setVisible(visible);
+      if (!visible) hide();
+    }
+
+    void hide() {
+      questDialog.dispose();
+      questDialog.setText(selected != null ? Riiablo.string.lookup(selected.quest.qsts[0]) : "");
+    }
+
     void setSelected(QuestButton quest) {
       if (selected != quest) {
         if (selected != null) selected.setSelected(false);
