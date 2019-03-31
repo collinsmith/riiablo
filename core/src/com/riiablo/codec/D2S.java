@@ -59,7 +59,8 @@ public class D2S {
   static final int FLAG_BIT6      = 1 << 6;
   static final int FLAG_BIT7      = 1 << 7;
 
-  static final int SKILL_UNASSIGNED = 0xFFFF;
+  public static final int SKILL_UNASSIGNED = 0xFFFF;
+  public static final int SKILL_RIGHT_MASK = 0x8000;
   static final int NUM_SKILLBAR_SKILLS = 16;
 
   static final int ACTION_PRIMARY   = 0;

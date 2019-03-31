@@ -21,6 +21,7 @@ import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
 import com.riiablo.server.Connect;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.EnumMap;
@@ -147,6 +148,10 @@ public class Player extends Entity {
     setRunSpeed(9);
     setRunning(true);
     angle(-MathUtils.PI / 2);
+  }
+
+  public int getSkillBar(int skill, boolean left) {
+    return ArrayUtils.indexOf(skillBar, left ? skill | D2S.SKILL_RIGHT_MASK : skill);
   }
 
   private void loadEquipped(EnumMap<BodyLoc, Item> items) {

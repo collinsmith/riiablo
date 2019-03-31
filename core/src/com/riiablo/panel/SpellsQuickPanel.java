@@ -108,7 +108,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
 
-      int index = ArrayUtils.indexOf(player.skillBar, i);
+      int index = player.getSkillBar(i, leftSkills);
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
         MappedKey mapping = Keys.Skill[index];
         button.map(mapping);
