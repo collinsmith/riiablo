@@ -52,6 +52,7 @@ import com.riiablo.map.MapRenderer;
 import com.riiablo.panel.CharacterPanel;
 import com.riiablo.panel.ControlPanel;
 import com.riiablo.panel.EscapePanel;
+import com.riiablo.panel.HirelingPanel;
 import com.riiablo.panel.InventoryPanel;
 import com.riiablo.panel.MobileControls;
 import com.riiablo.panel.MobilePanel;
@@ -105,6 +106,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   public CharacterPanel characterPanel;
   public SpellsPanel spellsPanel;
   public StashPanel stashPanel;
+  public HirelingPanel hirelingPanel;
   public WaygatePanel waygatePanel;
   public QuestsPanel questsPanel;
   public SpellsQuickPanel spellsQuickPanelL;
@@ -232,6 +234,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         stage.getWidth() - inventoryPanel.getWidth(),
         stage.getHeight() - inventoryPanel.getHeight());
 
+    hirelingPanel = new HirelingPanel(this);
+    hirelingPanel.setPosition(0, stage.getHeight() - hirelingPanel.getHeight());
+
     spellsPanel = new SpellsPanel(this);
     spellsPanel.setPosition(
         stage.getWidth() - spellsPanel.getWidth(),
@@ -265,6 +270,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     stage.addActor(controlPanel);
     stage.addActor(escapePanel);
     stage.addActor(inventoryPanel);
+    stage.addActor(hirelingPanel);
     stage.addActor(spellsPanel);
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
@@ -337,6 +343,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           spellsPanel.setVisible(!spellsPanel.isVisible());
         } else if (key == Keys.Quests) {
           questsPanel.setVisible(!questsPanel.isVisible());
+        } else if (key == Keys.Hireling) {
+          hirelingPanel.setVisible(!hirelingPanel.isVisible());
         } else if (key == Keys.Character) {
           stashPanel.setVisible(false);
           characterPanel.setVisible(!characterPanel.isVisible());
@@ -637,6 +645,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Inventory.addStateListener(mappedKeyStateListener);
     Keys.Spells.addStateListener(mappedKeyStateListener);
     Keys.Quests.addStateListener(mappedKeyStateListener);
+    Keys.Hireling.addStateListener(mappedKeyStateListener);
     Keys.Character.addStateListener(mappedKeyStateListener);
     Keys.Stash.addStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.addStateListener(mappedKeyStateListener);
@@ -695,6 +704,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Inventory.removeStateListener(mappedKeyStateListener);
     Keys.Spells.removeStateListener(mappedKeyStateListener);
     Keys.Quests.removeStateListener(mappedKeyStateListener);
+    Keys.Hireling.removeStateListener(mappedKeyStateListener);
     Keys.Character.removeStateListener(mappedKeyStateListener);
     Keys.Stash.removeStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.removeStateListener(mappedKeyStateListener);
