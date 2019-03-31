@@ -339,8 +339,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           stashPanel.setVisible(false);
           characterPanel.setVisible(!characterPanel.isVisible());
         } else if (key == Keys.Stash) {
-          characterPanel.setVisible(false);
-          stashPanel.setVisible(!stashPanel.isVisible());
+          //characterPanel.setVisible(false);
+          //stashPanel.setVisible(!stashPanel.isVisible());
+          questsPanel.setVisible(!questsPanel.isVisible());
         } else if (key == Keys.SwapWeapons) {
           player.setAlternate(!player.isAlternate());
         }

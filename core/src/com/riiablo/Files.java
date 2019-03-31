@@ -36,6 +36,7 @@ import com.riiablo.codec.excel.PlrMode;
 import com.riiablo.codec.excel.PlrType;
 import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.excel.QualityItems;
+import com.riiablo.codec.excel.Quests;
 import com.riiablo.codec.excel.RarePrefix;
 import com.riiablo.codec.excel.RareSuffix;
 import com.riiablo.codec.excel.Runes;
@@ -52,6 +53,7 @@ import com.riiablo.codec.excel.Weapons;
 public class Files {
   public final Obj    obj;
   public final Speech speech;
+  public final Quests quests;
 
   public final Armor           armor;
   public final ArmType         ArmType;
@@ -99,6 +101,7 @@ public class Files {
   public Files(AssetManager assets) {
     obj    = loadInternal(Obj.class);//loadObj();
     speech = loadInternal(Speech.class);
+    quests = loadInternal(Quests.class);
 
     armor           = load(assets, Armor.class);
     ArmType         = load(assets, ArmType.class);

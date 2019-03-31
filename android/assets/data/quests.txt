@@ -1,0 +1,32 @@
+id	name	act	qsts	order	visible	icon	questdone
+0	Act 1 Prologue 	0	qstsa1q0				
+1	Den of Evil	0	qstsa1q1	1	1	a1q1	0
+2	Sisters' Burial Grounds	0	qstsa1q2	2	1	a1q2	1
+3	Tools of the Trade	0	qstsa1q3	5	1	a1q3	2
+4	The Search for Cain	0	qstsa1q4	3	1	a1q4	3
+5	The Forgotten Tower	0	qstsa1q5	4	1	a1q5	4
+6	Sisters to the Slaughter	0	qstsa1q6	6	1	a1q6	5
+7	Act 2 Prologue 	1	qstsa2q0				
+8	Radament's Lair 	1	qstsa2q1	1	1	a2q1	6
+9	The Horadric Staff 	1	qstsa2q2	2	1	a2q2	7
+10	Tainted Sun 	1	qstsa2q3	3	1	a2q3	8
+11	Arcane Sanctuary 	1	qstsa2q4	4	1	a2q4	9
+12	The Summoner 	1	qstsa2q5	5	1	a2q5	10
+13	The Seven Tombs 	1	qstsa2q6	6	1	a2q6	11
+14	Act 3 Prologue	2	qstsa3q0				
+15	Lam Esen's Tome	2	qstsa3q1	4	1	a3q1	12
+16	Khalim's Will	2	qstsa3q2	3	1	a3q2	13
+17	Blade of the Old Religion	2	qstsa3q3	2	1	a3q3	14
+18	The Golden Bird	2	qstsa3q4	1	1	a3q4	15
+19	The Blackened Temple	2	qstsa3q5	5	1	a3q5	16
+20	The Guardian	2	qstsa3q6	6	1	a3q6	17
+21	Act 4 Prologue	3	qstsa4q0				
+22	The Fallen Angel	3	qstsa4q1	1	1	a4q1	18
+23	Terror's End	3	qstsa4q2	3	1	a4q3	20
+24	Hell's Forge	3	qstsa4q3	2	1	a4q2	19
+25	Siege on Harrogath	4	qstsa5q1	1	1	a5q1	21
+26	Rescue on Mount Arreat	4	qstsa5q2	2	1	a5q2	22
+27	Prison of Ice	4	qstsa5q3	3	1	a5q3	23
+28	Betrayal of Harrogath	4	qstsa5q4	4	1	a5q4	24
+29	Rite of Passage	4	qstsa5q5	5	1	a5q5	25
+30	Eve of Destruction	4	qstsa5q6	6	1	a5q6	26
