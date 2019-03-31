@@ -136,7 +136,7 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
       if (bodyParts[i] == null) continue;
       bodyParts[i].slot = i;
-      //bodyParts[i].item = gameScreen.player.getSlot(BodyLoc.valueOf(i));
+      bodyParts[i].item = gameScreen.player.merc.items.items.equipped.get(BodyLoc.valueOf(i));
       bodyParts[i].setBodyPart(Riiablo.files.bodylocs.get(i).Code);
     }
 

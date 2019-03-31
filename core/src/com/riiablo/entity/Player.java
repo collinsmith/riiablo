@@ -107,6 +107,7 @@ public class Player extends Entity {
 
   EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
   final Set<SlotListener> SLOT_LISTENERS = new CopyOnWriteArraySet<>();
+  public D2S.MercData merc;
 
   /** total number of items equipped for each set */
   public final IntIntMap SETS_EQUIP = new IntIntMap();
@@ -129,6 +130,10 @@ public class Player extends Entity {
     actions = d2s.actions;
     loadEquipped(d2s.items.equipped);
     loadInventory(d2s.items.inventory);
+    merc = d2s.merc;
+    for (Item item : merc.items.items.items) {
+      item.load();
+    }
   }
 
   public Player(Connect connect) {

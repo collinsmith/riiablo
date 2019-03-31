@@ -295,17 +295,17 @@ public class D2S {
     return sb.toString();
   }
 
-  static class MercData {
+  public static class MercData {
     static final int SIZE = 16;
 
     static final int FLAG_DEAD = 0x100000;
 
-    int   flags;
-    int   seed;
-    short name;
-    short type;
-    int   xp;
-    MercItemData items;
+    public int   flags;
+    public int   seed;
+    public short name;
+    public short type;
+    public int   xp;
+    public MercItemData items;
 
     static MercData obtain(ByteBuffer buffer) {
       return new MercData().read(buffer);
@@ -338,7 +338,7 @@ public class D2S {
       return (flags & FLAG_DEAD) == FLAG_DEAD;
     }
 
-    static class MercItemData {
+    public static class MercItemData {
       static final byte[] SECTION_HEADER = {0x6A, 0x66};
 
       public byte     header[];
