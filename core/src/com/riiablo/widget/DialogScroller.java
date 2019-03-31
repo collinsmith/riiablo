@@ -54,7 +54,7 @@ public class DialogScroller extends Table implements Disposable {
     scrollPane.setFlingTime(0);
     scrollPane.setOverscroll(false, false);
     scrollPane.setClamp(false);
-    scrollPane.setScrollX(-5); // FIXME: actual preferred width of text isn't calculated anywhere, this is best guess
+    scrollPane.setScrollX(-4); // FIXME: actual preferred width of text isn't calculated anywhere, this is best guess
     add(scrollPane).pad(PADDING).grow();
     pack();
   }

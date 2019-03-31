@@ -238,7 +238,7 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
       questDialog = new DialogScroller(new DialogScroller.DialogCompletionListener() {
         @Override
         public void onCompleted(DialogScroller d) {
-          d.dispose();
+          questDialog.setTextId(selected.quest.qsts[0]);
         }
       });
       add(questDialog).grow().row();
