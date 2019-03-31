@@ -12,11 +12,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
+import com.riiablo.codec.excel.Quests;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
@@ -25,6 +27,8 @@ import com.riiablo.widget.Button;
 import com.riiablo.widget.DCWrapper;
 import com.riiablo.widget.DialogScroller;
 import com.riiablo.widget.Label;
+
+import java.util.Comparator;
 
 public class QuestsPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "QuestsPanel";
@@ -106,26 +110,44 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
     Riiablo.assets.finishLoadingAsset(questdoneDescriptor);
     questdone = Riiablo.assets.get(questdoneDescriptor);
 
+
+    @SuppressWarnings("unchecked")
+    Array<Quests.Entry>[] quests = (Array<Quests.Entry>[]) new Array[5];
+    for (int i = 0; i < quests.length; i++) quests[i] = new Array<>(6);
+    for (Quests.Entry quest : Riiablo.files.quests) {
+      if (quest.visible) {
+        quests[quest.act].add(quest);
+      }
+    }
+    Comparator<Quests.Entry> comparator = new Comparator<Quests.Entry>() {
+      @Override
+      public int compare(Quests.Entry o1, Quests.Entry o2) {
+        return o1.order - o2.order;
+      }
+    };
     int numQuests = 0;
-    for (int quests : QUESTS) numQuests += quests;
+    for (Array<Quests.Entry> quest : quests) {
+      quest.sort(comparator);
+      numQuests += quest.size;
+    }
+
     questiconsDescriptor = (AssetDescriptor<DC6>[]) new AssetDescriptor[numQuests];
     questicons = new DC[numQuests];
-    for (int act = 0, quest = 0; act < 5; act++) {
-      for (int q = 0; q < QUESTS[act]; q++, quest++) {
-        questiconsDescriptor[quest] = new AssetDescriptor<>(
-            String.format("data\\global\\ui\\MENU\\a%dq%d.dc6", act + 1, q + 1), DC6.class);
-        Riiablo.assets.load(questiconsDescriptor[quest]);
-        Riiablo.assets.finishLoadingAsset(questiconsDescriptor[quest]);
-        questicons[quest] = Riiablo.assets.get(questiconsDescriptor[quest]);
+    for (int act = 0, q = 0; act < 5; act++) {
+      for (Quests.Entry quest : quests[act]) {
+        questiconsDescriptor[q] = new AssetDescriptor<>("data\\global\\ui\\MENU\\" + quest.icon + ".dc6", DC6.class);
+        Riiablo.assets.load(questiconsDescriptor[q]);
+        Riiablo.assets.finishLoadingAsset(questiconsDescriptor[q]);
+        questicons[q] = Riiablo.assets.get(questiconsDescriptor[q]);
+        q++;
       }
     }
 
     final Tab[] tabs = new Tab[5];
     for (int i = 0, q = 0; i < tabs.length; i++) {
       Tab tab = tabs[i] = new Tab();
-      for (int j = 0, size = QUESTS[i]; j < size; j++, q++) {
-        String name = String.format("a%dq%d", i + 1, j + 1);
-        tab.addQuest(name, q);
+      for (Quests.Entry quest : quests[i]) {
+        tab.addQuest(quest, q++);
       }
 
       tab.pack();
@@ -222,13 +244,13 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
         if (selected != null) selected.setSelected(false);
         selected = quest;
         quest.setSelected(true);
-        questName.setText(Riiablo.string.lookup("qsts" + quest.getName()));
+        questName.setText(Riiablo.string.lookup(quest.getName()));
         questDialog.play("akara_act1_q1_init");
       }
     }
 
-    void addQuest(String name, int q) {
-      QuestButton button = new QuestButton(this, name, q);
+    void addQuest(Quests.Entry quest, int q) {
+      QuestButton button = new QuestButton(this, quest, q);
       questIcons.add(button);
       if (questIcons.getCells().size % 3 == 0) {
         questIcons.row();
@@ -246,12 +268,12 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
     final DCWrapper overlay;
     final ClickListener clickListener;
 
-    QuestButton(Tab tab, String name, int q) {
+    QuestButton(Tab tab, Quests.Entry quest, int q) {
       this.parent = tab;
-      setName(name);
+      setName(quest.qsts);
 
       DCWrapper background = new DCWrapper();
-      background.setDrawable(questdone.getTexture(q));
+      background.setDrawable(questdone.getTexture(quest.questdone));
       background.setPosition(5, 4);
       background.setSize(72, 86);
       addActor(background);

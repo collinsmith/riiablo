@@ -335,13 +335,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           inventoryPanel.setVisible(!inventoryPanel.isVisible());
         } else if (key == Keys.Spells) {
           spellsPanel.setVisible(!spellsPanel.isVisible());
+        } else if (key == Keys.Quests) {
+          questsPanel.setVisible(!questsPanel.isVisible());
         } else if (key == Keys.Character) {
           stashPanel.setVisible(false);
           characterPanel.setVisible(!characterPanel.isVisible());
         } else if (key == Keys.Stash) {
-          //characterPanel.setVisible(false);
-          //stashPanel.setVisible(!stashPanel.isVisible());
-          questsPanel.setVisible(!questsPanel.isVisible());
+          characterPanel.setVisible(false);
+          stashPanel.setVisible(!stashPanel.isVisible());
         } else if (key == Keys.SwapWeapons) {
           player.setAlternate(!player.isAlternate());
         }
@@ -635,6 +636,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Esc.addStateListener(mappedKeyStateListener);
     Keys.Inventory.addStateListener(mappedKeyStateListener);
     Keys.Spells.addStateListener(mappedKeyStateListener);
+    Keys.Quests.addStateListener(mappedKeyStateListener);
     Keys.Character.addStateListener(mappedKeyStateListener);
     Keys.Stash.addStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.addStateListener(mappedKeyStateListener);
@@ -692,6 +694,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Keys.Esc.removeStateListener(mappedKeyStateListener);
     Keys.Inventory.removeStateListener(mappedKeyStateListener);
     Keys.Spells.removeStateListener(mappedKeyStateListener);
+    Keys.Quests.removeStateListener(mappedKeyStateListener);
     Keys.Character.removeStateListener(mappedKeyStateListener);
     Keys.Stash.removeStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.removeStateListener(mappedKeyStateListener);

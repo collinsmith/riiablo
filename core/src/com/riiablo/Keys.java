@@ -39,6 +39,7 @@ public class Keys {
   public static final MappedKey Inventory = new MappedKey("Inventory", "inventory", Input.Keys.I, Input.Keys.B);
   public static final MappedKey Character = new MappedKey("Character", "character", Input.Keys.C, Input.Keys.A);
   public static final MappedKey Spells = new MappedKey("Spells", "spells", Input.Keys.S, Input.Keys.T);
+  public static final MappedKey Quests = new MappedKey("Quest Journal", "quests", Input.Keys.Q, Input.Keys.J);
   public static final MappedKey Stash = new MappedKey("Stash", "stash", Input.Keys.NUMPAD_1);
   public static final MappedKey SwapWeapons = new MappedKey("SwapWeapons", "swap", Input.Keys.W);
   public static final MappedKey Enter = new MappedKey("Enter", "enter", Input.Keys.ENTER);
