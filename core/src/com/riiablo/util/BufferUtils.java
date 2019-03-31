@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -93,6 +94,16 @@ public class BufferUtils {
 
   public static ByteBuffer slice(ByteBuffer buffer, byte[] MARK) {
     return slice(buffer, MARK, false);
+  }
+
+  public static ByteBuffer slice(ByteBuffer buffer, byte[] HEADER, boolean skipFirstHeader, byte[] FOOTER, boolean skipFirstFooter) {
+    try {
+      buffer.mark();
+      return slice(buffer, HEADER, skipFirstHeader);
+    } catch (BufferUnderflowException e) {
+      buffer.reset();
+      return slice(buffer, FOOTER, skipFirstFooter);
+    }
   }
 
   public static ByteBuffer slice(ByteBuffer buffer, byte[] MARK, boolean skipFirst) {

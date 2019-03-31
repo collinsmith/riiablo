@@ -169,12 +169,13 @@ public class D2S {
     realmData     = BufferUtils.readBytes(buffer, 144);
     assert buffer.position() == HEADER_SIZE;
 
-    quests    = QuestData.obtain(buffer);
-    waypoints = WaypointData.obtain(buffer);
-    npcs      = NPCData.obtain(buffer);
-    stats     = StatData.obtain(BufferUtils.slice(buffer, SkillData.SECTION_HEADER));
-    skills    = SkillData.obtain(buffer);
-    items     = ItemData.obtain(buffer);
+    quests     = QuestData.obtain(buffer);
+    waypoints  = WaypointData.obtain(buffer);
+    npcs       = NPCData.obtain(buffer);
+    stats      = StatData.obtain(BufferUtils.slice(buffer, SkillData.SECTION_HEADER));
+    skills     = SkillData.obtain(buffer);
+    items      = ItemData.obtain(buffer, ItemData.SECTION_FOOTER);
+    merc.items = MercData.MercItemData.obtain(merc, buffer);
 
     return this;
   }
@@ -304,6 +305,7 @@ public class D2S {
     short name;
     short type;
     int   xp;
+    MercItemData items;
 
     static MercData obtain(ByteBuffer buffer) {
       return new MercData().read(buffer);
@@ -334,6 +336,24 @@ public class D2S {
 
     public boolean isDead() {
       return (flags & FLAG_DEAD) == FLAG_DEAD;
+    }
+
+    static class MercItemData {
+      static final byte[] SECTION_HEADER = {0x6A, 0x66};
+
+      public byte     header[];
+      public ItemData items;
+
+      static MercItemData obtain(MercData merc, ByteBuffer buffer) {
+        return new MercItemData().read(merc, buffer);
+      }
+
+      MercItemData read(MercData merc, ByteBuffer buffer) {
+        header = BufferUtils.readBytes(buffer, SECTION_HEADER.length);
+        if (merc.seed == 0) return this;
+        items = ItemData.obtain(buffer, new byte[] {0x6B, 0x66});
+        return this;
+      }
     }
   }
 
@@ -644,11 +664,11 @@ public class D2S {
     public EnumMap<BodyLoc, Item> equipped;
     public Array<Item>            inventory;
 
-    static ItemData obtain(ByteBuffer buffer) {
-      return new ItemData().read(buffer);
+    static ItemData obtain(ByteBuffer buffer, byte[] SECTION_FOOTER) {
+      return new ItemData().read(buffer, SECTION_FOOTER);
     }
 
-    ItemData read(ByteBuffer buffer) {
+    ItemData read(ByteBuffer buffer, byte[] SECTION_FOOTER) {
       header = BufferUtils.readBytes(buffer, SECTION_HEADER.length);
       size   = buffer.getShort();
 
@@ -656,7 +676,7 @@ public class D2S {
       equipped = new EnumMap<>(BodyLoc.class);
       inventory = new Array<>();
       for (int i = 0; i < size; i++) {
-        ByteBuffer slice = BufferUtils.slice(buffer, SECTION_HEADER, true);
+        ByteBuffer slice = BufferUtils.slice(buffer, SECTION_HEADER, true, SECTION_FOOTER, false);
         if (slice.remaining() <= 0) break;
         //else System.out.println(i + " = " + slice.remaining());
         byte[] bytes = BufferUtils.readRemaining(slice);
@@ -671,7 +691,7 @@ public class D2S {
         }
 
         for (int j = 0; j < item.socketsFilled; j++) {
-          slice = BufferUtils.slice(buffer, SECTION_HEADER, true);
+          slice = BufferUtils.slice(buffer, SECTION_HEADER, true, SECTION_FOOTER, false);
           if (slice.remaining() <= 0) break;
           //else System.out.println(i + " = " + slice.remaining());
           bytes = BufferUtils.readRemaining(slice);
@@ -681,10 +701,6 @@ public class D2S {
           item.socketed.add(socket);
           assert socket.location == Location.SOCKET;
         }
-
-        //if (BufferUtils.lookahead(buffer, SECTION_FOOTER)) {
-        //  break;
-        //}
       }
       assert BufferUtils.lookahead(buffer, SECTION_FOOTER);
       //assert !buffer.hasRemaining();
@@ -702,338 +718,5 @@ public class D2S {
       }
       return builder.build();
     }
-
-    /*
-    public static class Item {
-      static final byte[] SECTION_HEADER = ItemData.SECTION_HEADER;
-
-      public static final int RARE_AFFIXES = 3;
-      private static final int AFFIX_FOOTER = 0x1FF;
-
-      static final int NUM_PROPS = 7;
-      static final int NUM_SET_PROPS = 5;
-      static final int PROP_MAGIC = 1 << 0;
-      static final int PROP_SET[] = { 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5 };
-      static final int PROP_RUNE  = 1 << 6;
-      static String getPropListName(int prop) {
-        switch (prop) {
-          case 0:  return "PROP_MAGIC";
-          case 1:  return "PROP_SET[0]";
-          case 2:  return "PROP_SET[1]";
-          case 3:  return "PROP_SET[2]";
-          case 4:  return "PROP_SET[3]";
-          case 5:  return "PROP_SET[4]";
-          case 6:  return "PROP_RUNE";
-          default: return Integer.toString(prop);
-        }
-      }
-
-      public byte    header[];
-      public boolean quest;
-      public boolean identified;
-      public boolean socketed;
-      public boolean unsaved;
-      public boolean ear;
-      public boolean starting;
-      public boolean compact;
-      public boolean ethereal;
-      public boolean personalized;
-      public boolean runeword;
-      public short   version;
-      public byte    location;
-      public byte    equipped;
-      public byte    x;
-      public byte    y;
-      public byte    stored;
-      public String  type;
-      public byte    socketsUsed;
-
-      public byte    earClass;
-      public byte    earLevel;
-      public String  earName;
-
-      public int     id;
-      public byte    ilvl;
-      public byte    quality;
-
-      public boolean usePictureId;
-      public byte    pictureId;
-
-      public boolean classSpecific;
-      public short   classSpecificFlags;
-
-      public byte    lowQuality;
-      public byte    highQuality;
-      public short   magicPrefix;
-      public short   magicSuffix;
-      public short   setId;
-      public short   uniqueId;
-
-      public RareItemData rareData;
-      public RareItemData craftedData;
-
-      public short   runeId;
-      public byte    runeUnk;
-
-      public String  personalization;
-
-      public short   armorRating;
-
-      public short   maxDurability;
-      public short   curDurability;
-
-      public byte    sockets;
-
-      public byte    tomes;
-
-      public short   quantity;
-
-      public byte    setAffixes;
-
-      public IntMap<Stat> affixes;
-
-      static Item obtain(BitStream bitStream) {
-        return new Item().read(bitStream);
-      }
-
-      Item read(BitStream bitStream) {
-        header = bitStream.readFully(SECTION_HEADER.length);
-        if (true) {
-          System.out.println(com.riiablo.item.Item.loadFromStream(bitStream));
-          return this;
-        }
-
-        quest = bitStream.readBoolean();
-        bitStream.skip(3);
-        identified = bitStream.readBoolean();
-        bitStream.skip(6);
-        socketed = bitStream.readBoolean();
-        bitStream.skip(1);
-        unsaved = bitStream.readBoolean();
-        bitStream.skip(2);
-        ear = bitStream.readBoolean();
-        starting = bitStream.readBoolean();
-        bitStream.skip(3);
-        compact = bitStream.readBoolean();
-        ethereal = bitStream.readBoolean();
-        bitStream.skip(1);
-        personalized = bitStream.readBoolean();
-        bitStream.skip(1);
-        runeword = bitStream.readBoolean();
-        bitStream.skip(5);
-        version = bitStream.readUnsigned15OrLess(8);
-        bitStream.skip(2);
-        location = bitStream.readUnsigned7OrLess(3);
-        equipped = bitStream.readUnsigned7OrLess(4);
-        x = bitStream.readUnsigned7OrLess(4);
-        y = bitStream.readUnsigned7OrLess(3);
-        bitStream.skip(1);
-        stored = bitStream.readUnsigned7OrLess(3);
-
-        if (ear) {
-          type = "ear";
-          socketsUsed = 0;
-          earClass = bitStream.readUnsigned7OrLess(3);
-          earLevel = bitStream.readUnsigned7OrLess(7);
-          earName  = bitStream.readString(16, 7);
-        } else {
-          type = bitStream.readString(4).trim();
-          socketsUsed = bitStream.readUnsigned7OrLess(3);
-        }
-
-        if (compact) {
-          return this;
-        }
-
-        id      = (int) bitStream.readUnsigned(32);
-        ilvl    =       bitStream.readUnsigned7OrLess(7);
-        quality =       bitStream.readUnsigned7OrLess(4);
-
-        usePictureId = bitStream.readBoolean();
-        if (usePictureId) pictureId = bitStream.readUnsigned7OrLess(3);
-
-        classSpecific = bitStream.readBoolean();
-        if (classSpecific) classSpecificFlags = bitStream.readUnsigned15OrLess(11);
-
-        int props = PROP_MAGIC;
-        switch (quality) {
-          case Quality.LOW:   lowQuality  = bitStream.readUnsigned7OrLess(3); break;
-          case Quality.HIGH:  highQuality = bitStream.readUnsigned7OrLess(3); break;
-          case Quality.MAGIC:
-            magicPrefix = bitStream.readUnsigned15OrLess(11);
-            magicSuffix = bitStream.readUnsigned15OrLess(11);
-            break;
-          case Quality.SET:
-            setId = bitStream.readUnsigned15OrLess(12);
-            break;
-          case Quality.RARE:
-            rareData = new RareItemData(bitStream);
-            break;
-          case Quality.UNIQUE:
-            uniqueId = bitStream.readUnsigned15OrLess(12);
-            break;
-          case Quality.CRAFTED:
-            craftedData = new RareItemData(bitStream);
-            break;
-        }
-
-        if (runeword) {
-          runeId = bitStream.readUnsigned15OrLess(12);
-          runeUnk = bitStream.readUnsigned7OrLess(4);
-          props |= PROP_RUNE;
-        }
-
-        if (personalized) {
-          personalization = bitStream.readString(16, 7);
-        }
-
-        bitStream.skip(1);
-
-        ItemEntry itemEntry;
-        if ((itemEntry = Diablo.files.weapons.get(type)) != null) {
-        } else if ((itemEntry = Diablo.files.armor.get(type)) != null) {
-        } else if ((itemEntry = Diablo.files.misc.get(type)) != null) {
-        }
-
-        //System.out.println(type);
-        ItemTypes.Entry itemType = Diablo.files.ItemTypes.get(itemEntry.type);
-        if (itemType.is("armo")) {
-          ItemStatCost.Entry armorclass = Diablo.files.ItemStatCost.get("armorclass");
-          armorRating = bitStream.readUnsigned15OrLess(armorclass.Save_Bits);
-          //System.out.println((armorRating - armorclass.Save_Add) + " defense");
-        }
-
-        if (itemType.is("armo") || itemType.is("weap")) {
-          ItemStatCost.Entry durability = Diablo.files.ItemStatCost.get("durability");
-          ItemStatCost.Entry mDurability = Diablo.files.ItemStatCost.get("maxdurability");
-          maxDurability = bitStream.readUnsigned15OrLess(mDurability.Save_Bits);
-          if (maxDurability > 0)
-             curDurability = bitStream.readUnsigned15OrLess(durability.Save_Bits);
-          //System.out.println("durability " + (curDurability - durability.Save_Add) + "/" + (maxDurability - mDurability.Save_Add));
-        }
-
-        if (socketed) {
-          ItemStatCost.Entry socket = Diablo.files.ItemStatCost.get("item_numsockets");
-          sockets = bitStream.readUnsigned7OrLess(socket.Save_Bits);
-          //System.out.println((sockets - socket.Save_Add) + " sockets");
-        }
-
-        if (itemType.is("book")) tomes = bitStream.readUnsigned7OrLess(5);
-        if (itemEntry.stackable) quantity = bitStream.readUnsigned15OrLess(9);
-
-        if (quality == Quality.SET) {
-          setAffixes = bitStream.readUnsigned7OrLess(NUM_SET_PROPS);
-          props |= (setAffixes << 1);
-          //System.out.println("setAffixes " + Integer.toBinaryString(setAffixes));
-        }
-
-        affixes = new IntMap<>();
-        for (int i = 0, j = PROP_MAGIC; i < NUM_PROPS; i++, j <<= 1) {
-          if ((props & j) == j) {
-            //System.out.println(getPropListName(i));
-            for (short id; (id = bitStream.readUnsigned15OrLess(9)) != AFFIX_FOOTER;) {
-              read(bitStream, affixes, id);
-            }
-          }
-        }
-
-        //System.out.println();
-
-        return this;
-      }
-
-      public void read(BitStream bitStream, IntMap<Stat> affixes, int id) {
-        final int len = Stat.getStatCount(id);
-        for (int i = 0; i < len; i++, id++) {
-          ItemStatCost.Entry statEntry = Diablo.files.ItemStatCost.get(id);
-          int value = bitStream.readUnsigned31OrLess(statEntry.Save_Bits);
-          int param = bitStream.readUnsigned31OrLess(statEntry.Save_Param_Bits);
-          Stat stat = new Stat(statEntry, value, param);
-          affixes.put(id, stat);
-          //System.out.println(stat);
-        }
-      }
-
-      @Override
-      public String toString() {
-        return new ToStringBuilder(this)
-            .append("header", DebugUtils.toByteArray(header))
-            .append("type", type)
-            .append("id", String.format("0x%08X", id))
-            .append("ilvl", ilvl)
-            .append("quality", Quality.toString(quality))
-            .append("version", version)
-            .append("quest", quest)
-            .append("identified", identified)
-            .append("socketed", socketed)
-            .append("unsaved", unsaved)
-            .append("ear", ear)
-            .append("starting", starting)
-            .append("compact", compact)
-            .append("ethereal", ethereal)
-            .append("personalized", personalized)
-            .append("runeword", runeword)
-            .append("location", Location.toString(location))
-            .append("equipped", getEquippedString())
-            .append("x", x)
-            .append("y", y)
-            .append("stored", Store.toString(stored))
-            .append("usePictureId", usePictureId)
-            .append("pictureId", pictureId)
-            .append("classSpecific", classSpecific)
-            .append("classSpecificFlags", String.format("0x%03X", classSpecificFlags))
-            .append("lowQuality", Quality.Low.toString(lowQuality))
-            .append("highQuality", highQuality)
-            .append("magicPrefix", magicPrefix)
-            .append("magicSuffix", magicSuffix)
-            .append("setId", setId)
-            .append("uniqueId", uniqueId)
-            .append("rareData", rareData)
-            .append("runeId", runeId)
-            .append("runeUnk", runeUnk)
-            .append("armorRating", armorRating)
-            .append("maxDurability", maxDurability)
-            .append("curDurability", curDurability)
-            .append("sockets", sockets)
-            .append("tomes", tomes)
-            .append("quantity", quantity)
-            .append("setAffixes", setAffixes)
-            .build();
-      }
-
-      public String getEquippedString() {
-        return Player.Slot.toString(equipped);
-      }
-
-      public static class RareItemData {
-        public short rarePrefix;
-        public short rareSuffix;
-        public short magicPrefix[];
-        public short magicSuffix[];
-
-        public RareItemData(BitStream bitStream) {
-          rarePrefix = bitStream.readUnsigned15OrLess(8);
-          rareSuffix = bitStream.readUnsigned15OrLess(8);
-
-          magicPrefix = new short[RARE_AFFIXES];
-          magicSuffix = new short[RARE_AFFIXES];
-          for (int i = 0; i < RARE_AFFIXES; i++) {
-            if (bitStream.readBoolean()) magicPrefix[i] = bitStream.readUnsigned15OrLess(11);
-            if (bitStream.readBoolean()) magicSuffix[i] = bitStream.readUnsigned15OrLess(11);
-          }
-        }
-
-        @Override
-        public String toString() {
-          return new ToStringBuilder(this)
-              .append("rarePrefix", rarePrefix)
-              .append("rareSuffix", rareSuffix)
-              .append("magicPrefix", Arrays.toString(magicPrefix))
-              .append("magicSuffix", Arrays.toString(magicSuffix))
-              .build();
-        }
-      }
-    }
-  */
   }
 }
