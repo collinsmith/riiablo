@@ -21,6 +21,8 @@ public class PropertyList {
   private static final int[] POISONDMG   = {Stat.poisonmindam, Stat.poisonmaxdam, Stat.poisonlength};
   private static final int[] ENHANCEDDMG = {Stat.item_mindamage_percent, Stat.item_maxdamage_percent};
   private static final int[] MINDMG      = {Stat.mindamage, Stat.maxdamage};
+  private static final int[] MINDMG2     = {Stat.mindamage, Stat.secondary_mindamage, Stat.item_throw_mindamage};
+  private static final int[] MAXDMG2     = {Stat.maxdamage, Stat.secondary_maxdamage, Stat.item_throw_maxdamage};
 
   final IntMap<Stat.Instance> props = new IntMap<>();
 
@@ -148,6 +150,14 @@ public class PropertyList {
       Stat.Instance poisonlength = get(Stat.poisonlength);
       for (int attr : POISONDMG) props.remove(attr);
       props.put(Stat.poisondam, new Stat.Aggregate(Stat.poisondam, "strModPoisonDamage", "strModPoisonDamageRange", poisonmindam, poisonmaxdam, poisonlength));
+    }
+
+    if (containsAll(MINDMG2) && allEqual(MINDMG2)) {
+      for (int i = 1; i < MINDMG2.length; i++) props.remove(MINDMG2[i]);
+    }
+
+    if (containsAll(MAXDMG2) && allEqual(MAXDMG2)) {
+      for (int i = 1; i < MAXDMG2.length; i++) props.remove(MAXDMG2[i]);
     }
 
     return this;
