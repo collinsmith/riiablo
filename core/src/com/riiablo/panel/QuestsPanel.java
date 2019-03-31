@@ -218,6 +218,7 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
   }
 
   private class Tab extends Table {
+    static final int QUEST_COLS = 3;
     private QuestButton selected = null;
     Table questIcons;
     Label questName;
@@ -225,9 +226,9 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
 
     Tab() {
       questIcons = new Table();
-      questIcons.columnDefaults(0).size(80, 95).space(4, 16, 4, 16);
-      questIcons.columnDefaults(1).size(80, 95).space(4, 16, 4, 16);
-      questIcons.columnDefaults(2).size(80, 95).space(4, 16, 4, 16);
+      for (int i = 0; i < QUEST_COLS; i++) {
+        questIcons.columnDefaults(i).size(80, 95).space(4, 16, 4, 16);
+      }
       questIcons.align(Align.top | Align.center);
       add(questIcons).height(197).growX().row();
 
@@ -258,7 +259,7 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
     void addQuest(Quests.Entry quest, int q) {
       QuestButton button = new QuestButton(this, quest, q);
       questIcons.add(button);
-      if (questIcons.getCells().size % 3 == 0) {
+      if (questIcons.getCells().size % QUEST_COLS == 0) {
         questIcons.row();
       }
     }
