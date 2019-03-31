@@ -55,6 +55,7 @@ import com.riiablo.panel.EscapePanel;
 import com.riiablo.panel.InventoryPanel;
 import com.riiablo.panel.MobileControls;
 import com.riiablo.panel.MobilePanel;
+import com.riiablo.panel.QuestsPanel;
 import com.riiablo.panel.SpellsPanel;
 import com.riiablo.panel.SpellsQuickPanel;
 import com.riiablo.panel.StashPanel;
@@ -105,6 +106,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   public SpellsPanel spellsPanel;
   public StashPanel stashPanel;
   public WaygatePanel waygatePanel;
+  public QuestsPanel questsPanel;
   public SpellsQuickPanel spellsQuickPanelL;
   public SpellsQuickPanel spellsQuickPanelR;
   MappedKeyStateAdapter mappedKeyStateListener;
@@ -244,6 +246,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     waygatePanel = new WaygatePanel(this);
     waygatePanel.setPosition(0, stage.getHeight() - waygatePanel.getHeight());
 
+    questsPanel = new QuestsPanel(this);
+    questsPanel.setPosition(0, stage.getHeight() - questsPanel.getHeight());
+
     spellsQuickPanelL = new SpellsQuickPanel(this, controlPanel.getLeftSkill(), true);
     spellsQuickPanelL.setPosition(0, 100, Align.bottomLeft);
     spellsQuickPanelL.setVisible(false);
@@ -264,6 +269,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
     stage.addActor(waygatePanel);
+    stage.addActor(questsPanel);
     stage.addActor(spellsQuickPanelL);
     stage.addActor(spellsQuickPanelR);
     controlPanel.toFront();
@@ -704,6 +710,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     inventoryPanel.dispose();
     spellsPanel.dispose();
     characterPanel.dispose();
+    stashPanel.dispose();
+    waygatePanel.dispose();
+    questsPanel.dispose();
     if (mobilePanel != null) mobilePanel.dispose();
     if (Riiablo.assets.isLoaded(touchpadBackgroundDescriptor)) Riiablo.assets.load(touchpadBackgroundDescriptor);
     if (Riiablo.assets.isLoaded(touchpadKnobDescriptor))       Riiablo.assets.load(touchpadKnobDescriptor);

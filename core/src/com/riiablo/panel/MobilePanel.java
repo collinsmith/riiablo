@@ -53,7 +53,7 @@ public class MobilePanel extends Table implements Disposable {
           gameScreen.input.setVisible(!gameScreen.input.isVisible());
           gameScreen.input.getStage().setKeyboardFocus(gameScreen.input);
         } else if (actor == btnQuests) {
-
+          gameScreen.questsPanel.setVisible(!gameScreen.questsPanel.isVisible());
         } else if (actor == btnEscapeMenu) {
           gameScreen.escapePanel.setVisible(!gameScreen.escapePanel.isVisible());
         }

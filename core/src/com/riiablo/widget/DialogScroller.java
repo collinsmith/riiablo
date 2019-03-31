@@ -6,13 +6,13 @@ import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
 import com.riiablo.audio.Audio;
 import com.riiablo.codec.FontTBL;
-import com.riiablo.graphics.BorderedPaletteIndexedDrawable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-// FIXME: should extend DialogScroller
-public class NpcDialogBox extends Table implements Disposable {
+public class DialogScroller extends Table implements Disposable {
+
+  private static final FontTBL.BitmapFont FONT = Riiablo.fonts.fontformal11;
 
   DialogCompletionListener listener;
   TextArea textArea;
@@ -20,30 +20,29 @@ public class NpcDialogBox extends Table implements Disposable {
   float scrollSpeed;
   Audio.Instance audio;
 
-  public NpcDialogBox(String sound, DialogCompletionListener listener) {
+  public DialogScroller(DialogCompletionListener listener) {
     this.listener = listener;
-    setBackground(new BorderedPaletteIndexedDrawable());
     setTouchable(Touchable.disabled);
     //setDebug(true, true);
 
-    // FIXME: scrollSpeed should be in pixels/sec, but timing is off by about 10-15%
-    //        problem seems to be with fontformat11 metrics, applying scalar to line height
-    final float lineScalar = 0.85f;
-    final FontTBL.BitmapFont FONT = Riiablo.fonts.fontformal11;
-    String key = Riiablo.files.speech.get(sound).soundstr;
-    String text = Riiablo.string.lookup(key);
-    String[] parts = text.split("\n", 2);
-    scrollSpeed = NumberUtils.toFloat(parts[0]) / 60 * FONT.getLineHeight() * lineScalar;
-    final int count = StringUtils.countMatches(parts[1], '\n');
-    textArea = new TextArea(parts[1], new TextArea.TextFieldStyle() {{
+    textArea = new TextArea("", new TextArea.TextFieldStyle() {{
       font = FONT;
       fontColor = Riiablo.colors.white;
     }}) {
-      final float prefHeight = count * getStyle().font.getLineHeight();
+      int count;
+      float prefHeight;
 
       @Override
       public float getPrefHeight() {
         return prefHeight;
+      }
+
+      @Override
+      public void setText(String str) {
+        super.setText(str);
+        count = StringUtils.countMatches(str, '\n');
+        prefHeight = count * getStyle().font.getLineHeight();
+        setHeight(getPrefHeight());
       }
     };
 
@@ -55,15 +54,28 @@ public class NpcDialogBox extends Table implements Disposable {
     scrollPane.setOverscroll(false, false);
     scrollPane.setClamp(false);
     scrollPane.setScrollX(-15); // FIXME: actual preferred width of text isn't calculated anywhere, this is best guess
-    add(scrollPane).size(330, 128);
+    add(scrollPane).grow();
     pack();
+  }
+
+  public void play(String dialog) {
+    // FIXME: scrollSpeed should be in pixels/sec, but timing is off by about 10-15%
+    //        problem seems to be with fontformat11 metrics, applying scalar to line height
+    final float lineScalar = 0.85f;
+    String key = Riiablo.files.speech.get(dialog).soundstr;
+    String text = Riiablo.string.lookup(key);
+    String[] parts = text.split("\n", 2);
+    scrollSpeed = NumberUtils.toFloat(parts[0]) / 60 * FONT.getLineHeight() * lineScalar;
+    textArea.setText(parts[1]);
+    scrollPane.layout();
 
     scrollPane.setScrollY(-scrollPane.getScrollHeight() + textArea.getStyle().font.getLineHeight() / 2);
-    audio = Riiablo.audio.play(sound, false);
+    audio = Riiablo.audio.play(dialog, false);
   }
 
   @Override
   public void act(float delta) {
+    if (scrollPane == null) return;
     scrollPane.setScrollY(scrollPane.getScrollY() + (scrollSpeed * delta));
     scrollPane.act(delta);
     if (scrollPane.getScrollY() > textArea.getPrefHeight()) {
@@ -77,6 +89,6 @@ public class NpcDialogBox extends Table implements Disposable {
   }
 
   public interface DialogCompletionListener {
-    void onCompleted(NpcDialogBox d);
+    void onCompleted(DialogScroller d);
   }
 }

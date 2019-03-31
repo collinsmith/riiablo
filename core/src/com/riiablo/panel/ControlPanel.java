@@ -354,7 +354,7 @@ public class ControlPanel extends Table implements Disposable {
             } else if (actor == btnMessages) {
 
             } else if (actor == btnQuests) {
-
+              gameScreen.questsPanel.setVisible(!gameScreen.questsPanel.isVisible());
             } else if (actor == btnEscapeMenu) {
               gameScreen.escapePanel.setVisible(!gameScreen.escapePanel.isVisible());
             }
