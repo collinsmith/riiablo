@@ -17,6 +17,7 @@ import com.riiablo.codec.excel.Weapons;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.item.Quality;
+import com.riiablo.item.StoreLoc;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
 import com.riiablo.server.Connect;
@@ -103,8 +104,7 @@ public class Player extends Entity {
   public Map.Zone curZone;
   public final CharacterClass charClass;
 
-  Array<Item> inventory = new Array<>();
-
+  EnumMap<StoreLoc, Array<Item>> store = new EnumMap<>(StoreLoc.class);
   EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
   final Set<SlotListener> SLOT_LISTENERS = new CopyOnWriteArraySet<>();
   public D2S.MercData merc;
@@ -128,8 +128,7 @@ public class Player extends Entity {
     skills = new D2SSkills(d2s);
     skillBar = d2s.skillBar;
     actions = d2s.actions;
-    loadEquipped(d2s.items.equipped);
-    loadInventory(d2s.items.inventory);
+    loadItems(d2s.items.items);
     merc = d2s.merc;
     for (Item item : merc.items.items.items) {
       item.load();
@@ -159,36 +158,37 @@ public class Player extends Entity {
     return ArrayUtils.indexOf(skillBar, left ? skill | D2S.SKILL_RIGHT_MASK : skill);
   }
 
-  private void loadEquipped(EnumMap<BodyLoc, Item> items) {
-    equipped.putAll(items);
-    for (java.util.Map.Entry<BodyLoc, Item> entry : items.entrySet()) {
-      Item item = entry.getValue();
-      item.setOwner(this);
-      if (item.quality == Quality.SET) {
-        SETS_OWNS.getAndIncrement(item.qualityId, 0, 1);
-        Sets.Entry set = Riiablo.files.SetItems.get(item.qualityId).getSet();
-        int id = Riiablo.files.Sets.index(set.index);
-        SETS_EQUIP.getAndIncrement(id, 0, 1);
-      }
-      item.load();
-      if (DEBUG_EQUIP) Gdx.app.debug(TAG, entry.getKey() + ": " + entry.getValue());
+  private void loadItems(Array<Item> items) {
+    for (StoreLoc storeLoc : StoreLoc.values()) {
+      store.put(storeLoc, new Array<Item>());
     }
-  }
-
-  private void loadInventory(Array<Item> items) {
-    inventory.addAll(items);
     for (Item item : items) {
       item.setOwner(this);
+      switch (item.location) {
+        case EQUIPPED:
+          equipped.put(item.bodyLoc, item);
+          if (item.quality == Quality.SET) {
+            Sets.Entry set = Riiablo.files.SetItems.get(item.qualityId).getSet();
+            int id = Riiablo.files.Sets.index(set.index);
+            SETS_EQUIP.getAndIncrement(id, 0, 1);
+          }
+          if (DEBUG_EQUIP) Gdx.app.debug(TAG, item.bodyLoc + ": " + item);
+          break;
+        case STORED:
+          store.get(item.storeLoc).add(item);
+          break;
+        default:
+          if (DEBUG_INV) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
+      }
       if (item.quality == Quality.SET) {
         SETS_OWNS.getAndIncrement(item.qualityId, 0, 1);
       }
       item.load();
-      if (DEBUG_INV) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
     }
   }
 
-  public Array<Item> getInventory() {
-    return inventory;
+  public Array<Item> getStore(StoreLoc storeLoc) {
+    return store.get(storeLoc);
   }
 
   @Override

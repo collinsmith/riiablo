@@ -24,6 +24,7 @@ import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
+import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
@@ -260,7 +261,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     });
 
     ItemGrid grid = new ItemGrid(gameScreen, inventory);
-    grid.populate(gameScreen.player.getInventory());
+    grid.populate(gameScreen.player.getStore(StoreLoc.INVENTORY));
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());
