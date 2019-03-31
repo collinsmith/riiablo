@@ -13,6 +13,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 public class DialogScroller extends Table implements Disposable {
 
   private static final FontTBL.BitmapFont FONT = Riiablo.fonts.fontformal11;
+  public static final float PADDING = 8;
 
   DialogCompletionListener listener;
   TextArea textArea;
@@ -53,8 +54,8 @@ public class DialogScroller extends Table implements Disposable {
     scrollPane.setFlingTime(0);
     scrollPane.setOverscroll(false, false);
     scrollPane.setClamp(false);
-    scrollPane.setScrollX(-15); // FIXME: actual preferred width of text isn't calculated anywhere, this is best guess
-    add(scrollPane).grow();
+    scrollPane.setScrollX(-5); // FIXME: actual preferred width of text isn't calculated anywhere, this is best guess
+    add(scrollPane).pad(PADDING).grow();
     pack();
   }
 
