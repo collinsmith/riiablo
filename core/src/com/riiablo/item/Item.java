@@ -1011,7 +1011,6 @@ public class Item extends Actor implements Disposable {
         SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
         int setId = Riiablo.files.Sets.index(setItem.set);
         int numEquipped = owner.SETS_EQUIP.get(setId, 0);
-        assert numEquipped >= 1;
         if (numEquipped >= 2) {
           PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
           Array<Stat.Instance> aggregate = setProps.toArray();
