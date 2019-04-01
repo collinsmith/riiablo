@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.SnapshotArray;
+import com.riiablo.item.Item;
+import com.riiablo.item.Type;
 import com.riiablo.screen.GameScreen;
 
 public class BeltGrid extends ItemGrid {
@@ -26,6 +28,11 @@ public class BeltGrid extends ItemGrid {
 
   public void setBackground(TextureRegion background) {
     this.background = background;
+  }
+
+  @Override
+  protected boolean accept(Item item) {
+    return item != null && item.type.is(Type.POTI);
   }
 
   public void setRows(int rows) {

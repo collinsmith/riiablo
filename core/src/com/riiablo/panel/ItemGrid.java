@@ -120,6 +120,10 @@ public class ItemGrid extends Group {
     return store;
   }
 
+  protected boolean accept(Item item) {
+    return true;
+  }
+
   private void mouseMoved() {
     swap = null;
     blocked = true;
@@ -188,12 +192,12 @@ public class ItemGrid extends Group {
 
     switch (hits.size) {
       case 0:
-        blocked = false;
+        blocked = !accept(cursor);
         swap = null;
         break;
 
       case 1:
-        blocked = false;
+        blocked = !accept(cursor);
         swap = (StoredItem) hits.first();
         break;
 
@@ -207,28 +211,34 @@ public class ItemGrid extends Group {
   protected void drawChildren(Batch batch, float parentAlpha) {
     super.drawChildren(batch, parentAlpha);
     mouseMoved();
-    if (Riiablo.cursor.getItem() != null && clickListener.isOver()) {
+    Item cursor = Riiablo.cursor.getItem();
+    if (cursor != null && clickListener.isOver()) {
       PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
-      switch (hits.size) {
-        case 0:
-          b.setBlendMode(BlendMode.SOLID, backgroundColorG);
-          b.draw(fill, coords.x, coords.y, itemSize.x, itemSize.y);
-          break;
+      if (!accept(cursor)) {
+        b.setBlendMode(BlendMode.SOLID, backgroundColorR);
+        b.draw(fill, coords.x, coords.y, itemSize.x, itemSize.y);
+      } else {
+        switch (hits.size) {
+          case 0:
+            b.setBlendMode(BlendMode.SOLID, backgroundColorG);
+            b.draw(fill, coords.x, coords.y, itemSize.x, itemSize.y);
+            break;
 
-        case 1:
-          b.setBlendMode(BlendMode.SOLID, backgroundColorW);
-          b.draw(fill, swap.getX(), swap.getY(), swap.getWidth(), swap.getHeight());
-          break;
+          case 1:
+            b.setBlendMode(BlendMode.SOLID, backgroundColorW);
+            b.draw(fill, swap.getX(), swap.getY(), swap.getWidth(), swap.getHeight());
+            break;
 
-        default:
-          b.flush();
-          clipBegin(coords.x, coords.y, itemSize.x, itemSize.y);
-          for (Actor hit : hits) {
-            b.setBlendMode(BlendMode.SOLID, backgroundColorR);
-            b.draw(fill, hit.getX(), hit.getY(), hit.getWidth(), hit.getHeight());
-          }
-          b.flush();
-          clipEnd();
+          default:
+            b.flush();
+            clipBegin(coords.x, coords.y, itemSize.x, itemSize.y);
+            for (Actor hit : hits) {
+              b.setBlendMode(BlendMode.SOLID, backgroundColorR);
+              b.draw(fill, hit.getX(), hit.getY(), hit.getWidth(), hit.getHeight());
+            }
+            b.flush();
+            clipEnd();
+        }
       }
       b.resetBlendMode();
     }
