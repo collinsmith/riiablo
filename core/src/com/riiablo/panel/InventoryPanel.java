@@ -273,7 +273,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     invgold.setPosition(107, 24);
     addActor(invgold);
 
-    setDebug(true, true);
+    //setDebug(true, true);
   }
 
   @Override

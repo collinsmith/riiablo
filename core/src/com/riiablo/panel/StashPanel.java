@@ -69,7 +69,7 @@ public class StashPanel extends WidgetGroup implements Disposable {
     stashgold.setPosition(98, 393);
     addActor(stashgold);
 
-    setDebug(true, true);
+    //setDebug(true, true);
   }
 
   @Override
