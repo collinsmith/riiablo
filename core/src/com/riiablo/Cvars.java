@@ -174,6 +174,14 @@ public class Cvars {
           .defaultValue(Boolean.FALSE)
           .validator(Validator.ACCEPT_NON_NULL)
           .build();
+
+      Cvar<Boolean> KeepControlPanelGrouped = Cvar.builder(Boolean.class)
+          .alias("Client.Display.KeepControlPanelGrouped")
+          .description(
+              "Whether or not to resize the control panel to screen width.")
+          .defaultValue(Boolean.FALSE)
+          .validator(Validator.ACCEPT_NON_NULL)
+          .build();
     }
 
     interface Input {

@@ -185,16 +185,16 @@ public class ControlPanel extends Table implements Disposable {
     }
 
     final float height = controlWidget == null ? 0 : controlWidget.background.getHeight() - 7;
-    add(healthWidget).height(height).bottom();
+    add(healthWidget).height(height).growX().left().bottom();
     if (leftSkill != null) add(leftSkill).bottom();
     if (controlWidget != null) add(controlWidget).size(controlWidget.background.getWidth(), height).bottom();
     if (rightSkill != null) add(rightSkill).bottom();
-    add(manaWidget).height(height).bottom();
+    add(manaWidget).height(height).growX().right().bottom();
     pack();
 
     //setHeight(controlWidget.background.getHeight() - 7);
     //setY(0);
-    setTouchable(Touchable.enabled);
+    setTouchable(Touchable.childrenOnly);
     //setDebug(true, true);
   }
 
@@ -226,6 +226,7 @@ public class ControlPanel extends Table implements Disposable {
       setWidth(background.getRegionWidth());
       health = hlthmana.getTexture(0);
       overlay = overlap.getTexture(0);
+      setTouchable(Touchable.enabled);
     }
 
     @Override
@@ -249,6 +250,7 @@ public class ControlPanel extends Table implements Disposable {
       setWidth(background.getRegionWidth());
       mana = hlthmana.getTexture(1);
       overlay = overlap.getTexture(1);
+      setTouchable(Touchable.enabled);
     }
 
     @Override
@@ -273,6 +275,7 @@ public class ControlPanel extends Table implements Disposable {
     ControlWidget(Texture background) {
       this.background = background;
       setSize(background.getWidth(), background.getHeight() - 7);
+      setTouchable(Touchable.enabled);
 
       Riiablo.assets.load(menubuttonDescriptor);
       Riiablo.assets.finishLoadingAsset(menubuttonDescriptor);

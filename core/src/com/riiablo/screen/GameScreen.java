@@ -31,9 +31,12 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.Client;
+import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
+import com.riiablo.cvar.Cvar;
+import com.riiablo.cvar.CvarStateAdapter;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.ItemHolder;
 import com.riiablo.entity.Player;
@@ -678,6 +681,20 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       }
     }
 
+    Cvars.Client.Display.KeepControlPanelGrouped.addStateListener(new CvarStateAdapter<Boolean>() {
+      @Override
+      public void onChanged(Cvar<Boolean> cvar, Boolean from, Boolean to) {
+        if (to) {
+          controlPanel.pack();
+          controlPanel.setPosition(stage.getWidth() / 2, 0, Align.bottom | Align.center);
+        } else {
+          controlPanel.setX(0);
+          controlPanel.setWidth(stage.getWidth());
+          controlPanel.layout();
+        }
+      }
+    });
+
     /*
     updateTask = Timer.schedule(new Timer.Task() {
       GridPoint2 position = new GridPoint2();
@@ -712,6 +729,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     Riiablo.input.removeProcessor(stage);
     Riiablo.input.removeProcessor(inputProcessorTest);
     Riiablo.client.removeScreenBoundsListener(screenBoundsListener);
+    Cvars.Client.Display.KeepControlPanelGrouped.clearStateListeners();
 
     //updateTask.cancel();
   }
