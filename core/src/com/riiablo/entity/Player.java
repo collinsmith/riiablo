@@ -106,6 +106,7 @@ public class Player extends Entity {
 
   EnumMap<StoreLoc, Array<Item>> store = new EnumMap<>(StoreLoc.class);
   EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
+  Array<Item> belt = new Array<>(16);
   final Set<SlotListener> SLOT_LISTENERS = new CopyOnWriteArraySet<>();
   public D2S.MercData merc;
 
@@ -178,6 +179,12 @@ public class Player extends Entity {
         case STORED:
           store.get(item.storeLoc).add(item);
           break;
+        case BELT:
+          item.gridY = (byte) -(item.gridX >>> 2);
+          item.gridX &= 0x3;
+          System.out.println(item.getName() + ": " + item.gridX + ", " + item.gridY);
+          belt.add(item);
+          break;
         default:
           if (DEBUG_INV) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
       }
@@ -186,6 +193,10 @@ public class Player extends Entity {
       }
       item.load();
     }
+  }
+
+  public Array<Item> getBelt() {
+    return belt;
   }
 
   public Array<Item> getStore(StoreLoc storeLoc) {

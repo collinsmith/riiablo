@@ -48,6 +48,9 @@ public class ControlPanel extends Table implements Disposable {
   final AssetDescriptor<DC6> overlapDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\overlap.DC6", DC6.class);
   DC6 overlap;
 
+  final AssetDescriptor<DC6> popbeltDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\ctrlpnl_popbelt.DC6", DC6.class);
+  TextureRegion popbelt;
+
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
   DC6 Skillicon;
 
@@ -90,6 +93,10 @@ public class ControlPanel extends Table implements Disposable {
     Riiablo.assets.load(ctrlpnlDescriptor);
     Riiablo.assets.finishLoadingAsset(ctrlpnlDescriptor);
     DC6 ctrlpnl = Riiablo.assets.get(ctrlpnlDescriptor);
+
+    Riiablo.assets.load(popbeltDescriptor);
+    Riiablo.assets.finishLoadingAsset(popbeltDescriptor);
+    popbelt = Riiablo.assets.get(popbeltDescriptor).getTexture();
 
     Riiablo.assets.load(SkilliconDescriptor);
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
@@ -209,6 +216,7 @@ public class ControlPanel extends Table implements Disposable {
   @Override
   public void dispose() {
     Riiablo.assets.unload(ctrlpnlDescriptor.fileName);
+    Riiablo.assets.unload(popbeltDescriptor.fileName);
     Riiablo.assets.unload(overlapDescriptor.fileName);
     Riiablo.assets.unload(hlthmanaDescriptor.fileName);
     Riiablo.assets.unload(SkilliconDescriptor.fileName);
@@ -303,6 +311,14 @@ public class ControlPanel extends Table implements Disposable {
       minipanelWidget = new MinipanelWidget(Riiablo.assets.get(minipanelDescriptor).getTexture(0));
       minipanelWidget.setPosition((getWidth() / 2) - (minipanelWidget.getWidth() / 2), getHeight());
       addActor(minipanelWidget);
+
+      final BeltGrid belt = new BeltGrid(gameScreen, 4, 4, 31, 31);
+      belt.setRows(4);
+      belt.setBackground(popbelt);
+      belt.setPosition(177, 8);
+      belt.populate(gameScreen.player.getBelt());
+      addActor(belt);
+      //setDebug(true, true);
     }
 
     @Override
