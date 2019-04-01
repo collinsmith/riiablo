@@ -342,6 +342,8 @@ public class Item extends Actor implements Disposable {
     charColormap    = Riiablo.colormaps.get(base.Transform);
     String charColor = getCharColor();
     charColorIndex  = charColor != null ? Riiablo.files.colors.index(charColor) + 1 : 0;
+
+    // TODO: load the images of socketed items
   }
 
   @Override

@@ -123,13 +123,14 @@ public class Player extends Entity {
   }
 
   public Player(D2S d2s) {
-    this(d2s.name, d2s.charClass);
+    this(d2s.header.name, d2s.header.charClass);
+    d2s.loadRemaining();
     stats = new D2SStats(d2s);
     skills = new D2SSkills(d2s);
-    skillBar = d2s.skillBar;
-    actions = d2s.actions;
+    skillBar = d2s.header.hotkeys;
+    actions = d2s.header.actions;
     loadItems(d2s.items.items);
-    merc = d2s.merc;
+    merc = d2s.header.merc;
     for (Item item : merc.items.items.items) {
       item.load();
     }
@@ -155,7 +156,7 @@ public class Player extends Entity {
   }
 
   public int getSkillBar(int skill, boolean left) {
-    return ArrayUtils.indexOf(skillBar, left ? skill | D2S.SKILL_RIGHT_MASK : skill);
+    return ArrayUtils.indexOf(skillBar, left ? skill | D2S.HOTKEY_LEFT_MASK : skill);
   }
 
   private void loadItems(Array<Item> items) {
@@ -554,7 +555,7 @@ public class Player extends Entity {
 
     @Override
     public int getClassId() {
-      return d2s.charClass;
+      return d2s.header.charClass;
     }
 
     @Override
@@ -564,7 +565,7 @@ public class Player extends Entity {
 
     @Override
     public String getName() {
-      return d2s.name;
+      return d2s.header.name;
     }
 
     public int getLevel() {

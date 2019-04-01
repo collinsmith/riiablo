@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.StreamUtils;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.entity.Player;
@@ -20,7 +19,6 @@ import com.riiablo.util.DebugUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -37,18 +35,17 @@ public class D2S {
   private static final boolean DEBUG_STATS     = DEBUG && true;
   private static final boolean DEBUG_SKILLS    = DEBUG && true;
   private static final boolean DEBUG_ITEMS     = DEBUG && true;
+  private static final boolean DEBUG_GOLEM     = DEBUG && true;
 
   public static final String EXT = "d2s";
 
-  static final int HEADER_SIZE = 0x14F;
+  static final int MAGIC_NUMBER = 0xAA55AA55;
 
   static final int VERSION_100 = 71;
   static final int VERSION_107 = 87;
   static final int VERSION_108 = 89;
   static final int VERSION_109 = 92;
   static final int VERSION_110 = 96;
-
-  static final int MAGIC_NUMBER = 0xAA55AA55;
 
   static final int FLAG_BIT0      = 1 << 0;
   static final int FLAG_BIT1      = 1 << 1;
@@ -59,46 +56,22 @@ public class D2S {
   static final int FLAG_BIT6      = 1 << 6;
   static final int FLAG_BIT7      = 1 << 7;
 
-  public static final int SKILL_UNASSIGNED = 0xFFFF;
-  public static final int SKILL_RIGHT_MASK = 0x8000;
-  static final int NUM_SKILLBAR_SKILLS = 16;
+  public static final int HOTKEY_UNASSIGNED = 0xFFFF;
+  public static final int HOTKEY_LEFT_MASK  = 0x8000;
 
-  static final int ACTION_PRIMARY   = 0;
-  static final int ACTION_SECONDARY = 1;
-  static final int NUM_ACTIONS      = 2;
+  static final int PRIMARY     = 0;
+  static final int SECONDARY   = 1;
+  static final int NUM_ALTS    = 2;
+  static final int NUM_ACTIONS = NUM_ALTS;
+  static final int NUM_BUTTONS = 2;
+  static final int NUM_HOTKEYS = 16;
+  static final int NUM_DIFFS   = 3;  // TODO: Point at Diablo.MAX_DIFFICULTIES or something
 
-  static final int BUTTON_LEFT      = 0;
-  static final int BUTTON_RIGHT     = 1;
-  static final int NUM_BUTTONS      = 2;
-
-  static final int NUM_DIFFICULTIES = 3;  // TODO: Point at Diablo.MAX_DIFFICULTIES or something
   static final int DIFF_ACT_MASK    = 0x7;
   static final int DIFF_FLAG_ACTIVE = 1 << 7;
 
-  public static final int COMPOSITE_UNASSIGNED = 0xFF;
-  public static final int COLOR_UNASSIGNED     = 0xFF;
-
-  public int      magicNumber;
-  public int      version;
-  public int      size;
-  public int      checksum;
-  public int      weaponSlot;
-  public String   name;
-  public int      flags;
-  public byte     charClass;
-  public byte     unk1[];
-  public byte     level;
-  public byte     unk2[];
-  public int      timestamp;
-  public byte     unk3[];
-  public int      skillBar[];
-  public int      actions[][];
-  public byte     composites[];
-  public byte     colors[];
-  public byte     towns[];
-  public int      mapSeed;
-  public MercData merc;
-  public byte     realmData[];
+  public final FileHandle file;
+  public final Header     header;
 
   public QuestData    quests;
   public WaypointData waypoints;
@@ -106,193 +79,225 @@ public class D2S {
   public StatData     stats;
   public SkillData    skills;
   public ItemData     items;
+  public GolemData    golem;
 
-  private D2S() {}
-
-  public static D2S loadFromFile(FileHandle file) {
-    return loadFromArray(file.readBytes());
+  private D2S(FileHandle file, Header header) {
+    this.file = file;
+    this.header = header;
   }
 
-  public static D2S loadFromStream(InputStream in) {
-    try {
-      return loadFromArray(StreamUtils.copyStreamToByteArray(in));
-    } catch (Throwable t) {
-      throw new GdxRuntimeException("Couldn't read D2S from stream.", t);
-    } finally {
-      StreamUtils.closeQuietly(in);
-    }
-  }
-
-  public static D2S loadFromArray(byte[] bytes) {
-    ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-    D2S d2s = new D2S().read(buffer);
-    if (d2s.magicNumber != MAGIC_NUMBER) throw new GdxRuntimeException("Magic number doesn't match " + String.format("0x%08X", MAGIC_NUMBER) + ": " + String.format("0x%08X", d2s.magicNumber));
-    if (d2s.version != VERSION_110) throw new GdxRuntimeException("Unsupported D2S version: " + d2s.version + " -- Only supports " + getVersionString(VERSION_110));
-    if (d2s.size != bytes.length) Gdx.app.error(TAG, "Save file size doesn't match encoded size for character " + d2s.name + ". Should be: " + d2s.size);
-    if (DEBUG_HEADER)    Gdx.app.debug(TAG, d2s.toString());
-    if (DEBUG_QUESTS)    Gdx.app.debug(TAG, d2s.quests.toString());
-    if (DEBUG_WAYPOINTS) Gdx.app.debug(TAG, d2s.waypoints.toString());
-    if (DEBUG_NPCS)      Gdx.app.debug(TAG, d2s.npcs.toString());
-    if (DEBUG_STATS)     Gdx.app.debug(TAG, d2s.stats.toString());
-    if (DEBUG_SKILLS)    Gdx.app.debug(TAG, d2s.skills.toString());
+  public void loadRemaining() {
+    ByteBuffer buffer = file.map().order(ByteOrder.LITTLE_ENDIAN);
+    buffer.position(Header.SIZE);
+    quests    = QuestData.obtain(buffer);
+    waypoints = WaypointData.obtain(buffer);
+    npcs      = NPCData.obtain(buffer);
+    stats     = StatData.obtain(BufferUtils.slice(buffer, SkillData.SECTION_HEADER));
+    skills    = SkillData.obtain(buffer);
+    items     = ItemData.obtain(buffer, ItemData.SECTION_FOOTER, true);
+    header.merc.items = MercData.MercItemData.obtain(header.merc, buffer);
+    golem     = GolemData.obtain(buffer);
+    if (DEBUG_QUESTS)    Gdx.app.debug(TAG, quests.toString());
+    if (DEBUG_WAYPOINTS) Gdx.app.debug(TAG, waypoints.toString());
+    if (DEBUG_NPCS)      Gdx.app.debug(TAG, npcs.toString());
+    if (DEBUG_STATS)     Gdx.app.debug(TAG, stats.toString());
+    if (DEBUG_SKILLS)    Gdx.app.debug(TAG, skills.toString());
     if (DEBUG_ITEMS) {
-      Gdx.app.debug(TAG, d2s.items.toString());
-      for (Item item : d2s.items.items) {
+      Gdx.app.debug(TAG, items.toString());
+      for (Item item : items.items) {
+        Gdx.app.debug(TAG, item.toString());
+      }
+
+      Gdx.app.debug(TAG, header.merc.items.toString());
+      for (Item item : header.merc.items.items.items) {
         Gdx.app.debug(TAG, item.toString());
       }
     }
-    return d2s;
+    if (DEBUG_GOLEM) Gdx.app.debug(TAG, golem.toString());
+    assert !buffer.hasRemaining();
   }
 
-  private D2S read(ByteBuffer buffer) {
-    magicNumber   = buffer.getInt();
-    version       = buffer.getInt();
-    size          = buffer.getInt();
-    checksum      = buffer.getInt();
-    weaponSlot    = buffer.getInt();
-    name          = BufferUtils.readString2(buffer, Player.MAX_NAME_LENGTH + 1);
-    flags         = buffer.getInt();
-    charClass     = buffer.get();
-    unk1          = BufferUtils.readBytes(buffer, 2);
-    level         = buffer.get();
-    unk2          = BufferUtils.readBytes(buffer, Ints.BYTES);
-    timestamp     = buffer.getInt();
-    unk3          = BufferUtils.readBytes(buffer, Ints.BYTES);
-    skillBar      = BufferUtils.readInts(buffer, NUM_SKILLBAR_SKILLS);
-    actions       = new int[NUM_ACTIONS][NUM_BUTTONS];
-    for (int i = 0; i < NUM_ACTIONS; i++) actions[i] = BufferUtils.readInts(buffer, NUM_BUTTONS);
-    composites    = BufferUtils.readBytes(buffer, com.riiablo.codec.COF.Component.NUM_COMPONENTS);
-    colors        = BufferUtils.readBytes(buffer, COF.Component.NUM_COMPONENTS);
-    towns         = BufferUtils.readBytes(buffer, NUM_DIFFICULTIES);
-    mapSeed       = buffer.getInt();
-    merc          = MercData.obtain(buffer);
-    realmData     = BufferUtils.readBytes(buffer, 144);
-    assert buffer.position() == HEADER_SIZE;
-
-    quests     = QuestData.obtain(buffer);
-    waypoints  = WaypointData.obtain(buffer);
-    npcs       = NPCData.obtain(buffer);
-    stats      = StatData.obtain(BufferUtils.slice(buffer, SkillData.SECTION_HEADER));
-    skills     = SkillData.obtain(buffer);
-    items      = ItemData.obtain(buffer, ItemData.SECTION_FOOTER);
-    merc.items = MercData.MercItemData.obtain(merc, buffer);
-
-    return this;
+  public static D2S loadFromFile(FileHandle file) {
+    ByteBuffer buffer = file.map().order(ByteOrder.LITTLE_ENDIAN);
+    Header header = Header.obtain(buffer);
+    if (DEBUG_HEADER) Gdx.app.debug(TAG, header.toString());
+    if (header.magicNumber != MAGIC_NUMBER) throw new GdxRuntimeException("Magic number doesn't match " + String.format("0x%08X", MAGIC_NUMBER) + ": " + String.format("0x%08X", header.magicNumber));
+    if (header.version != VERSION_110) throw new GdxRuntimeException("Unsupported D2S version: " + header.version + " -- Only supports " + header.getVersionString(VERSION_110));
+    if (header.size != file.length()) Gdx.app.error(TAG, "Save file size doesn't match encoded size for character " + header.name + ". Should be: " + header.size);
+    return new D2S(file, header);
   }
 
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("name", name)
-        .append("level", level)
-        .append("title", getProgressionString())
-        .append("class", getClassName())
-        //.append("magicNumber", String.format("0x%08X", magicNumber))
-        .append("version", getVersionString())
-        .append("size", size + "B")
-        .append("checksum", String.format("0x%08X", checksum))
-        .append("flags", getFlagsString())
-        .append("unk1", DebugUtils.toByteArray(unk1))
-        .append("unk2", DebugUtils.toByteArray(unk2))
-        .append("timestamp", new Date(timestamp * 1000L).toString())
-        .append("unk3", DebugUtils.toByteArray(unk3))
-        .append("skillBar", Arrays.toString(skillBar))
-        .append("actions[ACTION_PRIMARY]", Arrays.toString(actions[ACTION_PRIMARY]))
-        .append("actions[ACTION_SECONDARY]", Arrays.toString(actions[ACTION_SECONDARY]))
-        .append("composites", DebugUtils.toByteArray(composites))
-        .append("colors", DebugUtils.toByteArray(colors))
-        .append("towns", getTownsString())
-        .append("mapSeed", String.format("0x%08X", mapSeed))
-        .append("merc", merc)
-        .build();
-  }
+  public static class Header {
+    static final int SIZE = 0x14F;
 
-  public static String getVersionString(int versionCode) {
-    switch (versionCode) {
-      case VERSION_100: return "1.00";
-      case VERSION_107: return "1.07";
-      case VERSION_108: return "1.08";
-      case VERSION_109: return "1.09";
-      case VERSION_110: return "1.10-1.14";
-      default:          return Integer.toString(versionCode);
-    }
-  }
+    public int      magicNumber;
+    public int      version;
+    public int      size;
+    public int      checksum;
+    public int      alternate;
+    public String   name;
+    public int      flags;
+    public byte     charClass;
+    public byte     unk1[];
+    public byte     level;
+    public byte     unk2[];
+    public int      timestamp;
+    public byte     unk3[];
+    public int      hotkeys[];
+    public int      actions[][];
+    public byte     composites[];
+    public byte     colors[];
+    public byte     towns[];
+    public int      mapSeed;
+    public MercData merc;
+    public byte     realmData[];
 
-  public String getVersionString() {
-    return getVersionString(version);
-  }
-
-  public String getFlagsString() {
-    StringBuilder sb = new StringBuilder();
-    if ((flags & FLAG_BIT0)      == FLAG_BIT0)      sb.append("FLAG_BIT0|");
-    if ((flags & FLAG_BIT1)      == FLAG_BIT1)      sb.append("FLAG_BIT1|");
-    if ((flags & FLAG_HARDCORE)  == FLAG_HARDCORE)  sb.append("FLAG_HARDCORE|");
-    if ((flags & FLAG_DIED)      == FLAG_DIED)      sb.append("FLAG_DIED|");
-    if ((flags & FLAG_BIT4)      == FLAG_BIT4)      sb.append("FLAG_BIT4|");
-    if ((flags & FLAG_EXPANSION) == FLAG_EXPANSION) sb.append("FLAG_EXPANSION|");
-    if ((flags & FLAG_BIT6)      == FLAG_BIT6)      sb.append("FLAG_BIT6|");
-    if ((flags & FLAG_BIT7)      == FLAG_BIT7)      sb.append("FLAG_BIT7|");
-    if (sb.length() > 0) sb.setLength(sb.length() - 1);
-    return sb.toString();
-  }
-
-  public boolean isExpansion() {
-    return (flags & FLAG_EXPANSION) == FLAG_EXPANSION;
-  }
-
-  public boolean isHardcore() {
-    return (flags & FLAG_HARDCORE) == FLAG_HARDCORE;
-  }
-
-  public boolean isMale() {
-    switch (charClass) {
-      case 2: case 3: case 4: case 5:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  public String getProgressionString() {
-    int prog = (flags >>> 8) & 0xFF;
-    if (isExpansion()) {
-      if (prog >= 15) return isHardcore() ? "Guardian"  : isMale() ? "Patriarch" : "Matriarch";
-      if (prog >= 10) return isHardcore() ? "Conqueror" : "Champion";
-      if (prog >=  5) return isHardcore() ? "Destroyer" : "Slayer";
-    } else {
-      if (prog >= 12) return isHardcore() ? isMale() ? "King"  : "Queen"    : isMale() ? "Baron" : "Baroness";
-      if (prog >=  8) return isHardcore() ? isMale() ? "Duke"  : "Duchess"  : isMale() ? "Lord"  : "Lady";
-      if (prog >=  4) return isHardcore() ? isMale() ? "Count" : "Countess" : isMale() ? "Sir"   : "Dame";
+    static Header obtain(ByteBuffer buffer) {
+      return new Header().read(buffer);
     }
 
-    return "";
-  }
-
-  public String getClassName() {
-    switch (charClass) {
-      case 0:  return "Amazon";
-      case 1:  return "Sorceress";
-      case 2:  return "Necromancer";
-      case 3:  return "Paladin";
-      case 4:  return "Barbarian";
-      case 5:  return "Druid";
-      case 6:  return "Assassin";
-      default: return String.format("0x%02X", charClass);
+    Header read(ByteBuffer buffer) {
+      ByteBuffer slice = BufferUtils.slice(buffer, SIZE);
+      magicNumber   = slice.getInt();
+      version       = slice.getInt();
+      size          = slice.getInt();
+      checksum      = slice.getInt();
+      alternate     = slice.getInt();
+      name          = BufferUtils.readString2(slice, Player.MAX_NAME_LENGTH + 1);
+      flags         = slice.getInt();
+      charClass     = slice.get();
+      unk1          = BufferUtils.readBytes(slice, 2);
+      level         = slice.get();
+      unk2          = BufferUtils.readBytes(slice, Ints.BYTES);
+      timestamp     = slice.getInt();
+      unk3          = BufferUtils.readBytes(slice, Ints.BYTES);
+      hotkeys       = BufferUtils.readInts(slice, NUM_HOTKEYS);
+      actions       = new int[NUM_ACTIONS][NUM_BUTTONS];
+      for (int i = 0; i < NUM_ACTIONS; i++) actions[i] = BufferUtils.readInts(slice, NUM_BUTTONS);
+      composites    = BufferUtils.readBytes(slice, com.riiablo.codec.COF.Component.NUM_COMPONENTS);
+      colors        = BufferUtils.readBytes(slice, COF.Component.NUM_COMPONENTS);
+      towns         = BufferUtils.readBytes(slice, NUM_DIFFS);
+      mapSeed       = slice.getInt();
+      merc          = MercData.obtain(slice);
+      realmData     = BufferUtils.readBytes(slice, 144);
+      assert !slice.hasRemaining();
+      return this;
     }
-  }
 
-  public String getTownsString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("[");
-    for (byte town : towns) {
-      sb.append('A').append((town & DIFF_ACT_MASK) + 1);
-      if ((town & DIFF_FLAG_ACTIVE) == DIFF_FLAG_ACTIVE) sb.append('*');
-      sb.append(", ");
+    @Override
+    public String toString() {
+      return new ToStringBuilder(this)
+          .append("name", name)
+          .append("level", level)
+          .append("title", getProgressionString())
+          .append("class", getClassName())
+          //.append("magicNumber", String.format("0x%08X", magicNumber))
+          .append("version", getVersionString())
+          .append("size", size + "B")
+          .append("checksum", String.format("0x%08X", checksum))
+          .append("flags", getFlagsString())
+          .append("unk1", DebugUtils.toByteArray(unk1))
+          .append("unk2", DebugUtils.toByteArray(unk2))
+          .append("timestamp", new Date(timestamp * 1000L).toString())
+          .append("unk3", DebugUtils.toByteArray(unk3))
+          .append("hotkeys", Arrays.toString(hotkeys))
+          .append("actions[PRIMARY]", Arrays.toString(actions[PRIMARY]))
+          .append("actions[SECONDARY]", Arrays.toString(actions[SECONDARY]))
+          .append("composites", DebugUtils.toByteArray(composites))
+          .append("colors", DebugUtils.toByteArray(colors))
+          .append("towns", getTownsString())
+          .append("mapSeed", String.format("0x%08X", mapSeed))
+          .append("merc", merc)
+          .build();
     }
 
-    sb.setLength(sb.length() - 2);
-    sb.append("]");
-    return sb.toString();
+    public static String getVersionString(int versionCode) {
+      switch (versionCode) {
+        case VERSION_100: return "1.00";
+        case VERSION_107: return "1.07";
+        case VERSION_108: return "1.08";
+        case VERSION_109: return "1.09";
+        case VERSION_110: return "1.10-1.14";
+        default:          return Integer.toString(versionCode);
+      }
+    }
+
+    public String getVersionString() {
+      return getVersionString(version);
+    }
+
+    public String getFlagsString() {
+      StringBuilder sb = new StringBuilder();
+      if ((flags & FLAG_BIT0)      == FLAG_BIT0)      sb.append("FLAG_BIT0|");
+      if ((flags & FLAG_BIT1)      == FLAG_BIT1)      sb.append("FLAG_BIT1|");
+      if ((flags & FLAG_HARDCORE)  == FLAG_HARDCORE)  sb.append("FLAG_HARDCORE|");
+      if ((flags & FLAG_DIED)      == FLAG_DIED)      sb.append("FLAG_DIED|");
+      if ((flags & FLAG_BIT4)      == FLAG_BIT4)      sb.append("FLAG_BIT4|");
+      if ((flags & FLAG_EXPANSION) == FLAG_EXPANSION) sb.append("FLAG_EXPANSION|");
+      if ((flags & FLAG_BIT6)      == FLAG_BIT6)      sb.append("FLAG_BIT6|");
+      if ((flags & FLAG_BIT7)      == FLAG_BIT7)      sb.append("FLAG_BIT7|");
+      if (sb.length() > 0) sb.setLength(sb.length() - 1);
+      return sb.toString();
+    }
+
+    public boolean isExpansion() {
+      return (flags & FLAG_EXPANSION) == FLAG_EXPANSION;
+    }
+
+    public boolean isHardcore() {
+      return (flags & FLAG_HARDCORE) == FLAG_HARDCORE;
+    }
+
+    public boolean isMale() {
+      switch (charClass) {
+        case 2: case 3: case 4: case 5:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    public String getProgressionString() {
+      int prog = (flags >>> 8) & 0xFF;
+      if (isExpansion()) {
+        if (prog >= 15) return isHardcore() ? "Guardian"  : isMale() ? "Patriarch" : "Matriarch";
+        if (prog >= 10) return isHardcore() ? "Conqueror" : "Champion";
+        if (prog >=  5) return isHardcore() ? "Destroyer" : "Slayer";
+      } else {
+        if (prog >= 12) return isHardcore() ? isMale() ? "King"  : "Queen"    : isMale() ? "Baron" : "Baroness";
+        if (prog >=  8) return isHardcore() ? isMale() ? "Duke"  : "Duchess"  : isMale() ? "Lord"  : "Lady";
+        if (prog >=  4) return isHardcore() ? isMale() ? "Count" : "Countess" : isMale() ? "Sir"   : "Dame";
+      }
+
+      return "";
+    }
+
+    public String getClassName() {
+      switch (charClass) {
+        case 0:  return "Amazon";
+        case 1:  return "Sorceress";
+        case 2:  return "Necromancer";
+        case 3:  return "Paladin";
+        case 4:  return "Barbarian";
+        case 5:  return "Druid";
+        case 6:  return "Assassin";
+        default: return String.format("0x%02X", charClass);
+      }
+    }
+
+    public String getTownsString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("[");
+      for (byte town : towns) {
+        sb.append('A').append((town & DIFF_ACT_MASK) + 1);
+        if ((town & DIFF_FLAG_ACTIVE) == DIFF_FLAG_ACTIVE) sb.append('*');
+        sb.append(", ");
+      }
+
+      sb.setLength(sb.length() - 2);
+      sb.append("]");
+      return sb.toString();
+    }
   }
 
   public static class MercData {
@@ -351,17 +356,25 @@ public class D2S {
       MercItemData read(MercData merc, ByteBuffer buffer) {
         header = BufferUtils.readBytes(buffer, SECTION_HEADER.length);
         if (merc.seed == 0) return this;
-        items = ItemData.obtain(buffer, new byte[] {0x6B, 0x66});
+        items = ItemData.obtain(buffer, GolemData.SECTION_HEADER, false);
         return this;
+      }
+
+      @Override
+      public String toString() {
+        return new ToStringBuilder(this)
+            .append("header", DebugUtils.toByteArray(header))
+            .append("itemData", items)
+            .build();
       }
     }
   }
 
-  static class QuestData {
+  public static class QuestData {
     static final byte[] SECTION_HEADER = {0x57, 0x6F, 0x6F, 0x21};
 
     static final int NUM_QUESTFLAGS = 96;
-    static final int SIZE = SECTION_HEADER.length + 6 + (NUM_QUESTFLAGS * NUM_DIFFICULTIES);
+    static final int SIZE = SECTION_HEADER.length + 6 + (NUM_QUESTFLAGS * NUM_DIFFS);
 
     byte  header[];
     int   version;
@@ -378,8 +391,8 @@ public class D2S {
       version = slice.getInt();
       size    = slice.getShort();
       assert size == SIZE;
-      data    = new byte[NUM_DIFFICULTIES][];
-      for (int i = 0; i < NUM_DIFFICULTIES; i++) data[i] = BufferUtils.readBytes(slice, NUM_QUESTFLAGS);
+      data    = new byte[NUM_DIFFS][];
+      for (int i = 0; i < NUM_DIFFS; i++) data[i] = BufferUtils.readBytes(slice, NUM_QUESTFLAGS);
       assert !slice.hasRemaining();
       buffer.position(buffer.position() + SIZE);
       return this;
@@ -391,17 +404,17 @@ public class D2S {
           .append("header", DebugUtils.toByteArray(header))
           .append("version", version)
           .append("size", size);
-      for (int i = 0; i < NUM_DIFFICULTIES; i++) {
+      for (int i = 0; i < NUM_DIFFS; i++) {
         builder.append("data[" + i + "]", data[i]);
       }
       return builder.build();
     }
   }
 
-  static class WaypointData {
+  public static class WaypointData {
     static final byte[] SECTION_HEADER = {'W', 'S'};
 
-    static final int SIZE = SECTION_HEADER.length + 6 + (WaypointData2.SIZE * NUM_DIFFICULTIES);
+    static final int SIZE = SECTION_HEADER.length + 6 + (WaypointData2.SIZE * NUM_DIFFS);
 
     byte  header[];
     int   version;
@@ -418,8 +431,8 @@ public class D2S {
       version = slice.getInt();
       size    = slice.getShort();
       assert size == SIZE;
-      diff    = new WaypointData2[NUM_DIFFICULTIES];
-      for (int i = 0; i < NUM_DIFFICULTIES; i++) diff[i] = WaypointData2.obtain(slice);
+      diff    = new WaypointData2[NUM_DIFFS];
+      for (int i = 0; i < NUM_DIFFS; i++) diff[i] = WaypointData2.obtain(slice);
       assert !slice.hasRemaining();
       buffer.position(buffer.position() + SIZE);
       return this;
@@ -431,7 +444,7 @@ public class D2S {
           .append("header", DebugUtils.toByteArray(header))
           .append("version", version)
           .append("size", size);
-      for (int i = 0; i < NUM_DIFFICULTIES; i++) {
+      for (int i = 0; i < NUM_DIFFS; i++) {
         builder.append("diff[" + i + "]", diff[i]);
       }
       return builder.build();
@@ -469,14 +482,14 @@ public class D2S {
     }
   }
 
-  static class NPCData {
+  public static class NPCData {
     static final byte[] SECTION_HEADER = {0x01, 0x77};
 
     static final int GREETING_INTRO  = 0;
     static final int GREETING_RETURN = 1;
     static final int NUM_GREETINGS   = 2;
     static final int NUM_INTROS      = 8;
-    static final int SIZE = SECTION_HEADER.length + 2 + (NUM_GREETINGS * NUM_DIFFICULTIES * NUM_INTROS);
+    static final int SIZE = SECTION_HEADER.length + 2 + (NUM_GREETINGS * NUM_DIFFS * NUM_INTROS);
 
     byte  header[];
     short size;
@@ -491,9 +504,9 @@ public class D2S {
       header = BufferUtils.readBytes(slice, SECTION_HEADER.length);
       size   = slice.getShort();
       assert size == SIZE;
-      data = new byte[NUM_GREETINGS][NUM_DIFFICULTIES][];
+      data = new byte[NUM_GREETINGS][NUM_DIFFS][];
       for (int i = 0; i < NUM_GREETINGS; i++) {
-        for (int j = 0; j < NUM_DIFFICULTIES; j++) {
+        for (int j = 0; j < NUM_DIFFS; j++) {
           data[i][j] = BufferUtils.readBytes(slice, NUM_INTROS);
         }
       }
@@ -509,7 +522,7 @@ public class D2S {
           .append("header", DebugUtils.toByteArray(header))
           .append("size", size);
       for (int i = 0; i < NUM_GREETINGS; i++) {
-        for (int j = 0; j < NUM_DIFFICULTIES; j++) {
+        for (int j = 0; j < NUM_DIFFS; j++) {
           builder.append("data[" + i + "][" + j + "][GREETING_INTRO]", DebugUtils.toByteArray(data[i][j]));
           builder.append("data[" + i + "][" + j + "][GREETING_RETURN]", DebugUtils.toByteArray(data[i][j]));
         }
@@ -664,11 +677,11 @@ public class D2S {
     public EnumMap<BodyLoc, Item> equipped;
     public Array<Item>            inventory;
 
-    static ItemData obtain(ByteBuffer buffer, byte[] SECTION_FOOTER) {
-      return new ItemData().read(buffer, SECTION_FOOTER);
+    static ItemData obtain(ByteBuffer buffer, byte[] SECTION_FOOTER, boolean consumeFooter) {
+      return new ItemData().read(buffer, SECTION_FOOTER, consumeFooter);
     }
 
-    ItemData read(ByteBuffer buffer, byte[] SECTION_FOOTER) {
+    ItemData read(ByteBuffer buffer, byte[] SECTION_FOOTER, boolean consumeFooter) {
       header = BufferUtils.readBytes(buffer, SECTION_HEADER.length);
       size   = buffer.getShort();
 
@@ -703,7 +716,7 @@ public class D2S {
         }
       }
       assert BufferUtils.lookahead(buffer, SECTION_FOOTER);
-      //assert !buffer.hasRemaining();
+      if (!consumeFooter) buffer.reset();
       return this;
     }
 
@@ -714,9 +727,54 @@ public class D2S {
           .append("size", size)
           .append("actualSize", items.size);
       for (int i = 0; i < items.size; i++) {
-        builder.append("items[" + i + "]", items.get(i).type);
+        builder.append("items[" + i + "]", items.get(i).getName());
       }
       return builder.build();
+    }
+  }
+
+  public static class GolemData {
+    static final byte[] SECTION_HEADER = {0x6B, 0x66};
+
+    public byte header[];
+    public byte exists;
+    public Item item;
+
+    static GolemData obtain(ByteBuffer buffer) {
+      return new GolemData().read(buffer);
+    }
+
+    GolemData read(ByteBuffer buffer) {
+      header = BufferUtils.readBytes(buffer, SECTION_HEADER.length);
+      exists = buffer.get();
+      if (exists == 0) return this;
+      ByteBuffer slice = BufferUtils.slice(buffer, ItemData.SECTION_HEADER, true);
+      if (slice.remaining() <= 0) return this;
+      byte[] bytes = BufferUtils.readRemaining(buffer);
+      BitStream bitStream = new BitStream(bytes);
+      bitStream.skip(ItemData.SECTION_HEADER.length * Byte.SIZE);
+      item = Item.loadFromStream(bitStream);
+      for (int j = 0; j < item.socketsFilled; j++) {
+        slice = BufferUtils.slice(buffer, ItemData.SECTION_HEADER, true);
+        if (slice.remaining() <= 0) break;
+        //else System.out.println(i + " = " + slice.remaining());
+        bytes = BufferUtils.readRemaining(slice);
+        bitStream = new BitStream(bytes);
+        bitStream.skip(ItemData.SECTION_HEADER.length * Byte.SIZE);
+        Item socket = Item.loadFromStream(bitStream);
+        item.socketed.add(socket);
+        assert socket.location == Location.SOCKET;
+      }
+      return this;
+    }
+
+    @Override
+    public String toString() {
+      return new ToStringBuilder(this)
+          .append("header", DebugUtils.toByteArray(header))
+          .append("exists", String.format("0x%02X", exists & 0xFF))
+          .append("item", item)
+          .build();
     }
   }
 }

@@ -21,9 +21,9 @@ public class Connect {
 
   public Connect(Player player) {
     Player.D2SStats stats = (Player.D2SStats) player.stats;
-    this.name       = stats.d2s.name;
-    this.classId    = stats.d2s.charClass;
-    this.composites = stats.d2s.composites;
-    this.colors     = stats.d2s.colors;
+    this.name       = stats.d2s.header.name;
+    this.classId    = stats.d2s.header.charClass;
+    this.composites = stats.d2s.header.composites;
+    this.colors     = stats.d2s.header.colors;
   }
 }
