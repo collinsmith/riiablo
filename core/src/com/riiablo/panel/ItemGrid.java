@@ -81,13 +81,13 @@ public class ItemGrid extends Group {
       public void clicked(InputEvent event, float x, float y) {
         if (event.isHandled()) return;
         ItemGrid.this.mouseMoved();
+        Item cursor = Riiablo.cursor.getItem();
         if (blocked) {
-          Riiablo.audio.play("sorceress_impossible_1", false);
+          if (cursor != null) Riiablo.audio.play("sorceress_impossible_1", false);
           event.handle();
           return;
         }
 
-        Item cursor = Riiablo.cursor.getItem();
         if (cursor != null) {
           Riiablo.audio.play(cursor.getDropSound(), true);
           if (swap != null) {
