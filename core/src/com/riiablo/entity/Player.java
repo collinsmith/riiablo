@@ -471,6 +471,8 @@ public class Player extends Entity {
     int getColdResistance();
     int getLightningResistance();
     int getPoisonResistance();
+    int getInvGold();
+    int getStashGold();
   }
 
   public class StatsImpl implements Stats {
@@ -545,6 +547,16 @@ public class Player extends Entity {
     public int getPoisonResistance() {
       return 0;
     }
+
+    @Override
+    public int getInvGold() {
+      return 0;
+    }
+
+    @Override
+    public int getStashGold() {
+      return 0;
+    }
   }
 
   public class D2SStats implements Stats {
@@ -606,6 +618,16 @@ public class Player extends Entity {
 
     public int getPoisonResistance() {
       return 0;
+    }
+
+    @Override
+    public int getInvGold() {
+      return d2s.stats.invGold;
+    }
+
+    @Override
+    public int getStashGold() {
+      return d2s.stats.stashGold;
     }
   }
 

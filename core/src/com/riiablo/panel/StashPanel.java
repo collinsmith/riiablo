@@ -16,6 +16,7 @@ import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
+import com.riiablo.widget.Label;
 
 public class StashPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "StashPanel";
@@ -62,6 +63,11 @@ public class StashPanel extends WidgetGroup implements Disposable {
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());
     addActor(grid);
+
+    Label stashgold = new Label(Integer.toString(gameScreen.player.stats.getStashGold()), Riiablo.fonts.font16);
+    stashgold.setSize(150, 16);
+    stashgold.setPosition(98, 393);
+    addActor(stashgold);
 
     setDebug(true, true);
   }

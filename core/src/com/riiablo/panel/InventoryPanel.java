@@ -28,6 +28,7 @@ import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
+import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -267,7 +268,12 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
         getHeight() - inventory.gridTop - grid.getHeight());
     addActor(grid);
 
-    //setDebug(true, true);
+    Label invgold = new Label(Integer.toString(gameScreen.player.stats.getInvGold()), Riiablo.fonts.font16);
+    invgold.setSize(90, 16);
+    invgold.setPosition(107, 24);
+    addActor(invgold);
+
+    setDebug(true, true);
   }
 
   @Override
