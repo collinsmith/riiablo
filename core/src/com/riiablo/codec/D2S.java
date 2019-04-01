@@ -715,7 +715,8 @@ public class D2S {
           assert socket.location == Location.SOCKET;
         }
       }
-      assert BufferUtils.lookahead(buffer, SECTION_FOOTER);
+      boolean lookahead = BufferUtils.lookahead(buffer, SECTION_FOOTER);
+      assert lookahead;
       if (!consumeFooter) buffer.reset();
       return this;
     }
