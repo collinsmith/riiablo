@@ -486,6 +486,18 @@ public class Stat {
       hash = Stat.hash(stat, param);
     }
 
+    Instance(Instance src) {
+      this.stat = src.stat;
+      this.param = src.param;
+      this.hash = src.hash;
+      this.entry = src.entry;
+      this.value = src.value;
+    }
+
+    Instance copy() {
+      return new Instance(this);
+    }
+
     @Override
     public int compareTo(Instance o) {
       return o.entry.descpriority - this.entry.descpriority;

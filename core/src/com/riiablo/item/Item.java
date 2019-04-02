@@ -134,7 +134,7 @@ public class Item extends Actor implements Disposable {
   public int     runewordData;
   public String  inscription;
 
-  public PropertyList props;
+  public Attributes   props;
   public PropertyList stats[];
 
   public ItemEntry       base;
@@ -186,7 +186,7 @@ public class Item extends Actor implements Disposable {
     typeEntry = Riiablo.files.ItemTypes.get(base.type);
     type = Type.get(typeEntry);
 
-    props = new PropertyList();
+    props = new Attributes();
     props.put(Stat.item_levelreq, base.levelreq);
     if (base instanceof Weapons.Entry) {
       Weapons.Entry weapon = getBase();
@@ -317,6 +317,22 @@ public class Item extends Actor implements Disposable {
         if (((listsFlags >> i) & 1) == 1) {
           stats[i] = new PropertyList().read(bitStream);
         }
+      }
+
+      System.out.println(getName());
+      PropertyList magicProps = stats[MAGIC_PROPS];
+      PropertyList runeProps = stats[RUNE_PROPS];
+      if (magicProps != null) {
+        PropertyList magicPropsAggregate = magicProps.copy();
+        for (Item socket : socketed) {
+          if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
+            magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
+          } else {
+            magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);
+          }
+        }
+        if (runeProps != null) magicPropsAggregate.addAll(runeProps);
+        props.apply(magicPropsAggregate);
       }
 
       //System.out.println(getName() + " : " + Arrays.toString(stats) + " : " + Integer.toBinaryString(listsFlags));
@@ -926,8 +942,14 @@ public class Item extends Actor implements Disposable {
 
       //if ((flags & COMPACT) == 0) {
         Stat.Instance prop;
-        if ((prop = props.get(Stat.armorclass)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1h") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.get(Stat.armorclass)) != null) {
+          Table table = new Table();
+          table.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font, Riiablo.colors.white));
+          table.add(new Label(Integer.toString(prop.value), font, props.modified.get(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
+          table.pack();
+          add(table).space(SPACING).row();
+          setDebug(true, true);
+        }
         if (Item.this.type.is(Type.WEAP)) {
           if ((prop = props.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
             add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + props.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
@@ -972,10 +994,10 @@ public class Item extends Actor implements Disposable {
           }
           if (runeProps != null) magicPropsAggregate.addAll(runeProps);
           magicPropsAggregate.reduce();
-          System.out.println(Item.this.getName());
-          for (Stat.Instance stat : magicPropsAggregate.props.values()) {
-            System.out.println(stat);
-          }
+          //System.out.println(Item.this.getName());
+          //for (Stat.Instance stat : magicPropsAggregate.props.values()) {
+          //  System.out.println(stat);
+          //}
 
           Array<Stat.Instance> aggregate = magicPropsAggregate.toArray();
           aggregate.sort();

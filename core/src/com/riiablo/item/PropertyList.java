@@ -9,7 +9,9 @@ import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.util.BitStream;
 
-public class PropertyList {
+import java.util.Iterator;
+
+public class PropertyList implements Iterable<Stat.Instance> {
   private static final String TAG = "PropertyList";
 
   private static final int[] ATTRIBUTES  = {Stat.strength, Stat.energy, Stat.dexterity, Stat.vitality};
@@ -34,6 +36,11 @@ public class PropertyList {
 
   public PropertyList copy() {
     return new PropertyList(this);
+  }
+
+  @Override
+  public Iterator<Stat.Instance> iterator() {
+    return props.values();
   }
 
   public void clear() {
@@ -77,14 +84,19 @@ public class PropertyList {
     return props.values().toArray();
   }
 
+  public void add(Stat.Instance stat) {
+    assert stat.stat == 0 || stat.hash != 0;
+    Stat.Instance existing = props.get(stat.hash);
+    if (existing != null) {
+      existing.add(stat);
+    } else {
+      props.put(stat.hash, stat);
+    }
+  }
+
   public PropertyList addAll(PropertyList other) {
-    for (IntMap.Entry<Stat.Instance> entry : other.props) {
-      Stat.Instance existing = props.get(entry.key);
-      if (existing != null) {
-        existing.add(entry.value);
-      } else {
-        props.put(entry.key, entry.value);
-      }
+    for (Stat.Instance stat : other.props.values()) {
+      add(stat);
     }
 
     return this;
