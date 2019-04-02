@@ -24,6 +24,9 @@ public class StashPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> TradeStashDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\TradeStash.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   TextureRegion TradeStash;
 
+  final AssetDescriptor<DC6> goldcoinbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\goldcoinbtn.dc6", DC6.class);
+  Button btnDropGold;
+
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class);
   Button btnExit;
 
@@ -69,6 +72,16 @@ public class StashPanel extends WidgetGroup implements Disposable {
     stashgold.setPosition(98, 393);
     addActor(stashgold);
 
+    btnDropGold = new Button(new Button.ButtonStyle() {{
+      Riiablo.assets.load(goldcoinbtnDescriptor);
+      Riiablo.assets.finishLoadingAsset(goldcoinbtnDescriptor);
+      DC6 goldcoinbtn = Riiablo.assets.get(goldcoinbtnDescriptor);
+      up   = new TextureRegionDrawable(goldcoinbtn.getTexture(0));
+      down = new TextureRegionDrawable(goldcoinbtn.getTexture(1));
+    }});
+    btnDropGold.setPosition(74, 392);
+    addActor(btnDropGold);
+
     //setDebug(true, true);
   }
 
@@ -76,6 +89,7 @@ public class StashPanel extends WidgetGroup implements Disposable {
   public void dispose() {
     btnExit.dispose();
     Riiablo.assets.unload(TradeStashDescriptor.fileName);
+    Riiablo.assets.unload(goldcoinbtnDescriptor.fileName);
     Riiablo.assets.unload(buysellbtnDescriptor.fileName);
   }
 

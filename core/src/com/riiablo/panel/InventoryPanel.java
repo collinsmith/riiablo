@@ -45,6 +45,9 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class);
   Button btnExit;
 
+  final AssetDescriptor<DC6> goldcoinbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\goldcoinbtn.dc6", DC6.class);
+  Button btnDropGold;
+
   final AssetDescriptor<DC6> inv_armorDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\inv_armor.DC6", DC6.class);
   final AssetDescriptor<DC6> inv_beltDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\inv_belt.DC6", DC6.class);
   final AssetDescriptor<DC6> inv_bootsDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\inv_boots.DC6", DC6.class);
@@ -273,6 +276,16 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     invgold.setPosition(107, 24);
     addActor(invgold);
 
+    btnDropGold = new Button(new Button.ButtonStyle() {{
+      Riiablo.assets.load(goldcoinbtnDescriptor);
+      Riiablo.assets.finishLoadingAsset(goldcoinbtnDescriptor);
+      DC6 goldcoinbtn = Riiablo.assets.get(goldcoinbtnDescriptor);
+      up   = new TextureRegionDrawable(goldcoinbtn.getTexture(0));
+      down = new TextureRegionDrawable(goldcoinbtn.getTexture(1));
+    }});
+    btnDropGold.setPosition(84, 23);
+    addActor(btnDropGold);
+
     //setDebug(true, true);
   }
 
@@ -281,6 +294,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     btnExit.dispose();
     Riiablo.assets.unload(invcharDescriptor.fileName);
     Riiablo.assets.unload(buysellbtnDescriptor.fileName);
+    Riiablo.assets.unload(goldcoinbtnDescriptor.fileName);
     Riiablo.assets.unload(inv_armorDescriptor.fileName);
     Riiablo.assets.unload(inv_beltDescriptor.fileName);
     Riiablo.assets.unload(inv_bootsDescriptor.fileName);
