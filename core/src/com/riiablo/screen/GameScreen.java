@@ -681,19 +681,21 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       }
     }
 
-    Cvars.Client.Display.KeepControlPanelGrouped.addStateListener(new CvarStateAdapter<Boolean>() {
-      @Override
-      public void onChanged(Cvar<Boolean> cvar, Boolean from, Boolean to) {
-        if (to) {
-          controlPanel.pack();
-          controlPanel.setPosition(stage.getWidth() / 2, 0, Align.bottom | Align.center);
-        } else {
-          controlPanel.setX(0);
-          controlPanel.setWidth(stage.getWidth());
-          controlPanel.layout();
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop && !DEBUG_MOBILE) {
+      Cvars.Client.Display.KeepControlPanelGrouped.addStateListener(new CvarStateAdapter<Boolean>() {
+        @Override
+        public void onChanged(Cvar<Boolean> cvar, Boolean from, Boolean to) {
+          if (to) {
+            controlPanel.pack();
+            controlPanel.setPosition(stage.getWidth() / 2, 0, Align.bottom | Align.center);
+          } else {
+            controlPanel.setX(0);
+            controlPanel.setWidth(stage.getWidth());
+            controlPanel.layout();
+          }
         }
-      }
-    });
+      });
+    }
 
     /*
     updateTask = Timer.schedule(new Timer.Task() {
