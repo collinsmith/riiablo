@@ -50,4 +50,5 @@ public class Riiablo {
   public static Audio                 audio;
   public static MusicController       music;
   public static Cursor                cursor;
+  public static CharData              charData;
 }

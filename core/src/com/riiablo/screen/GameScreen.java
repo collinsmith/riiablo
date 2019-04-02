@@ -31,6 +31,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.Client;
+import com.riiablo.CharData;
 import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
@@ -140,7 +141,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   Client.ScreenBoundsListener screenBoundsListener;
   TextArea output;
 
-  //Char character;
   public Player player;
   public IntMap<Entity> entities = new IntMap<>();
   Timer.Task updateTask;
@@ -159,14 +159,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     return dependencies;
   }
 
-  public GameScreen(Player player) {
+  public GameScreen(CharData player) {
     this(player, new PipedSocket());
   }
 
-  //public GameScreen(final Char character) {
-  public GameScreen(final Player player, Socket socket) {
-    this.player = player;
+  public GameScreen(CharData player, Socket socket) {
+    this.player = new Player(player.getD2S());
     this.socket = socket;
+    player.loadItems();
 
     Riiablo.viewport = viewport = Riiablo.extendViewport;
     stage = new Stage(viewport, Riiablo.batch);
@@ -336,8 +336,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             String text = input.getText();
             if (!text.isEmpty()) {
               Gdx.app.debug(TAG, text);
-              Message message = new Message(player.stats.getName(), text);
-              out.println(Packets.build(message));
+              //Message message = new Message(player.stats.getName(), text);
+              //out.println(Packets.build(message));
               input.setText("");
             }
           }
@@ -361,7 +361,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           characterPanel.setVisible(false);
           stashPanel.setVisible(!stashPanel.isVisible());
         } else if (key == Keys.SwapWeapons) {
-          player.setAlternate(!player.isAlternate());
+          Riiablo.charData.setAlternate(~Riiablo.charData.getAlternate());
         }
       }
     };

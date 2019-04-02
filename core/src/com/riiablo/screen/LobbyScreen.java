@@ -27,9 +27,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.SerializationException;
+import com.riiablo.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
-import com.riiablo.entity.Player;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.server.Account;
@@ -81,8 +81,8 @@ public class LobbyScreen extends ScreenAdapter {
 
   private Stage stage;
 
-  private Account account;
-  private Player  player;
+  private Account  account;
+  private CharData player;
 
   private TextArea taChatOutput;
   private TextField tfChatInput;
@@ -91,7 +91,7 @@ public class LobbyScreen extends ScreenAdapter {
   private PrintWriter out;
   private BufferedReader in;
 
-  public LobbyScreen(Account account, Player player) {
+  public LobbyScreen(Account account, CharData player) {
     this.account = account;
     this.player = player;
 

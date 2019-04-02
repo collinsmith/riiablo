@@ -109,6 +109,7 @@ public class Client extends Game {
   private Audio                 audio;
   private MusicController       music;
   private Cursor                cursor;
+  private CharData              charData;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
@@ -268,6 +269,7 @@ public class Client extends Game {
     Riiablo.bundle = bundle = I18NBundle.createBundle(Gdx.files.internal("lang/Client"));
     Riiablo.textures = textures = new Textures();
     Riiablo.cursor = cursor = new Cursor();
+    Riiablo.charData = charData = new CharData();
 
     Collection<Throwable> throwables;
     Riiablo.commands = commands = new GdxCommandManager();
@@ -498,6 +500,7 @@ public class Client extends Game {
     Riiablo.audio = audio;
     Riiablo.music = music;
     Riiablo.cursor = cursor;
+    Riiablo.charData = charData;
     super.resume();
   }
 

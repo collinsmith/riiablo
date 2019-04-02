@@ -22,7 +22,6 @@ import com.riiablo.Client;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC6;
-import com.riiablo.entity.Player;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
@@ -189,7 +188,7 @@ public class CreateCharacterScreen extends ScreenAdapter {
           Riiablo.client.popScreen();
         } else if (actor == btnOK) {
           if (selected == null) return;
-          Riiablo.client.clearAndSet(new LoadingScreen(new GameScreen(new Player(tfCharName.getText(), selected.charClass))));
+          Riiablo.client.clearAndSet(new LoadingScreen(new GameScreen(Riiablo.charData.createD2S(tfCharName.getText(), selected.charClass))));
         }
       }
     };
