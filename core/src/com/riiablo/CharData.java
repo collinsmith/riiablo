@@ -2,9 +2,12 @@ package com.riiablo;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.codec.D2S;
+import com.riiablo.codec.excel.SetItems;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
+import com.riiablo.item.Quality;
 import com.riiablo.item.StoreLoc;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -18,6 +21,9 @@ public class CharData {
   private final EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
   private final Array<Item> belt = new Array<>(16);
   private final Array<EquippedListener> EQUIPPED_LISTENERS = new Array<>();
+
+  private final IntIntMap equippedSets = new IntIntMap(); // Indexed using set id
+  private final IntIntMap setItemsOwned = new IntIntMap(); // Indexed using set item id
 
   public CharData() {
     for (StoreLoc storeLoc : StoreLoc.values()) store.put(storeLoc, new Array<Item>());
@@ -44,21 +50,48 @@ public class CharData {
     equipped.clear();
     belt.clear();
     for (Item item : d2s.items.items) {
-      switch (item.location) {
-        case BELT:
-          belt.add(item);
-          break;
-        case CURSOR:
-          cursor = item;
-          break;
-        case EQUIPPED:
-          setEquipped(item.bodyLoc, item);
-          break;
-        case STORED:
-          store.get(item.storeLoc).add(item);
-          break;
-      }
+      addItem(item);
       //item.load();
+    }
+  }
+
+  private void addItem(Item item) {
+    switch (item.location) {
+      case BELT:
+        belt.add(item);
+        break;
+      case CURSOR:
+        cursor = item;
+        break;
+      case EQUIPPED:
+        setEquipped(item.bodyLoc, item);
+        break;
+      case STORED:
+        store.get(item.storeLoc).add(item);
+        break;
+    }
+    if (item.quality == Quality.SET) {
+      setItemsOwned.getAndIncrement(item.qualityId, 0, 1);
+    }
+  }
+
+  private void removeItem(Item item) {
+    // TODO: e.g., item dropped
+    if (item.quality == Quality.SET) {
+      setItemsOwned.getAndIncrement(item.qualityId, 0, -1);
+    }
+  }
+
+  private void updateSets(Item oldItem, Item item) {
+    if (oldItem != null && oldItem.quality == Quality.SET) {
+      SetItems.Entry setItem = (SetItems.Entry) oldItem.qualityData;
+      int id = Riiablo.files.Sets.index(setItem.set);
+      equippedSets.getAndIncrement(id, 0, -1);
+    }
+    if (item != null && item.quality == Quality.SET) {
+      SetItems.Entry setItem = (SetItems.Entry) item.qualityData;
+      int id = Riiablo.files.Sets.index(setItem.set);
+      equippedSets.getAndIncrement(id, 0, 1);
     }
   }
 
@@ -92,6 +125,7 @@ public class CharData {
 
   public Item setEquipped(BodyLoc bodyLoc, Item item) {
     Item oldItem = equipped.put(bodyLoc, item);
+    updateSets(oldItem, item);
     notifyEquippedChanged(bodyLoc, oldItem, item);
     return oldItem;
   }
