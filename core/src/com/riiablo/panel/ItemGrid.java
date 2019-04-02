@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 
+import com.riiablo.codec.excel.Misc;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Inventory;
@@ -271,6 +272,14 @@ public class ItemGrid extends Group {
           ItemEntry entry = StoredItem.this.item.base;
           if (entry.useable) {
             Riiablo.audio.play(StoredItem.this.item.getUseSound(), true);
+            if (entry instanceof Misc.Entry) {
+              Misc.Entry misc = StoredItem.this.item.getBase();
+              switch (misc.pSpell) {
+                case 7:
+                  gameScreen.cubePanel.setVisible(true);
+                  break;
+              }
+            }
           }/* else if (Riiablo.cursor.getItem() == null) {
             String[] BodyLocs = item.type.BodyLoc;
             for (String BodyLoc : BodyLocs) {

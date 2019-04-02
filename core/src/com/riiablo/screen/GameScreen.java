@@ -54,6 +54,7 @@ import com.riiablo.map.MapLoader;
 import com.riiablo.map.MapRenderer;
 import com.riiablo.panel.CharacterPanel;
 import com.riiablo.panel.ControlPanel;
+import com.riiablo.panel.CubePanel;
 import com.riiablo.panel.EscapePanel;
 import com.riiablo.panel.HirelingPanel;
 import com.riiablo.panel.InventoryPanel;
@@ -112,6 +113,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   public HirelingPanel hirelingPanel;
   public WaygatePanel waygatePanel;
   public QuestsPanel questsPanel;
+  public CubePanel cubePanel;
   public SpellsQuickPanel spellsQuickPanelL;
   public SpellsQuickPanel spellsQuickPanelR;
   MappedKeyStateAdapter mappedKeyStateListener;
@@ -251,6 +253,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     stashPanel = new StashPanel(this);
     stashPanel.setPosition(0, stage.getHeight() - stashPanel.getHeight());
 
+    cubePanel = new CubePanel(this);
+    cubePanel.setPosition(0, stage.getHeight() - cubePanel.getHeight());
+
     waygatePanel = new WaygatePanel(this);
     waygatePanel.setPosition(0, stage.getHeight() - waygatePanel.getHeight());
 
@@ -277,6 +282,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     stage.addActor(spellsPanel);
     stage.addActor(characterPanel);
     stage.addActor(stashPanel);
+    stage.addActor(cubePanel);
     stage.addActor(waygatePanel);
     stage.addActor(questsPanel);
     stage.addActor(spellsQuickPanelL);
@@ -745,6 +751,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     spellsPanel.dispose();
     characterPanel.dispose();
     stashPanel.dispose();
+    cubePanel.dispose();
     waygatePanel.dispose();
     questsPanel.dispose();
     if (mobilePanel != null) mobilePanel.dispose();
