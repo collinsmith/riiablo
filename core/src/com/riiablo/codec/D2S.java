@@ -9,10 +9,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.entity.Player;
-import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
-import com.riiablo.item.StoreLoc;
 import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
 
@@ -23,7 +21,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.EnumMap;
 
 public class D2S {
   private static final String TAG = "D2S";
@@ -674,8 +671,6 @@ public class D2S {
     public byte                   header[];
     public short                  size;
     public Array<Item>            items;
-    public EnumMap<BodyLoc, Item> equipped;
-    public Array<Item>            inventory;
 
     static ItemData obtain(ByteBuffer buffer, byte[] SECTION_FOOTER, boolean consumeFooter) {
       return new ItemData().read(buffer, SECTION_FOOTER, consumeFooter);
@@ -686,8 +681,6 @@ public class D2S {
       size   = buffer.getShort();
 
       items = new Array<>(size);
-      equipped = new EnumMap<>(BodyLoc.class);
-      inventory = new Array<>();
       for (int i = 0; i < size; i++) {
         ByteBuffer slice = BufferUtils.slice(buffer, SECTION_HEADER, true, SECTION_FOOTER, false);
         if (slice.remaining() <= 0) break;
@@ -697,11 +690,6 @@ public class D2S {
         bitStream.skip(SECTION_HEADER.length * Byte.SIZE);
         Item item = Item.loadFromStream(bitStream);
         items.add(item);
-        if (item.location == Location.EQUIPPED && item.bodyLoc != BodyLoc.NONE) {
-          equipped.put(item.bodyLoc, item);
-        } else if (item.location == Location.STORED && item.storeLoc == StoreLoc.INVENTORY) {
-          inventory.add(item);
-        }
 
         for (int j = 0; j < item.socketsFilled; j++) {
           slice = BufferUtils.slice(buffer, SECTION_HEADER, true, SECTION_FOOTER, false);

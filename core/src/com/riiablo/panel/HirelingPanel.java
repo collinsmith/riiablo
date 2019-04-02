@@ -31,6 +31,8 @@ import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.EnumMap;
+
 public class HirelingPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "HirelingPanel";
 
@@ -136,10 +138,14 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
     head.yOffs = 1;
     addActor(head);
 
+    EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
+    for (Item item : gameScreen.player.merc.items.items.items) {
+      equipped.put(item.bodyLoc, item);
+    }
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
       if (bodyParts[i] == null) continue;
       bodyParts[i].slot = i;
-      bodyParts[i].item = gameScreen.player.merc.items.items.equipped.get(BodyLoc.valueOf(i));
+      bodyParts[i].item = equipped.get(BodyLoc.valueOf(i));
       bodyParts[i].setBodyPart(Riiablo.files.bodylocs.get(i).Code);
     }
 
