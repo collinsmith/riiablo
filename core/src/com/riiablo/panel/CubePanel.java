@@ -75,7 +75,7 @@ public class CubePanel extends WidgetGroup implements Disposable {
     inventory = Riiablo.files.inventory.get("Transmogrify Box Page 1");
 
     ItemGrid grid = new ItemGrid(gameScreen, inventory);
-    grid.populate(gameScreen.player.getStore(StoreLoc.CUBE));
+    grid.populate(Riiablo.charData.getStore(StoreLoc.CUBE));
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());

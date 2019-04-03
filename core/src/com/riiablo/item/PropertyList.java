@@ -38,6 +38,12 @@ public class PropertyList implements Iterable<Stat.Instance> {
     return new PropertyList(this);
   }
 
+  public void deepCopy(PropertyList src) {
+    for (IntMap.Entry<Stat.Instance> entry : src.props.entries()) {
+      props.put(entry.key, entry.value.copy());
+    }
+  }
+
   @Override
   public Iterator<Stat.Instance> iterator() {
     return props.values();

@@ -141,7 +141,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
-      final int sLvl = gameScreen.player.skills.getLevel(i);
+      final int sLvl = Riiablo.charData.getSkills().get(i, 0);
       final Skills.Entry skill = Riiablo.files.skills.get(i);
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       final Table details = new Table() {{

@@ -1,35 +1,24 @@
 package com.riiablo.entity;
 
-import com.google.common.base.Preconditions;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntIntMap;
+import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.D2S;
 import com.riiablo.codec.excel.Armor;
-import com.riiablo.codec.excel.Sets;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
-import com.riiablo.item.Quality;
-import com.riiablo.item.StoreLoc;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
 import com.riiablo.server.Connect;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.util.EnumMap;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-public class Player extends Entity {
+public class Player extends Entity implements CharData.EquippedListener {
   private static final String TAG = "Player";
   private static final boolean DEBUG       = true;
   private static final boolean DEBUG_STATE = DEBUG && !true;
@@ -69,72 +58,28 @@ public class Player extends Entity {
     return TOKENS[type];
   }
 
-  public enum Slot {
-    HEAD, NECK, TORS, RARM, LARM, RRIN, LRIN, BELT, FEET, GLOV;
-
-    public BodyLoc toBodyLoc(boolean alternate) {
-      return toBodyLoc(this, alternate);
-    }
-
-    public static BodyLoc toBodyLoc(Slot slot, boolean alternate) {
-      switch (slot) {
-        case HEAD: return BodyLoc.HEAD;
-        case NECK: return BodyLoc.NECK;
-        case TORS: return BodyLoc.TORS;
-        case RARM: return alternate ? BodyLoc.RARM2 : BodyLoc.RARM;
-        case LARM: return alternate ? BodyLoc.LARM2 : BodyLoc.LARM;
-        case RRIN: return BodyLoc.RRIN;
-        case LRIN: return BodyLoc.LRIN;
-        case BELT: return BodyLoc.BELT;
-        case FEET: return BodyLoc.FEET;
-        case GLOV: return BodyLoc.GLOV;
-        default:
-          throw new GdxRuntimeException("Invalid slot: " + slot);
-      }
-    }
-  }
-
-  boolean alternate;
   boolean ignoreUpdate;
-  public Stats stats;
-  public Skills skills;
-  public int[] skillBar;
-  public int[][] actions;
   public Map map;
   public Map.Zone curZone;
-  public final CharacterClass charClass;
-
-  EnumMap<StoreLoc, Array<Item>> store = new EnumMap<>(StoreLoc.class);
-  EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
-  Array<Item> belt = new Array<>(16);
-  final Set<SlotListener> SLOT_LISTENERS = new CopyOnWriteArraySet<>();
   public D2S.MercData merc;
-
-  /** total number of items equipped for each set */
-  public final IntIntMap SETS_EQUIP = new IntIntMap();
-  /** total number of owned items for each set item */
-  public final IntIntMap SETS_OWNS = new IntIntMap();
+  public CharData charData;
+  public final CharacterClass charClass;
 
   public Player(String name, CharacterClass characterClass) {
     this(name, characterClass.id);
-    stats = new StatsImpl(name, characterClass.id);
-    skills = new SkillsImpl();
-    skillBar = new int[16];
-    actions = new int[2][2];
   }
 
-  public Player(D2S d2s) {
-    this(d2s.header.name, d2s.header.charClass);
-    d2s.loadRemaining();
-    stats = new D2SStats(d2s);
-    skills = new D2SSkills(d2s);
-    skillBar = d2s.header.hotkeys;
-    actions = d2s.header.actions;
-    loadItems(d2s.items.items);
-    merc = d2s.header.merc;
+  public Player(CharData charData) {
+    this(charData.getD2S().header.name, charData.getD2S().header.charClass);
+    this.charData = charData;
+    charData.getD2S().loadRemaining();
+    charData.updateD2S();
+    loadItems(charData.getD2S().items.items);
+    merc = charData.getD2S().header.merc;
     for (Item item : merc.items.items.items) {
       item.load();
     }
+    charData.addEquippedListener(this);
   }
 
   public Player(Connect connect) {
@@ -156,51 +101,11 @@ public class Player extends Entity {
     angle(-MathUtils.PI / 2);
   }
 
-  public int getSkillBar(int skill, boolean left) {
-    return ArrayUtils.indexOf(skillBar, left ? skill | D2S.HOTKEY_LEFT_MASK : skill);
-  }
-
   private void loadItems(Array<Item> items) {
-    for (StoreLoc storeLoc : StoreLoc.values()) {
-      store.put(storeLoc, new Array<Item>());
-    }
     for (Item item : items) {
-      item.setOwner(this);
-      switch (item.location) {
-        case EQUIPPED:
-          equipped.put(item.bodyLoc, item);
-          if (item.quality == Quality.SET) {
-            Sets.Entry set = Riiablo.files.SetItems.get(item.qualityId).getSet();
-            int id = Riiablo.files.Sets.index(set.index);
-            SETS_EQUIP.getAndIncrement(id, 0, 1);
-          }
-          if (DEBUG_EQUIP) Gdx.app.debug(TAG, item.bodyLoc + ": " + item);
-          break;
-        case STORED:
-          store.get(item.storeLoc).add(item);
-          break;
-        case BELT:
-          item.gridY = (byte) -(item.gridX >>> 2);
-          item.gridX &= 0x3;
-          System.out.println(item.getName() + ": " + item.gridX + ", " + item.gridY);
-          belt.add(item);
-          break;
-        default:
-          if (DEBUG_INV) Gdx.app.debug(TAG, item.gridX + "," + item.gridY + ": " + item);
-      }
-      if (item.quality == Quality.SET) {
-        SETS_OWNS.getAndIncrement(item.qualityId, 0, 1);
-      }
+      //item.setOwner(this);
       item.load();
     }
-  }
-
-  public Array<Item> getBelt() {
-    return belt;
-  }
-
-  public Array<Item> getStore(StoreLoc storeLoc) {
-    return store.get(storeLoc);
   }
 
   @Override
@@ -257,11 +162,11 @@ public class Player extends Entity {
 
     updateWeaponClass();
 
-    Item head = getSlot(Slot.HEAD);
+    Item head = charData.getEquipped(BodyLoc.HEAD);
     setComponent(COF.Component.HD, head != null ? (byte) Type.PLR.getComponent(head.base.alternateGfx) : (byte) 1);
     setTransform(COF.Component.HD, head != null ? (byte) ((head.base.Transform << 5) | (head.charColorIndex & 0x1F)) : (byte) 0xFF);
 
-    Item body = getSlot(Slot.TORS);
+    Item body = charData.getEquipped(BodyLoc.TORS);
     if (body != null) {
       Armor.Entry armor = body.getBase();
       setComponent(COF.Component.TR, (byte) (armor.Torso + 1));
@@ -297,9 +202,21 @@ public class Player extends Entity {
     super.updateCOF();
   }
 
+  @Override
+  public void onChanged(CharData client, BodyLoc bodyLoc, Item oldItem, Item item) {
+    if (item != null) item.bodyLoc = bodyLoc;
+    invalidate(bodyLoc.components());
+    updateWeaponClass();
+  }
+
+  @Override
+  public void onAlternated(CharData client, int alternate, Item LH, Item RH) {
+    updateWeaponClass();
+  }
+
   private void updateWeaponClass() {
     Item RH = null, LH = null, SH = null;
-    Item rArm = getSlot(Slot.RARM);
+    Item rArm = charData.getEquipped2(BodyLoc.RARM);
     if (rArm != null) {
       if (rArm.type.is(com.riiablo.item.Type.WEAP)) {
         RH = rArm;
@@ -308,7 +225,7 @@ public class Player extends Entity {
       }
     }
 
-    Item lArm = getSlot(Slot.LARM);
+    Item lArm = charData.getEquipped2(BodyLoc.LARM);
     if (lArm != null) {
       if (lArm.type.is(com.riiablo.item.Type.WEAP)) {
         LH = lArm;
@@ -370,53 +287,6 @@ public class Player extends Entity {
     setAlpha(COF.Component.SH, SH != null && SH.isEthereal() ? Item.ETHEREAL_ALPHA : 1.0f);
   }
 
-  public Item getSlot(Slot slot) {
-    BodyLoc loc = slot.toBodyLoc(alternate);
-    return getSlot(loc);
-  }
-
-  public Item getSlot(BodyLoc loc) {
-    return equipped.get(loc);
-  }
-
-  public Item setSlot(Slot slot, Item item) {
-    Preconditions.checkState(item == null || getSlot(slot) == null, "Slot must be empty first!");
-    BodyLoc loc = slot.toBodyLoc(alternate);
-    return setSlot(loc, item);
-  }
-
-  public Item setSlot(BodyLoc loc, Item item) {
-    Item oldItem = equipped.put(loc, item);
-
-    //setTransform();
-    int components = loc.components();
-    invalidate(components);
-    updateWeaponClass();
-
-    notifySlotChanged(loc, oldItem, item);
-    return oldItem;
-  }
-
-  public boolean isAlternate() {
-    return alternate;
-  }
-
-  public void setAlternate(boolean b) {
-    if (alternate != b) {
-      alternate = b;
-      updateWeaponClass();
-      Item LH = getSlot(BodyLoc.LARM);
-      Item RH = getSlot(BodyLoc.RARM);
-      Item LH2 = getSlot(BodyLoc.LARM2);
-      Item RH2 = getSlot(BodyLoc.RARM2);
-      if (b) {
-        notifyAlternate(LH2, RH2);
-      } else {
-        notifyAlternate(LH, RH);
-      }
-    }
-  }
-
   @Override
   public boolean isCasting(byte mode) {
     return (CASTING_MODES & (1 << mode)) != 0;
@@ -430,241 +300,5 @@ public class Player extends Entity {
   @Override
   public boolean isMoving(byte mode) {
     return (MOVING_MODES & (1 << mode)) != 0;
-  }
-
-  private void notifySlotChanged(BodyLoc bodyLoc, Item oldItem, Item item) {
-    for (SlotListener l : SLOT_LISTENERS) l.onChanged(this, bodyLoc, oldItem, item);
-  }
-
-  private void notifyAlternate(Item LH, Item RH) {
-    for (SlotListener l : SLOT_LISTENERS) l.onAlternate(this, LH, RH);
-  }
-
-  public boolean addSlotListener(SlotListener l) {
-    return SLOT_LISTENERS.add(l);
-  }
-
-  public boolean containsSlotListener(Object o) {
-    return o != null && SLOT_LISTENERS.contains(o);
-  }
-
-  public boolean removeSlotListener(Object o) {
-    return o != null && SLOT_LISTENERS.remove(o);
-  }
-
-  public boolean clearSlotListeners() {
-    boolean empty = SLOT_LISTENERS.isEmpty();
-    SLOT_LISTENERS.clear();
-    return !empty;
-  }
-
-  public interface SlotListener {
-    void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item);
-    void onAlternate(Player player, Item LH, Item RH);
-  }
-
-  public static class SlotAdapter implements SlotListener {
-    @Override public void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item) {}
-    @Override public void onAlternate(Player player, Item LH, Item RH) {}
-  }
-
-  public interface Stats {
-    int getClassId();
-    CharacterClass getCharClass();
-    String getName();
-    int getLevel();
-    long getExperience();
-    int getStrength();
-    int getDexterity();
-    int getVitality();
-    int getEnergy();
-    int getFireResistance();
-    int getColdResistance();
-    int getLightningResistance();
-    int getPoisonResistance();
-    int getInvGold();
-    int getStashGold();
-  }
-
-  public class StatsImpl implements Stats {
-    final String name;
-    final int    classId;
-    StatsImpl(String name, int classId) {
-      this.name = name;
-      this.classId = classId;
-    }
-
-    @Override
-    public int getClassId() {
-      return classId;
-    }
-
-    @Override
-    public CharacterClass getCharClass() {
-      return CharacterClass.get(getClassId());
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public int getLevel() {
-      return 0;
-    }
-
-    @Override
-    public long getExperience() {
-      return 0;
-    }
-
-    @Override
-    public int getStrength() {
-      return 0;
-    }
-
-    @Override
-    public int getDexterity() {
-      return 0;
-    }
-
-    @Override
-    public int getVitality() {
-      return 0;
-    }
-
-    @Override
-    public int getEnergy() {
-      return 0;
-    }
-
-    @Override
-    public int getFireResistance() {
-      return 0;
-    }
-
-    @Override
-    public int getColdResistance() {
-      return 0;
-    }
-
-    @Override
-    public int getLightningResistance() {
-      return 0;
-    }
-
-    @Override
-    public int getPoisonResistance() {
-      return 0;
-    }
-
-    @Override
-    public int getInvGold() {
-      return 0;
-    }
-
-    @Override
-    public int getStashGold() {
-      return 0;
-    }
-  }
-
-  public class D2SStats implements Stats {
-    public final D2S d2s;
-    D2SStats(D2S d2s) {
-      this.d2s = d2s;
-    }
-
-    @Override
-    public int getClassId() {
-      return d2s.header.charClass;
-    }
-
-    @Override
-    public CharacterClass getCharClass() {
-      return CharacterClass.get(getClassId());
-    }
-
-    @Override
-    public String getName() {
-      return d2s.header.name;
-    }
-
-    public int getLevel() {
-      return d2s.stats.level;
-    }
-
-    public long getExperience() {
-      return d2s.stats.xp;
-    }
-
-    public int getStrength() {
-      return d2s.stats.strength;
-    }
-
-    public int getDexterity() {
-      return d2s.stats.dexterity;
-    }
-
-    public int getVitality() {
-      return d2s.stats.vitality;
-    }
-
-    public int getEnergy() {
-      return d2s.stats.energy;
-    }
-
-    public int getFireResistance() {
-      return 0;
-    }
-
-    public int getColdResistance() {
-      return 0;
-    }
-
-    public int getLightningResistance() {
-      return 0;
-    }
-
-    public int getPoisonResistance() {
-      return 0;
-    }
-
-    @Override
-    public int getInvGold() {
-      return d2s.stats.invGold;
-    }
-
-    @Override
-    public int getStashGold() {
-      return d2s.stats.stashGold;
-    }
-  }
-
-  public interface Skills {
-    int getLevel(int skill);
-  }
-
-  public class SkillsImpl implements Skills {
-    SkillsImpl() {}
-
-    @Override
-    public int getLevel(int skill) {
-      return 0;
-    }
-  }
-
-  public class D2SSkills implements Skills {
-    public final D2S.SkillData skills;
-    D2SSkills(D2S d2s) {
-      this.skills = d2s.skills;
-    }
-
-    @Override
-    public int getLevel(int skill) {
-      skill -= charClass.firstSpell;
-      return skills.data[skill];
-    }
   }
 }

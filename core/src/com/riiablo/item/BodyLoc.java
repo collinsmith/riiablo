@@ -29,6 +29,29 @@ public enum BodyLoc {
   RARM2(RH|LH|SH),
   LARM2(RH|LH|SH);
 
+  public static BodyLoc getAlternate(BodyLoc bodyLoc, int i) {
+    switch (bodyLoc) {
+      case RARM:
+      case RARM2:
+        return i > 0 ? RARM2 : RARM;
+      case LARM:
+      case LARM2:
+        return i > 0 ? LARM2 : LARM;
+      default:
+        return bodyLoc;
+    }
+  }
+
+  public static boolean isWeaponLoc(BodyLoc bodyLoc) {
+    switch (bodyLoc) {
+      case RARM: case LARM:
+      case RARM2: case LARM2:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   public static BodyLoc valueOf(int i) {
     switch (i) {
       case 0:  return NONE;

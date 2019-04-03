@@ -2,12 +2,14 @@ package com.riiablo.panel;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
@@ -16,7 +18,6 @@ import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
-import com.riiablo.entity.Player;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
@@ -77,8 +78,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
 
     final float SIZE = Gdx.app.getType() == Application.ApplicationType.Android ? 64 : 48;
 
-    Player player = gameScreen.player;
-    CharacterClass charClass = player.charClass;
+    CharacterClass charClass = Riiablo.charData.getCharacterClass();
     keyMappings = new ObjectMap<>(31);
     Table top = new Table() {{
       add(new HotkeyButton(Skillicon, 14, -1)).size(SIZE);
@@ -87,10 +87,10 @@ public class SpellsQuickPanel extends Table implements Disposable {
     }};
     Table[] tables = new Table[5];
     // TODO: Include non-class spells gained from items
-    for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
-      if (player.skills.getLevel(i) <= 0) continue;
+    for (IntIntMap.Entry skillId : Riiablo.charData.getSkills()) {
+      if (skillId.value <= 0) continue; // level <= 0
 
-      final Skills.Entry skill = Riiablo.files.skills.get(i);
+      final Skills.Entry skill = Riiablo.files.skills.get(skillId.key);
       if (leftSkills && !skill.leftskill) continue;
       if (skill.passive) continue;
 
@@ -108,7 +108,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
 
-      int index = player.getSkillBar(i, leftSkills);
+      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, skillId.key);
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
         MappedKey mapping = Keys.Skill[index];
         button.map(mapping);

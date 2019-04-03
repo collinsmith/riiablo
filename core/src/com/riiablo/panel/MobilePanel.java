@@ -40,7 +40,7 @@ public class MobilePanel extends Table implements Disposable {
         if (actor == btnCharacter) {
           gameScreen.characterPanel.setVisible(!gameScreen.characterPanel.isVisible());
         } else if (actor == btnSwapWeapons) {
-          gameScreen.player.setAlternate(!gameScreen.player.isAlternate());
+          Riiablo.charData.alternate();
         } else if (actor == btnInventory) {
           gameScreen.inventoryPanel.setVisible(!gameScreen.inventoryPanel.isVisible());
         } else if (actor == btnSkillTree) {

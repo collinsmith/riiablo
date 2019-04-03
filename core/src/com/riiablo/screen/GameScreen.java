@@ -164,7 +164,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   }
 
   public GameScreen(CharData player, Socket socket) {
-    this.player = new Player(player.getD2S());
+    this.player = new Player(player);
     this.socket = socket;
     player.loadItems();
 
@@ -361,7 +361,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
           characterPanel.setVisible(false);
           stashPanel.setVisible(!stashPanel.isVisible());
         } else if (key == Keys.SwapWeapons) {
-          Riiablo.charData.setAlternate(~Riiablo.charData.getAlternate());
+          Riiablo.charData.alternate();
         }
       }
     };

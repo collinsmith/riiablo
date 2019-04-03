@@ -16,14 +16,14 @@ public class Attributes extends PropertyList {
    */
 
   final PropertyList attrs = new PropertyList();
-  final Bits modified = new Bits(512);
+  final Bits modified = new Bits(1 << Stat.BITS);
 
   public Attributes() {}
 
   public void apply(PropertyList list) {
     modified.clear();
     attrs.clear();
-    attrs.addAll(this);
+    attrs.deepCopy(this);
 
     for (Stat.Instance stat : list) {
       Stat.Instance existing = attrs.get(stat.hash);
@@ -37,11 +37,20 @@ public class Attributes extends PropertyList {
     }
 
     for (Stat.Instance stat : list) {
-      op(stat, stat.entry);
+      int op_base = stat.entry.op_param > 0
+          ? 1 // TODO: Riiablo.player.get(op_base)
+          : 1;
+      for (String op_stat : stat.entry.op_stat) {
+        if (op_stat.isEmpty()) break;
+        int statId = Riiablo.files.ItemStatCost.index(op_stat);
+        Stat.Instance mod = attrs.get(statId);
+        if (mod == null) continue;
+        op(mod, op_base, stat, stat.entry);
+      }
     }
   }
 
-  private void op(Stat.Instance stat, ItemStatCost.Entry entry) {
+  private void op(Stat.Instance mod, int op_base, Stat.Instance stat, ItemStatCost.Entry entry) {
     switch (entry.op) {
       case 1:
         // adds opstat.base * statvalue / 100 to the opstat.
@@ -53,6 +62,7 @@ public class Attributes extends PropertyList {
         // skills, just because it looks like it works in the item description does not mean it
         // does, the game just recalculates the information in the description every frame, while
         // the values remain unchanged serverside.
+
         break;
       case 3:
         // this is a percentage based version of op #2, look at op #2 for information about the
@@ -102,16 +112,8 @@ public class Attributes extends PropertyList {
         // adds opstat.base * statvalue / 100 to the value of opstat, this is useable only on items
         // it will not apply the bonus to other unit types (this is why it is used for
         // +% durability, +% level requirement, +% damage, +% defense [etc]).
-        int op_base = entry.op_base.isEmpty() ? 1 : 1;
-        for (String op_stat : entry.op_stat) {
-          if (op_stat.isEmpty()) break;
-          System.out.println("op_stat=");
-          int statId = Riiablo.files.ItemStatCost.index(op_stat);
-          Stat.Instance mod = attrs.get(statId);
-          if (mod == null) continue;
-          mod.value = mod.value * (op_base * (stat.value + 100)) / 100;
-          modified.set(statId);
-        }
+        mod.value += (mod.value * op_base * stat.value / 100);
+        modified.set(mod.stat);
         break;
     }
   }

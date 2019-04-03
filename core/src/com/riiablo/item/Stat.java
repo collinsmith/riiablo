@@ -1,5 +1,8 @@
 package com.riiablo.item;
 
+import com.google.common.primitives.UnsignedInts;
+
+import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.CharStats;
@@ -7,7 +10,6 @@ import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BitStream;
-import com.riiablo.entity.Player;
 
 import java.util.Arrays;
 
@@ -462,7 +464,7 @@ public class Stat {
     return new Instance(stat, param, value);
   }
 
-  static class Instance implements Comparable<Instance> {
+  public static class Instance implements Comparable<Instance> {
     final int stat;
     final int param; // can probably safely be truncated to short
     final int hash;
@@ -550,18 +552,18 @@ public class Stat {
         "ModStre9e", "ModStre9g", "ModStre9d", "ModStre9f",
     };
 
-    public String format(Player owner) {
-      return format(owner, entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
+    public String format(CharData charData) {
+      return format(charData, entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
     }
 
     @Deprecated
-    public String format(Player owner, boolean group) {
+    public String format(CharData charData, boolean group) {
       return group
-          ? format(owner, entry.dgrpfunc, entry.dgrpval, entry.dgrpstrpos, entry.dgrpstrneg, entry.dgrpstr2)
-          : format(owner, entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
+          ? format(charData, entry.dgrpfunc, entry.dgrpval, entry.dgrpstrpos, entry.dgrpstrneg, entry.dgrpstr2)
+          : format(charData, entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
     }
 
-    public String format(Player owner, int func, int valmode, String strpos, String strneg, String str2) {
+    public String format(CharData charData, int func, int valmode, String strpos, String strneg, String str2) {
       int value;
       CharStats.Entry entry;
       Skills.Entry skill;
@@ -761,6 +763,10 @@ public class Stat {
       return ((value >>> shift) + ((value & mask) / (float) pow));
     }
 
+    public long toLong() {
+      return UnsignedInts.toLong(value);
+    }
+
     public int param() {
       return param1();
     }
@@ -846,7 +852,7 @@ public class Stat {
     }
 
     @Override
-    public String format(Player unused0, int unused1, int unused2, String unused3, String unused4, String unused5) {
+    public String format(CharData unused0, int unused1, int unused2, String unused3, String unused4, String unused5) {
       if (stats.length == 2) {
         if (stats[0].value == stats[1].value) {
           return Riiablo.string.format(str, stats[1].value);

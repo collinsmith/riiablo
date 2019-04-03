@@ -151,8 +151,6 @@ public class Item extends Actor implements Disposable {
 
   public Details  details;
 
-  public Player   owner;
-
   public static Item loadFromStream(BitStream bitStream) {
     return new Item().read(bitStream);
   }
@@ -379,16 +377,6 @@ public class Item extends Actor implements Disposable {
   @SuppressWarnings("unchecked")
   public <T extends ItemEntry> T getBase() {
     return (T) base;
-  }
-
-  public void setOwner(Player owner) {
-    if (this.owner != owner) {
-      this.owner = owner;
-    }
-  }
-
-  public Player getOwner() {
-    return owner;
   }
 
   @Override
@@ -910,11 +898,11 @@ public class Item extends Actor implements Disposable {
       if (Item.this.type.is(Type.GEM) || Item.this.type.is(Type.RUNE)) {
         assert stats.length == NUM_GEM_PROPS;
         add().height(font.getLineHeight()).space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp3") + " " + stats[WEAPON_PROPS].copy().reduce().get().format(owner), font, Riiablo.colors.white)).center().space(SPACING).row();
-        String tmp = stats[ARMOR_PROPS].copy().reduce().get().format(owner);
+        add(new Label(Riiablo.string.lookup("GemXp3") + " " + stats[WEAPON_PROPS].copy().reduce().get().format(Riiablo.charData), font, Riiablo.colors.white)).center().space(SPACING).row();
+        String tmp = stats[ARMOR_PROPS].copy().reduce().get().format(Riiablo.charData);
         add(new Label(Riiablo.string.lookup("GemXp4") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
         add(new Label(Riiablo.string.lookup("GemXp1") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp2") + " " + stats[SHIELD_PROPS].copy().reduce().get().format(owner), font, Riiablo.colors.white)).center().space(SPACING).row();
+        add(new Label(Riiablo.string.lookup("GemXp2") + " " + stats[SHIELD_PROPS].copy().reduce().get().format(Riiablo.charData), font, Riiablo.colors.white)).center().space(SPACING).row();
         add().height(font.getLineHeight()).space(SPACING).row();
       }
 
@@ -994,15 +982,11 @@ public class Item extends Actor implements Disposable {
           }
           if (runeProps != null) magicPropsAggregate.addAll(runeProps);
           magicPropsAggregate.reduce();
-          //System.out.println(Item.this.getName());
-          //for (Stat.Instance stat : magicPropsAggregate.props.values()) {
-          //  System.out.println(stat);
-          //}
 
           Array<Stat.Instance> aggregate = magicPropsAggregate.toArray();
           aggregate.sort();
           for (Stat.Instance stat : aggregate) {
-            String text = stat.format(owner);
+            String text = stat.format(Riiablo.charData);
             if (text == null) continue;
             add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
           }
@@ -1032,13 +1016,13 @@ public class Item extends Actor implements Disposable {
       if (quality == SET) {
         SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
         int setId = Riiablo.files.Sets.index(setItem.set);
-        int numEquipped = owner.SETS_EQUIP.get(setId, 0);
+        int numEquipped = Riiablo.charData.getSets().get(setId, 0);
         if (numEquipped >= 2) {
           PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
           Array<Stat.Instance> aggregate = setProps.toArray();
           aggregate.sort();
           for (Stat.Instance stat : aggregate) {
-            String text = stat.format(owner);
+            String text = stat.format(Riiablo.charData);
             if (text == null) continue;
             add(new Label(text, font, Riiablo.colors.green)).center().space(SPACING).row();
           }
@@ -1072,7 +1056,7 @@ public class Item extends Actor implements Disposable {
             aggregate = setBonus.toArray();
             aggregate.sort();
             for (Stat.Instance stat : aggregate) {
-              String text = stat.format(owner);
+              String text = stat.format(Riiablo.charData);
               if (text == null) continue;
               add(new Label(text, font, Riiablo.colors.gold)).center().space(SPACING).row();
             }
@@ -1083,7 +1067,7 @@ public class Item extends Actor implements Disposable {
         Sets.Entry set = Riiablo.files.SetItems.get(qualityId).getSet();
         add(new Label(Riiablo.string.lookup(set.name), font, Riiablo.colors.gold)).space(SPACING).row();
         for (SetItems.Entry item : set.getItems()) {
-          int numOwned = owner.SETS_OWNS.get(Riiablo.files.SetItems.index(item.index), 0);
+          int numOwned = Riiablo.charData.getSetItems().get(Riiablo.files.SetItems.index(item.index), 0);
           Label label = new Label(Riiablo.string.lookup(item.index), font,
               numOwned > 0 ? Riiablo.colors.green : Riiablo.colors.red);
           add(label).space(SPACING).row();

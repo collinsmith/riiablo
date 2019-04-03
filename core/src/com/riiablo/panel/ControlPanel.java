@@ -2,6 +2,7 @@ package com.riiablo.panel;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -116,7 +117,7 @@ public class ControlPanel extends Table implements Disposable {
     manaWidget = new ManaWidget(ctrlpnl.getTexture(numFrames - 2));
 
     if (!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      int leftSkillId = gameScreen.player.actions[0][0];
+      int leftSkillId = Riiablo.charData.getSkill(Input.Buttons.LEFT);
       if (leftSkillId > 0) {
         final Skills.Entry skill = Riiablo.files.skills.get(leftSkillId);
         final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
@@ -129,7 +130,7 @@ public class ControlPanel extends Table implements Disposable {
 
         leftSkill = new HotkeyButton(icons, iconCel, skill.Id);
         if (skill.aura) leftSkill.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
-        int index = ArrayUtils.indexOf(gameScreen.player.skillBar, leftSkillId);
+        int index = Riiablo.charData.getHotkey(Input.Buttons.LEFT, leftSkillId);
         if (index != ArrayUtils.INDEX_NOT_FOUND) {
           MappedKey mapping = Keys.Skill[index];
           leftSkill.map(mapping);
@@ -144,7 +145,7 @@ public class ControlPanel extends Table implements Disposable {
         }
       });
 
-      int rightSkillId = gameScreen.player.actions[0][1];
+      int rightSkillId = Riiablo.charData.getSkill(Input.Buttons.RIGHT);
       if (rightSkillId > 0) {
         final Skills.Entry skill = Riiablo.files.skills.get(rightSkillId);
         final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
@@ -157,7 +158,7 @@ public class ControlPanel extends Table implements Disposable {
 
         rightSkill = new HotkeyButton(icons, iconCel, skill.Id);
         if (skill.aura) rightSkill.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
-        int index = ArrayUtils.indexOf(gameScreen.player.skillBar, rightSkillId);
+        int index = Riiablo.charData.getHotkey(Input.Buttons.RIGHT, rightSkillId);
         if (index != ArrayUtils.INDEX_NOT_FOUND) {
           MappedKey mapping = Keys.Skill[index];
           rightSkill.map(mapping);
@@ -316,7 +317,7 @@ public class ControlPanel extends Table implements Disposable {
       belt.setRows(4);
       belt.setBackground(popbelt);
       belt.setPosition(177, 8);
-      belt.populate(gameScreen.player.getBelt());
+      belt.populate(Riiablo.charData.getBelt());
       addActor(belt);
       //setDebug(true, true);
     }

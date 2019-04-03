@@ -14,16 +14,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
+import com.riiablo.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.util.BBox;
-import com.riiablo.entity.Player;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
+import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
@@ -102,7 +103,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     });
     addActor(btnExit);
 
-    inventory = Riiablo.files.inventory.getClass(gameScreen.player.stats.getClassId());
+    inventory = Riiablo.files.inventory.getClass(Riiablo.charData.getCharacterClass().id);
 
     Riiablo.assets.load(inv_armorDescriptor);
     Riiablo.assets.load(inv_beltDescriptor);
@@ -218,7 +219,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
       if (bodyParts[i] == null) continue;
       bodyParts[i].slot = i;
-      bodyParts[i].item = gameScreen.player.getSlot(BodyLoc.valueOf(i));
+      bodyParts[i].item = Riiablo.charData.getEquipped(BodyLoc.valueOf(i));
       bodyParts[i].setBodyPart(Riiablo.files.bodylocs.get(i).Code);
     }
 
@@ -240,38 +241,37 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     EventListener swapListener = new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-        boolean alternate = !gameScreen.player.isAlternate();
-        gameScreen.player.setAlternate(alternate);
+        Riiablo.charData.alternate();
       }
     };
     alternateWeaponsL.addListener(swapListener);
     alternateWeaponsR.addListener(swapListener);
 
-    gameScreen.player.addSlotListener(new Player.SlotListener() {
+    Riiablo.charData.addEquippedListener(new CharData.EquippedAdapter() {
       @Override
-      public void onChanged(Player player, BodyLoc bodyLoc, Item oldItem, Item item) {
+      public void onChanged(CharData client, BodyLoc bodyLoc, Item oldItem, Item item) {
         //System.out.println("slot = " + slot);
         //bodyParts[bodyLoc.ordinal()].item = item;
         //if (item != null) Riiablo.audio.play(item.base.dropsound, true);
       }
 
       @Override
-      public void onAlternate(Player player, Item LH, Item RH) {
-        bodyParts[BodyLocs.RARM].bodyLoc = player.isAlternate() ? BodyLoc.RARM2 : BodyLoc.RARM;
-        bodyParts[BodyLocs.LARM].bodyLoc = player.isAlternate() ? BodyLoc.LARM2 : BodyLoc.LARM;
+      public void onAlternated(CharData client, int alternate, Item LH, Item RH) {
+        bodyParts[BodyLocs.RARM].bodyLoc = BodyLoc.getAlternate(BodyLoc.RARM, alternate);
+        bodyParts[BodyLocs.LARM].bodyLoc = BodyLoc.getAlternate(BodyLoc.LARM, alternate);
         bodyParts[BodyLocs.RARM].item = RH;
         bodyParts[BodyLocs.LARM].item = LH;
       }
     });
 
     ItemGrid grid = new ItemGrid(gameScreen, inventory);
-    grid.populate(gameScreen.player.getStore(StoreLoc.INVENTORY));
+    grid.populate(Riiablo.charData.getStore(StoreLoc.INVENTORY));
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());
     addActor(grid);
 
-    Label invgold = new Label(Integer.toString(gameScreen.player.stats.getInvGold()), Riiablo.fonts.font16);
+    Label invgold = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.gold).value()), Riiablo.fonts.font16);
     invgold.setSize(90, 16);
     invgold.setPosition(107, 24);
     addActor(invgold);
@@ -306,7 +306,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
   @Override
   public void draw(Batch batch, float a) {
     batch.draw(invchar, getX(), getY());
-    if (gameScreen.player.isAlternate()) {
+    if (Riiablo.charData.getAlternate() > 0) {
       batch.draw(invcharTabR,
           getX() + inventory.rArmLeft - inventory.invLeft - 5,
           getY() + getHeight() - inventory.rArmBottom - 4);
@@ -336,18 +336,18 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
           Item cursor = Riiablo.cursor.getItem();
           if (cursor != null) {
             if (!ArrayUtils.contains(cursor.typeEntry.BodyLoc, bodyPart)) {
-              Riiablo.audio.play(gameScreen.player.stats.getCharClass().name().toLowerCase() + "_impossible_1", false);
+              Riiablo.audio.play(Riiablo.charData.getCharacterClass().name().toLowerCase() + "_impossible_1", false);
               return;
             }
 
             Riiablo.audio.play(cursor.getDropSound(), true);
             Riiablo.cursor.setItem(item);
             item = cursor;
-            gameScreen.player.setSlot(InventoryPanel.BodyPart.this.bodyLoc, item);
+            Riiablo.charData.setEquipped(InventoryPanel.BodyPart.this.bodyLoc, item);
           } else {
             Riiablo.cursor.setItem(item);
             item = null;
-            gameScreen.player.setSlot(InventoryPanel.BodyPart.this.bodyLoc, null);
+            Riiablo.charData.setEquipped(InventoryPanel.BodyPart.this.bodyLoc, null);
           }
         }
       });
@@ -363,7 +363,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     @Override
     public void draw(Batch batch, float a) {
       int x, y;
-      if (gameScreen.player.isAlternate()) {
+      if (Riiablo.charData.getAlternate() > 0) {
         x = xOffsAlt == Integer.MIN_VALUE ? xOffs : xOffsAlt;
         y = yOffsAlt == Integer.MIN_VALUE ? yOffs : yOffsAlt;
       } else {

@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Inventory;
+import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
@@ -61,13 +62,13 @@ public class StashPanel extends WidgetGroup implements Disposable {
     inventory = Riiablo.files.inventory.get("Big Bank Page 1");
 
     ItemGrid grid = new ItemGrid(gameScreen, inventory);
-    grid.populate(gameScreen.player.getStore(StoreLoc.STASH));
+    grid.populate(Riiablo.charData.getStore(StoreLoc.STASH));
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());
     addActor(grid);
 
-    Label stashgold = new Label(Integer.toString(gameScreen.player.stats.getStashGold()), Riiablo.fonts.font16);
+    Label stashgold = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.goldbank).value()), Riiablo.fonts.font16);
     stashgold.setSize(150, 16);
     stashgold.setPosition(98, 393);
     addActor(stashgold);
