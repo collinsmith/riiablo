@@ -930,37 +930,63 @@ public class Item extends Actor implements Disposable {
 
       //if ((flags & COMPACT) == 0) {
         Stat.Instance prop;
-        if ((prop = props.get(Stat.armorclass)) != null) {
+        if ((prop = props.attrs().get(Stat.armorclass)) != null) {
           Table table = new Table();
-          table.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font, Riiablo.colors.white));
-          table.add(new Label(Integer.toString(prop.value), font, props.modified.get(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
+          table.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font));
+          table.add(new Label(Integer.toString(prop.value), font, props.isModified(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
           table.pack();
           add(table).space(SPACING).row();
-          setDebug(true, true);
         }
         if (Item.this.type.is(Type.WEAP)) {
-          if ((prop = props.get(Stat.maxdamage)) != null) // TODO: Conditional 2 handed if barbarian, etc
-            add(new Label(Riiablo.string.lookup("ItemStats1l") + " " + props.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          Weapons.Entry weapon = getBase();
+          int i;
+          if (weapon._1or2handed && Riiablo.charData.getCharacterClass() == CharacterClass.BARBARIAN) {
+            i = 3;
+          } else if (weapon._2handed) {
+            i = 2;
+          } else {
+            i = 1;
+          }
+          if ((i & 1) != 0 && (prop = props.attrs().get(Stat.maxdamage)) != null) {
+            Table table = new Table();
+            table.add(new Label(Riiablo.string.lookup("ItemStats1l") + " ", font));
+            table.add(new Label(props.get(Stat.mindamage).value + " to " + prop.value, font, props.isModified(Stat.maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.pack();
+            add(table).space(SPACING).row();
+          }
+          if ((i & 2) != 0 && (prop = props.attrs().get(Stat.secondary_maxdamage)) != null) {
+            Table table = new Table();
+            table.add(new Label(Riiablo.string.lookup("ItemStats1m") + " ", font));
+            table.add(new Label(props.get(Stat.secondary_mindamage).value + " to " + prop.value, font, props.isModified(Stat.secondary_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.pack();
+            add(table).space(SPACING).row();
+          }
+          if (typeEntry.Throwable && (prop = props.attrs().get(Stat.item_throw_maxdamage)) != null) {
+            Table table = new Table();
+            table.add(new Label(Riiablo.string.lookup("ItemStats1n") + " ", font));
+            table.add(new Label(props.get(Stat.item_throw_mindamage).value + " to " + prop.value, font, props.isModified(Stat.item_throw_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.pack();
+            add(table).space(SPACING).row();
+          }
         }
         if (Item.this.type.is(Type.SHLD)) {
-          if ((prop = props.get(Stat.toblock)) != null)
+          if ((prop = props.attrs().get(Stat.toblock)) != null)
             add(new Label(Riiablo.string.lookup("ItemStats1r") + prop.value + "%", font, Riiablo.colors.white)).center().space(SPACING).row();
-          // TODO: if paladin, show smite damage -- ItemStats1o %d to %d
-          if ((prop = props.get(Stat.maxdamage)) != null && prop.value > 0)
-            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          if (Riiablo.charData.getCharacterClass() == CharacterClass.PALADIN && (prop = props.attrs().get(Stat.maxdamage)) != null && prop.value > 0)
+            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.attrs().get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if (!Item.this.base.nodurability && (prop = props.get(Stat.durability)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (!Item.this.base.nodurability && (prop = props.attrs().get(Stat.durability)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.attrs().get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is(Type.CLAS)) {
           add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.typeEntry.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if ((prop = props.get(Stat.reqdex)) != null && prop.value > 0)
+        if ((prop = props.attrs().get(Stat.reqdex)) != null && prop.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.get(Stat.reqstr)) != null && prop.value > 0)
+        if ((prop = props.attrs().get(Stat.reqstr)) != null && prop.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.get(Stat.item_levelreq)) != null && prop.value > 0)
+        if ((prop = props.attrs().get(Stat.item_levelreq)) != null && prop.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.get(Stat.quantity)) != null)
+        if ((prop = props.attrs().get(Stat.quantity)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is(Type.WEAP)) {
           add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();

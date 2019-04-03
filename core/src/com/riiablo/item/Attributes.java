@@ -20,6 +20,14 @@ public class Attributes extends PropertyList {
 
   public Attributes() {}
 
+  public PropertyList attrs() {
+    return attrs;
+  }
+
+  public boolean isModified(int stat) {
+    return modified.get(stat);
+  }
+
   public void apply(PropertyList list) {
     modified.clear();
     attrs.clear();
