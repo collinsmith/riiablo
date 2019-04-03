@@ -72,10 +72,10 @@ public class CharData {
     stats.put(Stat.goldbank, d2s.stats.goldbank);
     stats.put(Stat.damageresist, 0);
     stats.put(Stat.magicresist, 0);
-    stats.put(Stat.fireresist, 0);
-    stats.put(Stat.lightresist, 0);
-    stats.put(Stat.coldresist, 0);
-    stats.put(Stat.poisonresist, 0);
+    stats.put(Stat.fireresist, 0); // TODO: set based on diff
+    stats.put(Stat.lightresist, 0); // TODO: set based on diff
+    stats.put(Stat.coldresist, 0); // TODO: set based on diff
+    stats.put(Stat.poisonresist, 0); // TODO: set based on diff
 
     skills.clear();
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {

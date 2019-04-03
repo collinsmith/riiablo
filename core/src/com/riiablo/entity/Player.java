@@ -76,8 +76,10 @@ public class Player extends Entity implements CharData.EquippedListener {
     charData.updateD2S();
     loadItems(charData.getD2S().items.items);
     merc = charData.getD2S().header.merc;
-    for (Item item : merc.items.items.items) {
-      item.load();
+    if (merc.items.items != null) {
+      for (Item item : merc.items.items.items) {
+        item.load();
+      }
     }
     charData.addEquippedListener(this);
   }

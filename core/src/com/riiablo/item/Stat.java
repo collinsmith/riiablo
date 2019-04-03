@@ -601,7 +601,7 @@ public class Stat {
           if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
           return builder.toString();
         case 6: // +%d %s1 %s2
-          value = this.value;
+          value = op(charData);
           if (valmode == 1) builder.append(PLUS).append(value).append(SPACE);
           builder
               .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -610,7 +610,7 @@ public class Stat {
           if (valmode == 2) builder.append(SPACE).append(PLUS).append(value);
           return builder.toString();
         case 7: // %d%% %s1 %s2
-          value = this.value;
+          value = op(charData);
           if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
           builder
               .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -619,7 +619,7 @@ public class Stat {
           if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
           return builder.toString();
         case 8: // +%d%% %s1 %s2
-          value = this.value;
+          value = op(charData);
           if (valmode == 1) builder.append(PLUS).append(value).append(PERCENT).append(SPACE);
           builder
               .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -628,7 +628,7 @@ public class Stat {
           if (valmode == 2) builder.append(SPACE).append(PLUS).append(value).append(PERCENT);
           return builder.toString();
         case 9: // %d %s1 %s2
-          value = this.value;
+          value = op(charData);
           if (valmode == 1) builder.append(value).append(SPACE);
           builder
               .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -824,6 +824,44 @@ public class Stat {
         case 4:  return 0;
         default: return 0;
       }
+    }
+
+    private int op(CharData charData, int value) {
+      int op_base = entry.op_param > 0
+          ? Riiablo.charData.getStats().get(Riiablo.files.ItemStatCost.index(entry.op_base)).value()
+          : 1;
+      switch (entry.op) {
+        case 1:  return value;
+        case 2:  return value * op_base / (1 << entry.op_param);
+        case 3:  return value;
+        case 4:  return value * op_base / (1 << entry.op_param);
+        case 5:  return value * op_base / (1 << entry.op_param);
+        case 6:  return value; // Unsupported -- time of day
+        case 7:  return value; // Unsupported -- time of day %
+        case 8:  return value;
+        case 9:  return value;
+        case 10: return value;
+        case 11: return value;
+        case 12: return value;
+        case 13: return value;
+        default: return value;
+      }
+    }
+
+    public int op(CharData charData) {
+      return op1(charData);
+    }
+
+    public int op1(CharData charData) {
+      return op(charData, value1());
+    }
+
+    public int op2(CharData charData) {
+      return op(charData, value2());
+    }
+
+    public int op3(CharData charData) {
+      return op(charData, value3());
     }
 
     @Override

@@ -139,8 +139,10 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
     addActor(head);
 
     EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
-    for (Item item : gameScreen.player.merc.items.items.items) {
-      equipped.put(item.bodyLoc, item);
+    if (gameScreen.player.merc.items.items != null) {
+      for (Item item : gameScreen.player.merc.items.items.items) {
+        equipped.put(item.bodyLoc, item);
+      }
     }
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
       if (bodyParts[i] == null) continue;
