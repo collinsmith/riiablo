@@ -332,7 +332,7 @@ public class D2S {
           .append("seed", String.format("0x%08X", seed))
           .append("name", String.format("0x%02X", name))
           .append("type", String.format("0x%02X", type))
-          .append("xp", String.format("0x%08X", xp))
+          .append("experience", String.format("0x%08X", xp))
           .build();
     }
 
@@ -536,18 +536,18 @@ public class D2S {
     public int   energy;
     public int   dexterity;
     public int   vitality;
-    public int   statPoints;
-    public int   skillPoints;
-    public int   life;
-    public int   baseLife;
+    public int   statpts;
+    public int   newskills;
+    public int   hitpoints;
+    public int   maxhp;
     public int   mana;
-    public int   baseMana;
+    public int   maxmana;
     public int   stamina;
-    public int   baseStamina;
+    public int   maxstamina;
     public int   level;
-    public long  xp;
-    public int   invGold;
-    public int   stashGold;
+    public long  experience;
+    public int   gold;
+    public int   goldbank;
 
     static StatData obtain(ByteBuffer buffer) {
       return new StatData().read(buffer);
@@ -564,18 +564,18 @@ public class D2S {
           case 0x1: energy      = bitStream.readUnsigned31OrLess(numBits(id)); break;
           case 0x2: dexterity   = bitStream.readUnsigned31OrLess(numBits(id)); break;
           case 0x3: vitality    = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x4: statPoints  = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x5: skillPoints = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x6: life        = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x7: baseLife    = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0x4: statpts     = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0x5: newskills   = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0x6: hitpoints   = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0x7: maxhp       = bitStream.readUnsigned31OrLess(numBits(id)); break;
           case 0x8: mana        = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x9: baseMana    = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0x9: maxmana     = bitStream.readUnsigned31OrLess(numBits(id)); break;
           case 0xA: stamina     = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0xB: baseStamina = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0xB: maxstamina  = bitStream.readUnsigned31OrLess(numBits(id)); break;
           case 0xC: level       = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0xD: xp          = bitStream.readUnsigned(numBits(id)); break;
-          case 0xE: invGold     = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0xF: stashGold   = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0xD: experience  = bitStream.readUnsigned(numBits(id)); break;
+          case 0xE: gold        = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0xF: goldbank    = bitStream.readUnsigned31OrLess(numBits(id)); break;
           default:  continue;
         }
       }
@@ -592,18 +592,18 @@ public class D2S {
           .append("energy", energy)
           .append("dexterity", dexterity)
           .append("vitality", vitality)
-          .append("statPoints", statPoints)
-          .append("skillPoints", skillPoints)
-          .append("life", life)
-          .append("baseLife", baseLife)
+          .append("statpts", statpts)
+          .append("newskills", newskills)
+          .append("hitpoints", hitpoints)
+          .append("maxhp", maxhp)
           .append("mana", mana)
-          .append("baseMana", baseMana)
+          .append("maxmana", maxmana)
           .append("stamina", stamina)
-          .append("baseStamina", baseStamina)
+          .append("maxstamina", maxstamina)
           .append("level", level)
-          .append("xp", xp)
-          .append("invGold", invGold)
-          .append("stashGold", stashGold)
+          .append("experience", experience)
+          .append("gold", gold)
+          .append("goldbank", goldbank)
           .build();
     }
 
