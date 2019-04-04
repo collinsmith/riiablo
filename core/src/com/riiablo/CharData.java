@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.codec.D2S;
+import com.riiablo.codec.excel.DifficultyLevels;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
@@ -52,7 +53,8 @@ public class CharData {
     return this;
   }
 
-  public void updateD2S() {
+  public void updateD2S(int difficulty) {
+    DifficultyLevels.Entry diff = Riiablo.files.DifficultyLevels.get(difficulty);
     stats.clear();
     stats.put(Stat.strength, d2s.stats.strength);
     stats.put(Stat.energy, d2s.stats.energy);
@@ -72,10 +74,10 @@ public class CharData {
     stats.put(Stat.goldbank, d2s.stats.goldbank);
     stats.put(Stat.damageresist, 0);
     stats.put(Stat.magicresist, 0);
-    stats.put(Stat.fireresist, 0); // TODO: set based on diff
-    stats.put(Stat.lightresist, 0); // TODO: set based on diff
-    stats.put(Stat.coldresist, 0); // TODO: set based on diff
-    stats.put(Stat.poisonresist, 0); // TODO: set based on diff
+    stats.put(Stat.fireresist, diff.ResistPenalty);
+    stats.put(Stat.lightresist, diff.ResistPenalty);
+    stats.put(Stat.coldresist, diff.ResistPenalty);
+    stats.put(Stat.poisonresist, diff.ResistPenalty);
 
     skills.clear();
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
