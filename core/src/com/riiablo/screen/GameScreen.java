@@ -166,7 +166,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   public GameScreen(CharData player, Socket socket) {
     this.player = new Player(player);
     this.socket = socket;
-    player.loadItems();
+    charData.loadItems();
 
     Riiablo.viewport = viewport = Riiablo.extendViewport;
     stage = new Stage(viewport, Riiablo.batch);

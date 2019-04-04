@@ -44,25 +44,25 @@ public class D2S {
   static final int VERSION_109 = 92;
   static final int VERSION_110 = 96;
 
-  static final int FLAG_BIT0      = 1 << 0;
-  static final int FLAG_BIT1      = 1 << 1;
-  static final int FLAG_HARDCORE  = 1 << 2;
-  static final int FLAG_DIED      = 1 << 3;
-  static final int FLAG_BIT4      = 1 << 4;
-  static final int FLAG_EXPANSION = 1 << 5;
-  static final int FLAG_BIT6      = 1 << 6;
-  static final int FLAG_BIT7      = 1 << 7;
+  public static final int FLAG_BIT0      = 1 << 0;
+  public static final int FLAG_BIT1      = 1 << 1;
+  public static final int FLAG_HARDCORE  = 1 << 2;
+  public static final int FLAG_DIED      = 1 << 3;
+  public static final int FLAG_BIT4      = 1 << 4;
+  public static final int FLAG_EXPANSION = 1 << 5;
+  public static final int FLAG_BIT6      = 1 << 6;
+  public static final int FLAG_BIT7      = 1 << 7;
 
   public static final int HOTKEY_UNASSIGNED = 0xFFFF;
   public static final int HOTKEY_LEFT_MASK  = 0x8000;
 
-  static final int PRIMARY     = 0;
-  static final int SECONDARY   = 1;
-  static final int NUM_ALTS    = 2;
-  static final int NUM_ACTIONS = NUM_ALTS;
-  static final int NUM_BUTTONS = 2;
-  static final int NUM_HOTKEYS = 16;
-  static final int NUM_DIFFS   = 3;  // TODO: Point at Diablo.MAX_DIFFICULTIES or something
+  public static final int PRIMARY     = 0;
+  public static final int SECONDARY   = 1;
+  public static final int NUM_ALTS    = 2;
+  public static final int NUM_ACTIONS = NUM_ALTS;
+  public static final int NUM_BUTTONS = 2;
+  public static final int NUM_HOTKEYS = 16;
+  public static final int NUM_DIFFS   = 3;  // TODO: Point at Diablo.MAX_DIFFICULTIES or something
 
   static final int DIFF_ACT_MASK    = 0x7;
   static final int DIFF_FLAG_ACTIVE = 1 << 7;
@@ -78,12 +78,13 @@ public class D2S {
   public ItemData     items;
   public GolemData    golem;
 
-  private D2S(FileHandle file, Header header) {
+  public D2S(FileHandle file, Header header) {
     this.file = file;
     this.header = header;
   }
 
   public void loadRemaining() {
+    if (file == null) return;
     ByteBuffer buffer = file.map().order(ByteOrder.LITTLE_ENDIAN);
     buffer.position(Header.SIZE);
     quests    = QuestData.obtain(buffer);
@@ -635,8 +636,8 @@ public class D2S {
   public static class SkillData {
     static final byte[] SECTION_HEADER = {0x69, 0x66};
 
-    static final int NUM_TREES  = 3;
-    static final int NUM_SKILLS = 10;
+    public static final int NUM_TREES  = 3;
+    public static final int NUM_SKILLS = 10;
     static final int SIZE = SECTION_HEADER.length + (NUM_TREES * NUM_SKILLS);
 
     public byte header[];

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.codec.D2S;
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.DifficultyLevels;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.item.Attributes;
@@ -15,6 +16,7 @@ import com.riiablo.item.StoreLoc;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 
 public class CharData {
@@ -50,7 +52,70 @@ public class CharData {
   }
 
   public CharData createD2S(String name, CharacterClass charClass) {
-    return this;
+    D2S.Header header = new D2S.Header();
+    header.alternate = D2S.PRIMARY;
+    header.name = name;
+    header.flags = D2S.FLAG_EXPANSION;
+    header.charClass = (byte) charClass.id;
+    header.level = 1;
+    header.hotkeys = new int[D2S.NUM_HOTKEYS];
+    Arrays.fill(header.hotkeys, D2S.HOTKEY_UNASSIGNED);
+    header.actions = new int[D2S.NUM_ACTIONS][D2S.NUM_BUTTONS];
+    for (int[] actions : header.actions) Arrays.fill(actions, 0);
+
+    D2S.QuestData quests = new D2S.QuestData();
+    D2S.WaypointData waypoints = new D2S.WaypointData();
+    D2S.NPCData npcs = new D2S.NPCData();
+
+    CharStats.Entry charStats = charClass.entry();
+    D2S.StatData stats = new D2S.StatData();
+    stats.strength = charStats.str;
+    stats.energy = charStats._int;
+    stats.dexterity = charStats.dex;
+    stats.vitality = charStats.vit;
+    stats.statpts = 0;
+    stats.newskills = 0;
+    stats.hitpoints = stats.maxhp = charStats.vit + charStats.hpadd;
+    stats.mana = stats.maxmana = charStats._int;
+    stats.stamina = stats.maxstamina = charStats.stamina;
+    stats.level = 1;
+    stats.experience = 0;
+    stats.gold = 0;
+    stats.goldbank = 0;
+
+    D2S.SkillData skills = new D2S.SkillData();
+    skills.data = new byte[D2S.SkillData.NUM_TREES * D2S.SkillData.NUM_SKILLS];
+
+    D2S.ItemData items = new D2S.ItemData();
+    items.items = new Array<>(10);
+    for (int i = 0; i < charStats.item.length; i++) {
+      String code = charStats.item[i];
+      if (code.isEmpty()) break;
+      // TODO: generate item
+    }
+
+    header.merc = new D2S.MercData();
+    header.merc.seed = 0;
+    header.merc.name = 0;
+    header.merc.type = 0;
+    header.merc.flags = 0;
+    header.merc.xp = 0;
+    header.merc.items = new D2S.MercData.MercItemData();
+    header.merc.items.items = new D2S.ItemData();
+    header.merc.items.items.items = new Array<>();
+
+    D2S.GolemData golem = new D2S.GolemData();
+
+    D2S d2s = new D2S(null, header);
+    d2s.quests = quests;
+    d2s.waypoints = waypoints;
+    d2s.npcs = npcs;
+    d2s.stats = stats;
+    d2s.skills = skills;
+    d2s.items = items;
+    d2s.golem = golem;
+
+    return setD2S(d2s);
   }
 
   public void updateD2S(int difficulty) {
