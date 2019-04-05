@@ -121,7 +121,7 @@ public class Item extends Actor implements Disposable {
   public String   typeCode;
   public int      socketsFilled;
 
-  public Array<Item> socketed;
+  public Array<Item> sockets;
 
   // Extended
   public long    id;
@@ -178,7 +178,7 @@ public class Item extends Actor implements Disposable {
       socketsFilled = bitStream.readUnsigned7OrLess(3);
     }
 
-    socketed = new Array<>(6);
+    sockets = new Array<>(6);
 
     base = findBase(typeCode);
     typeEntry = Riiablo.files.ItemTypes.get(base.type);
@@ -330,7 +330,7 @@ public class Item extends Actor implements Disposable {
     PropertyList runeProps = stats[RUNE_PROPS];
     if (magicProps != null) {
       PropertyList magicPropsAggregate = magicProps.copy();
-      for (Item socket : socketed) {
+      for (Item socket : sockets) {
         if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
           magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
         } else {
@@ -413,7 +413,7 @@ public class Item extends Actor implements Disposable {
           .append("qualityData", qualityData)
           .append("runewordData", String.format("0x%04X", runewordData))
           .append("inscription", inscription)
-          .append("socketed", socketed)
+          .append("sockets", sockets)
           .append("attrs", Arrays.toString(stats));
     } else {
       builder.append("location", location);
@@ -483,7 +483,7 @@ public class Item extends Actor implements Disposable {
         }
 
         if ((flags & SOCKETED) == SOCKETED && socketsFilled > 0) {
-          builder.append("socketed", socketed);
+          builder.append("sockets", sockets);
         }
 
         builder.append("attrs", Arrays.toString(stats));
@@ -881,10 +881,10 @@ public class Item extends Actor implements Disposable {
         pack();
       }};
 
-      if (socketed.size > 0) {
+      if (sockets.size > 0) {
         String runequote = Riiablo.string.lookup("RuneQuote");
         StringBuilder runewordBuilder = null;
-        for (Item socket : socketed) {
+        for (Item socket : sockets) {
           if (socket.type.is(Type.RUNE)) {
             if (runewordBuilder == null) runewordBuilder = new StringBuilder(runequote);
             runewordBuilder.append(Riiablo.string.lookup(socket.base.namestr + "L")); // TODO: Is there a r##L reference somewhere?
@@ -1013,7 +1013,7 @@ public class Item extends Actor implements Disposable {
         PropertyList runeProps = stats[RUNE_PROPS];
         if (magicProps != null) {
           PropertyList magicPropsAggregate = magicProps.copy();
-          for (Item socket : socketed) {
+          for (Item socket : sockets) {
             if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
               magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
             } else {

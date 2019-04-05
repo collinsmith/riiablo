@@ -31,7 +31,6 @@ public class CharData {
   private final IntIntMap equippedSets = new IntIntMap(); // Indexed using set id
   private final IntIntMap setItemsOwned = new IntIntMap(); // Indexed using set item id
   private final IntIntMap skills = new IntIntMap();
-
   private final Attributes stats = new Attributes();
 
   public CharData() {

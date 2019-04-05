@@ -700,7 +700,7 @@ public class D2S {
           bitStream = new BitStream(bytes);
           bitStream.skip(SECTION_HEADER.length * Byte.SIZE);
           Item socket = Item.loadFromStream(bitStream);
-          item.socketed.add(socket);
+          item.sockets.add(socket);
           assert socket.location == Location.SOCKET;
         }
       }
@@ -752,7 +752,7 @@ public class D2S {
         bitStream = new BitStream(bytes);
         bitStream.skip(ItemData.SECTION_HEADER.length * Byte.SIZE);
         Item socket = Item.loadFromStream(bitStream);
-        item.socketed.add(socket);
+        item.sockets.add(socket);
         assert socket.location == Location.SOCKET;
       }
       return this;
