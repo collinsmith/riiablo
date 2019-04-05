@@ -158,6 +158,7 @@ public class CharData {
     for (Array<Item> array : store.values()) array.clear();
     equipped.clear();
     belt.clear();
+    cursor = null;
     for (Item item : d2s.items.items) {
       addItem(item);
       //item.load();
@@ -172,6 +173,7 @@ public class CharData {
         belt.add(item);
         break;
       case CURSOR:
+        assert cursor == null : "Only one item should be marked as cursor";
         cursor = item;
         break;
       case EQUIPPED:
