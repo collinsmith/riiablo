@@ -245,11 +245,13 @@ public class Item extends Actor implements Disposable {
           break;
 
         case SET:
+          qualityId = bitStream.readUnsigned31OrLess(12);
+          qualityData = Riiablo.files.SetItems.get(qualityId);
+          break;
+
         case UNIQUE:
           qualityId = bitStream.readUnsigned31OrLess(12);
-          qualityData = quality == SET
-              ? Riiablo.files.SetItems.get(qualityId)
-              : Riiablo.files.UniqueItems.get(qualityId);
+          qualityData = Riiablo.files.UniqueItems.get(qualityId);
           break;
 
         case MAGIC:
