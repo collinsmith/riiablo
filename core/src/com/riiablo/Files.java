@@ -105,7 +105,7 @@ public class Files {
     speech = loadInternal(Speech.class);
     quests = loadInternal(Quests.class);
 
-    armor            = load(assets, Armor.class);
+    armor            = load(assets, Armor.class, Excel.EXPANSION);
     ArmType          = load(assets, ArmType.class);
     bodylocs         = load(assets, BodyLocs.class);
     CharStats        = load(assets, CharStats.class, Excel.EXPANSION);
@@ -122,7 +122,7 @@ public class Files {
     LvlPrest         = load(assets, LvlPrest.class);
     LvlTypes         = load(assets, LvlTypes.class);
     LvlWarp          = load(assets, LvlWarp.class, Excel.EXPANSION);
-    misc             = load(assets, Misc.class);
+    misc             = load(assets, Misc.class, Excel.EXPANSION);
     MagicPrefix      = load(assets, MagicPrefix.class, Excel.EXPANSION);
     MagicSuffix      = load(assets, MagicSuffix.class, Excel.EXPANSION);
     MonMode          = load(assets, MonMode.class);
@@ -147,7 +147,7 @@ public class Files {
     //UniquePrefix   = load(assets, UniquePrefix.class);
     //UniqueSuffix   = load(assets, UniqueSuffix.class);
     WeaponClass      = load(assets, WeaponClass.class);
-    weapons          = load(assets, Weapons.class);
+    weapons          = load(assets, Weapons.class, Excel.EXPANSION);
 
     Sets.index(SetItems);
   }
