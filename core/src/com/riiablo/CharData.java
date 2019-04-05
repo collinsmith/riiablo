@@ -247,6 +247,7 @@ public class CharData {
 
   public Item setEquipped(BodyLoc bodyLoc, Item item) {
     Item oldItem = equipped.put(bodyLoc, item);
+    if (item != null) item.update();
     updateSets(oldItem, item);
     notifyEquippedChanged(bodyLoc, oldItem, item);
     return oldItem;

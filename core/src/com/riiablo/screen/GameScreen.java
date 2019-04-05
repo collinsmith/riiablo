@@ -163,8 +163,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     this(player, new PipedSocket());
   }
 
-  public GameScreen(CharData player, Socket socket) {
-    this.player = new Player(player);
+  public GameScreen(CharData charData, Socket socket) {
+    charData.getD2S().loadRemaining();
+    charData.updateD2S(2);
+    this.player = new Player(charData);
     this.socket = socket;
     charData.loadItems();
 

@@ -6,7 +6,7 @@ import com.riiablo.codec.excel.ItemStatCost;
 
 public class Attributes extends PropertyList {
 
-  /**   *
+  /**
    * magic + rune + sockets + set are additive to each other, then applied to base
    *
    * attributes list
@@ -46,7 +46,7 @@ public class Attributes extends PropertyList {
 
     for (Stat.Instance stat : list) {
       int op_base = stat.entry.op_param > 0
-          ? 1 // TODO: Riiablo.player.get(op_base)
+          ? Riiablo.charData.getStats().get(Riiablo.files.ItemStatCost.index(stat.entry.op_base)).value()
           : 1;
       for (String op_stat : stat.entry.op_stat) {
         if (op_stat.isEmpty()) break;

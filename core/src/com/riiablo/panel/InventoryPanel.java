@@ -406,7 +406,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       }
 
       if (isOver && item != null && cursorItem == null) {
-        gameScreen.setDetails(item.details, item, InventoryPanel.this, this);
+        gameScreen.setDetails(item.details(), item, InventoryPanel.this, this);
       }
     }
   }

@@ -384,7 +384,7 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
       }
 
       if (isOver && item != null && cursorItem == null) {
-        gameScreen.setDetails(item.details, item, HirelingPanel.this, this);
+        gameScreen.setDetails(item.details(), item, HirelingPanel.this, this);
       }
     }
   }

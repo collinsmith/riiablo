@@ -313,7 +313,7 @@ public class ItemGrid extends Group {
       b.resetBlendMode();
       item.draw(b, 1);
       if (clickListener.isOver() && Riiablo.cursor.getItem() == null) {
-        gameScreen.setDetails(item.details, item, ItemGrid.this, item);
+        gameScreen.setDetails(item.details(), item, ItemGrid.this, item);
       }
     }
   }

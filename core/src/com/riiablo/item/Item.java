@@ -149,7 +149,7 @@ public class Item extends Actor implements Disposable {
   public Index    charColormap;
   public int      charColorIndex;
 
-  public Details  details;
+  private Details details;
 
   public static Item loadFromStream(BitStream bitStream) {
     return new Item().read(bitStream);
@@ -317,31 +317,40 @@ public class Item extends Actor implements Disposable {
         }
       }
 
-      System.out.println(getName());
-      PropertyList magicProps = stats[MAGIC_PROPS];
-      PropertyList runeProps = stats[RUNE_PROPS];
-      if (magicProps != null) {
-        PropertyList magicPropsAggregate = magicProps.copy();
-        for (Item socket : socketed) {
-          if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
-            magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
-          } else {
-            magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);
-          }
-        }
-        if (runeProps != null) magicPropsAggregate.addAll(runeProps);
-        props.apply(magicPropsAggregate);
-      }
-
       //System.out.println(getName() + " : " + Arrays.toString(stats) + " : " + Integer.toBinaryString(listsFlags));
     }
 
     return this;
   }
 
-  public void load() {
-    details = new Details();
+  public void update() {
+    if ((flags & COMPACT) == COMPACT) return;
+    System.out.println(getName());
+    PropertyList magicProps = stats[MAGIC_PROPS];
+    PropertyList runeProps = stats[RUNE_PROPS];
+    if (magicProps != null) {
+      PropertyList magicPropsAggregate = magicProps.copy();
+      for (Item socket : socketed) {
+        if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
+          magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
+        } else {
+          magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);
+        }
+      }
+      if (runeProps != null) magicPropsAggregate.addAll(runeProps);
+      props.apply(magicPropsAggregate);
+    }
+  }
 
+  public Details details() {
+    if (details == null) {
+      update();
+      details = new Details();
+    }
+    return details;
+  }
+
+  public void load() {
     if (invFileDescriptor != null) return;
     invFileDescriptor = new AssetDescriptor<>("data\\global\\items\\" + getInvFileName() + '.' + DC6.EXT, DC6.class);
     Riiablo.assets.load(invFileDescriptor);

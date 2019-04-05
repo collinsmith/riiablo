@@ -22,7 +22,7 @@ public class ItemHolder extends Entity {
     super(Type.ITM, "item", null);
     this.item = item;
     name(item.getName());
-    label = item.details.header;
+    label = item.details().header;
 
     flippyDescriptor = new AssetDescriptor<>(Type.ITM.PATH + "\\" + item.getFlippyFile() + ".dc6", DC6.class);
   }
