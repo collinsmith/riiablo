@@ -75,9 +75,9 @@ public class CharData {
     stats.vitality = charStats.vit;
     stats.statpts = 0;
     stats.newskills = 0;
-    stats.hitpoints = stats.maxhp = charStats.vit + charStats.hpadd;
-    stats.mana = stats.maxmana = charStats._int;
-    stats.stamina = stats.maxstamina = charStats.stamina;
+    stats.hitpoints = stats.maxhp = (charStats.vit + charStats.hpadd) << Riiablo.files.ItemStatCost.get(Stat.hitpoints).ValShift;
+    stats.mana = stats.maxmana = charStats._int << Riiablo.files.ItemStatCost.get(Stat.mana).ValShift;
+    stats.stamina = stats.maxstamina = charStats.stamina << Riiablo.files.ItemStatCost.get(Stat.stamina).ValShift;
     stats.level = 1;
     stats.experience = 0;
     stats.gold = 0;
