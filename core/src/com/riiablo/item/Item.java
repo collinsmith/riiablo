@@ -82,7 +82,13 @@ public class Item extends Actor implements Disposable {
   private static final int SHIELD_PROPS  = 2;
   private static final int NUM_GEM_PROPS = 3;
 
-  private static final PropertyList[] EMPTY_STAT_ARRAY = new PropertyList[NUM_PROPS];
+  private static final Array<Item> EMPTY_SOCKETS_ARRAY = new Array<Item>(0) {
+    @Override
+    public void add(Item value) {
+      throw new UnsupportedOperationException();
+    }
+  };
+  private static final PropertyList[] EMPTY_PROPERTY_ARRAY = new PropertyList[NUM_PROPS];
 
   private static final ObjectMap<String, String> WEAPON_DESC = new ObjectMap<>();
   static {
@@ -178,7 +184,7 @@ public class Item extends Actor implements Disposable {
       socketsFilled = bitStream.readUnsigned7OrLess(3);
     }
 
-    sockets = new Array<>(6);
+    sockets = EMPTY_SOCKETS_ARRAY;
 
     base = findBase(typeCode);
     typeEntry = Riiablo.files.ItemTypes.get(base.type);
@@ -225,7 +231,7 @@ public class Item extends Actor implements Disposable {
         stats[ARMOR_PROPS ] = new PropertyList().add(gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
         stats[SHIELD_PROPS] = new PropertyList().add(gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
       } else {
-        stats = EMPTY_STAT_ARRAY;
+        stats = EMPTY_PROPERTY_ARRAY;
       }
     } else {
       id        = bitStream.read32BitsOrLess(Integer.SIZE);
@@ -291,7 +297,8 @@ public class Item extends Actor implements Disposable {
       }
 
       if ((flags & SOCKETED) == SOCKETED && (type.is(Type.ARMO) || type.is(Type.WEAP))) {
-        props.read(Stat.item_numsockets, bitStream);
+        int item_numsockets = props.read(Stat.item_numsockets, bitStream);
+        sockets = new Array<>(item_numsockets);
       }
 
       if (type.is(Type.BOOK)) {
