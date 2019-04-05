@@ -200,7 +200,7 @@ public class Item extends Actor implements Disposable {
       Armor.Entry armor = getBase();
       props.put(Stat.reqstr, armor.reqstr);
       props.put(Stat.reqdex, 0);
-      props.put(Stat.toblock, armor.block);
+      props.put(Stat.toblock, Riiablo.charData.getCharacterClass().entry().BlockFactor + armor.block);
       props.put(Stat.mindamage, armor.mindam);
       props.put(Stat.maxdamage, armor.maxdam);
     } else if (base instanceof Misc.Entry) {
@@ -970,8 +970,13 @@ public class Item extends Actor implements Disposable {
           }
         }
         if (Item.this.type.is(Type.SHLD)) {
-          if ((prop = props.attrs().get(Stat.toblock)) != null)
-            add(new Label(Riiablo.string.lookup("ItemStats1r") + prop.value + "%", font, Riiablo.colors.white)).center().space(SPACING).row();
+          if ((prop = props.attrs().get(Stat.toblock)) != null) {
+            Table table = new Table();
+            table.add(new Label(Riiablo.string.lookup("ItemStats1r"), font));
+            table.add(new Label(prop.value + "%", font, Riiablo.colors.blue));
+            table.pack();
+            add(table).space(SPACING).row();
+          }
           if (Riiablo.charData.getCharacterClass() == CharacterClass.PALADIN && (prop = props.attrs().get(Stat.maxdamage)) != null && prop.value > 0)
             add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.attrs().get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         }

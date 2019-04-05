@@ -137,6 +137,7 @@ public class CharData {
     stats.put(Stat.experience, (int) d2s.stats.experience);
     stats.put(Stat.gold, d2s.stats.gold);
     stats.put(Stat.goldbank, d2s.stats.goldbank);
+    stats.put(Stat.armorclass, 0);
     stats.put(Stat.damageresist, 0);
     stats.put(Stat.magicresist, 0);
     stats.put(Stat.fireresist, diff.ResistPenalty);
