@@ -1085,8 +1085,19 @@ public class Item extends Actor implements Disposable {
         int setId = Riiablo.files.Sets.index(setItem.set);
         int numEquipped = Riiablo.charData.getSets().get(setId, 0);
         if (numEquipped >= 2) {
-          PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
-          Array<Stat> aggregate = setProps.toArray();
+          PropertyList setPropsAggregate = null;
+          for (int i = 0; i < numEquipped; i++) {
+            PropertyList setProps = stats[SET_PROPS + i];
+            if (setProps == null) continue; // It might be the case that gaps exist
+            if (setPropsAggregate == null) {
+              setPropsAggregate = setProps.copy();
+            } else {
+              setPropsAggregate.addAll(setProps);
+            }
+          }
+
+          setPropsAggregate.reduce();
+          Array<Stat> aggregate = setPropsAggregate.toArray();
           aggregate.sort();
           for (Stat stat : aggregate) {
             String text = stat.format(Riiablo.charData);
