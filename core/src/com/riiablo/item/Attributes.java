@@ -87,7 +87,7 @@ public class Attributes {
       int statId = Riiablo.files.ItemStatCost.index(op_stat);
       Stat opstat = agg.get(statId);
       if (opstat != null) {
-        opstat.val += op(charData, stat, opstat, op, op_base, op_param);
+        opstat.val += op(charData, stat, base.get(statId), op, op_base, op_param);
         mod.set(opstat.stat);
         opCount++;
       }
