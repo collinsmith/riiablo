@@ -88,6 +88,12 @@ public class Item extends Actor implements Disposable {
       throw new UnsupportedOperationException();
     }
   };
+  private static final Array<Stat> EMPTY_STAT_ARRAY = new Array<Stat>(0) {
+    @Override
+    public void add(Stat value) {
+      throw new UnsupportedOperationException();
+    }
+  };
   private static final PropertyList[] EMPTY_PROPERTY_ARRAY = new PropertyList[NUM_PROPS];
 
   private static final ObjectMap<String, String> WEAPON_DESC = new ObjectMap<>();
@@ -1096,8 +1102,7 @@ public class Item extends Actor implements Disposable {
             }
           }
 
-          setPropsAggregate.reduce();
-          Array<Stat> aggregate = setPropsAggregate.toArray();
+          Array<Stat> aggregate = setPropsAggregate != null ? setPropsAggregate.reduce().toArray() : EMPTY_STAT_ARRAY;
           aggregate.sort();
           for (Stat stat : aggregate) {
             String text = stat.format(Riiablo.charData);
