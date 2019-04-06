@@ -1102,7 +1102,9 @@ public class Item extends Actor implements Disposable {
             }
           }
 
-          Array<Stat> aggregate = setPropsAggregate != null ? setPropsAggregate.reduce().toArray() : EMPTY_STAT_ARRAY;
+          Array<Stat> aggregate = setPropsAggregate != null
+              ? setPropsAggregate.reduce().toArray()
+              : EMPTY_STAT_ARRAY;
           aggregate.sort();
           for (Stat stat : aggregate) {
             String text = stat.format(Riiablo.charData);
