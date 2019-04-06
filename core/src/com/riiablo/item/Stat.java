@@ -2,6 +2,7 @@ package com.riiablo.item;
 
 import com.google.common.primitives.UnsignedInts;
 
+import com.badlogic.gdx.Gdx;
 import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -15,6 +16,8 @@ import java.util.Arrays;
 
 @SuppressWarnings("unused")
 public class Stat implements Comparable<Stat> {
+  private static final String TAG = "Stat";
+
   public static final int strength                        = 0;
   public static final int energy                          = 1;
   public static final int dexterity                       = 2;
@@ -536,6 +539,21 @@ public class Stat implements Comparable<Stat> {
       case 2:
       default:
         val += other.val;
+    }
+    return this;
+  }
+
+  public Stat add(int value) {
+    switch (entry.Encode) {
+      case 3:
+      case 4:
+        Gdx.app.error(TAG, "add unsupported when Encoding = " + entry.Encode);
+        break;
+      case 0:
+      case 1:
+      case 2:
+      default:
+        val += value;
     }
     return this;
   }

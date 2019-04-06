@@ -177,6 +177,10 @@ public class CharData {
   }
 
   private void updateStats() {
+    // This appears to be hard-coded in the original client
+    int dex = stats.get(Stat.dexterity).value();
+    stats.aggregate().get(Stat.armorclass).add(dex / 4);
+
     // TODO: skills
   }
 
