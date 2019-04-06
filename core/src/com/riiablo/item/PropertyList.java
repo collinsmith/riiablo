@@ -11,7 +11,7 @@ import com.riiablo.codec.util.BitStream;
 
 import java.util.Iterator;
 
-public class PropertyList implements Iterable<Stat.Instance> {
+public class PropertyList implements Iterable<Stat> {
   private static final String TAG = "PropertyList";
 
   private static final int[] ATTRIBUTES  = {Stat.strength, Stat.energy, Stat.dexterity, Stat.vitality};
@@ -26,7 +26,7 @@ public class PropertyList implements Iterable<Stat.Instance> {
   private static final int[] MINDMG2     = {Stat.mindamage, Stat.secondary_mindamage, Stat.item_throw_mindamage};
   private static final int[] MAXDMG2     = {Stat.maxdamage, Stat.secondary_maxdamage, Stat.item_throw_maxdamage};
 
-  final IntMap<Stat.Instance> props = new IntMap<>();
+  final IntMap<Stat> props = new IntMap<>();
 
   PropertyList() {}
 
@@ -39,13 +39,13 @@ public class PropertyList implements Iterable<Stat.Instance> {
   }
 
   public void deepCopy(PropertyList src) {
-    for (IntMap.Entry<Stat.Instance> entry : src.props.entries()) {
+    for (IntMap.Entry<Stat> entry : src.props.entries()) {
       props.put(entry.key, entry.value.copy());
     }
   }
 
   @Override
-  public Iterator<Stat.Instance> iterator() {
+  public Iterator<Stat> iterator() {
     return props.values();
   }
 
@@ -61,15 +61,15 @@ public class PropertyList implements Iterable<Stat.Instance> {
     props.put(stat, Stat.create(stat, value));
   }
 
-  Stat.Instance get() {
+  Stat get() {
     //assert props.size == 1;
     return props.entries().next().value;
   }
 
   public int read(int stat, BitStream bitStream) {
-    Stat.Instance instance = Stat.read(stat, bitStream);
+    Stat instance = Stat.read(stat, bitStream);
     props.put(instance.hash, instance);
-    return instance.value;
+    return instance.val;
   }
 
   public PropertyList read(BitStream bitStream) {
@@ -82,17 +82,17 @@ public class PropertyList implements Iterable<Stat.Instance> {
     return this;
   }
 
-  public Stat.Instance get(int stat) {
+  public Stat get(int stat) {
     return props.get(stat);
   }
 
-  public Array<Stat.Instance> toArray() {
+  public Array<Stat> toArray() {
     return props.values().toArray();
   }
 
-  public void add(Stat.Instance stat) {
+  public void add(Stat stat) {
     assert stat.stat == 0 || stat.hash != 0;
-    Stat.Instance existing = props.get(stat.hash);
+    Stat existing = props.get(stat.hash);
     if (existing != null) {
       existing.add(stat);
     } else {
@@ -101,7 +101,7 @@ public class PropertyList implements Iterable<Stat.Instance> {
   }
 
   public PropertyList addAll(PropertyList other) {
-    for (Stat.Instance stat : other.props.values()) {
+    for (Stat stat : other.props.values()) {
       add(stat);
     }
 
@@ -110,62 +110,62 @@ public class PropertyList implements Iterable<Stat.Instance> {
 
   public PropertyList reduce() {
     if (containsAll(ATTRIBUTES) && allEqual(ATTRIBUTES)) {
-      int value = props.get(ATTRIBUTES[0]).value;
+      int value = props.get(ATTRIBUTES[0]).val;
       for (int attr : ATTRIBUTES) props.remove(attr);
       put(Stat.all_attributes, value);
     }
 
     if (containsAll(RESISTS) && allEqual(RESISTS)) {
-      int value = props.get(RESISTS[0]).value;
+      int value = props.get(RESISTS[0]).val;
       for (int attr : RESISTS) props.remove(attr);
       put(Stat.all_resistances, value);
     }
 
     if (containsAll(ENHANCEDDMG) && allEqual(ENHANCEDDMG)) {
-      int value = props.get(ENHANCEDDMG[0]).value;
+      int value = props.get(ENHANCEDDMG[0]).val;
       for (int attr : ENHANCEDDMG) props.remove(attr);
       put(Stat.enhanceddam, value);
     }
 
     if (containsAll(MINDMG)) {
-      Stat.Instance mindamage = get(Stat.mindamage);
-      Stat.Instance maxdamage = get(Stat.maxdamage);
+      Stat mindamage = get(Stat.mindamage);
+      Stat maxdamage = get(Stat.maxdamage);
       for (int attr : MINDMG) props.remove(attr);
       props.put(Stat.mindam, new Stat.Aggregate(Stat.mindam, "strModMinDamage", "strModMinDamageRange", mindamage, maxdamage));
     }
 
     if (containsAll(FIREDMG)) {
-      Stat.Instance firemindam = get(Stat.firemindam);
-      Stat.Instance firemaxdam = get(Stat.firemaxdam);
+      Stat firemindam = get(Stat.firemindam);
+      Stat firemaxdam = get(Stat.firemaxdam);
       for (int attr : FIREDMG) props.remove(attr);
       props.put(Stat.firedam, new Stat.Aggregate(Stat.firedam, "strModFireDamage", "strModFireDamageRange", firemindam, firemaxdam));
     }
 
     if (containsAll(LIGHTDMG)) {
-      Stat.Instance lightmindam = get(Stat.lightmindam);
-      Stat.Instance lightmaxdam = get(Stat.lightmaxdam);
+      Stat lightmindam = get(Stat.lightmindam);
+      Stat lightmaxdam = get(Stat.lightmaxdam);
       for (int attr : LIGHTDMG) props.remove(attr);
       props.put(Stat.lightdam, new Stat.Aggregate(Stat.lightdam, "strModLightningDamage", "strModLightningDamageRange", lightmindam, lightmaxdam));
     }
 
     if (containsAll(MAGICDMG)) {
-      Stat.Instance magicmindam = get(Stat.magicmindam);
-      Stat.Instance magicmaxdam = get(Stat.magicmaxdam);
+      Stat magicmindam = get(Stat.magicmindam);
+      Stat magicmaxdam = get(Stat.magicmaxdam);
       for (int attr : MAGICDMG) props.remove(attr);
       props.put(Stat.magicdam, new Stat.Aggregate(Stat.magicdam, "strModMagicDamage", "strModMagicDamageRange", magicmindam, magicmaxdam));
     }
 
     if (containsAll(COLDDMG)) {
-      Stat.Instance coldmindam = get(Stat.coldmindam);
-      Stat.Instance coldmaxdam = get(Stat.coldmaxdam);
+      Stat coldmindam = get(Stat.coldmindam);
+      Stat coldmaxdam = get(Stat.coldmaxdam);
       for (int attr : COLDDMG) props.remove(attr);
       props.put(Stat.colddam, new Stat.Aggregate(Stat.colddam, "strModColdDamage", "strModColdDamageRange", coldmindam, coldmaxdam));
     }
 
     if (containsAll(POISONDMG)) {
-      Stat.Instance poisonmindam = get(Stat.poisonmindam);
-      Stat.Instance poisonmaxdam = get(Stat.poisonmaxdam);
-      Stat.Instance poisonlength = get(Stat.poisonlength);
+      Stat poisonmindam = get(Stat.poisonmindam);
+      Stat poisonmaxdam = get(Stat.poisonmaxdam);
+      Stat poisonlength = get(Stat.poisonlength);
       for (int attr : POISONDMG) props.remove(attr);
       props.put(Stat.poisondam, new Stat.Aggregate(Stat.poisondam, "strModPoisonDamage", "strModPoisonDamageRange", poisonmindam, poisonmaxdam, poisonlength));
     }
@@ -191,9 +191,9 @@ public class PropertyList implements Iterable<Stat.Instance> {
   }
 
   private boolean allEqual(int[] keys) {
-    int value = props.get(keys[0]).value;
+    int value = props.get(keys[0]).val;
     for (int i = 1; i < keys.length; i++) {
-      if (value != props.get(keys[i]).value) return false;
+      if (value != props.get(keys[i]).val) return false;
     }
 
     return true;
@@ -218,7 +218,7 @@ public class PropertyList implements Iterable<Stat.Instance> {
   private int add(Properties.Entry prop, int i, int j, int value, String[] code, int[] params, int[] min, int[] max) {
     // NOTE: some stats have a function without a stat, e.g., dmg-min -- func 5
     ItemStatCost.Entry desc = Riiablo.files.ItemStatCost.get(prop.stat[j]);
-    Stat.Instance inst;
+    Stat inst;
     int param;
     switch (prop.func[j]) {
       case 1: // vit, str, hp, etc.

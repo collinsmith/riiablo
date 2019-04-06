@@ -29,7 +29,7 @@ public class Attributes {
     return agg.size();
   }
 
-  public Stat.Instance get(int stat) {
+  public Stat get(int stat) {
     return agg.get(stat);
   }
 
@@ -52,7 +52,7 @@ public class Attributes {
   }
 
   private void update(CharData charData, PropertyList list) {
-    for (Stat.Instance stat : list) {
+    for (Stat stat : list) {
       if (stat.entry.op > 0) {
         boolean empty = !op(charData, stat, stat.entry);
         if (empty) rem.add(stat.copy());
@@ -65,10 +65,10 @@ public class Attributes {
     }
   }
 
-  private boolean op(CharData charData, Stat.Instance stat, ItemStatCost.Entry entry) {
+  private boolean op(CharData charData, Stat stat, ItemStatCost.Entry entry) {
     int op = entry.op;
     int op_base = entry.op_param > 0
-        ? charData.getStats().get(Riiablo.files.ItemStatCost.index(entry.op_base)).value
+        ? charData.getStats().get(Riiablo.files.ItemStatCost.index(entry.op_base)).val
         : 1;
     int op_param = entry.op_param;
 
@@ -76,9 +76,9 @@ public class Attributes {
     for (String op_stat : entry.op_stat) {
       if (op_stat.isEmpty()) break;
       int statId = Riiablo.files.ItemStatCost.index(op_stat);
-      Stat.Instance opstat = agg.get(statId);
+      Stat opstat = agg.get(statId);
       if (opstat != null) {
-        opstat.value += op(charData, stat, opstat, op, op_base, op_param);
+        opstat.val += op(charData, stat, opstat, op, op_base, op_param);
         mod.set(opstat.stat);
         opCount++;
       }
@@ -86,24 +86,24 @@ public class Attributes {
     return opCount == 0;
   }
 
-  private int op(CharData charData, Stat.Instance stat, Stat.Instance opstat, int op, int op_base, int op_param) {
+  private int op(CharData charData, Stat stat, Stat opstat, int op, int op_base, int op_param) {
     switch (op) {
-      case 1:  return (stat.value * opstat.value) / 100;
-      case 2:  return (stat.value * op_base) / (1 << op_param);
-      case 3:  return (stat.value * op_base) / (1 << op_param) * opstat.value / 100;
-      case 4:  return (stat.value * op_base) / (1 << op_param);
-      case 5:  return (stat.value * op_base) / (1 << op_param) * opstat.value / 100;
+      case 1:  return (stat.val * opstat.val) / 100;
+      case 2:  return (stat.val * op_base) / (1 << op_param);
+      case 3:  return (stat.val * op_base) / (1 << op_param) * opstat.val / 100;
+      case 4:  return (stat.val * op_base) / (1 << op_param);
+      case 5:  return (stat.val * op_base) / (1 << op_param) * opstat.val / 100;
       case 6:  return 0; // by-time
       case 7:  return 0; // by-time percent
-      case 8:  return stat.value * charData.getCharacterClass().entry().ManaPerMagic; // max mana
-      case 9:  return stat.value // max hitpoints
+      case 8:  return stat.val * charData.getCharacterClass().entry().ManaPerMagic; // max mana
+      case 9:  return stat.val // max hitpoints
           * (opstat.stat == Stat.maxhp
           ? charData.getCharacterClass().entry().LifePerVitality
           : charData.getCharacterClass().entry().StaminaPerVitality);
       case 10: return 0; // no-op
-      case 11: return (stat.value * opstat.value) / 100; // TODO: modify field value? used with item_maxhp_percent and item_maxmana_percent
+      case 11: return (stat.val * opstat.val) / 100; // TODO: modify field value? used with item_maxhp_percent and item_maxmana_percent
       case 12: return 0; // no-op
-      case 13: return (stat.value * opstat.value) / 100;
+      case 13: return (stat.val * opstat.val) / 100;
       default: throw new AssertionError("Unsupported op: " + op + " for " + stat);
     }
   }

@@ -965,11 +965,11 @@ public class Item extends Actor implements Disposable {
       }
 
       //if ((flags & COMPACT) == 0) {
-        Stat.Instance prop;
+        Stat prop;
         if ((prop = props.agg.get(Stat.armorclass)) != null) {
           Table table = new Table();
           table.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font));
-          table.add(new Label(Integer.toString(prop.value), font, props.mod.get(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
+          table.add(new Label(Integer.toString(prop.val), font, props.mod.get(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
           table.pack();
           add(table).space(SPACING).row();
         }
@@ -986,21 +986,21 @@ public class Item extends Actor implements Disposable {
           if ((i & 1) != 0 && (prop = props.agg.get(Stat.maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1l") + " ", font));
-            table.add(new Label(props.get(Stat.mindamage).value + " to " + prop.value, font, props.mod.get(Stat.maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.mindamage).val + " to " + prop.val, font, props.mod.get(Stat.maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
           if ((i & 2) != 0 && (prop = props.agg.get(Stat.secondary_maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1m") + " ", font));
-            table.add(new Label(props.get(Stat.secondary_mindamage).value + " to " + prop.value, font, props.mod.get(Stat.secondary_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.secondary_mindamage).val + " to " + prop.val, font, props.mod.get(Stat.secondary_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
           if (typeEntry.Throwable && (prop = props.agg.get(Stat.item_throw_maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1n") + " ", font));
-            table.add(new Label(props.get(Stat.item_throw_mindamage).value + " to " + prop.value, font, props.mod.get(Stat.item_throw_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.item_throw_mindamage).val + " to " + prop.val, font, props.mod.get(Stat.item_throw_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
@@ -1009,26 +1009,26 @@ public class Item extends Actor implements Disposable {
           if ((prop = props.agg.get(Stat.toblock)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1r"), font));
-            table.add(new Label(prop.value + "%", font, Riiablo.colors.blue));
+            table.add(new Label(prop.val + "%", font, Riiablo.colors.blue));
             table.pack();
             add(table).space(SPACING).row();
           }
-          if (Riiablo.charData.getCharacterClass() == CharacterClass.PALADIN && (prop = props.agg.get(Stat.maxdamage)) != null && prop.value > 0)
-            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.agg.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          if (Riiablo.charData.getCharacterClass() == CharacterClass.PALADIN && (prop = props.agg.get(Stat.maxdamage)) != null && prop.val > 0)
+            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.agg.get(Stat.mindamage).val + " to " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
         if (!Item.this.base.nodurability && (prop = props.agg.get(Stat.durability)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.agg.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.val + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.agg.get(Stat.maxdurability).val, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is(Type.CLAS)) {
           add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.typeEntry.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if ((prop = props.agg.get(Stat.reqdex)) != null && prop.value > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.agg.get(Stat.reqstr)) != null && prop.value > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.agg.get(Stat.item_levelreq)) != null && prop.value > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.agg.get(Stat.reqdex)) != null && prop.val > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.agg.get(Stat.reqstr)) != null && prop.val > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if ((prop = props.agg.get(Stat.item_levelreq)) != null && prop.val > 0)
+          add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
         if ((prop = props.agg.get(Stat.quantity)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is(Type.WEAP)) {
           add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
@@ -1050,9 +1050,9 @@ public class Item extends Actor implements Disposable {
           if (runeProps != null) magicPropsAggregate.addAll(runeProps);
           magicPropsAggregate.reduce();
 
-          Array<Stat.Instance> aggregate = magicPropsAggregate.toArray();
+          Array<Stat> aggregate = magicPropsAggregate.toArray();
           aggregate.sort();
-          for (Stat.Instance stat : aggregate) {
+          for (Stat stat : aggregate) {
             String text = stat.format(Riiablo.charData);
             if (text == null) continue;
             add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
@@ -1068,9 +1068,9 @@ public class Item extends Actor implements Disposable {
       if ((Item.this.flags & SOCKETED) == SOCKETED) {
         if (itemFlags != null) itemFlags.append(',').append(' ');
         else itemFlags = new StringBuilder(16);
-        Stat.Instance stat = props.get(Stat.item_numsockets);
+        Stat stat = props.get(Stat.item_numsockets);
         if (stat != null) {
-          itemFlags.append(Riiablo.string.lookup("Socketable")).append(' ').append('(').append(stat.value).append(')');
+          itemFlags.append(Riiablo.string.lookup("Socketable")).append(' ').append('(').append(stat.val).append(')');
         } else {
           if (itemFlags.length() == 0) itemFlags = null;
           Gdx.app.error(TAG, "Item marked socketed, but missing item_numsockets: " + Item.this.getName());
@@ -1086,9 +1086,9 @@ public class Item extends Actor implements Disposable {
         int numEquipped = Riiablo.charData.getSets().get(setId, 0);
         if (numEquipped >= 2) {
           PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
-          Array<Stat.Instance> aggregate = setProps.toArray();
+          Array<Stat> aggregate = setProps.toArray();
           aggregate.sort();
-          for (Stat.Instance stat : aggregate) {
+          for (Stat stat : aggregate) {
             String text = stat.format(Riiablo.charData);
             if (text == null) continue;
             add(new Label(text, font, Riiablo.colors.green)).center().space(SPACING).row();
@@ -1122,7 +1122,7 @@ public class Item extends Actor implements Disposable {
             setBonus.reduce().toArray();
             aggregate = setBonus.toArray();
             aggregate.sort();
-            for (Stat.Instance stat : aggregate) {
+            for (Stat stat : aggregate) {
               String text = stat.format(Riiablo.charData);
               if (text == null) continue;
               add(new Label(text, font, Riiablo.colors.gold)).center().space(SPACING).row();
