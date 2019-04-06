@@ -7,6 +7,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
 
 public class Attributes {
+  static final PropertyList scratch = new PropertyList();
   final PropertyList base = new PropertyList();
   final PropertyList agg = new PropertyList();
   final PropertyList rem = new PropertyList();
@@ -46,20 +47,28 @@ public class Attributes {
   }
 
   public void update(CharData charData) {
+    // aggregates all property lists (necessary because otherwise operations are multiplicative)
+    scratch.clear();
     for (PropertyList list : propertyLists) {
-      update(charData, list);
+      if (list == null) continue;
+      for (Stat stat : list) {
+        // only copies the stat if it doesn't exist already
+        scratch.addCopy(stat);
+      }
     }
+
+    update(charData, scratch);
   }
 
   private void update(CharData charData, PropertyList list) {
     for (Stat stat : list) {
       if (stat.entry.op > 0) {
         boolean empty = !op(charData, stat, stat.entry);
-        if (empty) rem.add(stat.copy());
+        if (empty) rem.add(stat); //.copy()
       } else if (base.get(stat.hash) == null) {
-        rem.add(stat.copy());
+        rem.add(stat); //.copy()
       } else {
-        agg.add(stat.copy());
+        agg.add(stat); //.copy()
         mod.set(stat.stat);
       }
     }

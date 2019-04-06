@@ -341,38 +341,27 @@ public class Item extends Actor implements Disposable {
 
   public void update() {
     if ((flags & COMPACT) == COMPACT) return;
-
     props.reset();
-    System.out.println(getName());
-    PropertyList magicProps = stats[MAGIC_PROPS];
-    PropertyList runeProps = stats[RUNE_PROPS];
-    if (magicProps != null) {
-      PropertyList magicPropsAggregate = new PropertyList();
-      magicPropsAggregate.deepCopy(magicProps);
-      for (Item socket : sockets) {
-        if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
-          magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
-        } else {
-          magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);
-        }
+    if (stats[MAGIC_PROPS] != null) props.add(stats[MAGIC_PROPS]);
+    if (stats[RUNE_PROPS ] != null) props.add(stats[RUNE_PROPS ]);
+    for (Item socket : sockets) {
+      if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
+        props.add(socket.stats[base.gemapplytype]);
+      } else {
+        props.add(socket.stats[MAGIC_PROPS]);
       }
-      if (runeProps != null) magicPropsAggregate.addAll(runeProps);
-      props.add(magicPropsAggregate);
     }
-
-    props.update(Riiablo.charData);
-    /*
-    TODO: props.apply(PropertyList) will only apply these properties
     if (quality == SET) {
       SetItems.Entry setItem = (SetItems.Entry) qualityData;
       int setId = Riiablo.files.Sets.index(setItem.set);
       int numEquipped = Riiablo.charData.getSets().get(setId, 0);
       if (numEquipped >= 2) {
-        PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
-        props.apply(setProps);
+        for (int i = 0; i < numEquipped; i++) {
+          props.add(stats[SET_PROPS + i]);
+        }
       }
     }
-    */
+    props.update(Riiablo.charData);
   }
 
   public Details details() {

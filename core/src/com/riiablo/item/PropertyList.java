@@ -100,6 +100,16 @@ public class PropertyList implements Iterable<Stat> {
     }
   }
 
+  public void addCopy(Stat stat) {
+    assert stat.stat == 0 || stat.hash != 0;
+    Stat existing = props.get(stat.hash);
+    if (existing != null) {
+      existing.add(stat);
+    } else {
+      props.put(stat.hash, stat.copy());
+    }
+  }
+
   public PropertyList addAll(PropertyList other) {
     for (Stat stat : other.props.values()) {
       add(stat);
