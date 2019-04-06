@@ -173,6 +173,11 @@ public class CharData {
     }
 
     stats.update(this);
+    updateStats();
+  }
+
+  private void updateStats() {
+    // TODO: skills
   }
 
   private void addItem(Item item) {

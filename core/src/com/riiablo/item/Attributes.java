@@ -7,7 +7,6 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
 
 public class Attributes {
-  //static final PropertyList scratch = new PropertyList();
   final PropertyList base = new PropertyList();
   final PropertyList agg = new PropertyList();
   final PropertyList rem = new PropertyList();
@@ -47,18 +46,6 @@ public class Attributes {
   }
 
   public void update(CharData charData) {
-    // aggregates all property lists (necessary because otherwise operations are multiplicative)
-    /*scratch.clear();
-    for (PropertyList list : propertyLists) {
-      if (list == null) continue;
-      for (Stat stat : list) {
-        // only copies the stat if it doesn't exist already
-        scratch.addCopy(stat);
-      }
-    }
-
-    update(charData, scratch);
-    */
     for (PropertyList list : propertyLists) {
       if (list != null) update(charData, list);
     }
@@ -67,12 +54,14 @@ public class Attributes {
   private void update(CharData charData, PropertyList list) {
     for (Stat stat : list) {
       if (stat.entry.op > 0) {
-        boolean empty = !op(charData, stat, stat.entry);
-        if (empty) rem.add(stat.copy());
+        boolean empty = op(charData, stat, stat.entry);
+        if (empty) {
+          rem.addCopy(stat);
+        }
       } else if (base.get(stat.hash) == null) {
-        rem.add(stat.copy());
+        rem.addCopy(stat);
       } else {
-        agg.add(stat.copy());
+        agg.addCopy(stat);
         mod.set(stat.stat);
       }
     }
@@ -108,8 +97,12 @@ public class Attributes {
       case 5:  return (stat.val * op_base) / (1 << op_param) * opstat.val / 100;
       case 6:  return 0; // by-time
       case 7:  return 0; // by-time percent
-      case 8:  return stat.val * charData.getCharacterClass().entry().ManaPerMagic; // max mana
-      case 9:  return stat.val // max hitpoints
+      case 8:
+        agg.addCopy(stat);
+        return stat.val * charData.getCharacterClass().entry().ManaPerMagic; // max mana
+      case 9:
+        if (opstat.stat == Stat.maxhp) agg.addCopy(stat); // only increment vit on maxhp op
+        return stat.val // max hitpoints
           * (opstat.stat == Stat.maxhp
           ? charData.getCharacterClass().entry().LifePerVitality
           : charData.getCharacterClass().entry().StaminaPerVitality);
