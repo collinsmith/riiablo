@@ -163,10 +163,13 @@ public class CharData {
     equipped.clear();
     belt.clear();
     cursor = null;
+    stats.reset();
     for (Item item : d2s.items.items) {
       addItem(item);
       //item.load();
     }
+
+    stats.update(this);
   }
 
   private void addItem(Item item) {
@@ -182,6 +185,9 @@ public class CharData {
         break;
       case EQUIPPED:
         setEquipped(item.bodyLoc, item);
+        item.update();
+        if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, getAlternate()))
+          stats.add(item.props.remaining());
         break;
       case STORED:
         store.get(item.storeLoc).add(item);

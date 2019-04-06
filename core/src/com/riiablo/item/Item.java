@@ -341,7 +341,8 @@ public class Item extends Actor implements Disposable {
     PropertyList magicProps = stats[MAGIC_PROPS];
     PropertyList runeProps = stats[RUNE_PROPS];
     if (magicProps != null) {
-      PropertyList magicPropsAggregate = magicProps.copy();
+      PropertyList magicPropsAggregate = new PropertyList();
+      magicPropsAggregate.deepCopy(magicProps);
       for (Item socket : sockets) {
         if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
           magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);

@@ -55,11 +55,11 @@ public class Attributes {
     for (Stat.Instance stat : list) {
       if (stat.entry.op > 0) {
         boolean empty = !op(charData, stat, stat.entry);
-        if (empty) rem.add(stat);
+        if (empty) rem.add(stat.copy());
       } else if (base.get(stat.hash) == null) {
-        rem.add(stat);
+        rem.add(stat.copy());
       } else {
-        agg.add(stat);
+        agg.add(stat.copy());
         mod.set(stat.stat);
       }
     }
