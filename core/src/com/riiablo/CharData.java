@@ -10,6 +10,7 @@ import com.riiablo.codec.excel.SetItems;
 import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
+import com.riiablo.item.PropertyList;
 import com.riiablo.item.Quality;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
@@ -119,30 +120,33 @@ public class CharData {
 
   public void updateD2S(int difficulty) {
     DifficultyLevels.Entry diff = Riiablo.files.DifficultyLevels.get(difficulty);
-    stats.clear();
-    stats.put(Stat.strength, d2s.stats.strength);
-    stats.put(Stat.energy, d2s.stats.energy);
-    stats.put(Stat.dexterity, d2s.stats.dexterity);
-    stats.put(Stat.vitality, d2s.stats.vitality);
-    stats.put(Stat.statpts, d2s.stats.statpts);
-    stats.put(Stat.newskills, d2s.stats.newskills);
-    stats.put(Stat.hitpoints, d2s.stats.hitpoints);
-    stats.put(Stat.maxhp, d2s.stats.maxhp);
-    stats.put(Stat.mana, d2s.stats.mana);
-    stats.put(Stat.maxmana, d2s.stats.maxmana);
-    stats.put(Stat.stamina, d2s.stats.stamina);
-    stats.put(Stat.maxstamina, d2s.stats.maxstamina);
-    stats.put(Stat.level, d2s.stats.level);
-    stats.put(Stat.experience, (int) d2s.stats.experience);
-    stats.put(Stat.gold, d2s.stats.gold);
-    stats.put(Stat.goldbank, d2s.stats.goldbank);
-    stats.put(Stat.armorclass, 0);
-    stats.put(Stat.damageresist, 0);
-    stats.put(Stat.magicresist, 0);
-    stats.put(Stat.fireresist, diff.ResistPenalty);
-    stats.put(Stat.lightresist, diff.ResistPenalty);
-    stats.put(Stat.coldresist, diff.ResistPenalty);
-    stats.put(Stat.poisonresist, diff.ResistPenalty);
+    PropertyList base = stats.base();
+    base.clear();
+    base.put(Stat.strength, d2s.stats.strength);
+    base.put(Stat.energy, d2s.stats.energy);
+    base.put(Stat.dexterity, d2s.stats.dexterity);
+    base.put(Stat.vitality, d2s.stats.vitality);
+    base.put(Stat.statpts, d2s.stats.statpts);
+    base.put(Stat.newskills, d2s.stats.newskills);
+    base.put(Stat.hitpoints, d2s.stats.hitpoints);
+    base.put(Stat.maxhp, d2s.stats.maxhp);
+    base.put(Stat.mana, d2s.stats.mana);
+    base.put(Stat.maxmana, d2s.stats.maxmana);
+    base.put(Stat.stamina, d2s.stats.stamina);
+    base.put(Stat.maxstamina, d2s.stats.maxstamina);
+    base.put(Stat.level, d2s.stats.level);
+    base.put(Stat.experience, (int) d2s.stats.experience);
+    base.put(Stat.gold, d2s.stats.gold);
+    base.put(Stat.goldbank, d2s.stats.goldbank);
+    base.put(Stat.armorclass, 0);
+    base.put(Stat.damageresist, 0);
+    base.put(Stat.magicresist, 0);
+    base.put(Stat.fireresist, diff.ResistPenalty);
+    base.put(Stat.lightresist, diff.ResistPenalty);
+    base.put(Stat.coldresist, diff.ResistPenalty);
+    base.put(Stat.poisonresist, diff.ResistPenalty);
+    stats.reset();
+    stats.update(this); // TODO: this need to be done whenever an item is changed
 
     skills.clear();
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {

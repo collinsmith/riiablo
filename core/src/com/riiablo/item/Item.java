@@ -191,24 +191,25 @@ public class Item extends Actor implements Disposable {
     type = Type.get(typeEntry);
 
     props = new Attributes();
-    props.put(Stat.item_levelreq, base.levelreq);
+    PropertyList baseProps = props.base;
+    baseProps.put(Stat.item_levelreq, base.levelreq);
     if (base instanceof Weapons.Entry) {
       Weapons.Entry weapon = getBase();
-      props.put(Stat.mindamage, weapon.mindam);
-      props.put(Stat.maxdamage, weapon.maxdam);
-      props.put(Stat.secondary_mindamage, weapon._2handmindam);
-      props.put(Stat.secondary_maxdamage, weapon._2handmaxdam);
-      props.put(Stat.item_throw_mindamage, weapon.minmisdam);
-      props.put(Stat.item_throw_maxdamage, weapon.maxmisdam);
-      props.put(Stat.reqstr, weapon.reqstr);
-      props.put(Stat.reqdex, weapon.reqdex);
+      baseProps.put(Stat.mindamage, weapon.mindam);
+      baseProps.put(Stat.maxdamage, weapon.maxdam);
+      baseProps.put(Stat.secondary_mindamage, weapon._2handmindam);
+      baseProps.put(Stat.secondary_maxdamage, weapon._2handmaxdam);
+      baseProps.put(Stat.item_throw_mindamage, weapon.minmisdam);
+      baseProps.put(Stat.item_throw_maxdamage, weapon.maxmisdam);
+      baseProps.put(Stat.reqstr, weapon.reqstr);
+      baseProps.put(Stat.reqdex, weapon.reqdex);
     } else if (base instanceof Armor.Entry) {
       Armor.Entry armor = getBase();
-      props.put(Stat.reqstr, armor.reqstr);
-      props.put(Stat.reqdex, 0);
-      props.put(Stat.toblock, Riiablo.charData.getCharacterClass().entry().BlockFactor + armor.block);
-      props.put(Stat.mindamage, armor.mindam);
-      props.put(Stat.maxdamage, armor.maxdam);
+      baseProps.put(Stat.reqstr, armor.reqstr);
+      baseProps.put(Stat.reqdex, 0);
+      baseProps.put(Stat.toblock, Riiablo.charData.getCharacterClass().entry().BlockFactor + armor.block);
+      baseProps.put(Stat.mindamage, armor.mindam);
+      baseProps.put(Stat.maxdamage, armor.maxdam);
     } else if (base instanceof Misc.Entry) {
       Misc.Entry misc = getBase();
     }
@@ -286,18 +287,18 @@ public class Item extends Actor implements Disposable {
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
 
       if (type.is(Type.ARMO)) {
-        props.read(Stat.armorclass, bitStream);
+        baseProps.read(Stat.armorclass, bitStream);
       }
 
       if (type.is(Type.ARMO) || type.is(Type.WEAP)) {
-        int maxdurability = props.read(Stat.maxdurability, bitStream);
+        int maxdurability = baseProps.read(Stat.maxdurability, bitStream);
         if (maxdurability > 0) {
-          props.read(Stat.durability, bitStream);
+          baseProps.read(Stat.durability, bitStream);
         }
       }
 
       if ((flags & SOCKETED) == SOCKETED && (type.is(Type.ARMO) || type.is(Type.WEAP))) {
-        int item_numsockets = props.read(Stat.item_numsockets, bitStream);
+        int item_numsockets = baseProps.read(Stat.item_numsockets, bitStream);
         sockets = new Array<>(item_numsockets);
       }
 
@@ -307,7 +308,7 @@ public class Item extends Actor implements Disposable {
 
       if (base.stackable) {
         int quantity = bitStream.readUnsigned15OrLess(9);
-        props.put(Stat.quantity, quantity);
+        baseProps.put(Stat.quantity, quantity);
       }
 
       if (quality == SET) {
@@ -334,6 +335,8 @@ public class Item extends Actor implements Disposable {
 
   public void update() {
     if ((flags & COMPACT) == COMPACT) return;
+
+    props.reset();
     System.out.println(getName());
     PropertyList magicProps = stats[MAGIC_PROPS];
     PropertyList runeProps = stats[RUNE_PROPS];
@@ -347,8 +350,22 @@ public class Item extends Actor implements Disposable {
         }
       }
       if (runeProps != null) magicPropsAggregate.addAll(runeProps);
-      props.apply(magicPropsAggregate);
+      props.add(magicPropsAggregate);
     }
+
+    props.update(Riiablo.charData);
+    /*
+    TODO: props.apply(PropertyList) will only apply these properties
+    if (quality == SET) {
+      SetItems.Entry setItem = (SetItems.Entry) qualityData;
+      int setId = Riiablo.files.Sets.index(setItem.set);
+      int numEquipped = Riiablo.charData.getSets().get(setId, 0);
+      if (numEquipped >= 2) {
+        PropertyList setProps = stats[SET_PROPS + numEquipped - 2];
+        props.apply(setProps);
+      }
+    }
+    */
   }
 
   public Details details() {
@@ -948,10 +965,10 @@ public class Item extends Actor implements Disposable {
 
       //if ((flags & COMPACT) == 0) {
         Stat.Instance prop;
-        if ((prop = props.attrs().get(Stat.armorclass)) != null) {
+        if ((prop = props.agg.get(Stat.armorclass)) != null) {
           Table table = new Table();
           table.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font));
-          table.add(new Label(Integer.toString(prop.value), font, props.isModified(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
+          table.add(new Label(Integer.toString(prop.value), font, props.mod.get(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
           table.pack();
           add(table).space(SPACING).row();
         }
@@ -965,51 +982,51 @@ public class Item extends Actor implements Disposable {
           } else {
             i = 1;
           }
-          if ((i & 1) != 0 && (prop = props.attrs().get(Stat.maxdamage)) != null) {
+          if ((i & 1) != 0 && (prop = props.agg.get(Stat.maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1l") + " ", font));
-            table.add(new Label(props.get(Stat.mindamage).value + " to " + prop.value, font, props.isModified(Stat.maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.mindamage).value + " to " + prop.value, font, props.mod.get(Stat.maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
-          if ((i & 2) != 0 && (prop = props.attrs().get(Stat.secondary_maxdamage)) != null) {
+          if ((i & 2) != 0 && (prop = props.agg.get(Stat.secondary_maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1m") + " ", font));
-            table.add(new Label(props.get(Stat.secondary_mindamage).value + " to " + prop.value, font, props.isModified(Stat.secondary_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.secondary_mindamage).value + " to " + prop.value, font, props.mod.get(Stat.secondary_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
-          if (typeEntry.Throwable && (prop = props.attrs().get(Stat.item_throw_maxdamage)) != null) {
+          if (typeEntry.Throwable && (prop = props.agg.get(Stat.item_throw_maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1n") + " ", font));
-            table.add(new Label(props.get(Stat.item_throw_mindamage).value + " to " + prop.value, font, props.isModified(Stat.item_throw_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.item_throw_mindamage).value + " to " + prop.value, font, props.mod.get(Stat.item_throw_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
         }
         if (Item.this.type.is(Type.SHLD)) {
-          if ((prop = props.attrs().get(Stat.toblock)) != null) {
+          if ((prop = props.agg.get(Stat.toblock)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1r"), font));
             table.add(new Label(prop.value + "%", font, Riiablo.colors.blue));
             table.pack();
             add(table).space(SPACING).row();
           }
-          if (Riiablo.charData.getCharacterClass() == CharacterClass.PALADIN && (prop = props.attrs().get(Stat.maxdamage)) != null && prop.value > 0)
-            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.attrs().get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
+          if (Riiablo.charData.getCharacterClass() == CharacterClass.PALADIN && (prop = props.agg.get(Stat.maxdamage)) != null && prop.value > 0)
+            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.agg.get(Stat.mindamage).value + " to " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if (!Item.this.base.nodurability && (prop = props.attrs().get(Stat.durability)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.attrs().get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (!Item.this.base.nodurability && (prop = props.agg.get(Stat.durability)) != null)
+          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.value + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.agg.get(Stat.maxdurability).value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is(Type.CLAS)) {
           add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.typeEntry.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
         }
-        if ((prop = props.attrs().get(Stat.reqdex)) != null && prop.value > 0)
+        if ((prop = props.agg.get(Stat.reqdex)) != null && prop.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.attrs().get(Stat.reqstr)) != null && prop.value > 0)
+        if ((prop = props.agg.get(Stat.reqstr)) != null && prop.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.attrs().get(Stat.item_levelreq)) != null && prop.value > 0)
+        if ((prop = props.agg.get(Stat.item_levelreq)) != null && prop.value > 0)
           add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.attrs().get(Stat.quantity)) != null)
+        if ((prop = props.agg.get(Stat.quantity)) != null)
           add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.value, font, Riiablo.colors.white)).center().space(SPACING).row();
         if (Item.this.type.is(Type.WEAP)) {
           add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
