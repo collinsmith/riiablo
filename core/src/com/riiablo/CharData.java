@@ -14,11 +14,14 @@ import com.riiablo.item.PropertyList;
 import com.riiablo.item.Quality;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
+import com.riiablo.item.Type;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Arrays;
 import java.util.EnumMap;
+
+import static com.riiablo.item.StoreLoc.INVENTORY;
 
 public class CharData {
   private D2S d2s;
@@ -191,6 +194,10 @@ public class CharData {
         break;
       case STORED:
         store.get(item.storeLoc).add(item);
+        item.update();
+        if (item.storeLoc == INVENTORY && item.type.is(Type.CHAR)) {
+          stats.add(item.props.remaining());
+        }
         break;
     }
     if (item.quality == Quality.SET) {
