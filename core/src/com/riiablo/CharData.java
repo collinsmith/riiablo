@@ -194,8 +194,13 @@ public class CharData {
       case EQUIPPED:
         setEquipped(item.bodyLoc, item);
         item.update();
-        if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, getAlternate()))
+        if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, getAlternate())) {
           stats.add(item.props.remaining());
+          Stat stat;
+          if ((stat = item.props.get(Stat.armorclass)) != null) {
+            stats.aggregate().addCopy(stat);
+          }
+        }
         break;
       case STORED:
         store.get(item.storeLoc).add(item);
