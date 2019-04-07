@@ -1,7 +1,9 @@
 package com.riiablo.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -99,10 +101,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     strLabel.setAlignment(Align.center);
     addActor(strLabel);
 
-    Label str = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.strength).value()), Riiablo.fonts.font16);
+    Label str = createStatLabel(Stat.strength);
     str.setPosition(78, getHeight() - 100);
     str.setSize(36, 16);
-    str.setAlignment(Align.center);
     addActor(str);
 
     Label dexLabel = new Label(4062, Riiablo.fonts.ReallyTheLastSucker);
@@ -111,10 +112,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     dexLabel.setAlignment(Align.center);
     addActor(dexLabel);
 
-    Label dex = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.dexterity).value()), Riiablo.fonts.font16);
+    Label dex = createStatLabel(Stat.dexterity);
     dex.setPosition(78, getHeight() - 162);
     dex.setSize(36, 16);
-    dex.setAlignment(Align.center);
     addActor(dex);
 
     Label defenseLabel = Label.i18n("strchrdef", Riiablo.fonts.ReallyTheLastSucker);
@@ -123,10 +123,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     defenseLabel.setAlignment(Align.center);
     addActor(defenseLabel);
 
-    Label armorclass = new Label(Integer.toString((int) Riiablo.charData.getStats().get(Stat.armorclass).toFloat()), Riiablo.fonts.font16);
+    Label armorclass = createStatLabel(Stat.armorclass);
     armorclass.setPosition(275, getHeight() - 210);
     armorclass.setSize(36, 16);
-    armorclass.setAlignment(Align.center);
     addActor(armorclass);
 
     Label vitLabel = new Label(4066, Riiablo.fonts.ReallyTheLastSucker);
@@ -135,10 +134,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     vitLabel.setAlignment(Align.center);
     addActor(vitLabel);
 
-    Label vit = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.vitality).value()), Riiablo.fonts.font16);
+    Label vit = createStatLabel(Stat.vitality);
     vit.setPosition(78, getHeight() - 248);
     vit.setSize(36, 16);
-    vit.setAlignment(Align.center);
     addActor(vit);
 
     Label staminaLabel = Label.i18n("strchrstm", Riiablo.fonts.ReallyTheLastSucker);
@@ -147,16 +145,14 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     staminaLabel.setAlignment(Align.center);
     addActor(staminaLabel);
 
-    Label stamina = new Label(Integer.toString((int) Riiablo.charData.getStats().get(Stat.stamina).toFloat()), Riiablo.fonts.font16);
+    Label stamina = createStatLabel(Stat.stamina);
     stamina.setPosition(235, getHeight() - 248);
     stamina.setSize(36, 16);
-    stamina.setAlignment(Align.center);
     addActor(stamina);
 
-    Label maxstamina = new Label(Integer.toString((int) Riiablo.charData.getStats().get(Stat.maxstamina).toFloat()), Riiablo.fonts.font16);
+    Label maxstamina = createStatLabel(Stat.maxstamina);
     maxstamina.setPosition(275, getHeight() - 248);
     maxstamina.setSize(36, 16);
-    maxstamina.setAlignment(Align.center);
     addActor(maxstamina);
 
     Label lifeLabel = Label.i18n("strchrlif", Riiablo.fonts.ReallyTheLastSucker);
@@ -165,16 +161,14 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     lifeLabel.setAlignment(Align.center);
     addActor(lifeLabel);
 
-    Label hitpoints = new Label(Integer.toString((int) Riiablo.charData.getStats().get(Stat.hitpoints).toFloat()), Riiablo.fonts.font16);
+    Label hitpoints = createStatLabel(Stat.hitpoints);
     hitpoints.setPosition(235, getHeight() - 272);
     hitpoints.setSize(36, 16);
-    hitpoints.setAlignment(Align.center);
     addActor(hitpoints);
 
-    Label maxhp = new Label(Integer.toString((int) Riiablo.charData.getStats().get(Stat.maxhp).toFloat()), Riiablo.fonts.font16);
+    Label maxhp = createStatLabel(Stat.maxhp);
     maxhp.setPosition(275, getHeight() - 272);
     maxhp.setSize(36, 16);
-    maxhp.setAlignment(Align.center);
     addActor(maxhp);
 
     Label eneLabel = new Label(4069, Riiablo.fonts.ReallyTheLastSucker);
@@ -183,10 +177,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     eneLabel.setAlignment(Align.center);
     addActor(eneLabel);
 
-    Label ene = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.energy).value()), Riiablo.fonts.font16);
+    Label ene = createStatLabel(Stat.energy);
     ene.setPosition(78, getHeight() - 310);
     ene.setSize(36, 16);
-    ene.setAlignment(Align.center);
     addActor(ene);
 
     Label manaLabel = Label.i18n("strchrman", Riiablo.fonts.ReallyTheLastSucker);
@@ -195,16 +188,14 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     manaLabel.setAlignment(Align.center);
     addActor(manaLabel);
 
-    Label mana = new Label(Integer.toString((int) Riiablo.charData.getStats().get(Stat.mana).toFloat()), Riiablo.fonts.font16);
+    Label mana = createStatLabel(Stat.mana);
     mana.setPosition(235, getHeight() - 310);
     mana.setSize(36, 16);
-    mana.setAlignment(Align.center);
     addActor(mana);
 
-    Label maxmana = new Label(Integer.toString((int) Riiablo.charData.getStats().get(Stat.maxmana).toFloat()), Riiablo.fonts.font16);
+    Label maxmana = createStatLabel(Stat.maxmana);
     maxmana.setPosition(275, getHeight() - 310);
     maxmana.setSize(36, 16);
-    maxmana.setAlignment(Align.center);
     addActor(maxmana);
 
     Label fireResLabel = new Label(4071, Riiablo.fonts.ReallyTheLastSucker);
@@ -213,10 +204,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     fireResLabel.setAlignment(Align.center);
     addActor(fireResLabel);
 
-    Label fireRes = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.fireresist).value()), Riiablo.fonts.font16);
+    Label fireRes = createStatLabel(Stat.fireresist, false);
     fireRes.setPosition(273, getHeight() - 349);
     fireRes.setSize(36, 16);
-    fireRes.setAlignment(Align.center);
     addActor(fireRes);
 
     Label coldResLabel = new Label(4072, Riiablo.fonts.ReallyTheLastSucker);
@@ -225,10 +215,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     coldResLabel.setAlignment(Align.center);
     addActor(coldResLabel);
 
-    Label coldRes = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.coldresist).value()), Riiablo.fonts.font16);
+    Label coldRes = createStatLabel(Stat.coldresist, false);
     coldRes.setPosition(273, getHeight() - 373);
     coldRes.setSize(36, 16);
-    coldRes.setAlignment(Align.center);
     addActor(coldRes);
 
     Label lightningResLabel = new Label(4073, Riiablo.fonts.ReallyTheLastSucker);
@@ -237,10 +226,9 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     lightningResLabel.setAlignment(Align.center);
     addActor(lightningResLabel);
 
-    Label lightningRes = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.lightresist).value()), Riiablo.fonts.font16);
+    Label lightningRes = createStatLabel(Stat.lightresist, false);
     lightningRes.setPosition(273, getHeight() - 397);
     lightningRes.setSize(36, 16);
-    lightningRes.setAlignment(Align.center);
     addActor(lightningRes);
 
     Label poisonResLabel = new Label(4074, Riiablo.fonts.ReallyTheLastSucker);
@@ -249,13 +237,56 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     poisonResLabel.setAlignment(Align.center);
     addActor(poisonResLabel);
 
-    Label poisonRes = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.poisonresist).value()), Riiablo.fonts.font16);
+    Label poisonRes = createStatLabel(Stat.poisonresist, false);
     poisonRes.setPosition(273, getHeight() - 421);
     poisonRes.setSize(36, 16);
-    poisonRes.setAlignment(Align.center);
     addActor(poisonRes);
 
     //setDebug(true, true);
+  }
+
+  private Label createStatLabel(int statId) {
+    return createStatLabel(statId, true);
+  }
+
+  private Label createStatLabel(int statId, boolean mod) {
+    Stat stat = Riiablo.charData.getStats().get(statId);
+    int value = stat.entry.ValShift > 0 ? (int) stat.toFloat() : stat.value();
+    String text = Integer.toString(value);
+    Label label = new Label(text, getFont(text.length()));
+    label.setColor(getColor(mod, stat, value));
+    label.setAlignment(Align.center);
+    return label;
+  }
+
+  private BitmapFont getFont(int length) {
+    if (length > 6) {
+      return Riiablo.fonts.ReallyTheLastSucker;
+    } else if (length > 3) {
+      return Riiablo.fonts.font8;
+    } else {
+      return Riiablo.fonts.font16;
+    }
+  }
+
+  private Color getColor(boolean mod, Stat stat, int value) {
+    if (value < 0) {
+      return Riiablo.colors.red;
+    }
+
+    if (!stat.entry.maxstat.isEmpty()) {
+      int id = Riiablo.files.ItemStatCost.index(stat.entry.maxstat);
+      Stat maxstat = Riiablo.charData.getStats().get(id);
+      if (maxstat != null && value >= maxstat.value()) {
+        return Riiablo.colors.gold;
+      }
+    }
+
+    if (mod && Riiablo.charData.getStats().isModified(stat.id)) {
+      return Riiablo.colors.blue;
+    }
+
+    return Riiablo.colors.white;
   }
 
   @Override

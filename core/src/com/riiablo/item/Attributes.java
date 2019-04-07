@@ -25,6 +25,10 @@ public class Attributes {
     return rem;
   }
 
+  public boolean isModified(int stat) {
+    return mod.get(stat);
+  }
+
   public int size() {
     return agg.size();
   }
@@ -99,9 +103,13 @@ public class Attributes {
       case 7:  return 0; // by-time percent
       case 8:
         agg.addCopy(stat);
+        mod.set(stat.id);
         return stat.val * charData.getCharacterClass().entry().ManaPerMagic; // max mana
       case 9:
-        if (opstat.id == Stat.maxhp) agg.addCopy(stat); // only increment vit on maxhp op
+        if (opstat.id == Stat.maxhp) { // only increment vit on maxhp op
+          agg.addCopy(stat);
+          mod.set(stat.id);
+        }
         return stat.val // max hitpoints
           * (opstat.id == Stat.maxhp
           ? charData.getCharacterClass().entry().LifePerVitality

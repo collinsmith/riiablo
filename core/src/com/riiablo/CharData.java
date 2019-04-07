@@ -148,6 +148,10 @@ public class CharData {
     base.put(Stat.lightresist, diff.ResistPenalty);
     base.put(Stat.coldresist, diff.ResistPenalty);
     base.put(Stat.poisonresist, diff.ResistPenalty);
+    base.put(Stat.maxfireresist, 75);
+    base.put(Stat.maxlightresist, 75);
+    base.put(Stat.maxcoldresist, 75);
+    base.put(Stat.maxpoisonresist, 75);
     stats.reset();
     stats.update(this); // TODO: this need to be done whenever an item is changed
 
@@ -190,6 +194,11 @@ public class CharData {
       if (stat.id == Stat.item_nonclassskill) {
         skills.getAndIncrement(stat.param, 0, stat.value());
       }
+    }
+
+    System.out.println("Skills:");
+    for (IntIntMap.Entry skill : skills) {
+      System.out.println(skill.key + ": " + skill.value);
     }
   }
 
