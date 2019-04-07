@@ -181,7 +181,16 @@ public class CharData {
     int dex = stats.get(Stat.dexterity).value();
     stats.aggregate().get(Stat.armorclass).add(dex / 4);
 
-    // TODO: skills
+    skills.clear();
+    for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
+      skills.put(spellId, d2s.skills.data[i]);
+    }
+
+    for (Stat stat : stats.remaining()) {
+      if (stat.id == Stat.item_nonclassskill) {
+        skills.getAndIncrement(stat.param, 0, stat.value());
+      }
+    }
   }
 
   private void addItem(Item item) {
