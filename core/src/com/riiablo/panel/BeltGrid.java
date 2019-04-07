@@ -1,19 +1,25 @@
 package com.riiablo.panel;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.SnapshotArray;
+import com.riiablo.Keys;
+import com.riiablo.Riiablo;
 import com.riiablo.item.Item;
 import com.riiablo.item.Type;
+import com.riiablo.key.MappedKey;
 import com.riiablo.screen.GameScreen;
+import com.riiablo.widget.Label;
 
 public class BeltGrid extends ItemGrid {
   private static final String TAG = "BeltGrid";
 
   final Rectangle visibleArea = new Rectangle();
+  final Label[] hotkeys;
 
   TextureRegion background;
   boolean hidden;
@@ -24,6 +30,27 @@ public class BeltGrid extends ItemGrid {
     visibleArea.set(0, 0, width * boxWidth, boxHeight - 1);
     setRows(1);
     setHidden(true);
+
+    hotkeys = new Label[width];
+    for (int i = 0; i < width; i++) {
+      final Label hotkey = hotkeys[i] = new Label("", Riiablo.fonts.font16, Riiablo.colors.gold);
+      Keys.Belt[i].addAssignmentListener(new MappedKey.AssignmentListener() {
+        @Override
+        public void onAssigned(MappedKey key, int assignment, int keycode) {
+          hotkey.setText(Input.Keys.toString(key.getPrimaryAssignment()));
+        }
+
+        @Override
+        public void onUnassigned(MappedKey key, int assignment, int keycode) {
+          hotkey.setText("");
+        }
+
+        @Override
+        public void onFirstAssignment(MappedKey key, int assignment, int keycode) {
+          onAssigned(key, assignment, keycode);
+        }
+      });
+    }
   }
 
   public void setBackground(TextureRegion background) {
@@ -71,5 +98,14 @@ public class BeltGrid extends ItemGrid {
       }
     }
     super.draw(batch, parentAlpha);
+
+    final float PADDING = 2;
+    float x = getX() + PADDING;
+    float y = getY() + PADDING;
+    for (int i = 0; i < width; i++, x += boxWidth) {
+      Label hotkey = hotkeys[i];
+      hotkey.setPosition(x, y);
+      hotkey.draw(batch, 1);
+    }
   }
 }

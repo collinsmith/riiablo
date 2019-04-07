@@ -65,4 +65,10 @@ public class Keys {
       Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill7, Skill8,
       Skill9, Skill10, Skill11, Skill12, Skill13, Skill14, Skill15, Skill16
   };
+
+  public static final MappedKey Belt1 = new MappedKey("Use Belt 1", "belt1", Input.Keys.NUM_1);
+  public static final MappedKey Belt2 = new MappedKey("Use Belt 2", "belt2", Input.Keys.NUM_2);
+  public static final MappedKey Belt3 = new MappedKey("Use Belt 3", "belt3", Input.Keys.NUM_3);
+  public static final MappedKey Belt4 = new MappedKey("Use Belt 4", "belt4", Input.Keys.NUM_4);
+  public static final MappedKey Belt[] = new MappedKey[] { Belt1, Belt2, Belt3, Belt4 };
 }
