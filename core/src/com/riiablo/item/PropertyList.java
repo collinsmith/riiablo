@@ -91,7 +91,7 @@ public class PropertyList implements Iterable<Stat> {
   }
 
   public void add(Stat stat) {
-    assert stat.stat == 0 || stat.hash != 0;
+    assert stat.id == 0 || stat.hash != 0;
     Stat existing = props.get(stat.hash);
     if (existing != null) {
       existing.add(stat);
@@ -101,7 +101,7 @@ public class PropertyList implements Iterable<Stat> {
   }
 
   public void addCopy(Stat stat) {
-    assert stat.stat == 0 || stat.hash != 0;
+    assert stat.id == 0 || stat.hash != 0;
     Stat existing = props.get(stat.hash);
     if (existing != null) {
       existing.add(stat);

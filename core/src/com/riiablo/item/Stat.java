@@ -467,15 +467,15 @@ public class Stat implements Comparable<Stat> {
     return new Stat(stat, param, value);
   }
 
-  final int stat;
-  final int param; // can probably safely be truncated to short
+  public final int id;
+  public final int param; // can probably safely be truncated to short
   final int hash;
-  final ItemStatCost.Entry entry;
+  public final ItemStatCost.Entry entry;
 
   int val;
 
   Stat(int stat, BitStream bitStream) {
-    this.stat = stat;
+    this.id = stat;
     entry = Riiablo.files.ItemStatCost.get(stat);
     param = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
     val   = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
@@ -483,7 +483,7 @@ public class Stat implements Comparable<Stat> {
   }
 
   Stat(int stat, int param, int value) {
-    this.stat = stat;
+    this.id = stat;
     this.param = param;
     this.val = value;
     entry = Riiablo.files.ItemStatCost.get(stat);
@@ -491,7 +491,7 @@ public class Stat implements Comparable<Stat> {
   }
 
   Stat(Stat src) {
-    this.stat = src.stat;
+    this.id = src.id;
     this.param = src.param;
     this.hash = src.hash;
     this.entry = src.entry;
@@ -884,12 +884,12 @@ public class Stat implements Comparable<Stat> {
   @Override
   public String toString() {
     switch (entry.Encode) {
-      case 0:  return stat + "(" + entry + ")" + "=" + (entry.Save_Param_Bits == 0 ? Integer.toString(val) : val + ":" + param);
-      case 1:  return stat + "(" + entry + ")" + "=" + param() + ":" + value();
-      case 2:  return stat + "(" + entry + ")" + "=" + param1() + ":" + param2() + ":" + value();
-      case 3:  return stat + "(" + entry + ")" + "=" + param1() + ":" + param2() + ":" + value1() + ":" + value2();
-      case 4:  return stat + "(" + entry + ")" + "=" + value1() + ":" + value2() + ":" + value3();
-      default: return stat + "(" + entry + ")" + "=" + (entry.Save_Param_Bits == 0 ? Integer.toString(val) : val + ":" + param);
+      case 0:  return id + "(" + entry + ")" + "=" + (entry.Save_Param_Bits == 0 ? Integer.toString(val) : val + ":" + param);
+      case 1:  return id + "(" + entry + ")" + "=" + param() + ":" + value();
+      case 2:  return id + "(" + entry + ")" + "=" + param1() + ":" + param2() + ":" + value();
+      case 3:  return id + "(" + entry + ")" + "=" + param1() + ":" + param2() + ":" + value1() + ":" + value2();
+      case 4:  return id + "(" + entry + ")" + "=" + value1() + ":" + value2() + ":" + value3();
+      default: return id + "(" + entry + ")" + "=" + (entry.Save_Param_Bits == 0 ? Integer.toString(val) : val + ":" + param);
     }
   }
 
@@ -926,7 +926,7 @@ public class Stat implements Comparable<Stat> {
 
     @Override
     public String toString() {
-      return stat + "(" + entry + ")" + "=" + Arrays.toString(stats) + " : " + format(null, 0, 0, null, null, null);
+      return id + "(" + entry + ")" + "=" + Arrays.toString(stats) + " : " + format(null, 0, 0, null, null, null);
     }
   }
 }

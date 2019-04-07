@@ -62,7 +62,7 @@ public class Attributes {
         rem.addCopy(stat);
       } else {
         agg.addCopy(stat);
-        mod.set(stat.stat);
+        mod.set(stat.id);
       }
     }
   }
@@ -81,7 +81,7 @@ public class Attributes {
       Stat opstat = agg.get(statId);
       if (opstat != null) {
         opstat.val += op(charData, stat, base.get(statId), op, op_base, op_param);
-        mod.set(opstat.stat);
+        mod.set(opstat.id);
         opCount++;
       }
     }
@@ -101,9 +101,9 @@ public class Attributes {
         agg.addCopy(stat);
         return stat.val * charData.getCharacterClass().entry().ManaPerMagic; // max mana
       case 9:
-        if (opstat.stat == Stat.maxhp) agg.addCopy(stat); // only increment vit on maxhp op
+        if (opstat.id == Stat.maxhp) agg.addCopy(stat); // only increment vit on maxhp op
         return stat.val // max hitpoints
-          * (opstat.stat == Stat.maxhp
+          * (opstat.id == Stat.maxhp
           ? charData.getCharacterClass().entry().LifePerVitality
           : charData.getCharacterClass().entry().StaminaPerVitality);
       case 10: return 0; // no-op
