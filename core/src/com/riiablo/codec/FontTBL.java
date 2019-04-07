@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
+import com.riiablo.codec.util.BBox;
+import com.riiablo.graphics.PaletteIndexedPixmap;
+import com.riiablo.util.BufferUtils;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -18,12 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.riiablo.codec.DC;
-import com.riiablo.codec.DC6;
-import com.riiablo.codec.util.BBox;
-import com.riiablo.graphics.PaletteIndexedPixmap;
-import com.riiablo.util.BufferUtils;
 
 public class FontTBL {
   private static final String TAG = "FontTBL";
@@ -77,10 +74,10 @@ public class FontTBL {
         glyph.srcY = (c / 16) * (charHeight + CHAR_SHEET_PADDING);
 
         CharData cData = FontTBL.this.cData[c];
-        glyph.width = cData.width;
+        glyph.width = cData.width + 1;
         glyph.height = charHeight; // this was  {@code charHeight - 1} before, maybe because of no glyph padding in the backing texture
         glyph.yoffset = -(2 * glyph.height);
-        glyph.xadvance = glyph.width;
+        glyph.xadvance = cData.width;
 
         // This was messing with
         //if (glyph.width > 0 && glyph.height > 0 && glyph.yoffset < descent) descent = glyph.yoffset;
