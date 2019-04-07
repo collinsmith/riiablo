@@ -37,6 +37,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
 
+import static com.riiablo.item.Location.EQUIPPED;
 import static com.riiablo.item.Quality.SET;
 
 public class Item extends Actor implements Disposable {
@@ -351,7 +352,7 @@ public class Item extends Actor implements Disposable {
         props.add(socket.stats[MAGIC_PROPS]);
       }
     }
-    if (quality == SET) {
+    if (quality == SET && location == EQUIPPED) {
       SetItems.Entry setItem = (SetItems.Entry) qualityData;
       int setId = Riiablo.files.Sets.index(setItem.set);
       int numEquipped = Riiablo.charData.getSets().get(setId, 0);
@@ -1075,7 +1076,7 @@ public class Item extends Actor implements Disposable {
         add(new Label(itemFlags.toString(), font, Riiablo.colors.blue)).center().space(SPACING).row();
       }
 
-      if (quality == SET) {
+      if (quality == SET && location == EQUIPPED) {
         SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
         int setId = Riiablo.files.Sets.index(setItem.set);
         int numEquipped = Riiablo.charData.getSets().get(setId, 0);
