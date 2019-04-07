@@ -26,6 +26,7 @@ import com.riiablo.codec.excel.LvlWarp;
 import com.riiablo.codec.excel.MagicPrefix;
 import com.riiablo.codec.excel.MagicSuffix;
 import com.riiablo.codec.excel.Misc;
+import com.riiablo.codec.excel.MonAI;
 import com.riiablo.codec.excel.MonMode;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
@@ -76,6 +77,7 @@ public class Files {
   public final Misc             misc;
   public final MagicPrefix      MagicPrefix;
   public final MagicSuffix      MagicSuffix;
+  public final MonAI            MonAI;
   public final MonMode          MonMode;
   public final MonStats         monstats;
   public final MonStats2        monstats2;
@@ -125,6 +127,7 @@ public class Files {
     misc             = load(assets, Misc.class, Excel.EXPANSION);
     MagicPrefix      = load(assets, MagicPrefix.class, Excel.EXPANSION);
     MagicSuffix      = load(assets, MagicSuffix.class, Excel.EXPANSION);
+    MonAI            = load(assets, MonAI.class);
     MonMode          = load(assets, MonMode.class);
     monstats         = load(assets, MonStats.class, Excel.EXPANSION);
     monstats2        = load(assets, MonStats2.class, Excel.EXPANSION);

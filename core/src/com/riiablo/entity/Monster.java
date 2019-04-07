@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Align;
 import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
 import com.riiablo.ai.Npc;
+import com.riiablo.ai.Zombie;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -59,6 +60,8 @@ public class Monster extends Entity {
       monster.ai = AI.IDLE;
     } else if (monstats.AI.equalsIgnoreCase("Npc")) {
       monster.ai = new Npc(monster);
+    } else if (monstats.AI.equalsIgnoreCase("Zombie")) {
+      monster.ai = new Zombie(monster);
     }
 
     return monster;
