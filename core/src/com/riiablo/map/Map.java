@@ -25,7 +25,9 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
+import com.riiablo.codec.excel.MonStats;
 import com.riiablo.entity.Entity;
+import com.riiablo.entity.Monster;
 import com.riiablo.entity.Warp;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -310,7 +312,7 @@ public class Map implements Disposable {
     return build(params.seed, params.act, params.diff);
   }
 
-  public static Map build(int seed, int act, int diff) {
+  public static Map build(int seed, int act, final int diff) {
     MathUtils.random.setSeed(seed);
 
     Map map = new Map(act);
@@ -375,7 +377,31 @@ public class Map implements Disposable {
     zone.presets[5][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(52), 0);
     zone.setWarp(ID.VIS_5_42, ID.VIS_0_03);
 
+    final Map mapRef = map;
+    final Levels.Entry tmpLevel = level;
     zone.generator = new Zone.Generator() {
+      final MonStats.Entry[] monsters;
+      final float SPAWN_MULT = 2f;
+
+      {
+        int prob = 0;
+        int numMon = tmpLevel.NumMon;
+        MonStats.Entry[] monstats = new MonStats.Entry[numMon];
+        for (int i = 0; i < numMon; i++) {
+          String mon = tmpLevel.mon[i];
+          monstats[i] = Riiablo.files.monstats.get(mon);
+          prob += monstats[i].Rarity;
+        }
+
+        monsters = new MonStats.Entry[prob];
+        prob = 0;
+        for (MonStats.Entry entry : monstats) {
+          for (int i = 0; i < entry.Rarity; i++) {
+            monsters[prob++] = entry;
+          }
+        }
+      }
+
       @Override
       public void generate(Zone zone, DT1s dt1s, int tx, int ty) {
         if (zone.tiles[FLOOR_OFFSET] == null) zone.tiles[FLOOR_OFFSET] = new Tile[zone.tilesX][zone.tilesY];
@@ -383,6 +409,15 @@ public class Map implements Disposable {
         for (int x = 0; x < zone.gridSizeX; x++, tx++, ty = startY) {
           for (int y = 0; y < zone.gridSizeY; y++, ty++) {
             zone.tiles[FLOOR_OFFSET][tx][ty] = Tile.of(dt1s.get(0));
+            if (MathUtils.randomBoolean(SPAWN_MULT * tmpLevel.MonDen[diff] / 100000f)) {
+              int i = MathUtils.random(monsters.length - 1);
+              MonStats.Entry monster = monsters[i];
+              Monster entity = Monster.create(mapRef, zone, monster);
+              int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
+              int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
+              entity.position().set(px, py);
+              zone.entities.add(entity);
+            }
           }
         }
       }

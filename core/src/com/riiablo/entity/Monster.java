@@ -56,15 +56,27 @@ public class Monster extends Entity {
     }
 
     Monster monster = new Monster(map, zone, object, monstats);
-    if (monstats.AI.equalsIgnoreCase("Idle")) {
-      monster.ai = AI.IDLE;
-    } else if (monstats.AI.equalsIgnoreCase("Npc")) {
-      monster.ai = new Npc(monster);
-    } else if (monstats.AI.equalsIgnoreCase("Zombie")) {
-      monster.ai = new Zombie(monster);
+    monster.ai = findAI(monster);
+    return monster;
+  }
+
+  public static Monster create(Map map, Map.Zone zone, MonStats.Entry monstats) {
+    Monster monster = new Monster(map, zone, null, monstats);
+    monster.ai = findAI(monster);
+    return monster;
+  }
+
+  private static AI findAI(Monster monster) {
+    final String ai = monster.monstats.AI;
+    if (ai.equalsIgnoreCase("Idle")) {
+      return AI.IDLE;
+    } else if (ai.equalsIgnoreCase("Npc")) {
+      return new Npc(monster);
+    } else if (ai.equalsIgnoreCase("Zombie")) {
+      return new Zombie(monster);
     }
 
-    return monster;
+    return null;
   }
 
   Monster(Map map, Map.Zone zone, DS1.Object object, MonStats.Entry monstats) {
