@@ -150,6 +150,7 @@ public class Monster extends Entity {
 
   @Override
   public void drawDebugPath(PaletteIndexedBatch batch, ShapeRenderer shapes) {
+    if (object == null) return;
     DS1.Path path = object.path;
     if (path == null) return;
     DS1.Path.Point point;
