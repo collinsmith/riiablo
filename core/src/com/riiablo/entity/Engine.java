@@ -26,6 +26,10 @@ public class Engine implements Iterable<Entity> {
     return entities.iterator();
   }
 
+  public Iterable<Entity> newIterator() {
+    return new Array.ArrayIterator<>(entities);
+  }
+
   public void add(Entity entity, int id) {
     entity.uuid = id;
     add(entity);
