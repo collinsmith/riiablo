@@ -412,11 +412,16 @@ public class Map implements Disposable {
             if (MathUtils.randomBoolean(SPAWN_MULT * tmpLevel.MonDen[diff] / 100000f)) {
               int i = MathUtils.random(monsters.length - 1);
               MonStats.Entry monster = monsters[i];
-              Monster entity = Monster.create(mapRef, zone, monster);
-              int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
-              int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
-              entity.position().set(px, py);
-              zone.entities.add(entity);
+              int count = monster.MinGrp == monster.MaxGrp
+                  ? monster.MaxGrp
+                  : MathUtils.random(monster.MinGrp, monster.MaxGrp);
+              for (i = 0; i < count; i++) {
+                Monster entity = Monster.create(mapRef, zone, monster);
+                int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
+                int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
+                entity.position().set(px, py);
+                zone.entities.add(entity);
+              }
             }
           }
         }

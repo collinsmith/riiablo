@@ -7,8 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Align;
 import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
-import com.riiablo.ai.Npc;
-import com.riiablo.ai.Zombie;
+import com.riiablo.ai.Idle;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -18,6 +17,8 @@ import com.riiablo.map.Map;
 import com.riiablo.screen.GameScreen;
 
 import org.apache.commons.lang3.StringUtils;
+
+import java.lang.reflect.Constructor;
 
 public class Monster extends Entity {
   private static final String TAG = "Monster";
@@ -67,16 +68,15 @@ public class Monster extends Entity {
   }
 
   private static AI findAI(Monster monster) {
-    final String ai = monster.monstats.AI;
-    if (ai.equalsIgnoreCase("Idle")) {
+    try {
+      Class clazz = Class.forName("com.riiablo.ai." + monster.monstats.AI);
+      if (clazz == Idle.class) return AI.IDLE;
+      Constructor constructor = clazz.getConstructor(Monster.class);
+      return (AI) constructor.newInstance(monster);
+    } catch (Throwable t) {
+      Gdx.app.error(TAG, t.getMessage(), t);
       return AI.IDLE;
-    } else if (ai.equalsIgnoreCase("Npc")) {
-      return new Npc(monster);
-    } else if (ai.equalsIgnoreCase("Zombie")) {
-      return new Zombie(monster);
     }
-
-    return null;
   }
 
   Monster(Map map, Map.Zone zone, DS1.Object object, MonStats.Entry monstats) {

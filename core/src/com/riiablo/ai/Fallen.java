@@ -4,11 +4,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.entity.Monster;
 
-public class Zombie extends AI {
+public class Fallen extends AI {
 
   int[] pa;
 
-  public Zombie(Monster entity) {
+  public Fallen(Monster entity) {
     super(entity);
 
     // TODO: difficulty-based params
