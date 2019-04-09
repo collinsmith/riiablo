@@ -26,12 +26,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.riiablo.Client;
 import com.riiablo.CharData;
+import com.riiablo.Client;
 import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
@@ -142,7 +141,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   TextArea output;
 
   public Player player;
-  public IntMap<Entity> entities = new IntMap<>();
   Timer.Task updateTask;
 
   Socket socket;
@@ -433,17 +431,17 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             Player connector = new Player(connect);
             GridPoint2 startPos = map.find(Map.ID.TOWN_ENTRY_1);
             connector.position().set(startPos.x, startPos.y);
-            entities.put(connect.id, connector);
+            Riiablo.engine.add(connector, connect.id);
             break;
           case Packets.DISCONNECT:
             Disconnect disconnect = packet.readValue(Disconnect.class);
             output.appendText(Riiablo.string.format(3642, disconnect.name));
             output.appendText("\n");
-            entities.remove(disconnect.id);
+            Riiablo.engine.remove(disconnect.id);
             break;
           case Packets.MOVETO:
             MoveTo moveTo = packet.readValue(MoveTo.class);
-            Entity p = entities.get(moveTo.id);
+            Entity p = Riiablo.engine.getEntity(moveTo.id);
             //if (p == player) break; // Disable forced update positions for now
             if (p != null) {
               p.setPath(map, new Vector2(moveTo.x, moveTo.y));
@@ -452,7 +450,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             break;
           case Packets.CONNECT_RESPONSE:
             ConnectResponse connectResponse = packet.readValue(ConnectResponse.class);
-            entities.put(connectResponse.id, player);
+            Riiablo.engine.add(player, connectResponse.id);
             break;
         }
       }
@@ -616,7 +614,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     showItems = UIUtils.alt();
     if (showItems) {
       clearLabels();
-      for (Entity entity : entities.values()) {
+      for (Entity entity : Riiablo.engine) {
         if (entity instanceof ItemHolder) {
           Actor label = entity.getLabel();
           addLabel(label);
@@ -641,7 +639,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     //mapRenderer = new MapRenderer(Riiablo.batch, 480f * 16f / 9f, 480f);
     mapRenderer.setMap(map);
     mapRenderer.setSrc(player);
-    mapRenderer.setEntities(entities);
+    mapRenderer.setEntities(Riiablo.engine);
     if (Gdx.app.getType() == Application.ApplicationType.Android
      || Riiablo.defaultViewport.getWorldHeight() == Riiablo.MOBILE_VIEWPORT_HEIGHT) {
       mapRenderer.zoom(0.80f);
@@ -882,9 +880,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   public void pickup(ItemHolder entity) {
     Riiablo.cursor.setItem(entity.item);
-    int key = entities.findKey(entity, true, -1);
-    if (key != -1) {
-      entities.remove(key);
+    boolean removed = Riiablo.engine.remove(entity);
+    if (removed) {
       mapListener.requireRelease = true;
     }
   }

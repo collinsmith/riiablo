@@ -216,6 +216,8 @@ public abstract class Entity implements Animation.AnimationListener {
     Arrays.fill(DEFAULT_ALPHA, 1.0f);
   }
 
+  int     uuid = 0;
+
   String  classname;
   Type    type;
   int     dirty;

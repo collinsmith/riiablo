@@ -420,7 +420,7 @@ public class Map implements Disposable {
                 int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
                 int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
                 entity.position().set(px, py);
-                zone.entities.add(entity);
+                Riiablo.engine.add(entity);
               }
             }
           }

@@ -12,6 +12,7 @@ import com.riiablo.audio.Audio;
 import com.riiablo.audio.MusicController;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
+import com.riiablo.entity.Engine;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
@@ -51,4 +52,5 @@ public class Riiablo {
   public static MusicController       music;
   public static Cursor                cursor;
   public static CharData              charData;
+  public static Engine                engine;
 }

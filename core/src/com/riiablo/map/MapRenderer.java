@@ -14,8 +14,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
-import com.badlogic.gdx.utils.IntMap;
 import com.riiablo.Riiablo;
+import com.riiablo.entity.Engine;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Object;
 import com.riiablo.graphics.BlendMode;
@@ -120,7 +120,7 @@ public class MapRenderer {
   // DT1 mainIndexes to not draw
   final Bits popped = new Bits();
 
-  IntMap<? extends Entity> entities;
+  Engine entities;
   final Array<Entity> nearbyEntities = new Array<>();
 
   public MapRenderer(PaletteIndexedBatch batch, float viewportWidth, float viewportHeight) {
@@ -157,7 +157,7 @@ public class MapRenderer {
     }
   }
 
-  public void setEntities(IntMap<? extends Entity> entities) {
+  public void setEntities(Engine entities) {
     this.entities = entities;
   }
 
@@ -384,7 +384,7 @@ public class MapRenderer {
       }
     }
     if (entities != null) {
-      for (Entity entity : entities.values()) {
+      for (Entity entity : entities) {
         entity.update(delta);
         entity.act(delta);
       }
@@ -465,7 +465,7 @@ public class MapRenderer {
       }
     }
     if (entities != null) {
-      for (Entity entity : entities.values()) {
+      for (Entity entity : entities) {
         Vector2 pos = entity.position();
         if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
          && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
@@ -1155,7 +1155,7 @@ public class MapRenderer {
             }
           }
         }
-        for (Entity entity : entities.values()) {
+        for (Entity entity : entities) {
           Vector2 position = entity.position();
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {

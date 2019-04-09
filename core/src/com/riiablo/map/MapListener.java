@@ -3,7 +3,6 @@ package com.riiablo.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -40,7 +39,7 @@ public class MapListener {
         if (entity.isOver()) gameScreen.addLabel(entity.getLabel());
       }
     }
-    for (Entity entity : gameScreen.entities.values()) {
+    for (Entity entity : Riiablo.engine) {
       entity.setOver(entity.contains(position));
       if (entity.isOver()) gameScreen.addLabel(entity.getLabel());
     }
@@ -62,7 +61,7 @@ public class MapListener {
         }
       }
     }
-    for (Entity entity : gameScreen.entities.values()) {
+    for (Entity entity : Riiablo.engine) {
       if (entity.isOver()) {
         if (entity.position().dst(gameScreen.player.position()) <= entity.getInteractRange()) {
           setTarget(null);
@@ -88,9 +87,7 @@ public class MapListener {
         Riiablo.cursor.setItem(null);
         Entity item = new ItemHolder(cursor);
         item.position().set(gameScreen.player.position());
-        int randomId;
-        while (gameScreen.entities.get(randomId = MathUtils.random.nextInt(Integer.MAX_VALUE)) != null);
-        gameScreen.entities.put(randomId, item);
+        Riiablo.engine.add(item);
         requireRelease = true;
         return;
       }
