@@ -1,4 +1,8 @@
+import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
+
 apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "io.netifi.flatbuffers"
 
 sourceCompatibility = 1.7
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -6,7 +10,19 @@ sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.test.java.srcDirs = [ "test/" ]
 
+sourceSets.main.java.srcDir file('gen/')
+idea {
+    module {
+        generatedSourceDirs += file('gen/')
+    }
+}
 
 eclipse.project {
     name = appName + "-core"
+}
+
+task createFlatBuffers(type: FlatBuffers) {
+    inputDir = file("src/com/riiablo/net/packet")
+    outputDir = file("gen/")
+    language = 'java'
 }

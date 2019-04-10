@@ -1,0 +1,11 @@
+namespace com.riiablo.net.packet;
+
+table Connection {
+  MCPCookie:uint32;
+  gameId:uint16;
+  charClass:uint8;
+  gameVersion:uint32;
+  gameConst:uint64;
+  locale:uint8;
+  charName:string;
+}
