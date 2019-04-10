@@ -20,7 +20,8 @@ public class Zombie extends AI {
       }
     },
     WANDER,
-    APPROACH;
+    APPROACH,
+    ATTACK;
 
     @Override public void enter(Monster entity) {}
     @Override public void update(Monster entity) {}
@@ -67,12 +68,24 @@ public class Zombie extends AI {
 
     time = SLEEP;
 
-    for (Entity ent : Riiablo.engine.newIterator()) {
-      if (ent instanceof Player && entity.position().dst(ent.position()) < pa[1]) {
-        if (MathUtils.randomBoolean(pa[0] / 100f)) {
-          entity.setPath(entity.map, ent.position());
-          stateMachine.changeState(State.APPROACH);
-          return;
+    if (stateMachine.getCurrentState() != State.ATTACK) {
+      float melerng = 1.41f + entity.monstats2.MeleeRng;
+      for (Entity ent : Riiablo.engine.newIterator()) {
+        if (ent instanceof Player) {
+          float dst = entity.position().dst(ent.position());
+          if (dst < melerng) {
+            entity.setPath(null, null);
+            stateMachine.changeState(State.ATTACK);
+            entity.setMode(MathUtils.randomBoolean(pa[3] / 100f) ? Monster.MODE_A2 : Monster.MODE_A1);
+            Riiablo.audio.play(entity.monstats.MonSound + "_attack_1", true);
+            return;
+          } else if (dst < pa[1]) {
+            if (MathUtils.randomBoolean(pa[0] / 100f)) {
+              entity.setPath(entity.map, ent.position());
+              stateMachine.changeState(State.APPROACH);
+              return;
+            }
+          }
         }
       }
     }
@@ -87,7 +100,7 @@ public class Zombie extends AI {
       case WANDER:
         Vector2 target = entity.target();
         if (entity.position().epsilonEquals(target) && !entity.targets().hasNext()) {
-          nextAction = MathUtils.random(3, 5);
+          nextAction = MathUtils.random(3f, 5);
           stateMachine.changeState(State.IDLE);
         } else if (target.isZero()) {
           Vector2 dst = entity.position().cpy();
@@ -97,7 +110,11 @@ public class Zombie extends AI {
         }
         break;
       case APPROACH:
-        nextAction = MathUtils.random(3, 5);
+        nextAction = MathUtils.random(3f, 5);
+        stateMachine.changeState(State.IDLE);
+        break;
+      case ATTACK:
+        time = MathUtils.random(1f, 2);
         stateMachine.changeState(State.IDLE);
         break;
     }
