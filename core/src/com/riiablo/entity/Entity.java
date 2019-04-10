@@ -342,7 +342,10 @@ public abstract class Entity implements Animation.AnimationListener {
     if (alpha[component] != a) {
       if (DEBUG_STATE) Gdx.app.debug(TAG, classname + " alpha: " + alpha[component] + " -> " + a);
       alpha[component] = a;
-      if (animation != null) animation.getLayer(component).setAlpha(a);
+      if (animation != null) {
+        Animation.Layer layer = animation.getLayer(component);
+        if (layer != null) layer.setAlpha(a);
+      }
     }
   }
 
