@@ -940,7 +940,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     MonsterLabel() {
       label = new Table();
-      label.setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.modal75) {{
+      label.setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.darkRed) {{
         setTopHeight(VERTICAL_PADDING);
         setBottomHeight(VERTICAL_PADDING);
         setLeftWidth(HORIZONTAL_PADDING);

@@ -37,10 +37,10 @@ public class Colors {
   public Color darkenRed  = RED.cpy();//new Color(1.00f, 0.20f, 0.20f, 0);
   public Color darkenGold = GOLD.cpy();
 
-  public Color invBlue  = new Color(0.1f, 0.1f, 0.5f, 0.3f);
-  public Color invGreen = new Color(0.1f, 0.5f, 0.1f, 0.3f);
-  public Color invRed   = new Color(0.5f, 0.1f, 0.1f, 0.3f);
-  public Color invWhite = new Color(0.5f, 0.5f, 0.5f, 0.3f);
+  public Color invBlue  = new Color(0.05f, 0.05f, 0.33f, 0.33f); // 0.1f, 0.1f, 0.5f, 0.3f
+  public Color invGreen = new Color(0.05f, 0.33f, 0.05f, 0.33f); // 0.1f, 0.5f, 0.1f, 0.3f
+  public Color invRed   = new Color(0.33f, 0.00f, 0.00f, 0.40f); // 0.5f, 0.1f, 0.1f, 0.3f
+  public Color invWhite = new Color(0.33f, 0.33f, 0.33f, 0.33f); // 0.5f, 0.5f, 0.5f, 0.3f
 
   public Color modal25 = new Color(0, 0, 0, 0.25f);
   public Color modal50 = new Color(0, 0, 0, 0.50f);
@@ -49,6 +49,8 @@ public class Colors {
   public Color trans25 = new Color(1, 1, 1, 0.25f);
   public Color trans50 = new Color(1, 1, 1, 0.50f);
   public Color trans75 = new Color(1, 1, 1, 0.75f);
+
+  public Color darkRed = new Color(0.33f, 0.0f, 0.0f, 0.75f);
 
   public Colors() {}
 
