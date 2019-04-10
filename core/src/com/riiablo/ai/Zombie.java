@@ -76,8 +76,9 @@ public class Zombie extends AI {
           if (dst < melerng) {
             entity.setPath(null, null);
             stateMachine.changeState(State.ATTACK);
-            entity.setMode(MathUtils.randomBoolean(pa[3] / 100f) ? Monster.MODE_A2 : Monster.MODE_A1);
+            entity.sequence(MathUtils.randomBoolean(pa[3] / 100f) ? Monster.MODE_A2 : Monster.MODE_A1, Monster.MODE_NU);
             Riiablo.audio.play(entity.monstats.MonSound + "_attack_1", true);
+            time = MathUtils.random(1f, 2);
             return;
           } else if (dst < pa[1]) {
             if (MathUtils.randomBoolean(pa[0] / 100f)) {
@@ -114,7 +115,6 @@ public class Zombie extends AI {
         stateMachine.changeState(State.IDLE);
         break;
       case ATTACK:
-        time = MathUtils.random(1f, 2);
         stateMachine.changeState(State.IDLE);
         break;
     }
