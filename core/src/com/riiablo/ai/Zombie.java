@@ -1,5 +1,8 @@
 package com.riiablo.ai;
 
+import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
+import com.badlogic.gdx.ai.fsm.StateMachine;
+import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
@@ -8,10 +11,24 @@ import com.riiablo.entity.Monster;
 import com.riiablo.entity.Player;
 
 public class Zombie extends AI {
+  enum State implements com.badlogic.gdx.ai.fsm.State<Monster> {
+    IDLE,
+    WANDER,
+    APPROACH;
+
+    @Override public void enter(Monster entity) {}
+    @Override public void update(Monster entity) {}
+    @Override public void exit(Monster entity) {}
+    @Override
+    public boolean onMessage(Monster entity, Telegram telegram) {
+      return false;
+    }
+  }
 
   private static final float SLEEP = 1 / 25f;
 
   int[] pa;
+  final StateMachine<Monster, State> stateMachine;
   float nextAction;
   float time;
 
@@ -28,29 +45,54 @@ public class Zombie extends AI {
     pa[5] = entity.monstats.aip6[0];
     pa[6] = entity.monstats.aip7[0];
     pa[7] = entity.monstats.aip8[0];
+
+    stateMachine = new DefaultStateMachine<>(entity, State.IDLE);
   }
 
   @Override
   public void update(float delta) {
-    time += delta;
-    if (time >= nextAction) {
-      nextAction = time + SLEEP;
-      for (Entity ent : Riiablo.engine.newIterator()) {
-        if (ent instanceof Player && entity.position().dst(ent.position()) < pa[1]) {
-          if (MathUtils.randomBoolean(pa[0] / 100f)) {
-            entity.setPath(entity.map, ent.position());
-            return;
-          }
+    stateMachine.update();
+    nextAction -= delta;
+    time -= delta;
+    if (time > 0) {
+      return;
+    }
+
+    time = SLEEP;
+
+    for (Entity ent : Riiablo.engine.newIterator()) {
+      if (ent instanceof Player && entity.position().dst(ent.position()) < pa[1]) {
+        if (MathUtils.randomBoolean(pa[0] / 100f)) {
+          entity.setPath(entity.map, ent.position());
+          stateMachine.changeState(State.APPROACH);
+          return;
         }
       }
+    }
 
-      Vector2 target = entity.target();
-      if (target.isZero() || (entity.position().epsilonEquals(target) && !entity.targets().hasNext())) {
-        Vector2 dst = entity.position().cpy();
-        dst.x += MathUtils.random(-5, 5);
-        dst.y += MathUtils.random(-5, 5);
-        entity.setPath(entity.map, dst);
-      }
+    switch (stateMachine.getCurrentState()) {
+      case IDLE:
+        if (nextAction < 0) {
+          entity.target().setZero();
+          stateMachine.changeState(State.WANDER);
+        }
+        break;
+      case WANDER:
+        Vector2 target = entity.target();
+        if (entity.position().epsilonEquals(target) && !entity.targets().hasNext()) {
+          nextAction = MathUtils.random(3, 5);
+          stateMachine.changeState(State.IDLE);
+        } else if (target.isZero()) {
+          Vector2 dst = entity.position().cpy();
+          dst.x += MathUtils.random(-5, 5);
+          dst.y += MathUtils.random(-5, 5);
+          entity.setPath(entity.map, dst);
+        }
+        break;
+      case APPROACH:
+        nextAction = MathUtils.random(3, 5);
+        stateMachine.changeState(State.IDLE);
+        break;
     }
   }
 }
