@@ -6,13 +6,19 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.Animation;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Monster;
 import com.riiablo.entity.Player;
 
 public class Zombie extends AI {
   enum State implements com.badlogic.gdx.ai.fsm.State<Monster> {
-    IDLE,
+    IDLE {
+      @Override
+      public void enter(Monster entity) {
+        entity.setMode(Monster.MODE_NU);
+      }
+    },
     WANDER,
     APPROACH;
 
@@ -25,7 +31,7 @@ public class Zombie extends AI {
     }
   }
 
-  private static final float SLEEP = 1 / 25f;
+  private final float SLEEP;
 
   int[] pa;
   final StateMachine<Monster, State> stateMachine;
@@ -45,6 +51,7 @@ public class Zombie extends AI {
     pa[5] = entity.monstats.aip6[0];
     pa[6] = entity.monstats.aip7[0];
     pa[7] = entity.monstats.aip8[0];
+    SLEEP = Animation.FRAME_DURATION * entity.monstats.aidel[0];
 
     stateMachine = new DefaultStateMachine<>(entity, State.IDLE);
   }
