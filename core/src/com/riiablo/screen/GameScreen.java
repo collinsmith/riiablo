@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
@@ -35,10 +36,12 @@ import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
+import com.riiablo.codec.excel.MonStats;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.ItemHolder;
+import com.riiablo.entity.Monster;
 import com.riiablo.entity.Player;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -75,6 +78,7 @@ import com.riiablo.server.Packets;
 import com.riiablo.server.PipedSocket;
 import com.riiablo.widget.DCWrapper;
 import com.riiablo.widget.HotkeyButton;
+import com.riiablo.widget.Label;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
@@ -131,6 +135,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   NpcDialogBox dialog;
   Actor details;
   boolean showItems;
+  MonsterLabel monsterLabel;
 
   final String[] ACT_NAME = { "act1", "act2", "act3", "act4", "expansion" };
   Map.Zone curZone;
@@ -773,6 +778,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   public void clearLabels() {
     labels.size = 0;
+    if (monsterLabel != null) monsterLabel.setVisible(false);
   }
 
   public void addLabel(Actor label) {
@@ -910,5 +916,61 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         Actions.alpha(1),
         Actions.delay(4, Actions.fadeOut(1, Interpolation.pow2In)),
         Actions.hide()));
+  }
+
+  public void setMonsterLabel(Monster monster) {
+    if (monsterLabel == null) {
+      monsterLabel = new MonsterLabel();
+      monsterLabel.setPosition(stage.getWidth() / 2, stage.getHeight() * 0.95f, Align.top | Align.center);
+      stage.addActor(monsterLabel);
+    }
+
+    monsterLabel.set(monster);
+    monsterLabel.setVisible(true);
+  }
+
+  private static class MonsterLabel extends Table {
+    static final float HORIZONTAL_PADDING = 16;
+    static final float VERTICAL_PADDING = 2;
+
+    Table label;
+    Label name;
+    Label type;
+    StringBuilder typeBuilder = new StringBuilder(32);
+
+    MonsterLabel() {
+      label = new Table();
+      label.setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.modal75) {{
+        setTopHeight(VERTICAL_PADDING);
+        setBottomHeight(VERTICAL_PADDING);
+        setLeftWidth(HORIZONTAL_PADDING);
+        setRightWidth(HORIZONTAL_PADDING);
+      }});
+      label.add(name = new Label(Riiablo.fonts.font16));
+      label.pack();
+
+      add(label).space(4).center().row();
+      add(type = new Label(Riiablo.fonts.ReallyTheLastSucker)).row();
+      pack();
+    }
+
+    void set(Monster monster) {
+      MonStats.Entry monstats = monster.monstats;
+      name.setText(Riiablo.string.lookup(monstats.NameStr));
+      typeBuilder.setLength(0);
+      if (monstats.lUndead || monstats.hUndead) {
+        typeBuilder.append(Riiablo.string.lookup("UndeadDescriptX")).append(' ');
+      } else if (monstats.demon) {
+        typeBuilder.append(Riiablo.string.lookup("DemonID")).append(' ');
+      }
+
+      if (!monstats.DescStr.isEmpty()) {
+        typeBuilder.append(Riiablo.string.lookup(monstats.DescStr)).append(' ');
+      }
+
+      if (typeBuilder.length() > 0) typeBuilder.setLength(typeBuilder.length() - 1);
+      type.setText(typeBuilder);
+      //pack();
+    }
   }
 }

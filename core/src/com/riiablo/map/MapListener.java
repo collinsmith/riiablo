@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.riiablo.Riiablo;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.ItemHolder;
+import com.riiablo.entity.Monster;
 import com.riiablo.item.Item;
 import com.riiablo.screen.GameScreen;
 
@@ -41,7 +42,16 @@ public class MapListener {
     }
     for (Entity entity : Riiablo.engine) {
       entity.setOver(entity.contains(position));
-      if (entity.isOver()) gameScreen.addLabel(entity.getLabel());
+      if (entity.isOver()) {
+        if (entity instanceof Monster) {
+          Monster monster = (Monster) entity;
+          if (monster.monstats.Align == 0) {
+            gameScreen.setMonsterLabel(monster);
+            return;
+          }
+        }
+        gameScreen.addLabel(entity.getLabel());
+      }
     }
   }
 
