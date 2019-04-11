@@ -7,4 +7,9 @@ public class Idle extends AI {
 
   @Override
   public void update(float delta) {}
+
+  @Override
+  public String getState() {
+    return "IDLE";
+  }
 }

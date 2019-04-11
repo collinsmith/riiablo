@@ -514,14 +514,18 @@ public abstract class Entity implements Animation.AnimationListener {
           .append('/')
           .append(StringUtils.leftPad(Integer.toString(animation.getNumFramesPerDir() - 1), 2))
           .append(' ')
-          .append(animation.getFrameDelta());
+          .append(animation.getFrameDelta())
+          .append('\n');
     }
+    appendToStatus(builder);
     GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), x, y - Tile.SUBTILE_HEIGHT50, 0, Align.center, false);
     Pools.free(layout);
     batch.end();
     batch.setShader(Riiablo.shader);
     shapes.begin(ShapeRenderer.ShapeType.Line);
   }
+
+  protected void appendToStatus(StringBuilder builder) {}
 
   public void drawDebugTarget(ShapeRenderer shapes) {
     if (target.isZero() || !path.isEmpty()) return;

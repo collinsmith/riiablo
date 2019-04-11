@@ -187,4 +187,13 @@ public class Npc extends AI {
         return 4;
     }
   }
+
+  @Override
+  public String getState() { // TODO: proper NPC state machine -- PATH, IDLE, S1/S2, INTERACTING
+    if (actionTimer == Float.POSITIVE_INFINITY) {
+      return "INTERACT";
+    } else {
+      return "";
+    }
+  }
 }

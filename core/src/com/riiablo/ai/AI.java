@@ -15,4 +15,8 @@ public abstract class AI {
   public void interact(GameScreen gameScreen) {}
 
   public void update(float delta) {}
+
+  public String getState() {
+    return "";
+  }
 }

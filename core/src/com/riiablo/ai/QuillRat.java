@@ -33,4 +33,9 @@ public class QuillRat extends AI {
       entity.setPath(entity.map, dst);
     }
   }
+
+  @Override
+  public String getState() {
+    return "WANDER";
+  }
 }

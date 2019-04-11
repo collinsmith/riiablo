@@ -205,4 +205,11 @@ public class Monster extends Entity {
     batch.setShader(Riiablo.shader);
     shapes.begin(ShapeRenderer.ShapeType.Filled);
   }
+
+  @Override
+  protected void appendToStatus(StringBuilder builder) {
+    if (ai != null) {
+      builder.append(ai.getState()).append('\n');
+    }
+  }
 }

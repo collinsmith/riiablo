@@ -119,4 +119,9 @@ public class Zombie extends AI {
         break;
     }
   }
+
+  @Override
+  public String getState() {
+    return stateMachine.getCurrentState().name();
+  }
 }
