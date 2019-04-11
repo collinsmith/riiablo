@@ -1,0 +1,6 @@
+namespace com.riiablo.net.packet;
+
+table WalkToLocation {
+  x:int16;
+  y:int16;
+}

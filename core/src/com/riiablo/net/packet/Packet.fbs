@@ -1,0 +1,15 @@
+include "WalkToLocation.fbs";
+include "Connection.fbs";
+
+namespace com.riiablo.net.packet;
+
+union PacketData {
+  WalkToLocation,
+  Connection
+}
+
+table Packet {
+  data:PacketData;
+}
+
+root_type Packet;
