@@ -1,10 +1,16 @@
 include "WalkToLocation.fbs";
+include "WalkToEntity.fbs";
+include "RunToLocation.fbs";
+include "RunToEntity.fbs";
 include "Connection.fbs";
 
 namespace com.riiablo.net.packet;
 
 union PacketData {
   WalkToLocation,
+  WalkToEntity,
+  RunToLocation,
+  RunToEntity,
   Connection
 }
 
