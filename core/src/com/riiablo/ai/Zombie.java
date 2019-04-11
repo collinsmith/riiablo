@@ -52,8 +52,8 @@ public class Zombie extends AI {
     pa[5] = entity.monstats.aip6[0];
     pa[6] = entity.monstats.aip7[0];
     pa[7] = entity.monstats.aip8[0];
-    SLEEP = Animation.FRAME_DURATION * entity.monstats.aidel[0];
 
+    SLEEP = Animation.FRAME_DURATION * entity.monstats.aidel[0];
     stateMachine = new DefaultStateMachine<>(entity, State.IDLE);
   }
 
