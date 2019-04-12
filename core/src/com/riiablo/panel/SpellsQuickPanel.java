@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -126,7 +127,11 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
 
   @Override
   public void onChanged(CharData client, IntIntMap skills) {
-    for (IntIntMap.Entry skillId : Riiablo.charData.getSkills()) {
+    for (Table table : tables) {
+      for (Actor child : table.getChildren()) child.clear();
+      table.clear();
+    }
+    for (IntIntMap.Entry skillId : skills) {
       if (skillId.value <= 0) continue; // level <= 0
 
       final Skills.Entry skill = Riiablo.files.skills.get(skillId.key);

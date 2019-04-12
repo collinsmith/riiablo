@@ -174,15 +174,33 @@ public class CharData {
     cursor = null;
     stats.reset();
     for (Item item : d2s.items.items) {
-      addItem(item);
+      addItem(item); // A lot of this code is redundant
       //item.load();
     }
-
     stats.update(this);
     updateStats();
   }
 
   private void updateStats() {
+    stats.reset();
+    final int alternate = getAlternate();
+    for (Item item : equipped.values()) {
+      item.update();
+      if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, alternate)) {
+        stats.add(item.props.remaining());
+        Stat stat;
+        if ((stat = item.props.get(Stat.armorclass)) != null) {
+          stats.aggregate().addCopy(stat);
+        }
+      }
+    }
+    for (Item item : store.get(StoreLoc.INVENTORY)) {
+      if (item.type.is(Type.CHAR)) {
+        stats.add(item.props.remaining());
+      }
+    }
+    stats.update(this);
+
     // This appears to be hard-coded in the original client
     int dex = stats.get(Stat.dexterity).value();
     stats.aggregate().get(Stat.armorclass).add(dex / 4);
@@ -300,6 +318,7 @@ public class CharData {
     Item oldItem = equipped.put(bodyLoc, item);
     if (item != null) item.update();
     updateSets(oldItem, item);
+    updateStats();
     notifyEquippedChanged(bodyLoc, oldItem, item);
     return oldItem;
   }
@@ -317,6 +336,7 @@ public class CharData {
       d2s.header.alternate = alternate;
       Item LH = getEquipped(alternate > 0 ? BodyLoc.LARM2 : BodyLoc.LARM);
       Item RH = getEquipped(alternate > 0 ? BodyLoc.RARM2 : BodyLoc.RARM);
+      updateStats();
       notifyEquippedAlternated(alternate, LH, RH);
     }
   }
