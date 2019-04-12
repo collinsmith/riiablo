@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
@@ -27,7 +28,7 @@ import com.riiablo.widget.HotkeyButton;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class SpellsQuickPanel extends Table implements Disposable {
+public class SpellsQuickPanel extends Table implements Disposable, CharData.SkillsListener {
   private static final String SPELLS_PATH = "data\\global\\ui\\SPELLS\\";
 
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
@@ -58,10 +59,14 @@ public class SpellsQuickPanel extends Table implements Disposable {
   ObjectMap<MappedKey, HotkeyButton> keyMappings;
   MappedKeyStateAdapter mappedKeyListener;
   HotkeyButton observer;
+  boolean leftSkills;
+  Table[] tables;
+  final float SIZE;
 
   public SpellsQuickPanel(final GameScreen gameScreen, final HotkeyButton o, final boolean leftSkills) {
     this.gameScreen = gameScreen;
     this.observer = o;
+    this.leftSkills = leftSkills;
 
     Riiablo.assets.load(SkilliconDescriptor);
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
@@ -76,7 +81,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
       CharSkillicon[i] = Riiablo.assets.get(CharSkilliconDescriptor[i]);
     }
 
-    final float SIZE = Gdx.app.getType() == Application.ApplicationType.Android ? 64 : 48;
+    SIZE = Gdx.app.getType() == Application.ApplicationType.Android ? 64 : 48;
 
     CharacterClass charClass = Riiablo.charData.getCharacterClass();
     keyMappings = new ObjectMap<>(31);
@@ -85,8 +90,42 @@ public class SpellsQuickPanel extends Table implements Disposable {
       add(new HotkeyButton(Skillicon, 18, -1)).size(SIZE);
       pack();
     }};
-    Table[] tables = new Table[5];
-    // TODO: Include non-class spells gained from items
+    tables = new Table[5];
+    for (int i = 0; i < tables.length; i++) tables[i] = new Table();
+    Table bottom = new Table() {{
+      add(new HotkeyButton(Skillicon, 4, -1)).size(SIZE);
+      add(new HotkeyButton(Skillicon, 6, -1)).size(SIZE);
+      add(new HotkeyButton(Skillicon, 2, -1)).size(SIZE);
+      pack();
+    }};
+    add(top).align(leftSkills ? Align.left : Align.right).row();
+    for (int i = tables.length - 1; i >= 0; i--) {
+      add(tables[i]).align(leftSkills ? Align.left : Align.right).row();
+    }
+    add(bottom).align(leftSkills ? Align.left : Align.right).row();
+    pack();
+    //setDebug(true, true);
+
+    mappedKeyListener = new MappedKeyStateAdapter() {
+      @Override
+      public void onPressed(MappedKey key, int keycode) {
+        HotkeyButton button = keyMappings.get(key);
+        if (button == null) return;
+        // TODO: Assign
+        ControlPanel controlPanel = gameScreen.controlPanel;
+        if (leftSkills) {
+          controlPanel.getLeftSkill().copy(button);
+        } else {
+          controlPanel.getRightSkill().copy(button);
+        }
+      }
+    };
+    for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
+    Riiablo.charData.addSkillsListener(this);
+  }
+
+  @Override
+  public void onChanged(CharData client, IntIntMap skills) {
     for (IntIntMap.Entry skillId : Riiablo.charData.getSkills()) {
       if (skillId.value <= 0) continue; // level <= 0
 
@@ -96,7 +135,6 @@ public class SpellsQuickPanel extends Table implements Disposable {
 
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       Table table = tables[desc.ListRow];
-      if (table == null) table = tables[desc.ListRow] = new Table();
       int iconCel = desc.IconCel;
       DC icons = getSkillicon(skill.charclass, iconCel);
       if (icons == null) {
@@ -124,37 +162,7 @@ public class SpellsQuickPanel extends Table implements Disposable {
       });
       table.add(button).size(SIZE);
     }
-    Table bottom = new Table() {{
-      add(new HotkeyButton(Skillicon, 4, -1)).size(SIZE);
-      add(new HotkeyButton(Skillicon, 6, -1)).size(SIZE);
-      add(new HotkeyButton(Skillicon, 2, -1)).size(SIZE);
-      pack();
-    }};
-    add(top).align(leftSkills ? Align.left : Align.right).row();
-    for (int i = tables.length - 1; i >= 0; i--) {
-      if (tables[i] != null) {
-        add(tables[i]).align(leftSkills ? Align.left : Align.right).row();
-      }
-    }
-    add(bottom).align(leftSkills ? Align.left : Align.right).row();
     pack();
-    //setDebug(true, true);
-
-    mappedKeyListener = new MappedKeyStateAdapter() {
-      @Override
-      public void onPressed(MappedKey key, int keycode) {
-        HotkeyButton button = keyMappings.get(key);
-        if (button == null) return;
-        // TODO: Assign
-        ControlPanel controlPanel = gameScreen.controlPanel;
-        if (leftSkills) {
-          controlPanel.getLeftSkill().copy(button);
-        } else {
-          controlPanel.getRightSkill().copy(button);
-        }
-      }
-    };
-    for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
   }
 
   public void setObserver(HotkeyButton observer) {

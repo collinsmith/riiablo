@@ -31,6 +31,7 @@ public class CharData {
   private final EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
   private final Array<Item> belt = new Array<>(16);
   private final Array<EquippedListener> EQUIPPED_LISTENERS = new Array<>();
+  private final Array<SkillsListener> SKILLS_LISTENERS = new Array<>();
 
   private final IntIntMap equippedSets = new IntIntMap(); // Indexed using set id
   private final IntIntMap setItemsOwned = new IntIntMap(); // Indexed using set item id
@@ -159,6 +160,7 @@ public class CharData {
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
       skills.put(spellId, d2s.skills.data[i]);
     }
+    notifySkillsChanged(skills);
   }
 
   public CharacterClass getCharacterClass() {
@@ -195,6 +197,7 @@ public class CharData {
         skills.getAndIncrement(stat.param, 0, stat.value());
       }
     }
+    notifySkillsChanged(skills);
 
     System.out.println("Skills:");
     for (IntIntMap.Entry skill : skills) {
@@ -375,5 +378,19 @@ public class CharData {
   public static class EquippedAdapter implements EquippedListener {
     @Override public void onChanged(CharData client, BodyLoc bodyLoc, Item oldItem, Item item) {}
     @Override public void onAlternated(CharData client, int alternate, Item LH, Item RH) {}
+  }
+
+  private void notifySkillsChanged(IntIntMap skills) {
+    for (SkillsListener l : SKILLS_LISTENERS) l.onChanged(this, skills);
+  }
+
+  public boolean addSkillsListener(SkillsListener l) {
+    SKILLS_LISTENERS.add(l);
+    l.onChanged(this, skills);
+    return true;
+  }
+
+  public interface SkillsListener {
+    void onChanged(CharData client, IntIntMap skills);
   }
 }
