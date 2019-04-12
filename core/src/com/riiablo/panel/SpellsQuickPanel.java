@@ -63,6 +63,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   boolean leftSkills;
   Table[] tables;
   final float SIZE;
+  final int ALIGN;
 
   public SpellsQuickPanel(final GameScreen gameScreen, final HotkeyButton o, final boolean leftSkills) {
     this.gameScreen = gameScreen;
@@ -83,8 +84,8 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     }
 
     SIZE = Gdx.app.getType() == Application.ApplicationType.Android ? 64 : 48;
+    ALIGN = leftSkills ? Align.left : Align.right;
 
-    CharacterClass charClass = Riiablo.charData.getCharacterClass();
     keyMappings = new ObjectMap<>(31);
     Table top = new Table() {{
       add(new HotkeyButton(Skillicon, 14, -1)).size(SIZE);
@@ -99,11 +100,11 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
       add(new HotkeyButton(Skillicon, 2, -1)).size(SIZE);
       pack();
     }};
-    add(top).align(leftSkills ? Align.left : Align.right).row();
+    add(top).align(ALIGN).row();
     for (int i = tables.length - 1; i >= 0; i--) {
-      add(tables[i]).align(leftSkills ? Align.left : Align.right).row();
+      add(tables[i]).align(ALIGN).row();
     }
-    add(bottom).align(leftSkills ? Align.left : Align.right).row();
+    add(bottom).align(ALIGN).row();
     pack();
     //setDebug(true, true);
 
@@ -167,7 +168,10 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
       });
       table.add(button).size(SIZE);
     }
+    float x = getX(ALIGN);
+    float y = getY();
     pack();
+    setPosition(x, y, Align.bottom | ALIGN);
   }
 
   public void setObserver(HotkeyButton observer) {
