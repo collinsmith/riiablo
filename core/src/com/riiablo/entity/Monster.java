@@ -134,12 +134,12 @@ public class Monster extends Entity {
   @Override
   public void interact(GameScreen gameScreen) {
     if (!monstats.interact) return;
-    if (ai != null) ai.interact(gameScreen);
+    ai.interact(gameScreen);
   }
 
   @Override
   public void update(float delta) {
-    if (ai != null) ai.update(delta);
+    ai.update(delta);
     super.update(delta);
   }
 
@@ -208,8 +208,6 @@ public class Monster extends Entity {
 
   @Override
   protected void appendToStatus(StringBuilder builder) {
-    if (ai != null) {
-      builder.append(ai.getState()).append('\n');
-    }
+    builder.append(ai.getState()).append('\n');
   }
 }
