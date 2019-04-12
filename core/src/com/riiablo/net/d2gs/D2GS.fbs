@@ -4,9 +4,9 @@ include "RunToLocation.fbs";
 include "RunToEntity.fbs";
 include "Connection.fbs";
 
-namespace com.riiablo.net.packet;
+namespace com.riiablo.net.packet.d2gs;
 
-union PacketData {
+union D2GSData {
   WalkToLocation,
   WalkToEntity,
   RunToLocation,
@@ -14,8 +14,8 @@ union PacketData {
   Connection
 }
 
-table Packet {
-  data:PacketData;
+table D2GS {
+  data:D2GSData;
 }
 
-root_type Packet;
+root_type D2GS;

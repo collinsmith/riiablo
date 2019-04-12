@@ -1,4 +1,4 @@
-namespace com.riiablo.net.packet;
+namespace com.riiablo.net.packet.d2gs;
 
 table WalkToLocation {
   x:int16;

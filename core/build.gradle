@@ -22,7 +22,7 @@ eclipse.project {
 }
 
 task createFlatBuffers(type: FlatBuffers) {
-    inputDir = file("src/com/riiablo/net/packet")
+    inputDir = file("src/com/riiablo/net/")
     outputDir = file("gen/")
     language = 'java'
 }
