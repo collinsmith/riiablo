@@ -21,7 +21,6 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.I18NBundle;
@@ -436,7 +435,7 @@ public class Client extends Game {
     BitmapFont font = console.getFont();
     if (font == null) return;
 
-    fps.setText(font, Integer.toString(Gdx.graphics.getFramesPerSecond()), Color.WHITE, 0, Align.left, false);
+    fps.setText(font, Integer.toString(Gdx.graphics.getFramesPerSecond()));
     int drawFpsMethod = this.drawFpsMethod;
     if (forceDrawFps && drawFpsMethod == 0) {
       drawFpsMethod = 1;
