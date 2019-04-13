@@ -21,10 +21,10 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.I18NBundle;
-import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -116,6 +116,8 @@ public class Client extends Game {
   private boolean forceWindowed;
   private boolean forceDrawFps;
   private byte    drawFpsMethod;
+
+  private final GlyphLayout fps = new GlyphLayout();
 
   private String realm;
 
@@ -434,8 +436,7 @@ public class Client extends Game {
     BitmapFont font = console.getFont();
     if (font == null) return;
 
-    GlyphLayout fps = Pools.obtain(GlyphLayout.class);
-    fps.setText(font, Integer.toString(Gdx.graphics.getFramesPerSecond()));
+    fps.setText(font, Integer.toString(Gdx.graphics.getFramesPerSecond()), Color.WHITE, 0, Align.left, false);
     int drawFpsMethod = this.drawFpsMethod;
     if (forceDrawFps && drawFpsMethod == 0) {
       drawFpsMethod = 1;
@@ -465,7 +466,6 @@ public class Client extends Game {
     }
 
     font.draw(b, fps, x, y);
-    Pools.free(fps);
   }
 
   @Override
