@@ -26,11 +26,13 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.BlendMode;
+import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
+import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -228,6 +230,7 @@ public class ControlPanel extends Table implements Disposable {
     TextureRegion background;
     TextureRegion health;
     TextureRegion overlay;
+    Label label;
 
     HealthWidget(TextureRegion background) {
       this.background = background;
@@ -236,6 +239,8 @@ public class ControlPanel extends Table implements Disposable {
       health = hlthmana.getTexture(0);
       overlay = overlap.getTexture(0);
       setTouchable(Touchable.enabled);
+      label = new Label(Riiablo.fonts.font16);
+      label.setY(background.getRegionHeight());
     }
 
     @Override
@@ -246,12 +251,17 @@ public class ControlPanel extends Table implements Disposable {
       batch.draw(health,  x + 30, y + 14);
       batch.draw(overlay, x + 28, y +  6);
       super.draw(batch, a);
+      label.setText(Riiablo.string.format("panelhealth",
+          (int) Riiablo.charData.getStats().get(Stat.hitpoints).toFloat(),
+          (int) Riiablo.charData.getStats().get(Stat.maxhp).toFloat()));
+      label.draw(batch, a);
     }
   }
   private class ManaWidget extends Actor {
     TextureRegion background;
     TextureRegion mana;
     TextureRegion overlay;
+    Label label;
 
     ManaWidget(TextureRegion background) {
       this.background = background;
@@ -260,6 +270,8 @@ public class ControlPanel extends Table implements Disposable {
       mana = hlthmana.getTexture(1);
       overlay = overlap.getTexture(1);
       setTouchable(Touchable.enabled);
+      label = new Label(Riiablo.fonts.font16);
+      label.setY(background.getRegionHeight());
     }
 
     @Override
@@ -270,6 +282,11 @@ public class ControlPanel extends Table implements Disposable {
       batch.draw(mana,    x + 8, y + 14);
       batch.draw(overlay, x + 8, y + 10);
       super.draw(batch, a);
+      label.setX(getX() - 32);
+      label.setText(Riiablo.string.format("panelmana",
+          (int) Riiablo.charData.getStats().get(Stat.mana).toFloat(),
+          (int) Riiablo.charData.getStats().get(Stat.maxmana).toFloat()));
+      label.draw(batch, a);
     }
   }
   private class ControlWidget extends WidgetGroup implements Disposable {

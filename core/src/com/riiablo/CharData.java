@@ -216,11 +216,6 @@ public class CharData {
       }
     }
     notifySkillsChanged(skills);
-
-    System.out.println("Skills:");
-    for (IntIntMap.Entry skill : skills) {
-      System.out.println(skill.key + ": " + skill.value);
-    }
   }
 
   private void addItem(Item item) {
