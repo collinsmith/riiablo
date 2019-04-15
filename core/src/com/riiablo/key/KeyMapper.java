@@ -1,6 +1,5 @@
 package com.riiablo.key;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 import android.support.annotation.NonNull;
@@ -8,6 +7,8 @@ import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
+
+import org.apache.commons.lang3.Validate;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -77,11 +78,11 @@ public class KeyMapper implements MappedKey.AssignmentListener, Iterable<MappedK
   }
 
   protected final void checkIfManaging(@Nullable MappedKey key) {
-    Preconditions.checkArgument(!isManaging(key), "key is not managed by this key mapper");
+    Validate.isTrue(!isManaging(key), "key is not managed by this key mapper");
   }
 
   private void assign(MappedKey key, @MappedKey.Assignment int assignment, @MappedKey.Keycode int keycode) {
-    Preconditions.checkArgument(key != null, "key cannot be null");
+    Validate.isTrue(key != null, "key cannot be null");
     ObjectSet<MappedKey> keys = KEYS.get(keycode);
     if (keys == null) {
       keys = new ObjectSet<>();
@@ -92,7 +93,7 @@ public class KeyMapper implements MappedKey.AssignmentListener, Iterable<MappedK
   }
 
   private boolean unassign(MappedKey key, @MappedKey.Keycode int keycode) {
-    Preconditions.checkArgument(key != null, "key cannot be null");
+    Validate.isTrue(key != null, "key cannot be null");
     ObjectSet<MappedKey> keys = KEYS.get(keycode);
     if (keys == null) return false;
     boolean removed = keys.remove(key);

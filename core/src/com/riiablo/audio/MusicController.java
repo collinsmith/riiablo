@@ -1,7 +1,5 @@
 package com.riiablo.audio;
 
-import com.google.common.base.Preconditions;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -10,6 +8,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+
+import org.apache.commons.lang3.Validate;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -31,7 +31,7 @@ public class MusicController implements Music.OnCompletionListener {
   private String asset;
 
   public MusicController(@NonNull AssetManager assetManager) {
-    this.ASSETS = Preconditions.checkNotNull(assetManager, "The AssetManager cannot be null");
+    this.ASSETS = Validate.notNull(assetManager, "The AssetManager cannot be null");
     this.PLAYLIST = new LinkedList<>();
   }
 
@@ -66,7 +66,7 @@ public class MusicController implements Music.OnCompletionListener {
   }
 
   public void play(@NonNull String asset) {
-    Preconditions.checkNotNull(asset, "Asset cannot be null");
+    Validate.notNull(asset, "Asset cannot be null");
     PLAYLIST.addFirst(asset);
     next();
   }

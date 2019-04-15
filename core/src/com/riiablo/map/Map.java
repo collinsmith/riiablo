@@ -1,7 +1,5 @@
 package com.riiablo.map;
 
-import com.google.common.base.Preconditions;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
@@ -30,6 +28,7 @@ import com.riiablo.entity.Entity;
 import com.riiablo.entity.Monster;
 import com.riiablo.entity.Warp;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class Map implements Disposable {
@@ -475,7 +474,7 @@ public class Map implements Disposable {
   }
 
   public void buildDT1s() {
-    Preconditions.checkState(dt1s == null, "dt1s have already been loaded");
+    Validate.validState(dt1s == null, "dt1s have already been loaded");
     IntMap<ObjectSet<AssetDescriptor<DT1>>> typeDependencies = new IntMap<>();
     for (Zone zone : zones) {
       int type = zone.level.LevelType;
@@ -512,7 +511,7 @@ public class Map implements Disposable {
   }
 
   public void load() {
-    Preconditions.checkState(dt1s == null, "dt1s have already been loaded");
+    Validate.validState(dt1s == null, "dt1s have already been loaded");
 
     IntMap<ObjectSet<AssetDescriptor<DT1>>> typeDependencies = new IntMap<>();
     for (Zone zone : zones) {
@@ -863,7 +862,7 @@ public class Map implements Disposable {
     }
 
     void load(DT1s dt1s) {
-      Preconditions.checkState(tiles == null, "tiles have already been loaded");
+      Validate.validState(tiles == null, "tiles have already been loaded");
       tiles = new Tile[Map.MAX_LAYERS][][];
       for (int x = 0, gridX = 0, gridY = 0; x < gridsX; x++, gridX += gridSizeX, gridY = 0) {
         for (int y = 0; y < gridsY; y++, gridY += gridSizeY) {

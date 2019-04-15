@@ -1,7 +1,5 @@
 package com.riiablo.console;
 
-import com.google.common.base.Preconditions;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -10,6 +8,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.riiablo.util.StringUtils;
+
+import org.apache.commons.lang3.Validate;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -50,7 +50,7 @@ public class Console implements InputProcessor {
   protected void onCaretMoved(int position) {}
 
   public boolean addProcessor(@NonNull Processor l) {
-    Preconditions.checkArgument(l != null, "processor cannot be null");
+    Validate.isTrue(l != null, "processor cannot be null");
     return PROCESSORS.add(l);
   }
 
@@ -63,7 +63,7 @@ public class Console implements InputProcessor {
   }
 
   public boolean addSuggestionProvider(@NonNull SuggestionProvider l) {
-    Preconditions.checkArgument(l != null, "suggestion provider cannot be null");
+    Validate.isTrue(l != null, "suggestion provider cannot be null");
     return SUGGESTION_PROVIDERS.add(l);
   }
 

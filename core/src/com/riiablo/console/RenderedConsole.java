@@ -1,7 +1,5 @@
 package com.riiablo.console;
 
-import com.google.common.base.Preconditions;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -14,18 +12,18 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Timer;
+import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
+import com.riiablo.cvar.Cvar;
+import com.riiablo.cvar.CvarStateAdapter;
 
 import org.apache.commons.io.output.TeeOutputStream;
+import org.apache.commons.lang3.Validate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import com.riiablo.Cvars;
-import com.riiablo.cvar.Cvar;
-import com.riiablo.cvar.CvarStateAdapter;
 
 public class RenderedConsole extends Console implements Disposable, InputProcessor {
   private static final String TAG = "RenderedConsole";
@@ -351,7 +349,7 @@ public class RenderedConsole extends Console implements Disposable, InputProcess
     RenderedConsole console;
 
     void bind(RenderedConsole console) {
-      Preconditions.checkState(this.console == null, "already bound to " + this.console);
+      Validate.validState(this.console == null, "already bound to " + this.console);
       this.console = console;
     }
 

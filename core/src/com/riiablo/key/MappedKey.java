@@ -1,11 +1,11 @@
 package com.riiablo.key;
 
-import com.google.common.base.Preconditions;
-
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
+
+import org.apache.commons.lang3.Validate;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -62,11 +62,11 @@ public class MappedKey implements Iterable<Integer> {
   }
 
   public MappedKey(String name, String alias, @Keycode int primary, @Keycode int secondary) {
-    Preconditions.checkArgument(!name.isEmpty(), "name cannot be empty");
-    Preconditions.checkArgument(!alias.isEmpty(), "alias cannot be empty");
-    //Preconditions.checkArgument(primary != NOT_MAPPED, "primary key mapping must be mapped");
-    //Preconditions.checkArgument(primary != secondary, "key mappings must be unique");
-    Preconditions.checkArgument(primary == NOT_MAPPED || primary != secondary, "key mappings must be unique");
+    Validate.isTrue(!name.isEmpty(), "name cannot be empty");
+    Validate.isTrue(!alias.isEmpty(), "alias cannot be empty");
+    //Validate.isTrue(primary != NOT_MAPPED, "primary key mapping must be mapped");
+    //Validate.isTrue(primary != secondary, "key mappings must be unique");
+    Validate.isTrue(primary == NOT_MAPPED || primary != secondary, "key mappings must be unique");
 
     NAME = name;
     ALIAS = alias;
@@ -103,7 +103,7 @@ public class MappedKey implements Iterable<Integer> {
   }
 
   private int[] validateAssignments(@Keycode @Size(min = 2) int[] keycodes) {
-    Preconditions.checkArgument(keycodes.length >= 2, "keycodes.length must be >= 2");
+    Validate.isTrue(keycodes.length >= 2, "keycodes.length must be >= 2");
     boolean forceUnmapped = false;
     for (int i = 0; i < keycodes.length; i++) {
       @Keycode int keycode = keycodes[i];
@@ -180,13 +180,13 @@ public class MappedKey implements Iterable<Integer> {
 
   @Keycode
   public int assign(@Assignment int assignment, @Keycode int keycode) {
-    Preconditions.checkArgument(keycode != NOT_MAPPED, "cannot unmap using this method, use unassign(int) instead");
+    Validate.isTrue(keycode != NOT_MAPPED, "cannot unmap using this method, use unassign(int) instead");
     @Keycode int previous = assignments[assignment];
     if (previous == keycode) {
       return previous;
     }
 
-    Preconditions.checkArgument(!isAssigned(keycode), "duplicate keycodes are not allowed. Keycode: " + keycode + " Key:" + this);
+    Validate.isTrue(!isAssigned(keycode), "duplicate keycodes are not allowed. Keycode: " + keycode + " Key:" + this);
     assignments[assignment] = keycode;
     for (AssignmentListener l : ASSIGNMENT_LISTENERS) {
       if (previous != NOT_MAPPED) l.onUnassigned(this, assignment, keycode);
@@ -286,7 +286,7 @@ public class MappedKey implements Iterable<Integer> {
   }
 
   public boolean addStateListener(StateListener l) {
-    Preconditions.checkArgument(l != null, "l cannot be null");
+    Validate.isTrue(l != null, "l cannot be null");
     return STATE_LISTENERS.add(l);
   }
 
@@ -299,7 +299,7 @@ public class MappedKey implements Iterable<Integer> {
   }
 
   public boolean addAssignmentListener(AssignmentListener l) {
-    Preconditions.checkArgument(l != null, "l cannot be null");
+    Validate.isTrue(l != null, "l cannot be null");
     boolean added = ASSIGNMENT_LISTENERS.add(l);
     if (added) {
       for (@Assignment int i = 0; i < assignments.length; i++) {

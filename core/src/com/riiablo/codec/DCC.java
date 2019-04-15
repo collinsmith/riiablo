@@ -175,7 +175,7 @@ public class DCC extends com.riiablo.codec.DC {
 
   @Override
   public Pixmap[] frames(int d) {
-    Preconditions.checkArgument(0 <= d && d < header.directions, "Invalid direction specified: " + d);
+    Validate.isTrue(0 <= d && d < header.directions, "Invalid direction specified: " + d);
     final int numFrames = header.framesPerDir;
     Pixmap[] pages = new Pixmap[numFrames];
     // TODO: optimize
@@ -188,7 +188,7 @@ public class DCC extends com.riiablo.codec.DC {
 
   @Override
   public Pixmap[] frameSheets(int d) {
-    Preconditions.checkArgument(0 <= d && d < header.directions, "Invalid direction specified: " + d);
+    Validate.isTrue(0 <= d && d < header.directions, "Invalid direction specified: " + d);
 
     Direction dir = directions[d];
     if (DEBUG_SHEETS) Gdx.app.debug(TAG, "dir.box = " + dir);

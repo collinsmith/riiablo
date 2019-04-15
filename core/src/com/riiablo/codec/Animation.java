@@ -1,7 +1,5 @@
 package com.riiablo.codec;
 
-import com.google.common.base.Preconditions;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -17,6 +15,8 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
+
+import org.apache.commons.lang3.Validate;
 
 public class Animation extends BaseDrawable {
   private static final String TAG = "Animation";
@@ -177,7 +177,7 @@ public class Animation extends BaseDrawable {
 
   public void setDirection(int d) {
     if (d != direction) {
-      Preconditions.checkArgument(0 <= d && d < numDirections, "Invalid direction: " + d);
+      Validate.isTrue(0 <= d && d < numDirections, "Invalid direction: " + d);
       load(d);
       direction = d;
     }
@@ -189,7 +189,7 @@ public class Animation extends BaseDrawable {
 
   public void setFrame(int f) {
     if (f != frame) {
-      Preconditions.checkArgument(0 <= f && f < numFrames, "Invalid frame: " + f);
+      Validate.isTrue(0 <= f && f < numFrames, "Invalid frame: " + f);
       frame = f;
       elapsedTime = frameDuration * frame;
       //if (frame == numFrames - 1) notifyAnimationFinished();
@@ -471,7 +471,7 @@ public class Animation extends BaseDrawable {
   }
 
   public boolean addAnimationListener(int frame, AnimationListener l) {
-    Preconditions.checkArgument(l != null, "l cannot be null");
+    Validate.isTrue(l != null, "l cannot be null");
     if (animationListeners == EMPTY_MAP) animationListeners = new IntMap<>(1);
     Array<AnimationListener> listeners = animationListeners.get(frame);
     if (listeners == null) animationListeners.put(frame, listeners = new Array<>(1));

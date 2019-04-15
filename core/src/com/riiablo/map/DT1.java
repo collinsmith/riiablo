@@ -1,7 +1,5 @@
 package com.riiablo.map;
 
-import com.google.common.base.Preconditions;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -17,6 +15,7 @@ import com.riiablo.graphics.PaletteIndexedPixmap;
 import com.riiablo.util.BufferUtils;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class DT1 implements Disposable {
   }
 
   public void prepareTextures() {
-    Preconditions.checkState(textures == null, "textures have already been prepared");
+    Validate.validState(textures == null, "textures have already been prepared");
     textures = new Texture[header.numTiles];
     for (int i = 0; i < header.numTiles; i++) {
       Texture texture = new Texture(new PixmapTextureData(tiles[i].pixmap, null, false, false, false));
@@ -310,7 +309,7 @@ public class DT1 implements Disposable {
     public boolean isSpecial() { return Orientation.isSpecial(orientation); }
 
     public void createPixmap() {
-      Preconditions.checkState(pixmap == null, "pixmap should be null");
+      Validate.validState(pixmap == null, "pixmap should be null");
       int absWidth  =  width;
       int absHeight = -height;
 

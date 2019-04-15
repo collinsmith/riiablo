@@ -1,13 +1,13 @@
 package com.riiablo.command;
 
-import com.google.common.base.Preconditions;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.riiablo.console.Console;
 import com.riiablo.serializer.StringSerializer;
 import com.riiablo.validator.Validator;
+
+import org.apache.commons.lang3.Validate;
 
 public class Parameter<T> implements StringSerializer<T>, Validator, Console.SuggestionProvider {
 
@@ -21,25 +21,25 @@ public class Parameter<T> implements StringSerializer<T>, Validator, Console.Sug
   private Console.SuggestionProvider suggestionProvider;
 
   Parameter(Class<T> type) {
-    Preconditions.checkArgument(type != null, "type cannot be null");
+    Validate.isTrue(type != null, "type cannot be null");
     this.TYPE = type;
   }
 
   public Parameter<T> serializer(StringSerializer<T> serializer) {
-    Preconditions.checkArgument(serializer != null, "string serializer cannot be null");
+    Validate.isTrue(serializer != null, "string serializer cannot be null");
     this.serializer = serializer;
     return this;
   }
 
 
   public Parameter<T> validator(Validator validator) {
-    Preconditions.checkArgument(validator != null, "validator cannot be null");
+    Validate.isTrue(validator != null, "validator cannot be null");
     this.validator = validator;
     return this;
   }
 
   public Parameter<T> suggester(Console.SuggestionProvider suggestionProvider) {
-    Preconditions.checkArgument(suggestionProvider != null, "suggestion provider cannot be null");
+    Validate.isTrue(suggestionProvider != null, "suggestion provider cannot be null");
     this.suggestionProvider = suggestionProvider;
     return this;
   }

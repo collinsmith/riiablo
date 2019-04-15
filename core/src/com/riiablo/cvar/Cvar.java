@@ -1,6 +1,5 @@
 package com.riiablo.cvar;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 
@@ -8,16 +7,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.riiablo.serializer.SerializeException;
+import com.riiablo.serializer.StringSerializer;
 import com.riiablo.validator.Validator;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-import com.riiablo.serializer.StringSerializer;
 
 public class Cvar<T> implements SuggestionProvider {
   @NonNull
@@ -214,13 +213,13 @@ public class Cvar<T> implements SuggestionProvider {
     }
 
     public Builder<T> alias(@NonNull String alias) {
-      Preconditions.checkNotNull(alias, "alias cannot be null");
+      Validate.notNull(alias, "alias cannot be null");
       this.alias = alias;
       return this;
     }
 
     public Builder<T> description(@NonNull String description) {
-      Preconditions.checkNotNull(description, "description cannot be null");
+      Validate.notNull(description, "description cannot be null");
       this.description = description;
       return this;
     }
@@ -231,19 +230,19 @@ public class Cvar<T> implements SuggestionProvider {
     }
 
     public Builder<T> validator(@NonNull Validator validator) {
-      Preconditions.checkNotNull(validator, "validator cannot be null");
+      Validate.notNull(validator, "validator cannot be null");
       this.validator = validator;
       return this;
     }
 
     public Builder<T> suggestions(@NonNull SuggestionProvider suggestions) {
-      Preconditions.checkNotNull(suggestions, "suggestion provider cannot be null");
+      Validate.notNull(suggestions, "suggestion provider cannot be null");
       this.suggestions = suggestions;
       return this;
     }
 
     public Builder<T> serializer(@NonNull StringSerializer<T> serializer) {
-      Preconditions.checkNotNull(serializer, "serializer cannot be null");
+      Validate.notNull(serializer, "serializer cannot be null");
       this.serializer = serializer;
       return this;
     }

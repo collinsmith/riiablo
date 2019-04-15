@@ -1,14 +1,13 @@
 package com.riiablo;
 
-import com.google.common.base.MoreObjects;
-
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.SaveableCvarManager;
 import com.riiablo.serializer.StringSerializer;
+
+import org.apache.commons.lang3.ObjectUtils;
 
 public class GdxCvarManager extends SaveableCvarManager {
   private static final String TAG = "GdxCvarManager";
@@ -22,7 +21,7 @@ public class GdxCvarManager extends SaveableCvarManager {
       throw new CvarManagerException("%s must be managed by this CvarManager", alias);
     }
 
-    StringSerializer<T> serializer = MoreObjects.firstNonNull(cvar.getSerializer(), getSerializer(cvar));
+    StringSerializer<T> serializer = ObjectUtils.firstNonNull(cvar.getSerializer(), getSerializer(cvar));
     if (serializer == null) {
       throw new CvarManagerException("%s cannot be saved (no serializer found for %s)", alias, cvar.getType().getName());
     }
@@ -39,7 +38,7 @@ public class GdxCvarManager extends SaveableCvarManager {
   @Override
   public <T> T load(Cvar<T> cvar) {
     String alias = cvar.getAlias();
-    StringSerializer<T> serializer = MoreObjects.firstNonNull(cvar.getSerializer(), getSerializer(cvar));
+    StringSerializer<T> serializer = ObjectUtils.firstNonNull(cvar.getSerializer(), getSerializer(cvar));
     if (serializer == null) {
       try {
         throw new CvarManagerException("%s cannot be loaded (no deserializer found for %s)", alias, cvar.getType().getName());

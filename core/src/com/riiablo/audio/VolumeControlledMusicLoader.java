@@ -1,7 +1,5 @@
 package com.riiablo.audio;
 
-import com.google.common.base.Preconditions;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -10,6 +8,8 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.MusicLoader;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
+
+import org.apache.commons.lang3.Validate;
 
 import java.lang.ref.WeakReference;
 
@@ -21,12 +21,12 @@ public class VolumeControlledMusicLoader extends MusicLoader implements VolumeCo
   public VolumeControlledMusicLoader(@NonNull FileHandleResolver resolver,
                                      @NonNull VolumeController<Music> controller) {
     super(resolver);
-    this.controller = Preconditions.checkNotNull(controller, "VolumeController cannot be null");
+    this.controller = Validate.notNull(controller, "VolumeController cannot be null");
   }
 
   @Override
   public void setVolumeController(@NonNull VolumeController<Music> controller) {
-    this.controller = Preconditions.checkNotNull(controller, "VolumeController cannot be null");
+    this.controller = Validate.notNull(controller, "VolumeController cannot be null");
   }
 
   @Nullable

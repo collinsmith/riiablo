@@ -1,10 +1,9 @@
 package com.riiablo.util;
 
-import com.google.common.base.Preconditions;
-
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.Validate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,7 +106,7 @@ public class BufferUtils {
   }
 
   public static ByteBuffer slice(ByteBuffer buffer, byte[] MARK, boolean skipFirst) {
-    Preconditions.checkArgument(MARK.length == 2, "Only supports MARK length of 2");
+    Validate.isTrue(MARK.length == 2, "Only supports MARK length of 2");
     int pos = buffer.position();
     buffer.mark();
     int read = 0;

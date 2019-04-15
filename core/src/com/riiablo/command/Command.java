@@ -2,7 +2,6 @@ package com.riiablo.command;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
@@ -15,6 +14,7 @@ import com.riiablo.validator.ValidationException;
 import com.riiablo.validator.Validator;
 
 import org.apache.commons.collections4.iterators.ArrayIterator;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public class Command implements Validator {
   Set<String> aliases;
 
   Command(Builder builder) {
-    Preconditions.checkArgument(builder.alias != null, "Commands must have at least one alias");
+    Validate.isTrue(builder.alias != null, "Commands must have at least one alias");
     ALIAS        = builder.alias;
     DESCRIPTION  = Strings.nullToEmpty(builder.description);
     PARAMS       = MoreObjects.firstNonNull(builder.params, EMPTY_PARAMS);
@@ -120,7 +120,7 @@ public class Command implements Validator {
   }
 
   public Command addAlias(String alias) {
-    Preconditions.checkArgument(!alias.isEmpty(), "alias cannot be empty");
+    Validate.isTrue(!alias.isEmpty(), "alias cannot be empty");
     if (aliases == null) aliases = new CopyOnWriteArraySet<>();
     aliases.add(alias);
     for (AssignmentListener l : ASSIGNMENT_LISTENERS) l.onAssigned(this, alias);
@@ -129,7 +129,7 @@ public class Command implements Validator {
 
   public boolean removeAlias(@NonNull String alias) {
     if (alias == null) return false;
-    Preconditions.checkArgument(!alias.equals(ALIAS), "The primary alias cannot be removed");
+    Validate.isTrue(!alias.equals(ALIAS), "The primary alias cannot be removed");
     boolean unassigned = aliases.remove(alias);
     if (unassigned) {
       for (AssignmentListener l : ASSIGNMENT_LISTENERS) l.onUnassigned(this, alias);
@@ -139,7 +139,7 @@ public class Command implements Validator {
   }
 
   public boolean addAssignmentListener(AssignmentListener l) {
-    Preconditions.checkArgument(l != null, "l cannot be null");
+    Validate.isTrue(l != null, "l cannot be null");
     boolean added = ASSIGNMENT_LISTENERS.add(l);
     if (added) {
       l.onAssigned(this, ALIAS);
@@ -223,16 +223,16 @@ public class Command implements Validator {
     }
 
     Instance(String alias, @Nullable String... args) {
-      Preconditions.checkArgument(!alias.isEmpty(), "alias cannot be empty");
+      Validate.isTrue(!alias.isEmpty(), "alias cannot be empty");
       this.ALIAS = alias;
       this.ARGS = MoreObjects.firstNonNull(args, EMPTY_ARGS);
       this.compressed = false;
     }
 
     Instance(String[] args) {
-      Preconditions.checkArgument(args.length >= 1,
+      Validate.isTrue(args.length >= 1,
           "args should at least contain the alias of the command instance as index 0");
-      Preconditions.checkArgument(!args[0].isEmpty(), "alias cannot be empty");
+      Validate.isTrue(!args[0].isEmpty(), "alias cannot be empty");
       this.ALIAS = args[0];
       this.ARGS = args;
       this.compressed = true;
@@ -292,7 +292,7 @@ public class Command implements Validator {
     Builder() {}
 
     public Builder alias(String alias) {
-      Preconditions.checkArgument(!alias.isEmpty(), "alias cannot be empty");
+      Validate.isTrue(!alias.isEmpty(), "alias cannot be empty");
       if (this.alias == null) {
         this.alias = alias;
       } else {
@@ -304,19 +304,19 @@ public class Command implements Validator {
     }
 
     public Builder description(@NonNull String description) {
-      Preconditions.checkArgument(description != null, "description cannot be null");
+      Validate.isTrue(description != null, "description cannot be null");
       this.description = description;
       return this;
     }
 
     public Builder params(@NonNull Parameter... params) {
-      Preconditions.checkArgument(params != null, "params cannot be null");
+      Validate.isTrue(params != null, "params cannot be null");
       this.params = params;
       return this;
     }
 
     public Builder action(@NonNull Action action) {
-      Preconditions.checkArgument(action != null, "action cannot be null");
+      Validate.isTrue(action != null, "action cannot be null");
       this.action = action;
       return this;
     }

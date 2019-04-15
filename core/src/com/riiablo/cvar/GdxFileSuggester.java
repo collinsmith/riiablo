@@ -1,13 +1,13 @@
 package com.riiablo.cvar;
 
-import com.google.common.base.Preconditions;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
+
+import org.apache.commons.lang3.Validate;
 
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -25,13 +25,13 @@ public class GdxFileSuggester implements SuggestionProvider {
   private final FilenameFilter FILTER;
 
   public GdxFileSuggester(@NonNull FileHandleResolver resolver) {
-    this.RESOLVER = Preconditions.checkNotNull(resolver, "resolver cannot be null");
+    this.RESOLVER = Validate.notNull(resolver, "resolver cannot be null");
     this.FILTER = null;
   }
 
   public GdxFileSuggester(@NonNull FileHandleResolver resolver, @NonNull FilenameFilter filter) {
-    this.RESOLVER = Preconditions.checkNotNull(resolver, "resolver cannot be null");
-    this.FILTER = Preconditions.checkNotNull(filter, "filter cannot be null");
+    this.RESOLVER = Validate.notNull(resolver, "resolver cannot be null");
+    this.FILTER = Validate.notNull(filter, "filter cannot be null");
   }
 
   @Override
