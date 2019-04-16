@@ -241,6 +241,7 @@ public class ControlPanel extends Table implements Disposable {
       setTouchable(Touchable.enabled);
       label = new Label(Riiablo.fonts.font16);
       label.setY(background.getRegionHeight());
+      label.setVisible(!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop);
     }
 
     @Override
@@ -251,10 +252,12 @@ public class ControlPanel extends Table implements Disposable {
       batch.draw(health,  x + 30, y + 14);
       batch.draw(overlay, x + 28, y +  6);
       super.draw(batch, a);
-      label.setText(Riiablo.string.format("panelhealth",
-          (int) Riiablo.charData.getStats().get(Stat.hitpoints).toFloat(),
-          (int) Riiablo.charData.getStats().get(Stat.maxhp).toFloat()));
-      label.draw(batch, a);
+      if (label.isVisible()) {
+        label.setText(Riiablo.string.format("panelhealth",
+            (int) Riiablo.charData.getStats().get(Stat.hitpoints).toFloat(),
+            (int) Riiablo.charData.getStats().get(Stat.maxhp).toFloat()));
+        label.draw(batch, a);
+      }
     }
   }
   private class ManaWidget extends Actor {
@@ -272,6 +275,7 @@ public class ControlPanel extends Table implements Disposable {
       setTouchable(Touchable.enabled);
       label = new Label(Riiablo.fonts.font16);
       label.setY(background.getRegionHeight());
+      label.setVisible(!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop);
     }
 
     @Override
@@ -282,11 +286,13 @@ public class ControlPanel extends Table implements Disposable {
       batch.draw(mana,    x + 8, y + 14);
       batch.draw(overlay, x + 8, y + 10);
       super.draw(batch, a);
-      label.setX(getX() - 32);
-      label.setText(Riiablo.string.format("panelmana",
-          (int) Riiablo.charData.getStats().get(Stat.mana).toFloat(),
-          (int) Riiablo.charData.getStats().get(Stat.maxmana).toFloat()));
-      label.draw(batch, a);
+      if (label.isVisible()) {
+        label.setX(getX() - 32);
+        label.setText(Riiablo.string.format("panelmana",
+            (int) Riiablo.charData.getStats().get(Stat.mana).toFloat(),
+            (int) Riiablo.charData.getStats().get(Stat.maxmana).toFloat()));
+        label.draw(batch, a);
+      }
     }
   }
   private class ControlWidget extends WidgetGroup implements Disposable {
