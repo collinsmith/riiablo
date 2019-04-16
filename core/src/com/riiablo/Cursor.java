@@ -97,7 +97,7 @@ public class Cursor {
     if (dc != null) {
       BBox box = dc.getBox();
       coords.set(Gdx.input.getX(), Gdx.input.getY());
-      Riiablo.viewport.unproject(coords);
+      Riiablo.extendViewport.unproject(coords);
       coords.sub(box.width / 2f, box.height / 2f);
 
       batch.begin();
@@ -110,7 +110,7 @@ public class Cursor {
 
       if (DEBUG_ITEM_BOUNDS) {
         ShapeRenderer shapes = Riiablo.shapes;
-        shapes.setProjectionMatrix(Riiablo.viewport.getCamera().combined);
+        shapes.setProjectionMatrix(Riiablo.extendViewport.getCamera().combined);
         shapes.begin(ShapeRenderer.ShapeType.Line);
         shapes.setColor(Color.GREEN);
         shapes.rect(coords.x, coords.y, box.width, box.height);
