@@ -60,7 +60,7 @@ public class Fallen extends AI {
             entity.setPath(null, null);
             stateMachine.changeState(State.ATTACK);
             entity.sequence(MathUtils.randomBoolean(params[3] / 100f) ? Monster.MODE_A2 : Monster.MODE_A1, Monster.MODE_NU);
-            Riiablo.audio.play(entity.monstats.MonSound + "_attack_1", true);
+            Riiablo.audio.play(monsound + "_attack_1", true);
             time = MathUtils.random(1f, 2);
             return;
           } else if (dst < 35) {

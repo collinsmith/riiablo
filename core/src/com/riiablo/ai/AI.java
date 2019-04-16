@@ -12,6 +12,7 @@ public abstract class AI {
   protected final float SLEEP;
   protected final int[] params;
   protected Monster entity;
+  protected String monsound;
 
   public AI(Monster entity) {
     this.entity = entity;
@@ -35,6 +36,7 @@ public abstract class AI {
     params[7] = entity.monstats.aip8[0];
 
     SLEEP = Animation.FRAME_DURATION * entity.monstats.aidel[0];
+    monsound = entity.monstats.MonSound;
   }
 
   public void interact(GameScreen gameScreen) {}
