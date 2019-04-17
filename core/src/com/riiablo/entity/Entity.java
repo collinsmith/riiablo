@@ -95,6 +95,9 @@ public abstract class Entity implements Animation.AnimationListener {
         new String[] {"NIL"}),
     WRP("WARPS",
         new String[] {"NU"},
+        new String[] {"NIL"}),
+    MIS("MISSILES",
+        new String[] {"NU"},
         new String[] {"NIL"});
 
     public final String PATH;

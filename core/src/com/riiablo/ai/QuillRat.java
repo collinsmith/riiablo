@@ -6,7 +6,9 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.Missiles;
 import com.riiablo.entity.Entity;
+import com.riiablo.entity.Missile;
 import com.riiablo.entity.Monster;
 import com.riiablo.entity.Player;
 
@@ -34,11 +36,13 @@ public class QuillRat extends AI {
   final StateMachine<Monster, State> stateMachine;
   float nextAction;
   float time;
+  Missiles.Entry missile;
 
   public QuillRat(Monster entity) {
     super(entity);
     stateMachine = new DefaultStateMachine<>(entity, State.IDLE);
     monsound = "spikefiend";
+    missile = Riiablo.files.Missiles.get(entity.monstats.MissA2);
   }
 
   @Override
@@ -72,6 +76,11 @@ public class QuillRat extends AI {
               entity.sequence(Monster.MODE_A2, Monster.MODE_NU);
               Riiablo.audio.play(monsound + "_shoot_1", true);
               time = MathUtils.random(1f, 2);
+
+              Missile miss = new Missile(missile);
+              miss.position().set(entity.position());
+              miss.lookAt(ent); // TODO: should be able to set angle to firing entity angle later
+              Riiablo.engine.add(miss);
               return;
             }
           }
