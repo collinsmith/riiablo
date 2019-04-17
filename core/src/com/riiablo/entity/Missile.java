@@ -11,6 +11,7 @@ import com.riiablo.codec.DCC;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.map.DT1.Tile;
 
 public class Missile extends Entity {
   public final Missiles.Entry missile;
@@ -48,9 +49,22 @@ public class Missile extends Entity {
     }
 
     // FIXME: angle given using pixels but applied using map coordinated
-    tmpVec2.x = radius * MathUtils.cos(angle);
-    tmpVec2.y = radius * MathUtils.sin(angle);
-    position.add(tmpVec2);
+    //tmpVec2.x = radius * MathUtils.cos(angle);
+    //tmpVec2.y = radius * MathUtils.sin(angle);
+    //position.add(tmpVec2);
+
+    radius *= Tile.SUBTILE_WIDTH; // workaround to get approx speed
+    tmpVec2.x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
+    tmpVec2.y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    tmpVec2.x += radius * MathUtils.cos(angle);
+    tmpVec2.y += radius * MathUtils.sin(angle);
+
+    float x = tmpVec2.x;
+    float y = tmpVec2.y;
+    tmpVec2.x = ( x / Tile.SUBTILE_WIDTH50 - y / Tile.SUBTILE_HEIGHT50) / 2;
+    tmpVec2.y = (-x / Tile.SUBTILE_WIDTH50 - y / Tile.SUBTILE_HEIGHT50) / 2;
+
+    position.set(tmpVec2);
   }
 
   @Override
