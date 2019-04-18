@@ -38,6 +38,17 @@ public class CharData {
   private final IntIntMap skills = new IntIntMap();
   private final Attributes stats = new Attributes();
 
+  private static final IntIntMap defaultSkills = new IntIntMap();
+  static {
+    // TODO: throw skills added dynamically depending on weapon
+    defaultSkills.put(0, 1); // attack
+    defaultSkills.put(1, 1); // kick
+    //defaultSkills.put(2, 1); // throw
+    defaultSkills.put(3, 1); // unsummon
+    //defaultSkills.put(4, 1); // left hand throw
+    defaultSkills.put(5, 1); // left hand swing
+  }
+
   public CharData() {
     for (StoreLoc storeLoc : StoreLoc.values()) store.put(storeLoc, new Array<Item>());
   }
@@ -157,6 +168,7 @@ public class CharData {
     stats.update(this); // TODO: this need to be done whenever an item is changed
 
     skills.clear();
+    skills.putAll(defaultSkills);
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
       skills.put(spellId, d2s.skills.data[i]);
     }
@@ -185,6 +197,7 @@ public class CharData {
     stats.reset();
     final int alternate = getAlternate();
     for (Item item : equipped.values()) {
+      if (item == null) continue;
       item.update();
       if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, alternate)) {
         stats.add(item.props.remaining());
@@ -206,6 +219,7 @@ public class CharData {
     stats.aggregate().get(Stat.armorclass).add(dex / 4);
 
     skills.clear();
+    skills.putAll(defaultSkills);
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
       skills.put(spellId, d2s.skills.data[i]);
     }

@@ -39,6 +39,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   DC6 CharSkillicon[];
 
   private static int getClassId(String charClass) {
+    if (charClass.isEmpty()) return -1;
     switch (charClass.charAt(0)) {
       case 'a': return charClass.charAt(1) == 'm' ? CharacterClass.AMAZON.id : CharacterClass.ASSASSIN.id;
       case 'b': return CharacterClass.BARBARIAN.id;
@@ -87,24 +88,11 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     ALIGN = leftSkills ? Align.left : Align.right;
 
     keyMappings = new ObjectMap<>(31);
-    Table top = new Table() {{
-      add(new HotkeyButton(Skillicon, 14, -1)).size(SIZE);
-      add(new HotkeyButton(Skillicon, 18, -1)).size(SIZE);
-      pack();
-    }};
     tables = new Table[5];
-    for (int i = 0; i < tables.length; i++) tables[i] = new Table();
-    Table bottom = new Table() {{
-      add(new HotkeyButton(Skillicon, 4, -1)).size(SIZE);
-      add(new HotkeyButton(Skillicon, 6, -1)).size(SIZE);
-      add(new HotkeyButton(Skillicon, 2, -1)).size(SIZE);
-      pack();
-    }};
-    add(top).align(ALIGN).row();
     for (int i = tables.length - 1; i >= 0; i--) {
-      add(tables[i]).align(ALIGN).row();
+      Table table = tables[i] = new Table();
+      add(table).align(ALIGN).row();
     }
-    add(bottom).align(ALIGN).row();
     pack();
     //setDebug(true, true);
 
@@ -140,6 +128,8 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
       if (skill.passive) continue;
 
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+      if (desc.ListRow < 0) continue;
+
       Table table = tables[desc.ListRow];
       int iconCel = desc.IconCel;
       DC icons = getSkillicon(skill.charclass, iconCel);
