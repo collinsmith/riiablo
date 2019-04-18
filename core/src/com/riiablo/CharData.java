@@ -38,15 +38,25 @@ public class CharData {
   private final IntIntMap skills = new IntIntMap();
   private final Attributes stats = new Attributes();
 
+  private static final int attack               = 0;
+  private static final int kick                 = 1;
+  private static final int throw_               = 2;
+  private static final int unsummon             = 3;
+  private static final int left_hand_throw      = 4;
+  private static final int left_hand_swing      = 5;
+  private static final int scroll_of_identify   = 217;
+  private static final int book_of_identify     = 218;
+  private static final int scroll_of_townportal = 219;
+  private static final int book_of_townportal   = 220;
+
   private static final IntIntMap defaultSkills = new IntIntMap();
   static {
-    // TODO: throw skills added dynamically depending on weapon
-    defaultSkills.put(0, 1); // attack
-    defaultSkills.put(1, 1); // kick
-    //defaultSkills.put(2, 1); // throw
-    defaultSkills.put(3, 1); // unsummon
-    //defaultSkills.put(4, 1); // left hand throw
-    defaultSkills.put(5, 1); // left hand swing
+    defaultSkills.put(attack, 1);
+    defaultSkills.put(kick, 1);
+    //defaultSkills.put(throw_, 1);
+    defaultSkills.put(unsummon, 1);
+    //defaultSkills.put(left_hand_throw, 1);
+    defaultSkills.put(left_hand_swing, 1);
   }
 
   public CharData() {
@@ -220,6 +230,30 @@ public class CharData {
 
     skills.clear();
     skills.putAll(defaultSkills);
+    Item LARM = getEquipped(BodyLoc.getAlternate(BodyLoc.LARM, alternate));
+    Item RARM = getEquipped(BodyLoc.getAlternate(BodyLoc.RARM, alternate));
+    if ((LARM != null && LARM.typeEntry.Throwable)
+     || (RARM != null && RARM.typeEntry.Throwable)) {
+      skills.put(throw_, 1);
+      if (charClass == CharacterClass.BARBARIAN) {
+        skills.put(left_hand_throw, 1);
+      }
+    }
+
+    for (Item item : getStore(StoreLoc.INVENTORY)) {
+      if (item.type.is(Type.BOOK) || item.type.is(Type.SCRO)) {
+        if (item.base.code.equalsIgnoreCase("ibk")) {
+          skills.getAndIncrement(book_of_identify, 0, item.props.get(Stat.quantity).value());
+        } else if (item.base.code.equalsIgnoreCase("isc")) {
+          skills.getAndIncrement(scroll_of_identify, 0, 1);
+        } else if (item.base.code.equalsIgnoreCase("tbk")) {
+          skills.getAndIncrement(book_of_townportal, 0, item.props.get(Stat.quantity).value());
+        } else if (item.base.code.equalsIgnoreCase("tsc")) {
+          skills.getAndIncrement(scroll_of_townportal, 0, 1);
+        }
+      }
+    }
+
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
       skills.put(spellId, d2s.skills.data[i]);
     }
