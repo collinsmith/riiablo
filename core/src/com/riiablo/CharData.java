@@ -259,8 +259,15 @@ public class CharData {
     }
 
     for (Stat stat : stats.remaining()) {
-      if (stat.id == Stat.item_nonclassskill) {
-        skills.getAndIncrement(stat.param, 0, stat.value());
+      switch (stat.id) {
+        case Stat.item_nonclassskill:
+          skills.getAndIncrement(stat.param(), 0, stat.value());
+          break;
+        case Stat.item_charged_skill: // FIXME: This is incorrect on purpose
+          skills.getAndIncrement(stat.param2(), 0, stat.param1());
+          break;
+        default:
+          // do nothing
       }
     }
     notifySkillsChanged(skills);
