@@ -1,1 +1,1 @@
-include 'tester', 'ds1viewer', 'mapbuilder', 'mpqviewer', 'server', 'desktop', 'android', 'mpqlib', 'core'
+include 'tools', 'tester', 'ds1viewer', 'mapbuilder', 'mpqviewer', 'server', 'desktop', 'android', 'mpqlib', 'core'

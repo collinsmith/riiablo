@@ -61,6 +61,26 @@ project(":tester") {
     }
 }
 
+project(":tools") {
+    apply plugin: "java"
+
+    ext {
+        visuiVersion = '1.4.0'
+    }
+
+    dependencies {
+        compile project(":core")
+        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+    }
+
+    dependencies {
+        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        compile "com.kotcrab.vis:vis-ui:$visuiVersion"
+    }
+}
+
 project(":mapbuilder") {
     apply plugin: "java"
 
