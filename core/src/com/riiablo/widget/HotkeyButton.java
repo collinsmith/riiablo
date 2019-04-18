@@ -10,7 +10,8 @@ import com.riiablo.key.MappedKey;
 
 public class HotkeyButton extends Button {
   MappedKey mapping;
-  Label label;
+  Label hotkey;
+  Label charges;
   int skillId;
 
   public HotkeyButton(final DC dc, final int index, int skillId) {
@@ -22,8 +23,11 @@ public class HotkeyButton extends Button {
     }});
 
     this.skillId = skillId;
-    add(label = new Label("", Riiablo.fonts.font16, Riiablo.colors.gold));
-    align(Align.topRight);
+    add(hotkey = new Label("", Riiablo.fonts.font16, Riiablo.colors.gold)).align(Align.topRight);
+    row();
+    add().grow();
+    row();
+    add(charges = new Label("", Riiablo.fonts.font16, Riiablo.colors.blue)).align(Align.bottomLeft);
     pad(2);
     pack();
 
@@ -32,7 +36,7 @@ public class HotkeyButton extends Button {
 
   public void map(MappedKey mapping) {
     this.mapping = mapping;
-    label.setText(Input.Keys.toString(mapping.getPrimaryAssignment()));
+    hotkey.setText(Input.Keys.toString(mapping.getPrimaryAssignment()));
   }
 
   public MappedKey getMapping() {
@@ -48,7 +52,7 @@ public class HotkeyButton extends Button {
     setBlendMode(other.blendMode, other.color);
     setDisabledBlendMode(other.disabledBlendMode, other.disabledColor);
     setHighlightedBlendMode(other.highlightedBlendMode, other.highlightedColor);
-    label.setText(other.label.getText());
+    hotkey.setText(other.hotkey.getText());
     skillId = other.skillId;
   }
 }
