@@ -36,6 +36,7 @@ public class CharData {
   private final IntIntMap equippedSets = new IntIntMap(); // Indexed using set id
   private final IntIntMap setItemsOwned = new IntIntMap(); // Indexed using set item id
   private final IntIntMap skills = new IntIntMap();
+  private final Array<Stat> chargedSkills = new Array<>();
   private final Attributes stats = new Attributes();
 
   private static final int attack               = 0;
@@ -178,11 +179,12 @@ public class CharData {
     stats.update(this); // TODO: this need to be done whenever an item is changed
 
     skills.clear();
+    chargedSkills.clear();
     skills.putAll(defaultSkills);
     for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
       skills.put(spellId, d2s.skills.data[i]);
     }
-    notifySkillsChanged(skills);
+    notifySkillsChanged(skills, chargedSkills);
   }
 
   public CharacterClass getCharacterClass() {
@@ -258,19 +260,20 @@ public class CharData {
       skills.put(spellId, d2s.skills.data[i]);
     }
 
+    chargedSkills.clear();
     for (Stat stat : stats.remaining()) {
       switch (stat.id) {
         case Stat.item_nonclassskill:
           skills.getAndIncrement(stat.param(), 0, stat.value());
           break;
-        case Stat.item_charged_skill: // FIXME: This is incorrect on purpose
-          skills.getAndIncrement(0xF0000000 | stat.param2(), 0, stat.param1());
+        case Stat.item_charged_skill:
+          chargedSkills.add(stat);
           break;
         default:
           // do nothing
       }
     }
-    notifySkillsChanged(skills);
+    notifySkillsChanged(skills, chargedSkills);
   }
 
   private void addItem(Item item) {
@@ -450,17 +453,17 @@ public class CharData {
     @Override public void onAlternated(CharData client, int alternate, Item LH, Item RH) {}
   }
 
-  private void notifySkillsChanged(IntIntMap skills) {
-    for (SkillsListener l : SKILLS_LISTENERS) l.onChanged(this, skills);
+  private void notifySkillsChanged(IntIntMap skills, Array<Stat> chargedSkills) {
+    for (SkillsListener l : SKILLS_LISTENERS) l.onChanged(this, skills, chargedSkills);
   }
 
   public boolean addSkillsListener(SkillsListener l) {
     SKILLS_LISTENERS.add(l);
-    l.onChanged(this, skills);
+    l.onChanged(this, skills, chargedSkills);
     return true;
   }
 
   public interface SkillsListener {
-    void onChanged(CharData client, IntIntMap skills);
+    void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills);
   }
 }

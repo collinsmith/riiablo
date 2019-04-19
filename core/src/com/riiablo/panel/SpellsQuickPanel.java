@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -21,6 +22,7 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.BlendMode;
+import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.loader.DC6Loader;
@@ -115,24 +117,22 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   }
 
   @Override
-  public void onChanged(CharData client, IntIntMap skills) {
+  public void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills) {
     for (Table table : tables) {
       for (Actor child : table.getChildren()) child.clear();
       table.clear();
     }
-    for (IntIntMap.Entry skillId : skills) {
-      if (skillId.value <= 0) continue; // level <= 0
+    for (Stat chargedSkill : chargedSkills) {
+      if (chargedSkill.param1() <= 0) continue; // level <= 0
 
-      boolean charged = (skillId.key & 0xF0000000) != 0;
-      int key = skillId.key & 0x0FFFFFFF;
-      final Skills.Entry skill = Riiablo.files.skills.get(key);
+      final Skills.Entry skill = Riiablo.files.skills.get(chargedSkill.param2());
       if (leftSkills && !skill.leftskill) continue;
       if (skill.passive) continue;
 
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       if (desc.ListRow < 0) continue;
 
-      int ListRow = charged ? 4 : desc.ListRow;
+      int ListRow = 4;
       Table table = tables[ListRow];
       int iconCel = desc.IconCel;
       DC icons = getSkillicon(skill.charclass, iconCel);
@@ -140,12 +140,50 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         icons = Skillicon;
         iconCel = 20;
       }
-      final HotkeyButton button = new HotkeyButton(icons, iconCel, skill.Id, charged);
+      final HotkeyButton button = new HotkeyButton(icons, iconCel, skill.Id, chargedSkill);
       if (skill.aura) {
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
 
-      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, key);
+      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, chargedSkill.param2());
+      if (index != ArrayUtils.INDEX_NOT_FOUND) {
+        MappedKey mapping = Keys.Skill[index];
+        button.map(mapping);
+        keyMappings.put(mapping, button);
+      }
+
+      button.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+          observer.copy(button);
+          SpellsQuickPanel.this.setVisible(false);
+        }
+      });
+      table.add(button).size(SIZE);
+    }
+    for (IntIntMap.Entry skillId : skills) {
+      if (skillId.value <= 0) continue; // level <= 0
+
+      final Skills.Entry skill = Riiablo.files.skills.get(skillId.key);
+      if (leftSkills && !skill.leftskill) continue;
+      if (skill.passive) continue;
+
+      final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
+      if (desc.ListRow < 0) continue;
+
+      Table table = tables[desc.ListRow];
+      int iconCel = desc.IconCel;
+      DC icons = getSkillicon(skill.charclass, iconCel);
+      if (icons == null) {
+        icons = Skillicon;
+        iconCel = 20;
+      }
+      final HotkeyButton button = new HotkeyButton(icons, iconCel, skill.Id);
+      if (skill.aura) {
+        button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
+      }
+
+      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, skillId.key);
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
         MappedKey mapping = Keys.Skill[index];
         button.map(mapping);

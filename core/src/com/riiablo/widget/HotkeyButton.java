@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Align;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC;
 import com.riiablo.graphics.BlendMode;
+import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 
 public class HotkeyButton extends Button {
@@ -13,12 +14,13 @@ public class HotkeyButton extends Button {
   Label hotkey;
   Label charges;
   int skillId;
+  Stat chargedSkill;
 
   public HotkeyButton(final DC dc, final int index, int skillId) {
-    this(dc, index, skillId, false);
+    this(dc, index, skillId, null);
   }
 
-  public HotkeyButton(final DC dc, final int index, int skillId, boolean charged) {
+  public HotkeyButton(final DC dc, final int index, int skillId, Stat chargedSkill) {
     super(new ButtonStyle() {{
       up       = new TextureRegionDrawable(dc.getTexture(index));
       down     = new TextureRegionDrawable(dc.getTexture(index + 1));
@@ -27,11 +29,12 @@ public class HotkeyButton extends Button {
     }});
 
     this.skillId = skillId;
+    this.chargedSkill = chargedSkill;
     add(hotkey = new Label("", Riiablo.fonts.font16, Riiablo.colors.gold)).align(Align.topRight);
     row();
     add().grow();
     row();
-    add(charges = new Label(charged ? "0" : "", Riiablo.fonts.font16, Riiablo.colors.blue)).align(Align.bottomLeft);
+    add(charges = new Label(chargedSkill != null ? Integer.toString(chargedSkill.value1()) : "", Riiablo.fonts.font16, Riiablo.colors.blue)).align(Align.bottomLeft);
     pad(2);
     pack();
 
