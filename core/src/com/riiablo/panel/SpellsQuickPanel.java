@@ -123,26 +123,29 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     for (IntIntMap.Entry skillId : skills) {
       if (skillId.value <= 0) continue; // level <= 0
 
-      final Skills.Entry skill = Riiablo.files.skills.get(skillId.key);
+      boolean charged = (skillId.key & 0xF0000000) != 0;
+      int key = skillId.key & 0x0FFFFFFF;
+      final Skills.Entry skill = Riiablo.files.skills.get(key);
       if (leftSkills && !skill.leftskill) continue;
       if (skill.passive) continue;
 
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       if (desc.ListRow < 0) continue;
 
-      Table table = tables[desc.ListRow];
+      int ListRow = charged ? 4 : desc.ListRow;
+      Table table = tables[ListRow];
       int iconCel = desc.IconCel;
       DC icons = getSkillicon(skill.charclass, iconCel);
       if (icons == null) {
         icons = Skillicon;
         iconCel = 20;
       }
-      final HotkeyButton button = new HotkeyButton(icons, iconCel, skill.Id);
+      final HotkeyButton button = new HotkeyButton(icons, iconCel, skill.Id, charged);
       if (skill.aura) {
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
 
-      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, skillId.key);
+      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, key);
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
         MappedKey mapping = Keys.Skill[index];
         button.map(mapping);

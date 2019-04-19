@@ -264,7 +264,7 @@ public class CharData {
           skills.getAndIncrement(stat.param(), 0, stat.value());
           break;
         case Stat.item_charged_skill: // FIXME: This is incorrect on purpose
-          skills.getAndIncrement(stat.param2(), 0, stat.param1());
+          skills.getAndIncrement(0xF0000000 | stat.param2(), 0, stat.param1());
           break;
         default:
           // do nothing
