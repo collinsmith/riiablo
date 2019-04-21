@@ -58,7 +58,7 @@ public class PropertyList implements Iterable<Stat> {
   }
 
   public void put(int stat, int value) {
-    props.put(stat, Stat.create(stat, value));
+    props.put(stat, Stat.obtain(stat, value));
   }
 
   Stat get() {
@@ -67,7 +67,7 @@ public class PropertyList implements Iterable<Stat> {
   }
 
   public int read(int stat, BitStream bitStream) {
-    Stat instance = Stat.read(stat, bitStream);
+    Stat instance = Stat.obtain(stat, bitStream);
     props.put(instance.hash, instance);
     return instance.val;
   }
@@ -233,17 +233,17 @@ public class PropertyList implements Iterable<Stat> {
     switch (prop.func[j]) {
       case 1: // vit, str, hp, etc.
         value = MathUtils.random(min[i], max[i]);
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 2: // item_armor_percent
         value = MathUtils.random(min[i], max[i]);
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 3: // res-all, all-stats, etc -- reference previous index for values
         assert value != Integer.MIN_VALUE;
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 5: // dmg-min
@@ -261,24 +261,24 @@ public class PropertyList implements Iterable<Stat> {
         return value;
       case 8: // fcr, fwr, fbr, fhr, etc
         value = MathUtils.random(min[i], max[i]);
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 10: // skilltab
         value = MathUtils.random(min[i], max[i]);
-        inst = Stat.create(desc.ID, params[i], value);
+        inst = Stat.obtain(desc.ID, params[i], value);
         props.put(inst.hash, inst);
         return value;
       case 11: // att-skill, hit-skill, gethit-skill, kill-skill, death-skill, levelup-skill
         value = min[i]; // skill
         param = Stat.encodeParam(desc.Encode, max[i], params[i]); // %, level
-        inst = Stat.create(desc.ID, param, value);
+        inst = Stat.obtain(desc.ID, param, value);
         props.put(inst.hash, inst);
         return value;
       case 12: // skill-rand (Ormus' Robes)
         value = params[i]; // skill level
         param = MathUtils.random(min[i], max[i]); // random skill
-        inst = Stat.create(desc.ID, param, value);
+        inst = Stat.obtain(desc.ID, param, value);
         props.put(inst.hash, inst);
         return value;
       case 13: // dur%
@@ -288,22 +288,22 @@ public class PropertyList implements Iterable<Stat> {
       case 14: // sock
         // TODO: set item SOCKETED flag?
         value = MathUtils.random(min[i], max[i]);
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 15: // dmg-* (min)
         value = min[i];
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 16: // dmg-* (max)
         value = max[i];
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 17: // dmg-* (length) and */lvl
         value = params[i];
-        inst = Stat.create(desc.ID, value);
+        inst = Stat.obtain(desc.ID, value);
         props.put(inst.hash, inst);
         return value;
       case 18: // */time // TODO: Add support
@@ -312,7 +312,7 @@ public class PropertyList implements Iterable<Stat> {
       case 19: // charged (skill)
         value = Stat.encodeValue(3, min[i], min[i]); // charges
         param = Stat.encodeParam(3, max[i], params[i]); // level, skill
-        inst = Stat.create(desc.ID, param, value);
+        inst = Stat.obtain(desc.ID, param, value);
         props.put(inst.hash, inst);
         return value;
       case 20: // indestruct
@@ -323,13 +323,13 @@ public class PropertyList implements Iterable<Stat> {
       case 21: // ama, pal, nec, etc. (item_addclassskills) and fireskill
         value = MathUtils.random(min[i], max[i]);
         param = prop.val[j];
-        inst = Stat.create(desc.ID, param, value);
+        inst = Stat.obtain(desc.ID, param, value);
         props.put(inst.hash, inst);
         return value;
       case 22: // skill, aura, oskill
         value = MathUtils.random(min[i], max[i]);
         param = params[i];
-        inst = Stat.create(desc.ID, param, value);
+        inst = Stat.obtain(desc.ID, param, value);
         props.put(inst.hash, inst);
         return value;
       case 23: // ethereal
@@ -338,13 +338,13 @@ public class PropertyList implements Iterable<Stat> {
       case 24: // reanimate, att-mon%, dmg-mon%, state
         value = MathUtils.random(min[i], max[i]);
         param = params[i];
-        inst = Stat.create(desc.ID, param, value);
+        inst = Stat.obtain(desc.ID, param, value);
         props.put(inst.hash, inst);
         return value;
       case 36: // randclassskill
         value = prop.val[j]; // skill levels
         param = MathUtils.random(min[i], max[i]); // random class
-        inst = Stat.create(desc.ID, param, value);
+        inst = Stat.obtain(desc.ID, param, value);
         props.put(inst.hash, inst);
         return value;
       case 4:

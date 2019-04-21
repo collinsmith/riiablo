@@ -3,6 +3,8 @@ package com.riiablo.item;
 import com.google.common.primitives.UnsignedInts;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -15,7 +17,7 @@ import com.riiablo.codec.util.BitStream;
 import java.util.Arrays;
 
 @SuppressWarnings("unused")
-public class Stat implements Comparable<Stat> {
+public class Stat implements Comparable<Stat>, Pool.Poolable {
   private static final String TAG = "Stat";
 
   public static final int strength                        = 0;
@@ -455,56 +457,73 @@ public class Stat implements Comparable<Stat> {
     }
   }
 
-  static Stat read(int stat, BitStream bitStream) {
-    return new Stat(stat, bitStream);
+  private static final Pool<Stat> POOL = Pools.get(Stat.class, 256);
+
+  static Stat obtain(int stat, BitStream bitStream) {
+    return POOL.obtain()._obtain(stat, bitStream);
   }
 
-  static Stat create(int stat, int value) {
-    return create(stat, 0, value);
+  static Stat obtain(int stat, int value) {
+    return obtain(stat, 0, value);
   }
 
-  static Stat create(int stat, int param, int value) {
-    return new Stat(stat, param, value);
+  static Stat obtain(int stat, int param, int value) {
+    return POOL.obtain()._obtain(stat, param, value);
   }
 
-  public final int id;
-  public final int param; // can probably safely be truncated to short
-  final int hash;
-  public final ItemStatCost.Entry entry;
+  static Stat obtain(Stat src) {
+    return POOL.obtain()._obtain(src);
+  }
 
+  public int id;
+  public int param;
+  public ItemStatCost.Entry entry;
+  boolean modified;
+  int hash;
   int val;
 
-  Stat(int stat, BitStream bitStream) {
-    this.id = stat;
-    entry = Riiablo.files.ItemStatCost.get(stat);
-    param = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
-    val   = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
-    hash = Stat.hash(stat, param);
+  Stat() {}
+
+  @Override
+  public void reset() {}
+
+  Stat _obtain(int stat, BitStream bitStream) {
+    this.id  = stat;
+    entry    = Riiablo.files.ItemStatCost.get(stat);
+    param    = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
+    val      = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
+    hash     = hash(stat, param);
+    modified = false;
+    return this;
   }
 
-  Stat(int stat, int param, int value) {
-    this.id = stat;
+  Stat _obtain(int stat, int param, int value) {
+    this.id    = stat;
     this.param = param;
-    this.val = value;
-    entry = Riiablo.files.ItemStatCost.get(stat);
-    hash = Stat.hash(stat, param);
+    this.val   = value;
+    entry      = Riiablo.files.ItemStatCost.get(stat);
+    hash       = Stat.hash(stat, param);
+    modified   = false;
+    return this;
   }
 
-  Stat(Stat src) {
-    this.id = src.id;
-    this.param = src.param;
-    this.hash = src.hash;
-    this.entry = src.entry;
-    this.val = src.val;
+  Stat _obtain(Stat src) {
+    id       = src.id;
+    param    = src.param;
+    hash     = src.hash;
+    entry    = src.entry;
+    val      = src.val;
+    modified = src.modified;
+    return this;
   }
 
   Stat copy() {
-    return new Stat(this);
+    return obtain(this);
   }
 
   @Override
-  public int compareTo(Stat o) {
-    return o.entry.descpriority - this.entry.descpriority;
+  public int compareTo(Stat other) {
+    return other.entry.descpriority - entry.descpriority;
   }
 
   @Override
@@ -521,19 +540,21 @@ public class Stat implements Comparable<Stat> {
    * 4 : 0    | 2,10,10
    */
   public Stat add(Stat other) {
-    int value1, value2, value3;
     switch (entry.Encode) {
-      case 3:
-        value1 = Math.min(value1() + other.value1(), (1 << 8) - 1);
-        value2 = Math.min(value2() + other.value2(), (1 << 8) - 1);
+      case 3: {
+        int value1 = Math.min(value1() + other.value1(), (1 << 8) - 1);
+        int value2 = Math.min(value2() + other.value2(), (1 << 8) - 1);
         val = (value2 << 8) | value1;
         break;
-      case 4:
+      }
+      case 4: {
         // TODO: see issue #24
-        value2 = Math.min(value2() + other.value2(), (1 << 10) - 1);
-        value3 = Math.min(value3() + other.value3(), (1 << 10) - 1);
-        val = (value3 << 12) | (value2 << 2) | (val & 0x3);
+        int value1 = value1();
+        int value2 = Math.min(value2() + other.value2(), (1 << 10) - 1);
+        int value3 = Math.min(value3() + other.value3(), (1 << 10) - 1);
+        val = (value3 << 12) | (value2 << 2) | value1;
         break;
+      }
       case 0:
       case 1:
       case 2:
@@ -900,7 +921,10 @@ public class Stat implements Comparable<Stat> {
     Stat[] stats;
 
     Aggregate(int stat, String str, String str2, Stat... stats) {
-      super(stat, 0, 0);
+      id    = stat;
+      param = 0;
+      val   = 0;
+      entry = Riiablo.files.ItemStatCost.get(stat);
       this.stats = stats;
       this.str = str;
       this.str2 = str2;
