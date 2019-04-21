@@ -531,6 +531,10 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
     return hash;
   }
 
+  public boolean isModified() {
+    return modified;
+  }
+
   /**
    * Encodings: param -- value (in bits)
    * 0 : 0    | X
@@ -561,6 +565,7 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
       default:
         val += other.val;
     }
+    modified = true;
     return this;
   }
 
@@ -576,6 +581,7 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
       default:
         val += value;
     }
+    modified = true;
     return this;
   }
 

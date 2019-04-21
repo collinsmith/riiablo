@@ -965,7 +965,7 @@ public class Item extends Actor implements Disposable {
         if ((prop = props.agg.get(Stat.armorclass)) != null) {
           Table table = new Table();
           table.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font));
-          table.add(new Label(Integer.toString(prop.val), font, props.mod.get(Stat.armorclass) ? Riiablo.colors.blue : Riiablo.colors.white));
+          table.add(new Label(Integer.toString(prop.val), font, props.get(Stat.armorclass).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
           table.pack();
           add(table).space(SPACING).row();
         }
@@ -982,21 +982,21 @@ public class Item extends Actor implements Disposable {
           if ((i & 1) != 0 && (prop = props.agg.get(Stat.maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1l") + " ", font));
-            table.add(new Label(props.get(Stat.mindamage).val + " to " + prop.val, font, props.mod.get(Stat.maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.mindamage).val + " to " + prop.val, font, props.get(Stat.maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
           if ((i & 2) != 0 && (prop = props.agg.get(Stat.secondary_maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1m") + " ", font));
-            table.add(new Label(props.get(Stat.secondary_mindamage).val + " to " + prop.val, font, props.mod.get(Stat.secondary_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.secondary_mindamage).val + " to " + prop.val, font, props.get(Stat.secondary_maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }
           if (typeEntry.Throwable && (prop = props.agg.get(Stat.item_throw_maxdamage)) != null) {
             Table table = new Table();
             table.add(new Label(Riiablo.string.lookup("ItemStats1n") + " ", font));
-            table.add(new Label(props.get(Stat.item_throw_mindamage).val + " to " + prop.val, font, props.mod.get(Stat.item_throw_maxdamage) ? Riiablo.colors.blue : Riiablo.colors.white));
+            table.add(new Label(props.get(Stat.item_throw_mindamage).val + " to " + prop.val, font, props.get(Stat.item_throw_maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
             table.pack();
             add(table).space(SPACING).row();
           }

@@ -1,7 +1,6 @@
 package com.riiablo.item;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Bits;
 import com.riiablo.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
@@ -11,7 +10,7 @@ public class Attributes {
   final PropertyList agg = new PropertyList();
   final PropertyList rem = new PropertyList();
   final Array<PropertyList> propertyLists = new Array<>();
-  final Bits mod = new Bits(1 << Stat.BITS);
+  //final Bits mod = new Bits(1 << Stat.BITS);
 
   public PropertyList base() {
     return base;
@@ -25,9 +24,9 @@ public class Attributes {
     return rem;
   }
 
-  public boolean isModified(int stat) {
-    return mod.get(stat);
-  }
+  //public boolean isModified(int stat) {
+  ///  return mod.get(stat);
+  //}
 
   public int size() {
     return agg.size();
@@ -40,7 +39,7 @@ public class Attributes {
   public void reset() {
     agg.clear();
     agg.deepCopy(base);
-    mod.clear();
+    //mod.clear();
     rem.clear();
     propertyLists.clear();
   }
@@ -66,7 +65,7 @@ public class Attributes {
         rem.addCopy(stat);
       } else {
         agg.addCopy(stat);
-        mod.set(stat.id);
+        //mod.set(stat.id);
       }
     }
   }
@@ -84,8 +83,8 @@ public class Attributes {
       int statId = Riiablo.files.ItemStatCost.index(op_stat);
       Stat opstat = agg.get(statId);
       if (opstat != null) {
-        opstat.val += op(charData, stat, base.get(statId), op, op_base, op_param);
-        mod.set(opstat.id);
+        opstat.add(op(charData, stat, base.get(statId), op, op_base, op_param));
+        //mod.set(opstat.id);
         opCount++;
       }
     }
@@ -103,12 +102,12 @@ public class Attributes {
       case 7:  return 0; // by-time percent
       case 8:
         agg.addCopy(stat);
-        mod.set(stat.id);
+        //mod.set(stat.id);
         return stat.val * charData.getCharacterClass().entry().ManaPerMagic; // max mana
       case 9:
         if (opstat.id == Stat.maxhp) { // only increment vit on maxhp op
           agg.addCopy(stat);
-          mod.set(stat.id);
+          //mod.set(stat.id);
         }
         return stat.val // max hitpoints
           * (opstat.id == Stat.maxhp

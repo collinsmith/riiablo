@@ -282,7 +282,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
       }
     }
 
-    if (mod && Riiablo.charData.getStats().isModified(stat.id)) {
+    if (mod && Riiablo.charData.getStats().get(stat.id).isModified()) {
       return Riiablo.colors.blue;
     }
 
