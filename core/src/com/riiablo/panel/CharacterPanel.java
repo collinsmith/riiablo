@@ -22,6 +22,7 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
+import com.riiablo.widget.StatLabel;
 
 import java.text.NumberFormat;
 
@@ -123,7 +124,8 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     defenseLabel.setAlignment(Align.center);
     addActor(defenseLabel);
 
-    Label armorclass = createStatLabel(Stat.armorclass);
+    //Label armorclass = createStatLabel(Stat.armorclass);
+    Label armorclass = new StatLabel(Riiablo.charData.getStats(), Stat.armorclass);
     armorclass.setPosition(275, getHeight() - 210);
     armorclass.setSize(36, 16);
     addActor(armorclass);

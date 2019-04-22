@@ -20,6 +20,8 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
     setBottomHeight(padding);
   }};
 
+  boolean updateSize = true; // FIXME: find a less hacky solution
+
   public Label(int id, BitmapFont font) {
     this(id == -1 ? "" : Riiablo.string.lookup(id), font);
   }
@@ -99,6 +101,6 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
   @Override
   public void setText(CharSequence newText) {
     super.setText(newText);
-    setSize(getPrefWidth(), getPrefHeight());
+    if (updateSize) setSize(getPrefWidth(), getPrefHeight());
   }
 }
