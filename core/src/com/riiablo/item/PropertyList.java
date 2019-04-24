@@ -50,6 +50,7 @@ public class PropertyList implements Iterable<Stat> {
   }
 
   public void clear() {
+    for (Stat stat : props.values()) Stat.free(stat);
     props.clear();
   }
 

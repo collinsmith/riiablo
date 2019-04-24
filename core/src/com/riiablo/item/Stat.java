@@ -3,6 +3,7 @@ package com.riiablo.item;
 import com.google.common.primitives.UnsignedInts;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 import com.riiablo.CharData;
@@ -473,6 +474,14 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
 
   static Stat obtain(Stat src) {
     return POOL.obtain()._obtain(src);
+  }
+
+  static void free(Stat stat) {
+    POOL.free(stat);
+  }
+
+  static void freeAll(Array<Stat> stats) {
+    POOL.freeAll(stats);
   }
 
   public int id;
