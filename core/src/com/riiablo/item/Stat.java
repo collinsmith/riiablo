@@ -487,7 +487,7 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
   public int id;
   public int param;
   public ItemStatCost.Entry entry;
-  boolean modified;
+  public boolean modified;
   int hash;
   int val;
 

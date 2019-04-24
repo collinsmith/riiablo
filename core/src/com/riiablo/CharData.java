@@ -228,7 +228,9 @@ public class CharData {
 
     // This appears to be hard-coded in the original client
     int dex = stats.get(Stat.dexterity).value();
-    stats.aggregate().get(Stat.armorclass).add(dex / 4);
+    Stat armorclass = stats.get(Stat.armorclass);
+    armorclass.add(dex / 4);
+    armorclass.modified = false;
 
     skills.clear();
     skills.putAll(defaultSkills);
