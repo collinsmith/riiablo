@@ -1,6 +1,7 @@
 package com.riiablo.widget;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Align;
 import com.riiablo.Riiablo;
 import com.riiablo.item.Attributes;
@@ -38,13 +39,22 @@ public class StatLabel extends Label {
 
   @Override
   public void setText(CharSequence newText) {
+    BitmapFont font = getFont(newText.length());
+    if (font != getStyle().font) {
+      getStyle().font = font;
+      setStyle(getStyle()); // hacky, but only way to correct update style with changes
+    }
+
     super.setText(newText);
-    if (newText.length() > 6) {
-      getStyle().font = Riiablo.fonts.ReallyTheLastSucker;
-    } else if (newText.length() > 3) {
-      getStyle().font = Riiablo.fonts.font8;
+  }
+
+  private static BitmapFont getFont(int len) {
+    if (len > 6) {
+      return Riiablo.fonts.ReallyTheLastSucker;
+    } else if (len > 3) {
+      return Riiablo.fonts.font8;
     } else {
-      getStyle().font = Riiablo.fonts.font16;
+      return Riiablo.fonts.font16;
     }
   }
 

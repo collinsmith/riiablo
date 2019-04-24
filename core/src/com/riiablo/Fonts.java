@@ -41,6 +41,11 @@ public class Fonts {
     ReallyTheLastSucker = load(assets, "ReallyTheLastSucker", BlendMode.ID);
 
     BitmapFont.BitmapFontData data;
+    data = font8.getData();
+    data.lineHeight = data.xHeight = data.capHeight = 12;
+    data.ascent = 16;
+    data.down = -12;
+
     data = font16.getData();
     data.lineHeight = data.xHeight = data.capHeight = 14;
     data.ascent = 17;

@@ -126,8 +126,8 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
 
     //Label armorclass = createStatLabel(Stat.armorclass);
     Label armorclass = new StatLabel(Riiablo.charData.getStats(), Stat.armorclass);
-    armorclass.setPosition(275, getHeight() - 210);
-    armorclass.setSize(36, 16);
+    armorclass.setPosition(272, getHeight() - 210);
+    armorclass.setSize(40, 16);
     addActor(armorclass);
 
     Label vitLabel = new Label(4066, Riiablo.fonts.ReallyTheLastSucker);
