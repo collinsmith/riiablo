@@ -594,6 +594,14 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
     return this;
   }
 
+  // Intended for correcting maxhp, maxstamina and maxmana, see note in CharData
+  public Stat set(Stat other) {
+    val = other.val;
+    other.modified = modified;
+    modified = false;
+    return this;
+  }
+
   private static final StringBuilder builder = new StringBuilder(32);
   private static final CharSequence SPACE   = Riiablo.string.lookup("space");
   private static final CharSequence DASH    = Riiablo.string.lookup("dash");

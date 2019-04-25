@@ -226,6 +226,11 @@ public class CharData {
     }
     stats.update(this);
 
+    // FIXME: This corrects a mismatch between max and current, algorithm should be tested later for correctness in other cases
+    stats.get(Stat.maxstamina).set(stats.get(Stat.stamina));
+    stats.get(Stat.maxhp).set(stats.get(Stat.hitpoints));
+    stats.get(Stat.maxmana).set(stats.get(Stat.mana));
+
     // This appears to be hard-coded in the original client
     int dex = stats.get(Stat.dexterity).value();
     Stat armorclass = stats.get(Stat.armorclass);
