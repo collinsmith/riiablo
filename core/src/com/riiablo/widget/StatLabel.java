@@ -14,10 +14,14 @@ public class StatLabel extends Label {
   Colorizer colorizer;
 
   public StatLabel(Attributes attrs, int stat) {
+    this(attrs, stat, Colorizer.DEFAULT);
+  }
+
+  public StatLabel(Attributes attrs, int stat, Colorizer colorizer) {
     super(Riiablo.fonts.font16);
     this.attrs = attrs;
     this.stat = stat;
-    colorizer = Colorizer.DEFAULT;
+    this.colorizer = colorizer;
     updateSize = false;
   }
 
@@ -28,9 +32,11 @@ public class StatLabel extends Label {
   }
 
   private void updateValue() {
-    int curValue = attrs.get(stat).value();
+    Stat s = attrs.get(stat);
+    int curValue = s.value();
     if (value != curValue) {
       value = curValue;
+      if (s.entry.ValShift > 0) value = (int) s.toFloat();
       setAlignment(Align.center);
       setText(Integer.toString(value));
       setColor(colorizer.getColor(attrs.get(stat)));
@@ -70,13 +76,18 @@ public class StatLabel extends Label {
     RESISTANCE {
       @Override
       Color getColor(Stat stat) {
-        if (stat.value() < 0) {
+        int value = stat.value();
+        if (value < 0) {
           return Riiablo.colors.red;
+        } else if (value < 75) {
+          return Riiablo.colors.white;
+        //} else if (value == MAX) {
+        //  return Riiablo.colors.gold;
+        //} else if (75 < value < MAX) {
+        //  return Riiablo.colors.blue;
+        } else {
+          return Riiablo.colors.white;
         }
-
-        return stat.isModified()
-            ? Riiablo.colors.blue
-            : Riiablo.colors.white;
       }
     };
 

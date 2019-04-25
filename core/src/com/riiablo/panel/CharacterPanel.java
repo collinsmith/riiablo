@@ -17,6 +17,7 @@ import com.riiablo.Cvars;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.entity.Player;
+import com.riiablo.item.Attributes;
 import com.riiablo.item.Stat;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.screen.GameScreen;
@@ -124,8 +125,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     defenseLabel.setAlignment(Align.center);
     addActor(defenseLabel);
 
-    //Label armorclass = createStatLabel(Stat.armorclass);
-    Label armorclass = new StatLabel(Riiablo.charData.getStats(), Stat.armorclass);
+    Label armorclass = createStatLabel(Stat.armorclass);
     armorclass.setPosition(272, getHeight() - 210);
     armorclass.setSize(40, 16);
     addActor(armorclass);
@@ -206,7 +206,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     fireResLabel.setAlignment(Align.center);
     addActor(fireResLabel);
 
-    Label fireRes = createStatLabel(Stat.fireresist, false);
+    Label fireRes = createStatLabel(Stat.fireresist, StatLabel.Colorizer.RESISTANCE);
     fireRes.setPosition(273, getHeight() - 349);
     fireRes.setSize(36, 16);
     addActor(fireRes);
@@ -217,7 +217,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     coldResLabel.setAlignment(Align.center);
     addActor(coldResLabel);
 
-    Label coldRes = createStatLabel(Stat.coldresist, false);
+    Label coldRes = createStatLabel(Stat.coldresist, StatLabel.Colorizer.RESISTANCE);
     coldRes.setPosition(273, getHeight() - 373);
     coldRes.setSize(36, 16);
     addActor(coldRes);
@@ -228,7 +228,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     lightningResLabel.setAlignment(Align.center);
     addActor(lightningResLabel);
 
-    Label lightningRes = createStatLabel(Stat.lightresist, false);
+    Label lightningRes = createStatLabel(Stat.lightresist, StatLabel.Colorizer.RESISTANCE);
     lightningRes.setPosition(273, getHeight() - 397);
     lightningRes.setSize(36, 16);
     addActor(lightningRes);
@@ -239,7 +239,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     poisonResLabel.setAlignment(Align.center);
     addActor(poisonResLabel);
 
-    Label poisonRes = createStatLabel(Stat.poisonresist, false);
+    Label poisonRes = createStatLabel(Stat.poisonresist, StatLabel.Colorizer.RESISTANCE);
     poisonRes.setPosition(273, getHeight() - 421);
     poisonRes.setSize(36, 16);
     addActor(poisonRes);
@@ -248,17 +248,12 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
   }
 
   private Label createStatLabel(int statId) {
-    return createStatLabel(statId, true);
+    return createStatLabel(statId, StatLabel.Colorizer.DEFAULT);
   }
 
-  private Label createStatLabel(int statId, boolean mod) {
-    Stat stat = Riiablo.charData.getStats().get(statId);
-    int value = stat.entry.ValShift > 0 ? (int) stat.toFloat() : stat.value();
-    String text = Integer.toString(value);
-    Label label = new Label(text, getFont(text.length()));
-    label.setColor(getColor(mod, stat, value));
-    label.setAlignment(Align.center);
-    return label;
+  private Label createStatLabel(int statId, StatLabel.Colorizer colorizer) {
+    Attributes attrs = Riiablo.charData.getStats();
+    return new StatLabel(attrs, statId, colorizer);
   }
 
   private BitmapFont getFont(int length) {
