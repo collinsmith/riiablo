@@ -3,9 +3,6 @@ package com.riiablo.item;
 import com.google.common.primitives.UnsignedInts;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
 import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -18,7 +15,7 @@ import com.riiablo.codec.util.BitStream;
 import java.util.Arrays;
 
 @SuppressWarnings("unused")
-public class Stat implements Comparable<Stat>, Pool.Poolable {
+public class Stat implements Comparable<Stat> {
   private static final String TAG = "Stat";
 
   public static final int strength                        = 0;
@@ -458,10 +455,12 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
     }
   }
 
-  private static final Pool<Stat> POOL = Pools.get(Stat.class, 256);
+  static Stat obtain() {
+    return new Stat(); // POOL.obtain();
+  }
 
   static Stat obtain(int stat, BitStream bitStream) {
-    return POOL.obtain()._obtain(stat, bitStream);
+    return obtain()._obtain(stat, bitStream);
   }
 
   static Stat obtain(int stat, int value) {
@@ -469,19 +468,11 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
   }
 
   static Stat obtain(int stat, int param, int value) {
-    return POOL.obtain()._obtain(stat, param, value);
+    return obtain()._obtain(stat, param, value);
   }
 
   static Stat obtain(Stat src) {
-    return POOL.obtain()._obtain(src);
-  }
-
-  static void free(Stat stat) {
-    POOL.free(stat);
-  }
-
-  static void freeAll(Array<Stat> stats) {
-    POOL.freeAll(stats);
+    return obtain()._obtain(src);
   }
 
   public int id;
@@ -492,9 +483,6 @@ public class Stat implements Comparable<Stat>, Pool.Poolable {
   int val;
 
   Stat() {}
-
-  @Override
-  public void reset() {}
 
   Stat _obtain(int stat, BitStream bitStream) {
     this.id  = stat;
