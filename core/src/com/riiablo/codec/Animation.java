@@ -545,6 +545,10 @@ public class Animation extends BaseDrawable {
       return this;
     }
 
+    public DC getDC() {
+      return dc;
+    }
+
     public Layer setBlendMode(int blendMode) {
       return setBlendMode(blendMode, Color.WHITE);
     }

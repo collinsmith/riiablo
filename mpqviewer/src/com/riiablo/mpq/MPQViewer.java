@@ -38,6 +38,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
@@ -81,6 +83,7 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Objects;
@@ -186,6 +189,27 @@ public class MPQViewer {
     VisScrollPane         componentScroller;
     VisList<String>       wclasses;
     VisScrollPane         wclassScroller;
+    ObjectMap<String, Array<String>> compClasses;
+    String                selectedWClass[];
+    static final ObjectIntMap<String> COMP_TO_ID = new ObjectIntMap<>();
+    static {
+      COMP_TO_ID.put("hd", COF.Component.HD);
+      COMP_TO_ID.put("tr", COF.Component.TR);
+      COMP_TO_ID.put("lg", COF.Component.LG);
+      COMP_TO_ID.put("ra", COF.Component.RA);
+      COMP_TO_ID.put("la", COF.Component.LA);
+      COMP_TO_ID.put("rh", COF.Component.RH);
+      COMP_TO_ID.put("lh", COF.Component.LH);
+      COMP_TO_ID.put("sh", COF.Component.SH);
+      COMP_TO_ID.put("s1", COF.Component.S1);
+      COMP_TO_ID.put("s2", COF.Component.S2);
+      COMP_TO_ID.put("s3", COF.Component.S3);
+      COMP_TO_ID.put("s4", COF.Component.S4);
+      COMP_TO_ID.put("s5", COF.Component.S5);
+      COMP_TO_ID.put("s6", COF.Component.S6);
+      COMP_TO_ID.put("s7", COF.Component.S7);
+      COMP_TO_ID.put("s8", COF.Component.S8);
+    }
 
     PaletteIndexedBatch batch;
     ShaderProgram       shader;
@@ -736,7 +760,7 @@ public class MPQViewer {
             add(new VisTable() {{
               setBackground(VisUI.getSkin().getDrawable("default-pane"));
               String[] wclassNames = new String[]{
-                  "WHD",
+                  "NONE",
               };
 
               wclasses = new VisList<>();
@@ -758,7 +782,7 @@ public class MPQViewer {
                     stage.setScrollFocus(null);
                   }
                 });
-              }}).growY();
+              }}).minWidth(64).growY();
             }}).grow();
           }}).growY();
         }}).grow().row();
@@ -1435,6 +1459,159 @@ public class MPQViewer {
         for (COF.Keyframe keyframe : keyframes) {
           lbKeyframes.get(keyframe).setText(cof.getKeyframeFrame(keyframe));
         }
+
+        String path = handle.fileName.toLowerCase();
+        String name = FilenameUtils.getBaseName(path).toLowerCase();
+        final String token  = name.substring(0,2);
+        final String mode   = name.substring(2,4);
+        final String wclass = name.substring(4);
+
+        final String type;
+        if (path.contains("monsters")) {
+          type = "monsters";
+        } else if (path.contains("chars")) {
+          type = "chars";
+        } else {
+          type = "null";
+        }
+
+        if (compClasses == null) {
+          compClasses = new ObjectMap<>();
+          for (String comp : components.getItems()) {
+            comp = comp.toLowerCase();
+            compClasses.put(comp, new Array<String>());
+          }
+          selectedWClass = new String[COF.Component.NUM_COMPONENTS];
+        } else {
+          for (Array<String> a : compClasses.values()) {
+            a.clear();
+            a.add("NONE");
+          }
+          Arrays.fill(selectedWClass, null);
+        }
+
+        for (String comp : components.getItems()) {
+          comp = comp.toLowerCase();
+          String prefix = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s", type, token, comp);
+          SortedMap<String, Node> dccs = fileTreeNodes.prefixMap(prefix);
+          if (dccs.isEmpty()) {
+            continue;
+          }
+
+          System.out.println(prefix);
+          Array<String> wclasses = compClasses.get(comp);
+          for (String dcc : dccs.keySet()) {
+            if (!FilenameUtils.isExtension(dcc, "dcc")) {
+              continue;
+            }
+
+            // TODO: hth should probably only be included if wclass doesn't exist to overwrite it
+            if (!dcc.substring(prefix.length() + 5, prefix.length() + 8).equalsIgnoreCase(wclass)
+             && !dcc.substring(prefix.length() + 5, prefix.length() + 8).equalsIgnoreCase("HTH")) {
+              continue;
+            }
+
+            if (!dcc.substring(prefix.length() + 3, prefix.length() + 5).equalsIgnoreCase(mode)) {
+              continue;
+            }
+
+            String clazz = dcc.substring(prefix.length(), prefix.length() + 3);
+            wclasses.add(clazz);
+            System.out.println("\t" + dcc + " " + clazz);
+
+            int l = COMP_TO_ID.get(comp, -1);
+            if (selectedWClass[l] == null) selectedWClass[l] = clazz;
+          }
+        }
+
+        System.out.println(Arrays.toString(selectedWClass));
+
+        renderer.setDrawable(new DelegatingDrawable<Animation>() {
+          {
+            components.setSelectedIndex(0);
+            String comp = components.getSelected().toLowerCase();
+            wclasses.setItems(compClasses.get(comp));
+
+            String palette = paletteList.getSelected();
+            Riiablo.batch.setPalette(palettes.get(palette));
+
+            Animation anim = Animation.newAnimation(cof);
+            for (int l = 0; l < cof.getNumLayers(); l++) {
+              COF.Layer layer = cof.getLayer(l);
+
+              String clazz = selectedWClass[layer.component];
+              if (clazz == null) continue;
+
+              comp = components.getItems().get(layer.component);
+              String dcc = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s.dcc", type, token, comp, clazz, mode, layer.weaponClass);
+              System.out.println(comp + "=" + dcc);
+
+              DC dc = DCC.loadFromFile(Riiablo.mpqs.resolve(dcc));
+              anim.setLayer(layer, dc, false);
+            }
+            setDelegate(anim);
+          }
+
+          @Override
+          protected void changed(ChangeEvent event, Actor actor) {
+            if (actor == components) {
+              String comp = components.getSelected().toLowerCase();
+              wclasses.setItems(compClasses.get(comp));
+              wclasses.setSelected(selectedWClass[COMP_TO_ID.get(comp, -1)]);
+            } else if (actor == wclasses && delegate != null) {
+              String comp = components.getSelected().toLowerCase();
+              String clazz = wclasses.getSelected();
+              if (clazz == null) return;
+              clazz = clazz.toLowerCase();
+              int c = COMP_TO_ID.get(comp, -1);
+              Animation.Layer animLayer = delegate.getLayer(c);
+              DC old = animLayer != null ? animLayer.getDC() : null;
+
+              COF.Layer layer = cof.getComponent(c);
+              String dcc = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s.dcc", type, token, comp, clazz, mode, layer.weaponClass);
+              System.out.println(comp + "=" + dcc);
+
+              DC dc = DCC.loadFromFile(Riiablo.mpqs.resolve(dcc));
+              delegate.setLayer(layer, dc, false);
+              if (old != null) old.dispose();
+            }
+          }
+
+          @Override
+          public void dispose() {
+            for (int l = 0; l < cof.getNumLayers(); l++) {
+              COF.Layer layer = cof.getLayer(l);
+              Animation.Layer animLayer = delegate.getLayer(layer.component);
+              if (animLayer != null) animLayer.getDC().dispose();
+            }
+            super.dispose();
+          }
+
+          @Override
+          public void draw(Batch batch, float x, float y, float width, float height) {
+            PaletteIndexedBatch b = Riiablo.batch;
+            if (!btnPlayPause.isChecked()) {
+              delegate.act();
+              slFrameIndex.setValue(delegate.getFrame());
+            }
+
+            batch.end();
+
+            b.setTransformMatrix(batch.getTransformMatrix());
+            b.begin();
+            super.draw(b, x, y, width, height);
+            b.end();
+
+            shapes.setTransformMatrix(batch.getTransformMatrix());
+            if (cbDebugMode.isChecked()) {
+              shapes.begin(ShapeRenderer.ShapeType.Line);
+              delegate.drawDebug(shapes, x, y);
+              shapes.end();
+            }
+
+            batch.begin();
+          }
+        });
       } else if (extension.equals("pl2")) {
       } else if (extension.equals("dat")) {
         Palette pal = Palette.loadFromFile(handle);
@@ -1487,6 +1664,8 @@ public class MPQViewer {
         btnNextPage      .addListener(clickListener);
         slDirectionPage  .addListener(changeListener);
         //sbBlendModePage  .addListener(changeListener);
+        components       .addListener(changeListener);
+        wclasses         .addListener(changeListener);
       }
 
       public DelegatingDrawable(T delegate) {
@@ -1520,6 +1699,8 @@ public class MPQViewer {
         btnNextPage      .removeListener(clickListener);
         slDirectionPage  .removeListener(changeListener);
         //sbBlendModePage  .removeListener(changeListener);
+        components       .removeListener(changeListener);
+        wclasses         .removeListener(changeListener);
       }
 
       protected void clicked(InputEvent event, float x, float y) {}
