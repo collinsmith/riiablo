@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -59,7 +60,7 @@ import com.kotcrab.vis.ui.widget.color.ColorPicker;
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
-import com.kotcrab.vis.ui.widget.file.FileTypeFilter;
+import com.riiablo.Colors;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC;
@@ -77,10 +78,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.SortedMap;
@@ -88,12 +87,13 @@ import java.util.SortedMap;
 public class MPQViewer {
 
   private static final String TAG = "MPQViewer";
+  private static final String TITLE = "Riiablo MPQ Viewer";
   private static final String ASSETS = "mpqviewer/assets/";
   private static final String EXCEL_PATH = "C:\\Program Files (x86)\\OpenOffice\\program\\scalc.exe";
 
   public static void main(String[] args) {
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = "MPQ Viewer";
+    config.title = TITLE;
     config.addIcon(ASSETS + "ic_launcher_128.png", Files.FileType.Internal);
     config.addIcon(ASSETS + "ic_launcher_32.png",  Files.FileType.Internal);
     config.addIcon(ASSETS + "ic_launcher_16.png",  Files.FileType.Internal);
@@ -106,6 +106,7 @@ public class MPQViewer {
   }
 
   private static class Client extends ApplicationAdapter {
+    Preferences        prefs;
     Stage              stage;
     VisTable           root;
     VisSplitPane       verticalSplit;
@@ -117,7 +118,7 @@ public class MPQViewer {
     MenuItem           file_exit;
     Menu               optionsMenu;
     MenuItem           options_checkExisting;
-    MenuItem           options_useExternalList;
+    //MenuItem         options_useExternalList;
 
     VisTextField       addressBar;
     PopupMenu          addressBarMenu;
@@ -177,7 +178,6 @@ public class MPQViewer {
     VisLabel              lbVolume;
     VisSlider             slVolume;
 
-    MPQ                 mpq;
     PaletteIndexedBatch batch;
     ShaderProgram       shader;
     ShapeRenderer       shapes;
@@ -186,6 +186,7 @@ public class MPQViewer {
     @Override
     public void create() {
       Gdx.app.setLogLevel(Logger.DEBUG);
+      prefs = Gdx.app.getPreferences("com.riiablo.mpq.MPQViewer");
 
       VisUI.load();
 
@@ -196,7 +197,7 @@ public class MPQViewer {
             addListener(new ClickListener() {
               @Override
               public void clicked(InputEvent event, float x, float y) {
-                openMPQ();
+                openMPQs();
               }
             });
           }});
@@ -221,7 +222,7 @@ public class MPQViewer {
               }
             });
           }});
-          addSeparator();
+          /*addSeparator();
           addItem(options_useExternalList = new MenuItem("Use External List", VisUI.getSkin().getDrawable("check-off")) {{
             addListener(new ClickListener() {
               @Override
@@ -230,7 +231,7 @@ public class MPQViewer {
                 reloadMPQ();
               }
             });
-          }});
+          }});*/
         }});
       }};
 
@@ -248,7 +249,7 @@ public class MPQViewer {
               addListener(new InputListener() {
                 @Override
                 public boolean keyDown(InputEvent event, int keycode) {
-                  if (mpq != null && keycode == Input.Keys.TAB) {
+                  if (Riiablo.mpqs != null && keycode == Input.Keys.TAB) {
                     String text = getText();
                     if (text.endsWith("\\")) {
                       return true;
@@ -705,7 +706,7 @@ public class MPQViewer {
               addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                  if (mpq == null) {
+                  if (Riiablo.mpqs == null) {
                     return;
                   }
 
@@ -755,6 +756,8 @@ public class MPQViewer {
       Riiablo.batch = batch = new PaletteIndexedBatch(256, shader);
       Riiablo.shapes = shapes = new ShapeRenderer();
 
+      Riiablo.colors = new Colors();
+
       stage = new Stage(new ScreenViewport());
       stage.addActor(root);
       stage.addListener(new InputListener() {
@@ -788,6 +791,11 @@ public class MPQViewer {
       });
 
       Gdx.input.setInputProcessor(stage);
+
+      String home = prefs.getString("home");
+      if (home != null && !home.isEmpty()) {
+        loadMPQs(Gdx.files.absolute(home));
+      }
     }
 
     @Override
@@ -807,36 +815,41 @@ public class MPQViewer {
     @Override
     public void dispose() {
       Gdx.app.debug(TAG, "disposing...");
+      prefs.flush();
       stage.dispose();
       Gdx.app.debug(TAG, "disposing palettes...");
       for (Texture palette : palettes.values()) palette.dispose();
     }
 
-    private void openMPQ() {
+    private void openMPQs() {
       FileChooser.setSaveLastDirectory(true);
       FileChooser chooser = new FileChooser(FileChooser.Mode.OPEN);
       chooser.setSize(800, 600);
       chooser.setKeepWithinStage(false);
-      chooser.setDirectory(Gdx.files.getLocalStoragePath());
-      chooser.setFileTypeFilter(new FileTypeFilter(false) {{
-        addRule("MPQ Archives (*.mpq)", "mpq");
-      }});
+      chooser.setDirectory(prefs.getString("home", Gdx.files.getLocalStoragePath()));
       chooser.setMultiSelectionEnabled(false);
-      chooser.setSelectionMode(FileChooser.SelectionMode.FILES);
+      chooser.setSelectionMode(FileChooser.SelectionMode.DIRECTORIES);
       chooser.setListener(new FileChooserAdapter() {
         @Override
         public void selected(Array<FileHandle> files) {
           assert files.size == 1;
           FileHandle file = files.first();
-          loadMPQ(file);
+          loadMPQs(file);
         }
       });
 
       stage.addActor(chooser.fadeIn());
     }
 
-    private void loadMPQ(FileHandle file) {
-      mpq = MPQ.loadFromFile(file);
+    private void loadMPQs(FileHandle file) {
+      Gdx.graphics.setTitle(TITLE + " - " + file.path());
+      Riiablo.mpqs = new MPQFileHandleResolver(Riiablo.home = file);
+      prefs.putString("home", file.path());
+      prefs.flush();
+      readMPQs();
+    }
+
+    private void readMPQs() {
       if (fileTreeNodes == null) {
         fileTreeNodes = new PatriciaTrie<>();
       } else {
@@ -845,29 +858,29 @@ public class MPQViewer {
 
       BufferedReader reader = null;
       try {
-        if (options_useExternalList.isChecked()) {
+        //if (options_useExternalList.isChecked()) {
           reader = Gdx.files.internal(ASSETS + "(listfile)").reader(4096);
-        } else {
-          try {
-            reader = new BufferedReader(new InputStreamReader((new ByteArrayInputStream(mpq.readBytes("(listfile)")))));
-          } catch (Throwable t) {
-            reader = Gdx.files.internal(ASSETS + "(listfile)").reader(4096);
-          }
-        }
+        //} else {
+        //  try {
+        //    reader = new BufferedReader(new InputStreamReader((new ByteArrayInputStream(mpq.readBytes("(listfile)")))));
+        //  } catch (Throwable t) {
+        //    reader = Gdx.files.internal(ASSETS + "(listfile)").reader(4096);
+        //  }
+        //}
 
         Node root = new Node(new VisLabel("root"));
         final boolean checkExisting = options_checkExisting.isChecked();
 
         String fileName;
         while ((fileName = reader.readLine()) != null) {
-          if (checkExisting && !mpq.contains(fileName)) {
+          if (checkExisting && !Riiablo.mpqs.contains(fileName)) {
             continue;
           }
 
           String path = FilenameUtils.getPathNoEndSeparator(fileName).toLowerCase();
           treeify(fileTreeNodes, root, path);
 
-          final MPQFileHandle handle = new MPQFileHandle(mpq, fileName);
+          final MPQFileHandle handle = (MPQFileHandle) Riiablo.mpqs.resolve(fileName);
           VisLabel label = new VisLabel(FilenameUtils.getName(fileName));
           final Node node = new Node(label);
           node.setObject(handle);
@@ -894,7 +907,6 @@ public class MPQViewer {
 
         fileTree.layout();
         fileTreeFilter.clearText();
-        Gdx.graphics.setTitle("MPQ Viewer - " + file.path());
       } catch (IOException e) {
         throw new GdxRuntimeException("Failed to read list file.", e);
       } finally {
@@ -953,8 +965,8 @@ public class MPQViewer {
     }
 
     private void reloadMPQ() {
-      if (mpq != null) {
-        loadMPQ(mpq.file());
+      if (Riiablo.mpqs != null) {
+        loadMPQs(Riiablo.home);
       }
     }
 
