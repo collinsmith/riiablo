@@ -63,6 +63,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import com.riiablo.Colors;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
+import com.riiablo.codec.COF;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.DCC;
@@ -81,6 +82,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.Objects;
 import java.util.SortedMap;
 
@@ -139,8 +141,8 @@ public class MPQViewer {
     VisTable                   optionsPanel;
     Array<CollapsibleVisTable> optionsSubpanels;
 
-    CollapsibleVisTable imageControlsPanel;
-    TabbedPane imageControls;
+    CollapsibleVisTable   imageControlsPanel;
+    TabbedPane            imageControls;
     TextButton            btnPlayPause;
     Button                btnFirstFrame;
     Button                btnLastFrame;
@@ -165,18 +167,21 @@ public class MPQViewer {
     VisSlider             slDirectionPage;
     //VisSelectBox<Palette.BlendMode> sbBlendModePage;
 
-    CollapsibleVisTable palettePanel;
+    CollapsibleVisTable   palettePanel;
     Trie<String, Texture> palettes;
     VisList<String>       paletteList;
     VisScrollPane         paletteScroller;
 
-    CollapsibleVisTable audioPanel;
+    CollapsibleVisTable   audioPanel;
     VisLabel              lbAudioScrubber;
     VisSlider             slAudioScrubber;
     TextButton            btnPlayPauseAudio;
     Button                btnRestartAudio;
     VisLabel              lbVolume;
     VisSlider             slVolume;
+
+    CollapsibleVisTable   cofPanel;
+    EnumMap<COF.Keyframe, VisLabel> lbKeyframes;
 
     PaletteIndexedBatch batch;
     ShaderProgram       shader;
@@ -476,6 +481,14 @@ public class MPQViewer {
             }
           });
         }}).row();
+        add(new VisTextButton("4") {{
+          addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              cofPanel.setCollapsed(!cofPanel.isCollapsed());
+            }
+          });
+        }}).row();
       }}).align(Align.top).space(4);
       optionsPanel.add(imageControlsPanel = new CollapsibleVisTable() {{
         add(imageControls = new TabbedPane() {{
@@ -666,11 +679,30 @@ public class MPQViewer {
         }}).growX().row();
         add().growY();
       }}).growY().space(4);
+      optionsPanel.add(cofPanel = new CollapsibleVisTable() {{
+        add("COF:").align(Align.left).row();
+        add(new VisTable() {{
+          add("Triggers:").growX().row();
+          add(new VisTable() {{
+            VisLabel label;
+            lbKeyframes = new EnumMap<>(COF.Keyframe.class);
+            COF.Keyframe[] keyframes = COF.Keyframe.values();
+            for (COF.Keyframe keyframe : keyframes) {
+              lbKeyframes.put(keyframe, label = new VisLabel());
+              add(keyframe.name()).spaceRight(4).left();
+              add(label);
+              row();
+            }
+          }}).growX();
+        }}).minWidth(100).growX().row();
+        add().growY();
+      }}).growY().space(4);
 
       optionsSubpanels = new Array<>();
       optionsSubpanels.add(imageControlsPanel);
       optionsSubpanels.add(palettePanel);
       optionsSubpanels.add(audioPanel);
+      optionsSubpanels.add(cofPanel);
       for (CollapsibleVisTable o : optionsSubpanels) {
         o.setCollapsed(true);
       }
@@ -1329,6 +1361,14 @@ public class MPQViewer {
           }
         });
       } else if (extension.equals("cof")) {
+        imageControlsPanel.setCollapsed(false);
+        palettePanel.setCollapsed(false);
+        cofPanel.setCollapsed(false);
+        final COF cof = COF.loadFromFile(handle);
+        COF.Keyframe[] keyframes = COF.Keyframe.values();
+        for (COF.Keyframe keyframe : keyframes) {
+          lbKeyframes.get(keyframe).setText(cof.getKeyframeFrame(keyframe));
+        }
       } else if (extension.equals("pl2")) {
       } else if (extension.equals("dat")) {
         Palette pal = Palette.loadFromFile(handle);
