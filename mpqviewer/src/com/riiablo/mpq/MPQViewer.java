@@ -182,6 +182,10 @@ public class MPQViewer {
 
     CollapsibleVisTable   cofPanel;
     EnumMap<COF.Keyframe, VisLabel> lbKeyframes;
+    VisList<String>       components;
+    VisScrollPane         componentScroller;
+    VisList<String>       wclasses;
+    VisScrollPane         wclassScroller;
 
     PaletteIndexedBatch batch;
     ShaderProgram       shader;
@@ -637,7 +641,7 @@ public class MPQViewer {
               }
             });
           }}).growY();
-        }});
+        }}).growY();
       }}).growY().space(4);
       optionsPanel.add(audioPanel = new CollapsibleVisTable() {{
         add("Audio:").align(Align.left).row();
@@ -682,20 +686,82 @@ public class MPQViewer {
       optionsPanel.add(cofPanel = new CollapsibleVisTable() {{
         add("COF:").align(Align.left).row();
         add(new VisTable() {{
-          add("Triggers:").growX().row();
           add(new VisTable() {{
-            VisLabel label;
-            lbKeyframes = new EnumMap<>(COF.Keyframe.class);
-            COF.Keyframe[] keyframes = COF.Keyframe.values();
-            for (COF.Keyframe keyframe : keyframes) {
-              lbKeyframes.put(keyframe, label = new VisLabel());
-              add(keyframe.name()).spaceRight(4).left();
-              add(label);
-              row();
-            }
-          }}).growX();
-        }}).minWidth(100).growX().row();
-        add().growY();
+            add("Triggers:").growX().row();
+            add(new VisTable() {{
+              setBackground(VisUI.getSkin().getDrawable("default-pane"));
+              padLeft(4);
+              padRight(4);
+              VisLabel label;
+              lbKeyframes = new EnumMap<>(COF.Keyframe.class);
+              COF.Keyframe[] keyframes = COF.Keyframe.values();
+              for (COF.Keyframe keyframe : keyframes) {
+                lbKeyframes.put(keyframe, label = new VisLabel());
+                add(keyframe.name()).spaceRight(4).left();
+                add(label);
+                row();
+              }
+            }}).growX().minWidth(80);
+          }}).top();
+          add(new VisTable() {{
+            add("Layers:").colspan(2).growX().row();
+            add(new VisTable() {{
+              setBackground(VisUI.getSkin().getDrawable("default-pane"));
+              String[] componentNames = new String[]{
+                  "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH",
+                  "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
+              };
+
+              components = new VisList<>();
+              components.setItems(componentNames);
+              components.setSelectedIndex(0);
+              add(componentScroller = new VisScrollPane(components) {{
+                setFadeScrollBars(false);
+                setScrollingDisabled(true, false);
+                setForceScroll(false, true);
+                setOverscroll(false, false);
+                addListener(new ClickListener() {
+                  @Override
+                  public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    stage.setScrollFocus(componentScroller);
+                  }
+
+                  @Override
+                  public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    stage.setScrollFocus(null);
+                  }
+                });
+              }}).growY();
+            }}).grow();
+            add(new VisTable() {{
+              setBackground(VisUI.getSkin().getDrawable("default-pane"));
+              String[] wclassNames = new String[]{
+                  "WHD",
+              };
+
+              wclasses = new VisList<>();
+              wclasses.setItems(wclassNames);
+              wclasses.setSelectedIndex(0);
+              add(wclassScroller = new VisScrollPane(wclasses) {{
+                setFadeScrollBars(false);
+                setScrollingDisabled(true, false);
+                setForceScroll(false, true);
+                setOverscroll(false, false);
+                addListener(new ClickListener() {
+                  @Override
+                  public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    stage.setScrollFocus(wclassScroller);
+                  }
+
+                  @Override
+                  public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    stage.setScrollFocus(null);
+                  }
+                });
+              }}).growY();
+            }}).grow();
+          }}).growY();
+        }}).grow().row();
       }}).growY().space(4);
 
       optionsSubpanels = new Array<>();
