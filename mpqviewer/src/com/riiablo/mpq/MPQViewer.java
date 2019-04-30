@@ -759,13 +759,7 @@ public class MPQViewer {
             }}).grow();
             add(new VisTable() {{
               setBackground(VisUI.getSkin().getDrawable("default-pane"));
-              String[] wclassNames = new String[]{
-                  "NONE",
-              };
-
               wclasses = new VisList<>();
-              wclasses.setItems(wclassNames);
-              wclasses.setSelectedIndex(0);
               add(wclassScroller = new VisScrollPane(wclasses) {{
                 setFadeScrollBars(false);
                 setScrollingDisabled(true, false);
@@ -1479,7 +1473,7 @@ public class MPQViewer {
           compClasses = new ObjectMap<>();
           for (String comp : components.getItems()) {
             comp = comp.toLowerCase();
-            compClasses.put(comp, new Array<String>());
+            compClasses.put(comp, Array.with("NONE"));
           }
           selectedWClass = new String[COF.Component.NUM_COMPONENTS];
         } else {
@@ -1568,11 +1562,16 @@ public class MPQViewer {
               DC old = animLayer != null ? animLayer.getDC() : null;
 
               COF.Layer layer = cof.getComponent(c);
-              String dcc = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s.dcc", type, token, comp, clazz, mode, layer.weaponClass);
-              System.out.println(comp + "=" + dcc);
+              if (clazz.equalsIgnoreCase("NONE")) {
+                delegate.setLayer(layer, null, false);
+              } else {
+                String dcc = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s.dcc", type, token, comp, clazz, mode, layer.weaponClass);
+                System.out.println(comp + "=" + dcc);
 
-              DC dc = DCC.loadFromFile(Riiablo.mpqs.resolve(dcc));
-              delegate.setLayer(layer, dc, false);
+                DC dc = DCC.loadFromFile(Riiablo.mpqs.resolve(dcc));
+                delegate.setLayer(layer, dc, false);
+              }
+
               if (old != null) old.dispose();
             }
           }
