@@ -21,7 +21,6 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
 import com.riiablo.COFs;
 import com.riiablo.CharacterClass;
 import com.riiablo.Colors;
@@ -38,6 +37,7 @@ import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.codec.TXT;
 import com.riiablo.codec.excel.Excel;
+import com.riiablo.entity.Engine;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Player;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -133,7 +133,7 @@ public class MapViewer extends ApplicationAdapter {
 
     mapRenderer = new MapRenderer(batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     mapRenderer.resize();
-    mapRenderer.setEntities(new IntMap<Entity>(0));
+    mapRenderer.setEntities(Riiablo.engine = new Engine());
 
     MapRenderer.RENDER_DEBUG_TILE = true;
     MapRenderer.RENDER_DEBUG_PATHS = true;
