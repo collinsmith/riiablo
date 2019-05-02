@@ -149,9 +149,9 @@ public class DirectionUtils {
   }
 
   static int radiansToDirection4(float radians) {
-    if (radians >= RADIANS_4M[3]) return DIRS_4M[0];
-    int index = (radians < RADIANS_4M[1])  ? 0 : 2;
-    index |= (radians < RADIANS_4M[index]) ? 0 : 1;
+    int index = (radians < RADIANS_4M[1])   ? 0 : 2;
+    index |= (radians <  RADIANS_4M[index]) ? 0 : 1;
+    index &= (radians >= RADIANS_4M[3    ]) ? 0 : index;
     return DIRS_4M[index];
   }
 
@@ -167,10 +167,10 @@ public class DirectionUtils {
   }
 
   static int radiansToDirection8(float radians) {
-    if (radians >= RADIANS_8M[7]) return DIRS_8M[0];
-    int index = (radians < RADIANS_8M[3])    ? 0 : 4;
-    index |= (radians < RADIANS_8M[index|1]) ? 0 : 2;
-    index |= (radians < RADIANS_8M[index  ]) ? 0 : 1;
+    int index = (radians < RADIANS_8M[3])     ? 0 : 4;
+    index |= (radians <  RADIANS_8M[index|1]) ? 0 : 2;
+    index |= (radians <  RADIANS_8M[index  ]) ? 0 : 1;
+    index &= (radians >= RADIANS_8M[7      ]) ? 0 : index;
     return DIRS_8M[index];
   }
   @Deprecated
@@ -185,11 +185,11 @@ public class DirectionUtils {
   }
 
   static int radiansToDirection16(float radians) {
-    if (radians >= RADIANS_16M[15]) return DIRS_16M[0];
-    int index = (radians < RADIANS_16M[7])    ? 0 : 8;
-    index |= (radians < RADIANS_16M[index|3]) ? 0 : 4;
-    index |= (radians < RADIANS_16M[index|1]) ? 0 : 2;
-    index |= (radians < RADIANS_16M[index  ]) ? 0 : 1;
+    int index = (radians < RADIANS_16M[7])     ? 0 : 8;
+    index |= (radians <  RADIANS_16M[index|3]) ? 0 : 4;
+    index |= (radians <  RADIANS_16M[index|1]) ? 0 : 2;
+    index |= (radians <  RADIANS_16M[index  ]) ? 0 : 1;
+    index &= (radians >= RADIANS_16M[15     ]) ? 0 : index;
     return DIRS_16M[index];
   }
 
@@ -205,12 +205,13 @@ public class DirectionUtils {
   }
 
   static int radiansToDirection32(float radians) {
-    if (radians >= RADIANS_32M[31]) return DIRS_32M[0];
-    int index = (radians < RADIANS_32M[15])   ? 0 : 16;
-    index |= (radians < RADIANS_32M[index|7]) ? 0 : 8;
-    index |= (radians < RADIANS_32M[index|3]) ? 0 : 4;
-    index |= (radians < RADIANS_32M[index|1]) ? 0 : 2;
-    index |= (radians < RADIANS_32M[index  ]) ? 0 : 1;
+    int index = (radians < RADIANS_32M[15])    ? 0 : 16;
+    index |= (radians <  RADIANS_32M[index|7]) ? 0 : 8;
+    index |= (radians <  RADIANS_32M[index|3]) ? 0 : 4;
+    index |= (radians <  RADIANS_32M[index|1]) ? 0 : 2;
+    index |= (radians <  RADIANS_32M[index  ]) ? 0 : 1;
+    index &= (radians >= RADIANS_32M[31     ]) ? 0 : index;
+    // above line should remove need for initial conditional statement
     return DIRS_32M[index];
   }
 }
