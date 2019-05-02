@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -48,6 +49,7 @@ public class AnimationTool extends ApplicationAdapter {
     config.resizable = true;
     config.width = 256;
     config.height = 384;
+    config.vSyncEnabled = false;
     config.foregroundFPS = config.backgroundFPS = 144;
     new LwjglApplication(new AnimationTool(args[0]), config);
   }
@@ -55,7 +57,8 @@ public class AnimationTool extends ApplicationAdapter {
   FileHandle home;
   Animation anim;
   COF cof;
-  float timer;
+  float accumulator;
+  float lastUpdate;
   Stage stage;
   boolean lockFps;
 
@@ -139,20 +142,24 @@ public class AnimationTool extends ApplicationAdapter {
     stage.act();
     stage.draw();
 
+    float delta = Gdx.graphics.getDeltaTime();
+    if (lockFps) {
+      accumulator += delta;
+      while (accumulator >= Animation.FRAME_DURATION) {
+        lastUpdate = accumulator;
+        accumulator -= Animation.FRAME_DURATION;
+        anim.act(Animation.FRAME_DURATION);
+      }
+    } else {
+      lastUpdate = delta;
+      anim.act(delta);
+    }
+
     Batch b = stage.getBatch();
     b.begin();
-    Riiablo.fonts.consolas16.draw(b, Integer.toString(Gdx.graphics.getFramesPerSecond()), 0, Gdx.graphics.getHeight());
+    Riiablo.fonts.consolas16.draw(b, String.valueOf(Gdx.graphics.getFramesPerSecond()), 0, Gdx.graphics.getHeight());
+    Riiablo.fonts.consolas16.draw(b, String.valueOf(MathUtils.roundPositive(1 / lastUpdate)), 0, Gdx.graphics.getHeight() - 16);
     b.end();
-
-    float delta = Gdx.graphics.getDeltaTime();
-    timer -= delta;
-    if (timer <= 0) {
-      if (lockFps) {
-        anim.act(timer = Animation.FRAME_DURATION);
-      } else {
-        anim.act();
-      }
-    }
 
     Riiablo.batch.begin(Riiablo.palettes.act1);
     anim.draw(Riiablo.batch, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
