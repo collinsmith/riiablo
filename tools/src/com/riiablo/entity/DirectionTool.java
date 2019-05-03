@@ -44,15 +44,6 @@ public class DirectionTool extends ApplicationAdapter {
   public void create() {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-    print(DirectionUtils.RADIANS_4);
-    print(DirectionUtils.RADIANS_4M);
-    print(DirectionUtils.RADIANS_8);
-    print(DirectionUtils.RADIANS_8M);
-    print(DirectionUtils.RADIANS_16);
-    print(DirectionUtils.RADIANS_16M);
-    print(DirectionUtils.RADIANS_32);
-    print(DirectionUtils.RADIANS_32M);
-
     font = new BitmapFont();
     batch = new SpriteBatch();
     shapes = new ShapeRenderer();
@@ -100,10 +91,10 @@ public class DirectionTool extends ApplicationAdapter {
     builder
         .append("x,y: ").append("(" + x2 + "," + y2 + ")").append('\n')
         .append("angle: ").append(angle).append('\n')
-        .append("dir4: ").append(DirectionUtils.radiansToDirection(angle, 4)).append('\n')
-        .append("dir8: ").append(DirectionUtils.radiansToDirection(angle, 8)).append('\n')
-        .append("dir16: ").append(DirectionUtils.radiansToDirection(angle, 16)).append('\n')
-        .append("dir32: ").append(DirectionUtils.radiansToDirection(angle, 32)).append('\n');
+        .append("dir4: ").append(Direction.radiansToDirection(angle, 4)).append('\n')
+        .append("dir8: ").append(Direction.radiansToDirection(angle, 8)).append('\n')
+        .append("dir16: ").append(Direction.radiansToDirection(angle, 16)).append('\n')
+        .append("dir32: ").append(Direction.radiansToDirection(angle, 32)).append('\n');
 
     shapes.begin(ShapeRenderer.ShapeType.Line);
     drawDiamond(shapes, x1 - 80, y1 - 40, 160, 80);

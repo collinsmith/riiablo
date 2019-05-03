@@ -23,16 +23,12 @@ public class Direction {
       MathUtils.atan2( 2, -4),
   };
   static final int   DIRS_4M[] = {0, 3, 2, 1};
-  static final float RADIANS_4M[];
-  static {
-    RADIANS_4M = new float[4];
-    float min = RADIANS_4[3];
-    for (int i = 0; i < 4; i++) {
-      RADIANS_4M[i] = (min + RADIANS_4[i]) / 2;
-      min = RADIANS_4[i];
-    }
-    RADIANS_4M[0] = -MathUtils.PI;
-  }
+  static final float RADIANS_4M[] = {
+      -MathUtils.PI / 2,
+       0,
+       MathUtils.PI / 2,
+       MathUtils.PI
+  };
 
   static final float RADIANS_8[] = {
       RADIANS_4[0],
@@ -152,7 +148,6 @@ public class Direction {
   }
 
   static int radiansToDirection4(float radians) {
-    if (radians >= RADIANS_4M[3]) return DIRS_4M[0];
     int index = (radians < RADIANS_4M[1])  ? 0 : 2;
     index |= (radians < RADIANS_4M[index]) ? 0 : 1;
     return DIRS_4M[index];
