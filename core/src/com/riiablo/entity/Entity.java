@@ -28,6 +28,7 @@ import com.riiablo.map.Map;
 import com.riiablo.map.MapGraph;
 import com.riiablo.map.MapRenderer;
 import com.riiablo.screen.GameScreen;
+import com.riiablo.util.EngineUtils;
 import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.StringUtils;
@@ -235,6 +236,7 @@ public abstract class Entity implements Animation.AnimationListener {
   float   alpha[];
   float   angle = DEFAULT_ANGLE;
   Vector2 position = new Vector2();
+  Vector2 screen = new Vector2();
 
   Animation animation;
 
@@ -454,18 +456,17 @@ public abstract class Entity implements Animation.AnimationListener {
   }
 
   public void act(float delta) {
+    EngineUtils.worldToScreenCoords(position, screen);
     if (overlay != null) overlay.act(delta);
     if (animation != null) animation.act(delta);
   }
 
   public void draw(PaletteIndexedBatch batch) {
     validate();
-    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    if (overlayEntry != null && overlayEntry.PreDraw) overlay.draw(batch, x, y);
-    animation.draw(batch, x, y);
-    if (overlayEntry != null && !overlayEntry.PreDraw) overlay.draw(batch, x, y);
-    label.setPosition(x, y + getLabelOffset() + label.getHeight() / 2, Align.center);
+    if (overlayEntry != null && overlayEntry.PreDraw) overlay.draw(batch, screen.x, screen.y);
+    animation.draw(batch, screen.x, screen.y);
+    if (overlayEntry != null && !overlayEntry.PreDraw) overlay.draw(batch, screen.x, screen.y);
+    label.setPosition(screen.x, screen.y + getLabelOffset() + label.getHeight() / 2, Align.center);
     //if (animation.isFinished() && nextMode >= 0) {
     //  setMode(nextMode);
     //  nextMode = -1;
@@ -474,9 +475,7 @@ public abstract class Entity implements Animation.AnimationListener {
 
   public void drawShadow(PaletteIndexedBatch batch) {
     validate();
-    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    animation.drawShadow(batch, x, y, false);
+    animation.drawShadow(batch, screen.x, screen.y, false);
   }
 
 
@@ -486,8 +485,8 @@ public abstract class Entity implements Animation.AnimationListener {
   }
 
   public void drawDebugStatus(PaletteIndexedBatch batch, ShapeRenderer shapes) {
-    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    float x = screen.x;
+    float y = screen.y;
     if (animation != null && isSelectable()) animation.drawDebug(shapes, x, y);
 
     shapes.setColor(Color.WHITE);
@@ -532,13 +531,10 @@ public abstract class Entity implements Animation.AnimationListener {
 
   public void drawDebugTarget(ShapeRenderer shapes) {
     if (target.isZero() || !path.isEmpty()) return;
-    float srcX = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    float srcY = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    float dstX = +(target.x * Tile.SUBTILE_WIDTH50)  - (target.y * Tile.SUBTILE_WIDTH50);
-    float dstY = -(target.x * Tile.SUBTILE_HEIGHT50) - (target.y * Tile.SUBTILE_HEIGHT50);
+    EngineUtils.worldToScreenCoords(target, tmpVec2);
     shapes.set(ShapeRenderer.ShapeType.Filled);
     shapes.setColor(Color.ORANGE);
-    shapes.rectLine(srcX, srcY, dstX, dstY, 1);
+    shapes.rectLine(screen.x, screen.y, tmpVec2.x, tmpVec2.y, 1);
     shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
@@ -552,8 +548,8 @@ public abstract class Entity implements Animation.AnimationListener {
     if (animation == null) return false;
     if (!isSelectable()) return false;
     BBox box = animation.getBox();
-    float x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50)  + box.xMin;
-    float y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50) - box.yMax;
+    float x = screen.x + box.xMin;
+    float y = screen.y - box.yMax;
     return x <= coords.x && coords.x <= x + box.width
        &&  y <= coords.y && coords.y <= y + box.height;
   }
@@ -570,18 +566,11 @@ public abstract class Entity implements Animation.AnimationListener {
   }
 
   public void lookAt(Entity entity) {
-    float x1 = +(entity.position.x * Tile.SUBTILE_WIDTH50)  - (entity.position.y * Tile.SUBTILE_WIDTH50);
-    float y1 = -(entity.position.x * Tile.SUBTILE_HEIGHT50) - (entity.position.y * Tile.SUBTILE_HEIGHT50);
-    float x2 = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    float y2 = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    tmpVec2.set(x1, y1).sub(x2, y2);
-    angle(MathUtils.atan2(tmpVec2.y, tmpVec2.x));
+    lookAt(entity.screen.x, entity.screen.y);
   }
 
   public void lookAt(float x, float y) {
-    float x2 = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    float y2 = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
-    tmpVec2.set(x, y).sub(x2, y2);
+    tmpVec2.set(x, y).sub(screen);
     angle(MathUtils.atan2(tmpVec2.y, tmpVec2.x));
   }
 
