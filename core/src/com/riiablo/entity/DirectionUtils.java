@@ -186,6 +186,7 @@ public class DirectionUtils {
     index &= (radians >= RADIANS_8M[7      ]) ? 0 : index;
     return DIRS_8M[index];
   }
+
   @Deprecated
   static int _radiansToDirection16(float radians) {
     for (int i = 0; i < 16; i++) {
