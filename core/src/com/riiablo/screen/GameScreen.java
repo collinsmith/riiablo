@@ -749,6 +749,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   @Override
   public void dispose() {
+    Riiablo.engine.clear();
     stage.dispose();
     escapePanel.dispose();
     controlPanel.dispose();

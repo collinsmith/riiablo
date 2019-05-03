@@ -12,6 +12,12 @@ public class Engine implements Iterable<Entity> {
 
   public Engine() {}
 
+  public void clear() {
+    entitiesById.clear();
+    entities.clear();
+    nextEntityId = 33;
+  }
+
   public Entity getEntity(int id) {
     return entitiesById.get(id);
   }
