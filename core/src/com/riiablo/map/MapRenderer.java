@@ -21,6 +21,7 @@ import com.riiablo.entity.Object;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1.Tile;
+import com.riiablo.util.EngineUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -194,9 +195,7 @@ public class MapRenderer {
   }
 
   public Vector2 project(float x, float y, Vector2 dst) {
-    dst.x = +(x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
-    dst.y = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
-    return dst;
+    return EngineUtils.worldToScreenCoords(x, y, dst);
   }
 
   public Vector2 unproject(Vector2 dst) {
@@ -306,11 +305,8 @@ public class MapRenderer {
     currentPos.set(pos);
     this.x = Map.round(pos.x);//(int) pos.x;
     this.y = Map.round(pos.y);//(int) pos.y;
-    spx =  (x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
-    spy = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
-    float spxf =  (pos.x * Tile.SUBTILE_WIDTH50)  - (pos.y * Tile.SUBTILE_WIDTH50);
-    float spyf = -(pos.x * Tile.SUBTILE_HEIGHT50) - (pos.y * Tile.SUBTILE_HEIGHT50);
-    camera.position.set(spxf, spyf, 0);
+    EngineUtils.worldToScreenCoords(pos, tmpVec2a);
+    camera.position.set(tmpVec2a, 0);
     camera.update();
 
     // subtile index in tile-space
@@ -323,8 +319,9 @@ public class MapRenderer {
     t   = Tile.SUBTILE_INDEX[stx][sty];
 
     // pixel offset of subtile in world-space
-    spx = -Tile.SUBTILE_WIDTH50  + (x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
-    spy = -Tile.SUBTILE_HEIGHT50 - (x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
+    EngineUtils.worldToScreenCoords(x, y, tmpVec2a).sub(Tile.SUBTILE_WIDTH50, Tile.SUBTILE_HEIGHT50);
+    spx = (int) tmpVec2a.x;
+    spy = (int) tmpVec2a.y;
 
     // tile index in world-space
     tx = x < 0
@@ -771,11 +768,10 @@ public class MapRenderer {
 
     if (DEBUG_MOUSE) {
       coords(tmpVec2i);
-      int mx = -Tile.SUBTILE_WIDTH50  + (tmpVec2i.x * Tile.SUBTILE_WIDTH50)  - (tmpVec2i.y * Tile.SUBTILE_WIDTH50);
-      int my = -Tile.SUBTILE_HEIGHT50 - (tmpVec2i.x * Tile.SUBTILE_HEIGHT50) - (tmpVec2i.y * Tile.SUBTILE_HEIGHT50);
+      EngineUtils.worldToScreenCoords(tmpVec2i.x, tmpVec2i.y, tmpVec2i).sub(Tile.SUBTILE_WIDTH50, Tile.SUBTILE_HEIGHT50);
 
       shapes.setColor(Color.VIOLET);
-      drawDiamond(shapes, mx, my, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      drawDiamond(shapes, tmpVec2i.x, tmpVec2i.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }
   }
 
@@ -1238,11 +1234,9 @@ public class MapRenderer {
     MapGraph.Point2 src = it.next();
     for (MapGraph.Point2 dst; it.hasNext(); src = dst) {
       dst = it.next();
-      float px1 = +(src.x * Tile.SUBTILE_WIDTH50)  - (src.y * Tile.SUBTILE_WIDTH50);
-      float py1 = -(src.x * Tile.SUBTILE_HEIGHT50) - (src.y * Tile.SUBTILE_HEIGHT50);
-      float px2 = +(dst.x * Tile.SUBTILE_WIDTH50)  - (dst.y * Tile.SUBTILE_WIDTH50);
-      float py2 = -(dst.x * Tile.SUBTILE_HEIGHT50) - (dst.y * Tile.SUBTILE_HEIGHT50);
-      shapes.line(px1, py1, px2, py2);
+      EngineUtils.worldToScreenCoords(src.x, src.y, tmpVec2a);
+      EngineUtils.worldToScreenCoords(dst.x, dst.y, tmpVec2b);
+      shapes.line(tmpVec2a.x, tmpVec2a.y, tmpVec2b.x, tmpVec2b.y);
     }
   }
 
