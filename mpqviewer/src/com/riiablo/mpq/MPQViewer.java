@@ -349,7 +349,7 @@ public class MPQViewer {
           setSecondWidget(new VisTable() {{
             add(new VisSplitPane(null, null, true) {{
               horizontalSplit = this;
-              setSplitAmount(0.67f);
+              setSplitAmount(0.66f);
               setMinSplitAmount(0.50f);
               setMaxSplitAmount(1.00f);
               setFirstWidget(new VisTable() {{
