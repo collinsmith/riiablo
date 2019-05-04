@@ -74,6 +74,7 @@ import com.riiablo.codec.DccInfo;
 import com.riiablo.codec.Palette;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
+import com.riiablo.mpq.widget.DirectionActor;
 import com.riiablo.mpq.widget.TabbedPane;
 
 import org.apache.commons.collections4.Trie;
@@ -153,6 +154,7 @@ public class MPQViewer {
     Button                btnLastFrame;
     Button                btnPrevFrame;
     Button                btnNextFrame;
+    DirectionActor        daDirection;
     VisLabel              lbDirection;
     VisSlider             slDirection;
     VisLabel              lbFrameIndex;
@@ -572,6 +574,7 @@ public class MPQViewer {
                   }
                 });
               }}).growX().colspan(2).row();
+              add(daDirection = new DirectionActor(16)).colspan(2).row();
             }}).growX().row();
             add(new VisTable() {{
               add("Frame:").growX();
@@ -650,7 +653,14 @@ public class MPQViewer {
             }}).growX().row();*/
           }});
         }}).grow();
-      }}).growY().space(4);
+      }
+
+        @Override
+        public void setCollapsed(boolean collapsed) {
+          super.setCollapsed(collapsed);
+          daDirection.setVisible(!collapsed);
+        }
+      }).growY().space(4);
       optionsPanel.add(palettePanel = new CollapsibleVisTable() {{
         add("Palette:").align(Align.left).row();
         add(new VisTable() {{
@@ -1254,6 +1264,7 @@ public class MPQViewer {
             slDirection.setValue(0);
             slDirection.setRange(0, dc.getNumDirections() - 1);
             lbDirection.setText((int) slDirection.getMinValue() + " / " + (int) slDirection.getMaxValue());
+            daDirection.setDirections(dc.getNumDirections());
 
             slFrameIndex.setValue(0);
             slFrameIndex.setRange(0, dc.getNumFramesPerDir() - 1);
@@ -1328,7 +1339,11 @@ public class MPQViewer {
               return;
             }
 
-            if (actor == slDirection) {
+            if (actor == daDirection) {
+              int d = daDirection.getDirection();
+              delegate.setDirection(d);
+              slDirection.setValue(d);
+            } else if (actor == slDirection) {
               delegate.setDirection((int) slDirection.getValue());
               updateInfo();
             } else if (actor == paletteList) {
@@ -1700,6 +1715,7 @@ public class MPQViewer {
         btnPrevFrame     .addListener(clickListener);
         btnNextFrame     .addListener(clickListener);
         paletteList      .addListener(changeListener);
+        daDirection      .addListener(changeListener);
         slDirection      .addListener(changeListener);
         slFrameIndex     .addListener(changeListener);
         slFrameDuration  .addListener(changeListener);
@@ -1735,6 +1751,7 @@ public class MPQViewer {
         btnPrevFrame     .removeListener(clickListener);
         btnNextFrame     .removeListener(clickListener);
         paletteList      .removeListener(changeListener);
+        daDirection      .removeListener(changeListener);
         slDirection      .removeListener(changeListener);
         slFrameIndex     .removeListener(changeListener);
         slFrameDuration  .removeListener(changeListener);
