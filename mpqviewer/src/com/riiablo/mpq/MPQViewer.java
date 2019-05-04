@@ -1591,6 +1591,8 @@ public class MPQViewer {
 
         renderer.setDrawable(new DelegatingDrawable<Animation>() {
           {
+            daDirection.setDirections(cof.getNumDirections());
+
             components.setSelectedIndex(0);
             String comp = components.getSelected().toLowerCase();
             wclasses.setItems(compClasses.get(comp));
@@ -1642,6 +1644,9 @@ public class MPQViewer {
               }
 
               if (old != null) old.dispose();
+            } else if (delegate != null && actor == daDirection) {
+              int d = daDirection.getDirection();
+              delegate.setDirection(d);
             }
           }
 
