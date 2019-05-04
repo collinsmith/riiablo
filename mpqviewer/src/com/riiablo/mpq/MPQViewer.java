@@ -69,6 +69,8 @@ import com.riiablo.codec.COF;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.DCC;
+import com.riiablo.codec.Dc6Info;
+import com.riiablo.codec.DccInfo;
 import com.riiablo.codec.Palette;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
@@ -210,6 +212,12 @@ public class MPQViewer {
       COMP_TO_ID.put("s7", COF.Component.S7);
       COMP_TO_ID.put("s8", COF.Component.S8);
     }
+
+    CollapsibleVisTable   dccPanel;
+    DccInfo               dccInfo;
+
+    CollapsibleVisTable   dc6Panel;
+    Dc6Info               dc6Info;
 
     PaletteIndexedBatch batch;
     ShaderProgram       shader;
@@ -517,6 +525,22 @@ public class MPQViewer {
             }
           });
         }}).row();
+        add(new VisTextButton("5") {{
+          addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              dccPanel.setCollapsed(!dccPanel.isCollapsed());
+            }
+          });
+        }}).row();
+        add(new VisTextButton("6") {{
+          addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              dc6Panel.setCollapsed(!dc6Panel.isCollapsed());
+            }
+          });
+        }}).row();
       }}).align(Align.top).space(4);
       optionsPanel.add(imageControlsPanel = new CollapsibleVisTable() {{
         add(imageControls = new TabbedPane() {{
@@ -781,12 +805,24 @@ public class MPQViewer {
           }}).growY();
         }}).grow().row();
       }}).growY().space(4);
+      optionsPanel.add(dccPanel = new CollapsibleVisTable() {{
+        add("DCC:").align(Align.left).row();
+        add(dccInfo = new DccInfo()).row();
+        add().growY();
+      }}).growY().space(4);
+      optionsPanel.add(dc6Panel = new CollapsibleVisTable() {{
+        add("DC6:").align(Align.left).row();
+        add(dc6Info = new Dc6Info()).row();
+        add().growY();
+      }}).growY().space(4);
 
       optionsSubpanels = new Array<>();
       optionsSubpanels.add(imageControlsPanel);
       optionsSubpanels.add(palettePanel);
       optionsSubpanels.add(audioPanel);
       optionsSubpanels.add(cofPanel);
+      optionsSubpanels.add(dccPanel);
+      optionsSubpanels.add(dc6Panel);
       for (CollapsibleVisTable o : optionsSubpanels) {
         o.setCollapsed(true);
       }
@@ -1199,6 +1235,13 @@ public class MPQViewer {
         imageControlsPanel.setCollapsed(false);
         palettePanel.setCollapsed(false);
         final DC dc = extension.equals("dc6") ? DC6.loadFromFile(handle) : DCC.loadFromFile(handle);
+        if (dc instanceof DCC) {
+          dccInfo.setDCC((DCC) dc);
+          dccPanel.setCollapsed(false);
+        } else {
+          dc6Info.setDC6((DC6) dc);
+          dc6Panel.setCollapsed(false);
+        }
         renderer.setDrawable(new DelegatingDrawable<Animation>() {
           int page = 0;
           boolean isAnimationTab;
@@ -1287,6 +1330,7 @@ public class MPQViewer {
 
             if (actor == slDirection) {
               delegate.setDirection((int) slDirection.getValue());
+              updateInfo();
             } else if (actor == paletteList) {
               String palette = paletteList.getSelected();
               Riiablo.batch.setPalette(palettes.get(palette));
@@ -1303,6 +1347,7 @@ public class MPQViewer {
               }*/
             } else if (actor == slFrameIndex) {
               delegate.setFrame((int) slFrameIndex.getValue());
+              updateInfo();
             } else if (actor == slFrameDuration) {
               delegate.setFrameDuration(1 / slFrameDuration.getValue());
             } else if (actor == slPage) {
@@ -1310,6 +1355,14 @@ public class MPQViewer {
             //} else if (actor == slDirectionPage || /*actor == sbBlendModePage || */(actor == paletteList && pages != null)) {
               //for (int p = 0; p < pages.size; p++) pages.get(p).dispose();
               //pages = new DC6.PageList(dc6.pages((int) slDirectionPage.getValue(), palettes.get(paletteList.getSelected()), sbBlendModePage.getSelected()));
+            }
+          }
+
+          void updateInfo() {
+            if (dc instanceof DCC) {
+              dccInfo.update(delegate.getDirection(), delegate.getFrame());
+            } else {
+              dc6Info.update(delegate.getDirection(), delegate.getFrame());
             }
           }
 
@@ -1355,6 +1408,7 @@ public class MPQViewer {
             if (!btnPlayPause.isChecked()) {
               delegate.act();
               slFrameIndex.setValue(delegate.getFrame());
+              updateInfo();
             }
 
             batch.end();
