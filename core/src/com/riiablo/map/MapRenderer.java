@@ -375,14 +375,17 @@ public class MapRenderer {
   }
 
   private void updateEntities(float delta) {
+    final float UPDATE_DIST = 1024;
     for (Map.Zone zone : new Array.ArrayIterator<>(map.zones)) {
       for (Entity entity : zone.entities) {
+        if (src.position().dst2(entity.position()) > UPDATE_DIST) continue;
         entity.update(delta);
         entity.act(delta);
       }
     }
     if (entities != null) {
       for (Entity entity : entities) {
+        if (src.position().dst2(entity.position()) > UPDATE_DIST) continue;
         entity.update(delta);
         entity.act(delta);
       }
