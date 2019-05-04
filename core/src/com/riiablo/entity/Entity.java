@@ -26,8 +26,8 @@ import com.riiablo.map.DS1;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
 import com.riiablo.map.MapGraph;
-import com.riiablo.map.MapRenderer;
 import com.riiablo.screen.GameScreen;
+import com.riiablo.util.DebugUtils;
 import com.riiablo.util.EngineUtils;
 import com.riiablo.widget.Label;
 
@@ -490,7 +490,7 @@ public abstract class Entity implements Animation.AnimationListener {
     if (animation != null && isSelectable()) animation.drawDebug(shapes, x, y);
 
     shapes.setColor(Color.WHITE);
-    MapRenderer.drawDiamond(shapes, x - Tile.SUBTILE_WIDTH50, y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    DebugUtils.drawDiamond(shapes, x, y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     //shapes.ellipse(x - Tile.SUBTILE_WIDTH50, y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
 
     final float R = 32;

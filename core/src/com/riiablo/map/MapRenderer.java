@@ -21,6 +21,7 @@ import com.riiablo.entity.Object;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1.Tile;
+import com.riiablo.util.DebugUtils;
 import com.riiablo.util.EngineUtils;
 
 import java.util.Arrays;
@@ -724,12 +725,12 @@ public class MapRenderer {
 
     if (RENDER_DEBUG_TILE) {
       shapes.setColor(Color.OLIVE);
-      drawDiamond(shapes, tpx, tpy, Tile.WIDTH, Tile.HEIGHT);
+      DebugUtils.drawDiamond2(shapes, tpx, tpy, Tile.WIDTH, Tile.HEIGHT);
     }
 
     if (RENDER_DEBUG_SUBTILE) {
       shapes.setColor(Color.WHITE);
-      drawDiamond(shapes, spx, spy, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      DebugUtils.drawDiamond2(shapes, spx, spy, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }
 
     if (DEBUG_ENTITIES)
@@ -771,7 +772,7 @@ public class MapRenderer {
       EngineUtils.worldToScreenCoords(tmpVec2i.x, tmpVec2i.y, tmpVec2i).sub(Tile.SUBTILE_WIDTH50, Tile.SUBTILE_HEIGHT50);
 
       shapes.setColor(Color.VIOLET);
-      drawDiamond(shapes, tmpVec2i.x, tmpVec2i.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      DebugUtils.drawDiamond2(shapes, tmpVec2i.x, tmpVec2i.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }
   }
 
@@ -788,7 +789,7 @@ public class MapRenderer {
           int size = viewBuffer[y];
           for (x = 0; x < size; x++) {
             for (int t = 0; t < Tile.NUM_SUBTILES; t++) {
-              drawDiamond(shapes,
+              DebugUtils.drawDiamond2(shapes,
                   px + Tile.SUBTILE_OFFSET[t][0], py + Tile.SUBTILE_OFFSET[t][1],
                   Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
             }
@@ -813,7 +814,7 @@ public class MapRenderer {
           int py = startPy2;
           int size = viewBuffer[y];
           for (x = 0; x < size; x++) {
-            drawDiamond(shapes, px, py, Tile.WIDTH, Tile.HEIGHT);
+            DebugUtils.drawDiamond2(shapes, px, py, Tile.WIDTH, Tile.HEIGHT);
             px += Tile.WIDTH50;
             py -= Tile.HEIGHT50;
           }
@@ -983,7 +984,7 @@ public class MapRenderer {
     int offY = py + Tile.SUBTILE_OFFSET[t][1];
 
     shapes.setColor(Color.CORAL);
-    drawDiamond(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    DebugUtils.drawDiamond2(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
 
     offY += Tile.SUBTILE_HEIGHT50;
 
@@ -1092,7 +1093,7 @@ public class MapRenderer {
                 }
               } else {
                 shapes.setColor(Color.WHITE);
-                drawDiamond(shapes, px, py, Tile.WIDTH, Tile.HEIGHT);
+                DebugUtils.drawDiamond2(shapes, px, py, Tile.WIDTH, Tile.HEIGHT);
               }
               shapes.end();
 
@@ -1212,15 +1213,6 @@ public class MapRenderer {
     shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
-  public static void drawDiamond(ShapeRenderer shapes, float x, float y, int width, int height) {
-    int hw = width  >>> 1;
-    int hh = height >>> 1;
-    shapes.line(x        , y + hh    , x + hw   , y + height);
-    shapes.line(x + hw   , y + height, x + width, y + hh    );
-    shapes.line(x + width, y + hh    , x + hw   , y         );
-    shapes.line(x + hw   , y         , x        , y + hh    );
-  }
-
   public void drawDebugPath(ShapeRenderer shapes, MapGraph.MapGraphPath path) {
     drawDebugPath(shapes, path, Color.RED);
   }
@@ -1238,12 +1230,5 @@ public class MapRenderer {
       EngineUtils.worldToScreenCoords(dst.x, dst.y, tmpVec2b);
       shapes.line(tmpVec2a.x, tmpVec2a.y, tmpVec2b.x, tmpVec2b.y);
     }
-  }
-
-  private static void drawDiamondSolid(ShapeRenderer shapes, float x, float y, int width, int height) {
-    int hw = width  >>> 1;
-    int hh = height >>> 1;
-    shapes.triangle(x, y + hh, x + hw, y + height, x + width, y + hh);
-    shapes.triangle(x, y + hh, x + hw, y         , x + width, y + hh);
   }
 }
