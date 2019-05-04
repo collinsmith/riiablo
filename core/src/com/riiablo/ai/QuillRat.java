@@ -11,6 +11,7 @@ import com.riiablo.entity.Entity;
 import com.riiablo.entity.Missile;
 import com.riiablo.entity.Monster;
 import com.riiablo.entity.Player;
+import com.riiablo.util.EngineUtils;
 
 public class QuillRat extends AI {
   enum State implements com.badlogic.gdx.ai.fsm.State<Monster> {
@@ -79,6 +80,7 @@ public class QuillRat extends AI {
 
               Missile miss = new Missile(missile);
               miss.position().set(entity.position());
+              EngineUtils.worldToScreenCoords(miss.position(), miss.screen());
               miss.lookAt(ent); // TODO: should be able to set angle to firing entity angle later
               Riiablo.engine.add(miss);
               return;

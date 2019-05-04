@@ -12,6 +12,7 @@ import com.riiablo.codec.excel.Missiles;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1.Tile;
+import com.riiablo.util.EngineUtils;
 
 public class Missile extends Entity {
   public final Missiles.Entry missile;
@@ -54,8 +55,7 @@ public class Missile extends Entity {
     //position.add(tmpVec2);
 
     radius *= Tile.SUBTILE_WIDTH; // workaround to get approx speed
-    tmpVec2.x = +(position.x * Tile.SUBTILE_WIDTH50)  - (position.y * Tile.SUBTILE_WIDTH50);
-    tmpVec2.y = -(position.x * Tile.SUBTILE_HEIGHT50) - (position.y * Tile.SUBTILE_HEIGHT50);
+    EngineUtils.worldToScreenCoords(position, tmpVec2);
     tmpVec2.x += radius * MathUtils.cos(angle);
     tmpVec2.y += radius * MathUtils.sin(angle);
 

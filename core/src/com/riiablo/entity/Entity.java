@@ -565,6 +565,10 @@ public abstract class Entity implements Animation.AnimationListener {
     return position;
   }
 
+  public Vector2 screen() {
+    return screen;
+  }
+
   public boolean contains(Vector2 coords) {
     if (animation == null) return false;
     if (!isSelectable()) return false;
