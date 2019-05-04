@@ -236,7 +236,7 @@ public class Animation extends BaseDrawable {
           for (int l = 0; l < cof.getNumLayers(); l++) {
             COF.Layer cofLayer = cof.getLayer(l);
             Layer layer = layers[cofLayer.component];
-            if (layer.blendMode == BlendMode.ID) {
+            if (layer != null && layer.blendMode == BlendMode.ID) { // FIXME: may be unnecessary in production
               layer.setBlendMode(BlendMode.BRIGHTEN, Riiablo.colors.highlight);
             }
           }
@@ -254,7 +254,7 @@ public class Animation extends BaseDrawable {
           for (int l = 0; l < cof.getNumLayers(); l++) {
             COF.Layer cofLayer = cof.getLayer(l);
             Layer layer = layers[cofLayer.component];
-            if (layer.blendMode == BlendMode.BRIGHTEN) {
+            if (layer != null && layer.blendMode == BlendMode.BRIGHTEN) { // FIXME: may be unnecessary in production
               layer.setBlendMode(BlendMode.ID);
             }
           }
