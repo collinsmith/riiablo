@@ -220,6 +220,12 @@ public abstract class Entity implements Animation.AnimationListener {
     Arrays.fill(DEFAULT_ALPHA, 1.0f);
   }
 
+  private static final int[][][] SIZES = {
+      { {0,0} },
+      { {0,0}, {-1,0}, {1,0}, {0,-1}, {0,1} },
+      { {0,0}, {-1,0}, {1,0}, {0,-1}, {0,1}, {-1,-1}, {1,1}, {1,-1}, {-1,1}, {-2,0}, {2,0}, {0,-2}, {0,2} },
+  };
+
   int     uuid = 0;
 
   String  classname;
@@ -256,6 +262,8 @@ public abstract class Entity implements Animation.AnimationListener {
 
   Overlay.Entry overlayEntry;
   Animation overlay;
+
+  int     size = 1;
 
   private static final Vector2 tmpVec2 = new Vector2();
 
@@ -480,8 +488,20 @@ public abstract class Entity implements Animation.AnimationListener {
 
 
   public void drawDebug(PaletteIndexedBatch batch, ShapeRenderer shapes) {
+    drawDebugSize(shapes);
     drawDebugStatus(batch, shapes);
     if (DEBUG_TARGET) drawDebugTarget(shapes);
+  }
+
+  public void drawDebugSize(ShapeRenderer shapes) {
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+    shapes.setColor(Color.GRAY);
+    int[][] SIZE = SIZES[size - 1];
+    for (int[] subtile : SIZE) {
+      EngineUtils.worldToScreenCoords(position.x + subtile[0], position.y + subtile[1], tmpVec2);
+      DebugUtils.drawDiamond(shapes, tmpVec2.x, tmpVec2.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    }
+    shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
   public void drawDebugStatus(PaletteIndexedBatch batch, ShapeRenderer shapes) {
@@ -767,6 +787,25 @@ public abstract class Entity implements Animation.AnimationListener {
     boolean changed = sequence(newMode, getNeutralMode());
     if (!changed) return false;
 
+    /*
+    updateCOF(); // FIXME: required because we need updated COF to bind to trigger -- should really be done on next frame
+    for (COF.Keyframe keyframe : COF.Keyframe.values()) {
+      int frame = animation.getCOF().getKeyframeFrame(keyframe);
+      System.out.println("keyframe[" + keyframe + "]=" + frame);
+    }
+
+    int frame = animation.getCOF().getKeyframeFrame(COF.Keyframe.ATTACK);
+    if (frame >= 0) {
+      animation.addAnimationListener(frame, new Animation.AnimationListener() {
+        @Override
+        public void onTrigger(Animation animation, int frame) {
+          System.out.println("onTrigger " + frame + " " + COF.Keyframe.ATTACK);
+          animation.removeAnimationListener(frame, this);
+        }
+      });
+    }
+    */
+
     System.out.println("cast " + type.MODE[tm] + "->" + type.MODE[mode]);
     Riiablo.audio.play(skill.stsound, true);
 
@@ -785,5 +824,15 @@ public abstract class Entity implements Animation.AnimationListener {
     }
 
     return true;
+  }
+
+  public void setSize(int size) {
+    if (this.size != size) {
+      this.size = size;
+    }
+  }
+
+  public int getSize() {
+    return size;
   }
 }

@@ -99,6 +99,7 @@ public class Player extends Entity implements CharData.EquippedListener {
     setRunSpeed(9);
     setRunning(true);
     angle(-MathUtils.PI / 2);
+    setSize(2);
   }
 
   private void loadItems(Array<Item> items) {

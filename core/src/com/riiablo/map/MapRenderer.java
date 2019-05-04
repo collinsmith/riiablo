@@ -984,7 +984,9 @@ public class MapRenderer {
     int offY = py + Tile.SUBTILE_OFFSET[t][1];
 
     shapes.setColor(Color.CORAL);
+    shapes.set(ShapeRenderer.ShapeType.Line);
     DebugUtils.drawDiamond2(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    shapes.set(ShapeRenderer.ShapeType.Filled);
 
     offY += Tile.SUBTILE_HEIGHT50;
 
