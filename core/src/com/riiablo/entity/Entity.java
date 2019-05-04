@@ -494,6 +494,7 @@ public abstract class Entity implements Animation.AnimationListener {
   }
 
   public void drawDebugSize(ShapeRenderer shapes) {
+    if (size < 1) return;
     shapes.set(ShapeRenderer.ShapeType.Filled);
     shapes.setColor(Color.GRAY);
     int[][] SIZE = SIZES[size - 1];

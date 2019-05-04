@@ -90,6 +90,7 @@ public class Monster extends Entity {
     setMode(monstats.spawnmode.isEmpty() ? MODE_NU : (byte) Riiablo.files.MonMode.index(monstats.spawnmode));
     setWalkSpeed(monstats.Velocity);
     setRunSpeed(monstats.Run);
+    setSize(monstats2.SizeX); // assert SizeX == SizeY
     for (byte i = 0; i < monstats2.ComponentV.length; i++) {
       String ComponentV = monstats2.ComponentV[i];
       if (!ComponentV.isEmpty()) {
