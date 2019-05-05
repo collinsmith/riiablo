@@ -80,6 +80,11 @@ project(":tools") {
         compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
         compile "com.kotcrab.vis:vis-ui:$visuiVersion"
     }
+
+    dependencies {
+        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+    }
 }
 
 project(":mapbuilder") {
