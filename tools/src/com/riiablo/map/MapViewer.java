@@ -11,6 +11,7 @@ import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -36,7 +37,6 @@ import com.riiablo.codec.FontTBL;
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.codec.TXT;
-import com.riiablo.codec.excel.Excel;
 import com.riiablo.entity.Engine;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Player;
@@ -49,18 +49,19 @@ import com.riiablo.loader.TXTLoader;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
-public class MapViewer extends ApplicationAdapter {
+import org.apache.commons.lang3.math.NumberUtils;
 
-  private static final String TAG = "MapBuilder";
+public class MapViewer extends ApplicationAdapter {
+  private static final String TAG = "MapViewer";
 
   public static void main(String[] args) {
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = "Map Builder";
+    config.title = TAG;
     config.resizable = true;
     config.width = 1280; // 1280
     config.height = 720;
     config.foregroundFPS = config.backgroundFPS = 144;
-    MapViewer client = new MapViewer();
+    MapViewer client = new MapViewer(args);
     new LwjglApplication(client, config);
   }
 
@@ -69,7 +70,6 @@ public class MapViewer extends ApplicationAdapter {
   ShapeRenderer shapes;
   Texture palette;
   Map map;
-  com.riiablo.map.DS1Types DS1Types;
 
   Entity ent;
   MapRenderer mapRenderer;
@@ -91,11 +91,27 @@ public class MapViewer extends ApplicationAdapter {
   boolean drawRoofs = true;
   boolean drawSpecial = true;
 
+  FileHandle home;
+  int seed;
+  int act;
+  int diff;
+
+  MapViewer(String[] args) {
+    this(args[0], NumberUtils.toInt(args[1]), NumberUtils.toInt(args[2]), NumberUtils.toInt(args[3]));
+  }
+
+  MapViewer(String home, int seed, int act, int diff) {
+    this.home = new FileHandle(home);
+    this.seed = seed;
+    this.act = act;
+    this.diff = diff;
+  }
+
   @Override
   public void create() {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-    Riiablo.home = Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II");
+    Riiablo.home = home = Gdx.files.absolute(home.path());
     MPQFileHandleResolver resolver = Riiablo.mpqs = new MPQFileHandleResolver();
 
     AssetManager assets = Riiablo.assets = new AssetManager();
@@ -115,9 +131,6 @@ public class MapViewer extends ApplicationAdapter {
     Riiablo.textures = new Textures();
     Riiablo.string = new StringTBLs(resolver);
     Riiablo.cofs = new COFs(assets);//COFD2.loadFromFile(resolver.resolve("data\\global\\cmncof_a1.d2"));
-
-    TXT txt = TXT.loadFromFile(Gdx.files.local("data/ds1types.txt"));
-    DS1Types = Excel.parse(txt, com.riiablo.map.DS1Types.class);
 
     ShaderProgram.pedantic = false;
     ShaderProgram shader = Riiablo.shader = new ShaderProgram(
@@ -332,7 +345,7 @@ public class MapViewer extends ApplicationAdapter {
     */
 
     assets.setLoader(Map.class, new MapLoader(resolver));
-    assets.load("Act 1", Map.class, MapLoader.MapParameters.of(0, 0, 0));
+    assets.load("Act 1", Map.class, MapLoader.MapParameters.of(seed, act, diff));
     assets.finishLoading();
 
     map = assets.get("Act 1");
