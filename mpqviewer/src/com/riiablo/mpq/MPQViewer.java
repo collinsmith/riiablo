@@ -1632,10 +1632,11 @@ public class MPQViewer {
               Animation.Layer animLayer = delegate.getLayer(c);
               DC old = animLayer != null ? animLayer.getDC() : null;
 
+              // FIXME: null layers and missing layers for some barb dual wield cofs -- temp fix ignore null layers
               COF.Layer layer = cof.getComponent(c);
               if (clazz.equalsIgnoreCase("NONE")) {
-                delegate.setLayer(layer, null, false);
-              } else {
+                if (layer != null) delegate.setLayer(layer, null, false);
+              } else if (layer != null) {
                 String dcc = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s.dcc", type, token, comp, clazz, mode, layer.weaponClass);
                 System.out.println(comp + "=" + dcc);
 
