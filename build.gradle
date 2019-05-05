@@ -84,6 +84,7 @@ project(":tools") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+        compile "com.badlogicgames.box2dlights:box2dlights:1.4"
     }
 }
 

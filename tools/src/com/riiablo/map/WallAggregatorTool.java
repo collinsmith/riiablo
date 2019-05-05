@@ -20,8 +20,11 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.COFs;
@@ -49,6 +52,9 @@ import com.riiablo.loader.PaletteLoader;
 import com.riiablo.loader.TXTLoader;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
+import box2dLight.PointLight;
+import box2dLight.RayHandler;
+
 public class WallAggregatorTool extends ApplicationAdapter {
   private static final String TAG = "WallAggregatorTool";
 
@@ -70,6 +76,8 @@ public class WallAggregatorTool extends ApplicationAdapter {
   Box2DDebugRenderer box2dDebug;
   Map map;
   Body playerBody;
+  RayHandler rayHandler;
+  PointLight light;
 
   WallAggregatorTool(String home) {
     this.home = new FileHandle(home);
@@ -121,6 +129,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     camera.translate(origin.x / 2, -origin.y);
+    camera.zoom = 0.05f;
 
     BodyDef playerDef = new BodyDef();
     playerDef.type = BodyDef.BodyType.DynamicBody;
@@ -135,11 +144,29 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
     playerShape.dispose();
 
+    rayHandler = new RayHandler(world);
+    rayHandler.setAmbientLight(0.5f);
+    rayHandler.setShadows(true);
+
+    light = new PointLight(rayHandler, 256);
+    light.attachToBody(playerBody);
+    light.setDistance(32);
+    light.setSoft(false);
+    light.setSoftnessLength(0);
+    light.setColor(1, 1, 1, 0.5f);
+    light.setContactFilter(
+        (short) DT1.Tile.FLAG_BLOCK_LIGHT_LOS,
+        (short) 0,
+        (short) (DT1.Tile.FLAG_BLOCK_LIGHT_LOS));
+
+    IntMap<Filter> filters = new IntMap<>();
+
     int tx = 70;
     int ty = 0;
     for (int y = 0; y < 280; y++) {
       for (int x = 0; x < 200; x++) {
-        if (map.flags(tx + x, ty + y) != 0) {
+        int flags = map.flags(tx + x, ty + y);
+        if (flags != 0) {
           BodyDef def = new BodyDef();
           def.type = BodyDef.BodyType.StaticBody;
           def.position.set(x, -y);
@@ -147,8 +174,17 @@ public class WallAggregatorTool extends ApplicationAdapter {
           PolygonShape shape = new PolygonShape();
           shape.setAsBox(0.5f, 0.5f);
 
+          Filter filter = filters.get(flags);
+          if (filter == null) {
+            filters.put(flags, filter = new Filter());
+            filter.categoryBits = 0xFF;
+            filter.maskBits     = (short) flags;
+            filter.groupIndex   = 0;
+          }
+
           Body body = world.createBody(def);
-          body.createFixture(shape, 0);
+          Fixture f = body.createFixture(shape, 0);
+          f.setFilterData(filter);
 
           shape.dispose();
         }
@@ -161,11 +197,11 @@ public class WallAggregatorTool extends ApplicationAdapter {
         final float AMOUNT = 0.05f;
         switch (amount) {
           case -1:
-            camera.zoom = MathUtils.clamp(camera.zoom - AMOUNT, 0.01f, 2);
+            camera.zoom = MathUtils.clamp(camera.zoom - AMOUNT, 0.05f, 2);
             camera.update();
             break;
           case 1:
-            camera.zoom = MathUtils.clamp(camera.zoom + AMOUNT, 0.01f, 2);
+            camera.zoom = MathUtils.clamp(camera.zoom + AMOUNT, 0.05f, 2);
             camera.update();
             break;
         }
@@ -215,12 +251,16 @@ public class WallAggregatorTool extends ApplicationAdapter {
     camera.position.set(playerBody.getPosition(), 0);
     camera.update();
     box2dDebug.render(world, camera.combined);
+
+    rayHandler.setCombinedMatrix(camera);
+    rayHandler.updateAndRender();
   }
 
   @Override
   public void dispose() {
     map.dispose();
     world.dispose();
+    rayHandler.dispose();
     Riiablo.assets.dispose();
     Riiablo.shapes.dispose();
     Riiablo.textures.dispose();
