@@ -188,7 +188,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
     if (Gdx.input.isTouched()) {
-      final float VELOCITY = 18;
+      final float VELOCITY = 32;
       vec2a.set(camera.viewportWidth / 2, camera.viewportHeight / 2);
       vec2b.set(Gdx.input.getX(), Gdx.input.getY());
 
