@@ -127,7 +127,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
     playerDef.position.set(camera.position.x, camera.position.y);
 
     PolygonShape playerShape = new PolygonShape();
-    playerShape.setAsBox(1.0f, 1.0f);
+    playerShape.setAsBox(0.9f, 0.9f);
 
     playerBody = world.createBody(playerDef);
     playerBody.createFixture(playerShape, 0);
@@ -170,73 +170,6 @@ public class WallAggregatorTool extends ApplicationAdapter {
         }
         return super.scrolled(amount);
       }
-
-      @Override
-      public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        move(screenX, screenY);
-        return super.touchDown(screenX, screenY, pointer, button);
-      }
-
-      @Override
-      public boolean touchDragged(int screenX, int screenY, int pointer) {
-        move(screenX, screenY);
-        return super.touchDragged(screenX, screenY, pointer);
-      }
-
-      Vector2 vec2a = new Vector2();
-      Vector2 vec2b = new Vector2();
-
-      void move(int screenX, int screenY) {
-        final float VELOCITY = 18;
-        vec2a.set(camera.viewportWidth / 2, camera.viewportHeight / 2);
-        vec2b.set(screenX, screenY);
-
-        vec2b.sub(vec2a).nor();
-        vec2a.nor().setAngleRad(Direction.snapToDirection(vec2b.angleRad(), 32));
-        vec2a.scl(VELOCITY).rotate(-45);
-        vec2a.y = -vec2a.y;
-        playerBody.setLinearVelocity(vec2a);
-      }
-
-      @Override
-      public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        playerBody.setLinearVelocity(0, 0);
-        return super.touchUp(screenX, screenY, pointer, button);
-      }
-
-      /*
-      @Override
-      public boolean keyDown(int keycode) {
-        final float VELOCITY = 9;
-        switch (keycode) {
-          case Input.Keys.DOWN:
-          case Input.Keys.S:
-            playerBody.setL(0, -VELOCITY, pos.x, pos.y, true);
-            //camera.translate(0, -AMOUNT, 0);
-            //camera.update();
-            break;
-          case Input.Keys.UP:
-          case Input.Keys.W:
-            playerBody.applyLinearImpulse(0, VELOCITY, pos.x, pos.y, true);
-            //camera.translate(0, AMOUNT, 0);
-            //camera.update();
-            break;
-          case Input.Keys.LEFT:
-          case Input.Keys.A:
-            playerBody.applyLinearImpulse(-VELOCITY, 0, pos.x, pos.y, true);
-            //camera.translate(-AMOUNT, 0, 0);
-            //camera.update();
-            break;
-          case Input.Keys.RIGHT:
-          case Input.Keys.D:
-            playerBody.applyLinearImpulse(VELOCITY, 0, pos.x, pos.y, true);
-            //camera.translate(AMOUNT, 0, 0);
-            //camera.update();
-            break;
-        }
-        return super.keyDown(keycode);
-      }
-      */
     });
   }
 
@@ -245,10 +178,27 @@ public class WallAggregatorTool extends ApplicationAdapter {
     viewport.update(width, height);
   }
 
+  final Vector2 vec2a = new Vector2();
+  final Vector2 vec2b = new Vector2();
+
   @Override
   public void render() {
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+    if (Gdx.input.isTouched()) {
+      final float VELOCITY = 18;
+      vec2a.set(camera.viewportWidth / 2, camera.viewportHeight / 2);
+      vec2b.set(Gdx.input.getX(), Gdx.input.getY());
+
+      vec2b.sub(vec2a).nor();
+      vec2a.nor().setAngleRad(Direction.snapToDirection(vec2b.angleRad(), 32));
+      vec2a.scl(VELOCITY).rotate(-45);
+      vec2a.y = -vec2a.y;
+      playerBody.setLinearVelocity(vec2a);
+    } else {
+      playerBody.setLinearVelocity(0, 0);
+    }
 
 //    Riiablo.shapes.setProjectionMatrix(camera.combined);
 //    Riiablo.shapes.begin(ShapeRenderer.ShapeType.Filled);
