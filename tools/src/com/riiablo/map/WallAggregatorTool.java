@@ -119,8 +119,20 @@ public class WallAggregatorTool extends ApplicationAdapter {
     map = Riiablo.assets.get("Act 1");
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-    //int x = origin.x;
-    //int y = origin.y;
+    camera.translate(origin.x / 2, -origin.y);
+
+    BodyDef playerDef = new BodyDef();
+    playerDef.type = BodyDef.BodyType.DynamicBody;
+    playerDef.fixedRotation = true;
+    playerDef.position.set(camera.position.x, camera.position.y);
+
+    PolygonShape playerShape = new PolygonShape();
+    playerShape.setAsBox(1.0f, 1.0f);
+
+    final Body playerBody = world.createBody(playerDef);
+    playerBody.createFixture(playerShape, 1);
+
+    playerShape.dispose();
 
     int tx = 70;
     int ty = 0;
@@ -161,26 +173,33 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
       @Override
       public boolean keyDown(int keycode) {
+        final float VELOCITY = 9;
+        final int AMOUNT = 1;
         Camera camera = viewport.getCamera();
+        Vector2 pos = playerBody.getPosition();
         switch (keycode) {
           case Input.Keys.DOWN:
           case Input.Keys.S:
-            camera.translate(0, -10, 0);
+            playerBody.applyLinearImpulse(0, -VELOCITY, pos.x, pos.y, true);
+            camera.translate(0, -AMOUNT, 0);
             camera.update();
             break;
           case Input.Keys.UP:
           case Input.Keys.W:
-            camera.translate(0, 10, 0);
+            playerBody.applyLinearImpulse(0, VELOCITY, pos.x, pos.y, true);
+            camera.translate(0, AMOUNT, 0);
             camera.update();
             break;
           case Input.Keys.LEFT:
           case Input.Keys.A:
-            camera.translate(-10, 0, 0);
+            playerBody.applyLinearImpulse(-VELOCITY, 0, pos.x, pos.y, true);
+            camera.translate(-AMOUNT, 0, 0);
             camera.update();
             break;
           case Input.Keys.RIGHT:
           case Input.Keys.D:
-            camera.translate(10, 0, 0);
+            playerBody.applyLinearImpulse(VELOCITY, 0, pos.x, pos.y, true);
+            camera.translate(AMOUNT, 0, 0);
             camera.update();
             break;
         }
@@ -211,6 +230,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
 //    Riiablo.shapes.rect(-10, -10, 8, 8);
 //    Riiablo.shapes.end();
 
+    world.step(1 / 60f, 6, 2);
     box2dDebug.render(world, camera.combined);
   }
 
