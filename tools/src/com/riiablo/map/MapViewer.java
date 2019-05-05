@@ -6,8 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.ai.utils.Collision;
-import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -183,9 +181,9 @@ public class MapViewer extends ApplicationAdapter {
           case Input.Buttons.LEFT:
             GridPoint2 dstCoords = mapRenderer.coords();
             dst = new Vector2(dstCoords.x, dstCoords.y);
-            Collision<Vector2> collision = new Collision<>(new Vector2(), null);
-            boolean hit = map.castRay(collision, new Ray<>(new Vector2(src.x, src.y), new Vector2(dst.x, dst.y)));
-            if (hit) ent.position().set(collision.point);
+            //Collision<Vector2> collision = new Collision<>(new Vector2(), null);
+            //boolean hit = map.castRay(collision, new Ray<>(new Vector2(src.x, src.y), new Vector2(dst.x, dst.y)));
+            //if (hit) ent.position().set(collision.point);
             // FIXME: only works coming from top onto bottom left or bottom right
 
             map.findPath(src, dst, path);
