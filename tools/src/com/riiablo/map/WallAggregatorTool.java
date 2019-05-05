@@ -3,13 +3,11 @@ package com.riiablo.map;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -39,6 +37,7 @@ import com.riiablo.codec.Index;
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.codec.TXT;
+import com.riiablo.entity.Direction;
 import com.riiablo.entity.Engine;
 import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.COFLoader;
@@ -69,6 +68,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
   World world;
   Box2DDebugRenderer box2dDebug;
   Map map;
+  Body playerBody;
 
   WallAggregatorTool(String home) {
     this.home = new FileHandle(home);
@@ -129,8 +129,8 @@ public class WallAggregatorTool extends ApplicationAdapter {
     PolygonShape playerShape = new PolygonShape();
     playerShape.setAsBox(1.0f, 1.0f);
 
-    final Body playerBody = world.createBody(playerDef);
-    playerBody.createFixture(playerShape, 1);
+    playerBody = world.createBody(playerDef);
+    playerBody.createFixture(playerShape, 0);
 
     playerShape.dispose();
 
@@ -172,39 +172,71 @@ public class WallAggregatorTool extends ApplicationAdapter {
       }
 
       @Override
+      public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        move(screenX, screenY);
+        return super.touchDown(screenX, screenY, pointer, button);
+      }
+
+      @Override
+      public boolean touchDragged(int screenX, int screenY, int pointer) {
+        move(screenX, screenY);
+        return super.touchDragged(screenX, screenY, pointer);
+      }
+
+      Vector2 vec2a = new Vector2();
+      Vector2 vec2b = new Vector2();
+
+      void move(int screenX, int screenY) {
+        final float VELOCITY = 18;
+        vec2a.set(camera.viewportWidth / 2, camera.viewportHeight / 2);
+        vec2b.set(screenX, screenY);
+
+        vec2b.sub(vec2a).nor();
+        vec2a.nor().setAngleRad(Direction.snapToDirection(vec2b.angleRad(), 32));
+        vec2a.scl(VELOCITY).rotate(-45);
+        vec2a.y = -vec2a.y;
+        playerBody.setLinearVelocity(vec2a);
+      }
+
+      @Override
+      public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        playerBody.setLinearVelocity(0, 0);
+        return super.touchUp(screenX, screenY, pointer, button);
+      }
+
+      /*
+      @Override
       public boolean keyDown(int keycode) {
         final float VELOCITY = 9;
-        final int AMOUNT = 1;
-        Camera camera = viewport.getCamera();
-        Vector2 pos = playerBody.getPosition();
         switch (keycode) {
           case Input.Keys.DOWN:
           case Input.Keys.S:
-            playerBody.applyLinearImpulse(0, -VELOCITY, pos.x, pos.y, true);
-            camera.translate(0, -AMOUNT, 0);
-            camera.update();
+            playerBody.setL(0, -VELOCITY, pos.x, pos.y, true);
+            //camera.translate(0, -AMOUNT, 0);
+            //camera.update();
             break;
           case Input.Keys.UP:
           case Input.Keys.W:
             playerBody.applyLinearImpulse(0, VELOCITY, pos.x, pos.y, true);
-            camera.translate(0, AMOUNT, 0);
-            camera.update();
+            //camera.translate(0, AMOUNT, 0);
+            //camera.update();
             break;
           case Input.Keys.LEFT:
           case Input.Keys.A:
             playerBody.applyLinearImpulse(-VELOCITY, 0, pos.x, pos.y, true);
-            camera.translate(-AMOUNT, 0, 0);
-            camera.update();
+            //camera.translate(-AMOUNT, 0, 0);
+            //camera.update();
             break;
           case Input.Keys.RIGHT:
           case Input.Keys.D:
             playerBody.applyLinearImpulse(VELOCITY, 0, pos.x, pos.y, true);
-            camera.translate(AMOUNT, 0, 0);
-            camera.update();
+            //camera.translate(AMOUNT, 0, 0);
+            //camera.update();
             break;
         }
         return super.keyDown(keycode);
       }
+      */
     });
   }
 
@@ -218,10 +250,6 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    //camera.projection.setToRotation(Vector3.X, 45);
-    //camera.projection.setToRotation(Vector3.Z, -30);
-    camera.update();
-
 //    Riiablo.shapes.setProjectionMatrix(camera.combined);
 //    Riiablo.shapes.begin(ShapeRenderer.ShapeType.Filled);
 //    Riiablo.shapes.rect(2, 2, 8, 8);
@@ -231,6 +259,8 @@ public class WallAggregatorTool extends ApplicationAdapter {
 //    Riiablo.shapes.end();
 
     world.step(1 / 60f, 6, 2);
+    camera.position.set(playerBody.getPosition(), 0);
+    camera.update();
     box2dDebug.render(world, camera.combined);
   }
 
