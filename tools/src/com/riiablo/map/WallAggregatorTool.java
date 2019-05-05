@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -126,8 +127,8 @@ public class WallAggregatorTool extends ApplicationAdapter {
     playerDef.fixedRotation = true;
     playerDef.position.set(camera.position.x, camera.position.y);
 
-    PolygonShape playerShape = new PolygonShape();
-    playerShape.setAsBox(0.9f, 0.9f);
+    CircleShape playerShape = new CircleShape();
+    playerShape.setRadius(0.9f);
 
     playerBody = world.createBody(playerDef);
     playerBody.createFixture(playerShape, 0);
@@ -192,10 +193,12 @@ public class WallAggregatorTool extends ApplicationAdapter {
       vec2b.set(Gdx.input.getX(), Gdx.input.getY());
 
       vec2b.sub(vec2a).nor();
-      vec2a.nor().setAngleRad(Direction.snapToDirection(vec2b.angleRad(), 32));
+      float rad = Direction.snapToDirection(vec2b.angleRad(), 32);
+      vec2a.nor().setAngleRad(rad);
       vec2a.scl(VELOCITY).rotate(-45);
       vec2a.y = -vec2a.y;
       playerBody.setLinearVelocity(vec2a);
+      playerBody.setTransform(playerBody.getPosition(), vec2a.angleRad());
     } else {
       playerBody.setLinearVelocity(0, 0);
     }
