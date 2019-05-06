@@ -192,30 +192,41 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
     IntMap<Filter> filters = new IntMap<>();
 
-    for (int y = 0; y < 280; y++) {
-      for (int x = 0; x < 200; x++) {
-        int flags = map.flags(x, y);
-        if (flags != 0) {
-          BodyDef def = new BodyDef();
-          def.type = BodyDef.BodyType.StaticBody;
-          def.position.set(x, -(y));
+    for (Map.Zone zone : map.zones) {
+    //Map.Zone zone = map.zones.first();
+      for (int y = 0, ty = zone.y, height = zone.height; y < height; y++, ty++) {
+        for (int x = 0, tx = zone.x, width = zone.width; x < width; x++, tx++) {
+          int flags = map.flags(tx, ty);
+          if (flags != 0) {
+            int endX = tx + 1;
+            while (endX < width && map.flags(endX, ty) == flags) {
+              endX++;
+            }
 
-          PolygonShape shape = new PolygonShape();
-          shape.setAsBox(0.5f, 0.5f);
+            BodyDef def = new BodyDef();
+            def.type = BodyDef.BodyType.StaticBody;
+            def.position.set((endX + tx) / 2f, -ty);
 
-          Filter filter = filters.get(flags);
-          if (filter == null) {
-            filters.put(flags, filter = new Filter());
-            filter.categoryBits = 0xFF;
-            filter.maskBits     = (short) flags;
-            filter.groupIndex   = 0;
+            PolygonShape shape = new PolygonShape();
+            shape.setAsBox((endX - tx) / 2f, 0.5f);
+
+            Filter filter = filters.get(flags);
+            if (filter == null) {
+              filters.put(flags, filter = new Filter());
+              filter.categoryBits = 0xFF;
+              filter.maskBits     = (short) flags;
+              filter.groupIndex   = 0;
+            }
+
+            Body body = world.createBody(def);
+            Fixture f = body.createFixture(shape, 0);
+            f.setFilterData(filter);
+
+            shape.dispose();
+
+            x += endX - tx - 1;
+            tx = endX - 1;
           }
-
-          Body body = world.createBody(def);
-          Fixture f = body.createFixture(shape, 0);
-          f.setFilterData(filter);
-
-          shape.dispose();
         }
       }
     }
