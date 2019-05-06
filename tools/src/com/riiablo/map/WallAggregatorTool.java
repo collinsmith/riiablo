@@ -47,7 +47,6 @@ import com.riiablo.codec.Index;
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.codec.TXT;
-import com.riiablo.entity.Direction;
 import com.riiablo.entity.Engine;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Player;
@@ -248,6 +247,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
   final Vector2 vec2a = new Vector2();
   final Vector2 vec2b = new Vector2();
+  final GridPoint2 vec2c = new GridPoint2();
 
   @Override
   public void render() {
@@ -256,16 +256,12 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
     if (Gdx.input.isTouched()) {
       final float VELOCITY = 16;
-      vec2a.set(camera.viewportWidth / 2, camera.viewportHeight / 2);
-      vec2b.set(Gdx.input.getX(), Gdx.input.getY());
-
-      vec2b.sub(vec2a).nor();
-      float rad = Direction.snapToDirection(vec2b.angleRad(), 32);
-      vec2a.nor().setAngleRad(rad);
-      vec2a.scl(VELOCITY).rotate(-45);
-      vec2a.y = -vec2a.y;
-      playerBody.setLinearVelocity(vec2a);
-      playerBody.setTransform(playerBody.getPosition(), vec2a.angleRad());
+      mapRenderer.coords(vec2c);
+      vec2a.set(playerBody.getPosition());
+      vec2b.set(vec2c.x, -vec2c.y);
+      vec2b.sub(vec2a).nor().scl(VELOCITY);
+      playerBody.setLinearVelocity(vec2b);
+      playerBody.setTransform(playerBody.getPosition(), vec2b.angleRad());
     } else {
       playerBody.setLinearVelocity(0, 0);
     }
