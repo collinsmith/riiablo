@@ -11,6 +11,9 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
@@ -24,13 +27,16 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.COFs;
+import com.riiablo.CharacterClass;
 import com.riiablo.Colors;
 import com.riiablo.Files;
 import com.riiablo.Fonts;
+import com.riiablo.Palettes;
 import com.riiablo.Riiablo;
 import com.riiablo.Textures;
 import com.riiablo.codec.COF;
@@ -43,6 +49,9 @@ import com.riiablo.codec.StringTBLs;
 import com.riiablo.codec.TXT;
 import com.riiablo.entity.Direction;
 import com.riiablo.entity.Engine;
+import com.riiablo.entity.Entity;
+import com.riiablo.entity.Player;
+import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DC6Loader;
@@ -75,6 +84,9 @@ public class WallAggregatorTool extends ApplicationAdapter {
   World world;
   Box2DDebugRenderer box2dDebug;
   Map map;
+  MapRenderer mapRenderer;
+  Entity src;
+  Batch batch;
   Body playerBody;
   RayHandler rayHandler;
   PointLight light;
@@ -106,19 +118,32 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Riiablo.colors = new Colors();
     Riiablo.textures = new Textures();
     Riiablo.string = new StringTBLs(Riiablo.mpqs);
+    Riiablo.palettes = new Palettes(Riiablo.assets);
     Riiablo.cofs = new COFs(Riiablo.assets);//COFD2.loadFromFile(resolver.resolve("data\\global\\cmncof_a1.d2"));
+
+    batch = new SpriteBatch();
+
+    ShaderProgram.pedantic = false;
+    Riiablo.shader = new ShaderProgram(
+        Gdx.files.internal("shaders/indexpalette3.vert"),
+        Gdx.files.internal("shaders/indexpalette3.frag"));
+    if (!Riiablo.shader.isCompiled()) {
+      throw new GdxRuntimeException("Error compiling shader: " + Riiablo.shader.getLog());
+    }
+
+    Riiablo.batch = new PaletteIndexedBatch(2048, Riiablo.shader);
+    Riiablo.shapes = new ShapeRenderer();
 
     camera = new OrthographicCamera();
     camera.near = -1024;
     camera.far  =  1024;
     camera.rotate(Vector3.X, 60);
     camera.rotate(Vector3.Z, 45);
+    camera.zoom = 0.044f;
 
     viewport = new ScreenViewport(camera);
     world = new World(new Vector2(), true);
     box2dDebug = new Box2DDebugRenderer();
-
-    Riiablo.shapes = new ShapeRenderer();
 
     Riiablo.engine = new Engine();
     Riiablo.assets.setLoader(Map.class, new MapLoader(Riiablo.mpqs));
@@ -128,8 +153,15 @@ public class WallAggregatorTool extends ApplicationAdapter {
     map = Riiablo.assets.get("Act 1");
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-    //camera.translate(origin.x / 2, -origin.y);
-    camera.zoom = 0.05f;
+
+    src = new Player("null", CharacterClass.BARBARIAN);
+    src.position().set(origin.x, origin.y);
+
+    mapRenderer = new MapRenderer(Riiablo.batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    mapRenderer.resize();
+    mapRenderer.setMap(map);
+    mapRenderer.setEntities(Riiablo.engine);
+    mapRenderer.setSrc(src);
 
     BodyDef playerDef = new BodyDef();
     playerDef.type = BodyDef.BodyType.DynamicBody;
@@ -194,17 +226,18 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Gdx.input.setInputProcessor(new InputAdapter() {
       @Override
       public boolean scrolled(int amount) {
-        final float AMOUNT = 0.05f;
+        final float AMOUNT = 0.001f;
         switch (amount) {
           case -1:
-            camera.zoom = MathUtils.clamp(camera.zoom - AMOUNT, 0.05f, 2);
+            camera.zoom = MathUtils.clamp(camera.zoom - AMOUNT, 0.01f, 2);
             camera.update();
             break;
           case 1:
-            camera.zoom = MathUtils.clamp(camera.zoom + AMOUNT, 0.05f, 2);
+            camera.zoom = MathUtils.clamp(camera.zoom + AMOUNT, 0.01f, 2);
             camera.update();
             break;
         }
+        System.out.println(camera.zoom);
         return super.scrolled(amount);
       }
     });
@@ -224,7 +257,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
     if (Gdx.input.isTouched()) {
-      final float VELOCITY = 32;
+      final float VELOCITY = 16;
       vec2a.set(camera.viewportWidth / 2, camera.viewportHeight / 2);
       vec2b.set(Gdx.input.getX(), Gdx.input.getY());
 
@@ -247,22 +280,37 @@ public class WallAggregatorTool extends ApplicationAdapter {
 //    Riiablo.shapes.rect(-10, -10, 8, 8);
 //    Riiablo.shapes.end();
 
-    world.step(1 / 60f, 6, 2);
+    world.step(Gdx.graphics.getDeltaTime(), 6, 2);
     camera.position.set(playerBody.getPosition(), 0);
     camera.update();
+    src.position().set(playerBody.getPosition().x, -playerBody.getPosition().y);
+
+    Riiablo.batch.begin(Riiablo.palettes.act1);
+    mapRenderer.update();
+    mapRenderer.draw(Gdx.graphics.getDeltaTime());
+    Riiablo.batch.end();
+
     box2dDebug.render(world, camera.combined);
 
     rayHandler.setCombinedMatrix(camera);
     rayHandler.updateAndRender();
+
+    batch.begin();
+    Riiablo.fonts.consolas16.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), 0, Gdx.graphics.getHeight());
+    batch.end();
   }
 
   @Override
   public void dispose() {
+    batch.dispose();
     map.dispose();
     world.dispose();
     rayHandler.dispose();
     Riiablo.assets.dispose();
-    Riiablo.shapes.dispose();
+    Riiablo.palettes.dispose();
     Riiablo.textures.dispose();
+    Riiablo.batch.dispose();
+    Riiablo.shader.dispose();
+    Riiablo.shapes.dispose();
   }
 }
