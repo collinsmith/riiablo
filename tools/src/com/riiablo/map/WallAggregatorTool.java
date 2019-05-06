@@ -128,13 +128,13 @@ public class WallAggregatorTool extends ApplicationAdapter {
     map = Riiablo.assets.get("Act 1");
 
     GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-    camera.translate(origin.x / 2, -origin.y);
+    //camera.translate(origin.x / 2, -origin.y);
     camera.zoom = 0.05f;
 
     BodyDef playerDef = new BodyDef();
     playerDef.type = BodyDef.BodyType.DynamicBody;
     playerDef.fixedRotation = true;
-    playerDef.position.set(camera.position.x, camera.position.y);
+    playerDef.position.set(origin.x, -origin.y);
 
     CircleShape playerShape = new CircleShape();
     playerShape.setRadius(0.9f);
@@ -148,7 +148,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
     rayHandler.setAmbientLight(0.5f);
     rayHandler.setShadows(true);
 
-    light = new PointLight(rayHandler, 256);
+    light = new PointLight(rayHandler, 360);
     light.attachToBody(playerBody);
     light.setDistance(32);
     light.setSoft(false);
@@ -169,7 +169,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
         if (flags != 0) {
           BodyDef def = new BodyDef();
           def.type = BodyDef.BodyType.StaticBody;
-          def.position.set(x, -y);
+          def.position.set(tx + x, -(ty + y));
 
           PolygonShape shape = new PolygonShape();
           shape.setAsBox(0.5f, 0.5f);
