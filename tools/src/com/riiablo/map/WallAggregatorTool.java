@@ -178,7 +178,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
     rayHandler = new RayHandler(world);
     rayHandler.setAmbientLight(0.5f);
-    rayHandler.setShadows(true);
+    rayHandler.setShadows(false);
 
     light = new PointLight(rayHandler, 360);
     light.attachToBody(playerBody);
@@ -193,15 +193,13 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
     IntMap<Filter> filters = new IntMap<>();
 
-    int tx = 70;
-    int ty = 0;
     for (int y = 0; y < 280; y++) {
       for (int x = 0; x < 200; x++) {
-        int flags = map.flags(tx + x, ty + y);
+        int flags = map.flags(x, y);
         if (flags != 0) {
           BodyDef def = new BodyDef();
           def.type = BodyDef.BodyType.StaticBody;
-          def.position.set(tx + x, -(ty + y));
+          def.position.set(x, -(y));
 
           PolygonShape shape = new PolygonShape();
           shape.setAsBox(0.5f, 0.5f);
