@@ -213,11 +213,13 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
             int lenX = endX - tx;
             int endY = ty + 1;
-            //System.out.println(endX + "," + tx);
-            //while (endY < height && allEqual(map, tx, endY, lenX, flags)) {
-            //  Arrays.fill(handled[endY], x, x + lenX, true);
-            //  endY++;
-            //}
+
+            int dy = y + 1;
+            while (dy < height && allEqual(map, tx, endY, lenX, flags)) {
+              Arrays.fill(handled[dy], x, x + lenX, true);
+              dy++;
+              endY++;
+            }
 
             int lenY = endY - ty;
             BodyDef def = new BodyDef();
@@ -241,7 +243,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
             shape.dispose();
 
-            x += endX - tx - 1;
+            x += lenX - 1;
             tx = endX - 1;
           }
         }
