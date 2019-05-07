@@ -27,6 +27,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -59,6 +60,8 @@ import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
 import com.riiablo.loader.TXTLoader;
 import com.riiablo.mpq.MPQFileHandleResolver;
+
+import java.util.Arrays;
 
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
@@ -134,11 +137,13 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Riiablo.shapes = new ShapeRenderer();
 
     camera = new OrthographicCamera();
+    camera.setToOrtho(true);
     camera.near = -1024;
     camera.far  =  1024;
-    camera.rotate(Vector3.X, 60);
-    camera.rotate(Vector3.Z, 45);
+    camera.rotate(Vector3.X, -60);
+    camera.rotate(Vector3.Z, -45);
     camera.zoom = 0.044f;
+    camera.update();
 
     viewport = new ScreenViewport(camera);
     world = new World(new Vector2(), true);
@@ -165,7 +170,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
     BodyDef playerDef = new BodyDef();
     playerDef.type = BodyDef.BodyType.DynamicBody;
     playerDef.fixedRotation = true;
-    playerDef.position.set(origin.x, -origin.y);
+    playerDef.position.set(origin.x, origin.y);
 
     CircleShape playerShape = new CircleShape();
     playerShape.setRadius(0.9f);
@@ -192,10 +197,13 @@ public class WallAggregatorTool extends ApplicationAdapter {
 
     IntMap<Filter> filters = new IntMap<>();
 
-    for (Map.Zone zone : map.zones) {
+    boolean[][] handled = new boolean[1000][1000];
+    for (Map.Zone zone : new Array.ArrayIterator<>(map.zones)) {
     //Map.Zone zone = map.zones.first();
+      for (boolean[] a : handled) Arrays.fill(a, false);
       for (int y = 0, ty = zone.y, height = zone.height; y < height; y++, ty++) {
         for (int x = 0, tx = zone.x, width = zone.width; x < width; x++, tx++) {
+          if (handled[y][x]) continue;
           int flags = map.flags(tx, ty);
           if (flags != 0) {
             int endX = tx + 1;
@@ -203,12 +211,21 @@ public class WallAggregatorTool extends ApplicationAdapter {
               endX++;
             }
 
+            int lenX = endX - tx;
+            int endY = ty + 1;
+            //System.out.println(endX + "," + tx);
+            //while (endY < height && allEqual(map, tx, endY, lenX, flags)) {
+            //  Arrays.fill(handled[endY], x, x + lenX, true);
+            //  endY++;
+            //}
+
+            int lenY = endY - ty;
             BodyDef def = new BodyDef();
             def.type = BodyDef.BodyType.StaticBody;
-            def.position.set((endX + tx) / 2f, -ty);
+            def.position.set((endX + tx) / 2f, (endY + ty) / 2f);
 
             PolygonShape shape = new PolygonShape();
-            shape.setAsBox((endX - tx) / 2f, 0.5f);
+            shape.setAsBox(lenX / 2f, lenY / 2f);
 
             Filter filter = filters.get(flags);
             if (filter == null) {
@@ -231,6 +248,8 @@ public class WallAggregatorTool extends ApplicationAdapter {
       }
     }
 
+    System.out.println("bodies=" + world.getBodyCount());
+
     Gdx.input.setInputProcessor(new InputAdapter() {
       @Override
       public boolean scrolled(int amount) {
@@ -251,6 +270,12 @@ public class WallAggregatorTool extends ApplicationAdapter {
     });
   }
 
+  private static boolean allEqual(Map map, int x, int y, int len, int flags) {
+    len += x;
+    while (x < len && map.flags(x, y) == flags) x++;
+    return x == len;
+  }
+
   @Override
   public void resize(int width, int height) {
     viewport.update(width, height);
@@ -269,7 +294,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
       final float VELOCITY = 16;
       mapRenderer.coords(vec2c);
       vec2a.set(playerBody.getPosition());
-      vec2b.set(vec2c.x, -vec2c.y);
+      vec2b.set(vec2c.x, vec2c.y);
       vec2b.sub(vec2a).nor().scl(VELOCITY);
       playerBody.setLinearVelocity(vec2b);
       playerBody.setTransform(playerBody.getPosition(), vec2b.angleRad());
@@ -288,7 +313,7 @@ public class WallAggregatorTool extends ApplicationAdapter {
     world.step(Gdx.graphics.getDeltaTime(), 6, 2);
     camera.position.set(playerBody.getPosition(), 0);
     camera.update();
-    src.position().set(playerBody.getPosition().x, -playerBody.getPosition().y);
+    src.position().set(playerBody.getPosition().x, playerBody.getPosition().y);
 
     Riiablo.batch.begin(Riiablo.palettes.act1);
     mapRenderer.update();
