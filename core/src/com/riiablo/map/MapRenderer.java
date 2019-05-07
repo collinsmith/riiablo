@@ -97,13 +97,13 @@ public class MapRenderer {
   int t;
 
   // pixel offset of sub-tile in world-space
-  int spx, spy;
+  float spx, spy;
 
   // tile index in world-space
   int tx, ty;
 
   // pixel offset of tile in world-space
-  int tpx, tpy;
+  float tpx, tpy;
 
   int width, height;
   int tilesX, tilesY;
@@ -113,7 +113,7 @@ public class MapRenderer {
   int startX, startY;
 
   // tpx and tpy of startX, startY tile in world-space
-  int startPx, startPy;
+  float startPx, startPy;
 
   // camera bounds
   int renderMinX, renderMinY;
@@ -321,8 +321,8 @@ public class MapRenderer {
 
     // pixel offset of subtile in world-space
     EngineUtils.worldToScreenCoords(x, y, tmpVec2a).sub(Tile.SUBTILE_WIDTH50, Tile.SUBTILE_HEIGHT50);
-    spx = (int) tmpVec2a.x;
-    spy = (int) tmpVec2a.y;
+    spx = tmpVec2a.x;
+    spy = tmpVec2a.y;
 
     // tile index in world-space
     tx = x < 0
@@ -483,15 +483,15 @@ public class MapRenderer {
     int x, y;
     int startX2 = startX;
     int startY2 = startY;
-    int startPx2 = startPx;
-    int startPy2 = startPy;
+    float startPx2 = startPx;
+    float startPy2 = startPy;
     for (y = 0; y < viewBuffer.length; y++) {
       int tx = startX2;
       int ty = startY2;
       int stx = tx * Tile.SUBTILE_SIZE;
       int sty = ty * Tile.SUBTILE_SIZE;
-      int px = startPx2;
-      int py = startPy2;
+      float px = startPx2;
+      float py = startPy2;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(stx, sty);
@@ -525,8 +525,8 @@ public class MapRenderer {
       int ty = startY2;
       int stx = tx * Tile.SUBTILE_SIZE;
       int sty = ty * Tile.SUBTILE_SIZE;
-      int px = startPx2;
-      int py = startPy2;
+      float px = startPx2;
+      float py = startPy2;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(stx, sty);
@@ -556,15 +556,15 @@ public class MapRenderer {
     int x, y;
     int startX2 = startX;
     int startY2 = startY;
-    int startPx2 = startPx;
-    int startPy2 = startPy;
+    float startPx2 = startPx;
+    float startPy2 = startPy;
     for (y = 0; y < viewBuffer.length; y++) {
       int tx = startX2;
       int ty = startY2;
       int stx = tx * Tile.SUBTILE_SIZE;
       int sty = ty * Tile.SUBTILE_SIZE;
-      int px = startPx2;
-      int py = startPy2;
+      float px = startPx2;
+      float py = startPy2;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(stx, sty);
@@ -606,7 +606,7 @@ public class MapRenderer {
     }
   }
 
-  void drawLowerWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+  void drawLowerWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py) {
     if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
@@ -623,7 +623,7 @@ public class MapRenderer {
     }
   }
 
-  void drawFloors(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+  void drawFloors(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py) {
     if (px > renderMaxX || py > renderMaxY) return;
     if (px + Tile.WIDTH < renderMinX || py + Tile.HEIGHT < renderMinY) return;
     for (int i = Map.FLOOR_OFFSET; i < Map.FLOOR_OFFSET + Map.MAX_FLOORS; i++) {
@@ -641,7 +641,7 @@ public class MapRenderer {
     }
   }
 
-  void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py, Array<Entity>[] cache) {
+  void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py, Array<Entity>[] cache) {
     batch.setBlendMode(BlendMode.SOLID, Riiablo.colors.modal75);
     for (int i = Map.SHADOW_OFFSET; i < Map.SHADOW_OFFSET + Map.MAX_SHADOWS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
@@ -666,7 +666,7 @@ public class MapRenderer {
     batch.resetBlendMode();
   }
 
-  void drawWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+  void drawWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py) {
     if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
@@ -701,7 +701,7 @@ public class MapRenderer {
     }
   }
 
-  void drawRoofs(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, int px, int py) {
+  void drawRoofs(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py) {
     if (px > renderMaxX || px + Tile.WIDTH < renderMinX) return;
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
@@ -784,11 +784,11 @@ public class MapRenderer {
     switch (RENDER_DEBUG_GRID) {
       case 1:
         shapes.setColor(RENDER_DEBUG_GRID_COLOR_1);
-        int startPx2 = startPx;
-        int startPy2 = startPy;
+        float startPx2 = startPx;
+        float startPy2 = startPy;
         for (y = 0; y < viewBuffer.length; y++) {
-          int px = startPx2;
-          int py = startPy2;
+          float px = startPx2;
+          float py = startPy2;
           int size = viewBuffer[y];
           for (x = 0; x < size; x++) {
             for (int t = 0; t < Tile.NUM_SUBTILES; t++) {
@@ -813,8 +813,8 @@ public class MapRenderer {
         startPx2 = startPx;
         startPy2 = startPy;
         for (y = 0; y < viewBuffer.length; y++) {
-          int px = startPx2;
-          int py = startPy2;
+          float px = startPx2;
+          float py = startPy2;
           int size = viewBuffer[y];
           for (x = 0; x < size; x++) {
             DebugUtils.drawDiamond2(shapes, px, py, Tile.WIDTH, Tile.HEIGHT);
@@ -841,8 +841,8 @@ public class MapRenderer {
         for (y = 0; y < viewBuffer.length; y++) {
           int tx = startX2;
           int ty = startY2;
-          int px = startPx2;
-          int py = startPy2;
+          float px = startPx2;
+          float py = startPy2;
           int size = viewBuffer[y];
           for (x = 0; x < size; x++) {
             Map.Zone zone = map.getZone(tx * Tile.SUBTILE_SIZE, ty * Tile.SUBTILE_SIZE);
@@ -931,14 +931,14 @@ public class MapRenderer {
 
     int startX2 = startX;
     int startY2 = startY;
-    int startPx2 = startPx;
-    int startPy2 = startPy;
+    float startPx2 = startPx;
+    float startPy2 = startPy;
     int x, y;
     for (y = 0; y < viewBuffer.length; y++) {
       int tx = startX2;
       int ty = startY2;
-      int px = startPx2;
-      int py = startPy2;
+      float px = startPx2;
+      float py = startPy2;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
         Map.Zone zone = map.getZone(tx * Tile.SUBTILE_SIZE, ty * Tile.SUBTILE_SIZE);
@@ -982,9 +982,9 @@ public class MapRenderer {
     shapes.set(shapeType);
   }
 
-  private void drawDebugWalkableTiles(ShapeRenderer shapes, int px, int py, int t, int flags) {
-    int offX = px + Tile.SUBTILE_OFFSET[t][0];
-    int offY = py + Tile.SUBTILE_OFFSET[t][1];
+  private void drawDebugWalkableTiles(ShapeRenderer shapes, float px, float py, int t, int flags) {
+    float offX = px + Tile.SUBTILE_OFFSET[t][0];
+    float offY = py + Tile.SUBTILE_OFFSET[t][1];
 
     shapes.setColor(Color.CORAL);
     shapes.set(ShapeRenderer.ShapeType.Line);
@@ -1055,15 +1055,15 @@ public class MapRenderer {
     for (int i = Map.WALL_OFFSET, x, y; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       int startX2 = startX;
       int startY2 = startY;
-      int startPx2 = startPx;
-      int startPy2 = startPy;
+      float startPx2 = startPx;
+      float startPy2 = startPy;
       for (y = 0; y < viewBuffer.length; y++) {
         int tx = startX2;
         int ty = startY2;
         int stx = tx * Tile.SUBTILE_SIZE;
         int sty = ty * Tile.SUBTILE_SIZE;
-        int px = startPx2;
-        int py = startPy2;
+        float px = startPx2;
+        float py = startPy2;
         int size = viewBuffer[y];
         for (x = 0; x < size; x++) {
           Map.Zone zone = map.getZone(stx, sty);
