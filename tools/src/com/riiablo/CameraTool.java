@@ -2,6 +2,7 @@ package com.riiablo;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -14,8 +15,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
-import com.riiablo.map.DT1.Tile;
 import com.riiablo.camera.IsometricCamera;
+import com.riiablo.map.DT1.Tile;
 import com.riiablo.util.DebugUtils;
 
 public class CameraTool extends ApplicationAdapter {
@@ -64,10 +65,37 @@ public class CameraTool extends ApplicationAdapter {
         iso.zoom = MathUtils.clamp(iso.zoom, 0.05f, 2f);
         return super.scrolled(amount);
       }
+
+      @Override
+      public boolean keyDown(int keycode) {
+        switch (keycode) {
+          case Keys.W:
+          case Keys.UP:
+            iso.translate(0, -1);
+            break;
+
+          case Keys.S:
+          case Keys.DOWN:
+            iso.translate(0,  1);
+            break;
+
+          case Keys.A:
+          case Keys.LEFT:
+            iso.translate(-1, 0);
+            break;
+
+          case Keys.D:
+          case Keys.RIGHT:
+            iso.translate( 1, 0);
+            break;
+        }
+        return super.keyDown(keycode);
+      }
     });
   }
 
   final Vector2 vec2 = new Vector2();
+  final Vector2 loc  = new Vector2();
 
   @Override
   public void render() {
@@ -123,6 +151,7 @@ public class CameraTool extends ApplicationAdapter {
       iso.unproject(vec2);
       iso.toWorld(vec2);
       iso.toTile(vec2);
+      loc.set(vec2);
       iso.toScreen(vec2);
 
       shapes.setColor(Color.SALMON);
@@ -134,6 +163,7 @@ public class CameraTool extends ApplicationAdapter {
 
     batch.begin();
     StringBuilder builder = new StringBuilder()
+        .append(loc)
         .append(vec2);
     font.draw(batch, builder.toString(), 0, Gdx.graphics.getHeight());
     batch.end();

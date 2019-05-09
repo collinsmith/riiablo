@@ -7,8 +7,9 @@ import com.riiablo.util.EngineUtils;
 
 public class IsometricCamera extends OrthographicCamera {
 
-  public final OrthographicCamera camera = this;
+  private final Vector2 tmp = new Vector2();
   private final Vector2 offset = new Vector2();
+  private final Vector2 position = new Vector2();
 
   public IsometricCamera() {}
 
@@ -16,8 +17,18 @@ public class IsometricCamera extends OrthographicCamera {
     offset.set(x, y);
   }
 
+  @Override
   public void translate(Vector2 vec) {
-    position.add(vec.x, vec.y, 0);
+    position.add(vec);
+    toScreen(position.x, position.y, tmp);
+    super.position.set(tmp, 0);
+  }
+
+  @Override
+  public void translate(float x, float y) {
+    position.add(x, y);
+    toScreen(position.x, position.y, tmp);
+    super.position.set(tmp, 0);
   }
 
   public void set(Vector2 vec) {
@@ -25,7 +36,9 @@ public class IsometricCamera extends OrthographicCamera {
   }
 
   public void set(float x, float y) {
-    position.set(x, y, 0).add(offset.x, offset.y, 0);
+    position.set(x, y);
+    toScreen(position.x, position.y, tmp);
+    super.position.set(tmp.x, tmp.y, 0);
   }
 
   public Vector2 toScreen(Vector2 worldCoords) {
