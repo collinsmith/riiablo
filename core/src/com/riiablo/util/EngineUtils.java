@@ -9,27 +9,27 @@ public class EngineUtils {
 
   public static Vector2 worldToScreenCoords(Vector2 world, Vector2 dst) {
     assert world != dst;
-    dst.x = +(world.x * Tile.SUBTILE_WIDTH50)  - (world.y * Tile.SUBTILE_WIDTH50);
-    dst.y = -(world.x * Tile.SUBTILE_HEIGHT50) - (world.y * Tile.SUBTILE_HEIGHT50);
+    dst.x = +(world.x - world.y) * Tile.SUBTILE_WIDTH50;
+    dst.y = -(world.x + world.y) * Tile.SUBTILE_HEIGHT50;
     return dst;
   }
 
   public static Vector2 worldToScreenCoords(float x, float y, Vector2 dst) {
-    dst.x = +(x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
-    dst.y = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
+    dst.x = +(x - y) * Tile.SUBTILE_WIDTH50;
+    dst.y = -(x + y) * Tile.SUBTILE_HEIGHT50;
     return dst;
   }
 
   public static GridPoint2 worldToScreenCoords(GridPoint2 world, GridPoint2 dst) {
     assert world != dst;
-    dst.x = +(world.x * Tile.SUBTILE_WIDTH50)  - (world.y * Tile.SUBTILE_WIDTH50);
-    dst.y = -(world.x * Tile.SUBTILE_HEIGHT50) - (world.y * Tile.SUBTILE_HEIGHT50);
+    dst.x = +(world.x - world.y) * Tile.SUBTILE_WIDTH50;
+    dst.y = -(world.x + world.y) * Tile.SUBTILE_HEIGHT50;
     return dst;
   }
 
   public static GridPoint2 worldToScreenCoords(int x, int y, GridPoint2 dst) {
-    dst.x = +(x * Tile.SUBTILE_WIDTH50)  - (y * Tile.SUBTILE_WIDTH50);
-    dst.y = -(x * Tile.SUBTILE_HEIGHT50) - (y * Tile.SUBTILE_HEIGHT50);
+    dst.x = +(x - y) * Tile.SUBTILE_WIDTH50;
+    dst.y = -(x + y) * Tile.SUBTILE_HEIGHT50;
     return dst;
   }
 }
