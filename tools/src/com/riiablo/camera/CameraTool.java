@@ -1,4 +1,4 @@
-package com.riiablo;
+package com.riiablo.camera;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -10,12 +10,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
-import com.riiablo.camera.IsometricCamera;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.util.DebugUtils;
 
@@ -99,6 +99,7 @@ public class CameraTool extends ApplicationAdapter {
   final Vector2 vec2 = new Vector2();
   final Vector2 loc  = new Vector2();
   final Vector2 pos  = new Vector2();
+  final StringBuilder builder = new StringBuilder();
 
   @Override
   public void render() {
@@ -168,13 +169,23 @@ public class CameraTool extends ApplicationAdapter {
     pos.set(iso.position);
     iso.toTile50(pos);
 
+    float width;
     batch.begin();
-    StringBuilder builder = new StringBuilder()
+    builder.setLength(0);
+    builder
+        .append("iso:").append('\n')
+        .append("pos:").append('\n')
+        .append("cursor:").append('\n')
+        .append("px:").append('\n');
+    GlyphLayout layout = font.draw(batch, builder.toString(), 0, Gdx.graphics.getHeight());
+    width = layout.width;
+    builder.setLength(0);
+    builder
         .append(iso.position).append('\n')
         .append(pos).append('\n')
         .append(loc).append('\n')
         .append(vec2).append('\n');
-    font.draw(batch, builder.toString(), 0, Gdx.graphics.getHeight());
+    font.draw(batch, builder.toString(), width, Gdx.graphics.getHeight());
     batch.end();
   }
 
