@@ -53,7 +53,7 @@ public class CameraTool extends ApplicationAdapter {
     idt.set(shapes.getProjectionMatrix());
 
     iso.setToOrtho(false);
-    //iso.offset(0, -Tile.SUBTILE_HEIGHT50);
+    iso.offset(0, -Tile.SUBTILE_HEIGHT50);
     iso.set(0, 0);
 
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
