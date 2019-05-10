@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.riiablo.codec.Animation;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.util.DebugUtils;
 
@@ -39,6 +40,7 @@ public class CameraTool extends ApplicationAdapter {
   IsometricCamera iso;
   Matrix4 center = new Matrix4();
   Matrix4 idt = new Matrix4();
+  float accumulator;
 
   @Override
   public void create() {
@@ -71,6 +73,15 @@ public class CameraTool extends ApplicationAdapter {
       public boolean keyDown(int keycode) {
         final float AMOUNT = 0.25f;
         switch (keycode) {
+          case Keys.SPACE:
+            iso.set(0, 0);
+            break;
+
+          case Keys.SHIFT_LEFT:
+            if (Gdx.input.isTouched()) break;
+            moveToCursor(AMOUNT);
+            break;
+
           case Keys.W:
           case Keys.UP:
             iso.translate(0, -AMOUNT);
@@ -96,6 +107,17 @@ public class CameraTool extends ApplicationAdapter {
     });
   }
 
+  private void moveToCursor(float amount) {
+    vec2.set(Gdx.input.getX(), Gdx.input.getY());
+    iso.unproject(vec2);
+    iso.toWorld(vec2);
+    vec2.sub(iso.position);
+    float angle = vec2.angleRad();
+    vec2.x = amount * MathUtils.cos(angle);
+    vec2.y = amount * MathUtils.sin(angle);
+    iso.translate(vec2);
+  }
+
   final Vector2 vec2 = new Vector2();
   final Vector2 loc  = new Vector2();
   final Vector2 pos  = new Vector2();
@@ -106,6 +128,14 @@ public class CameraTool extends ApplicationAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
     iso.update();
+
+    final float delta = Gdx.graphics.getDeltaTime();
+    final boolean touched = Gdx.input.isTouched();
+    accumulator += delta;
+    while (accumulator >= Animation.FRAME_DURATION) {
+      accumulator -= Animation.FRAME_DURATION;
+      if (touched) moveToCursor(0.25f);
+    }
 
     shapes.setTransformMatrix(center);
     shapes.setProjectionMatrix(idt);
@@ -137,18 +167,6 @@ public class CameraTool extends ApplicationAdapter {
       shapes.line(-320, 160, 320, -160);
       shapes.line(-320, -160, 320, 160);
     } shapes.end();
-
-//    vec2.set(
-//        Gdx.input.getX() - Gdx.graphics.getWidth()  / 2,
-//        Gdx.graphics.getHeight() / 2 - Gdx.input.getY());
-//    iso.toWorld(vec2);
-//    System.out.println(vec2);
-//    vec2.x = (int) vec2.x;
-//    vec2.y = (int) vec2.y;
-//    System.out.println(vec2);
-//    vec2.set(Gdx.input.getX(), Gdx.input.getY());
-//    iso.unproject(vec2);
-//    System.out.println(vec2);
 
     shapes.begin(ShapeRenderer.ShapeType.Line); {
       vec2.set(Gdx.input.getX(), Gdx.input.getY());
