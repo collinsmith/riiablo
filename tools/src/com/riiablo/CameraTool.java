@@ -46,6 +46,7 @@ public class CameraTool extends ApplicationAdapter {
     font = new BitmapFont();
     iso = new IsometricCamera();
     shapes = new ShapeRenderer();
+    shapes.setAutoShapeType(true);
     center.set(shapes.getTransformMatrix()).translate(
         Gdx.graphics.getWidth()  / 2,
         Gdx.graphics.getHeight() / 2,
@@ -68,25 +69,26 @@ public class CameraTool extends ApplicationAdapter {
 
       @Override
       public boolean keyDown(int keycode) {
+        final float AMOUNT = 0.25f;
         switch (keycode) {
           case Keys.W:
           case Keys.UP:
-            iso.translate(0, -1);
+            iso.translate(0, -AMOUNT);
             break;
 
           case Keys.S:
           case Keys.DOWN:
-            iso.translate(0,  1);
+            iso.translate(0,  AMOUNT);
             break;
 
           case Keys.A:
           case Keys.LEFT:
-            iso.translate(-1, 0);
+            iso.translate(-AMOUNT, 0);
             break;
 
           case Keys.D:
           case Keys.RIGHT:
-            iso.translate( 1, 0);
+            iso.translate( AMOUNT, 0);
             break;
         }
         return super.keyDown(keycode);
@@ -96,6 +98,7 @@ public class CameraTool extends ApplicationAdapter {
 
   final Vector2 vec2 = new Vector2();
   final Vector2 loc  = new Vector2();
+  final Vector2 pos  = new Vector2();
 
   @Override
   public void render() {
@@ -157,14 +160,20 @@ public class CameraTool extends ApplicationAdapter {
       shapes.setColor(Color.SALMON);
       DebugUtils.drawDiamond(shapes, vec2.x, vec2.y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
 
+      shapes.set(ShapeRenderer.ShapeType.Filled);
       shapes.setColor(Color.GREEN);
-      shapes.point(vec2.x, vec2.y, 0);
+      shapes.rect(vec2.x - 0.5f, vec2.y - 0.5f, 1, 1);
     } shapes.end();
+
+    pos.set(iso.position);
+    iso.toTile50(pos);
 
     batch.begin();
     StringBuilder builder = new StringBuilder()
-        .append(loc)
-        .append(vec2);
+        .append(iso.position).append('\n')
+        .append(pos).append('\n')
+        .append(loc).append('\n')
+        .append(vec2).append('\n');
     font.draw(batch, builder.toString(), 0, Gdx.graphics.getHeight());
     batch.end();
   }

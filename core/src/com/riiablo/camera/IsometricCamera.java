@@ -8,8 +8,8 @@ import com.riiablo.util.EngineUtils;
 public class IsometricCamera extends OrthographicCamera {
 
   private final Vector2 tmp = new Vector2();
-  private final Vector2 offset = new Vector2();
-  private final Vector2 position = new Vector2();
+  public final Vector2 offset = new Vector2();
+  public final Vector2 position = new Vector2();
 
   public IsometricCamera() {}
 
@@ -68,6 +68,16 @@ public class IsometricCamera extends OrthographicCamera {
   public Vector2 toTile(float x, float y, Vector2 dst) {
     dst.x = x < 0 ? MathUtils.floor(x) : MathUtils.floorPositive(x);
     dst.y = y < 0 ? MathUtils.floor(y) : MathUtils.floorPositive(y);
+    return dst;
+  }
+
+  public Vector2 toTile50(Vector2 worldCoords) {
+    return toTile50(worldCoords.x, worldCoords.y, worldCoords);
+  }
+
+  public Vector2 toTile50(float x, float y, Vector2 dst) {
+    dst.x = x < 0 ? MathUtils.round(x) : MathUtils.roundPositive(x);
+    dst.y = y < 0 ? MathUtils.round(y) : MathUtils.roundPositive(y);
     return dst;
   }
 }
