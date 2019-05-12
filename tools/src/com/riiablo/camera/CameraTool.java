@@ -127,8 +127,6 @@ public class CameraTool extends ApplicationAdapter {
   public void render() {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    iso.update();
-
     final float delta = Gdx.graphics.getDeltaTime();
     final boolean touched = Gdx.input.isTouched();
     accumulator += delta;
@@ -136,6 +134,8 @@ public class CameraTool extends ApplicationAdapter {
       accumulator -= Animation.FRAME_DURATION;
       if (touched) moveToCursor(0.25f);
     }
+
+    iso.update();
 
     shapes.setTransformMatrix(center);
     shapes.setProjectionMatrix(idt);
@@ -156,8 +156,8 @@ public class CameraTool extends ApplicationAdapter {
       shapes.line(0, 0, 0, 8);
 
       shapes.setColor(Color.WHITE);
-      for (int x = -160; x < 160; x += 32) {
-        for (int y = -80; y <= 80; y += 16) {
+      for (int x = -320; x < 320; x += 32) {
+        for (int y = -160; y <= 160; y += 16) {
           shapes.line(x, y, x + 32, y + 16);
           shapes.line(x, y + 16, x + 32, y);
         }
@@ -185,7 +185,7 @@ public class CameraTool extends ApplicationAdapter {
     } shapes.end();
 
     pos.set(iso.position);
-    iso.toTile50(pos);
+    iso.toTile(pos);
 
     float width;
     batch.begin();
