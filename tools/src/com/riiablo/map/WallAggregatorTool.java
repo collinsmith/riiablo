@@ -260,10 +260,14 @@ public class WallAggregatorTool extends ApplicationAdapter {
           case -1:
             camera.zoom = MathUtils.clamp(camera.zoom - AMOUNT, 0.01f, 2);
             camera.update();
+            mapRenderer.camera.zoom -= 0.024f;
+            mapRenderer.camera.update();
             break;
           case 1:
             camera.zoom = MathUtils.clamp(camera.zoom + AMOUNT, 0.01f, 2);
             camera.update();
+            mapRenderer.camera.zoom += 0.024f;
+            mapRenderer.camera.update();
             break;
         }
         System.out.println(camera.zoom);
