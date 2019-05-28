@@ -41,7 +41,6 @@ public class Animation extends BaseDrawable {
   private float   elapsedTime;
   private Layer   layers[];
   private COF     cof;
-  //private Bits  cache[];
   private BBox    box;
   private boolean highlighted;
 
