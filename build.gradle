@@ -14,7 +14,6 @@ buildscript {
 }
 
 allprojects {
-    apply plugin: "eclipse"
     apply plugin: "idea"
 
     version = '1.0'
@@ -226,8 +225,4 @@ project(":mpqlib") {
         compile project(":core")
         compile "com.badlogicgames.gdx:gdx-jnigen:$gdxVersion"
     }
-}
-
-tasks.eclipse.doLast {
-    delete ".project"
 }

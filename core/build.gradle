@@ -17,10 +17,6 @@ idea {
     }
 }
 
-eclipse.project {
-    name = appName + "-core"
-}
-
 task createFlatBuffers(type: FlatBuffers) {
     inputDir = file("src/com/riiablo/net/")
     outputDir = file("gen/")
