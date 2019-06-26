@@ -71,7 +71,7 @@ project(":tools") {
         compile project(":core")
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        compile "com.badlogicgames.gdx:gdx-backend-headless:1.9.9"
+        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
 
     }
 
@@ -193,7 +193,7 @@ project(":core") {
 
     dependencies {
         testCompile 'junit:junit:4.12'
-        testCompile "com.badlogicgames.gdx:gdx-backend-headless:1.9.9"
+        testCompile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }
@@ -203,7 +203,7 @@ project(":server") {
 
     dependencies {
         // TODO: $gdxVersion is pulling an older file for some reason
-        compile "com.badlogicgames.gdx:gdx-backend-headless:1.9.9"
+        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 
