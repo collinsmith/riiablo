@@ -75,6 +75,8 @@ public class DesktopLauncher {
     config.addIcon("ic_launcher_32.png",  Files.FileType.Internal);
     config.addIcon("ic_launcher_16.png",  Files.FileType.Internal);
     config.resizable = false;
+    //config.width  = 1280;//853;
+    //config.height = 720;//480;
     config.allowSoftwareMode = cmd != null && cmd.hasOption("allowSoftwareMode");
 
     int width  = NumberUtils.toInt(cmd.getOptionValue('i', "853"));
