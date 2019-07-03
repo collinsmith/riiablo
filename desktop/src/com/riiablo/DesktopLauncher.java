@@ -75,16 +75,12 @@ public class DesktopLauncher {
     config.addIcon("ic_launcher_32.png",  Files.FileType.Internal);
     config.addIcon("ic_launcher_16.png",  Files.FileType.Internal);
     config.resizable = false;
-    //config.width  = 1280;//853;
-    //config.height = 720;//480;
-    //config.width  = Diablo.VIRTUAL_WIDTH;
-    //config.height = Diablo.VIRTUAL_HEIGHT;
     config.allowSoftwareMode = cmd != null && cmd.hasOption("allowSoftwareMode");
 
-    int width  = NumberUtils.toInt(cmd.getOptionValue('i'));
-    int height = NumberUtils.toInt(cmd.getOptionValue('o'));
-    config.width = width;//853;
-    config.height = height;//480;
+    int width  = NumberUtils.toInt(cmd.getOptionValue('i', "853"));
+    int height = NumberUtils.toInt(cmd.getOptionValue('o', "480"));
+    config.width = width;
+    config.height = height;
     final Client client = new Client(home, height);
     if (cmd != null) {
       client.setWindowedForced(cmd.hasOption("w"));
