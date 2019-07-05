@@ -17,6 +17,9 @@ task run(dependsOn: classes, type: JavaExec) {
     
     if(Os.isFamily(Os.FAMILY_MAC))
         jvmArgs += "-XstartOnFirstThread"
+
+    if(project.hasProperty('args'))
+        args project.args.split(',')
 }
 
 task debug(dependsOn: classes, type: JavaExec) {
