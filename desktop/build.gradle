@@ -19,7 +19,7 @@ task run(dependsOn: classes, type: JavaExec) {
         jvmArgs += "-XstartOnFirstThread"
 
     if(project.hasProperty('args'))
-        args project.args.split(',')
+        args project.args.split(' ')
 }
 
 task debug(dependsOn: classes, type: JavaExec) {
