@@ -1,0 +1,10 @@
+namespace com.riiablo.net.packet.bnls;
+
+table QueryRealms {
+  realms:[Realm];
+}
+
+table Realm {
+  name:string;
+  desc:string;
+}

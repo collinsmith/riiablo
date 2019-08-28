@@ -1,0 +1,13 @@
+include "QueryRealms.fbs";
+
+namespace com.riiablo.net.packet.bnls;
+
+union BNLSData {
+  QueryRealms,
+}
+
+table BNLS {
+  data:BNLSData;
+}
+
+root_type BNLS;
