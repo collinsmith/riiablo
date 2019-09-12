@@ -1,8 +1,10 @@
+include "ConnectionClosed.fbs";
 include "QueryRealms.fbs";
 
 namespace com.riiablo.net.packet.bnls;
 
 union BNLSData {
+  ConnectionClosed,
   QueryRealms,
 }
 

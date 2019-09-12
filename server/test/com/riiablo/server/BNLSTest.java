@@ -60,7 +60,12 @@ public class BNLSTest {
       buffer.rewind();
 
       com.riiablo.net.packet.bnls.BNLS packet = com.riiablo.net.packet.bnls.BNLS.getRootAsBNLS(buffer);
-      Gdx.app.log(TAG, "packet " + packet.dataType());
+      Gdx.app.log(TAG, "packet " + BNLSData.name(packet.dataType()));
+
+      if (packet.dataType() == BNLSData.ConnectionClosed) {
+        Gdx.app.log(TAG, "connection closed.");
+        return;
+      }
 
       QueryRealms qr = (QueryRealms) packet.data(new QueryRealms());
       Gdx.app.log(TAG, "realms:");
