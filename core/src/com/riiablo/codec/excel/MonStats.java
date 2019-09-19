@@ -181,10 +181,8 @@ public class MonStats extends Excel<MonStats.Entry> {
     public int     El1MaxD[];
     @Column(format = "El1Dur%s", values = {"", "(N)", "(H)"}, endIndex = 3)
     public int     El1Dur[];
-    @Column(format = "El2Mode%s", values = {"", "(N)", "(H)"}, endIndex = 3)
-    public String  El2Mode[];
-    @Column(format = "El2Type%s", values = {"", "(N)", "(H)"}, endIndex = 3)
-    public String  El2Type[];
+    @Column public String  El2Mode;
+    @Column public String  El2Type;
     @Column(format = "El2Pct%s", values = {"", "(N)", "(H)"}, endIndex = 3)
     public int     El2Pct[];
     @Column(format = "El2MinD%s", values = {"", "(N)", "(H)"}, endIndex = 3)
@@ -193,10 +191,8 @@ public class MonStats extends Excel<MonStats.Entry> {
     public int     El2MaxD[];
     @Column(format = "El2Dur%s", values = {"", "(N)", "(H)"}, endIndex = 3)
     public int     El2Dur[];
-    @Column(format = "El3Mode%s", values = {"", "(N)", "(H)"}, endIndex = 3)
-    public String  El3Mode[];
-    @Column(format = "El3Type%s", values = {"", "(N)", "(H)"}, endIndex = 3)
-    public String  El3Type[];
+    @Column public String  El3Mode;
+    @Column public String  El3Type;
     @Column(format = "El3Pct%s", values = {"", "(N)", "(H)"}, endIndex = 3)
     public int     El3Pct[];
     @Column(format = "El3MinD%s", values = {"", "(N)", "(H)"}, endIndex = 3)
