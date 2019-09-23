@@ -350,21 +350,6 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
   public void writeBin(DataOutput out) throws IOException {}
 
-  public static <T extends Excel> T read(Class<T> excelClass, DataInput in) {
-    if (!isBinned(excelClass)) {
-      throw new GdxRuntimeException(excelClass + " is not annotated with " + Excel.Binned.class);
-    }
-
-    try {
-      T excel = excelClass.newInstance();
-      excel.readBin(in);
-      excel.init();
-      return excel;
-    } catch (Throwable t) {
-      throw new GdxRuntimeException("Couldn't load excel " + excelClass, t);
-    }
-  }
-
   @SuppressWarnings("unchecked")
   private static Class<Entry> getEntryClass(Class excelClass) {
     Class[] declaredClasses = excelClass.getDeclaredClasses();
