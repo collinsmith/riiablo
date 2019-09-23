@@ -12,4 +12,8 @@ public class ClassUtils {
       return false;
     }
   }
+
+  public static boolean hasAnnotation(Class c, Class annotationClass) {
+    return c.getAnnotation(annotationClass) != null;
+  }
 }

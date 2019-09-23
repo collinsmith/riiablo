@@ -10,6 +10,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -100,8 +101,8 @@ public class DS1Viewer extends ApplicationAdapter {
     Riiablo.cofs = new COFs(assets);
     //COFD2.loadFromFile(resolver.resolve("data\\global\\cmncof_a1.d2"));
 
-    TXT txt = TXT.loadFromFile(Gdx.files.local("data/ds1types.txt"));
-    DS1Types = Excel.parse(txt, com.riiablo.map.DS1Types.class);
+    FileHandle txt = Gdx.files.local("data/ds1types.txt");
+    DS1Types = Excel.load(com.riiablo.map.DS1Types.class, txt);
 
     VisUI.load();
 

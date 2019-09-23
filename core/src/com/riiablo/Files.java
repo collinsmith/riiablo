@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.riiablo.codec.TXT;
 import com.riiablo.codec.excel.ArmType;
 import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.BodyLocs;
@@ -141,7 +140,7 @@ public class Files {
     MagicSuffix      = load(MagicSuffix.class, Excel.EXPANSION);
     MonAI            = load(MonAI.class);
     MonMode          = load(MonMode.class);
-    monstats         = load2(MonStats.class, Excel.EXPANSION);
+    monstats         = load(MonStats.class, Excel.EXPANSION);
     monstats2        = load(MonStats2.class, Excel.EXPANSION);
     RarePrefix       = load(RarePrefix.class, Excel.EXPANSION);
     RareSuffix       = load(RareSuffix.class, Excel.EXPANSION);
@@ -176,8 +175,7 @@ public class Files {
 
   private <T extends Excel> T loadInternal(Class<T> clazz, String filename) {
     FileHandle handle = Gdx.files.internal("data/" + filename + ".txt");
-    TXT txt = TXT.loadFromFile(handle);
-    return Excel.parse(txt, clazz);
+    return Excel.load(clazz, handle);
   }
 
   private <T extends Excel> T load(Class<T> clazz, ObjectSet<String> ignore) {
@@ -189,8 +187,8 @@ public class Files {
   }
 
   private <T extends Excel> T load(Class<T> clazz, String tableName, ObjectSet<String> ignore) {
-    FileHandle handle = Riiablo.mpqs.resolve(EXCEL_PATH + tableName + ".txt");
-    TXT txt = TXT.loadFromFile(handle);
-    return Excel.parse(txt, clazz, ignore);
+    FileHandle txt = Riiablo.mpqs.resolve(EXCEL_PATH + tableName + ".txt");
+    FileHandle bin = Gdx.files.internal(EXCEL_PATH + tableName + ".bin");
+    return Excel.load(clazz, txt, bin, ignore);
   }
 }
