@@ -107,57 +107,62 @@ public class Files {
   public final WeaponClass      WeaponClass;
   public final Weapons          weapons;
 
+  public Files() {
+    this(null);
+  }
+
+  // TODO: refactor the removal of this constructor throughout project
   public Files(AssetManager assets) {
     long start = System.currentTimeMillis();
     obj    = loadInternal(Obj.class);
     speech = loadInternal(Speech.class);
     quests = loadInternal(Quests.class);
 
-    armor            = load(assets, Armor.class, Excel.EXPANSION);
-    ArmType          = load(assets, ArmType.class);
-    bodylocs         = load(assets, BodyLocs.class);
-    CharStats        = load(assets, CharStats.class, Excel.EXPANSION);
-    colors           = load(assets, Colors.class);
-    Composit         = load(assets, Composit.class);
-    compcode         = load(assets, CompCode.class);
-    DifficultyLevels = load(assets, DifficultyLevels.class);
-    Gems             = load(assets, Gems.class, Excel.EXPANSION);
-    inventory        = load(assets, Inventory.class);
-    ItemStatCost     = load(assets, ItemStatCost.class);
-    ItemTypes        = load(assets, ItemTypes.class);
-    Levels           = load(assets, Levels.class, Excel.EXPANSION);
-    LowQualityItems  = load(assets, LowQualityItems.class);
-    LvlPrest         = load(assets, LvlPrest.class);
-    LvlTypes         = load(assets, LvlTypes.class);
-    LvlWarp          = load(assets, LvlWarp.class, Excel.EXPANSION);
-    misc             = load(assets, Misc.class, Excel.EXPANSION);
-    Missiles         = load(assets, Missiles.class);
-    MagicPrefix      = load(assets, MagicPrefix.class, Excel.EXPANSION);
-    MagicSuffix      = load(assets, MagicSuffix.class, Excel.EXPANSION);
-    MonAI            = load(assets, MonAI.class);
-    MonMode          = load(assets, MonMode.class);
-    monstats         = load(assets, MonStats.class, Excel.EXPANSION);
-    monstats2        = load(assets, MonStats2.class, Excel.EXPANSION);
-    RarePrefix       = load(assets, RarePrefix.class, Excel.EXPANSION);
-    RareSuffix       = load(assets, RareSuffix.class, Excel.EXPANSION);
-    Runes            = load(assets, Runes.class);
-    objects          = load(assets, Objects.class);
-    ObjMode          = load(assets, ObjMode.class);
-    Overlay          = load(assets, Overlay.class, Excel.EXPANSION);
-    PlrMode          = load(assets, PlrMode.class);
-    PlrType          = load(assets, PlrType.class);
-    Properties       = load(assets, Properties.class, Excel.EXPANSION);
-    QualityItems     = load(assets, QualityItems.class);
-    Sets             = load(assets, Sets.class, Excel.EXPANSION);
-    SetItems         = load(assets, SetItems.class, Excel.EXPANSION);
-    skills           = load(assets, Skills.class);
-    skilldesc        = load(assets, SkillDesc.class);
-    Sounds           = load(assets, Sounds.class);
-    UniqueItems      = load(assets, UniqueItems.class, Excel.EXPANSION);
-    //UniquePrefix   = load(assets, UniquePrefix.class);
-    //UniqueSuffix   = load(assets, UniqueSuffix.class);
-    WeaponClass      = load(assets, WeaponClass.class);
-    weapons          = load(assets, Weapons.class, Excel.EXPANSION);
+    armor            = load(Armor.class, Excel.EXPANSION);
+    ArmType          = load(ArmType.class);
+    bodylocs         = load(BodyLocs.class);
+    CharStats        = load(CharStats.class, Excel.EXPANSION);
+    colors           = load(Colors.class);
+    Composit         = load(Composit.class);
+    compcode         = load(CompCode.class);
+    DifficultyLevels = load(DifficultyLevels.class);
+    Gems             = load(Gems.class, Excel.EXPANSION);
+    inventory        = load(Inventory.class);
+    ItemStatCost     = load(ItemStatCost.class);
+    ItemTypes        = load(ItemTypes.class);
+    Levels           = load(Levels.class, Excel.EXPANSION);
+    LowQualityItems  = load(LowQualityItems.class);
+    LvlPrest         = load(LvlPrest.class);
+    LvlTypes         = load(LvlTypes.class);
+    LvlWarp          = load(LvlWarp.class, Excel.EXPANSION);
+    misc             = load(Misc.class, Excel.EXPANSION);
+    Missiles         = load(Missiles.class);
+    MagicPrefix      = load(MagicPrefix.class, Excel.EXPANSION);
+    MagicSuffix      = load(MagicSuffix.class, Excel.EXPANSION);
+    MonAI            = load(MonAI.class);
+    MonMode          = load(MonMode.class);
+    monstats         = load2(MonStats.class, Excel.EXPANSION);
+    monstats2        = load(MonStats2.class, Excel.EXPANSION);
+    RarePrefix       = load(RarePrefix.class, Excel.EXPANSION);
+    RareSuffix       = load(RareSuffix.class, Excel.EXPANSION);
+    Runes            = load(Runes.class);
+    objects          = load(Objects.class);
+    ObjMode          = load(ObjMode.class);
+    Overlay          = load(Overlay.class, Excel.EXPANSION);
+    PlrMode          = load(PlrMode.class);
+    PlrType          = load(PlrType.class);
+    Properties       = load(Properties.class, Excel.EXPANSION);
+    QualityItems     = load(QualityItems.class);
+    Sets             = load(Sets.class, Excel.EXPANSION);
+    SetItems         = load(SetItems.class, Excel.EXPANSION);
+    skills           = load(Skills.class);
+    skilldesc        = load(SkillDesc.class);
+    Sounds           = load(Sounds.class);
+    UniqueItems      = load(UniqueItems.class, Excel.EXPANSION);
+    //UniquePrefix   = load(UniquePrefix.class);
+    //UniqueSuffix   = load(UniqueSuffix.class);
+    WeaponClass      = load(WeaponClass.class);
+    weapons          = load(Weapons.class, Excel.EXPANSION);
 
     long end = System.currentTimeMillis();
     Gdx.app.debug(TAG, "Loaded files in " + (end - start) + "ms");
@@ -175,15 +180,15 @@ public class Files {
     return Excel.parse(txt, clazz);
   }
 
-  private <T extends Excel> T load(AssetManager assets, Class<T> clazz, ObjectSet<String> ignore) {
-    return load(assets, clazz, clazz.getSimpleName(), ignore);
+  private <T extends Excel> T load(Class<T> clazz, ObjectSet<String> ignore) {
+    return load(clazz, clazz.getSimpleName(), ignore);
   }
 
-  private <T extends Excel> T load(AssetManager assets, Class<T> clazz) {
-    return load(assets, clazz, clazz.getSimpleName(), Excel.<String>emptySet());
+  private <T extends Excel> T load(Class<T> clazz) {
+    return load(clazz, clazz.getSimpleName(), Excel.<String>emptySet());
   }
 
-  private <T extends Excel> T load(AssetManager assets, Class<T> clazz, String tableName, ObjectSet<String> ignore) {
+  private <T extends Excel> T load(Class<T> clazz, String tableName, ObjectSet<String> ignore) {
     FileHandle handle = Riiablo.mpqs.resolve(EXCEL_PATH + tableName + ".txt");
     TXT txt = TXT.loadFromFile(handle);
     return Excel.parse(txt, clazz, ignore);
