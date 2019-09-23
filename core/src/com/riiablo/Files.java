@@ -54,6 +54,9 @@ import com.riiablo.codec.excel.WeaponClass;
 import com.riiablo.codec.excel.Weapons;
 
 public class Files {
+  private static final String TAG = "Files";
+  private static final String EXCEL_PATH = "data\\global\\excel\\";
+
   public final Obj    obj;
   public final Speech speech;
   public final Quests quests;
@@ -105,6 +108,7 @@ public class Files {
   public final Weapons          weapons;
 
   public Files(AssetManager assets) {
+    long start = System.currentTimeMillis();
     obj    = loadInternal(Obj.class);
     speech = loadInternal(Speech.class);
     quests = loadInternal(Quests.class);
@@ -155,6 +159,9 @@ public class Files {
     WeaponClass      = load(assets, WeaponClass.class);
     weapons          = load(assets, Weapons.class, Excel.EXPANSION);
 
+    long end = System.currentTimeMillis();
+    Gdx.app.debug(TAG, "Loaded files in " + (end - start) + "ms");
+
     Sets.index(SetItems);
   }
 
@@ -177,7 +184,7 @@ public class Files {
   }
 
   private <T extends Excel> T load(AssetManager assets, Class<T> clazz, String tableName, ObjectSet<String> ignore) {
-    FileHandle handle = Riiablo.mpqs.resolve("data\\global\\excel\\" + tableName + ".txt");
+    FileHandle handle = Riiablo.mpqs.resolve(EXCEL_PATH + tableName + ".txt");
     TXT txt = TXT.loadFromFile(handle);
     return Excel.parse(txt, clazz, ignore);
   }
