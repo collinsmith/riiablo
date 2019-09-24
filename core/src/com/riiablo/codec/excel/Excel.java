@@ -67,15 +67,17 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Column {
       /** Used to index format */
-      int    startIndex()  default 0;
+      int     startIndex()  default 0;
       /** Used to index format */
-      int    endIndex()    default 0;
+      int     endIndex()    default 0;
       /** Format of column name, if not set, then field name is used */
-      String format()      default "";
+      String  format()      default "";
       /** Used to index format not non-numerical indexes */
-      String values()[]    default {};
+      String  values()[]    default {};
       /** Sets index of column of value (used for cases like weapons.txt where one column has no name) */
-      int    columnIndex() default -1;
+      int     columnIndex() default -1;
+      /** Whether or not to read/write value in bin codec */
+      boolean bin()         default true;
     }
 
     @Target(ElementType.FIELD)

@@ -15,6 +15,8 @@ public class ExcelGenerationTool {
     Field[] fields = clazz.getFields();
     for (int i = 0; i < fields.length; i++) {
       Field field = fields[i];
+      Excel.Entry.Column column = field.getAnnotation(Excel.Entry.Column.class);
+      if (!column.bin()) continue;
       Class type = field.getType();
       if (type.isArray()) {
         type = type.getComponentType();
@@ -29,6 +31,7 @@ public class ExcelGenerationTool {
     for (int i = 0; i < fields.length; i++) {
       Field field = fields[i];
       Excel.Entry.Column column = field.getAnnotation(Excel.Entry.Column.class);
+      if (!column.bin()) continue;
       Class type = field.getType();
       if (type.isArray()) {
         type = type.getComponentType();
