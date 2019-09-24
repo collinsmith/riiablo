@@ -42,6 +42,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
   private static final boolean DEBUG_TIME    = DEBUG && true;
 
   private static final boolean FORCE_PRIMARY_KEY = false;
+  private static final boolean FORCE_TXT = !true;
 
   private static final ObjectSet EMPTY_SET = new ObjectSet<>();
   private static final ObjectIntMap EMPTY_MAP = new ObjectIntMap<>();
@@ -108,7 +109,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
       T excel;
       FileHandle file;
-      if (isBinned(excelClass) && bin != null && bin.exists()) {
+      if (!FORCE_TXT && isBinned(excelClass) && bin != null && bin.exists()) {
         if (DEBUG_BIN) Gdx.app.debug(TAG, "Loading bin " + bin);
         excel = loadBin(bin, excelClass);
         file = bin;
