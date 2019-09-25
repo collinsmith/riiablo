@@ -24,7 +24,7 @@ public class MonStats2 extends Excel<MonStats2.Entry> {
         "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"
     })
     public String  ComponentV[];
-    @Column(values = {
+    @Column(endIndex = 16, values = {
         "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"
     })
     public boolean Components[];
