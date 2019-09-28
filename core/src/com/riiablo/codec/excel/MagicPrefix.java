@@ -1,8 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-import com.riiablo.codec.excel.MagicAffix;
-
+@Excel.Binned
 public class MagicPrefix extends Excel<MagicPrefix.Entry> {
   @Override
   protected int offset() {

@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class PlrType extends Excel<PlrType.Entry> {
   public static final int AM = 0;
   public static final int SO = 1;

@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class BodyLocs extends Excel<BodyLocs.Entry> {
   public static final int NONE  = 0;
   public static final int HEAD  = 1;

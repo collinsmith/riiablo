@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -37,9 +38,10 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
   private static final boolean DEBUG_IGNORED = DEBUG && !true;
   private static final boolean DEBUG_ENTRIES = DEBUG && !true;
   private static final boolean DEBUG_INDEXES = DEBUG && !true;
-  private static final boolean DEBUG_KEY     = DEBUG && !true;
-  private static final boolean DEBUG_BIN     = DEBUG && true;
+  private static final boolean DEBUG_KEY     = DEBUG && true;
+  private static final boolean DEBUG_TYPE    = DEBUG && true;
   private static final boolean DEBUG_TIME    = DEBUG && true;
+  private static final boolean DEBUG_BIN     = DEBUG && true;
 
   private static final boolean FORCE_PRIMARY_KEY = false;
   private static final boolean FORCE_TXT = !true;
@@ -83,10 +85,6 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Key {}
-
-    public void readBin(DataInput in) throws IOException {}
-
-    public void writeBin(DataOutput out) throws IOException {}
   }
 
   ObjectIntMap<String> STRING_TO_ID = EMPTY_MAP;
@@ -112,11 +110,11 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
       T excel;
       FileHandle file;
       if (!FORCE_TXT && isBinned(excelClass) && bin != null && bin.exists()) {
-        if (DEBUG_BIN) Gdx.app.debug(TAG, "Loading bin " + bin);
-        excel = loadBin(bin, excelClass);
+        if (DEBUG_TYPE) Gdx.app.debug(TAG, "Loading bin " + bin);
+        excel = loadBin(bin, excelClass, entryClass);
         file = bin;
       } else {
-        if (DEBUG_BIN) Gdx.app.debug(TAG, "Loading txt " + txt);
+        if (DEBUG_TYPE) Gdx.app.debug(TAG, "Loading txt " + txt);
         excel = loadTxt(txt, excelClass, entryClass, ignore);
         file = txt;
       }
@@ -131,6 +129,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static <T extends Excel> T loadTxt(FileHandle handle, Class<T> excelClass, Class<Entry> entryClass, ObjectSet<String> ignore) throws Exception {
     TXT txt = TXT.loadFromFile(handle);
 
@@ -309,35 +308,65 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
         }
       }
 
-      if (index) {
-        excel.put(j++, entry);
-      } else if (primaryKeyType == int.class) {
-        int id = primaryKey.getInt(entry);
-        excel.put(id, entry);
-      } else if (primaryKeyType == String.class) {
-        String id = name;//(String) primaryKey.get(entry);
-        excel.put(j, entry);
-
-        if (excel.STRING_TO_ID == EMPTY_MAP) excel.STRING_TO_ID = new ObjectIntMap();
-        if (!excel.STRING_TO_ID.containsKey(id)) excel.STRING_TO_ID.put(id, j);
-        j++;
-      }
+      putIndex(primaryKey, primaryKeyType, j++, index, excel, entry);
     }
 
     return excel;
   }
 
-  private static <T extends Excel> T loadBin(FileHandle bin, Class<T> excelClass) throws Exception {
+  private static <T extends Excel> T loadBin(FileHandle bin, Class<T> excelClass, Class<Entry> entryClass) throws Exception {
+    final boolean index = ClassUtils.hasAnnotation(entryClass, Index.class);
+
     byte[] bytes = bin.readBytes();
     InputStream in = null;
     try {
       in = new ByteArrayInputStream(bytes);
       LittleEndianDataInputStream dis = new LittleEndianDataInputStream(in);
       T excel = excelClass.newInstance();
-      excel.readBin(dis);
+
+      Field primaryKey = ClassUtils.findField(entryClass, Entry.Key.class);
+
+      if (primaryKey == null && !index) {
+        if (FORCE_PRIMARY_KEY) {
+          throw new IllegalStateException(entryClass + " does not have a " + Entry.Key.class + " set!");
+        } else {
+          primaryKey = entryClass.getFields()[0];
+          Gdx.app.error(TAG, entryClass + " does not have a " + Entry.Key.class + " set! Using " + primaryKey.getName());
+        }
+      }
+
+      Class primaryKeyType = index ? null : primaryKey.getType();
+
+      Class binClass = Class.forName(excelClass.getName() + "Bin");
+      Method readBin = binClass.getMethod("readBin", entryClass, DataInput.class);
+
+      int size = dis.readInt();
+      if (DEBUG_BIN) Gdx.app.debug(TAG, "Reading " + size + " entries...");
+      for (int i = 0, j = excel.offset(); i < size; i++, j++) {
+        Entry entry = entryClass.newInstance();
+        readBin.invoke(null, entry, dis);
+        putIndex(primaryKey, primaryKeyType, j, index, excel, entry);
+      }
+
       return excel;
     } finally {
       StreamUtils.closeQuietly(in);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Excel> void putIndex(Field primaryKey, Class primaryKeyType, int j, boolean indexed, T excel, Entry entry) throws Exception {
+    if (indexed) {
+      excel.put(j, entry);
+    } else if (primaryKeyType == int.class) {
+      int id = primaryKey.getInt(entry);
+      excel.put(id, entry);
+    } else if (primaryKeyType == String.class) {
+      String id = (String) primaryKey.get(entry);
+      excel.put(j, entry);
+
+      if (excel.STRING_TO_ID == EMPTY_MAP) excel.STRING_TO_ID = new ObjectIntMap<>();
+      if (!excel.STRING_TO_ID.containsKey(id)) excel.STRING_TO_ID.put(id, j);
     }
   }
 
@@ -351,7 +380,24 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
   public void readBin(DataInput in) throws IOException {}
 
-  public void writeBin(DataOutput out) throws IOException {}
+  public void writeBin(DataOutput out) throws IOException {
+    //if (!isBinned()) return;
+    Class excelClass = this.getClass();
+    Class<T> entryClass = (Class<T>) getEntryClass(excelClass);
+    String binClassName = excelClass.getName() + "Bin";
+    try {
+      Class binClass = Class.forName(binClassName);
+      Method writeBin = binClass.getMethod("writeBin", entryClass, DataOutput.class);
+
+      int size = size();
+      out.writeInt(size);
+      for (Entry entry : this) {
+        writeBin.invoke(null, entry, out);
+      }
+    } catch (Throwable t) {
+      throw new GdxRuntimeException("Failed to write bin for " + excelClass, t);
+    }
+  }
 
   @SuppressWarnings("unchecked")
   private static Class<Entry> getEntryClass(Class excelClass) {

@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class DifficultyLevels extends Excel<DifficultyLevels.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

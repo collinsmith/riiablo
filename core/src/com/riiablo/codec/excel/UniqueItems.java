@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class UniqueItems extends Excel<UniqueItems.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

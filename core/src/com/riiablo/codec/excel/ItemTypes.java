@@ -2,6 +2,7 @@ package com.riiablo.codec.excel;
 
 import com.riiablo.Riiablo;
 
+@Excel.Binned
 public class ItemTypes extends Excel<ItemTypes.Entry> {
   public boolean is(Entry entry, String type) {
     if (entry.Code.equals(type)) {

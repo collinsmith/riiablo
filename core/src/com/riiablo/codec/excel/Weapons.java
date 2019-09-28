@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class Weapons extends Excel<Weapons.Entry> {
   public static class Entry extends ItemEntry {
     @Column public String  wclass;

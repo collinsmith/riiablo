@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class MonAI extends Excel<MonAI.Entry> {
   public static class Entry extends Excel.Entry {
     public String getCode() {

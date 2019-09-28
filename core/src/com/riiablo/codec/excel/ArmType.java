@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class ArmType extends Excel<ArmType.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

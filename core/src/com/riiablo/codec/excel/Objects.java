@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class Objects extends Excel<Objects.Entry> {
   public static class Entry extends Excel.Entry {
     @Override
@@ -43,7 +42,7 @@ public class Objects extends Excel<Objects.Entry> {
     @Column public int     Yoffset, Xoffset;
     @Column public boolean Draw;
     @Column public int     Red, Green, Blue;
-    @Column(values = {
+    @Column(endIndex = 16, values = {
         "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"
     })
     public boolean Components[];

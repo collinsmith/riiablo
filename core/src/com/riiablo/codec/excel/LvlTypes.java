@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class LvlTypes extends Excel<LvlTypes.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

@@ -2,8 +2,10 @@ package com.riiablo.codec.excel;
 
 import com.riiablo.item.Stat;
 
+@Excel.Binned
 public class ItemStatCost extends Excel<ItemStatCost.Entry> {
   private static final boolean FIX_BYTIME_ENCODING = true; // changes bit counts
+  private static final boolean FIX_NULL_OP_STAT    = true; // sets op_stat to non-null array if null
 
   @Override
   protected void put(int id, Entry value) {
@@ -11,6 +13,9 @@ public class ItemStatCost extends Excel<ItemStatCost.Entry> {
     if (FIX_BYTIME_ENCODING && value.Encode == 4 && value.Save_Bits == 22) {
       value.Save_Bits       = 20; // encoded value
       value.Save_Param_Bits = 2;  // time of day
+    }
+    if (FIX_NULL_OP_STAT && value.op_stat == null) {
+      value.op_stat = new String[3];
     }
   }
 

@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class LvlWarp extends Excel<LvlWarp.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

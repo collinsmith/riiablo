@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class Armor extends Excel<Armor.Entry> {
   public static class Entry extends ItemEntry {
     @Column public int     Torso;

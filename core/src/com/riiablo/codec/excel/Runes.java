@@ -3,8 +3,7 @@ package com.riiablo.codec.excel;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class Runes extends Excel<Runes.Entry> {
   private static final String TAG = "Runes";
   private static final boolean DEBUG = !true;

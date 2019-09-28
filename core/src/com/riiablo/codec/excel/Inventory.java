@@ -2,8 +2,7 @@ package com.riiablo.codec.excel;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class Inventory extends Excel<Inventory.Entry> {
   public Entry getClass(int classId) {
     switch (classId) {

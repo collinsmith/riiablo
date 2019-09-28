@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class CharStats extends Excel<CharStats.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

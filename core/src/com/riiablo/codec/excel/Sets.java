@@ -3,6 +3,7 @@ package com.riiablo.codec.excel;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
+@Excel.Binned
 public class Sets extends Excel<Sets.Entry> {
   private final IntMap<Array<SetItems.Entry>> ITEMS = new IntMap<>();
 

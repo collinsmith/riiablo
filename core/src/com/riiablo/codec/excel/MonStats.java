@@ -1,36 +1,7 @@
 package com.riiablo.codec.excel;
 
-import com.badlogic.gdx.utils.ObjectIntMap;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
 @Excel.Binned
 public class MonStats extends Excel<MonStats.Entry> {
-  @Override
-  public void readBin(DataInput in) throws IOException {
-    STRING_TO_ID = new ObjectIntMap();
-    int size = in.readInt();
-    //System.out.println(size);
-    for (int i = 0; i < size; i++) {
-      Entry entry = new Entry();
-      entry.readBin(in);
-      //System.out.println(entry.hcIdx + ":" + entry.Id);
-      put(entry.hcIdx, entry);
-
-      if (!STRING_TO_ID.containsKey(entry.Id)) STRING_TO_ID.put(entry.Id, entry.hcIdx);
-    }
-  }
-
-  @Override
-  public void writeBin(DataOutput out) throws IOException {
-    out.writeInt(size());
-    for (MonStats.Entry entry : entries.values()) {
-      entry.writeBin(out);
-    }
-  }
-
   public static class Entry extends Excel.Entry {
     @Override
     public String toString() {
@@ -244,6 +215,7 @@ public class MonStats extends Excel<MonStats.Entry> {
     @Column public boolean SplEndGeneric;
     @Column public boolean SplClientEnd;
 
+    /*
     @Override
     public void readBin(DataInput in) throws IOException {
       Id = in.readUTF();
@@ -612,5 +584,6 @@ public class MonStats extends Excel<MonStats.Entry> {
       out.writeBoolean(SplEndGeneric);
       out.writeBoolean(SplClientEnd);
     }
+    */
   }
 }

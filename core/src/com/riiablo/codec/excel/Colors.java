@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class Colors extends Excel<Colors.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

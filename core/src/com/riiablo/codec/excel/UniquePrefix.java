@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class UniquePrefix extends Excel<UniquePrefix.Entry> {
   public static class Entry extends Excel.Entry {
     @Override

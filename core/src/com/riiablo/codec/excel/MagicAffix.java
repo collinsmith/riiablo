@@ -1,7 +1,5 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Affix;
-
 public class MagicAffix extends Affix {
   @Column public boolean spawnable;
   @Column public boolean rare;

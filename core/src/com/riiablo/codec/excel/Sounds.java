@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-
+@Excel.Binned
 public class Sounds extends Excel<Sounds.Entry> {
   @Override
   protected void put(int id, Entry value) {

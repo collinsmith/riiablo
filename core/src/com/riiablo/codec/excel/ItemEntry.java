@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class ItemEntry extends Excel.Entry {
   @Override
   public String toString() {

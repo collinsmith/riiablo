@@ -1,8 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-import com.riiablo.codec.excel.RareAffix;
-
+@Excel.Binned
 public class RarePrefix extends Excel<RarePrefix.Entry> {
   @Override
   protected int offset() {

@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class WeaponClass extends Excel<WeaponClass.Entry> {
   public Entry get(ItemEntry entry) {
     return entry instanceof com.riiablo.codec.excel.Weapons.Entry ? get(((Weapons.Entry) entry).wclass) : null;//get("NONE");

@@ -2,6 +2,7 @@ package com.riiablo.codec.excel;
 
 import java.util.Arrays;
 
+@Excel.Binned
 public class QualityItems extends Excel<QualityItems.Entry> {
   @Excel.Index
   public static class Entry extends Excel.Entry {

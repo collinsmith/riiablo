@@ -1,8 +1,6 @@
 package com.riiablo.codec.excel;
 
-import com.riiablo.codec.excel.Excel;
-import com.riiablo.codec.excel.ModeEntry;
-
+@Excel.Binned
 public class MonMode extends Excel<MonMode.Entry> {
   public static class Entry extends ModeEntry {
     public String getCode() {

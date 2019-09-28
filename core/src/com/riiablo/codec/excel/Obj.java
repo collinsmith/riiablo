@@ -1,5 +1,6 @@
 package com.riiablo.codec.excel;
 
+@Excel.Binned
 public class Obj extends Excel<Obj.Entry> {
   private static final int MAX_ACTS = 5;
   private static final int TYPE_SIZE[] = {60, 150};

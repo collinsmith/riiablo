@@ -2,6 +2,7 @@ package com.riiablo.codec.excel;
 
 import com.riiablo.CharacterClass;
 
+@Excel.Binned
 public class Skills extends Excel<Skills.Entry> {
   public static int getClassId(String charClass) {
     if (charClass.isEmpty()) return -1;
