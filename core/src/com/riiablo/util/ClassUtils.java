@@ -16,4 +16,14 @@ public class ClassUtils {
   public static boolean hasAnnotation(Class c, Class annotationClass) {
     return c.getAnnotation(annotationClass) != null;
   }
+
+  public static Field findField(Class c, Class annotationClass) {
+    for (Field f : c.getFields()) {
+      if (f.getAnnotation(annotationClass) != null) {
+        return f;
+      }
+    }
+
+    return null;
+  }
 }

@@ -112,11 +112,11 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
       if (!FORCE_TXT && isBinned(excelClass) && bin != null && bin.exists()) {
         if (DEBUG_TYPE) Gdx.app.debug(TAG, "Loading bin " + bin);
         excel = loadBin(bin, excelClass, entryClass);
-        file = bin;
+        if (DEBUG_TIME) file = bin;
       } else {
         if (DEBUG_TYPE) Gdx.app.debug(TAG, "Loading txt " + txt);
         excel = loadTxt(txt, excelClass, entryClass, ignore);
-        file = txt;
+        if (DEBUG_TIME) file = txt;
       }
 
       long end = System.currentTimeMillis();
@@ -314,6 +314,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
     return excel;
   }
 
+  @SuppressWarnings("unchecked")
   private static <T extends Excel> T loadBin(FileHandle bin, Class<T> excelClass, Class<Entry> entryClass) throws Exception {
     final boolean index = ClassUtils.hasAnnotation(entryClass, Index.class);
 
@@ -380,6 +381,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
   public void readBin(DataInput in) throws IOException {}
 
+  @SuppressWarnings("unchecked")
   public void writeBin(DataOutput out) throws IOException {
     //if (!isBinned()) return;
     Class excelClass = this.getClass();
