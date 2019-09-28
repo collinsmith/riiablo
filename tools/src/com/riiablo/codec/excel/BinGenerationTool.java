@@ -7,21 +7,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.StreamUtils;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ClassPathUtils;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 
 public class BinGenerationTool extends ApplicationAdapter {
   private static final String TAG = "BinGenerationTool";
+
+  private static final boolean VALIDATE_BIN = true;
 
   public static void main(String[] args) throws Exception {
     new HeadlessApplication(new BinGenerationTool(args));
@@ -80,9 +78,10 @@ public class BinGenerationTool extends ApplicationAdapter {
     Gdx.app.exit();
   }
 
+  @SuppressWarnings("unchecked")
   public void generate(FileHandle txt, FileHandle bin, Class<Excel> excelClass) throws Exception {
     Gdx.app.log(TAG, bin.toString());
-    Excel excel = Excel.load(excelClass, txt, Excel.EXPANSION);
+    Excel<Excel.Entry> excel = Excel.load(excelClass, txt, Excel.EXPANSION);
     OutputStream out = null;
     try {
       out = bin.write(false, 8192);
@@ -93,63 +92,24 @@ public class BinGenerationTool extends ApplicationAdapter {
     } finally {
       IOUtils.closeQuietly(out);
     }
-  }
 
-  public void generate2(String fileName, String className) throws Exception {
-    Class<Excel> excelClass = (Class<Excel>) Class.forName(className);
-    if (!Excel.isBinned(excelClass)) {
-      Gdx.app.log(TAG, excelClass + " is not annotated with " + Excel.Binned.class);
-      return;
-    }
-
-    File file = new File(fileName);
-    //InputStream in = FileUtils.openInputStream(file);
-    //TXT txt = TXT.loadFromStream(in);
-    FileHandle txt = new FileHandle(file);
-
-    Excel<Excel.Entry> excel = Excel.load(excelClass, txt, null, Excel.EXPANSION);
-
-    String binFileName = generateBinName(fileName);
-    File binFile = new File(binFileName);
-    Gdx.app.log(TAG, txt + "->" + binFileName);
-    OutputStream out = FileUtils.openOutputStream(binFile);
-    BufferedOutputStream buffer = new BufferedOutputStream(out);
-    LittleEndianDataOutputStream dos = null;
-    try {
-      dos = new LittleEndianDataOutputStream(buffer);
-      excel.writeBin(dos);
-    } finally {
-      StreamUtils.closeQuietly(dos);
-    }
-
-    Class<Excel.Entry> entryClass = getEntryClass(excelClass);
-    String binClassName = excelClass.getName() + "Bin";
-    Class binClass = Class.forName(binClassName);
-    Method equals = binClass.getMethod("equals", entryClass, entryClass);
-    Excel binExcel = Excel.load(excelClass, txt, new FileHandle(binFile), null);
-    if (binExcel.size() != excel.size()) System.out.println("excel sizes do not match!");
-    for (Excel.Entry e1 : excel) {
-      Excel.Entry eq = getEqual(equals, e1, binExcel);
-      if (eq == null) {
-        Gdx.app.log(TAG, "ERROR at index " + e1);
-        break;
-      } else {
-        Gdx.app.log(TAG, e1 + "=" + eq);
+    if (VALIDATE_BIN) {
+      Class<Excel.Entry> entryClass = getEntryClass(excelClass);
+      String binClassName = excelClass.getName() + "Bin";
+      Class binClass = Class.forName(binClassName);
+      Method equals = binClass.getMethod("equals", entryClass, entryClass);
+      Excel binExcel = Excel.load(excelClass, txt, bin, null);
+      if (binExcel.size() != excel.size()) Gdx.app.error(TAG, "excel sizes do not match!");
+      for (Excel.Entry e1 : excel) {
+        Excel.Entry eq = getEqual(equals, e1, binExcel);
+        if (eq == null) {
+          Gdx.app.log(TAG, "ERROR at index " + e1);
+          //break;
+        } else {
+          //Gdx.app.log(TAG, e1 + "=" + eq);
+        }
       }
     }
-
-    /*
-    InputStream in = FileUtils.openInputStream(binFile);
-    BufferedInputStream bufferIn = new BufferedInputStream(in);
-    LittleEndianDataInputStream dis = null;
-    try {
-      dis = new LittleEndianDataInputStream(bufferIn);
-      Excel copy = excelClass.newInstance();
-      copy.readBin(dis);
-    } finally {
-      StreamUtils.closeQuietly(dis);
-    }
-    */
   }
 
   private static Excel.Entry getEqual(Method equals, Excel.Entry e1, Excel<Excel.Entry> binExcel) throws Exception {
