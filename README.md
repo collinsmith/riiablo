@@ -1,7 +1,7 @@
 # Riiablo
 This is my attempt at rebuilding Diablo II from scratch. There is still a long
 ways to go, but a lot of the core is there. The game itself uses 100% original
-Diablo II assets which are not (and will never) be provided, i.e., you should
+Diablo II assets which are not (and will never be) provided, i.e., you should
 already own a copy of the game to play this. I am going to do my best to remain
 faithful to the original game, however I am planning on changing and adding
 additional features as I think they become necessary (e.g., auto gold pickup).
