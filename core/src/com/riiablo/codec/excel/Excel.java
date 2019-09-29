@@ -12,8 +12,9 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.StreamUtils;
-import com.riiablo.codec.TXT;
 import com.riiablo.util.ClassUtils;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -131,8 +132,18 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
   @SuppressWarnings("unchecked")
   private static <T extends Excel> T loadTxt(FileHandle handle, Class<T> excelClass, Class<Entry> entryClass, ObjectSet<String> ignore) throws Exception {
-    TXT txt = TXT.loadFromFile(handle);
+    TxtParser in = null;
+    try {
+      in = TxtParser.loadFromFile(handle);
+      return loadTxt(in, excelClass, entryClass, ignore);
+    } catch (Throwable t) {
+      throw new GdxRuntimeException("Couldn't load excel: " + handle, t);
+    } finally {
+      IOUtils.closeQuietly(in);
+    }
+  }
 
+  private static <T extends Excel> T loadTxt(TxtParser in, Class<T> excelClass, Class<Entry> entryClass, ObjectSet<String> ignore) throws Exception {
     final boolean index = ClassUtils.hasAnnotation(entryClass, Index.class);
 
     Field primaryKey = null, firstKey = null;
@@ -182,11 +193,11 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
             columnNames[i] = name;
           }
 
-          columns.put(field, txt.getColumnId(columnNames));
+          columns.put(field, in.getColumnId(columnNames));
         } else if (startIndex == 0 && endIndex == 0) {
           if (DEBUG_COLS) Gdx.app.debug(TAG, fieldName);
           TMP[0] = fieldName;
-          columns.put(field, txt.getColumnId(TMP));
+          columns.put(field, in.getColumnId(TMP));
         } else {
           String[] columnNames = new String[endIndex - startIndex];
           for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
@@ -195,12 +206,12 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
             columnNames[j] = name;
           }
 
-          columns.put(field, txt.getColumnId(columnNames));
+          columns.put(field, in.getColumnId(columnNames));
         }
       } else {
         if (startIndex == 0 && endIndex == 0) {
           TMP[0] = format;
-          columns.put(field, txt.getColumnId(TMP));
+          columns.put(field, in.getColumnId(TMP));
         } else {
           String[] columnNames = new String[endIndex - startIndex];
           if (values.length == 0) {
@@ -217,7 +228,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
             }
           }
 
-          columns.put(field, txt.getColumnId(columnNames));
+          columns.put(field, in.getColumnId(columnNames));
         }
       }
     }
@@ -239,68 +250,67 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
     final int primaryKeyCol = index ? -1 : columns.get(primaryKey)[0];
     final Class primaryKeyType = index ? null : primaryKey.getType();
-    final int size = txt.getRows();
-    for (int i = 0, j = excel.offset(); i < size; i++) {
+    for (int j = excel.offset(); in.nextLine() != null;) {
       Entry entry = entryClass.newInstance();
 
-      String rowName = txt.getRowName(i);
+      String rowName = in.getString(0);
       if (ignore.contains(rowName)) {
-        if (DEBUG_IGNORED) Gdx.app.debug(TAG, "Skipping row " + i + ", ignoring rows named " + rowName);
+        if (DEBUG_IGNORED) Gdx.app.debug(TAG, "Skipping row " + in.getIndex() + ", ignoring rows named " + rowName);
         continue;
       }
 
-      String name = index ? null : txt.getString(i, primaryKeyCol);
+      String name = index ? null : in.getString(primaryKeyCol);
       for (ObjectMap.Entry<Field, int[]> row : columns.entries()) {
         Field field = row.key;
         int[] columnIds = row.value;
         Class type = field.getType();
         assert type.isArray() || columnIds.length == 1 : "field should only correspond to 1 column: " + field.getName() + ", " + columnIds.length + " columns (is it supposed to be an array?)";
         if (type == String.class) {
-          String value = txt.getString(i, columnIds[0]);
+          String value = in.getString(columnIds[0]);
           field.set(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), value));
         } else if (type == String[].class) {
-          String[] value = txt.getString(i, columnIds);
+          String[] value = in.getString(columnIds);
           field.set(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), Arrays.toString(value)));
         } else if (type == byte.class) {
-          byte value = txt.getByte(i, columnIds[0]);
+          byte value = in.getByte(columnIds[0]);
           field.setByte(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), value));
         } else if (type == byte[].class) {
-          byte[] value = txt.getByte(i, columnIds);
+          byte[] value = in.getByte(columnIds);
           field.set(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), Arrays.toString(value)));
         } else if (type == short.class) {
-          short value = txt.getShort(i, columnIds[0]);
+          short value = in.getShort(columnIds[0]);
           field.setShort(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), value));
         } else if (type == short[].class) {
-          short[] value = txt.getShort(i, columnIds);
+          short[] value = in.getShort(columnIds);
           field.set(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), Arrays.toString(value)));
         } else if (type == int.class) {
-          int value = txt.getInt(i, columnIds[0]);
+          int value = in.getInt(columnIds[0]);
           field.setInt(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), value));
         } else if (type == int[].class) {
-          int[] value = txt.getInt(i, columnIds);
+          int[] value = in.getInt(columnIds);
           field.set(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), Arrays.toString(value)));
         } else if (type == long.class) {
-          long value = txt.getLong(i, columnIds[0]);
+          long value = in.getLong(columnIds[0]);
           field.setLong(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), value));
         } else if (type == long[].class) {
-          long[] value = txt.getLong(i, columnIds);
+          long[] value = in.getLong(columnIds);
           field.set(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), Arrays.toString(value)));
         } else if (type == boolean.class) {
-          boolean value = txt.getBoolean(i, columnIds[0]);
+          boolean value = in.getBoolean(columnIds[0]);
           field.setBoolean(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), value));
         } else if (type == boolean[].class) {
-          boolean[] value = txt.getBoolean(i, columnIds);
+          boolean[] value = in.getBoolean(columnIds);
           field.set(entry, value);
           if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", j, name, field.getName(), Arrays.toString(value)));
         } else {

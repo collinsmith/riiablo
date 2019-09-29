@@ -41,7 +41,6 @@ import com.riiablo.codec.FontTBL;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
-import com.riiablo.codec.TXT;
 import com.riiablo.console.RenderedConsole;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
@@ -52,7 +51,6 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
-import com.riiablo.loader.TXTLoader;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
 import com.riiablo.map.DT1;
@@ -257,7 +255,6 @@ public class Client extends Game {
     assets.setLoader(FontTBL.BitmapFont.class, new BitmapFontLoader(mpqs));
     assets.setLoader(DT1.class, new DT1Loader(mpqs));
     assets.setLoader(DS1.class, new DS1Loader(mpqs));
-    assets.setLoader(TXT.class, new TXTLoader(mpqs));
     assets.setLoader(Map.class, new MapLoader(mpqs));
 
     Riiablo.palettes = palettes = new Palettes(assets);

@@ -47,7 +47,6 @@ import com.riiablo.codec.FontTBL;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
-import com.riiablo.codec.TXT;
 import com.riiablo.entity.Engine;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Player;
@@ -58,7 +57,6 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
-import com.riiablo.loader.TXTLoader;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 import java.util.Arrays;
@@ -103,7 +101,6 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Riiablo.home = home = Gdx.files.absolute(home.path());
     Riiablo.mpqs = new MPQFileHandleResolver();
     Riiablo.assets = new AssetManager();
-    Riiablo.assets.setLoader(TXT.class, new TXTLoader(Riiablo.mpqs));
     Riiablo.assets.setLoader(DS1.class, new DS1Loader(Riiablo.mpqs));
     Riiablo.assets.setLoader(DT1.class, new DT1Loader(Riiablo.mpqs));
     Riiablo.assets.setLoader(COF.class, new COFLoader(Riiablo.mpqs));
@@ -111,7 +108,6 @@ public class WallAggregatorTool extends ApplicationAdapter {
     Riiablo.assets.setLoader(DCC.class, new DCCLoader(Riiablo.mpqs));
     Riiablo.assets.setLoader(Palette.class, new PaletteLoader(Riiablo.mpqs));
     Riiablo.assets.setLoader(Index.class, new IndexLoader(Riiablo.mpqs));
-    Riiablo.assets.setLoader(TXT.class, new TXTLoader(Riiablo.mpqs));
     Riiablo.assets.setLoader(FontTBL.BitmapFont.class, new BitmapFontLoader(Riiablo.mpqs));
     Texture.setAssetManager(Riiablo.assets);
 

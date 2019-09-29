@@ -34,7 +34,6 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.DCC;
 import com.riiablo.codec.Palette;
-import com.riiablo.codec.TXT;
 import com.riiablo.codec.excel.Excel;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
@@ -90,7 +89,6 @@ public class DS1Viewer extends ApplicationAdapter {
     resolver.add(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\d2data.mpq"));
 
     AssetManager assets = Riiablo.assets = new AssetManager();
-    assets.setLoader(TXT.class, new TXTLoader(resolver));
     assets.setLoader(DS1.class, new DS1Loader(resolver));
     assets.setLoader(DT1.class, new DT1Loader(resolver));
     assets.setLoader(Map.class, new MapLoader(resolver));

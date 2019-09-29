@@ -29,7 +29,6 @@ import com.riiablo.codec.DCC;
 import com.riiablo.codec.FontTBL;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.Palette;
-import com.riiablo.codec.TXT;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.COFLoader;
@@ -37,7 +36,6 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
-import com.riiablo.loader.TXTLoader;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 public class AnimationTool extends ApplicationAdapter {
@@ -78,7 +76,6 @@ public class AnimationTool extends ApplicationAdapter {
     Riiablo.assets.setLoader(Palette.class, new PaletteLoader(Riiablo.mpqs));
     Riiablo.assets.setLoader(Index.class, new IndexLoader(Riiablo.mpqs));
     Riiablo.assets.setLoader(FontTBL.BitmapFont.class, new BitmapFontLoader(Riiablo.mpqs));
-    Riiablo.assets.setLoader(TXT.class, new TXTLoader(Riiablo.mpqs));
     Texture.setAssetManager(Riiablo.assets);
 
     Riiablo.palettes = new Palettes(Riiablo.assets);

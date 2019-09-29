@@ -34,7 +34,6 @@ import com.riiablo.codec.DCC;
 import com.riiablo.codec.FontTBL;
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
-import com.riiablo.codec.TXT;
 import com.riiablo.entity.Engine;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Player;
@@ -43,7 +42,6 @@ import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
-import com.riiablo.loader.TXTLoader;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
@@ -113,7 +111,6 @@ public class MapViewer extends ApplicationAdapter {
     MPQFileHandleResolver resolver = Riiablo.mpqs = new MPQFileHandleResolver();
 
     AssetManager assets = Riiablo.assets = new AssetManager();
-    assets.setLoader(TXT.class, new TXTLoader(resolver));
     assets.setLoader(DS1.class, new DS1Loader(resolver));
     assets.setLoader(DT1.class, new DT1Loader(resolver));
     assets.setLoader(COF.class, new COFLoader(resolver));
