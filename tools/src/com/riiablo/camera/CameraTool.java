@@ -121,7 +121,7 @@ public class CameraTool extends ApplicationAdapter {
   final Vector2 vec2 = new Vector2();
   final Vector2 loc  = new Vector2();
   final Vector2 pos  = new Vector2();
-  final Vector2 near = new Vector2();
+//final Vector2 near = new Vector2();
   final Vector2 tmp  = new Vector2();
   final StringBuilder builder = new StringBuilder();
 
@@ -146,8 +146,8 @@ public class CameraTool extends ApplicationAdapter {
       shapes.line(-Gdx.graphics.getWidth() / 2, 0, Gdx.graphics.getWidth() / 2, 0);
       shapes.line(0, -Gdx.graphics.getHeight() / 2, 0, Gdx.graphics.getHeight() / 2);
 
-//      shapes.setColor(Color.BLUE);
-//      shapes.rect(-80, -40, 160, 80);
+//    shapes.setColor(Color.BLUE);
+//    shapes.rect(-80, -40, 160, 80);
     } shapes.end();
 
     shapes.identity();
@@ -174,23 +174,24 @@ public class CameraTool extends ApplicationAdapter {
       vec2.set(Gdx.input.getX(), Gdx.input.getY());
       iso.unproject(vec2);
       iso.toWorld(vec2);
-      near.set(vec2);
+//    near.set(vec2);
       iso.toTile(vec2);
       loc.set(vec2);
       iso.toScreen(vec2);
-      iso.toTile50(near);
-      tmp.set(near);
-      iso.toScreen(tmp);
+//    iso.toTile50(near);
+//    tmp.set(near);
+//    iso.toScreen(tmp);
 
       shapes.set(ShapeRenderer.ShapeType.Filled);
       shapes.setColor(Color.SALMON);
       DebugUtils.drawDiamond(shapes, vec2.x, vec2.y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
 
-      shapes.set(ShapeRenderer.ShapeType.Line);
-      if (!tmp.epsilonEquals(vec2)) {
-        shapes.setColor(Color.SKY);
-        DebugUtils.drawDiamond(shapes, tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-      }
+//    shapes.set(ShapeRenderer.ShapeType.Line);
+//    if (!tmp.epsilonEquals(vec2)) {
+//      shapes.setColor(Color.SKY);
+//      DebugUtils.drawDiamond(shapes, tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+//    }
+
 
       shapes.set(ShapeRenderer.ShapeType.Filled);
       shapes.setColor(Color.GREEN);
@@ -198,7 +199,16 @@ public class CameraTool extends ApplicationAdapter {
     } shapes.end();
 
     pos.set(iso.position);
-    iso.toTile(pos);
+    iso.toTile50(pos);
+
+    shapes.begin(ShapeRenderer.ShapeType.Filled); {
+      vec2.set(pos);
+      iso.toScreen(vec2);
+
+      shapes.setColor(Color.WHITE);
+      DebugUtils.drawDiamond(shapes, vec2.x, vec2.y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    } shapes.end();
+
 
     float width;
     batch.begin();
@@ -208,7 +218,8 @@ public class CameraTool extends ApplicationAdapter {
         .append("pos:").append('\n')
         .append("cursor:").append('\n')
         .append("px:").append('\n')
-        .append("near:").append('\n');
+//      .append("near:").append('\n')
+        ;
     GlyphLayout layout = font.draw(batch, builder.toString(), 0, Gdx.graphics.getHeight());
     width = layout.width;
     builder.setLength(0);
@@ -217,7 +228,8 @@ public class CameraTool extends ApplicationAdapter {
         .append(pos).append('\n')
         .append(loc).append('\n')
         .append(vec2).append('\n')
-        .append(near).append('\n');
+//      .append(near).append('\n')
+        ;
     font.draw(batch, builder.toString(), width, Gdx.graphics.getHeight());
     batch.end();
   }
