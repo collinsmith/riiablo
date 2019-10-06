@@ -46,6 +46,8 @@ public abstract class Entity implements Animation.AnimationListener {
   private static final boolean DEBUG_COF    = DEBUG && !true;
   private static final boolean DEBUG_TARGET = DEBUG && true;
   private static final boolean DEBUG_PATH   = DEBUG && !true;
+  private static final boolean DEBUG_SIZE   = DEBUG && !true;
+  private static final boolean DEBUG_STATUS = DEBUG && !true;
 
   protected enum Type {
     OBJ("OBJECTS",
@@ -488,8 +490,8 @@ public abstract class Entity implements Animation.AnimationListener {
 
 
   public void drawDebug(PaletteIndexedBatch batch, ShapeRenderer shapes) {
-    drawDebugSize(shapes);
-    drawDebugStatus(batch, shapes);
+    if (DEBUG_SIZE) drawDebugSize(shapes);
+    if (DEBUG_STATUS) drawDebugStatus(batch, shapes);
     if (DEBUG_TARGET) drawDebugTarget(shapes);
   }
 
