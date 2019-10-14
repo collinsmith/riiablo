@@ -479,7 +479,7 @@ public class MPQViewer {
 
           for (CollapsibleVisTable o : optionsSubpanels) o.setCollapsed(true);
 
-          MPQFileHandle handle = (MPQFileHandle) fileTree.getSelection().first().getObject();
+          MPQFileHandle handle = (MPQFileHandle) fileTree.getSelectedNode().getValue();
           addressBar.setText(handle.fileName);
           MPQViewer.Client.this.open(selection, node, handle);
 
@@ -1030,7 +1030,7 @@ public class MPQViewer {
         //  }
         //}
 
-        Node root = new Node(new VisLabel("root"));
+        Node<Node, Object, Actor> root = new BaseNode(new VisLabel("root"));
         final boolean checkExisting = options_checkExisting.isChecked();
 
         String fileName;
@@ -1044,8 +1044,8 @@ public class MPQViewer {
 
           final MPQFileHandle handle = (MPQFileHandle) Riiablo.mpqs.resolve(fileName);
           VisLabel label = new VisLabel(FilenameUtils.getName(fileName));
-          final Node node = new Node(label);
-          node.setObject(handle);
+          final Node node = new BaseNode(label);
+          node.setValue(handle);
           label.addListener(new ClickListener(Input.Buttons.RIGHT) {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -1089,7 +1089,7 @@ public class MPQViewer {
         String partPath = builder.toString();
         Node node = nodes.get(partPath);
         if (node == null) {
-          node = new Node(new VisLabel(part));
+          node = new BaseNode(new VisLabel(part));
           nodes.put(partPath, node);
           parent.add(node);
         }
@@ -1121,7 +1121,7 @@ public class MPQViewer {
       });
 
       root.updateChildren();
-      for (Node child : root.getChildren()) {
+      for (Node child : (Array<Node>) root.getChildren()) {
         sort(child);
       }
     }
@@ -1885,6 +1885,12 @@ public class MPQViewer {
     public void drawDebug(ShapeRenderer shapes) {
       //drawDebugOrigin(shapes);
       super.drawDebug(shapes);
+    }
+  }
+
+  public static class BaseNode extends Node<Node, Object, Actor> {
+    BaseNode(Actor actor) {
+      super(actor);
     }
   }
 }
