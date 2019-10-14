@@ -789,7 +789,7 @@ public class MPQViewer {
                     stage.setScrollFocus(null);
                   }
                 });
-              }}).prefWidth(48).growY();
+              }}).prefWidth(50).growY();
             }}).grow();
             add(new VisTable() {{
               setBackground(VisUI.getSkin().getDrawable("default-pane"));
