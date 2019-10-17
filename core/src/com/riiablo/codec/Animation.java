@@ -66,6 +66,10 @@ public class Animation extends BaseDrawable {
     animationListeners = EMPTY_MAP;
   }
 
+  public static Animation newAnimation() {
+    return new Animation();
+  }
+
   public static Animation newAnimation(DC dc) {
     return Animation.builder().layer(dc).build();
   }
