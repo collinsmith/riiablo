@@ -19,9 +19,7 @@ public class IsometricCamera extends OrthographicCamera {
 
   @Override
   public void translate(Vector2 vec) {
-    position.add(vec);
-    toScreen(position.x, position.y, tmp);
-    super.position.set(tmp, 0);
+    translate(vec.x, vec.y);
   }
 
   @Override
@@ -38,7 +36,7 @@ public class IsometricCamera extends OrthographicCamera {
   public void set(float x, float y) {
     position.set(x, y);
     toScreen(position.x, position.y, tmp);
-    super.position.set(tmp.x, tmp.y, 0).add(offset.x, offset.y, 0);
+    super.position.set(tmp, 0).add(offset.x, offset.y, 0);
   }
 
   public Vector2 toScreen(Vector2 worldCoords) {
