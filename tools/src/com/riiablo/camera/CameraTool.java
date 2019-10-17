@@ -120,6 +120,7 @@ public class CameraTool extends ApplicationAdapter {
 
   final Vector2 vec2 = new Vector2();
   final Vector2 loc  = new Vector2();
+  final Vector2 wrld = new Vector2();
   final Vector2 pos  = new Vector2();
   final Vector2 tmp  = new Vector2();
   final StringBuilder builder = new StringBuilder();
@@ -173,7 +174,8 @@ public class CameraTool extends ApplicationAdapter {
       vec2.set(Gdx.input.getX(), Gdx.input.getY());
       iso.unproject(vec2);
       iso.toWorld(vec2);
-      iso.toTile(vec2);
+      wrld.set(vec2);
+      iso.toTile50(vec2);
       loc.set(vec2);
       iso.toScreen(vec2);
 
@@ -187,7 +189,7 @@ public class CameraTool extends ApplicationAdapter {
     } shapes.end();
 
     pos.set(iso.position);
-    iso.toTile50(pos);
+    iso.toTile(pos);
 
     shapes.begin(ShapeRenderer.ShapeType.Filled); {
       vec2.set(pos);
@@ -205,6 +207,7 @@ public class CameraTool extends ApplicationAdapter {
         .append("iso:").append('\n')
         .append("pos:").append('\n')
         .append("cursor:").append('\n')
+        .append("world:").append('\n')
         .append("px:").append('\n')
         ;
     GlyphLayout layout = font.draw(batch, builder.toString(), 0, Gdx.graphics.getHeight());
@@ -214,6 +217,7 @@ public class CameraTool extends ApplicationAdapter {
         .append(iso.position).append('\n')
         .append(pos).append('\n')
         .append(loc).append('\n')
+        .append(wrld).append('\n')
         .append(vec2).append('\n')
         ;
     font.draw(batch, builder.toString(), width, Gdx.graphics.getHeight());

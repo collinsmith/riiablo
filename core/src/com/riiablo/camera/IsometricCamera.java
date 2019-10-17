@@ -56,8 +56,8 @@ public class IsometricCamera extends OrthographicCamera {
   public Vector2 toWorld(float x, float y, Vector2 dst) {
     x /= Tile.SUBTILE_WIDTH50;
     y /= Tile.SUBTILE_HEIGHT50;
-    dst.x = ( x - y) / 2;
-    dst.y = (-x - y) / 2;
+    dst.x = ( x - y) / 2 - 0.5f;
+    dst.y = (-x - y) / 2 - 0.5f;
     return dst;
   }
 
