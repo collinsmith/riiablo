@@ -44,7 +44,7 @@ public class AnimationLoaderSystem extends IteratingSystem {
     for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.load, layer.component)) continue;
-      if (cofComponent.comp[layer.component] == 0) {
+      if (cofComponent.component[layer.component] == 0) {
         anim.setLayer(layer, null, false);
         continue;
       }
