@@ -189,7 +189,7 @@ public class CameraTool extends ApplicationAdapter {
     } shapes.end();
 
     pos.set(iso.position);
-    iso.toTile(pos);
+    iso.toTile50(pos);
 
     shapes.begin(ShapeRenderer.ShapeType.Filled); {
       vec2.set(pos);
