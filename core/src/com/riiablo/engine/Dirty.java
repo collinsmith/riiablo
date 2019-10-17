@@ -51,4 +51,6 @@ public final class Dirty {
   public static boolean isDirty(int flags, int component) {
     return ((1 << component) & flags) != 0;
   }
+
+  private Dirty() {}
 }
