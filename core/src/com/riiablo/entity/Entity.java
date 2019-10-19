@@ -16,6 +16,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.COFD2;
+import com.riiablo.codec.DC;
 import com.riiablo.codec.DCC;
 import com.riiablo.codec.excel.Overlay;
 import com.riiablo.codec.excel.Skills;
@@ -48,6 +49,7 @@ public abstract class Entity implements Animation.AnimationListener {
   private static final boolean DEBUG_PATH   = DEBUG && !true;
   private static final boolean DEBUG_SIZE   = DEBUG && !true;
   private static final boolean DEBUG_STATUS = DEBUG && !true;
+  private static final boolean DEBUG_LOAD   = DEBUG && !true;
 
   protected enum Type {
     OBJ("OBJECTS",
@@ -246,6 +248,10 @@ public abstract class Entity implements Animation.AnimationListener {
   Vector2 position = new Vector2();
   Vector2 screen = new Vector2();
 
+  @SuppressWarnings("unchecked")
+  final AssetDescriptor<? extends DC>[] layer = (AssetDescriptor<? extends DC>[]) new AssetDescriptor[COF.Component.NUM_COMPONENTS];
+  int     load;
+
   Animation animation;
 
   String  name;
@@ -373,8 +379,9 @@ public abstract class Entity implements Animation.AnimationListener {
   }
 
   public final void validate() {
-    if (dirty == Dirty.NONE) return;
+    if (dirty == Dirty.NONE && load == Dirty.NONE) return;
     updateCOF();
+    loadLayers();
   }
 
   protected void updateCOF() {
@@ -386,6 +393,7 @@ public abstract class Entity implements Animation.AnimationListener {
     if (changed) dirty = Dirty.ALL;
     if (dirty == Dirty.NONE) return;
     if (DEBUG_DIRTY) Gdx.app.debug(TAG, "dirty layers: " + Dirty.toString(dirty));
+    load = Dirty.NONE; // TODO: unload this.layer assets
 
     final int start = type.PATH.length() + 4; // start after token
     StringBuilder builder = new StringBuilder(start + 19)
@@ -397,9 +405,9 @@ public abstract class Entity implements Animation.AnimationListener {
       COF.Layer layer = cof.getLayer(l);
       if (!Dirty.isDirty(dirty, layer.component)) continue;
       if (comp[layer.component] == 0) { // should also ignore 0xFF which is -1
-        animation.setLayer(layer, null, false);
+        this.layer[layer.component] = null;
         continue;
-      } else if (comp[layer.component] < 0) {
+      } else if (comp[layer.component] == -1) {
         comp[layer.component] = 1;
       }
 
@@ -412,17 +420,9 @@ public abstract class Entity implements Animation.AnimationListener {
       String path = builder.toString();
       if (DEBUG_DIRTY) Gdx.app.log(TAG, path);
 
-      AssetDescriptor<DCC> descriptor = new AssetDescriptor<>(path, DCC.class);
+      AssetDescriptor<? extends DC> descriptor = this.layer[layer.component] = new AssetDescriptor<>(path, DCC.class);
       Riiablo.assets.load(descriptor);
-      Riiablo.assets.finishLoadingAsset(descriptor);
-      DCC dcc = Riiablo.assets.get(descriptor);
-      animation.setLayer(layer, dcc, false)
-          .setTransform(trans[layer.component])
-          .setAlpha(alpha[layer.component])
-          ;
-      // FIXME: colors don't look right for sorc Tirant circlet changing hair color
-      //        putting a ruby in a white circlet not change color on item or character
-      //        circlets and other items with hidden magic level might work different?
+      load |= (1 << layer.component);
     }
 
     // TODO: This seems to work well with the default movement speeds of most entities I've seen
@@ -432,8 +432,37 @@ public abstract class Entity implements Animation.AnimationListener {
       animation.setFrameDelta(128);
     }
 
-    animation.updateBox();
     dirty = Dirty.NONE;
+  }
+
+  protected void loadLayers() {
+    if (load == Dirty.NONE) return;
+    COF cof = type.getCOFs().lookup(this.cof);
+    for (int l = 0; l < cof.getNumLayers(); l++) {
+      COF.Layer layer = cof.getLayer(l);
+      if (!Dirty.isDirty(load, layer.component)) continue;
+      if (comp[layer.component] == 0) {
+        load &= ~(1 << layer.component);
+        animation.setLayer(layer, null, false);
+        continue;
+      }
+
+      AssetDescriptor<? extends DC> descriptor = this.layer[layer.component];
+      if (Riiablo.assets.isLoaded(descriptor)) {
+        if (DEBUG_LOAD) Gdx.app.debug(TAG, "loaded " + descriptor);
+        load &= ~(1 << layer.component);
+        DC dc = Riiablo.assets.get(descriptor);
+        animation.setLayer(layer, dc, false)
+            .setTransform(trans[layer.component])
+            .setAlpha(alpha[layer.component])
+            ;
+        // FIXME: colors don't look right for sorc Tirant circlet changing hair color
+        //        putting a ruby in a white circlet not change color on item or character
+        //        circlets and other items with hidden magic level might work different?
+      }
+    }
+
+    animation.updateBox();
   }
 
   private boolean updateAnimation(COF cof) {
@@ -473,6 +502,7 @@ public abstract class Entity implements Animation.AnimationListener {
 
   public void draw(PaletteIndexedBatch batch) {
     validate();
+    if (load != Dirty.NONE) return;
     if (overlayEntry != null && overlayEntry.PreDraw) overlay.draw(batch, screen.x, screen.y);
     animation.draw(batch, screen.x, screen.y);
     if (overlayEntry != null && !overlayEntry.PreDraw) overlay.draw(batch, screen.x, screen.y);
@@ -485,6 +515,7 @@ public abstract class Entity implements Animation.AnimationListener {
 
   public void drawShadow(PaletteIndexedBatch batch) {
     validate();
+    if (load != Dirty.NONE) return;
     animation.drawShadow(batch, screen.x, screen.y, false);
   }
 

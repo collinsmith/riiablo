@@ -409,7 +409,7 @@ public class Client extends Game {
     b.setProjectionMatrix(BATCH_RESET);
     b.begin(); {
       batch.setShader(null);
-      if (!Riiablo.assets.update()) {
+      if (!Riiablo.assets.update(8)) { // TODO: (1 / 60f) - delta  --  remainder of frame time
         drawLoading(b);
       }
 
