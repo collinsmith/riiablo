@@ -1,6 +1,5 @@
 package com.riiablo.engine.system;
 
-
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -16,6 +15,7 @@ import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.TypeComponent;
 
+@DependsOn(CofSystem.class)
 public class CofLoaderSystem extends IteratingSystem {
   private static final String TAG = "CofLoaderSystem";
 

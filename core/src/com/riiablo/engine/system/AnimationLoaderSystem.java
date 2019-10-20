@@ -15,6 +15,7 @@ import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.CofComponent;
 
+@DependsOn(CofLoaderSystem.class)
 public class AnimationLoaderSystem extends IteratingSystem {
   private static final String TAG = "AnimationLoaderSystem";
 
