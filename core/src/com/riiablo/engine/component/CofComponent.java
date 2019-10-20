@@ -37,6 +37,18 @@ public class CofComponent implements Component, Pool.Poolable {
   public static final int COMPONENT_NULL = -1;
   public static final int COMPONENT_NIL  =  0;
   public static final int COMPONENT_LIT  =  1;
+  public static final int[] DEFAULT_COMPONENT;
+  static {
+    DEFAULT_COMPONENT = new int[COF.Component.NUM_COMPONENTS];
+    Arrays.fill(DEFAULT_COMPONENT, COMPONENT_NIL);
+  }
+
+  public static final int TRANSFORM_NULL = -1;
+  public static final int[] DEFAULT_TRANSFORM;
+  static {
+    DEFAULT_TRANSFORM = new int[COF.Component.NUM_COMPONENTS];
+    Arrays.fill(DEFAULT_TRANSFORM, TRANSFORM_NULL);
+  }
 
   public String token  = null;
   public int    mode   = MODE_NULL;
@@ -45,7 +57,8 @@ public class CofComponent implements Component, Pool.Poolable {
   public int    dirty  = Dirty.NONE;
   public int    load   = Dirty.NONE;
 
-  public final int[] component = new int[COF.Component.NUM_COMPONENTS];
+  public final int[] component = DEFAULT_COMPONENT.clone();
+  public final int[] transform = DEFAULT_TRANSFORM.clone();
 
   @SuppressWarnings("unchecked")
   public final AssetDescriptor<? extends DC>[] layer = (AssetDescriptor<DC>[]) new AssetDescriptor[COF.Component.NUM_COMPONENTS];
@@ -58,7 +71,8 @@ public class CofComponent implements Component, Pool.Poolable {
     cof    = null;
     dirty  = Dirty.NONE;
     load   = Dirty.NONE;
-    Arrays.fill(component, COMPONENT_NIL);
+    System.arraycopy(DEFAULT_COMPONENT, 0, component, 0, COF.Component.NUM_COMPONENTS);
+    System.arraycopy(DEFAULT_TRANSFORM, 0, transform, 0, COF.Component.NUM_COMPONENTS);
     Arrays.fill(layer, null);
   }
 }
