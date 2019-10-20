@@ -1,16 +1,18 @@
 package com.riiablo.audio;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Sounds;
+
+import java.util.Iterator;
 
 public class Audio {
   private static final String TAG = "Audio";
@@ -27,9 +29,22 @@ public class Audio {
 
   private final AssetManager assets;
   private final ObjectMap<Sounds.Entry, AssetDescriptor<?>> descriptors = new ObjectMap<>();
+  private final Array<Instance> deferred = new Array<>();
 
   public Audio(AssetManager assets) {
     this.assets = assets;
+  }
+
+  public void update() {
+    // TODO: check deferred time and don't play if past some threshold (20-40ms maybe)
+    for (Iterator<Instance> it = deferred.iterator(); it.hasNext();) {
+      Instance instance = it.next();
+      if (assets.isLoaded(instance.descriptor)) {
+        instance.delegate = assets.get(instance.descriptor);
+        instance.play();
+        it.remove();
+      }
+    }
   }
 
   // TODO: Fix memory leak and dispose sound after playing
@@ -57,7 +72,7 @@ public class Audio {
       }
 
       stream.play();
-      Instance instance = Instance.obtain(stream, -1);
+      Instance instance = Instance.obtain(descriptor, stream, -1);
       return instance;
     } else {
       AssetDescriptor<Sound> descriptor = (AssetDescriptor<Sound>) descriptors.get(sound);
@@ -65,32 +80,37 @@ public class Audio {
         descriptor = new AssetDescriptor<>((global ? GLOBAL : LOCAL) + sound.FileName, Sound.class);
         descriptors.put(sound, descriptor);
         assets.load(descriptor);
-        assets.finishLoadingAsset(descriptor);
+        //assets.finishLoadingAsset(descriptor);
       }
 
-      // FIXME: sounds do not play on their current frame on Android, play next frame
-      final Sound sfx = assets.get(descriptor);
-      long id = sfx.play(sound.Volume / 255f);
-      if (id == -1) {
-        Gdx.app.postRunnable(new Runnable() {
-          @Override
-          public void run() {
-            sfx.play(sound.Volume / 255f);
-          }
-        });
+      if (assets.isLoaded(descriptor)) {
+        // FIXME: sounds do not play on their current frame on Android, play next frame
+        final Sound sfx = assets.get(descriptor);
+        long id = sfx.play(sound.Volume / 255f);
+        if (id == -1) {
+          Instance instance = Instance.obtain(descriptor, sfx, id);
+          deferred.add(instance);
+          return instance;
+        }
+        return Instance.obtain(descriptor, sfx, id);
+      } else {
+        Instance instance = Instance.obtain(descriptor, null, -1);
+        deferred.add(instance);
+        return instance;
       }
-      return Instance.obtain(sfx, id);
     }
   }
 
   public static class Instance implements Pool.Poolable {
 
+    AssetDescriptor descriptor;
     boolean stream;
     Object  delegate;
     long    id;
 
-    static Instance obtain(Object delegate, long id) {
+    static Instance obtain(AssetDescriptor descriptor, Object delegate, long id) {
       Instance instance = Pools.obtain(Instance.class);
+      instance.descriptor = descriptor;
       instance.stream   = delegate instanceof Music;
       instance.delegate = delegate;
       instance.id       = id;
@@ -101,6 +121,14 @@ public class Audio {
     public void reset() {
       delegate = null;
       id = -1;
+    }
+
+    public void play() {
+      if (stream) {
+        ((Music) delegate).play();
+      } else {
+        id = ((Sound) delegate).play();
+      }
     }
 
     public void stop() {

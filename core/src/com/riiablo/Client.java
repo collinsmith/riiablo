@@ -374,6 +374,8 @@ public class Client extends Game {
   public void render() {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+    audio.update();
+
     Camera camera = viewport.getCamera();
     camera.update();
     batch.setProjectionMatrix(camera.combined);
