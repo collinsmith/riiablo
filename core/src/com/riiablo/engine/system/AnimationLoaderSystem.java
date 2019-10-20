@@ -11,6 +11,7 @@ import com.riiablo.codec.Animation;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.DC;
 import com.riiablo.engine.Dirty;
+import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.CofComponent;
 
@@ -24,7 +25,7 @@ public class AnimationLoaderSystem extends IteratingSystem {
   private final ComponentMapper<AnimationComponent> animComponent = ComponentMapper.getFor(AnimationComponent.class);
 
   public AnimationLoaderSystem() {
-    super(Family.all(CofComponent.class, AnimationComponent.class).get()); // TODO: priority
+    super(Family.all(CofComponent.class, AnimationComponent.class).get(), SystemPriority.AnimationLoaderSystem);
   }
 
   @Override

@@ -12,6 +12,7 @@ import com.riiablo.codec.COF;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DCC;
 import com.riiablo.engine.Dirty;
+import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.TypeComponent;
 
@@ -31,7 +32,7 @@ public class CofLoaderSystem extends IteratingSystem {
   private final StringBuilder builder = new StringBuilder(64);
 
   public CofLoaderSystem() {
-    super(Family.all(TypeComponent.class, CofComponent.class).get());
+    super(Family.all(TypeComponent.class, CofComponent.class).get(), SystemPriority.CofLoaderSystem);
   }
 
   @Override

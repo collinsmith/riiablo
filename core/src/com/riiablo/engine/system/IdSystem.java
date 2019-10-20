@@ -7,6 +7,7 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.utils.IntMap;
+import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.IdComponent;
 
 public class IdSystem extends EntitySystem implements EntityListener {
@@ -15,7 +16,9 @@ public class IdSystem extends EntitySystem implements EntityListener {
   private final IntMap<Entity> entitiesById = new IntMap<>();
   private int nextEntityId = IdComponent.INVALID_ID;
 
-  public IdSystem() {}
+  public IdSystem() {
+    super(SystemPriority.IdSystem);
+  }
 
   public Entity getEntity(int id) {
     return entitiesById.get(id);

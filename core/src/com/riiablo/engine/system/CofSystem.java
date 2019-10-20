@@ -8,6 +8,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.codec.COF;
 import com.riiablo.engine.Dirty;
+import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.TypeComponent;
 
@@ -21,7 +22,7 @@ public class CofSystem extends IteratingSystem {
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
 
   public CofSystem() {
-    super(Family.all(TypeComponent.class, CofComponent.class).get());
+    super(Family.all(TypeComponent.class, CofComponent.class).get(), SystemPriority.CofSystem);
   }
 
   @Override
