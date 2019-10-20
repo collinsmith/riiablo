@@ -52,11 +52,12 @@ public class CofLoaderSystem extends IteratingSystem {
     for (int l = 0, numLayers = cofComponent.cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cofComponent.cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.dirty, layer.component)) continue;
-      if (cofComponent.component[layer.component] == 0) { // should also ignore 0xFF which is -1
+      // TODO: should also ignore COMPONENT_NULL? used to set default components
+      if (cofComponent.component[layer.component] == CofComponent.COMPONENT_NIL) {
         cofComponent.layer[layer.component] = null;
         // TODO: unload existing asset?
         continue;
-      } else if (cofComponent.component[layer.component] == CofComponent.COMPONENT_0xFF) {
+      } else if (cofComponent.component[layer.component] == CofComponent.COMPONENT_NULL) {
         cofComponent.component[layer.component] = CofComponent.COMPONENT_LIT;
       }
 

@@ -82,8 +82,8 @@ public class TypeComponent implements Component, Pool.Poolable {
       return Riiablo.cofs.active;
     }
 
-    public byte getMode(String mode) {
-      return (byte) MODES.get(mode.toLowerCase(), -1);
+    public int getMode(String mode) {
+      return MODES.get(mode.toLowerCase(), -1);
     }
 
     public int getComponent(String comp) {
