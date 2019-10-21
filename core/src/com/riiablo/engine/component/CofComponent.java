@@ -50,15 +50,21 @@ public class CofComponent implements Component, Pool.Poolable {
     Arrays.fill(DEFAULT_TRANSFORM, TRANSFORM_NULL);
   }
 
-  public String token  = null;
-  public int    mode   = MODE_NULL;
-  public int    wclass = WEAPON_NIL;
-  public COF    cof    = null;
-  public int    dirty  = Dirty.NONE;
-  public int    load   = Dirty.NONE;
+  public String token;
+  public int    mode;
+  public int    wclass;
+  public COF    cof;
+  public int    dirty;
+  public int    load;
 
-  public final int[] component = DEFAULT_COMPONENT.clone();
-  public final int[] transform = DEFAULT_TRANSFORM.clone();
+  public final int[] component;
+  public final int[] transform;
+
+  public CofComponent() {
+    component = new int[COF.Component.NUM_COMPONENTS];
+    transform = new int[COF.Component.NUM_COMPONENTS];
+    reset();
+  }
 
   @SuppressWarnings("unchecked")
   public final AssetDescriptor<? extends DC>[] layer = (AssetDescriptor<DC>[]) new AssetDescriptor[COF.Component.NUM_COMPONENTS];
