@@ -41,8 +41,8 @@ public class Audio {
       Instance instance = it.next();
       if (assets.isLoaded(instance.descriptor)) {
         instance.delegate = assets.get(instance.descriptor);
-        instance.play();
-        it.remove();
+        boolean played = instance.play();
+        if (played) it.remove();
       }
     }
   }
@@ -87,12 +87,11 @@ public class Audio {
         // FIXME: sounds do not play on their current frame on Android, play next frame
         final Sound sfx = assets.get(descriptor);
         long id = sfx.play(sound.Volume / 255f);
+        Instance instance = Instance.obtain(descriptor, sfx, id);
         if (id == -1) {
-          Instance instance = Instance.obtain(descriptor, sfx, id);
           deferred.add(instance);
-          return instance;
         }
-        return Instance.obtain(descriptor, sfx, id);
+        return instance;
       } else {
         Instance instance = Instance.obtain(descriptor, null, -1);
         deferred.add(instance);
@@ -123,11 +122,13 @@ public class Audio {
       id = -1;
     }
 
-    public void play() {
+    public boolean play() {
       if (stream) {
         ((Music) delegate).play();
+        return true;
       } else {
         id = ((Sound) delegate).play();
+        return id != -1;
       }
     }
 
