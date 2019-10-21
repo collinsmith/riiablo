@@ -592,11 +592,13 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     mapRenderer.draw(delta);
     b.end();
 
-    Riiablo.shapes.setAutoShapeType(true);
-    Riiablo.shapes.begin(ShapeRenderer.ShapeType.Line);
-    mapRenderer.drawDebug(Riiablo.shapes);
-    mapRenderer.drawDebugPath(Riiablo.shapes, player.path());
-    Riiablo.shapes.end();
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+      Riiablo.shapes.setAutoShapeType(true);
+      Riiablo.shapes.begin(ShapeRenderer.ShapeType.Line);
+      mapRenderer.drawDebug(Riiablo.shapes);
+      mapRenderer.drawDebugPath(Riiablo.shapes, player.path());
+      Riiablo.shapes.end();
+    }
 
     b.setProjectionMatrix(viewport.getCamera().combined);
 
