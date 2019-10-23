@@ -525,7 +525,10 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       clearLabels();
       Array<Entity> nearby = mapRenderer.getNearbyEntities();
       for (Entity entity : nearby) {
-        if (entity.isSelectable() && entity.position().dst(player.position()) <= entity.getInteractRange() * 2) {
+        if (left == null && right == null
+            && !inventoryPanel.isVisible()
+            && !(entity instanceof Monster)
+            && entity.isSelectable() && entity.position().dst(player.position()) <= entity.getInteractRange() * 2) {
           entity.setOver(true);
           addLabel(entity.getLabel());
         } else {
