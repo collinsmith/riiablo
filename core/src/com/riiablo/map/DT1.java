@@ -45,6 +45,18 @@ public class DT1 implements Disposable {
     this.tiles    = tiles;
   }
 
+  public int getNumTiles() {
+    return header.numTiles;
+  }
+
+  public Tile getTile(int i) {
+    return tiles[i];
+  }
+
+  public TextureRegion getTexture(int i) {
+    return tiles[i].texture;
+  }
+
   @Override
   public void dispose() {
     if (textures == null) return;

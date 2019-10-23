@@ -73,6 +73,7 @@ import com.riiablo.codec.Dc6Info;
 import com.riiablo.codec.DccInfo;
 import com.riiablo.codec.Palette;
 import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.map.DT1;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
 import com.riiablo.mpq.widget.DirectionActor;
 import com.riiablo.mpq.widget.TabbedPane;
@@ -1444,6 +1445,87 @@ public class MPQViewer {
           }
         });
       } else if (extension.equals("dt1")) {
+        imageControlsPanel.setCollapsed(false);
+        palettePanel.setCollapsed(false);
+        final DT1 dt1 = DT1.loadFromFile(handle);
+        dt1.prepareTextures();
+        renderer.setDrawable(new DelegatingDrawable<TextureRegionDrawable>() {
+          {
+            slDirection.setValue(0); // TODO: Disable control -- doesn't do anything
+            slDirection.setRange(0, 0);
+            lbDirection.setText((int) slDirection.getMinValue() + " / " + (int) slDirection.getMaxValue());
+            daDirection.setDirections(0);
+
+            slFrameIndex.setValue(0);
+            slFrameIndex.setRange(0, dt1.getNumTiles() - 1);
+            lbFrameIndex.setText((int) slFrameIndex.getMinValue() + " / " + (int) slFrameIndex.getMaxValue());
+
+            TextureRegionDrawable drawable = new TextureRegionDrawable();
+            drawable.setRegion(dt1.getTexture(0));
+            setDelegate(drawable);
+          }
+
+          @Override
+          public void dispose() {
+            super.dispose();
+            dt1.dispose();
+          }
+
+          @Override
+          protected void clicked(InputEvent event, float x, float y) {
+            Actor actor = event.getListenerActor();
+            if (actor == btnFirstFrame) {
+              int id = 0;
+              delegate.setRegion(dt1.getTexture(id));
+              slFrameIndex.setValue(id);
+            } else if (actor == btnLastFrame) {
+              int id = dt1.getNumTiles() - 1;
+              delegate.setRegion(dt1.getTexture(id));
+              slFrameIndex.setValue(id);
+            } else if (actor == btnPrevFrame) {
+              int id = (int) slFrameIndex.getValue();
+              if (id > 0) {
+                id -= 1;
+                delegate.setRegion(dt1.getTexture(id));
+                slFrameIndex.setValue(id);
+              }
+            } else if (actor == btnNextFrame) {
+              int id = (int) slFrameIndex.getValue();
+              if (id < dt1.getNumTiles() - 1) {
+                id += 1;
+                delegate.setRegion(dt1.getTexture(id));
+                slFrameIndex.setValue(id);
+              }
+            }
+          }
+
+          @Override
+          protected void changed(ChangeEvent event, Actor actor) {
+            if (actor == slFrameIndex) {
+              int id = (int) slFrameIndex.getValue();
+              delegate.setRegion(dt1.getTexture(id));
+              slFrameIndex.setValue(id);
+            }  else if (actor == paletteList) {
+              String palette = paletteList.getSelected();
+              Riiablo.batch.setPalette(palettes.get(palette));
+              Gdx.app.debug(TAG, "palette set to " + palette);
+            }
+          }
+
+          @Override
+          public void draw(Batch batch, float x, float y, float width, float height) {
+            PaletteIndexedBatch b = Riiablo.batch;
+            batch.end();
+
+            b.setTransformMatrix(batch.getTransformMatrix());
+            b.begin();
+            TextureRegion region = delegate.getRegion();
+            b.draw(region, x - (region.getRegionWidth() / 2), y - (region.getRegionHeight() / 2));
+            b.end();
+
+            batch.begin();
+          }
+        });
       } else if (extension.equals("ds1")) {
       } else if (extension.equals("wav")) {
         audioPanel.setCollapsed(false);
