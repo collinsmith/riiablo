@@ -79,7 +79,7 @@ public class DesktopLauncher {
     //config.height = 720;//480;
     config.allowSoftwareMode = cmd != null && cmd.hasOption("allowSoftwareMode");
 
-    int width  = NumberUtils.toInt(cmd.getOptionValue('i', "853"));
+    int width  = NumberUtils.toInt(cmd.getOptionValue('i', "854"));
     int height = NumberUtils.toInt(cmd.getOptionValue('o', "480"));
     config.width = width;
     config.height = height;

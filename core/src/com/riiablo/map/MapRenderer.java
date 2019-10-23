@@ -637,7 +637,7 @@ public class MapRenderer {
         texture = tile.tile.texture;
       }
       //if (texture.getTexture().getTextureObjectHandle() == 0) return;
-      batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight() + 1);
+      batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
     }
   }
 

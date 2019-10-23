@@ -384,7 +384,7 @@ public class Client extends Game {
     if (DEBUG_VIEWPORTS) {
       shapes.begin(ShapeRenderer.ShapeType.Filled);
       shapes.setColor(Color.DARK_GRAY);
-      shapes.rect(0, 0, 853, 480);
+      shapes.rect(0, 0, 854, 480);
       shapes.setColor(Color.GRAY);
       shapes.rect(0, 0, 640, 480);
       shapes.setColor(Color.BLUE);
