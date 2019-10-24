@@ -29,7 +29,7 @@ public class IsometricCamera extends OrthographicCamera {
   public void translate(float x, float y) {
     position.add(x, y);
     toScreen(position.x, position.y, tmp);
-    super.position.set(tmp, 0).add(pixOffset.x, pixOffset.y, 0);
+    super.position.set(tmp, 0);
   }
 
   public void set(Vector2 vec) {
@@ -39,7 +39,7 @@ public class IsometricCamera extends OrthographicCamera {
   public void set(float x, float y) {
     position.set(x, y);
     toScreen(position.x, position.y, tmp);
-    super.position.set(tmp, 0).add(pixOffset.x, pixOffset.y, 0);
+    super.position.set(tmp, 0);
   }
 
   /**
@@ -53,7 +53,8 @@ public class IsometricCamera extends OrthographicCamera {
    * Converts tile coords to screen coords.
    */
   public Vector2 toScreen(float x, float y, Vector2 dst) {
-    return EngineUtils.worldToScreenCoords(x, y, dst);
+    EngineUtils.worldToScreenCoords(x, y, dst);
+    return dst.add(pixOffset);
   }
 
   /**
@@ -108,5 +109,16 @@ public class IsometricCamera extends OrthographicCamera {
     dst.x = x < 0 ? MathUtils.round(x) : MathUtils.roundPositive(x);
     dst.y = y < 0 ? MathUtils.round(y) : MathUtils.roundPositive(y);
     return dst;
+  }
+
+  public Vector2 screenToWorld(float x, float y, Vector2 dst) {
+    dst.set(x, y);
+    unproject(dst);
+    return toWorld(dst);
+  }
+
+  public Vector2 screenToTile(float x, float y, Vector2 dst) {
+    screenToWorld(x, y, dst);
+    return toTile(dst);
   }
 }

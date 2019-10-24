@@ -181,7 +181,7 @@ public class CameraTool extends ApplicationAdapter {
 
       shapes.set(ShapeRenderer.ShapeType.Filled);
       shapes.setColor(Color.SALMON);
-      DebugUtils.drawDiamond(shapes, vec2.x, vec2.y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      DebugUtils.drawDiamond(shapes, vec2.x, vec2.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
 
       shapes.set(ShapeRenderer.ShapeType.Filled);
       shapes.setColor(Color.GREEN);
@@ -196,9 +196,19 @@ public class CameraTool extends ApplicationAdapter {
       iso.toScreen(vec2);
 
       shapes.setColor(Color.WHITE);
-      DebugUtils.drawDiamond(shapes, vec2.x, vec2.y - Tile.SUBTILE_HEIGHT50, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      DebugUtils.drawDiamond(shapes, vec2.x, vec2.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     } shapes.end();
 
+    shapes.begin(ShapeRenderer.ShapeType.Line); {
+      tmp.set(iso.position);
+      iso.toScreen(tmp);
+      shapes.rect(
+          tmp.x - iso.viewportWidth  / 2 - 1,
+          tmp.y - iso.viewportHeight / 2 - 1,
+          iso.viewportWidth  + 2,
+          iso.viewportHeight + 2
+      );
+    } shapes.end();
 
     float width;
     batch.begin();
