@@ -228,6 +228,7 @@ public class MapViewer extends ApplicationAdapter {
             return true;
           case Input.Keys.ALT_LEFT:
             mapRenderer.resize();
+            mapRenderer.update(true);
             return true;
           case Input.Keys.F1:
             drawCrosshair = !drawCrosshair;

@@ -1105,7 +1105,7 @@ public class MapRenderer {
               batch.begin();
               batch.setShader(null);
               BitmapFont font = Riiablo.fonts.consolas12;
-              String str = String.format(String.format("%s%n%08x", Map.ID.getName(tile.cell.id), tile.cell.value));
+              String str = String.format("%s%n%08x", Map.ID.getName(tile.cell.id), tile.cell.value);
               GlyphLayout layout = new GlyphLayout(font, str, 0, str.length(), font.getColor(), 0, Align.center, false, null);
               font.draw(batch, layout,
                   px + Tile.WIDTH50,
