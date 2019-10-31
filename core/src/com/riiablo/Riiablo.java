@@ -53,4 +53,5 @@ public class Riiablo {
   public static Cursor                cursor;
   public static CharData              charData;
   public static Engine                engine;
+  public static com.riiablo.engine.Engine engine2;
 }

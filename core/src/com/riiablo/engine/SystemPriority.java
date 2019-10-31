@@ -5,6 +5,7 @@ public final class SystemPriority {
   public static final int CofSystem             = -100;
   public static final int CofLoaderSystem       = -90;
   public static final int AnimationLoaderSystem = -80;
+  public static final int AnimationSystem       = -70;
 
   private SystemPriority() {}
 }

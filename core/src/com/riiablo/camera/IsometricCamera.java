@@ -13,6 +13,8 @@ public class IsometricCamera extends OrthographicCamera {
   private final Vector2 pixOffset  = new Vector2();
   private final Vector2 tileOffset = new Vector2();
 
+  private final Builder builder = new Builder();
+
   public IsometricCamera() {}
 
   public void offset(float x, float y) {
@@ -120,5 +122,47 @@ public class IsometricCamera extends OrthographicCamera {
   public Vector2 screenToTile(float x, float y, Vector2 dst) {
     screenToWorld(x, y, dst);
     return toTile(dst);
+  }
+
+  public Builder agg(Vector2 vec) {
+    return builder.reset(vec);
+  }
+
+  public final class Builder {
+    Vector2 vec;
+
+    public Builder reset(Vector2 vec) {
+      this.vec = vec;
+      return this;
+    }
+
+    public Builder unproject() {
+      IsometricCamera.this.unproject(vec);
+      return this;
+    }
+
+    public Builder project() {
+      IsometricCamera.this.project(vec);
+      return this;
+    }
+
+    public Builder toScreen() {
+      IsometricCamera.this.toScreen(vec);
+      return this;
+    }
+
+    public Builder toWorld() {
+      IsometricCamera.this.toWorld(vec);
+      return this;
+    }
+
+    public Builder toTile() {
+      IsometricCamera.this.toTile(vec);
+      return this;
+    }
+
+    public Vector2 ret() {
+      return vec;
+    }
   }
 }

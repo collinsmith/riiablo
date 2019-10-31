@@ -42,12 +42,16 @@ public class AnimationLoaderSystem extends IteratingSystem {
 
     Animation anim = animComponent.animation;
 
+    boolean changed = false;
     COF cof = cofComponent.cof;
+    if (cof == null) return;
+    anim.reset(cof);
     for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.load, layer.component)) continue;
       if (cofComponent.component[layer.component] == CofComponent.COMPONENT_NIL) {
         anim.setLayer(layer, null, false);
+        changed = true;
         continue;
       }
 
@@ -57,9 +61,11 @@ public class AnimationLoaderSystem extends IteratingSystem {
         Gdx.app.debug(TAG, "finished loading " + descriptor);
         DC dc = Riiablo.assets.get(descriptor);
         anim.setLayer(layer, dc, false);
+        changed = true;
       }
     }
 
+    if (changed) anim.updateBox();
     if (DEBUG_LOAD) Gdx.app.debug(TAG, "load layers: " + Dirty.toString(cofComponent.load));
   }
 }

@@ -284,7 +284,7 @@ public class Animation extends BaseDrawable {
   }
 
   public int getKeyFrameIndex(float stateTime) {
-    if (numFrames == 1) return 0;
+    if (numFrames <= 1) return 0;
     int frameNumber = (int) (stateTime / frameDuration);
     return looping
         ? frameNumber % numFrames
