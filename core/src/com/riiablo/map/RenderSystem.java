@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Bits;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
@@ -125,6 +126,9 @@ public class RenderSystem extends EntitySystem {
   // camera bounds
   int renderMinX, renderMinY;
   int renderMaxX, renderMaxY;
+
+  // DT1 mainIndexes to not draw
+  final Bits popped = new Bits();
 
   public RenderSystem(PaletteIndexedBatch batch) {
     this.batch = batch;
@@ -304,6 +308,29 @@ public class RenderSystem extends EntitySystem {
           String.format("(%2d,%2d){%d,%d}[%2d,%2d](%dx%d)[%dx%d] %.0f,%.0f {%d,%d}->{%d,%d}",
               x, y, stx, sty, tx, ty, width, height, tilesX, tilesY, spx, spy, renderMinX, renderMinY, renderMaxX, renderMaxY));
     }
+
+    updatePopPads();
+  }
+
+  private void updatePopPads() {
+    map.updatePopPads(popped, x, y, tx, ty, stx, sty);
+    if (DEBUG_POPPADS) {
+      String popPads = getPopPads();
+      if (!popPads.isEmpty()) Gdx.app.debug(TAG, "PopPad IDs: " + popPads);
+    }
+  }
+
+  private String getPopPads() {
+    StringBuilder builder = new StringBuilder();
+    for (int i = popped.nextSetBit(0); i >= 0; i = popped.nextSetBit(i + 1)) {
+      builder.append(i).append(',');
+    }
+
+    if (builder.length() > 0) {
+      builder.setLength(builder.length() - 1);
+    }
+
+    return builder.toString();
   }
 
   /**
@@ -322,6 +349,7 @@ public class RenderSystem extends EntitySystem {
     prepareBatch();
     buildCaches();
     drawBackground();
+    drawMiddleground();
     drawForeground();
   }
 
@@ -452,7 +480,7 @@ public class RenderSystem extends EntitySystem {
     }
   }
 
-  private void drawForeground() {
+  private void drawMiddleground() {
     int x, y;
     int startX2 = startX;
     int startY2 = startY;
@@ -476,6 +504,42 @@ public class RenderSystem extends EntitySystem {
           drawWalls(batch, zone, tx, ty, px, py);
           //drawWalls (trees and maybe columns?)
           drawEntities(cache, 0); // objects
+        }
+
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
+      }
+    }
+  }
+
+  private void drawForeground() {
+    int x, y;
+    int startX2 = startX;
+    int startY2 = startY;
+    float startPx2 = startPx;
+    float startPy2 = startPy;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      float px = startPx2;
+      float py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
           drawRoofs(batch, zone, tx, ty, px, py);
         }
 
@@ -583,7 +647,7 @@ public class RenderSystem extends EntitySystem {
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
       if (tile == null || tile.tile == null) continue;
-      //if (popped.get(tile.tile.mainIndex)) continue;
+      if (popped.get(tile.tile.mainIndex)) continue;
       switch (tile.tile.orientation) {
         case Orientation.LEFT_WALL:
         case Orientation.LEFT_NORTH_CORNER_WALL:
@@ -618,7 +682,7 @@ public class RenderSystem extends EntitySystem {
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
       Map.Tile tile = zone.get(i, tx, ty);
       if (tile == null || tile.tile == null) continue;
-      //if (popped.get(tile.tile.mainIndex)) continue;
+      if (popped.get(tile.tile.mainIndex)) continue;
       if (!Orientation.isRoof(tile.tile.orientation)) continue;
       if (py + tile.tile.roofHeight > renderMaxY) continue;
       if (py + tile.tile.roofHeight + tile.tile.texture.getRegionHeight() < renderMinY) continue;
