@@ -20,7 +20,7 @@ public class AnimationLoaderSystem extends IteratingSystem {
   private static final String TAG = "AnimationLoaderSystem";
 
   private static final boolean DEBUG      = true;
-  private static final boolean DEBUG_LOAD = DEBUG && true;
+  private static final boolean DEBUG_LOAD = DEBUG && !true;
 
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
   private final ComponentMapper<AnimationComponent> animComponent = ComponentMapper.getFor(AnimationComponent.class);
