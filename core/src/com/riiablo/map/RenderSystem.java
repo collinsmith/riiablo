@@ -18,17 +18,22 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
+import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.component.AnimationComponent;
+import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.PositionComponent;
+import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.util.DebugUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -83,6 +88,10 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
   private final Family family = Family.all(AnimationComponent.class, CofComponent.class, PositionComponent.class).get();
   private ImmutableArray<Entity> entities;
+
+  // DEBUG
+  private final ComponentMapper<ClassnameComponent> classnameComponent = ComponentMapper.getFor(ClassnameComponent.class);
+  private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
 
   private final Vector2 tmpVec2 = new Vector2();
 
@@ -1116,6 +1125,67 @@ public class RenderSystem extends EntitySystem {
     }
 
     shapes.set(ShapeRenderer.ShapeType.Line);
+
+    shapes.end();
+    batch.begin();
+    batch.setShader(null);
+    startX2 = startX;
+    startY2 = startY;
+    StringBuilder builder = new StringBuilder(64);
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        for (Entity entity : entities) {
+          Vector2 position = positionComponent.get(entity).position;
+          if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
+           && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
+            Vector2 tmp = iso.agg(tmpVec2.set(position)).toTile().toScreen().ret();
+            builder.setLength(0);
+            builder.append(classnameComponent.get(entity).classname).append('\n');
+            CofComponent cofComponent = this.cofComponent.get(entity);
+            if (cofComponent != null) {
+              TypeComponent.Type type = typeComponent.get(entity).type;
+              builder
+                  .append(cofComponent.token.toUpperCase())
+                  .append(' ')
+                  .append(type.MODE[cofComponent.mode])
+                  .append(' ')
+                  .append(CofComponent.WCLASS[cofComponent.wclass])
+                  .append('\n');
+            }
+            Animation animation = animationComponent.get(entity).animation;
+            if (animation != null) {
+              builder
+                  .append(StringUtils.leftPad(Integer.toString(animation.getFrame()), 2))
+                  .append('/')
+                  .append(StringUtils.leftPad(Integer.toString(animation.getNumFramesPerDir() - 1), 2))
+                  .append(' ')
+                  .append(animation.getFrameDelta())
+                  .append('\n');
+            }
+            GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50 - 4, 0, Align.center, false);
+            Pools.free(layout);
+          }
+        }
+
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+      } else {
+        startX2--;
+      }
+    }
+    batch.end();
+    batch.setShader(Riiablo.shader);
+    shapes.begin();
   }
 
   private void drawDebugCamera(ShapeRenderer shapes) {
