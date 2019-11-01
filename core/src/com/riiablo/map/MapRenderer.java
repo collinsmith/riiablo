@@ -401,6 +401,7 @@ public class MapRenderer {
     updateEntities(delta);
     buildCaches();
     drawBackground();
+    drawMiddleground();
     drawForeground();
   }
 
@@ -552,7 +553,7 @@ public class MapRenderer {
     }
   }
 
-  void drawForeground() {
+  void drawMiddleground() {
     int x, y;
     int startX2 = startX;
     int startY2 = startY;
@@ -576,7 +577,6 @@ public class MapRenderer {
           drawWalls(batch, zone, tx, ty, px, py);
           //drawWalls (trees and maybe columns?)
           drawEntities(cache, 0); // objects
-          drawRoofs(batch, zone, tx, ty, px, py);
         }
 
         tx++;
@@ -697,6 +697,43 @@ public class MapRenderer {
           }
           // fall-through to continue
         default:
+      }
+    }
+  }
+
+  void drawForeground() {
+    int x, y;
+    int startX2 = startX;
+    int startY2 = startY;
+    float startPx2 = startPx;
+    float startPy2 = startPy;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      float px = startPx2;
+      float py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
+          drawRoofs(batch, zone, tx, ty, px, py);
+        }
+
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
       }
     }
   }
