@@ -13,6 +13,7 @@ import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.IdComponent;
+import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PositionComponent;
@@ -116,11 +117,13 @@ public class Engine extends PooledEngine {
     PositionComponent positionComponent = createComponent(PositionComponent.class);
 
     ObjectComponent objectComponent = createComponent(ObjectComponent.class);
-    objectComponent.map = map;
-    objectComponent.zone = zone;
-    objectComponent.ds1 = ds1;
-    objectComponent.object = object;
     objectComponent.base = base;
+
+    MapComponent mapComponent = createComponent(MapComponent.class);
+    mapComponent.map = map;
+    mapComponent.zone = zone;
+    mapComponent.ds1 = ds1;
+    mapComponent.object = object;
 
     Entity entity = createEntity();
     entity.add(typeComponent);
@@ -143,12 +146,14 @@ public class Engine extends PooledEngine {
     MonStats2.Entry monstats2 = Riiablo.files.monstats2.get(monstats.MonStatsEx);
 
     MonsterComponent monsterComponent = createComponent(MonsterComponent.class);
-    monsterComponent.map = map;
-    monsterComponent.zone = zone;
-    monsterComponent.ds1 = ds1;
-    monsterComponent.object = object;
     monsterComponent.monstats = monstats;
     monsterComponent.monstats2 = monstats2;
+
+    MapComponent mapComponent = createComponent(MapComponent.class);
+    mapComponent.map = map;
+    mapComponent.zone = zone;
+    mapComponent.ds1 = ds1;
+    mapComponent.object = object;
 
     TypeComponent typeComponent = createComponent(TypeComponent.class);
     typeComponent.type = TypeComponent.Type.MON;
