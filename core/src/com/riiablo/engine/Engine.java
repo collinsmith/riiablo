@@ -96,6 +96,10 @@ public class Engine extends PooledEngine {
     PositionComponent positionComponent = createComponent(PositionComponent.class);
 
     ObjectComponent objectComponent = createComponent(ObjectComponent.class);
+    objectComponent.map = map;
+    objectComponent.zone = zone;
+    objectComponent.ds1 = ds1;
+    objectComponent.object = object;
     objectComponent.base = base;
 
     Entity entity = createEntity();

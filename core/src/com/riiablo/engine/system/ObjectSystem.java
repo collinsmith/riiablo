@@ -41,7 +41,6 @@ public class ObjectSystem extends EntitySystem implements EntityListener {
   }
 
   private void init(Entity entity) {
-    System.out.println("INIT!");
     Objects.Entry base = objectComponent.get(entity).base;
     CofComponent cofComponent = this.cofComponent.get(entity);
     switch (base.InitFn) {
@@ -52,7 +51,6 @@ public class ObjectSystem extends EntitySystem implements EntityListener {
       case 8: // torch
         if (cofComponent != null) {
           cofComponent.mode = com.riiablo.engine.Engine.Object.MODE_ON;
-          System.out.println("ON!");
         }
 
         // FIXME: Set random start frame?
