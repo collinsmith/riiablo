@@ -130,6 +130,7 @@ public class Engine extends PooledEngine {
     entity.add(cofComponent);
     entity.add(animationComponent);
     entity.add(positionComponent);
+    entity.add(mapComponent);
     entity.add(objectComponent);
     entity.getComponent(ClassnameComponent.class).classname = base.Description;
     return entity;
@@ -180,6 +181,7 @@ public class Engine extends PooledEngine {
     entity.add(cofComponent);
     entity.add(animationComponent);
     entity.add(positionComponent);
+    entity.add(mapComponent);
     entity.add(monsterComponent);
     entity.getComponent(ClassnameComponent.class).classname = monstats.Id;
     return entity;
