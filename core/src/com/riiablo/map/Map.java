@@ -24,7 +24,6 @@ import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
 import com.riiablo.codec.excel.MonStats;
-import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Monster;
 import com.riiablo.entity.Warp;
@@ -763,8 +762,7 @@ public class Map implements Disposable {
         entities.add(entity);
 
         if (Riiablo.engine2 != null) {
-          com.badlogic.ashley.core.Entity e = Riiablo.engine2.createObject(map, this, ds1, obj);
-          e.getComponent(PositionComponent.class).position.set(x + obj.x, y + obj.y);
+          com.badlogic.ashley.core.Entity e = Riiablo.engine2.createObject(map, this, ds1, obj, x + obj.x, y + obj.y);
           Riiablo.engine2.addEntity(e);
         }
       }

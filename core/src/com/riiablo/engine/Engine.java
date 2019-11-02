@@ -84,25 +84,25 @@ public class Engine extends PooledEngine {
     return entity;
   }
 
-  public Entity createObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object) {
+  public Entity createObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
     final int type = object.type;
     switch (type) {
       case DS1.Object.DYNAMIC_TYPE:
-        return createDynamicObject(map, zone, ds1, object);
+        return createDynamicObject(map, zone, ds1, object, x, y);
       case DS1.Object.STATIC_TYPE:
-        return createStaticObject(map, zone, ds1, object);
+        return createStaticObject(map, zone, ds1, object, x, y);
       default:
         Gdx.app.error(TAG, "Unexpected type: " + type);
         return null;
     }
   }
 
-  private Entity createDynamicObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object) {
+  private Entity createDynamicObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.DYNAMIC_TYPE;
-    return createMonster(map, zone, ds1, object);
+    return createMonster(map, zone, ds1, object, x, y);
   }
 
-  private Entity createStaticObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object) {
+  private Entity createStaticObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.STATIC_TYPE;
     int id = Riiablo.files.obj.getType2(ds1.getAct(), object.id);
     Objects.Entry base = Riiablo.files.objects.get(id);
@@ -125,6 +125,7 @@ public class Engine extends PooledEngine {
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
 
     PositionComponent positionComponent = createComponent(PositionComponent.class);
+    positionComponent.position.set(x, y);
 
     ObjectComponent objectComponent = createComponent(ObjectComponent.class);
     objectComponent.base = base;
@@ -149,7 +150,7 @@ public class Engine extends PooledEngine {
     return entity;
   }
 
-  private Entity createMonster(Map map, Map.Zone zone, DS1 ds1, DS1.Object object) {
+  private Entity createMonster(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
     String id = Riiablo.files.obj.getType1(ds1.getAct(), object.id);
     MonStats.Entry monstats = Riiablo.files.monstats.get(id);
     if (monstats == null) {
@@ -190,6 +191,7 @@ public class Engine extends PooledEngine {
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
 
     PositionComponent positionComponent = createComponent(PositionComponent.class);
+    positionComponent.position.set(x, y);
 
     Entity entity = createEntity(monstats.Id);
     entity.add(typeComponent);
