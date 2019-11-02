@@ -22,9 +22,11 @@ import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
+import com.riiablo.codec.util.BBox;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.AnimationComponent;
+import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.PositionComponent;
@@ -55,6 +57,7 @@ public class RenderSystem extends EntitySystem {
   private static final boolean DEBUG_PATHS    = DEBUG && !true;
   private static final boolean DEBUG_POPPADS  = DEBUG && !true;
   private static final boolean DEBUG_ENTITIES = DEBUG && true;
+  private static final boolean DEBUG_SELECT   = DEBUG && true;
 
   public static boolean RENDER_DEBUG_SUBTILE  = DEBUG_SUBTILE;
   public static boolean RENDER_DEBUG_TILE     = DEBUG_TILE;
@@ -64,6 +67,7 @@ public class RenderSystem extends EntitySystem {
   public static int     RENDER_DEBUG_WALKABLE = DEBUG_WALKABLE ? 1 : 0;
   public static boolean RENDER_DEBUG_SPECIAL  = DEBUG_SPECIAL;
   public static boolean RENDER_DEBUG_PATHS    = DEBUG_PATHS;
+  public static boolean RENDER_DEBUG_SELECT   = DEBUG_SELECT;
 
   private static final Color RENDER_DEBUG_GRID_COLOR_1 = new Color(0x3f3f3f3f);
   private static final Color RENDER_DEBUG_GRID_COLOR_2 = new Color(0x7f7f7f3f);
@@ -93,6 +97,7 @@ public class RenderSystem extends EntitySystem {
   // DEBUG
   private final ComponentMapper<ClassnameComponent> classnameComponent = ComponentMapper.getFor(ClassnameComponent.class);
   private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
+  private final ComponentMapper<BBoxComponent> boxComponent = ComponentMapper.getFor(BBoxComponent.class);
 
   private final Vector2 tmpVec2 = new Vector2();
 
@@ -1093,7 +1098,6 @@ public class RenderSystem extends EntitySystem {
 
   private void drawDebugObjects(ShapeRenderer shapes) {
     shapes.set(ShapeRenderer.ShapeType.Line);
-    shapes.setColor(Color.WHITE);
     int startX2 = startX;
     int startY2 = startY;
     int x, y;
@@ -1109,7 +1113,18 @@ public class RenderSystem extends EntitySystem {
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
             Vector2 tmp = iso.agg(tmpVec2.set(position)).toTile().toScreen().ret();
+            shapes.setColor(Color.WHITE);
             DebugUtils.drawDiamond(shapes, tmp.x, tmp.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+            if (RENDER_DEBUG_SELECT && (entity.flags & Flags.SELECTABLE) == Flags.SELECTABLE) {
+              BBoxComponent boxComponent = this.boxComponent.get(entity);
+              if (boxComponent != null) {
+                BBox box = boxComponent.box;
+                if (box != null) {
+                  shapes.setColor(Color.GREEN);
+                  shapes.rect(tmpVec2.x + box.xMin, tmpVec2.y - box.yMax, box.width, box.height);
+                }
+              }
+            }
           }
         }
 
