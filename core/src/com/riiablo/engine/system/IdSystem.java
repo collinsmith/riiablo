@@ -18,6 +18,7 @@ public class IdSystem extends EntitySystem implements EntityListener {
 
   public IdSystem() {
     super(SystemPriority.IdSystem);
+    setProcessing(false);
   }
 
   public Entity getEntity(int id) {
