@@ -16,6 +16,7 @@ import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
+import com.riiablo.engine.component.DS1Component;
 import com.riiablo.engine.component.IdComponent;
 import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.MonsterComponent;
@@ -138,8 +139,10 @@ public class Engine extends PooledEngine {
     MapComponent mapComponent = createComponent(MapComponent.class);
     mapComponent.map = map;
     mapComponent.zone = zone;
-    mapComponent.ds1 = ds1;
-    mapComponent.object = object;
+
+    DS1Component ds1Component = createComponent(DS1Component.class);
+    ds1Component.ds1 = ds1;
+    ds1Component.object = object;
 
     Entity entity = createEntity(base.Description);
     entity.add(typeComponent);
@@ -148,6 +151,7 @@ public class Engine extends PooledEngine {
     entity.add(boxComponent);
     entity.add(positionComponent);
     entity.add(mapComponent);
+    entity.add(ds1Component);
     entity.add(objectComponent);
 
     // flags
@@ -172,8 +176,10 @@ public class Engine extends PooledEngine {
     MapComponent mapComponent = createComponent(MapComponent.class);
     mapComponent.map = map;
     mapComponent.zone = zone;
-    mapComponent.ds1 = ds1;
-    mapComponent.object = object;
+
+    DS1Component ds1Component = createComponent(DS1Component.class);
+    ds1Component.ds1 = ds1;
+    ds1Component.object = object;
 
     TypeComponent typeComponent = createComponent(TypeComponent.class);
     typeComponent.type = TypeComponent.Type.MON;
@@ -205,6 +211,7 @@ public class Engine extends PooledEngine {
     entity.add(boxComponent);
     entity.add(positionComponent);
     entity.add(mapComponent);
+    entity.add(ds1Component);
     entity.add(monsterComponent);
 
     if (monstats2.isSel) entity.flags |= Flags.SELECTABLE;
