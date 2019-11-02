@@ -71,9 +71,16 @@ public class Engine extends PooledEngine {
 
   @Override
   public Entity createEntity() {
+    return createEntity(null);
+  }
+
+  public Entity createEntity(String classname) {
+    ClassnameComponent classnameComponent = createComponent(ClassnameComponent.class);
+    classnameComponent.classname = classname;
+
     Entity entity = super.createEntity();
     entity.add(createComponent(IdComponent.class));
-    entity.add(createComponent(ClassnameComponent.class));
+    entity.add(classnameComponent);
     return entity;
   }
 
@@ -128,7 +135,7 @@ public class Engine extends PooledEngine {
     mapComponent.ds1 = ds1;
     mapComponent.object = object;
 
-    Entity entity = createEntity();
+    Entity entity = createEntity(base.Description);
     entity.add(typeComponent);
     entity.add(cofComponent);
     entity.add(animationComponent);
@@ -136,7 +143,6 @@ public class Engine extends PooledEngine {
     entity.add(positionComponent);
     entity.add(mapComponent);
     entity.add(objectComponent);
-    entity.getComponent(ClassnameComponent.class).classname = base.Description;
 
     // flags
 
@@ -185,7 +191,7 @@ public class Engine extends PooledEngine {
 
     PositionComponent positionComponent = createComponent(PositionComponent.class);
 
-    Entity entity = createEntity();
+    Entity entity = createEntity(monstats.Id);
     entity.add(typeComponent);
     entity.add(cofComponent);
     entity.add(animationComponent);
@@ -193,7 +199,6 @@ public class Engine extends PooledEngine {
     entity.add(positionComponent);
     entity.add(mapComponent);
     entity.add(monsterComponent);
-    entity.getComponent(ClassnameComponent.class).classname = monstats.Id;
 
     if (monstats2.isSel) entity.flags |= Flags.SELECTABLE;
 
