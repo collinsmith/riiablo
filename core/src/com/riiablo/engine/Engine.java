@@ -10,7 +10,7 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Objects;
 import com.riiablo.engine.component.AnimationComponent;
-import com.riiablo.engine.component.BoxComponent;
+import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.IdComponent;
@@ -115,7 +115,7 @@ public class Engine extends PooledEngine {
 
     AnimationComponent animationComponent = createComponent(AnimationComponent.class);
 
-    BoxComponent boxComponent = createComponent(BoxComponent.class);
+    BBoxComponent boxComponent = createComponent(BBoxComponent.class);
 
     PositionComponent positionComponent = createComponent(PositionComponent.class);
 
@@ -181,7 +181,7 @@ public class Engine extends PooledEngine {
 
     AnimationComponent animationComponent = createComponent(AnimationComponent.class);
 
-    BoxComponent boxComponent = createComponent(BoxComponent.class);
+    BBoxComponent boxComponent = createComponent(BBoxComponent.class);
 
     PositionComponent positionComponent = createComponent(PositionComponent.class);
 

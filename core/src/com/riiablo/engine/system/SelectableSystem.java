@@ -9,11 +9,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.engine.Flags;
-import com.riiablo.engine.component.BoxComponent;
+import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.PositionComponent;
 
 public class SelectableSystem extends IteratingSystem {
-  private final ComponentMapper<BoxComponent> boxComponent = ComponentMapper.getFor(BoxComponent.class);
+  private final ComponentMapper<BBoxComponent> boxComponent = ComponentMapper.getFor(BBoxComponent.class);
   private final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
 
   private final IsometricCamera iso;
@@ -21,7 +21,7 @@ public class SelectableSystem extends IteratingSystem {
   private final Vector2 tmpVec2 = new Vector2();
 
   public SelectableSystem(IsometricCamera iso) {
-    super(Family.all(BoxComponent.class).get());
+    super(Family.all(BBoxComponent.class).get());
     this.iso = iso;
   }
 
