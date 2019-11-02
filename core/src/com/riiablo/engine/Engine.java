@@ -6,9 +6,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
+import com.riiablo.codec.excel.Levels;
+import com.riiablo.codec.excel.LvlWarp;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Objects;
+import com.riiablo.codec.util.BBox;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
@@ -19,7 +22,9 @@ import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.TypeComponent;
+import com.riiablo.engine.component.WarpComponent;
 import com.riiablo.map.DS1;
+import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -203,6 +208,58 @@ public class Engine extends PooledEngine {
     entity.add(monsterComponent);
 
     if (monstats2.isSel) entity.flags |= Flags.SELECTABLE;
+
+    return entity;
+  }
+
+  public Entity createWarp(Map map, Map.Zone zone, int index, int x, int y) {
+    final int mainIndex   = DT1.Tile.Index.mainIndex(index);
+    final int subIndex    = DT1.Tile.Index.subIndex(index);
+    final int orientation = DT1.Tile.Index.orientation(index);
+
+    int dst = zone.level.Vis[mainIndex];
+    assert dst > 0 : "Warp to unknown level!";
+    int wrp = zone.level.Warp[mainIndex];
+    assert wrp >= 0 : "Invalid warp";
+
+    Levels.Entry dstLevel = Riiablo.files.Levels.get(dst);
+
+    LvlWarp.Entry warp = Riiablo.files.LvlWarp.get(wrp);
+
+    BBox box = new BBox();
+    box.xMin = warp.SelectX;
+    box.yMin = warp.SelectY;
+    box.width = warp.SelectDX;
+    box.height = warp.SelectDY;
+    box.xMax = box.width + box.xMin;
+    box.yMax = box.height + box.yMin;
+
+    TypeComponent typeComponent = createComponent(TypeComponent.class);
+    typeComponent.type = TypeComponent.Type.WRP;
+
+    MapComponent mapComponent = createComponent(MapComponent.class);
+    mapComponent.map = map;
+    mapComponent.zone = zone;
+
+    PositionComponent positionComponent = createComponent(PositionComponent.class);
+    positionComponent.position.set(x, y).add(warp.OffsetX, warp.OffsetY);
+
+    WarpComponent warpComponent = createComponent(WarpComponent.class);
+    warpComponent.index = index;
+    warpComponent.dstLevel = dstLevel;
+    warpComponent.warp = warp;
+
+    BBoxComponent boxComponent = createComponent(BBoxComponent.class);
+    boxComponent.box = box;
+
+    Entity entity = createEntity("warp");
+    entity.add(typeComponent);
+    entity.add(mapComponent);
+    entity.add(positionComponent);
+    entity.add(warpComponent);
+    entity.add(boxComponent);
+
+    entity.flags |= Flags.SELECTABLE;
 
     return entity;
   }

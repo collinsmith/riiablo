@@ -774,6 +774,10 @@ public class Map implements Disposable {
       if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
       Warp warp = new Warp(map, this, tile.cell.id, x, y);
       entities.add(warp);
+      if (Riiablo.engine2 != null) {
+        com.badlogic.ashley.core.Entity e = Riiablo.engine2.createWarp(map, this, tile.cell.id, x, y);
+        Riiablo.engine2.addEntity(e);
+      }
     }
 
     void setWarp(int src, int dst) {
