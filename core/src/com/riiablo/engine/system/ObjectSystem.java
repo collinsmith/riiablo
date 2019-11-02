@@ -4,30 +4,43 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
-import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.codec.excel.Objects;
+import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.ObjectComponent;
 
-public class ObjectSystem extends EntitySystem implements EntityListener {
+public class ObjectSystem extends IteratingSystem implements EntityListener {
   private static final String TAG = "ObjectSystem";
-  private final Family family = Family.all(ObjectComponent.class).get();
   private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
+  private final Family family;
 
   public ObjectSystem() {
+    super(Family.all(ObjectComponent.class).get());
+    family = getFamily();
   }
 
   @Override
   public void addedToEngine(Engine engine) {
+    super.addedToEngine(engine);
     engine.addEntityListener(family, 0, this);
   }
 
   @Override
   public void removedFromEngine(Engine engine) {
+    super.removedFromEngine(engine);
     engine.removeEntityListener(this);
+  }
+
+  @Override
+  protected void processEntity(Entity entity, float deltaTime) {
+    entity.flags &= ~Flags.SELECTABLE;
+    ObjectComponent objectComponent = this.objectComponent.get(entity);
+    CofComponent cofComponent = this.cofComponent.get(entity);
+    if (objectComponent.base.Selectable[cofComponent.mode]) entity.flags |= Flags.SELECTABLE;
   }
 
   @Override
@@ -37,7 +50,6 @@ public class ObjectSystem extends EntitySystem implements EntityListener {
 
   @Override
   public void entityRemoved(Entity entity) {
-
   }
 
   private void init(Entity entity) {
@@ -49,9 +61,7 @@ public class ObjectSystem extends EntitySystem implements EntityListener {
       case 1: case 2: case 3: case 4: case 5: case 6: case 7:
         break;
       case 8: // torch
-        if (cofComponent != null) {
-          cofComponent.mode = com.riiablo.engine.Engine.Object.MODE_ON;
-        }
+        if (cofComponent != null) cofComponent.mode = com.riiablo.engine.Engine.Object.MODE_ON;
 
         // FIXME: Set random start frame?
         //int framesPerDir = animation.getNumFramesPerDir();

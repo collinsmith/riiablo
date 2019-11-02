@@ -23,6 +23,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
 import com.riiablo.engine.Dirty;
+import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
@@ -1146,6 +1147,7 @@ public class RenderSystem extends EntitySystem {
             Vector2 tmp = iso.agg(tmpVec2.set(position)).toTile().toScreen().ret();
             builder.setLength(0);
             builder.append(classnameComponent.get(entity).classname).append('\n');
+            builder.append(Flags.toString(entity.flags)).append('\n');
             CofComponent cofComponent = this.cofComponent.get(entity);
             if (cofComponent != null) {
               TypeComponent.Type type = typeComponent.get(entity).type;

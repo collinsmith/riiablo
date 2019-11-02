@@ -10,6 +10,7 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Objects;
 import com.riiablo.engine.component.AnimationComponent;
+import com.riiablo.engine.component.BoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.IdComponent;
@@ -114,6 +115,8 @@ public class Engine extends PooledEngine {
 
     AnimationComponent animationComponent = createComponent(AnimationComponent.class);
 
+    BoxComponent boxComponent = createComponent(BoxComponent.class);
+
     PositionComponent positionComponent = createComponent(PositionComponent.class);
 
     ObjectComponent objectComponent = createComponent(ObjectComponent.class);
@@ -129,10 +132,14 @@ public class Engine extends PooledEngine {
     entity.add(typeComponent);
     entity.add(cofComponent);
     entity.add(animationComponent);
+    entity.add(boxComponent);
     entity.add(positionComponent);
     entity.add(mapComponent);
     entity.add(objectComponent);
     entity.getComponent(ClassnameComponent.class).classname = base.Description;
+
+    // flags
+
     return entity;
   }
 
@@ -174,16 +181,22 @@ public class Engine extends PooledEngine {
 
     AnimationComponent animationComponent = createComponent(AnimationComponent.class);
 
+    BoxComponent boxComponent = createComponent(BoxComponent.class);
+
     PositionComponent positionComponent = createComponent(PositionComponent.class);
 
     Entity entity = createEntity();
     entity.add(typeComponent);
     entity.add(cofComponent);
     entity.add(animationComponent);
+    entity.add(boxComponent);
     entity.add(positionComponent);
     entity.add(mapComponent);
     entity.add(monsterComponent);
     entity.getComponent(ClassnameComponent.class).classname = monstats.Id;
+
+    if (monstats2.isSel) entity.flags |= Flags.SELECTABLE;
+
     return entity;
   }
 }

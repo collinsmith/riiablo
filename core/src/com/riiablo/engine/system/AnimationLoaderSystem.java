@@ -13,6 +13,7 @@ import com.riiablo.codec.DC;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.AnimationComponent;
+import com.riiablo.engine.component.BoxComponent;
 import com.riiablo.engine.component.CofComponent;
 
 @DependsOn(CofLoaderSystem.class)
@@ -24,6 +25,7 @@ public class AnimationLoaderSystem extends IteratingSystem {
 
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
   private final ComponentMapper<AnimationComponent> animComponent = ComponentMapper.getFor(AnimationComponent.class);
+  private final ComponentMapper<BoxComponent> boxComponent = ComponentMapper.getFor(BoxComponent.class);
 
   public AnimationLoaderSystem() {
     super(Family.all(CofComponent.class, AnimationComponent.class).get(), SystemPriority.AnimationLoaderSystem);
@@ -65,7 +67,11 @@ public class AnimationLoaderSystem extends IteratingSystem {
       }
     }
 
-    if (changed) anim.updateBox();
+    if (changed) {
+      anim.updateBox();
+      BoxComponent boxComponent = this.boxComponent.get(entity);
+      if (boxComponent != null) boxComponent.box = anim.getBox();
+    }
     if (DEBUG_LOAD) Gdx.app.debug(TAG, "load layers: " + Dirty.toString(cofComponent.load));
   }
 }
