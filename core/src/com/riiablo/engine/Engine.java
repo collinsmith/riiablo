@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.excel.Levels;
@@ -255,6 +256,23 @@ public class Engine extends PooledEngine {
     warpComponent.index = index;
     warpComponent.dstLevel = dstLevel;
     warpComponent.warp = warp;
+    IntIntMap substs = warpComponent.substs;
+    if (warp.LitVersion) {
+      // FIXME: Below will cover overwhelming majority of cases -- need to solve act 5 ice cave case where 3 tiles are used
+      //        I think this can be done by checking if there's a texture with the same id, else it's a floor warp
+      if (subIndex < 2) {
+        for (int i = 0; i < 2; i++) {
+          substs.put(DT1.Tile.Index.create(orientation, mainIndex, i), DT1.Tile.Index.create(orientation, mainIndex, i + warp.Tiles));
+        }
+      } else {
+        substs.put(DT1.Tile.Index.create(0, subIndex, 0), DT1.Tile.Index.create(0, subIndex, 4));
+        substs.put(DT1.Tile.Index.create(0, subIndex, 1), DT1.Tile.Index.create(0, subIndex, 5));
+        substs.put(DT1.Tile.Index.create(0, subIndex, 2), DT1.Tile.Index.create(0, subIndex, 6));
+        substs.put(DT1.Tile.Index.create(0, subIndex, 3), DT1.Tile.Index.create(0, subIndex, 7));
+      }
+    } else {
+      //substs = EMPTY_INT_INT_MAP;
+    }
 
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
     boxComponent.box = box;

@@ -667,6 +667,10 @@ public class Map implements Disposable {
     }
   }
 
+  public void clearWarpSubsts() {
+    this.warpSubsts.clear();
+  }
+
   private MapGraph                                mapGraph   = new MapGraph(this);
   private IndexedAStarPathFinder<MapGraph.Point2> pathFinder = new IndexedAStarPathFinder<>(mapGraph, true);
 
