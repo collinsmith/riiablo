@@ -4,23 +4,21 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.codec.excel.Objects;
-import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.ObjectComponent;
 
-public class ObjectSystem extends IteratingSystem implements EntityListener {
+public class ObjectSystem extends EntitySystem implements EntityListener {
   private static final String TAG = "ObjectSystem";
   private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
-  private final Family family;
+  private final Family family = Family.all(ObjectComponent.class).get();
 
   public ObjectSystem() {
-    super(Family.all(ObjectComponent.class).get());
-    family = getFamily();
+    super();
   }
 
   @Override
@@ -33,14 +31,6 @@ public class ObjectSystem extends IteratingSystem implements EntityListener {
   public void removedFromEngine(Engine engine) {
     super.removedFromEngine(engine);
     engine.removeEntityListener(this);
-  }
-
-  @Override
-  protected void processEntity(Entity entity, float deltaTime) {
-    entity.flags &= ~Flags.SELECTABLE;
-    ObjectComponent objectComponent = this.objectComponent.get(entity);
-    CofComponent cofComponent = this.cofComponent.get(entity);
-    if (objectComponent.base.Selectable[cofComponent.mode]) entity.flags |= Flags.SELECTABLE;
   }
 
   @Override

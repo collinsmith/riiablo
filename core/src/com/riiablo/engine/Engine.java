@@ -215,8 +215,6 @@ public class Engine extends PooledEngine {
     entity.add(ds1Component);
     entity.add(monsterComponent);
 
-    if (monstats2.isSel) entity.flags |= Flags.SELECTABLE;
-
     return entity;
   }
 
@@ -283,8 +281,6 @@ public class Engine extends PooledEngine {
     entity.add(positionComponent);
     entity.add(warpComponent);
     entity.add(boxComponent);
-
-    entity.flags |= Flags.SELECTABLE;
 
     return entity;
   }
