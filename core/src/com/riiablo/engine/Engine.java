@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
@@ -19,6 +20,7 @@ import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.DS1Component;
 import com.riiablo.engine.component.IdComponent;
+import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.ObjectComponent;
@@ -28,6 +30,7 @@ import com.riiablo.engine.component.WarpComponent;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
+import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -72,6 +75,14 @@ public class Engine extends PooledEngine {
     public static final byte MODE_RN = 15;
   }
 
+  private static Label createLabel(String text) {
+    Label label = new Label(Riiablo.fonts.font16);
+    label.setAlignment(Align.center);
+    label.getStyle().background = Label.MODAL;
+    label.setText(text);
+    return label;
+  }
+
   public Engine() {
     super();
   }
@@ -112,10 +123,18 @@ public class Engine extends PooledEngine {
   private Entity createStaticObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.STATIC_TYPE;
     int id = Riiablo.files.obj.getType2(ds1.getAct(), object.id);
-    Objects.Entry base = Riiablo.files.objects.get(id);
+    final Objects.Entry base = Riiablo.files.objects.get(id);
     if (base == null) {
       Gdx.app.error(TAG, "Unknown static entity id: " + id + "; object=" + object);
       return null;
+    }
+
+    String name;
+    if (base.SubClass == 64) {
+      String levelName = Riiablo.string.lookup(zone.level.LevelName);
+      name = String.format("%s\n%s", levelName, Riiablo.string.lookup(base.Name));
+    } else {
+      name = base.Name.equalsIgnoreCase("dummy") ? base.Description : Riiablo.string.lookup(base.Name);
     }
 
     TypeComponent typeComponent = createComponent(TypeComponent.class);
@@ -145,6 +164,10 @@ public class Engine extends PooledEngine {
     ds1Component.ds1 = ds1;
     ds1Component.object = object;
 
+    LabelComponent labelComponent = createComponent(LabelComponent.class);
+    labelComponent.offset.y = -base.NameOffset;
+    labelComponent.actor = createLabel(name);
+
     Entity entity = createEntity(base.Description);
     entity.add(typeComponent);
     entity.add(cofComponent);
@@ -154,8 +177,9 @@ public class Engine extends PooledEngine {
     entity.add(mapComponent);
     entity.add(ds1Component);
     entity.add(objectComponent);
+    entity.add(labelComponent);
 
-    // flags
+    labelComponent.actor.setUserObject(entity);
 
     return entity;
   }
@@ -169,6 +193,8 @@ public class Engine extends PooledEngine {
     }
 
     MonStats2.Entry monstats2 = Riiablo.files.monstats2.get(monstats.MonStatsEx);
+
+    String name = monstats.NameStr.equalsIgnoreCase("dummy") ? monstats.Id : Riiablo.string.lookup(monstats.NameStr);
 
     MonsterComponent monsterComponent = createComponent(MonsterComponent.class);
     monsterComponent.monstats = monstats;
@@ -205,6 +231,10 @@ public class Engine extends PooledEngine {
     PositionComponent positionComponent = createComponent(PositionComponent.class);
     positionComponent.position.set(x, y);
 
+    LabelComponent labelComponent = createComponent(LabelComponent.class);
+    labelComponent.offset.y = monstats2.pixHeight;
+    labelComponent.actor = createLabel(name);
+
     Entity entity = createEntity(monstats.Id);
     entity.add(typeComponent);
     entity.add(cofComponent);
@@ -214,6 +244,9 @@ public class Engine extends PooledEngine {
     entity.add(mapComponent);
     entity.add(ds1Component);
     entity.add(monsterComponent);
+    entity.add(labelComponent);
+
+    labelComponent.actor.setUserObject(entity);
 
     return entity;
   }
@@ -229,6 +262,7 @@ public class Engine extends PooledEngine {
     assert wrp >= 0 : "Invalid warp";
 
     Levels.Entry dstLevel = Riiablo.files.Levels.get(dst);
+    String name = Riiablo.string.lookup(dstLevel.LevelWarp);
 
     LvlWarp.Entry warp = Riiablo.files.LvlWarp.get(wrp);
 
@@ -275,12 +309,19 @@ public class Engine extends PooledEngine {
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
     boxComponent.box = box;
 
+    LabelComponent labelComponent = createComponent(LabelComponent.class);
+    labelComponent.offset.set(box.xMin + box.width / 2, -box.yMax + box.height);
+    labelComponent.actor = createLabel(name);
+
     Entity entity = createEntity("warp");
     entity.add(typeComponent);
     entity.add(mapComponent);
     entity.add(positionComponent);
     entity.add(warpComponent);
     entity.add(boxComponent);
+    entity.add(labelComponent);
+
+    labelComponent.actor.setUserObject(entity);
 
     return entity;
   }
