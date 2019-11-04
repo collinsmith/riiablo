@@ -24,6 +24,7 @@ import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.ObjectComponent;
+import com.riiablo.engine.component.PathComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.engine.component.WarpComponent;
@@ -247,6 +248,12 @@ public class Engine extends PooledEngine {
     entity.add(labelComponent);
 
     labelComponent.actor.setUserObject(entity);
+
+    if (object != null && object.path != null) {
+      PathComponent pathComponent = createComponent(PathComponent.class);
+      pathComponent.path = object.path;
+      entity.add(pathComponent);
+    }
 
     return entity;
   }

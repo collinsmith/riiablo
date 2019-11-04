@@ -146,6 +146,8 @@ public class RenderSystem extends EntitySystem {
   int renderMinX, renderMinY;
   int renderMaxX, renderMaxY;
 
+  float radius;
+
   // DT1 mainIndexes to not draw
   final Bits popped = new Bits();
 
@@ -196,6 +198,14 @@ public class RenderSystem extends EntitySystem {
     if (this.src != src) {
       this.src = src;
     }
+  }
+
+  public float radius() {
+    return radius;
+  }
+
+  public boolean withinRadius(Vector2 vec) {
+    return iso.position.dst(vec) <= radius;
   }
 
   public float zoom() {
@@ -264,6 +274,10 @@ public class RenderSystem extends EntitySystem {
     renderHeight = tilesY * Tile.HEIGHT;
     assert (tilesX & 1) == 1;
     assert (tilesY & 1) == 1;
+
+    float yardsX = (renderWidth  / 2) / Tile.SUBTILE_WIDTH;
+    float yardsY = (renderHeight / 2) / Tile.SUBTILE_HEIGHT;
+    radius = Vector2.len(yardsX, yardsY);
   }
 
   private void updateCameraBounds() {
