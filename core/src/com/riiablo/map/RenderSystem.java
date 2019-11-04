@@ -100,6 +100,8 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<ClassnameComponent> classnameComponent = ComponentMapper.getFor(ClassnameComponent.class);
   private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
   private final ComponentMapper<BBoxComponent> boxComponent = ComponentMapper.getFor(BBoxComponent.class);
+  private final Family debugFamily = Family.all(PositionComponent.class).get();
+  private ImmutableArray<Entity> debugEntities;
 
   private final Vector2 tmpVec2 = new Vector2();
 
@@ -167,6 +169,13 @@ public class RenderSystem extends EntitySystem {
   @Override
   public void addedToEngine(Engine engine) {
     entities = engine.getEntitiesFor(family);
+    debugEntities = engine.getEntitiesFor(debugFamily);
+  }
+
+  @Override
+  public void removedFromEngine(Engine engine) {
+    entities = null;
+    debugEntities = null;
   }
 
   public Map getMap() {
@@ -1118,7 +1127,7 @@ public class RenderSystem extends EntitySystem {
       int sty = ty * Tile.SUBTILE_SIZE;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
-        for (Entity entity : entities) {
+        for (Entity entity : debugEntities) {
           Vector2 position = positionComponent.get(entity).position;
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
@@ -1165,7 +1174,7 @@ public class RenderSystem extends EntitySystem {
       int sty = ty * Tile.SUBTILE_SIZE;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
-        for (Entity entity : entities) {
+        for (Entity entity : debugEntities) {
           Vector2 position = positionComponent.get(entity).position;
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
@@ -1184,15 +1193,18 @@ public class RenderSystem extends EntitySystem {
                   .append(CofComponent.WCLASS[cofComponent.wclass])
                   .append('\n');
             }
-            Animation animation = animationComponent.get(entity).animation;
-            if (animation != null) {
-              builder
-                  .append(StringUtils.leftPad(Integer.toString(animation.getFrame()), 2))
-                  .append('/')
-                  .append(StringUtils.leftPad(Integer.toString(animation.getNumFramesPerDir() - 1), 2))
-                  .append(' ')
-                  .append(animation.getFrameDelta())
-                  .append('\n');
+            AnimationComponent animationComponent = this.animationComponent.get(entity);
+            if (animationComponent != null) {
+              Animation animation = animationComponent.animation;
+              if (animation != null) {
+                builder
+                    .append(StringUtils.leftPad(Integer.toString(animation.getFrame()), 2))
+                    .append('/')
+                    .append(StringUtils.leftPad(Integer.toString(animation.getNumFramesPerDir() - 1), 2))
+                    .append(' ')
+                    .append(animation.getFrameDelta())
+                    .append('\n');
+              }
             }
             GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50 - 4, 0, Align.center, false);
             Pools.free(layout);

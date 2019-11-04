@@ -310,7 +310,7 @@ public class Engine extends PooledEngine {
     boxComponent.box = box;
 
     LabelComponent labelComponent = createComponent(LabelComponent.class);
-    labelComponent.offset.set(box.xMin + box.width / 2, -box.yMax + box.height);
+    labelComponent.offset.set(box.xMin + box.width / 2, -box.yMax + box.height / 2);
     labelComponent.actor = createLabel(name);
 
     Entity entity = createEntity("warp");
