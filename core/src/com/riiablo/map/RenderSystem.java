@@ -29,6 +29,7 @@ import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
+import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.graphics.BlendMode;
@@ -91,6 +92,7 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<AnimationComponent> animationComponent = ComponentMapper.getFor(AnimationComponent.class);
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
   private final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
+  private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
   private final Family family = Family.all(AnimationComponent.class, CofComponent.class, PositionComponent.class).get();
   private ImmutableArray<Entity> entities;
 
@@ -414,7 +416,15 @@ public class RenderSystem extends EntitySystem {
       Vector2 pos = positionComponent.get(entity).position;
       if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
        && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
-        cache[stx == pos.x || sty == pos.y ? 2 : 0].add(entity);
+        ObjectComponent objectComponent = this.objectComponent.get(entity);
+        if (objectComponent != null) {
+          CofComponent cofComponent = this.cofComponent.get(entity);
+          orderFlag = objectComponent.base.OrderFlag[cofComponent.mode];
+        } else {
+          orderFlag = stx == pos.x || sty == pos.y ? 2 : 0;
+        }
+
+        cache[orderFlag].add(entity);
       }
     }
     cache[0].sort(SUBTILE_ORDER);
