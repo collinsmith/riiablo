@@ -74,7 +74,7 @@ public class FontTBL {
         glyph.srcY = (c / 16) * (charHeight + CHAR_SHEET_PADDING);
 
         CharData cData = FontTBL.this.cData[c];
-        glyph.width = cData.width + 1;
+        glyph.width = Math.min(cData.width + 1, charWidth);
         glyph.height = charHeight; // this was  {@code charHeight - 1} before, maybe because of no glyph padding in the backing texture
         glyph.yoffset = -(2 * glyph.height);
         glyph.xadvance = cData.width;
