@@ -138,16 +138,28 @@ public class Engine extends PooledEngine {
       name = base.Name.equalsIgnoreCase("dummy") ? base.Description : Riiablo.string.lookup(base.Name);
     }
 
+    boolean draw = base.Draw;
+
     TypeComponent typeComponent = createComponent(TypeComponent.class);
     typeComponent.type = TypeComponent.Type.OBJ;
 
-    CofComponent cofComponent = createComponent(CofComponent.class);
-    cofComponent.token  = base.Token;
-    cofComponent.mode   = Object.MODE_NU;
-    cofComponent.wclass = CofComponent.WEAPON_HTH;
-    Arrays.fill(cofComponent.component, CofComponent.COMPONENT_NULL);
+    CofComponent cofComponent;
+    if (draw) {
+      cofComponent = createComponent(CofComponent.class);
+      cofComponent.token = base.Token;
+      cofComponent.mode = Object.MODE_NU;
+      cofComponent.wclass = CofComponent.WEAPON_HTH;
+      Arrays.fill(cofComponent.component, CofComponent.COMPONENT_NULL);
+    } else {
+      cofComponent = null;
+    }
 
-    AnimationComponent animationComponent = createComponent(AnimationComponent.class);
+    AnimationComponent animationComponent;
+    if (draw) {
+      animationComponent = createComponent(AnimationComponent.class);
+    } else {
+      animationComponent = null;
+    }
 
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
 
@@ -171,8 +183,8 @@ public class Engine extends PooledEngine {
 
     Entity entity = createEntity(base.Description);
     entity.add(typeComponent);
-    entity.add(cofComponent);
-    entity.add(animationComponent);
+    if (draw) entity.add(cofComponent);
+    if (draw) entity.add(animationComponent);
     entity.add(boxComponent);
     entity.add(positionComponent);
     entity.add(mapComponent);
@@ -181,6 +193,8 @@ public class Engine extends PooledEngine {
     entity.add(labelComponent);
 
     labelComponent.actor.setUserObject(entity);
+
+    if (!draw) entity.flags |= Flags.INVISIBLE;
 
     return entity;
   }
