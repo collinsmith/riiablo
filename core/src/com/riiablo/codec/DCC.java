@@ -79,9 +79,15 @@ public class DCC extends com.riiablo.codec.DC {
     return frames[d][f].pixmap;
   }
 
+  // TODO: This is a workaround until texture regions are stored properly
+  TextureRegion regions[][];
+
   @Override
   public TextureRegion getTexture(int d, int i) {
-    return new TextureRegion(textures[d][i]);
+    if (regions == null) regions = new TextureRegion[header.directions][header.framesPerDir];
+    TextureRegion region = regions[d][i];
+    if (region == null) region = regions[d][i] = new TextureRegion(textures[d][i]);
+    return region;
   }
 
   @Override
