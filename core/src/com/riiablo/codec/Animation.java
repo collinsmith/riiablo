@@ -524,7 +524,7 @@ public class Animation extends BaseDrawable {
       tint           = Color.WHITE;
       numDirections  = dc.getNumDirections();
       numFrames      = dc.getNumFramesPerDir();
-      regions        = new TextureRegion[numDirections][];
+      regions        = dc.getRegions();
       transform      = null;
       transformColor = 0;
     }
@@ -540,11 +540,6 @@ public class Animation extends BaseDrawable {
     protected Layer load(int d) {
       if (regions[d] != null) return this;
       dc.loadDirection(d);
-      regions[d] = new TextureRegion[numFrames];
-      for (int f = 0; f < numFrames; f++) {
-        regions[d][f] = dc.getTexture(d, f);
-      }
-
       return this;
     }
 

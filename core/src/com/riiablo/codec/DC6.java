@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
+import com.riiablo.codec.util.BBox;
+import com.riiablo.graphics.PaletteIndexedPixmap;
+import com.riiablo.util.BufferUtils;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -17,11 +20,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-
-import com.riiablo.codec.DC;
-import com.riiablo.codec.util.BBox;
-import com.riiablo.graphics.PaletteIndexedPixmap;
-import com.riiablo.util.BufferUtils;
 
 public class DC6 extends com.riiablo.codec.DC {
   private static final String TAG = "DC6";
@@ -53,6 +51,7 @@ public class DC6 extends com.riiablo.codec.DC {
     this.directions = directions;
     this.frames     = frames;
     this.box        = box;
+    this.regions    = new TextureRegion[header.directions][];
     return this;
   }
 
@@ -108,15 +107,10 @@ public class DC6 extends com.riiablo.codec.DC {
     return frames[d][f].pixmap;
   }
 
-  // TODO: This is a workaround until texture regions are stored properly
-  TextureRegion regions[][];
-
   @Override
   public TextureRegion getTexture(int d, int i) {
-    if (regions == null) regions = new TextureRegion[header.directions][pixmaps[d].length];
-    TextureRegion region = regions[d][i];
-    if (region == null) region = regions[d][i] = new TextureRegion(textures[d][i]);
-    return region;
+    assert regions[d] != null : "loadDirection(d) must be called before getTexture(d,i)";
+    return regions[d][i];
   }
 
   @Override
@@ -214,6 +208,11 @@ public class DC6 extends com.riiablo.codec.DC {
       //texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
       texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
       textures[d][p] = texture;
+    }
+
+    regions[d] = new TextureRegion[pixmaps.length];
+    for (int p = 0; p < pixmaps.length; p++) {
+      regions[d][p] = new TextureRegion(textures[d][p]);
     }
   }
 

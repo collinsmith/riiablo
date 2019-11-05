@@ -43,6 +43,7 @@ public class DCC extends com.riiablo.codec.DC {
     this.directions = directions;
     this.frames     = frames;
     this.box        = box;
+    this.regions    = new TextureRegion[header.directions][];
   }
 
   @Override
@@ -79,15 +80,10 @@ public class DCC extends com.riiablo.codec.DC {
     return frames[d][f].pixmap;
   }
 
-  // TODO: This is a workaround until texture regions are stored properly
-  TextureRegion regions[][];
-
   @Override
   public TextureRegion getTexture(int d, int i) {
-    if (regions == null) regions = new TextureRegion[header.directions][header.framesPerDir];
-    TextureRegion region = regions[d][i];
-    if (region == null) region = regions[d][i] = new TextureRegion(textures[d][i]);
-    return region;
+    assert regions[d] != null : "loadDirection(d) must be called before getTexture(d,i)";
+    return regions[d][i];
   }
 
   @Override
@@ -129,6 +125,11 @@ public class DCC extends com.riiablo.codec.DC {
       //texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
       texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
       textures[d][f] = texture;
+    }
+
+    regions[d] = new TextureRegion[header.framesPerDir];
+    for (int f = 0; f < header.framesPerDir; f++) {
+      regions[d][f] = new TextureRegion(textures[d][f]);
     }
   }
 

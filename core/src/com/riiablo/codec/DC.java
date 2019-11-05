@@ -41,6 +41,14 @@ public abstract class DC implements Disposable {
   }
   public abstract TextureRegion getTexture(int d, int i);
 
+  TextureRegion[][] regions;
+  public final TextureRegion[] getRegions(int d) {
+    return getRegions()[d];
+  }
+  public final TextureRegion[][] getRegions() {
+    return regions;
+  }
+
   public abstract boolean isPreloaded(int d);
   public final void preloadDirection(int d) {
     preloadDirection(d, false);
