@@ -139,6 +139,22 @@ public class MapRenderer {
     camera.update();
   }
 
+  public int getMinX() {
+    return renderMinX;
+  }
+
+  public int getMinY() {
+    return renderMinY;
+  }
+
+  public int getMaxX() {
+    return renderMaxX;
+  }
+
+  public int getMaxY() {
+    return renderMaxY;
+  }
+
   public Map getMap() {
     return map;
   }
