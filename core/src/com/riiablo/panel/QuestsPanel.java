@@ -299,7 +299,7 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
       addActor(background);
 
       anim = Animation.newAnimation(questicons[q]);
-      anim.setClamp(true);
+      anim.setClamp(FRAME_UP, FRAME_DOWN);
       anim.setFrameDuration(Float.MAX_VALUE);
       AnimationWrapper animWrapper = new AnimationWrapper(anim);
       animWrapper.setPosition(5, 4);

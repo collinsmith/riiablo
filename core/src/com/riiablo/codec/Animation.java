@@ -43,6 +43,8 @@ public class Animation extends BaseDrawable {
   private COF     cof;
   private BBox    box;
   private boolean highlighted;
+  private int     startIndex;
+  private int     endIndex;
 
   private IntMap<Array<AnimationListener>> animationListeners;
 
@@ -62,6 +64,8 @@ public class Animation extends BaseDrawable {
     clamp         = true;
     frameDuration = FRAME_DURATION;
     box           = new BBox();
+    startIndex    = 0;
+    endIndex      = numFrames;
 
     animationListeners = EMPTY_MAP;
   }
@@ -96,6 +100,9 @@ public class Animation extends BaseDrawable {
         frame = 0;
         elapsedTime = 0;
       //}
+
+      startIndex = 0;
+      endIndex   = numFrames;
 
       return true;
     }
@@ -200,7 +207,7 @@ public class Animation extends BaseDrawable {
   }
 
   public boolean isFinished() {
-    return frame == numFrames - 1;
+    return frame == endIndex - 1;
   }
 
   public boolean isLooping() {
@@ -216,7 +223,17 @@ public class Animation extends BaseDrawable {
   }
 
   public void setClamp(boolean b) {
+    setClamp(b, 0, numFrames);
+  }
+
+  public void setClamp(int startIndex, int endIndex) {
+    setClamp(true, startIndex, endIndex);
+  }
+
+  public void setClamp(boolean b, int startIndex, int endIndex) {
     clamp = b;
+    this.startIndex = startIndex;
+    this.endIndex   = endIndex;
   }
 
   public boolean isHighlighted() {
@@ -284,11 +301,12 @@ public class Animation extends BaseDrawable {
   }
 
   public int getKeyFrameIndex(float stateTime) {
-    if (numFrames <= 1) return 0;
+    int frameRange = endIndex - startIndex;
+    if (frameRange <= 1) return startIndex;
     int frameNumber = (int) (stateTime / frameDuration);
     return looping
-        ? frameNumber % numFrames
-        : Math.min(clamp ? numFrames - 1 : numFrames, frameNumber);
+        ? startIndex + (frameNumber % frameRange)
+        : startIndex + Math.min(clamp ? frameRange - 1 : frameRange, frameNumber);
   }
 
   public void act() {
@@ -299,7 +317,7 @@ public class Animation extends BaseDrawable {
     elapsedTime += delta;
     frame = getKeyFrameIndex(elapsedTime);
     notifyListeners(frame);
-    if (frame == numFrames - 1) notifyAnimationFinished();
+    if (frame == endIndex - 1) notifyAnimationFinished();
   }
 
   public void drawDebug(ShapeRenderer shapes, float x, float y) {
