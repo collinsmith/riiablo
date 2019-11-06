@@ -612,6 +612,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     if (menu == null && !labels.isEmpty()) {
       layoutLabels();
       b.begin();
+      mapRenderer.prepare(b);
       for (Actor label : labels) label.draw(b, 1);
       b.end();
     } else if (menu == null && details != null) {
@@ -633,6 +634,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       layoutLabels();
 
       b.begin();
+      mapRenderer.prepare(b);
       for (Actor label : labels) label.draw(b, 1);
       b.end();
     }
@@ -796,9 +798,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     for (Actor label : labels) {
       tmp.x = label.getX();
       tmp.y = label.getY();
-      mapRenderer.projectScaled(tmp);
-      tmp.x = MathUtils.clamp(tmp.x, 0, stage.getWidth()  - label.getWidth());
-      tmp.y = MathUtils.clamp(tmp.y, 0, stage.getHeight() - label.getHeight());
+      tmp.x = MathUtils.clamp(tmp.x, mapRenderer.getMinX(), mapRenderer.getMaxX() - label.getWidth());
+      tmp.y = MathUtils.clamp(tmp.y, mapRenderer.getMinY(), mapRenderer.getMaxY() - label.getHeight());
       label.setPosition(tmp.x, tmp.y);
     }
   }
