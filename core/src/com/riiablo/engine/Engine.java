@@ -162,6 +162,9 @@ public class Engine extends PooledEngine {
     }
 
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
+    if (animationComponent != null) {
+      boxComponent.box = animationComponent.animation.getBox();
+    }
 
     PositionComponent positionComponent = createComponent(PositionComponent.class);
     positionComponent.position.set(x, y);
@@ -242,6 +245,7 @@ public class Engine extends PooledEngine {
     AnimationComponent animationComponent = createComponent(AnimationComponent.class);
 
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
+    boxComponent.box = animationComponent.animation.getBox();
 
     PositionComponent positionComponent = createComponent(PositionComponent.class);
     positionComponent.position.set(x, y);

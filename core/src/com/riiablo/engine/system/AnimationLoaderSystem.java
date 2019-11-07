@@ -67,11 +67,7 @@ public class AnimationLoaderSystem extends IteratingSystem {
       }
     }
 
-    if (changed) {
-      anim.updateBox();
-      BBoxComponent boxComponent = this.boxComponent.get(entity);
-      if (boxComponent != null) boxComponent.box = anim.getBox();
-    }
+    if (changed) anim.updateBox();
     if (DEBUG_LOAD) Gdx.app.debug(TAG, "load layers: " + Dirty.toString(cofComponent.load));
   }
 }
