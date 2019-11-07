@@ -162,7 +162,15 @@ public class Engine extends PooledEngine {
     }
 
     BBoxComponent boxComponent = createComponent(BBoxComponent.class);
-    if (animationComponent != null) {
+    if (base.SubClass == 64) {
+      BBox box = boxComponent.box = new BBox();
+      box.xMin = -70;
+      box.yMin = -30;
+      box.xMax = -box.xMin;
+      box.yMax = -box.yMin;
+      box.width = Math.abs(2 * box.xMin);
+      box.height = Math.abs(2 * box.yMin);
+    } else if (animationComponent != null) {
       boxComponent.box = animationComponent.animation.getBox();
     }
 
