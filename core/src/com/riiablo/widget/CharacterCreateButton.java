@@ -195,7 +195,7 @@ public class CharacterCreateButton extends Widget implements Disposable {
         builder.layer(Riiablo.assets.get(fwsDesc), charClass.blendSpecial);
       }
       fw = builder.build();
-      fw.setLooping(false);
+      fw.setMode(Animation.Mode.CLAMP);
       fw.addAnimationListener(-1, new Animation.AnimationListener() {
         @Override
         public void onTrigger(Animation fw, int frame) {
@@ -235,7 +235,7 @@ public class CharacterCreateButton extends Widget implements Disposable {
         builder.layer(Riiablo.assets.get(bwsDesc), charClass.blendSpecial);
       }
       bw = builder.build();
-      bw.setLooping(false);
+      bw.setMode(Animation.Mode.CLAMP);
       bw.addAnimationListener(-1, new Animation.AnimationListener() {
         @Override
         public void onTrigger(Animation bw, int frame) {

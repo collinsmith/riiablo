@@ -46,7 +46,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
   float frameDuration = FRAME_DURATION;
   float elapsedTime;
 
-  enum Mode { ONCE, LOOP, CLAMP }
+  public enum Mode { ONCE, LOOP, CLAMP }
   Mode mode = Mode.LOOP;
 
   boolean highlighted;
@@ -167,24 +167,12 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
     return mode == Mode.LOOP;
   }
 
-  public void setLooping(boolean b) {
-    setMode(b ? Mode.LOOP : Mode.CLAMP);
-  }
-
   public boolean isClamped() {
     return mode == Mode.CLAMP;
   }
 
-  public void setClamp(boolean b) {
-    setClamp(b, 0, numFrames);
-  }
-
   public void setClamp(int startIndex, int endIndex) {
-    setClamp(true, startIndex, endIndex);
-  }
-
-  public void setClamp(boolean b, int startIndex, int endIndex) {
-    setMode(b ? Mode.CLAMP : Mode.ONCE);
+    setMode(Mode.CLAMP);
     this.startIndex = startIndex;
     this.endIndex   = endIndex;
   }

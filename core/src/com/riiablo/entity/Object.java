@@ -2,6 +2,7 @@ package com.riiablo.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.Animation;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.excel.Objects;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -74,7 +75,7 @@ public class Object extends Entity {
   protected void updateCOF() {
     if (!base.Draw) return;
     super.updateCOF();
-    animation.setLooping(base.CycleAnim[mode]);
+    animation.setMode(base.CycleAnim[mode] ? Animation.Mode.LOOP : Animation.Mode.CLAMP);
     animation.setFrame(base.Start[mode]);
     animation.setFrameDelta(base.FrameDelta[mode]);
   }

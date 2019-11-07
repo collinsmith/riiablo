@@ -76,7 +76,7 @@ public class Missile extends Entity {
     animation = Animation.builder()
         .layer(image, blendMode)
         .build();
-    animation.setLooping(missile.LoopAnim > 0); // TODO: Some are 2 -- special case?
+    animation.setMode(missile.LoopAnim > 0 ? Animation.Mode.LOOP : Animation.Mode.CLAMP); // TODO: Some are 2 -- special case?
     animation.setFrame(missile.RandStart);
     animation.setFrameDuration(Animation.FRAME_DURATION * missile.AnimSpeed);
     animation.setDirection(direction());

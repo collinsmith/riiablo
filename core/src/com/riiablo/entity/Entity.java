@@ -856,8 +856,7 @@ public abstract class Entity implements Animation.AnimationListener {
       overlay = Animation.builder()
           .layer(dcc, overlayEntry.Trans == 3 ? BlendMode.LUMINOSITY : BlendMode.ID)
           .build();
-      overlay.setLooping(false);
-      overlay.setClamp(false);
+      overlay.setMode(Animation.Mode.ONCE);
       //overlay.setFrameDuration(1f / overlayEntry.AnimRate);
     }
 

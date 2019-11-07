@@ -55,7 +55,7 @@ public class ItemHolder extends Entity {
     animation = Animation.builder()
         .layer(flippy, BlendMode.ID, (byte) ((item.base.Transform << 5) | (item.charColorIndex & 0x1F)))
         .build();
-    animation.setLooping(false);
+    animation.setMode(Animation.Mode.CLAMP);
     animation.updateBox();
     animation.addAnimationListener(item.getDropFxFrame(), new Animation.AnimationListener() {
       @Override
