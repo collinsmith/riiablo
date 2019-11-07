@@ -472,7 +472,7 @@ public abstract class Entity implements Animation.AnimationListener {
       updateDirection();
       return true;
     } else {
-      return animation.reset(cof);
+      return animation.setCOF(cof);
     }
   }
 

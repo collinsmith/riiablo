@@ -308,10 +308,6 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
     return cof;
   }
 
-  public boolean reset(COF cof) {
-    return setCOF(cof);
-  }
-
   public boolean setCOF(COF cof) {
     if (this.cof != cof) {
       this.cof = cof;

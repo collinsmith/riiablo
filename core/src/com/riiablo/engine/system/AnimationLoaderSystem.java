@@ -47,7 +47,7 @@ public class AnimationLoaderSystem extends IteratingSystem {
     boolean changed = false;
     COF cof = cofComponent.cof;
     if (cof == null) return;
-    anim.reset(cof);
+    anim.setCOF(cof);
     for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.load, layer.component)) continue;
