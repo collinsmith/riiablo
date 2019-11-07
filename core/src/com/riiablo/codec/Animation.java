@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.BlendMode;
@@ -18,7 +20,9 @@ import com.riiablo.graphics.PaletteIndexedBatch;
 
 import org.apache.commons.lang3.Validate;
 
-public class Animation extends BaseDrawable {
+import java.util.Arrays;
+
+public class Animation extends BaseDrawable implements Pool.Poolable {
   private static final String TAG = "Animation";
   private static final int DEBUG_MODE = 1; // 0=off, 1=box, 2=layer box
 
@@ -29,46 +33,29 @@ public class Animation extends BaseDrawable {
   private static final Color   SHADOW_TINT      = Riiablo.colors.modal75;
   private static final Affine2 SHADOW_TRANSFORM = new Affine2();
 
+  COF cof;
+
+  int numFrames;
+  int numDirections;
+  int direction;
+  int frame;
+
+  int startIndex;
+  int endIndex;
+
+  float frameDuration = FRAME_DURATION;
+  float elapsedTime;
+
+  enum Mode { ONCE, LOOP, CLAMP }
+  Mode mode = Mode.LOOP;
+
+  boolean highlighted;
+
+  final Layer layers[] = new Layer[NUM_LAYERS];
+  final BBox  box      = new BBox();
+
   private final IntMap<Array<AnimationListener>> EMPTY_MAP = new IntMap<>(0);
-
-  private int     numDirections;
-  private int     numFrames;
-  private int     direction;
-  private int     frame;
-  private boolean looping;
-  private boolean clamp;
-  private float   frameDuration;
-  private float   elapsedTime;
-  private Layer   layers[];
-  private COF     cof;
-  private BBox    box;
-  private boolean highlighted;
-  private int     startIndex;
-  private int     endIndex;
-
-  private IntMap<Array<AnimationListener>> animationListeners;
-
-  Animation() {
-    this(0, 0, new Layer[NUM_LAYERS]);
-  }
-
-  Animation(int directions, int framesPerDir) {
-    this(directions, framesPerDir, new Layer[NUM_LAYERS]);
-  }
-
-  Animation(int directions, int framesPerDir, Layer[] layers) {
-    numDirections = directions;
-    numFrames     = framesPerDir;
-    this.layers   = layers;
-    looping       = true;
-    clamp         = true;
-    frameDuration = FRAME_DURATION;
-    box           = new BBox();
-    startIndex    = 0;
-    endIndex      = numFrames;
-
-    animationListeners = EMPTY_MAP;
-  }
+  private IntMap<Array<AnimationListener>> animationListeners = EMPTY_MAP;
 
   public static Animation newAnimation() {
     return new Animation();
@@ -79,39 +66,25 @@ public class Animation extends BaseDrawable {
   }
 
   public static Animation newAnimation(COF cof) {
-    Animation animation = new Animation();
-    animation.reset(cof);
+    Animation animation = newAnimation();
+    animation.setCOF(cof);
     return animation;
   }
 
-  public COF getCOF() {
-    return cof;
-  }
-
-  public boolean reset(COF cof) {
-    if (this.cof != cof) {
-      this.cof = cof;
-      numDirections = cof.getNumDirections();
-      numFrames = cof.getNumFramesPerDir();
-      setFrameDelta(cof.getAnimRate());
-
-      if (direction >= numDirections) direction = 0;
-      //if (frame >= numFrames) {
-        frame = 0;
-        elapsedTime = 0;
-      //}
-
-      startIndex = 0;
-      endIndex   = numFrames;
-
-      return true;
-    }
-
-    return false;
-  }
-
-  public static Builder builder() {
-    return new Builder();
+  @Override
+  public void reset() {
+    numFrames     = 0;
+    numDirections = 0;
+    frame         = 0;
+    direction     = 0;
+    startIndex    = 0;
+    endIndex      = 0;
+    mode          = Mode.LOOP;
+    frameDuration = FRAME_DURATION;
+    highlighted   = false;
+    Layer.freeAll(layers);
+    box.reset();
+    animationListeners = EMPTY_MAP;
   }
 
   //protected void loadAll() {
@@ -122,55 +95,6 @@ public class Animation extends BaseDrawable {
 
   protected void load(int d) {
     for (Layer l : layers) if (l != null) l.load(d);
-  }
-
-  public Animation setLayer(int component, DC dc) {
-    return setLayer(component, dc, true);
-  }
-
-  public Animation setLayer(int component, DC dc, boolean updateBox) {
-    layers[component] = dc != null ? new Layer(dc).load(direction) : null;
-    if (updateBox) updateBox();
-    return this;
-  }
-
-  public Layer setLayer(COF.Layer cofLayer, DC dc, boolean updateBox) {
-    setLayer(cofLayer.component, dc, updateBox);
-    Layer layer = layers[cofLayer.component];
-    if (layer != null && cofLayer.overrideTransLvl != 0) {
-      applyTransform(layer, cofLayer.newTransLvl & 0xFF);
-    }
-
-    return layer;
-  }
-
-  private void applyTransform(Layer layer, int transform) {
-    switch (transform) {
-      case 0x00:
-        layer.setBlendMode(layer.blendMode, Riiablo.colors.trans75);
-        break;
-      case 0x01:
-        layer.setBlendMode(layer.blendMode, Riiablo.colors.trans50);
-        break;
-      case 0x02:
-        layer.setBlendMode(layer.blendMode, Riiablo.colors.trans25);
-        break;
-      case 0x03:
-        layer.setBlendMode(BlendMode.LUMINOSITY);
-        break;
-      case 0x04:
-        layer.setBlendMode(BlendMode.LUMINOSITY); // not sure
-        break;
-      case 0x06:
-        layer.setBlendMode(BlendMode.LUMINOSITY); // not sure
-        break;
-      default:
-        Gdx.app.error(TAG, "Unknown transform: " + transform);
-    }
-  }
-
-  public Layer getLayer(int component) {
-    return layers[component];
   }
 
   public int getNumDirections() {
@@ -202,7 +126,36 @@ public class Animation extends BaseDrawable {
       Validate.isTrue(0 <= f && f < numFrames, "Invalid frame: " + f);
       frame = f;
       elapsedTime = frameDuration * frame;
-      //if (frame == numFrames - 1) notifyAnimationFinished();
+      //if (frame == endIndex - 1) notifyAnimationFinished();
+    }
+  }
+
+  public float getFrameDuration() {
+    return frameDuration;
+  }
+
+  public void setFrameDuration(float f) {
+    frameDuration = f;
+    elapsedTime = frameDuration * frame;
+  }
+
+  public int getFrameDelta() {
+    return MathUtils.roundPositive(256f / (frameDuration * FRAMES_PER_SECOND));
+  }
+
+  public void setFrameDelta(int delta) {
+    setFrameDuration(256f / (delta * FRAMES_PER_SECOND));
+  }
+
+  public int getFrame(float stateTime) {
+    int frameRange = endIndex - startIndex;
+    if (frameRange <= 1) return startIndex;
+    int frameNumber = (int) (stateTime / frameDuration);
+    switch (mode) {
+      case ONCE:  return startIndex + Math.min(frameRange, frameNumber);
+      case LOOP:  return startIndex + (frameNumber % frameRange);
+      case CLAMP: return startIndex + Math.min(frameRange - 1, frameNumber);
+      default: throw new AssertionError("Invalid mode set: " + mode);
     }
   }
 
@@ -211,15 +164,15 @@ public class Animation extends BaseDrawable {
   }
 
   public boolean isLooping() {
-    return looping;
+    return mode == Mode.LOOP;
   }
 
   public void setLooping(boolean b) {
-    looping = b;
+    setMode(b ? Mode.LOOP : Mode.CLAMP);
   }
 
   public boolean isClamped() {
-    return clamp;
+    return mode == Mode.CLAMP;
   }
 
   public void setClamp(boolean b) {
@@ -231,9 +184,18 @@ public class Animation extends BaseDrawable {
   }
 
   public void setClamp(boolean b, int startIndex, int endIndex) {
-    clamp = b;
+    setMode(b ? Mode.CLAMP : Mode.ONCE);
     this.startIndex = startIndex;
     this.endIndex   = endIndex;
+  }
+
+  public Mode getMode() {
+    return mode;
+  }
+
+  public void setMode(Mode mode) {
+    assert mode != null;
+    this.mode = mode;
   }
 
   public boolean isHighlighted() {
@@ -283,39 +245,144 @@ public class Animation extends BaseDrawable {
     }
   }
 
-  public float getFrameDuration() {
-    return frameDuration;
+  public Layer getLayer(int component) {
+    return layers[component];
   }
 
-  public void setFrameDuration(float f) {
-    frameDuration = f;
-    elapsedTime = frameDuration * frame;
+  public Animation setLayer(int component, DC dc) {
+    return setLayer(component, dc, true);
   }
 
-  public int getFrameDelta() {
-    return MathUtils.roundPositive(256f / (frameDuration * FRAMES_PER_SECOND));
+  public Animation setLayer(int component, DC dc, boolean updateBox) {
+    if (dc == null) {
+      Layer.free(layers, component);
+    } else {
+      Layer layer;
+      if (layers[component] == null) {
+        layer = layers[component] = Layer.obtain(dc, Layer.DEFAULT_BLENDMODE);
+      } else {
+        layer = layers[component].set(dc, Layer.DEFAULT_BLENDMODE);
+      }
+      layer.load(direction);
+    }
+
+    return this;
   }
 
-  public void setFrameDelta(int delta) {
-    setFrameDuration(256f / (delta * FRAMES_PER_SECOND));
+  public Layer setLayer(COF.Layer cofLayer, DC dc, boolean updateBox) {
+    setLayer(cofLayer.component, dc, updateBox);
+    Layer layer = layers[cofLayer.component];
+    if (layer != null && cofLayer.overrideTransLvl != 0) {
+      applyTransform(layer, cofLayer.newTransLvl & 0xFF);
+    }
+
+    return layer;
   }
 
-  public int getKeyFrameIndex(float stateTime) {
-    int frameRange = endIndex - startIndex;
-    if (frameRange <= 1) return startIndex;
-    int frameNumber = (int) (stateTime / frameDuration);
-    return looping
-        ? startIndex + (frameNumber % frameRange)
-        : startIndex + Math.min(clamp ? frameRange - 1 : frameRange, frameNumber);
+  private void applyTransform(Layer layer, int transform) {
+    switch (transform) {
+      case 0x00:
+        layer.setBlendMode(layer.blendMode, Riiablo.colors.trans75);
+        break;
+      case 0x01:
+        layer.setBlendMode(layer.blendMode, Riiablo.colors.trans50);
+        break;
+      case 0x02:
+        layer.setBlendMode(layer.blendMode, Riiablo.colors.trans25);
+        break;
+      case 0x03:
+        layer.setBlendMode(BlendMode.LUMINOSITY);
+        break;
+      case 0x04:
+        layer.setBlendMode(BlendMode.LUMINOSITY); // not sure
+        break;
+      case 0x06:
+        layer.setBlendMode(BlendMode.LUMINOSITY); // not sure
+        break;
+      default:
+        Gdx.app.error(TAG, "Unknown transform: " + transform);
+    }
+  }
+
+  public COF getCOF() {
+    return cof;
+  }
+
+  public boolean reset(COF cof) {
+    return setCOF(cof);
+  }
+
+  public boolean setCOF(COF cof) {
+    if (this.cof != cof) {
+      this.cof = cof;
+      numDirections = cof.getNumDirections();
+      numFrames = cof.getNumFramesPerDir();
+      setFrameDelta(cof.getAnimRate());
+
+      if (direction >= numDirections) direction = 0; // FIXME: maybe not necessary if done correctly
+      frame       = 0;
+      elapsedTime = 0;
+
+      startIndex = 0;
+      endIndex   = numFrames;
+
+      return true;
+    }
+
+    return false;
+  }
+
+  public BBox getBox() {
+    return box;
+  }
+
+  public void updateBox() {
+    if (cof == null) {
+      box.reset();
+      for (int l = 0; l < NUM_LAYERS; l++) {
+        Layer layer = layers[l];
+        if (layer == null) break;
+        box.max(layer.dc.getBox(direction));
+      }
+    } else if (frame < numFrames) { // TODO: else assign box to cof.box for dir
+      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+      int f = frame;
+      box.reset();
+      for (int l = 0; l < cof.getNumLayers(); l++) {
+        int component = cof.getLayerOrder(d, f, l);
+        Layer layer = layers[component];
+        if (layer != null) {
+          box.max(layer.dc.getBox());
+        }
+      }
+    }
+  }
+
+  @Override
+  public float getMinWidth() {
+    return box.width;
+  }
+
+  @Override
+  public float getMinHeight() {
+    return box.height;
   }
 
   public void act() {
-    act(Gdx.graphics.getDeltaTime());
+    update();
   }
 
   public void act(float delta) {
+    update(delta);
+  }
+
+  public void update() {
+    update(Gdx.graphics.getDeltaTime());
+  }
+
+  public void update(float delta) {
     elapsedTime += delta;
-    frame = getKeyFrameIndex(elapsedTime);
+    frame = getFrame(elapsedTime);
     notifyListeners(frame);
     if (frame == endIndex - 1) notifyAnimationFinished();
   }
@@ -361,28 +428,32 @@ public class Animation extends BaseDrawable {
   }
 
   public void draw(PaletteIndexedBatch batch, float x, float y) {
-    if (cof == null && frame < numFrames) {
+    if (frame >= numFrames) return;
+    if (cof == null) {
       for (Layer layer : layers) {
         if (layer == null) continue;
         drawLayer(batch, layer, x, y);
       }
-      batch.resetBlendMode();
-      batch.resetColormap();
-    } else if (frame < numFrames) {
+    } else {
       int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
       int f = frame;
       // TODO: Layer blend modes should correspond with the cof trans levels
-      for (int l = 0; l < cof.getNumLayers(); l++) {
+      for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
         int component = cof.getLayerOrder(d, f, l);
         Layer layer = layers[component];
-        if (layer != null) {
-          drawLayer(batch, layer, x, y);
-        }
+        if (layer == null) continue;
+        drawLayer(batch, layer, x, y);
       }
-      batch.resetBlendMode();
-      batch.resetColormap();
     }
+
+    batch.resetBlendMode();
+    batch.resetColormap();
   }
+
+  public void drawLayer(PaletteIndexedBatch batch, Layer layer, float x, float y) {
+    layer.draw(batch, direction, frame, x, y);
+  }
+
 
   public void drawShadow(PaletteIndexedBatch batch, float x, float y) {
     drawShadow(batch, x, y, true);
@@ -434,49 +505,6 @@ public class Animation extends BaseDrawable {
     batch.draw(region, region.getRegionWidth(), region.getRegionHeight(), SHADOW_TRANSFORM);
   }
 
-  public void drawLayer(PaletteIndexedBatch batch, Layer layer, float x, float y) {
-    layer.draw(batch, direction, frame, x, y);
-  }
-
-  public void updateBox() {
-    if (cof == null) {
-      box.reset();
-      for (int l = 0; l < NUM_LAYERS; l++) {
-        Layer layer = layers[l];
-        if (layer == null) break;
-        box.max(layer.dc.getBox(direction));
-      }
-    } else if (frame < numFrames) {
-      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
-      int f = frame;
-      box.reset();
-      for (int l = 0; l < cof.getNumLayers(); l++) {
-        int component = cof.getLayerOrder(d, f, l);
-        Layer layer = layers[component];
-        if (layer != null) {
-          box.max(layer.dc.getBox());
-        }
-      }
-    }
-  }
-
-  public BBox getBox() {
-    //return cof == null
-    //    ? layers[0].dc.getDirection(direction).box
-    //    : cof.box;
-    return cof == null ? layers[0].dc.getBox(direction) : box;
-  }
-
-  @Override
-  public float getMinWidth() {
-    return getBox().width;
-  }
-
-  @Override
-  public float getMinHeight() {
-    return getBox().height;
-  }
-
   private void notifyAnimationFinished() {
     if (animationListeners == EMPTY_MAP) return;
     Array<AnimationListener> listeners = animationListeners.get(-1);
@@ -518,34 +546,55 @@ public class Animation extends BaseDrawable {
     void onTrigger(Animation animation, int frame);
   }
 
-  public static class Layer {
+  public static class Layer implements Pool.Poolable {
+    private static final Pool<Layer> pool = Pools.get(Layer.class, 1024);
+
     private final Color DEBUG_COLOR = new Color(MathUtils.random(), MathUtils.random(), MathUtils.random(), 1);
 
-    final DC            dc;
-    final TextureRegion regions[][];
+    static final int DEFAULT_BLENDMODE = BlendMode.ID;
 
-    final int numDirections;
-    final int numFrames;
-
+    DC    dc;
+    int   numDirections;
+    int   numFrames;
     int   blendMode;
     Color tint;
     Index transform;
     int   transformColor;
 
-    Layer(DC dc) {
-      this(dc, BlendMode.ID);
+    TextureRegion regions[][];
+
+    static Layer obtain(DC dc, int blendMode) {
+      return pool.obtain().set(dc, blendMode);
     }
 
-    Layer(DC dc, int blendMode) {
+    static void freeAll(Layer[] layers) {
+      for (int i = 0; i < layers.length; i++) {
+        free(layers, i);
+      }
+    }
+
+    static void free(Layer[] layers, int i) {
+      Layer layer = layers[i];
+      if (layer != null) {
+        pool.free(layer);
+        layers[i] = null;
+      }
+    }
+
+    Layer set(DC dc, int blendMode) {
       this.dc        = dc;
       this.blendMode = blendMode;
+      regions        = dc.getRegions();
       tint           = Color.WHITE;
       numDirections  = dc.getNumDirections();
       numFrames      = dc.getNumFramesPerDir();
-      regions        = dc.getRegions();
       transform      = null;
       transformColor = 0;
+      return this;
     }
+
+    @Override
+    public void reset() {} // Does nothing -- call Layer#set(DC,int) when obtained
 
     protected Layer loadAll(Bits dirs) {
       for (int d = dirs.nextSetBit(0); d >= 0; d = dirs.nextSetBit(d + 1)) {
@@ -632,20 +681,36 @@ public class Animation extends BaseDrawable {
     }
   }
 
-  public static class Builder {
+  public static Builder builder() {
+    return Builder.obtain();
+  }
+
+  public static class Builder implements Pool.Poolable {
+    private static final Pool<Builder> pool = Pools.get(Builder.class, 32);
+
+    final Layer layers[] = new Layer[NUM_LAYERS];
     int size = 0;
-    Layer layers[] = new Layer[NUM_LAYERS];
+
+    public static Builder obtain() {
+      return pool.obtain();
+    }
+
+    @Override
+    public void reset() {
+      Arrays.fill(layers, 0, size, null);
+      size = 0;
+    }
 
     public Builder layer(DC dc) {
-      return layer(new Layer(dc));
+      return layer(Layer.obtain(dc, Layer.DEFAULT_BLENDMODE));
     }
 
     public Builder layer(DC dc, int blendMode) {
-      return layer(new Layer(dc, blendMode));
+      return layer(Layer.obtain(dc, blendMode));
     }
 
     public Builder layer(DC dc, int blendMode, byte packedTransform) {
-      Layer layer = new Layer(dc, blendMode);
+      Layer layer = Layer.obtain(dc, blendMode);
       layer.setTransform(packedTransform);
       return layer(layer);
     }
@@ -657,7 +722,15 @@ public class Animation extends BaseDrawable {
 
     public Animation build() {
       Layer first = layers[0];
-      return new Animation(first.numDirections, first.numFrames, layers);
+      Animation animation = Animation .newAnimation();
+      animation.numDirections = first.numDirections;
+      animation.numFrames     = first.numFrames;
+      animation.startIndex    = 0;
+      animation.endIndex      = animation.numFrames;
+      System.arraycopy(layers, 0, animation.layers, 0, size);
+      animation.updateBox();
+      pool.free(this);
+      return animation;
     }
   }
 }
