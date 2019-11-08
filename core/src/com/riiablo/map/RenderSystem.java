@@ -55,7 +55,6 @@ public class RenderSystem extends EntitySystem {
   private static final boolean DEBUG_WALKABLE = DEBUG && !true;
   private static final boolean DEBUG_SPECIAL  = DEBUG && true;
   private static final boolean DEBUG_MOUSE    = DEBUG && true;
-  private static final boolean DEBUG_PATHS    = DEBUG && !true;
   private static final boolean DEBUG_POPPADS  = DEBUG && !true;
   private static final boolean DEBUG_ENTITIES = DEBUG && true;
   private static final boolean DEBUG_SELECT   = DEBUG && true;
@@ -67,7 +66,6 @@ public class RenderSystem extends EntitySystem {
   public static int     RENDER_DEBUG_GRID     = DEBUG_GRID ? 3 : 0;
   public static int     RENDER_DEBUG_WALKABLE = DEBUG_WALKABLE ? 1 : 0;
   public static boolean RENDER_DEBUG_SPECIAL  = DEBUG_SPECIAL;
-  public static boolean RENDER_DEBUG_PATHS    = DEBUG_PATHS;
   public static boolean RENDER_DEBUG_SELECT   = DEBUG_SELECT;
 
   private static final Color RENDER_DEBUG_GRID_COLOR_1 = new Color(0x3f3f3f3f);
