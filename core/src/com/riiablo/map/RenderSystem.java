@@ -25,6 +25,7 @@ import com.riiablo.codec.Animation;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Flags;
+import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
@@ -98,6 +99,7 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<ClassnameComponent> classnameComponent = ComponentMapper.getFor(ClassnameComponent.class);
   private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
   private final ComponentMapper<BBoxComponent> boxComponent = ComponentMapper.getFor(BBoxComponent.class);
+  private final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
   private final Family debugFamily = Family.all(PositionComponent.class).get();
   private ImmutableArray<Entity> debugEntities;
 
@@ -1204,6 +1206,12 @@ public class RenderSystem extends EntitySystem {
                   .append(type.MODE[cofComponent.mode])
                   .append(' ')
                   .append(CofComponent.WCLASS[cofComponent.wclass])
+                  .append('\n');
+            }
+            AngleComponent angleComponent = this.angleComponent.get(entity);
+            if (angleComponent != null) {
+              builder
+                  .append(String.format("%.02f", angleComponent.angle))
                   .append('\n');
             }
             AnimationComponent animationComponent = this.animationComponent.get(entity);
