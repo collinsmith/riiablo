@@ -194,6 +194,7 @@ public class RenderSystem extends EntitySystem {
 
   public void setSrc(Entity src) {
     if (this.src != src) {
+      assert positionComponent.has(src) : "src entity must have a position component";
       this.src = src;
     }
   }
