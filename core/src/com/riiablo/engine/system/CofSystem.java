@@ -40,7 +40,7 @@ public class CofSystem extends IteratingSystem {
     cofComponent.load  = Dirty.NONE;
   }
 
-  private String generateCof(CofComponent c, TypeComponent.Type t) {
+  private static String generateCof(CofComponent c, TypeComponent.Type t) {
     return c.token + t.MODE[c.mode] + CofComponent.WCLASS[c.wclass];
   }
 }
