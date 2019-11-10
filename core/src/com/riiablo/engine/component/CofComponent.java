@@ -43,10 +43,10 @@ public class CofComponent implements Component, Pool.Poolable {
     Arrays.fill(DEFAULT_COMPONENT, COMPONENT_NIL);
   }
 
-  public static final int TRANSFORM_NULL = -1;
-  public static final int[] DEFAULT_TRANSFORM;
+  public static final byte TRANSFORM_NULL = -1;
+  public static final byte[] DEFAULT_TRANSFORM;
   static {
-    DEFAULT_TRANSFORM = new int[COF.Component.NUM_COMPONENTS];
+    DEFAULT_TRANSFORM = new byte[COF.Component.NUM_COMPONENTS];
     Arrays.fill(DEFAULT_TRANSFORM, TRANSFORM_NULL);
   }
 
@@ -61,16 +61,17 @@ public class CofComponent implements Component, Pool.Poolable {
   public int    mode;
   public int    wclass;
   public COF    cof;
-  public int    dirty;
-  public int    load;
+  public int    dirty;  // cof layers need to be loaded
+  public int    load;   // cof layers loading
+  public int    update; // update component
 
   public final int   component[];
-  public final int   transform[];
+  public final byte  transform[];
   public final float alpha[];
 
   public CofComponent() {
     component = new int[COF.Component.NUM_COMPONENTS];
-    transform = new int[COF.Component.NUM_COMPONENTS];
+    transform = new byte[COF.Component.NUM_COMPONENTS];
     alpha     = new float[COF.Component.NUM_COMPONENTS];
     reset();
   }
@@ -86,6 +87,7 @@ public class CofComponent implements Component, Pool.Poolable {
     cof    = null;
     dirty  = Dirty.NONE;
     load   = Dirty.NONE;
+    update = Dirty.NONE;
     System.arraycopy(DEFAULT_COMPONENT, 0, component, 0, COF.Component.NUM_COMPONENTS);
     System.arraycopy(DEFAULT_TRANSFORM, 0, transform, 0, COF.Component.NUM_COMPONENTS);
     System.arraycopy(DEFAULT_ALPHA, 0, alpha, 0, COF.Component.NUM_COMPONENTS);

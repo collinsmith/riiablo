@@ -30,13 +30,13 @@ public class AnimationLoaderSystem extends IteratingSystem {
   }
 
   @Override
-  public void update(float deltaTime) {
+  public void update(float delta) {
     //Riiablo.assets.update();
-    super.update(deltaTime);
+    super.update(delta);
   }
 
   @Override
-  protected void processEntity(Entity entity, float deltaTime) {
+  protected void processEntity(Entity entity, float delta) {
     AnimationComponent animComponent = this.animComponent.get(entity);
     CofComponent cofComponent = this.cofComponent.get(entity);
 
@@ -57,11 +57,13 @@ public class AnimationLoaderSystem extends IteratingSystem {
 
       AssetDescriptor<? extends DC> descriptor = cofComponent.layer[layer.component];
       if (Riiablo.assets.isLoaded(descriptor)) {
-        cofComponent.load &= ~(1 << layer.component);
+        int flag = (1 << layer.component);
+        cofComponent.load &= ~flag;
+        cofComponent.update &= ~flag;
         Gdx.app.debug(TAG, "finished loading " + descriptor);
         DC dc = Riiablo.assets.get(descriptor);
         anim.setLayer(layer, dc, false)
-            .setTransform((byte) cofComponent.transform[layer.component])
+            .setTransform(cofComponent.transform[layer.component])
             .setAlpha(cofComponent.alpha[layer.component])
             ;
         changed = true;

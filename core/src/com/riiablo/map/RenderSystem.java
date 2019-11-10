@@ -46,7 +46,7 @@ import java.util.Comparator;
 public class RenderSystem extends EntitySystem {
   private static final String TAG = "RenderSystem";
   private static final boolean DEBUG          = true;
-  private static final boolean DEBUG_MATH     = DEBUG && true;
+  private static final boolean DEBUG_MATH     = DEBUG && !true;
   private static final boolean DEBUG_BUFFER   = DEBUG && true;
   private static final boolean DEBUG_SUBTILE  = DEBUG && true;
   private static final boolean DEBUG_TILE     = DEBUG && !true;
