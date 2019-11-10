@@ -45,7 +45,11 @@ public class AnimationLoaderSystem extends IteratingSystem {
     boolean changed = false;
     COF cof = cofComponent.cof;
     if (cof == null) return;
-    anim.setCOF(cof);
+    // FIXME: logic here needs to be looked into -- should below operations be performed when cof didn't change?
+    boolean newCof = anim.setCOF(cof);
+    if (newCof && cofComponent.speed != CofComponent.SPEED_NULL) {
+      anim.setFrameDelta(cofComponent.speed);
+    }
     for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.load, layer.component)) continue;
