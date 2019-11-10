@@ -50,6 +50,13 @@ public class CofComponent implements Component, Pool.Poolable {
     Arrays.fill(DEFAULT_TRANSFORM, TRANSFORM_NULL);
   }
 
+  public static final float ALPHA_NULL = 1.0f;
+  public static final float[] DEFAULT_ALPHA;
+  static {
+    DEFAULT_ALPHA = new float[COF.Component.NUM_COMPONENTS];
+    Arrays.fill(DEFAULT_ALPHA, ALPHA_NULL);
+  }
+
   public String token;
   public int    mode;
   public int    wclass;
@@ -57,12 +64,14 @@ public class CofComponent implements Component, Pool.Poolable {
   public int    dirty;
   public int    load;
 
-  public final int[] component;
-  public final int[] transform;
+  public final int   component[];
+  public final int   transform[];
+  public final float alpha[];
 
   public CofComponent() {
     component = new int[COF.Component.NUM_COMPONENTS];
     transform = new int[COF.Component.NUM_COMPONENTS];
+    alpha     = new float[COF.Component.NUM_COMPONENTS];
     reset();
   }
 
@@ -79,6 +88,7 @@ public class CofComponent implements Component, Pool.Poolable {
     load   = Dirty.NONE;
     System.arraycopy(DEFAULT_COMPONENT, 0, component, 0, COF.Component.NUM_COMPONENTS);
     System.arraycopy(DEFAULT_TRANSFORM, 0, transform, 0, COF.Component.NUM_COMPONENTS);
+    System.arraycopy(DEFAULT_ALPHA, 0, alpha, 0, COF.Component.NUM_COMPONENTS);
     Arrays.fill(layer, null);
   }
 }
