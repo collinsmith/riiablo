@@ -1211,7 +1211,7 @@ public class RenderSystem extends EntitySystem {
             AngleComponent angleComponent = this.angleComponent.get(entity);
             if (angleComponent != null) {
               builder
-                  .append(String.format("%.02f", angleComponent.angle))
+                  .append(String.format("%.02f", angleComponent.angle.angleRad()))
                   .append('\n');
             }
             AnimationComponent animationComponent = this.animationComponent.get(entity);

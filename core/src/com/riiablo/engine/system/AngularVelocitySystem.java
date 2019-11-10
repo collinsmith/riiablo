@@ -4,32 +4,42 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.riiablo.codec.COF;
-import com.riiablo.engine.Direction;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.CofComponent;
 
-public class AngleSystem extends IteratingSystem {
-  private final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
-  private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
-  private final ComponentMapper<AnimationComponent> animationComponent = ComponentMapper.getFor(AnimationComponent.class);
+import org.apache.commons.math3.util.FastMath;
 
-  public AngleSystem() {
+public class AngularVelocitySystem extends IteratingSystem {
+  private static final float ANGULAR_VELOCITY = MathUtils.PI * 8;
+
+  private final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
+
+  public AngularVelocitySystem() {
     super(Family.all(AnimationComponent.class, CofComponent.class, AngleComponent.class).get());
   }
 
   @Override
   protected void processEntity(Entity entity, float delta) {
     AngleComponent angleComponent = this.angleComponent.get(entity);
-    float radians = angleComponent.angle.angleRad();
+    Vector2 angle  = angleComponent.angle;
+    Vector2 target = angleComponent.target;
+    if (angle.epsilonEquals(target)) {
+      return;
+    }
 
-    CofComponent cofComponent = this.cofComponent.get(entity);
-    COF cof = cofComponent.cof;
+    float acos = (float) FastMath.acos(angle.dot(target));
+    float asin = (float) FastMath.asin(angle.crs(target));
 
-    int d = Direction.radiansToDirection(radians, cof.getNumDirections());
+    float theta = ANGULAR_VELOCITY * delta;
+    if (acos < theta) {
+      angle.set(target);
+      return;
+    }
 
-    AnimationComponent animationComponent = this.animationComponent.get(entity);
-    animationComponent.animation.setDirection(d);
+    theta = asin < 0 ? -theta : theta;
+    angle.rotateRad(theta);
   }
 }
