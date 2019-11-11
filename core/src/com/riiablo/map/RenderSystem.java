@@ -1146,7 +1146,7 @@ public class RenderSystem extends EntitySystem {
           Vector2 position = positionComponent.get(entity).position;
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
-            Vector2 tmp = iso.agg(tmpVec2.set(position)).toTile().toScreen().ret();
+            Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
             shapes.setColor(Color.WHITE);
             DebugUtils.drawDiamond(shapes, tmp.x, tmp.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
             if (RENDER_DEBUG_SELECT && (entity.flags & Flags.SELECTABLE) == Flags.SELECTABLE) {
@@ -1193,7 +1193,7 @@ public class RenderSystem extends EntitySystem {
           Vector2 position = positionComponent.get(entity).position;
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
-            Vector2 tmp = iso.agg(tmpVec2.set(position)).toTile().toScreen().ret();
+            Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
             builder.setLength(0);
             builder.append(classnameComponent.get(entity).classname).append('\n');
             builder.append(Flags.toString(entity.flags)).append('\n');
