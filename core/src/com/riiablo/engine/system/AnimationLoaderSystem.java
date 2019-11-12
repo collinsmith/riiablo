@@ -14,6 +14,8 @@ import com.riiablo.engine.Dirty;
 import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.CofComponent;
+import com.riiablo.engine.component.cof.AlphaUpdate;
+import com.riiablo.engine.component.cof.TransformUpdate;
 
 @DependsOn(CofLoaderSystem.class)
 public class AnimationLoaderSystem extends IteratingSystem {
@@ -24,6 +26,9 @@ public class AnimationLoaderSystem extends IteratingSystem {
 
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
   private final ComponentMapper<AnimationComponent> animComponent = ComponentMapper.getFor(AnimationComponent.class);
+
+  private final ComponentMapper<TransformUpdate> transformUpdate = ComponentMapper.getFor(TransformUpdate.class);
+  private final ComponentMapper<AlphaUpdate> alphaUpdate = ComponentMapper.getFor(AlphaUpdate.class);
 
   public AnimationLoaderSystem() {
     super(Family.all(CofComponent.class, AnimationComponent.class).get(), SystemPriority.AnimationLoaderSystem);
@@ -63,13 +68,18 @@ public class AnimationLoaderSystem extends IteratingSystem {
       if (Riiablo.assets.isLoaded(descriptor)) {
         int flag = (1 << layer.component);
         cofComponent.load &= ~flag;
-        cofComponent.update &= ~flag;
-        Gdx.app.debug(TAG, "finished loading " + descriptor);
+        if (DEBUG_LOAD) Gdx.app.debug(TAG, "finished loading " + descriptor);
         DC dc = Riiablo.assets.get(descriptor);
-        anim.setLayer(layer, dc, false)
-            .setTransform(cofComponent.transform[layer.component])
-            .setAlpha(cofComponent.alpha[layer.component])
-            ;
+        anim.setLayer(layer, dc, false);
+
+        TransformUpdate transformUpdate = this.transformUpdate.get(entity);
+        if (transformUpdate == null) entity.add(transformUpdate = getEngine().createComponent(TransformUpdate.class));
+        transformUpdate.flags |= flag;
+
+        AlphaUpdate alphaUpdate = this.alphaUpdate.get(entity);
+        if (alphaUpdate == null) entity.add(alphaUpdate = getEngine().createComponent(AlphaUpdate.class));
+        alphaUpdate.flags |= flag;
+
         changed = true;
       }
     }

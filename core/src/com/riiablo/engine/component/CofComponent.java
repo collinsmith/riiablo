@@ -65,7 +65,6 @@ public class CofComponent implements Component, Pool.Poolable {
   public COF    cof;
   public int    dirty;  // cof layers need to be loaded
   public int    load;   // cof layers loading
-  public int    update; // update component
   public int    speed;
 
   public final int   component[];
@@ -90,7 +89,6 @@ public class CofComponent implements Component, Pool.Poolable {
     cof    = null;
     dirty  = Dirty.NONE;
     load   = Dirty.NONE;
-    update = Dirty.NONE;
     speed  = SPEED_NULL;
     System.arraycopy(DEFAULT_COMPONENT, 0, component, 0, COF.Component.NUM_COMPONENTS);
     System.arraycopy(DEFAULT_TRANSFORM, 0, transform, 0, COF.Component.NUM_COMPONENTS);
