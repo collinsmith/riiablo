@@ -32,6 +32,7 @@ import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PositionComponent;
+import com.riiablo.engine.component.SelectableComponent;
 import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -100,6 +101,7 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
   private final ComponentMapper<BBoxComponent> boxComponent = ComponentMapper.getFor(BBoxComponent.class);
   private final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
+  private final ComponentMapper<SelectableComponent> selectableComponent = ComponentMapper.getFor(SelectableComponent.class);
   private final Family debugFamily = Family.all(PositionComponent.class).get();
   private ImmutableArray<Entity> debugEntities;
 
@@ -667,7 +669,7 @@ public class RenderSystem extends EntitySystem {
       if (px > renderMaxX || px + Tile.WIDTH  < renderMinX) continue;
       TextureRegion texture = tile.tile.texture;
       if (py > renderMaxY || py + texture.getRegionHeight() < renderMinY) continue;
-      batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
+      batch.draw(texture, px, py);
     }
     /*
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
@@ -1149,7 +1151,7 @@ public class RenderSystem extends EntitySystem {
             Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
             shapes.setColor(Color.WHITE);
             DebugUtils.drawDiamond(shapes, tmp.x, tmp.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-            if (RENDER_DEBUG_SELECT && (entity.flags & Flags.SELECTABLE) == Flags.SELECTABLE) {
+            if (RENDER_DEBUG_SELECT && selectableComponent.has(entity)) {
               BBoxComponent boxComponent = this.boxComponent.get(entity);
               if (boxComponent != null) {
                 BBox box = boxComponent.box;

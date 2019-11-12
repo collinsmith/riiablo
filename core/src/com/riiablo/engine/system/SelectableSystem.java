@@ -7,10 +7,10 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.ObjectComponent;
+import com.riiablo.engine.component.SelectableComponent;
 import com.riiablo.engine.component.WarpComponent;
 
 public class SelectableSystem extends EntitySystem {
@@ -44,6 +44,8 @@ public class SelectableSystem extends EntitySystem {
     public void entityRemoved(Entity entity) {}
   };
 
+  private final ComponentMapper<SelectableComponent> selectableComponent = ComponentMapper.getFor(SelectableComponent.class);
+
   public SelectableSystem() {
     super();
   }
@@ -75,11 +77,11 @@ public class SelectableSystem extends EntitySystem {
     }
   }
 
-  private static void setSelectable(Entity entity, boolean b) {
+  private void setSelectable(Entity entity, boolean b) {
     if (b) {
-      entity.flags |= Flags.SELECTABLE;
+      if (!selectableComponent.has(entity)) entity.add(getEngine().createComponent(SelectableComponent.class));
     } else {
-      entity.flags &= ~Flags.SELECTABLE;
+      entity.remove(SelectableComponent.class);
     }
   }
 }

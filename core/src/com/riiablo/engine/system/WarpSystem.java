@@ -4,8 +4,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.riiablo.engine.Flags;
-import com.riiablo.engine.component.MapComponent;
+import com.riiablo.engine.component.HoveredComponent;
 import com.riiablo.engine.component.WarpComponent;
 import com.riiablo.map.Map;
 
@@ -15,7 +14,7 @@ public class WarpSystem extends IteratingSystem {
   private Map map;
 
   public WarpSystem() {
-    super(Family.all(WarpComponent.class, MapComponent.class).get());
+    super(Family.all(WarpComponent.class, HoveredComponent.class).get());
   }
 
   public Map getMap() {
@@ -37,8 +36,6 @@ public class WarpSystem extends IteratingSystem {
   @Override
   protected void processEntity(Entity entity, float delta) {
     WarpComponent warpComponent = this.warpComponent.get(entity);
-    if ((entity.flags & Flags.SELECTED) == Flags.SELECTED) {
-      map.addWarpSubsts(warpComponent.substs);
-    }
+    map.addWarpSubsts(warpComponent.substs);
   }
 }

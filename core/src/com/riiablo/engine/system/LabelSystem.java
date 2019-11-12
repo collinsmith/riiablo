@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.riiablo.camera.IsometricCamera;
-import com.riiablo.engine.Flags;
+import com.riiablo.engine.component.HoveredComponent;
 import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.PositionComponent;
 
@@ -23,7 +23,7 @@ public class LabelSystem extends IteratingSystem {
   private final Array<Actor> labels = new Array<>();
 
   public LabelSystem(IsometricCamera iso) {
-    super(Family.all(PositionComponent.class, LabelComponent.class).get());
+    super(Family.all(PositionComponent.class, LabelComponent.class, HoveredComponent.class).get());
     this.iso = iso;
     setProcessing(false);
   }
@@ -36,10 +36,6 @@ public class LabelSystem extends IteratingSystem {
 
   @Override
   protected void processEntity(Entity entity, float delta) {
-    if ((entity.flags & Flags.SELECTED) != Flags.SELECTED) {
-      return;
-    }
-
     PositionComponent positionComponent = this.positionComponent.get(entity);
     iso.toScreen(tmpVec2.set(positionComponent.position));
 
