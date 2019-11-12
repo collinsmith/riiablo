@@ -30,6 +30,7 @@ import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
+import com.riiablo.engine.component.HoveredComponent;
 import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.SelectableComponent;
@@ -102,6 +103,7 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<BBoxComponent> boxComponent = ComponentMapper.getFor(BBoxComponent.class);
   private final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
   private final ComponentMapper<SelectableComponent> selectableComponent = ComponentMapper.getFor(SelectableComponent.class);
+  private final ComponentMapper<HoveredComponent> hoveredComponent = ComponentMapper.getFor(HoveredComponent.class);
   private final Family debugFamily = Family.all(PositionComponent.class).get();
   private ImmutableArray<Entity> debugEntities;
 
@@ -1156,7 +1158,7 @@ public class RenderSystem extends EntitySystem {
               if (boxComponent != null) {
                 BBox box = boxComponent.box;
                 if (box != null) {
-                  shapes.setColor(Color.GREEN);
+                  shapes.setColor(hoveredComponent.has(entity) ? Color.GREEN : Color.GRAY);
                   shapes.rect(tmpVec2.x + box.xMin, tmpVec2.y - box.yMax, box.width, box.height);
                 }
               }
