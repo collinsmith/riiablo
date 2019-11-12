@@ -1,5 +1,7 @@
 package com.riiablo.engine;
 
+import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
@@ -357,5 +359,11 @@ public class Engine extends PooledEngine {
     labelComponent.actor.setUserObject(entity);
 
     return entity;
+  }
+
+  public static <T extends Component> T getOrCreateComponent(Entity entity, com.badlogic.ashley.core.Engine engine, Class<T> componentType, ComponentMapper<T> componentMapper) {
+    T instance = componentMapper.get(entity);
+    if (instance == null) entity.add(instance = engine.createComponent(componentType));
+    return instance;
   }
 }

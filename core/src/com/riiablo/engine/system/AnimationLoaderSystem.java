@@ -11,6 +11,7 @@ import com.riiablo.codec.Animation;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.DC;
 import com.riiablo.engine.Dirty;
+import com.riiablo.engine.Engine;
 import com.riiablo.engine.SystemPriority;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.CofComponent;
@@ -55,6 +56,8 @@ public class AnimationLoaderSystem extends IteratingSystem {
     if (newCof && cofComponent.speed != CofComponent.SPEED_NULL) {
       anim.setFrameDelta(cofComponent.speed);
     }
+    TransformUpdate transformUpdate = null;
+    AlphaUpdate alphaUpdate = null;
     for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.load, layer.component)) continue;
@@ -72,12 +75,10 @@ public class AnimationLoaderSystem extends IteratingSystem {
         DC dc = Riiablo.assets.get(descriptor);
         anim.setLayer(layer, dc, false);
 
-        TransformUpdate transformUpdate = this.transformUpdate.get(entity);
-        if (transformUpdate == null) entity.add(transformUpdate = getEngine().createComponent(TransformUpdate.class));
+        if (transformUpdate == null) transformUpdate = Engine.getOrCreateComponent(entity, getEngine(), TransformUpdate.class, this.transformUpdate);
         transformUpdate.flags |= flag;
 
-        AlphaUpdate alphaUpdate = this.alphaUpdate.get(entity);
-        if (alphaUpdate == null) entity.add(alphaUpdate = getEngine().createComponent(AlphaUpdate.class));
+        if (alphaUpdate == null) alphaUpdate = Engine.getOrCreateComponent(entity, getEngine(), AlphaUpdate.class, this.alphaUpdate);
         alphaUpdate.flags |= flag;
 
         changed = true;
