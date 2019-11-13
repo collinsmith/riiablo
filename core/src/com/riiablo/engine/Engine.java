@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
+import com.riiablo.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.excel.Levels;
@@ -16,6 +17,7 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Objects;
 import com.riiablo.codec.util.BBox;
+import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.ClassnameComponent;
@@ -25,11 +27,15 @@ import com.riiablo.engine.component.IdComponent;
 import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.MonsterComponent;
+import com.riiablo.engine.component.MovementModeComponent;
 import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PathComponent;
+import com.riiablo.engine.component.PlayerComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.TypeComponent;
+import com.riiablo.engine.component.VelocityComponent;
 import com.riiablo.engine.component.WarpComponent;
+import com.riiablo.engine.component.ZoneAwareComponent;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
@@ -76,6 +82,29 @@ public class Engine extends PooledEngine {
     //public static final byte MODE_GH = 13;
     public static final byte MODE_XX = 14;
     public static final byte MODE_RN = 15;
+  }
+
+  public static final class Player {
+    public static final byte MODE_DT =  0;
+    public static final byte MODE_NU =  1;
+    public static final byte MODE_WL =  2;
+    public static final byte MODE_RN =  3;
+    public static final byte MODE_GH =  4;
+    public static final byte MODE_TN =  5;
+    public static final byte MODE_TW =  6;
+    public static final byte MODE_A1 =  7;
+    public static final byte MODE_A2 =  8;
+    public static final byte MODE_BL =  9;
+    public static final byte MODE_SC = 10;
+    public static final byte MODE_TH = 11;
+    public static final byte MODE_KK = 12;
+    public static final byte MODE_S1 = 13;
+    public static final byte MODE_S2 = 14;
+    public static final byte MODE_S3 = 15;
+    public static final byte MODE_S4 = 16;
+    public static final byte MODE_DD = 17;
+    //public static final byte MODE_GH = 18;
+    //public static final byte MODE_GH = 19;
   }
 
   private static Label createLabel(String text) {
@@ -357,6 +386,57 @@ public class Engine extends PooledEngine {
     entity.add(labelComponent);
 
     labelComponent.actor.setUserObject(entity);
+
+    return entity;
+  }
+
+  public Entity createPlayer(Map map, Map.Zone zone, CharData charData, float x, float y) {
+    TypeComponent typeComponent = createComponent(TypeComponent.class);
+    typeComponent.type = TypeComponent.Type.PLR;
+
+    PlayerComponent playerComponent = createComponent(PlayerComponent.class);
+    playerComponent.charData = charData;
+
+    CofComponent cofComponent = createComponent(CofComponent.class);
+    cofComponent.mode = Player.MODE_TN;
+
+    AnimationComponent animationComponent = createComponent(AnimationComponent.class);
+
+    BBoxComponent boxComponent = createComponent(BBoxComponent.class);
+    boxComponent.box = animationComponent.animation.getBox();
+
+    PositionComponent positionComponent = createComponent(PositionComponent.class);
+    positionComponent.position.set(x, y);
+
+    VelocityComponent velocityComponent = createComponent(VelocityComponent.class);
+    velocityComponent.walkSpeed = 6;
+    velocityComponent.runSpeed = 9;
+
+    MovementModeComponent movementModeComponent = createComponent(MovementModeComponent.class);
+    movementModeComponent.NU = Player.MODE_TN;
+    movementModeComponent.WL = Player.MODE_TW;
+    movementModeComponent.RN = Player.MODE_RN;
+
+    ZoneAwareComponent zoneAwareComponent = createComponent(ZoneAwareComponent.class);
+
+    AngleComponent angleComponent = createComponent(AngleComponent.class);
+
+    MapComponent mapComponent = createComponent(MapComponent.class);
+    mapComponent.map = map;
+    mapComponent.zone = zone;
+
+    Entity entity = createEntity("player");
+    entity.add(typeComponent);
+    entity.add(cofComponent);
+    entity.add(animationComponent);
+    entity.add(boxComponent);
+    entity.add(positionComponent);
+    entity.add(velocityComponent);
+    entity.add(movementModeComponent);
+    entity.add(angleComponent);
+    entity.add(mapComponent);
+    entity.add(playerComponent);
+    entity.add(zoneAwareComponent);
 
     return entity;
   }
