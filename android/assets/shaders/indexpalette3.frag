@@ -94,7 +94,7 @@ void main() {
   // Same as 8, except darker
   } else if (blendMode == 10) {
     if (color.a > 0.0) {
-      color.rgb *= tint.rgb;
+      color.rgba *= tint.rgba;
     }
   }
 
