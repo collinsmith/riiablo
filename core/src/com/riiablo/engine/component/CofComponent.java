@@ -95,4 +95,11 @@ public class CofComponent implements Component, Pool.Poolable {
     System.arraycopy(DEFAULT_ALPHA, 0, alpha, 0, COF.Component.NUM_COMPONENTS);
     Arrays.fill(layer, null);
   }
+
+  public void setComponent(int component, int code) {
+    if (this.component[component] != code) {
+      this.component[component] = code;
+      dirty |= (1 << component);
+    }
+  }
 }

@@ -55,8 +55,8 @@ public class CofLoaderSystem extends IteratingSystem {
       if (!Dirty.isDirty(cofComponent.dirty, layer.component)) continue;
       // TODO: should also ignore COMPONENT_NULL? used to set default components
       if (cofComponent.component[layer.component] == CofComponent.COMPONENT_NIL) {
-        cofComponent.layer[layer.component] = null;
-        // TODO: unload existing asset?
+        cofComponent.layer[layer.component] = null; // TODO: unload existing asset?
+        cofComponent.load |= (1 << layer.component);
         continue;
       } else if (cofComponent.component[layer.component] == CofComponent.COMPONENT_NULL) {
         cofComponent.component[layer.component] = CofComponent.COMPONENT_LIT;

@@ -145,9 +145,9 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
       cof.wclass = CofComponent.WEAPON_HTH;
     }
 
-    cof.component[COF.Component.RH] = RH != null ? TypeComponent.Type.PLR.getComponent(RH.base.alternateGfx) : CofComponent.COMPONENT_NIL;
-    cof.component[COF.Component.LH] = LH != null ? TypeComponent.Type.PLR.getComponent(LH.base.alternateGfx) : CofComponent.COMPONENT_NIL;
-    cof.component[COF.Component.SH] = SH != null ? TypeComponent.Type.PLR.getComponent(SH.base.alternateGfx) : CofComponent.COMPONENT_NIL;
+    cof.setComponent(COF.Component.RH, RH != null ? TypeComponent.Type.PLR.getComponent(RH.base.alternateGfx) : CofComponent.COMPONENT_NIL);
+    cof.setComponent(COF.Component.LH, LH != null ? TypeComponent.Type.PLR.getComponent(LH.base.alternateGfx) : CofComponent.COMPONENT_NIL);
+    cof.setComponent(COF.Component.SH, SH != null ? TypeComponent.Type.PLR.getComponent(SH.base.alternateGfx) : CofComponent.COMPONENT_NIL);
 
     cof.alpha[COF.Component.RH] = RH != null && RH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL;
     cof.alpha[COF.Component.LH] = LH != null && LH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL;
@@ -157,7 +157,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
 
   private void updateArmorClass(Entity entity, CharData charData, CofComponent cof) {
     Item head = charData.getEquipped(BodyLoc.HEAD);
-    cof.component[COF.Component.HD] = head != null ? TypeComponent.Type.PLR.getComponent(head.base.alternateGfx) : CofComponent.COMPONENT_LIT;
+    cof.setComponent(COF.Component.HD, head != null ? TypeComponent.Type.PLR.getComponent(head.base.alternateGfx) : CofComponent.COMPONENT_LIT);
     cof.transform[COF.Component.HD] = head != null ? (byte) ((head.base.Transform << 5) | (head.charColorIndex & 0x1F)) : CofComponent.TRANSFORM_NULL;
     TransformUpdate transformUpdate = com.riiablo.engine.Engine.getOrCreateComponent(entity, getEngine(), TransformUpdate.class, this.transformUpdate);
     transformUpdate.flags |= BodyLoc.HEAD.components();
@@ -165,12 +165,12 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
     Item body = charData.getEquipped(BodyLoc.TORS);
     if (body != null) {
       Armor.Entry armor = body.getBase();
-      cof.component[COF.Component.TR] = (armor.Torso + 1);
-      cof.component[COF.Component.LG] = (armor.Legs  + 1);
-      cof.component[COF.Component.RA] = (armor.rArm  + 1);
-      cof.component[COF.Component.LA] = (armor.lArm  + 1);
-      cof.component[COF.Component.S1] = (armor.lSPad + 1);
-      cof.component[COF.Component.S2] = (armor.rSPad + 1);
+      cof.setComponent(COF.Component.TR, (armor.Torso + 1));
+      cof.setComponent(COF.Component.LG, (armor.Legs  + 1));
+      cof.setComponent(COF.Component.RA, (armor.rArm  + 1));
+      cof.setComponent(COF.Component.LA, (armor.lArm  + 1));
+      cof.setComponent(COF.Component.S1, (armor.lSPad + 1));
+      cof.setComponent(COF.Component.S2, (armor.rSPad + 1));
 
       byte packedTransform = (byte) ((body.base.Transform << 5) | (body.charColorIndex & 0x1F));
       cof.transform[COF.Component.TR] = packedTransform;
@@ -181,12 +181,12 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
       cof.transform[COF.Component.S2] = packedTransform;
       transformUpdate.flags |= BodyLoc.TORS.components();
     } else {
-      cof.component[COF.Component.TR] = CofComponent.COMPONENT_LIT;
-      cof.component[COF.Component.LG] = CofComponent.COMPONENT_LIT;
-      cof.component[COF.Component.RA] = CofComponent.COMPONENT_LIT;
-      cof.component[COF.Component.LA] = CofComponent.COMPONENT_LIT;
-      cof.component[COF.Component.S1] = CofComponent.COMPONENT_LIT;
-      cof.component[COF.Component.S2] = CofComponent.COMPONENT_LIT;
+      cof.setComponent(COF.Component.TR, CofComponent.COMPONENT_LIT);
+      cof.setComponent(COF.Component.LG, CofComponent.COMPONENT_LIT);
+      cof.setComponent(COF.Component.RA, CofComponent.COMPONENT_LIT);
+      cof.setComponent(COF.Component.LA, CofComponent.COMPONENT_LIT);
+      cof.setComponent(COF.Component.S1, CofComponent.COMPONENT_LIT);
+      cof.setComponent(COF.Component.S2, CofComponent.COMPONENT_LIT);
 
       cof.transform[COF.Component.TR] = CofComponent.TRANSFORM_NULL;
       cof.transform[COF.Component.LG] = CofComponent.TRANSFORM_NULL;
@@ -202,7 +202,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
   public void onChanged(CharData client, BodyLoc bodyLoc, Item oldItem, Item item) {
     Entity entity = charDatas.get(client);
     CofComponent cofComponent = this.cofComponent.get(entity);
-    cofComponent.dirty |= bodyLoc.components();
+    //cofComponent.dirty |= bodyLoc.components();
     updateWeaponClass(entity, client, cofComponent);
     updateArmorClass(entity, client, cofComponent);
   }

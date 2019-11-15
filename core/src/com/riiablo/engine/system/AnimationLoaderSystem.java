@@ -61,15 +61,29 @@ public class AnimationLoaderSystem extends IteratingSystem {
     for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.load, layer.component)) continue;
+      int flag = (1 << layer.component);
       if (cofComponent.component[layer.component] == CofComponent.COMPONENT_NIL) {
+        cofComponent.load &= ~flag;
         anim.setLayer(layer, null, false);
+
+        transformUpdate = this.transformUpdate.get(entity);
+        if (transformUpdate != null) {
+          transformUpdate.flags &= ~flag;
+          if (transformUpdate.flags == Dirty.NONE) entity.remove(TransformUpdate.class);
+        }
+
+        alphaUpdate = this.alphaUpdate.get(entity);
+        if (alphaUpdate != null) {
+          alphaUpdate.flags &= ~flag;
+          if (alphaUpdate.flags == Dirty.NONE) entity.remove(AlphaUpdate.class);
+        }
+
         changed = true;
         continue;
       }
 
       AssetDescriptor<? extends DC> descriptor = cofComponent.layer[layer.component];
       if (Riiablo.assets.isLoaded(descriptor)) {
-        int flag = (1 << layer.component);
         cofComponent.load &= ~flag;
         if (DEBUG_LOAD) Gdx.app.debug(TAG, "finished loading " + descriptor);
         DC dc = Riiablo.assets.get(descriptor);
