@@ -69,6 +69,10 @@ public class ZoneEntrySystem extends EntitySystem {
 
   private void displayEntry(Map map, Map.Zone zone) {
     if (entryDescriptor != null) Riiablo.assets.unload(entryDescriptor.fileName);
+    if (entryImage != null) {
+      entryImage.clearActions();
+      entryImage.setVisible(false);
+    }
     loaded = false;
 
     // TODO: i18n? Not sure if these have translations.
