@@ -24,6 +24,7 @@ import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.DS1Component;
 import com.riiablo.engine.component.IdComponent;
+import com.riiablo.engine.component.InteractableComponent;
 import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.MonsterComponent;
@@ -223,6 +224,12 @@ public class Engine extends PooledEngine {
     labelComponent.offset.y = -base.NameOffset;
     labelComponent.actor = createLabel(name);
 
+    InteractableComponent interactableComponent = null;
+    if (base.OperateRange > 0) {
+      interactableComponent = createComponent(InteractableComponent.class);
+      interactableComponent.range = base.OperateRange;
+    }
+
     Entity entity = createEntity(base.Description);
     entity.add(typeComponent);
     if (draw) entity.add(cofComponent);
@@ -233,6 +240,7 @@ public class Engine extends PooledEngine {
     entity.add(ds1Component);
     entity.add(objectComponent);
     entity.add(labelComponent);
+    if (interactableComponent != null) entity.add(interactableComponent);
 
     labelComponent.actor.setUserObject(entity);
 
@@ -293,6 +301,13 @@ public class Engine extends PooledEngine {
     labelComponent.offset.y = monstats2.pixHeight;
     labelComponent.actor = createLabel(name);
 
+    InteractableComponent interactableComponent = null;
+    if (monstats.interact) {
+      interactableComponent = createComponent(InteractableComponent.class);
+      interactableComponent.range = monstats2.SizeX;
+      // FIXME: SizeX and SizeY appear to always be equal -- is this method sufficient?
+    }
+
     Entity entity = createEntity(monstats.Id);
     entity.add(typeComponent);
     entity.add(cofComponent);
@@ -303,6 +318,7 @@ public class Engine extends PooledEngine {
     entity.add(ds1Component);
     entity.add(monsterComponent);
     entity.add(labelComponent);
+    if (interactableComponent != null) entity.add(interactableComponent);
 
     labelComponent.actor.setUserObject(entity);
 
@@ -377,6 +393,9 @@ public class Engine extends PooledEngine {
     labelComponent.offset.set(box.xMin + box.width / 2, -box.yMax + box.height / 2);
     labelComponent.actor = createLabel(name);
 
+    InteractableComponent interactableComponent = createComponent(InteractableComponent.class);
+    interactableComponent.range = 2f;
+
     Entity entity = createEntity("warp");
     entity.add(typeComponent);
     entity.add(mapComponent);
@@ -384,6 +403,7 @@ public class Engine extends PooledEngine {
     entity.add(warpComponent);
     entity.add(boxComponent);
     entity.add(labelComponent);
+    entity.add(interactableComponent);
 
     labelComponent.actor.setUserObject(entity);
 
