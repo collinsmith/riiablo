@@ -394,7 +394,7 @@ public class Engine extends PooledEngine {
     labelComponent.actor = createLabel(name);
 
     InteractableComponent interactableComponent = createComponent(InteractableComponent.class);
-    interactableComponent.range = 2f;
+    interactableComponent.range = 3.0f;
 
     Entity entity = createEntity("warp");
     entity.add(typeComponent);
