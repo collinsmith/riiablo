@@ -17,6 +17,7 @@ import com.badlogic.gdx.ai.utils.RaycastCollisionDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Pool;
 
 public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   private static final String TAG = "MapGraph";
@@ -212,8 +213,13 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     }
   }
 
-  public static class MapGraphPath extends DefaultGraphPath<Point2> implements SmoothableGraphPath<Point2, Vector2> {
+  public static class MapGraphPath extends DefaultGraphPath<Point2> implements SmoothableGraphPath<Point2, Vector2>, Pool.Poolable {
     private Vector2 tmp = new Vector2();
+
+    @Override
+    public void reset() {
+      clear();
+    }
 
     public boolean isEmpty() {
       return nodes.isEmpty();
