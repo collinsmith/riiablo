@@ -37,7 +37,6 @@ public class PathfindSystem extends IteratingSystem {
     Iterator<MapGraph.Point2> targets = pathfindComponent.targets;
     if (target.isZero()) return;
     if (position.epsilonEquals(target, 0.1f)) { // TODO: tune this appropriately
-      System.out.println("STOP!");
       if (!targets.hasNext()) {
         velocityComponent.velocity.setZero();
         entity.remove(PathfindComponent.class);

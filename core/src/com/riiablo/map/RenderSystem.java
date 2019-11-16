@@ -172,6 +172,10 @@ public class RenderSystem extends EntitySystem {
     iso.update();
   }
 
+  public IsometricCamera iso() {
+    return iso;
+  }
+
   @Override
   public void addedToEngine(Engine engine) {
     entities = engine.getEntitiesFor(family);
