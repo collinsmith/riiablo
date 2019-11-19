@@ -16,7 +16,8 @@ import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.ai.utils.RaycastCollisionDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool;
 
 public class MapGraph implements IndexedGraph<MapGraph.Point2> {
@@ -27,9 +28,18 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   Heuristic<Point2> heuristic = new EuclideanDistanceHeuristic();
 
   Map                           map;
-  IntMap<Point2>                points = new IntMap<>();
   MapRaycastCollisionDetector   rayCaster;
   PathSmoother<Point2, Vector2> pathSmoother;
+
+
+  final Point2 tmpPoint = new Point2();
+  final Vector2 tmpVec = new Vector2();
+
+  int index = 0;
+  final ObjectIntMap<Point2> indexes = new ObjectIntMap<>();
+
+  final ObjectSet<Point2> identity = new ObjectSet<>();
+  final Array<Connection<Point2>> connections = new Array<>(false, 8);
 
   public MapGraph(Map map) {
     this.map = map;
@@ -37,57 +47,33 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     pathSmoother = new PathSmoother<>(rayCaster);
   }
 
-  public GraphPath<Point2> path(Vector2 src, Vector2 dst, GraphPath<Point2> path) {
-    Map.Zone zone = map.getZone((int) dst.x, (int) dst.y);
-    if (zone != null && zone.flags((int) dst.x, (int) dst.y) != 0) {
-      return path;
+  private Point2 getOrCreate(Vector2 src) {
+    Point2 existing = identity.get(tmpPoint.set(src));
+    if (existing == null) {
+      existing = new Point2(src);
+      identity.add(existing);
+      indexes.put(existing, index++);
     }
 
-    int hash = Point2.hash(src);
-    Point2 srcP = points.get(hash);
-    if (srcP == null) {
-      srcP = new Point2(src);
-      points.put(hash, srcP);
-    }
-    hash = Point2.hash(dst);
-    Point2 dstP = points.get(hash);
-    if (dstP == null) {
-      dstP = new Point2(dst);
-      points.put(hash, dstP);
-    }
-    return path(srcP, dstP, path);
+    return existing;
+  }
+
+  public GraphPath<Point2> path(Vector2 src, Vector2 dst, GraphPath<Point2> path) {
+    searchNodePath(new IndexedAStarPathFinder<>(this), src, dst, path);
+    return path;
   }
 
   public GraphPath<Point2> path(Point2 src, Point2 dst, GraphPath<Point2> path) {
-    path.clear();
-    new IndexedAStarPathFinder<>(this).searchNodePath(src, dst, heuristic, path);
+    searchNodePath(new IndexedAStarPathFinder<>(this), src, dst, path);
     return path;
   }
 
   public boolean searchNodePath(PathFinder<Point2> pathFinder, Vector2 src, Vector2 dst, GraphPath<Point2> path) {
     path.clear();
     if (dst == null) return false;
-    //Map.Zone zone = map.getZone((int) dst.x, (int) dst.y);
-    //if (zone != null && zone.flags((int) dst.x, (int) dst.y) != 0) {
-    int x = Map.round(dst.x);
-    int y = Map.round(dst.y);
-    Map.Zone zone = map.getZone(x, y);
-    if (zone != null && zone.flags(x, y) != 0) {
-      return false;
-    }
-
-    int hash = Point2.hash(src);
-    Point2 srcP = points.get(hash);
-    if (srcP == null) {
-      srcP = new Point2(src);
-      points.put(hash, srcP);
-    }
-    hash = Point2.hash(dst);
-    Point2 dstP = points.get(hash);
-    if (dstP == null) {
-      dstP = new Point2(dst);
-      points.put(hash, dstP);
-    }
+    if (map.flags(dst) != 0) return false;
+    Point2 srcP = getOrCreate(src);
+    Point2 dstP = getOrCreate(dst);
     return searchNodePath(pathFinder, srcP, dstP, path);
   }
 
@@ -108,7 +94,7 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
 
   @Override
   public int getIndex(Point2 node) {
-    return node.index;
+    return indexes.get(node, -1);
   }
 
   @Override
@@ -118,66 +104,52 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
 
   @Override
   public Array<Connection<Point2>> getConnections(Point2 src) {
-    Array<Connection<Point2>> connections = src.connections;
-    if (connections == null) {
-      connections = src.connections = new Array<>(8);
-      tryConnect(src, src.x - 1, src.y - 1);
-      tryConnect(src, src.x - 1, src.y    );
-      tryConnect(src, src.x - 1, src.y + 1);
-      tryConnect(src, src.x    , src.y - 1);
-      tryConnect(src, src.x    , src.y + 1);
-      tryConnect(src, src.x + 1, src.y - 1);
-      tryConnect(src, src.x + 1, src.y    );
-      tryConnect(src, src.x + 1, src.y + 1);
-    }
-
+    connections.clear();
+    tryConnect(connections, src, src.x - 1, src.y - 1);
+    tryConnect(connections, src, src.x - 1, src.y    );
+    tryConnect(connections, src, src.x - 1, src.y + 1);
+    tryConnect(connections, src, src.x    , src.y - 1);
+    tryConnect(connections, src, src.x    , src.y + 1);
+    tryConnect(connections, src, src.x + 1, src.y - 1);
+    tryConnect(connections, src, src.x + 1, src.y    );
+    tryConnect(connections, src, src.x + 1, src.y + 1);
     return connections;
   }
 
-  private void tryConnect(Point2 src, int x, int y) {
-    Map.Zone zone = map.getZone(x, y);
-    if (zone != null && zone.flags(x, y) == 0) {
-      final int hash = Point2.hash(x, y);
-      Point2 dst = points.get(hash);
-      if (dst == null) {
-        dst = new Point2(x, y);
-        points.put(hash, dst);
-      }
-      src.connections.add(new Path(src, dst));
-    }
+  private void tryConnect(Array<Connection<Point2>> connections, Point2 src, int x, int y) {
+    if (map.flags(tmpVec.set(x, y)) != 0) return;
+    Point2 dst = getOrCreate(tmpVec);
+    connections.add(new Path(src, dst));
   }
 
   public static class Point2 {
     public int x;
     public int y;
-    int index;
-    Array<Connection<Point2>> connections;
 
-    static int indexes = 0;
-
-    Point2(int x, int y) {
-      this.x = x;
-      this.y = y;
-      index = indexes++;
-    }
+    Point2() {}
 
     Point2(Vector2 src) {
-      //this((int) src.x, (int) src.y);
-      this(Map.round(src.x), Map.round(src.y));
+      set(src);
+    }
+
+    Point2 set(Vector2 src) {
+      x = Map.round(src.x);
+      y = Map.round(src.y);
+      return this;
     }
 
     @Override
     public int hashCode() {
-      return hash(x, y);
-    }
-
-    static int hash(Vector2 src) {
-      //return hash((int) src.x, (int) src.y);
-      return hash(Map.round(src.x), Map.round(src.y));
-    }
-
-    static int hash(int x, int y) {
       return (x * 73856093) ^ (y * 83492791);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) return true;
+      if (obj == null) return false;
+      if (!(obj instanceof Point2)) return false;
+      Point2 other = (Point2) obj;
+      return x == other.x && y == other.y;
     }
 
     @Override

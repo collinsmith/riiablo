@@ -619,8 +619,12 @@ public class Map implements Disposable {
     return zone;
   }
 
+  public int flags(Vector2 pos) {
+    return flags(pos.x, pos.y);
+  }
+
   public int flags(float x, float y) {
-    return flags((int) x, (int) y);
+    return flags(round(x), round(y));
   }
 
   public int flags(int x, int y) {
