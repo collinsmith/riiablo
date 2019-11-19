@@ -33,6 +33,7 @@ import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PathComponent;
 import com.riiablo.engine.component.PlayerComponent;
 import com.riiablo.engine.component.PositionComponent;
+import com.riiablo.engine.component.SizeComponent;
 import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.engine.component.VelocityComponent;
 import com.riiablo.engine.component.WarpComponent;
@@ -308,6 +309,9 @@ public class Engine extends PooledEngine {
       // FIXME: SizeX and SizeY appear to always be equal -- is this method sufficient?
     }
 
+    SizeComponent sizeComponent = createComponent(SizeComponent.class);
+    sizeComponent.size = monstats2.SizeX; // FIXME: see above note
+
     Entity entity = createEntity(monstats.Id);
     entity.add(typeComponent);
     entity.add(cofComponent);
@@ -319,6 +323,7 @@ public class Engine extends PooledEngine {
     entity.add(monsterComponent);
     entity.add(labelComponent);
     if (interactableComponent != null) entity.add(interactableComponent);
+    entity.add(sizeComponent);
 
     labelComponent.actor.setUserObject(entity);
 
@@ -445,6 +450,9 @@ public class Engine extends PooledEngine {
     mapComponent.map = map;
     mapComponent.zone = zone;
 
+    SizeComponent sizeComponent = createComponent(SizeComponent.class);
+    sizeComponent.size = SizeComponent.MEDIUM;
+
     Entity entity = createEntity("player");
     entity.add(typeComponent);
     entity.add(cofComponent);
@@ -457,6 +465,7 @@ public class Engine extends PooledEngine {
     entity.add(mapComponent);
     entity.add(playerComponent);
     entity.add(zoneAwareComponent);
+    entity.add(sizeComponent);
 
     return entity;
   }

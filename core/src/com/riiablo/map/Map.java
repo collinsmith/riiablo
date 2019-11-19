@@ -3,7 +3,7 @@ package com.riiablo.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
-import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
+import com.riiablo.map.pfa.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.utils.Collision;
 import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetDescriptor;
@@ -679,7 +679,11 @@ public class Map implements Disposable {
   private IndexedAStarPathFinder<MapGraph.Point2> pathFinder = new IndexedAStarPathFinder<>(mapGraph, true);
 
   public boolean findPath(Vector2 src, Vector2 dst, GraphPath<MapGraph.Point2> path) {
-    return mapGraph.searchNodePath(pathFinder, src, dst, path);
+    return findPath(0, src, dst, path);
+  }
+
+  public boolean findPath(int size, Vector2 src, Vector2 dst, GraphPath<MapGraph.Point2> path) {
+    return mapGraph.searchNodePath(pathFinder.setSize(size), src, dst, path);
   }
 
   public void smoothPath(SmoothableGraphPath<MapGraph.Point2, Vector2> path) {

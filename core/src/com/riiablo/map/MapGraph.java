@@ -43,6 +43,53 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   final Path tmpPath = new Path();
   final ObjectSet<Path> pathIdent = new ObjectSet<>();
 
+  final ObjectIntMap<Point2> clearance = new ObjectIntMap<>();
+  private static final int[][][] NEAR = {
+      { // 1
+        { 0,  0}
+      },
+      { // 2
+        {-1, -1},
+        { 0, -1},
+        { 1, -1},
+
+        {-1,  0},
+      //{ 0,  0},
+        { 1,  0},
+
+        {-1,  1},
+        { 0,  1},
+        { 1,  1},
+      },
+      { // 3
+        {-1, -2},
+        { 0, -2},
+        { 1, -2},
+
+        {-2, -1},
+      //{-1, -1},
+      //{ 0, -1},
+      //{ 1, -1},
+        { 2, -1},
+
+        {-2,  0},
+      //{-1,  0},
+      //{ 0,  0},
+      //{ 1,  0},
+        { 2,  0},
+
+        {-2,  1},
+      //{-1,  1},
+      //{ 0,  1},
+      //{ 1,  1},
+        { 2,  1},
+
+        {-1,  2},
+        { 0,  2},
+        { 1,  2},
+      }
+  };
+
   public MapGraph(Map map) {
     this.map = map;
     rayCaster = new MapRaycastCollisionDetector(this);
@@ -55,6 +102,7 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
       existing = new Point2(src);
       identity.add(existing);
       indexes.put(existing, index++);
+      calculateClearance(existing);
     }
 
     return existing;
@@ -130,6 +178,24 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     }
 
     connections.add(existing);
+  }
+
+  private void calculateClearance(Point2 src) {
+    int i;
+size:
+    for (i = 0; i < NEAR.length; i++) {
+      for (int[] p : NEAR[i]) {
+        if (map.flags(src.x + p[0], src.y + p[1]) != 0) {
+          break size;
+        }
+      }
+    }
+
+    clearance.put(src, i);
+  }
+
+  public int getClearance(Point2 src) {
+    return clearance.get(src, 0);
   }
 
   public static class Point2 {
