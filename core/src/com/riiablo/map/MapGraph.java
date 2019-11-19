@@ -31,7 +31,6 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   MapRaycastCollisionDetector   rayCaster;
   PathSmoother<Point2, Vector2> pathSmoother;
 
-
   final Point2 tmpPoint = new Point2();
   final Vector2 tmpVec = new Vector2();
 
@@ -40,6 +39,9 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
 
   final ObjectSet<Point2> identity = new ObjectSet<>();
   final Array<Connection<Point2>> connections = new Array<>(false, 8);
+
+  final Path tmpPath = new Path();
+  final ObjectSet<Path> pathIdent = new ObjectSet<>();
 
   public MapGraph(Map map) {
     this.map = map;
@@ -105,21 +107,29 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   @Override
   public Array<Connection<Point2>> getConnections(Point2 src) {
     connections.clear();
-    tryConnect(connections, src, src.x - 1, src.y - 1);
+    //tryConnect(connections, src, src.x - 1, src.y - 1);
     tryConnect(connections, src, src.x - 1, src.y    );
-    tryConnect(connections, src, src.x - 1, src.y + 1);
+    //tryConnect(connections, src, src.x - 1, src.y + 1);
     tryConnect(connections, src, src.x    , src.y - 1);
     tryConnect(connections, src, src.x    , src.y + 1);
-    tryConnect(connections, src, src.x + 1, src.y - 1);
+    //tryConnect(connections, src, src.x + 1, src.y - 1);
     tryConnect(connections, src, src.x + 1, src.y    );
-    tryConnect(connections, src, src.x + 1, src.y + 1);
+    //tryConnect(connections, src, src.x + 1, src.y + 1);
     return connections;
   }
 
   private void tryConnect(Array<Connection<Point2>> connections, Point2 src, int x, int y) {
     if (map.flags(tmpVec.set(x, y)) != 0) return;
     Point2 dst = getOrCreate(tmpVec);
-    connections.add(new Path(src, dst));
+
+    // FIXME: optimization doesn't make sense -- might as well save connection array
+    Path existing = pathIdent.get(tmpPath.set(src, dst));
+    if (existing == null) {
+      existing = new Path(src, dst);
+      pathIdent.add(existing);
+    }
+
+    connections.add(existing);
   }
 
   public static class Point2 {
@@ -148,7 +158,10 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
       if (obj == this) return true;
       if (obj == null) return false;
       if (!(obj instanceof Point2)) return false;
-      Point2 other = (Point2) obj;
+      return equals((Point2) obj);
+    }
+
+    public boolean equals(Point2 other) {
       return x == other.x && y == other.y;
     }
 
@@ -161,13 +174,41 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   static class Path extends DefaultConnection<Point2> {
     static final float DIAGONAL_COST = (float)Math.sqrt(2);
 
+    Path() {
+      super(null, null);
+    }
+
     Path(Point2 src, Point2 dst) {
       super(src, dst);
+    }
+
+    Path set(Point2 src, Point2 dst) {
+      fromNode = src;
+      toNode = dst;
+      return this;
     }
 
     @Override
     public float getCost() {
       return fromNode.x != toNode.x && fromNode.y != toNode.y ? DIAGONAL_COST : 1;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + fromNode.hashCode();
+      result = prime * result + toNode.hashCode();
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) return true;
+      if (obj == null) return false;
+      if (!(obj instanceof Path)) return false;
+      Path other = (Path) obj;
+      return fromNode.equals(other.fromNode) && toNode.equals(other.toNode);
     }
   }
 
