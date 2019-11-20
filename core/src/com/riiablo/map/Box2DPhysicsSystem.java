@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.engine.component.Box2DComponent;
@@ -23,7 +24,7 @@ import com.riiablo.engine.component.VelocityComponent;
 
 import java.util.Arrays;
 
-public class Box2DPhysicsSystem extends IntervalIteratingSystem implements EntityListener {
+public class Box2DPhysicsSystem extends IntervalIteratingSystem implements EntityListener, Disposable {
   private final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
   private final ComponentMapper<Box2DComponent> box2dComponent = ComponentMapper.getFor(Box2DComponent.class);
 
@@ -39,6 +40,11 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
     this.timeStep = timeStep;
     Box2D.init();
     world = new World(Vector2.Zero, true);
+  }
+
+  @Override
+  public void dispose() {
+    world.dispose();
   }
 
   @Override
