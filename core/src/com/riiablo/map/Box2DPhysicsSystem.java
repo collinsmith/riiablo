@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IntervalIteratingSystem;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -25,6 +26,9 @@ import com.riiablo.engine.component.VelocityComponent;
 import java.util.Arrays;
 
 public class Box2DPhysicsSystem extends IntervalIteratingSystem implements EntityListener, Disposable {
+  private static final String TAG = "Box2DPhysicsSystem";
+  private static final boolean DEBUG = true;
+
   private final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
   private final ComponentMapper<Box2DComponent> box2dComponent = ComponentMapper.getFor(Box2DComponent.class);
 
@@ -76,6 +80,7 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
     if (this.map != map) {
       this.map = map;
       createBodies();
+      if (DEBUG) Gdx.app.debug(TAG, "bodies=" + world.getBodyCount());
     }
   }
 
