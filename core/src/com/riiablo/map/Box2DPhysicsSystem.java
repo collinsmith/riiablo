@@ -62,7 +62,7 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
   public void removedFromEngine(Engine engine) {
     super.removedFromEngine(engine);
     engine.removeEntityListener(this);
-    world.dispose();
+    dispose();
   }
 
   @Override
