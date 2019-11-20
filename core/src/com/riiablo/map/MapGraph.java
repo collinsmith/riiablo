@@ -10,15 +10,17 @@ import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
-import com.badlogic.gdx.ai.utils.Collision;
-import com.badlogic.gdx.ai.utils.Ray;
-import com.badlogic.gdx.ai.utils.RaycastCollisionDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool;
 import com.riiablo.map.pfa.PathSmoother;
 import com.riiablo.map.pfa.SimpleRaycastCollisionDetector;
+
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.Transformer;
+
+import java.util.Iterator;
 
 public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   private static final String TAG = "MapGraph";
@@ -318,131 +320,16 @@ size:
     public String toString() {
       return nodes.toString();
     }
-  }
 
-  static class MapRaycastCollisionDetector implements RaycastCollisionDetector<Vector2> {
-    Map      map;
-    MapGraph mapGraph;
+    public Iterator<Vector2> vectorIterator() {
+      return IteratorUtils.transformedIterator(new Array.ArrayIterator<>(nodes), new Transformer<Point2, Vector2>() {
+        final Vector2 tmp = new Vector2();
 
-    public MapRaycastCollisionDetector(MapGraph mapGraph) {
-      this.mapGraph = mapGraph;
-      this.map = mapGraph.map;
-    }
-
-    @Override
-    public boolean collides(Ray<Vector2> ray) {
-      int x0 = (int) ray.start.x;
-      int y0 = (int) ray.start.y;
-      int x1 = (int) ray.end.x;
-      int y1 = (int) ray.end.y;
-
-      int tmp;
-      boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
-      if (steep) {
-        // Swap x0 and y0
-        tmp = x0;
-        x0 = y0;
-        y0 = tmp;
-        // Swap x1 and y1
-        tmp = x1;
-        x1 = y1;
-        y1 = tmp;
-      }
-      if (x0 > x1) {
-        // Swap x0 and x1
-        tmp = x0;
-        x0 = x1;
-        x1 = tmp;
-        // Swap y0 and y1
-        tmp = y0;
-        y0 = y1;
-        y1 = tmp;
-      }
-
-      int deltax = x1 - x0;
-      int deltay = Math.abs(y1 - y0);
-      int error = 0;
-      int y = y0;
-      int ystep = (y0 < y1 ? 1 : -1);
-      for (int x = x0; x <= x1; x++) {
-        // TODO: Why is this distinction needed?
-        if (steep) {
-          Map.Zone zone = map.getZone(y, x);
-          if (zone == null || zone.flags(y, x) != 0) return true; // We've hit a wall
-        } else {
-          Map.Zone zone = map.getZone(x, y);
-          if (zone == null || zone.flags(x, y) != 0) return true; // We've hit a wall
+        @Override
+        public Vector2 transform(Point2 input) {
+          return tmp.set(input.x, input.y);
         }
-        error += deltay;
-        if (error + error >= deltax) {
-          y += ystep;
-          error -= deltax;
-        }
-      }
-
-      return false;
-    }
-
-    @Override
-    public boolean findCollision(Collision<Vector2> dst, Ray<Vector2> ray) {
-      int x0 = (int) ray.start.x;
-      int y0 = (int) ray.start.y;
-      int x1 = (int) ray.end.x;
-      int y1 = (int) ray.end.y;
-
-      int tmp;
-      boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
-      if (steep) {
-        // Swap x0 and y0
-        tmp = x0;
-        x0 = y0;
-        y0 = tmp;
-        // Swap x1 and y1
-        tmp = x1;
-        x1 = y1;
-        y1 = tmp;
-      }
-      if (x0 > x1) {
-        // Swap x0 and x1
-        tmp = x0;
-        x0 = x1;
-        x1 = tmp;
-        // Swap y0 and y1
-        tmp = y0;
-        y0 = y1;
-        y1 = tmp;
-      }
-
-      int deltax = x1 - x0;
-      int deltay = Math.abs(y1 - y0);
-      int error = 0;
-      int y = y0;
-      int ystep = (y0 < y1 ? 1 : -1);
-      dst.point.set(steep ? y0 : x0, steep ? x0 : y0);
-      //dst.normal.setZero();
-      for (int x = x0; x <= x1; x++) {
-        if (steep) {
-          Map.Zone zone = map.getZone(y, x);
-          if (zone == null || zone.flags(y, x) != 0) {
-            //dst.normal.set(y, x);
-            return true;
-          }
-        } else {
-          Map.Zone zone = map.getZone(x, y);
-          if (zone == null || zone.flags(x, y) != 0) {
-            //dst.normal.set(x, y);
-            return true;
-          }
-        }
-        dst.point.set(steep ? y : x, steep ? x : y);
-        error += deltay;
-        if (error + error >= deltax) {
-          y += ystep;
-          error -= deltax;
-        }
-      }
-
-      return false;
+      });
     }
   }
 }

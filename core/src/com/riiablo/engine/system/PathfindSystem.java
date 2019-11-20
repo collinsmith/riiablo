@@ -11,7 +11,6 @@ import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.VelocityComponent;
-import com.riiablo.map.MapGraph;
 
 import java.util.Iterator;
 
@@ -34,7 +33,7 @@ public class PathfindSystem extends IteratingSystem {
     VelocityComponent velocityComponent = this.velocityComponent.get(entity);
     PathfindComponent pathfindComponent = this.pathfindComponent.get(entity);
     Vector2 target = pathfindComponent.target;
-    Iterator<MapGraph.Point2> targets = pathfindComponent.targets;
+    Iterator<Vector2> targets = pathfindComponent.targets;
     if (target.isZero()) return;
     if (position.epsilonEquals(target, 0.1f)) { // TODO: tune this appropriately
       if (!targets.hasNext()) {
@@ -55,8 +54,7 @@ public class PathfindSystem extends IteratingSystem {
       traveled += part;
       if (MathUtils.isEqual(part, targetLen, 0.1f)) {
         if (targets.hasNext()) {
-          MapGraph.Point2 next = targets.next();
-          target.set(next.x, next.y);
+          target.set(targets.next());
         } else {
           break;
         }

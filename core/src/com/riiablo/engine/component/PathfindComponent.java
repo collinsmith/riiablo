@@ -11,7 +11,7 @@ import java.util.Iterator;
 public class PathfindComponent implements Component, Pool.Poolable {
   public MapGraph.MapGraphPath path = null;
   public final Vector2 target = new Vector2();
-  public Iterator<MapGraph.Point2> targets = Collections.emptyIterator();
+  public Iterator<Vector2> targets = Collections.emptyIterator();
 
   @Override
   public void reset() {
