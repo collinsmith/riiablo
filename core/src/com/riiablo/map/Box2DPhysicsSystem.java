@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.component.Box2DComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.VelocityComponent;
@@ -76,15 +77,16 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
     world.destroyBody(body);
   }
 
-  public void setMap(Map map) {
+  public void setMap(Map map, IsometricCamera iso) {
     if (this.map != map) {
       this.map = map;
-      createBodies();
+      Vector2 tileOffset = iso.getTileOffset(new Vector2()).scl(-1); // offset inverse of tile offset
+      createBodies(tileOffset);
       if (DEBUG) Gdx.app.debug(TAG, "bodies=" + world.getBodyCount());
     }
   }
 
-  private void createBodies() {
+  private void createBodies(Vector2 offset) {
     IntMap<Filter> filters = new IntMap<>();
 
     BodyDef def = new BodyDef();
@@ -116,7 +118,7 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
             }
 
             int lenY = endY - ty;
-            def.position.set((endX + tx) / 2f, (endY + ty) / 2f);
+            def.position.set((endX + tx) / 2f, (endY + ty) / 2f).add(offset);
 
             PolygonShape shape = new PolygonShape();
             shape.setAsBox(lenX / 2f, lenY / 2f);

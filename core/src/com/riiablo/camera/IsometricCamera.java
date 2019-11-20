@@ -22,6 +22,10 @@ public class IsometricCamera extends OrthographicCamera {
     toWorld(pixOffset.x, pixOffset.y, tileOffset.setZero());
   }
 
+  public Vector2 getTileOffset(Vector2 dst) {
+    return dst.set(tileOffset);
+  }
+
   @Override
   public void translate(Vector2 vec) {
     translate(vec.x, vec.y);
