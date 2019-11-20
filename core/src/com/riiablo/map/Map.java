@@ -687,7 +687,11 @@ public class Map implements Disposable {
   }
 
   public void smoothPath(SmoothableGraphPath<MapGraph.Point2, Vector2> path) {
-    mapGraph.smoothPath(path);
+    smoothPath(0, path);
+  }
+
+  public void smoothPath(int size, SmoothableGraphPath<MapGraph.Point2, Vector2> path) {
+    mapGraph.smoothPath(size, path);
   }
 
   public boolean castRay(Collision<Vector2> dst, Ray<Vector2> ray) {

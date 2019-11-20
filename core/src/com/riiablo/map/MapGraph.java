@@ -7,7 +7,6 @@ import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.ai.pfa.PathFinder;
-import com.badlogic.gdx.ai.pfa.PathSmoother;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
@@ -16,9 +15,10 @@ import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.ai.utils.RaycastCollisionDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool;
+import com.riiablo.map.pfa.PathSmoother;
+import com.riiablo.map.pfa.SimpleRaycastCollisionDetector;
 
 public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   private static final String TAG = "MapGraph";
@@ -27,23 +27,15 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
 
   Heuristic<Point2> heuristic = new EuclideanDistanceHeuristic();
 
-  Map                           map;
-  MapRaycastCollisionDetector   rayCaster;
-  PathSmoother<Point2, Vector2> pathSmoother;
+  Map                            map;
+  SimpleRaycastCollisionDetector rayCaster;
+  PathSmoother<Point2>           pathSmoother;
 
   final Point2 tmpPoint = new Point2();
   final Vector2 tmpVec = new Vector2();
 
   int index = 0;
-  final ObjectIntMap<Point2> indexes = new ObjectIntMap<>();
-
   final ObjectSet<Point2> identity = new ObjectSet<>();
-  final Array<Connection<Point2>> connections = new Array<>(false, 8);
-
-  final Path tmpPath = new Path();
-  final ObjectSet<Path> pathIdent = new ObjectSet<>();
-
-  final ObjectIntMap<Point2> clearance = new ObjectIntMap<>();
   private static final int[][][] NEAR = {
       { // 1
         { 0,  0}
@@ -92,7 +84,7 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
 
   public MapGraph(Map map) {
     this.map = map;
-    rayCaster = new MapRaycastCollisionDetector(this);
+    rayCaster = new SimpleRaycastCollisionDetector(map);
     pathSmoother = new PathSmoother<>(rayCaster);
   }
 
@@ -101,7 +93,7 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     if (existing == null) {
       existing = new Point2(src);
       identity.add(existing);
-      indexes.put(existing, index++);
+      existing.index = index++;
       calculateClearance(existing);
     }
 
@@ -138,13 +130,13 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
     return success;
   }
 
-  public void smoothPath(SmoothableGraphPath<Point2, Vector2> path) {
-    pathSmoother.smoothPath(path);
+  public void smoothPath(int size, SmoothableGraphPath<Point2, Vector2> path) {
+    pathSmoother.smoothPath(size, path);
   }
 
   @Override
   public int getIndex(Point2 node) {
-    return indexes.get(node, -1);
+    return node.index;
   }
 
   @Override
@@ -154,53 +146,55 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
 
   @Override
   public Array<Connection<Point2>> getConnections(Point2 src) {
-    connections.clear();
-    //tryConnect(connections, src, src.x - 1, src.y - 1);
-    tryConnect(connections, src, src.x - 1, src.y    );
-    //tryConnect(connections, src, src.x - 1, src.y + 1);
-    tryConnect(connections, src, src.x    , src.y - 1);
-    tryConnect(connections, src, src.x    , src.y + 1);
-    //tryConnect(connections, src, src.x + 1, src.y - 1);
-    tryConnect(connections, src, src.x + 1, src.y    );
-    //tryConnect(connections, src, src.x + 1, src.y + 1);
+    Array<Connection<Point2>> connections = src.connections;
+    if (connections == null) {
+      connections = src.connections = new Array<>(false, 8);
+      tryConnect(connections, src, src.x - 1, src.y);
+      tryConnect(connections, src, src.x, src.y - 1);
+      tryConnect(connections, src, src.x, src.y + 1);
+      tryConnect(connections, src, src.x + 1, src.y);
+
+      tryConnect(connections, src, src.x - 1, src.y - 1);
+      tryConnect(connections, src, src.x - 1, src.y + 1);
+      tryConnect(connections, src, src.x + 1, src.y - 1);
+      tryConnect(connections, src, src.x + 1, src.y + 1);
+    }
+
+
     return connections;
   }
 
   private void tryConnect(Array<Connection<Point2>> connections, Point2 src, int x, int y) {
-    if (map.flags(tmpVec.set(x, y)) != 0) return;
-    Point2 dst = getOrCreate(tmpVec);
-
-    // FIXME: optimization doesn't make sense -- might as well save connection array
-    Path existing = pathIdent.get(tmpPath.set(src, dst));
-    if (existing == null) {
-      existing = new Path(src, dst);
-      pathIdent.add(existing);
-    }
-
-    connections.add(existing);
+    if (map.flags(x, y) != 0) return;
+    Point2 dst = getOrCreate(tmpVec.set(x, y));
+    connections.add(new Path(src, dst));
   }
 
-  private void calculateClearance(Point2 src) {
-    int i;
+  private void calculateClearance(Point2 node) {
+    byte i;
 size:
     for (i = 0; i < NEAR.length; i++) {
       for (int[] p : NEAR[i]) {
-        if (map.flags(src.x + p[0], src.y + p[1]) != 0) {
+        if (map.flags(node.x + p[0], node.y + p[1]) != 0) {
           break size;
         }
       }
     }
 
-    clearance.put(src, i);
+    node.clearance = i;
   }
 
-  public int getClearance(Point2 src) {
-    return clearance.get(src, 0);
+  public int getClearance(Point2 node) {
+    return node.clearance;
   }
 
   public static class Point2 {
     public int x;
     public int y;
+
+    int index;
+    byte clearance;
+    Array<Connection<Point2>> connections;
 
     Point2() {}
 

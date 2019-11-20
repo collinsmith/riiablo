@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.riiablo.map.MapGraph;
 
 //refactor of com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
-public class IndexedAStarPathFinder<N> implements PathFinder<N> {
+public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFinder<N> {
   IndexedGraph<N> graph;
   MapGraph casted;
   NodeRecord<N>[] nodeRecords;
@@ -64,12 +64,13 @@ public class IndexedAStarPathFinder<N> implements PathFinder<N> {
 
   protected boolean search (N startNode, N endNode, Heuristic<N> heuristic) {
     initSearch(startNode, endNode, heuristic);
+    int limit = 0;
     do {
       current = openList.pop();
       current.category = CLOSED;
       if (current.node == endNode) return true;
       visitChildren(endNode, heuristic);
-    } while (openList.size > 0);
+    } while (openList.size > 0 && limit++ < 900);
     return false;
   }
 
@@ -124,6 +125,7 @@ public class IndexedAStarPathFinder<N> implements PathFinder<N> {
       Connection<N> connection = connections.get(i);
 
       N node = connection.getToNode();
+      if (casted.getClearance(node) < size) continue;
       float nodeCost = current.costSoFar + connection.getCost();
 
       float nodeHeuristic;
@@ -135,8 +137,6 @@ public class IndexedAStarPathFinder<N> implements PathFinder<N> {
         if (nodeRecord.costSoFar <= nodeCost) continue;
         openList.remove(nodeRecord);
         nodeHeuristic = nodeRecord.getEstimatedTotalCost() - nodeRecord.costSoFar;
-      } else if (casted.getClearance((MapGraph.Point2) node) < size) {
-        continue;
       } else {
         nodeHeuristic = heuristic.estimate(node, endNode);
       }
