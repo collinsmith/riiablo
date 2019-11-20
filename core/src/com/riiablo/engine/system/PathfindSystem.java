@@ -53,7 +53,7 @@ public class PathfindSystem extends IteratingSystem {
       if (part == 0) break;
       position.lerp(target, part / targetLen);
       traveled += part;
-      if (MathUtils.isEqual(part, targetLen)) {
+      if (MathUtils.isEqual(part, targetLen, 0.1f)) {
         if (targets.hasNext()) {
           MapGraph.Point2 next = targets.next();
           target.set(next.x, next.y);
