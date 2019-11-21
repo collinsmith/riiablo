@@ -94,7 +94,7 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
   private final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
   private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
-  private final Family family = Family.all(AnimationComponent.class, CofComponent.class, PositionComponent.class).get();
+  private final Family family = Family.all(AnimationComponent.class, PositionComponent.class).get();
   private ImmutableArray<Entity> entities;
 
   // DEBUG
@@ -450,6 +450,7 @@ public class RenderSystem extends EntitySystem {
        && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
         ObjectComponent objectComponent = this.objectComponent.get(entity);
         if (objectComponent != null) {
+          assert this.cofComponent.has(entity);
           CofComponent cofComponent = this.cofComponent.get(entity);
           orderFlag = objectComponent.base.OrderFlag[cofComponent.mode];
         } else {
@@ -624,7 +625,7 @@ public class RenderSystem extends EntitySystem {
 //      }
 
       CofComponent cofComponent = this.cofComponent.get(entity);
-      if (cofComponent.load != Dirty.NONE) return;
+      if (cofComponent != null && cofComponent.load != Dirty.NONE) return;
       Animation animation = animationComponent.get(entity).animation;
       Vector2 pos = positionComponent.get(entity).position;
       Vector2 tmp = iso.toScreen(tmpVec2.set(pos));
@@ -689,7 +690,7 @@ public class RenderSystem extends EntitySystem {
     for (Array<Entity> c : cache) {
       for (Entity entity : c) {
         CofComponent cofComponent = this.cofComponent.get(entity);
-        if (cofComponent.load != Dirty.NONE) continue;
+        if (cofComponent != null && cofComponent.load != Dirty.NONE) continue;
         Animation animation = animationComponent.get(entity).animation;
         Vector2 pos = positionComponent.get(entity).position;
         Vector2 tmp = iso.toScreen(tmpVec2.set(pos));
