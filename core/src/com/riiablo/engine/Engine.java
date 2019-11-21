@@ -5,12 +5,15 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
+import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlWarp;
 import com.riiablo.codec.excel.MonStats;
@@ -26,6 +29,7 @@ import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.DS1Component;
 import com.riiablo.engine.component.IdComponent;
 import com.riiablo.engine.component.InteractableComponent;
+import com.riiablo.engine.component.ItemComponent;
 import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.MonsterComponent;
@@ -39,6 +43,7 @@ import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.engine.component.VelocityComponent;
 import com.riiablo.engine.component.WarpComponent;
 import com.riiablo.engine.component.ZoneAwareComponent;
+import com.riiablo.item.Item;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
@@ -484,6 +489,28 @@ public class Engine extends PooledEngine {
     entity.add(zoneAwareComponent);
     entity.add(sizeComponent);
     entity.add(box2DComponent);
+
+    return entity;
+  }
+
+  public Entity createItem(Item item, Vector2 position) {
+    TypeComponent typeComponent = createComponent(TypeComponent.class);
+    typeComponent.type = TypeComponent.Type.ITM;
+
+    AssetDescriptor<DC6> flippyDescriptor = new AssetDescriptor<>(TypeComponent.Type.ITM.PATH + "\\" + item.getFlippyFile() + ".dc6", DC6.class);
+    Riiablo.assets.load(flippyDescriptor);
+
+    ItemComponent itemComponent = createComponent(ItemComponent.class);
+    itemComponent.item = item;
+    itemComponent.flippyDescriptor = flippyDescriptor;
+
+    PositionComponent positionComponent = createComponent(PositionComponent.class);
+    positionComponent.position.set(position);
+
+    Entity entity = createEntity("item");
+    entity.add(typeComponent);
+    entity.add(itemComponent);
+    entity.add(positionComponent);
 
     return entity;
   }

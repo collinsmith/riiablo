@@ -7,7 +7,9 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.riiablo.engine.EntityAdapter;
 import com.riiablo.engine.component.CofComponent;
+import com.riiablo.engine.component.ItemComponent;
 import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.SelectableComponent;
@@ -20,7 +22,7 @@ public class SelectableSystem extends EntitySystem {
   private ImmutableArray<Entity> objectEntities;
 
   private final Family monsterFamily = Family.all(MonsterComponent.class).get();
-  private final EntityListener monsterListener = new EntityListener() {
+  private final EntityListener monsterListener = new EntityAdapter() {
     private final ComponentMapper<MonsterComponent> monsterComponent = ComponentMapper.getFor(MonsterComponent.class);
 
     @Override
@@ -28,20 +30,22 @@ public class SelectableSystem extends EntitySystem {
       MonsterComponent monsterComponent = this.monsterComponent.get(entity);
       setSelectable(entity, monsterComponent.monstats2.isSel);
     }
-
-    @Override
-    public void entityRemoved(Entity entity) {}
   };
 
-  private final Family warpFamily = Family.all(WarpComponent.class).get();
-  private final EntityListener warpListener = new EntityListener() {
+  private final Family itemFamily = Family.all(ItemComponent.class).get();
+  private final EntityListener itemListener = new EntityAdapter() {
     @Override
     public void entityAdded(Entity entity) {
       setSelectable(entity, true);
     }
+  };
 
+  private final Family warpFamily = Family.all(WarpComponent.class).get();
+  private final EntityListener warpListener = new EntityAdapter() {
     @Override
-    public void entityRemoved(Entity entity) {}
+    public void entityAdded(Entity entity) {
+      setSelectable(entity, true);
+    }
   };
 
   private final ComponentMapper<SelectableComponent> selectableComponent = ComponentMapper.getFor(SelectableComponent.class);
@@ -56,6 +60,7 @@ public class SelectableSystem extends EntitySystem {
     objectEntities = engine.getEntitiesFor(objectFamily);
     engine.addEntityListener(monsterFamily, monsterListener);
     engine.addEntityListener(warpFamily, warpListener);
+    engine.addEntityListener(itemFamily, itemListener);
   }
 
   @Override
@@ -64,6 +69,7 @@ public class SelectableSystem extends EntitySystem {
     objectEntities = null;
     engine.removeEntityListener(monsterListener);
     engine.removeEntityListener(warpListener);
+    engine.removeEntityListener(itemListener);
   }
 
   @Override
