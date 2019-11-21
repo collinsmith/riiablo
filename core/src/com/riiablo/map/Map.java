@@ -637,10 +637,10 @@ public class Map implements Disposable {
     if (width == 0 || height == 0) return;
     int x0 = round(position.x - width  / 2f);
     int y0 = round(position.y - height / 2f);
-    for (int x = 0; x < width; x++, x0++) {
-      for (int y = 0; y < height; y++, y0++) {
-        Zone zone = getZone(x0, y0);
-        if (zone != null) zone.or(x0, y0, flags);
+    for (int x = 0, dx = x0; x < width; x++, dx++) {
+      for (int y = 0, dy = y0; y < height; y++, dy++) {
+        Zone zone = getZone(dx, dy);
+        if (zone != null) zone.or(dx, dy, flags);
       }
     }
   }
