@@ -633,6 +633,18 @@ public class Map implements Disposable {
     return zone.flags(x, y);
   }
 
+  void or(Vector2 position, int width, int height, int flags) {
+    if (width == 0 || height == 0) return;
+    int x0 = round(position.x - width  / 2f);
+    int y0 = round(position.y - height / 2f);
+    for (int x = 0; x < width; x++, x0++) {
+      for (int y = 0; y < height; y++, y0++) {
+        Zone zone = getZone(x0, y0);
+        if (zone != null) zone.or(x0, y0, flags);
+      }
+    }
+  }
+
   public DT1.Tile getTile(int l, int x, int y) {
     Zone zone = getZone(x, y);
     if (zone == null) return null;
@@ -884,6 +896,14 @@ public class Map implements Disposable {
       y -= this.y;
       if (y < 0 || y > height) return 0xFF;
       return flags[x][y] & 0xFF;
+    }
+
+    int or(int x, int y, int flags) {
+      x -= this.x;
+      if (x < 0 || x > width ) return 0xFF;
+      y -= this.y;
+      if (y < 0 || y > height) return 0xFF;
+      return (this.flags[x][y] |= flags) & 0xFF;
     }
 
     void load(DT1s dt1s) {

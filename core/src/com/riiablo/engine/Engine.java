@@ -20,6 +20,7 @@ import com.riiablo.codec.util.BBox;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
+import com.riiablo.engine.component.Box2DComponent;
 import com.riiablo.engine.component.ClassnameComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.DS1Component;
@@ -231,6 +232,10 @@ public class Engine extends PooledEngine {
       interactableComponent.range = base.OperateRange;
     }
 
+    SizeComponent sizeComponent = createComponent(SizeComponent.class);
+
+    Box2DComponent box2DComponent = createComponent(Box2DComponent.class);
+
     Entity entity = createEntity(base.Description);
     entity.add(typeComponent);
     if (draw) entity.add(cofComponent);
@@ -242,6 +247,8 @@ public class Engine extends PooledEngine {
     entity.add(objectComponent);
     entity.add(labelComponent);
     if (interactableComponent != null) entity.add(interactableComponent);
+    entity.add(sizeComponent);
+    entity.add(box2DComponent);
 
     labelComponent.actor.setUserObject(entity);
 
@@ -298,6 +305,10 @@ public class Engine extends PooledEngine {
     PositionComponent positionComponent = createComponent(PositionComponent.class);
     positionComponent.position.set(x, y);
 
+    VelocityComponent velocityComponent = createComponent(VelocityComponent.class);
+    velocityComponent.walkSpeed = monstats.Velocity;
+    velocityComponent.runSpeed = monstats.Run;
+
     LabelComponent labelComponent = createComponent(LabelComponent.class);
     labelComponent.offset.y = monstats2.pixHeight;
     labelComponent.actor = createLabel(name);
@@ -312,18 +323,22 @@ public class Engine extends PooledEngine {
     SizeComponent sizeComponent = createComponent(SizeComponent.class);
     sizeComponent.size = monstats2.SizeX; // FIXME: see above note
 
+    Box2DComponent box2DComponent = createComponent(Box2DComponent.class);
+
     Entity entity = createEntity(monstats.Id);
     entity.add(typeComponent);
     entity.add(cofComponent);
     entity.add(animationComponent);
     entity.add(boxComponent);
     entity.add(positionComponent);
+    entity.add(velocityComponent);
     entity.add(mapComponent);
     entity.add(ds1Component);
     entity.add(monsterComponent);
     entity.add(labelComponent);
     if (interactableComponent != null) entity.add(interactableComponent);
     entity.add(sizeComponent);
+    entity.add(box2DComponent);
 
     labelComponent.actor.setUserObject(entity);
 
@@ -453,6 +468,8 @@ public class Engine extends PooledEngine {
     SizeComponent sizeComponent = createComponent(SizeComponent.class);
     sizeComponent.size = SizeComponent.MEDIUM;
 
+    Box2DComponent box2DComponent = createComponent(Box2DComponent.class);
+
     Entity entity = createEntity("player");
     entity.add(typeComponent);
     entity.add(cofComponent);
@@ -466,6 +483,7 @@ public class Engine extends PooledEngine {
     entity.add(playerComponent);
     entity.add(zoneAwareComponent);
     entity.add(sizeComponent);
+    entity.add(box2DComponent);
 
     return entity;
   }
