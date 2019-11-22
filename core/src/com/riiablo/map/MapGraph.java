@@ -4,16 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultConnection;
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.Graph;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
-import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
-import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool;
+import com.riiablo.map.pfa.ClearancedNode;
+import com.riiablo.map.pfa.IndexedAStarPathFinder;
+import com.riiablo.map.pfa.IndexedNode;
 import com.riiablo.map.pfa.PathSmoother;
 import com.riiablo.map.pfa.SimpleRaycastCollisionDetector;
 
@@ -22,7 +24,7 @@ import org.apache.commons.collections4.Transformer;
 
 import java.util.Iterator;
 
-public class MapGraph implements IndexedGraph<MapGraph.Point2> {
+public class MapGraph implements Graph<MapGraph.Point2> {
   private static final String TAG = "MapGraph";
   private static final boolean DEBUG         = true;
   private static final boolean DEBUG_METRICS = DEBUG && !true;
@@ -137,16 +139,6 @@ public class MapGraph implements IndexedGraph<MapGraph.Point2> {
   }
 
   @Override
-  public int getIndex(Point2 node) {
-    return node.index;
-  }
-
-  @Override
-  public int getNodeCount() {
-    return 2 << 20;
-  }
-
-  @Override
   public Array<Connection<Point2>> getConnections(Point2 src) {
     Array<Connection<Point2>> connections = src.connections;
     if (connections == null) {
@@ -186,11 +178,7 @@ size:
     node.clearance = i;
   }
 
-  public int getClearance(Point2 node) {
-    return node.clearance;
-  }
-
-  public static class Point2 {
+  public static class Point2 implements IndexedNode, ClearancedNode {
     public int x;
     public int y;
 
@@ -202,6 +190,16 @@ size:
 
     Point2(Vector2 src) {
       set(src);
+    }
+
+    @Override
+    public int getIndex() {
+      return index;
+    }
+
+    @Override
+    public int getClearance() {
+      return clearance;
     }
 
     Point2 set(Vector2 src) {

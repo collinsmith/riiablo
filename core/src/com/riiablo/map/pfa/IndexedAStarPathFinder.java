@@ -1,21 +1,20 @@
 package com.riiablo.map.pfa;
 
 import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.ai.pfa.Graph;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.ai.pfa.PathFinderQueue;
 import com.badlogic.gdx.ai.pfa.PathFinderRequest;
-import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BinaryHeap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.riiablo.map.MapGraph;
 
 //refactor of com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
-public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFinder<N> {
-  IndexedGraph<N> graph;
-  MapGraph casted;
+public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & ClearancedNode> implements PathFinder<N> {
+  Graph<N> graph;
   NodeRecord<N>[] nodeRecords;
   BinaryHeap<NodeRecord<N>> openList;
   NodeRecord<N> current;
@@ -34,15 +33,14 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
     return this;
   }
 
-  public IndexedAStarPathFinder(MapGraph graph) {
+  public IndexedAStarPathFinder(Graph<N> graph) {
     this(graph, false);
   }
 
   @SuppressWarnings("unchecked")
-  public IndexedAStarPathFinder (MapGraph graph, boolean calculateMetrics) {
-    this.graph = (IndexedGraph<N>) graph;
-    this.casted = graph;
-    this.nodeRecords = (NodeRecord<N>[])new NodeRecord[graph.getNodeCount()];
+  public IndexedAStarPathFinder(Graph<N> graph, boolean calculateMetrics) {
+    this.graph = graph;
+    this.nodeRecords = (NodeRecord<N>[]) new NodeRecord[1 << 20];
     this.openList = new BinaryHeap<>();
     if (calculateMetrics) this.metrics = new Metrics();
   }
@@ -62,7 +60,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
   }
 
 
-  protected boolean search (N startNode, N endNode, Heuristic<N> heuristic) {
+  protected boolean search(N startNode, N endNode, Heuristic<N> heuristic) {
     initSearch(startNode, endNode, heuristic);
     int limit = 0;
     do {
@@ -76,7 +74,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
 
 
   @Override
-  public boolean search (PathFinderRequest<N> request, long timeToRun) {
+  public boolean search(PathFinderRequest<N> request, long timeToRun) {
     long lastTime = TimeUtils.nanoTime();
     if (request.statusChanged) {
       initSearch(request.startNode, request.endNode, request.heuristic);
@@ -102,7 +100,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
     return true;
   }
 
-  protected void initSearch (N startNode, N endNode, Heuristic<N> heuristic) {
+  protected void initSearch(N startNode, N endNode, Heuristic<N> heuristic) {
     if (metrics != null) metrics.reset();
     if (++searchId < 0) searchId = 1;
     openList.clear();
@@ -116,7 +114,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
     current = null;
   }
 
-  protected void visitChildren (N endNode, Heuristic<N> heuristic) {
+  protected void visitChildren(N endNode, Heuristic<N> heuristic) {
     Array<Connection<N>> connections = graph.getConnections(current.node);
 
     for (int i = 0; i < connections.size; i++) {
@@ -125,7 +123,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
       Connection<N> connection = connections.get(i);
 
       N node = connection.getToNode();
-      if (casted.getClearance(node) < size) continue;
+      if (node.getClearance() < size) continue;
       float nodeCost = current.costSoFar + connection.getCost();
 
       float nodeHeuristic;
@@ -148,24 +146,24 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
     }
   }
 
-  protected void generateConnectionPath (N startNode, GraphPath<Connection<N>> outPath) {
+  protected void generateConnectionPath(N startNode, GraphPath<Connection<N>> outPath) {
     while (current.node != startNode) {
       outPath.add(current.connection);
-      current = nodeRecords[graph.getIndex(current.connection.getFromNode())];
+      current = nodeRecords[current.connection.getFromNode().getIndex()];
     }
     outPath.reverse();
   }
 
-  protected void generateNodePath (N startNode, GraphPath<N> outPath) {
+  protected void generateNodePath(N startNode, GraphPath<N> outPath) {
     while (current.connection != null) {
       outPath.add(current.node);
-      current = nodeRecords[graph.getIndex(current.connection.getFromNode())];
+      current = nodeRecords[current.connection.getFromNode().getIndex()];
     }
     outPath.add(startNode);
     outPath.reverse();
   }
 
-  protected void addToOpenList (NodeRecord<N> nodeRecord, float estimatedTotalCost) {
+  protected void addToOpenList(NodeRecord<N> nodeRecord, float estimatedTotalCost) {
     openList.add(nodeRecord, estimatedTotalCost);
     nodeRecord.category = OPEN;
     if (metrics != null) {
@@ -175,7 +173,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
   }
 
   protected NodeRecord<N> getNodeRecord (N node) {
-    int index = graph.getIndex(node);
+    int index = node.getIndex();
     NodeRecord<N> nr = nodeRecords[index];
     if (nr != null) {
       if (nr.searchId != searchId) {
@@ -184,7 +182,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
       }
       return nr;
     }
-    nr = nodeRecords[index] = new NodeRecord<N>();
+    nr = nodeRecords[index] = new NodeRecord<>();
     nr.node = node;
     nr.searchId = searchId;
     return nr;
@@ -197,11 +195,11 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
     int category;
     int searchId;
 
-    public NodeRecord () {
+    public NodeRecord() {
       super(0);
     }
 
-    public float getEstimatedTotalCost () {
+    public float getEstimatedTotalCost() {
       return getValue();
     }
   }
@@ -211,7 +209,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2> implements PathFi
     public int openListAdditions;
     public int openListPeak;
 
-    public void reset () {
+    public void reset() {
       visitedNodes = 0;
       openListAdditions = 0;
       openListPeak = 0;
