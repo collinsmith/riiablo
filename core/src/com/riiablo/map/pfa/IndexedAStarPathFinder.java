@@ -29,7 +29,7 @@ public class IndexedAStarPathFinder implements PathFinder {
       }
     }
   }
-  static final Heuristic<Point2> uniformHeuristic = UniformHeuristics.EUCLIDEAN;
+  static final UniformHeuristics uniformHeuristic = UniformHeuristics.EUCLIDEAN;
 
   enum Heuristics implements Heuristic<Point2> {
     EUCLIDEAN() {
@@ -45,7 +45,7 @@ public class IndexedAStarPathFinder implements PathFinder {
       }
     }
   }
-  static final Heuristic<Point2> heuristic = Heuristics.EUCLIDEAN;
+  static final Heuristics heuristic = Heuristics.EUCLIDEAN;
 
 
   MapGraph graph;
