@@ -74,6 +74,7 @@ public class MapViewer extends ApplicationAdapter {
   BitmapFont font;
 
   int x, y;
+  final GridPoint2 coords = new GridPoint2();
 
   Vector2 src;
   Vector2 dst;
@@ -414,10 +415,11 @@ public class MapViewer extends ApplicationAdapter {
     batch.begin();
     batch.setShader(null);
 
+    mapRenderer.coords(coords);
     String str = new StringBuilder()
         .append(Gdx.graphics.getFramesPerSecond() + " FPS").append('\n')
         .append(Gdx.app.getJavaHeap() / (1 << 20) + " MB").append('\n')
-        .append(Gdx.input.getX() + ", " + Gdx.input.getY()).append('\n')
+        .append("(" + coords.x + ", " + coords.y + ")").append('\n')
         .append("(" + x + ", " + y + ")").append('\n')
         .append("Grid (TAB) " + (MapRenderer.RENDER_DEBUG_GRID == 0 ? "OFF" : MapRenderer.RENDER_DEBUG_GRID)).append('\n')
         .append("Walkable (~) " + (MapRenderer.RENDER_DEBUG_WALKABLE == 0 ? "OFF" : MapRenderer.RENDER_DEBUG_WALKABLE))
