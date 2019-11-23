@@ -17,16 +17,17 @@ import java.util.Arrays;
 //refactor of com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & ClearancedNode> implements PathFinder<N> {
   Graph<N> graph;
-  NodeRecord<N>[] nodeRecords;
-  BinaryHeap<NodeRecord<N>> openList;
   NodeRecord<N> current;
+  @SuppressWarnings("unchecked")
+  NodeRecord<N>[] nodeRecords = (NodeRecord<N>[]) new NodeRecord[16384];
+  BinaryHeap<NodeRecord<N>> openList = new BinaryHeap<>();
   public Metrics metrics;
 
   private int searchId;
 
-  private static final int UNVISITED = 0;
-  private static final int OPEN = 1;
-  private static final int CLOSED = 2;
+  private static final byte UNVISITED = 0;
+  private static final byte OPEN      = 1;
+  private static final byte CLOSED    = 2;
 
   private int size;
 
@@ -39,11 +40,8 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & Cl
     this(graph, false);
   }
 
-  @SuppressWarnings("unchecked")
   public IndexedAStarPathFinder(Graph<N> graph, boolean calculateMetrics) {
     this.graph = graph;
-    this.nodeRecords = (NodeRecord<N>[]) new NodeRecord[16384];
-    this.openList = new BinaryHeap<>();
     if (calculateMetrics) this.metrics = new Metrics();
   }
 
@@ -199,7 +197,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & Cl
     N node;
     Connection<N> connection;
     float costSoFar;
-    int category;
+    byte category;
     int searchId;
 
     public NodeRecord() {
