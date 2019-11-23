@@ -107,31 +107,31 @@ public class AStarPathFinder implements PathFinder {
     Array<Point2> neighbors = graph.getNeighbors(startNode, flags, this.neighbors);
     for (Point2 neighbor : neighbors) {
       if (neighbor.clearance < size) continue;
-      float nodeCost = current.g() + uniformHeuristic.estimate(startNode, neighbor);
+      float g = startNode.g() + uniformHeuristic.estimate(startNode, neighbor);
 
-      float nodeHeuristic;
+      float h;
       reset(neighbor);
       switch (neighbor.category) {
         case Point2.UNVISITED:
-          nodeHeuristic = heuristic.estimate(neighbor, endNode);
+          h = heuristic.estimate(neighbor, endNode);
           break;
         case Point2.OPEN:
-          if (neighbor.g() <= nodeCost) continue;
+          if (neighbor.g() <= g) continue;
           openList.remove(neighbor);
-          nodeHeuristic = neighbor.f() - neighbor.g();
+          h = neighbor.f() - neighbor.g();
           break;
         case Point2.CLOSED:
-          if (neighbor.g() <= nodeCost) continue;
-          nodeHeuristic = neighbor.f() - neighbor.g();
+          if (neighbor.g() <= g) continue;
+          h = neighbor.f() - neighbor.g();
           break;
         default:
           throw new AssertionError("Invalid nodeRecord category: " + neighbor.category);
       }
 
-      neighbor.g = nodeCost;
+      neighbor.g = g;
       neighbor.parent = startNode;
 
-      addToOpenList(neighbor, nodeCost + nodeHeuristic);
+      addToOpenList(neighbor, g + h);
     }
   }
 
