@@ -26,7 +26,7 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Monster;
 import com.riiablo.entity.Warp;
-import com.riiablo.map.pfa.IndexedAStarPathFinder;
+import com.riiablo.map.pfa.AStarPathFinder;
 import com.riiablo.map.pfa.Point2;
 
 import org.apache.commons.lang3.Validate;
@@ -688,8 +688,8 @@ public class Map implements Disposable {
     this.warpSubsts.clear();
   }
 
-  private MapGraph               mapGraph   = new MapGraph(this);
-  private IndexedAStarPathFinder pathFinder = new IndexedAStarPathFinder(mapGraph, true);
+  private MapGraph        mapGraph   = new MapGraph(this);
+  private AStarPathFinder pathFinder = new AStarPathFinder(mapGraph, true);
 
   public boolean findPath(Vector2 src, Vector2 dst, GraphPath<Point2> path) {
     return findPath(src, dst, DT1.Tile.FLAG_BLOCK_WALK, 0, path);

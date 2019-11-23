@@ -1,23 +1,51 @@
 package com.riiablo.map.pfa;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.BinaryHeap;
+import com.badlogic.gdx.utils.Pool;
 import com.riiablo.map.Map;
 
-public class Point2 {
+public class Point2 extends BinaryHeap.Node implements Pool.Poolable {
   public int x;
   public int y;
 
-  public int index;
+  //public int index;
   byte clearance;
 
-  public Point2() {}
+  static final byte UNVISITED = 0;
+  static final byte OPEN      = 1;
+  static final byte CLOSED    = 2;
+
+  int searchId = -1;
+  Point2 parent;
+  byte category;
+  float g;
+
+  public Point2() {
+    super(0f);
+  }
 
   public Point2(int x, int y) {
+    this();
     set(x, y);
   }
 
   public Point2(Point2 src) {
+    this();
     set(src);
+  }
+
+  @Override
+  public void reset() {
+    category = UNVISITED;
+  }
+
+  public float g() {
+    return g;
+  }
+
+  public float f() {
+    return super.getValue();
   }
 
   public Point2 set(int x, int y) {

@@ -14,7 +14,6 @@ public class MapGraph {
   Map map;
   PathSmoother<Point2> smoother;
   SimpleRaycastCollisionDetector raycaster;
-  int index = 0;
 
   final Point2 tmpPoint = new Point2();
   final ObjectSet<Point2> identity = new ObjectSet<>();
@@ -38,7 +37,6 @@ public class MapGraph {
     if (existing == null) {
       existing = new Point2(src);
       identity.add(existing);
-      existing.index = index++;
       existing.updateClearance(map, 0);
     }
 
