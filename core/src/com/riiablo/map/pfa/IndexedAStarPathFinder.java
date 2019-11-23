@@ -12,6 +12,8 @@ import com.badlogic.gdx.utils.BinaryHeap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.riiablo.map.MapGraph;
 
+import java.util.Arrays;
+
 //refactor of com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & ClearancedNode> implements PathFinder<N> {
   Graph<N> graph;
@@ -40,7 +42,7 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & Cl
   @SuppressWarnings("unchecked")
   public IndexedAStarPathFinder(Graph<N> graph, boolean calculateMetrics) {
     this.graph = graph;
-    this.nodeRecords = (NodeRecord<N>[]) new NodeRecord[1 << 20];
+    this.nodeRecords = (NodeRecord<N>[]) new NodeRecord[16384];
     this.openList = new BinaryHeap<>();
     if (calculateMetrics) this.metrics = new Metrics();
   }
@@ -172,8 +174,13 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & Cl
     }
   }
 
+  private void resize(int newSize) {
+    nodeRecords = Arrays.copyOf(nodeRecords, newSize);
+  }
+
   protected NodeRecord<N> getNodeRecord (N node) {
     int index = node.getIndex();
+    if (index >= nodeRecords.length) resize((int) (nodeRecords.length * 1.75f));
     NodeRecord<N> nr = nodeRecords[index];
     if (nr != null) {
       if (nr.searchId != searchId) {
