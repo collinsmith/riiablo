@@ -21,6 +21,8 @@ import com.riiablo.entity.Object;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1.Tile;
+import com.riiablo.map.pfa.GraphPath;
+import com.riiablo.map.pfa.Point2;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.util.EngineUtils;
 
@@ -1271,18 +1273,18 @@ public class MapRenderer {
     shapes.set(ShapeRenderer.ShapeType.Line);
   }
 
-  public void drawDebugPath(ShapeRenderer shapes, MapGraph.MapGraphPath path) {
+  public void drawDebugPath(ShapeRenderer shapes, GraphPath path) {
     drawDebugPath(shapes, path, Color.RED);
   }
 
-  public void drawDebugPath(ShapeRenderer shapes, MapGraph.MapGraphPath path, Color color) {
+  public void drawDebugPath(ShapeRenderer shapes, GraphPath path, Color color) {
     if (path == null || path.getCount() < 2) return;
     shapes.setProjectionMatrix(camera.combined);
     shapes.setColor(color);
     shapes.set(ShapeRenderer.ShapeType.Line);
-    Iterator<MapGraph.Point2> it = new Array.ArrayIterator<>(path.nodes);
-    MapGraph.Point2 src = it.next();
-    for (MapGraph.Point2 dst; it.hasNext(); src = dst) {
+    Iterator<Point2> it = new Array.ArrayIterator<>(path.nodes);
+    Point2 src = it.next();
+    for (Point2 dst; it.hasNext(); src = dst) {
       dst = it.next();
       EngineUtils.worldToScreenCoords(src.x, src.y, tmpVec2a);
       EngineUtils.worldToScreenCoords(dst.x, dst.y, tmpVec2b);

@@ -3,7 +3,6 @@ package com.riiablo.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
-import com.riiablo.map.pfa.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.utils.Collision;
 import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetDescriptor;
@@ -27,6 +26,8 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.entity.Entity;
 import com.riiablo.entity.Monster;
 import com.riiablo.entity.Warp;
+import com.riiablo.map.pfa.IndexedAStarPathFinder;
+import com.riiablo.map.pfa.Point2;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -687,27 +688,27 @@ public class Map implements Disposable {
     this.warpSubsts.clear();
   }
 
-  private MapGraph                                mapGraph   = new MapGraph(this);
-  private IndexedAStarPathFinder<MapGraph.Point2> pathFinder = new IndexedAStarPathFinder<>(mapGraph, true);
+  private MapGraph               mapGraph   = new MapGraph(this);
+  private IndexedAStarPathFinder pathFinder = new IndexedAStarPathFinder(mapGraph, true);
 
-  public boolean findPath(Vector2 src, Vector2 dst, GraphPath<MapGraph.Point2> path) {
-    return findPath(0, src, dst, path);
+  public boolean findPath(Vector2 src, Vector2 dst, GraphPath<Point2> path) {
+    return findPath(src, dst, DT1.Tile.FLAG_BLOCK_WALK, 0, path);
   }
 
-  public boolean findPath(int size, Vector2 src, Vector2 dst, GraphPath<MapGraph.Point2> path) {
-    return mapGraph.searchNodePath(pathFinder.setSize(size), src, dst, path);
+  public boolean findPath(Vector2 src, Vector2 dst, int flags, int size, GraphPath<Point2> path) {
+    return mapGraph.searchNodePath(pathFinder, src, dst, flags, size, path);
   }
 
-  public void smoothPath(SmoothableGraphPath<MapGraph.Point2, Vector2> path) {
-    smoothPath(0, path);
+  public void smoothPath(SmoothableGraphPath<Point2, Vector2> path) {
+    smoothPath(DT1.Tile.FLAG_BLOCK_WALK, 0, path);
   }
 
-  public void smoothPath(int size, SmoothableGraphPath<MapGraph.Point2, Vector2> path) {
-    mapGraph.smoothPath(size, path);
+  public void smoothPath(int flags, int size, SmoothableGraphPath<Point2, Vector2> path) {
+    mapGraph.smoothPath(flags, size, path);
   }
 
   public boolean castRay(Collision<Vector2> dst, Ray<Vector2> ray) {
-    return mapGraph.rayCaster.findCollision(dst, ray);
+    return mapGraph.raycaster.findCollision(dst, ray);
   }
 
   public static class Zone {

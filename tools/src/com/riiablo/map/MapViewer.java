@@ -43,6 +43,7 @@ import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.map.DT1.Tile;
+import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -76,8 +77,8 @@ public class MapViewer extends ApplicationAdapter {
 
   Vector2 src;
   Vector2 dst;
-  MapGraph.MapGraphPath path = new MapGraph.MapGraphPath();
-  MapGraph.MapGraphPath smoothedPath = new MapGraph.MapGraphPath();
+  GraphPath path = new GraphPath();
+  GraphPath smoothedPath = new GraphPath();
 
   boolean drawCrosshair;
   boolean drawGrid;

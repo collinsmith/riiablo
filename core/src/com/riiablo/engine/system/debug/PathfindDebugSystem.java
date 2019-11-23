@@ -15,8 +15,9 @@ import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.graphics.PaletteIndexedBatch;
-import com.riiablo.map.MapGraph;
 import com.riiablo.map.RenderSystem;
+import com.riiablo.map.pfa.GraphPath;
+import com.riiablo.map.pfa.Point2;
 
 public class PathfindDebugSystem extends EntitySystem {
   private final float BOX_SIZE = 8;
@@ -77,8 +78,8 @@ public class PathfindDebugSystem extends EntitySystem {
   }
 
   private void drawDebugShapes(PathfindComponent pathfindComponent) {
-    MapGraph.MapGraphPath path = pathfindComponent.path;
-    MapGraph.Point2 point;
+    GraphPath path = pathfindComponent.path;
+    Point2 point;
 
     tmpVec2a.setZero();
     tmpVec2b.setZero();
@@ -99,8 +100,8 @@ public class PathfindDebugSystem extends EntitySystem {
   }
 
   private void drawDebugBatch(PathfindComponent pathfindComponent) {
-    MapGraph.MapGraphPath path = pathfindComponent.path;
-    MapGraph.Point2 point;
+    GraphPath path = pathfindComponent.path;
+    Point2 point;
 
     for (int i = 0; i < path.getCount(); i++) {
       point = path.get(i);

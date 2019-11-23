@@ -19,7 +19,7 @@ public class PathSmoother<N> {
     this.raycaster = raycaster;
   }
 
-  public int smoothPath(int size, SmoothableGraphPath<N, Vector2> path) {
+  public int smoothPath(int flags, int size, SmoothableGraphPath<N, Vector2> path) {
     int length = path.getCount();
     if (length <= 2) return 0;
 

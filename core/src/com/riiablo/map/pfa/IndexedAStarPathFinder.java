@@ -1,29 +1,61 @@
 package com.riiablo.map.pfa;
 
-import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.ai.pfa.Graph;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.Heuristic;
-import com.badlogic.gdx.ai.pfa.PathFinder;
-import com.badlogic.gdx.ai.pfa.PathFinderQueue;
-import com.badlogic.gdx.ai.pfa.PathFinderRequest;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BinaryHeap;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.riiablo.map.MapGraph;
 
 import java.util.Arrays;
 
 //refactor of com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
-public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & ClearancedNode> implements PathFinder<N> {
-  Graph<N> graph;
-  NodeRecord<N> current;
-  @SuppressWarnings("unchecked")
-  NodeRecord<N>[] nodeRecords = (NodeRecord<N>[]) new NodeRecord[16384];
-  BinaryHeap<NodeRecord<N>> openList = new BinaryHeap<>();
+public class IndexedAStarPathFinder implements PathFinder {
+  enum UniformHeuristics implements Heuristic<Point2> {
+    EUCLIDEAN() {
+      final float DIAGONAL_COST = (float) Math.sqrt(2);
+
+      @Override
+      public float estimate(Point2 src, Point2 dst) {
+        return src.x != dst.x && src.y != dst.y ? DIAGONAL_COST : 1;
+      }
+    },
+    MANHATTAN() {
+      final float DIAGONAL_COST = 2;
+
+      @Override
+      public float estimate(Point2 src, Point2 dst) {
+        return src.x != dst.x && src.y != dst.y ? DIAGONAL_COST : 1;
+      }
+    }
+  }
+  static final Heuristic<Point2> uniformHeuristic = UniformHeuristics.EUCLIDEAN;
+
+  enum Heuristics implements Heuristic<Point2> {
+    EUCLIDEAN() {
+      @Override
+      public float estimate(Point2 src, Point2 dst) {
+        return Vector2.dst(src.x, src.y, dst.x, dst.y);
+      }
+    },
+    MANHATTAN() {
+      @Override
+      public float estimate(Point2 src, Point2 dst) {
+        return Math.abs(dst.x - src.x) + Math.abs(dst.y - src.y);
+      }
+    }
+  }
+  static final Heuristic<Point2> heuristic = Heuristics.EUCLIDEAN;
+
+
+  MapGraph graph;
+  NodeRecord current;
+  NodeRecord[] nodeRecords = new NodeRecord[16384];
+  BinaryHeap<NodeRecord> openList = new BinaryHeap<>();
   public Metrics metrics;
 
   private int searchId;
+  private final Array<Point2> neighbors = new Array<>(false, 8);
 
   private static final byte UNVISITED = 0;
   private static final byte OPEN      = 1;
@@ -31,139 +63,96 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & Cl
 
   private int size;
 
-  public IndexedAStarPathFinder<N> setSize(int size) {
+  public IndexedAStarPathFinder setSize(int size) {
     this.size = size;
     return this;
   }
 
-  public IndexedAStarPathFinder(Graph<N> graph) {
+  public IndexedAStarPathFinder(MapGraph graph) {
     this(graph, false);
   }
 
-  public IndexedAStarPathFinder(Graph<N> graph, boolean calculateMetrics) {
+  public IndexedAStarPathFinder(MapGraph graph, boolean calculateMetrics) {
     this.graph = graph;
     if (calculateMetrics) this.metrics = new Metrics();
   }
 
-  @Override
-  public boolean searchConnectionPath(N startNode, N endNode, Heuristic<N> heuristic, GraphPath<Connection<N>> outPath) {
-    boolean found = search(startNode, endNode, heuristic);
-    if (found) generateConnectionPath(startNode, outPath);
-    return found;
-  }
-
-  @Override
-  public boolean searchNodePath(N startNode, N endNode, Heuristic<N> heuristic, GraphPath<N> outPath) {
-    boolean found = search(startNode, endNode, heuristic);
+  public boolean search(Point2 startNode, Point2 endNode, int flags, int size, GraphPath<Point2> outPath) {
+    boolean found = search(startNode, endNode, flags, size);
     if (found) generateNodePath(startNode, outPath);
     return found;
   }
 
 
-  protected boolean search(N startNode, N endNode, Heuristic<N> heuristic) {
-    initSearch(startNode, endNode, heuristic);
+  protected boolean search(Point2 startNode, Point2 endNode, int flags, int size) {
+    initSearch(startNode, endNode);
     int limit = 0;
     do {
       current = openList.pop();
       current.category = CLOSED;
       if (current.node == endNode) return true;
-      visitChildren(endNode, heuristic);
+      visitChildren(current.node, endNode, flags, size);
+      if (metrics != null) metrics.visitedNodes++;
     } while (openList.size > 0 && limit++ < 900);
     return false;
   }
 
-
-  @Override
-  public boolean search(PathFinderRequest<N> request, long timeToRun) {
-    long lastTime = TimeUtils.nanoTime();
-    if (request.statusChanged) {
-      initSearch(request.startNode, request.endNode, request.heuristic);
-      request.statusChanged = false;
-    }
-
-    do {
-      long currentTime = TimeUtils.nanoTime();
-      timeToRun -= currentTime - lastTime;
-      if (timeToRun <= PathFinderQueue.TIME_TOLERANCE) return false;
-      current = openList.pop();
-      current.category = CLOSED;
-      if (current.node == request.endNode) {
-        request.pathFound = true;
-        generateNodePath(request.startNode, request.resultPath);
-        return true;
-      }
-
-      visitChildren(request.endNode, request.heuristic);
-      lastTime = currentTime;
-    } while (openList.size > 0);
-    request.pathFound = false;
-    return true;
-  }
-
-  protected void initSearch(N startNode, N endNode, Heuristic<N> heuristic) {
+  protected void initSearch(Point2 startNode, Point2 endNode) {
     if (metrics != null) metrics.reset();
     if (++searchId < 0) searchId = 1;
     openList.clear();
 
-    NodeRecord<N> startRecord = getNodeRecord(startNode);
+    NodeRecord startRecord = getNodeRecord(startNode);
     startRecord.node = startNode;
-    startRecord.connection = null;
-    startRecord.costSoFar = 0;
+    startRecord.parent = null;
+    startRecord.costSoFar = 0f;
     addToOpenList(startRecord, heuristic.estimate(startNode, endNode));
 
     current = null;
   }
 
-  protected void visitChildren(N endNode, Heuristic<N> heuristic) {
-    Array<Connection<N>> connections = graph.getConnections(current.node);
-
-    for (int i = 0; i < connections.size; i++) {
-      if (metrics != null) metrics.visitedNodes++;
-
-      Connection<N> connection = connections.get(i);
-
-      N node = connection.getToNode();
-      if (node.getClearance() < size) continue;
-      float nodeCost = current.costSoFar + connection.getCost();
+  protected void visitChildren(Point2 startNode, Point2 endNode, int flags, int size) {
+    Array<Point2> neighbors = graph.getNeighbors(startNode, flags, this.neighbors);
+    for (Point2 neighbor : neighbors) {
+      if (neighbor.clearance < size) continue;
+      float nodeCost = current.costSoFar + uniformHeuristic.estimate(startNode, neighbor);
 
       float nodeHeuristic;
-      NodeRecord<N> nodeRecord = getNodeRecord(node);
-      if (nodeRecord.category == CLOSED) {
-        if (nodeRecord.costSoFar <= nodeCost) continue;
-        nodeHeuristic = nodeRecord.getEstimatedTotalCost() - nodeRecord.costSoFar;
-      } else if (nodeRecord.category == OPEN) {
-        if (nodeRecord.costSoFar <= nodeCost) continue;
-        openList.remove(nodeRecord);
-        nodeHeuristic = nodeRecord.getEstimatedTotalCost() - nodeRecord.costSoFar;
-      } else {
-        nodeHeuristic = heuristic.estimate(node, endNode);
+      NodeRecord nodeRecord = getNodeRecord(neighbor);
+      switch (nodeRecord.category) {
+        case UNVISITED:
+          nodeHeuristic = heuristic.estimate(neighbor, endNode);
+          break;
+        case OPEN:
+          if (nodeRecord.costSoFar <= nodeCost) continue;
+          openList.remove(nodeRecord);
+          nodeHeuristic = nodeRecord.getEstimatedTotalCost() - nodeRecord.costSoFar;
+          break;
+        case CLOSED:
+          if (nodeRecord.costSoFar <= nodeCost) continue;
+          nodeHeuristic = nodeRecord.getEstimatedTotalCost() - nodeRecord.costSoFar;
+          break;
+        default:
+          throw new AssertionError("Invalid nodeRecord category: " + nodeRecord.category);
       }
 
       nodeRecord.costSoFar = nodeCost;
-      nodeRecord.connection = connection;
+      nodeRecord.parent = startNode;
 
       addToOpenList(nodeRecord, nodeCost + nodeHeuristic);
     }
   }
 
-  protected void generateConnectionPath(N startNode, GraphPath<Connection<N>> outPath) {
-    while (current.node != startNode) {
-      outPath.add(current.connection);
-      current = nodeRecords[current.connection.getFromNode().getIndex()];
-    }
-    outPath.reverse();
-  }
-
-  protected void generateNodePath(N startNode, GraphPath<N> outPath) {
-    while (current.connection != null) {
+  protected void generateNodePath(Point2 startNode, GraphPath<Point2> outPath) {
+    while (current.parent != null) {
       outPath.add(current.node);
-      current = nodeRecords[current.connection.getFromNode().getIndex()];
+      current = nodeRecords[current.parent.index];
     }
     outPath.add(startNode);
     outPath.reverse();
   }
 
-  protected void addToOpenList(NodeRecord<N> nodeRecord, float estimatedTotalCost) {
+  protected void addToOpenList(NodeRecord nodeRecord, float estimatedTotalCost) {
     openList.add(nodeRecord, estimatedTotalCost);
     nodeRecord.category = OPEN;
     if (metrics != null) {
@@ -176,10 +165,10 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & Cl
     nodeRecords = Arrays.copyOf(nodeRecords, newSize);
   }
 
-  protected NodeRecord<N> getNodeRecord (N node) {
-    int index = node.getIndex();
+  protected NodeRecord getNodeRecord(Point2 node) {
+    int index = node.index;
     if (index >= nodeRecords.length) resize((int) (nodeRecords.length * 1.75f));
-    NodeRecord<N> nr = nodeRecords[index];
+    NodeRecord nr = nodeRecords[index];
     if (nr != null) {
       if (nr.searchId != searchId) {
         nr.category = UNVISITED;
@@ -187,15 +176,15 @@ public class IndexedAStarPathFinder<N extends MapGraph.Point2 & IndexedNode & Cl
       }
       return nr;
     }
-    nr = nodeRecords[index] = new NodeRecord<>();
+    nr = nodeRecords[index] = new NodeRecord();
     nr.node = node;
     nr.searchId = searchId;
     return nr;
   }
 
-  static class NodeRecord<N> extends BinaryHeap.Node {
-    N node;
-    Connection<N> connection;
+  static class NodeRecord extends BinaryHeap.Node {
+    Point2 node;
+    Point2 parent;
     float costSoFar;
     byte category;
     int searchId;

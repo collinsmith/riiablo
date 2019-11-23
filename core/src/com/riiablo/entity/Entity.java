@@ -26,7 +26,8 @@ import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
-import com.riiablo.map.MapGraph;
+import com.riiablo.map.pfa.GraphPath;
+import com.riiablo.map.pfa.Point2;
 import com.riiablo.screen.GameScreen;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.util.EngineUtils;
@@ -261,8 +262,8 @@ public abstract class Entity implements Animation.AnimationListener {
   byte    nextMode = -1;
 
   Vector2 target = new Vector2();
-  MapGraph.MapGraphPath path = new MapGraph.MapGraphPath();
-  Iterator<MapGraph.Point2> targets = Collections.emptyIterator();
+  GraphPath path = new GraphPath();
+  Iterator<Point2> targets = Collections.emptyIterator();
 
   boolean running = false;
   float   walkSpeed = 6;
@@ -688,11 +689,11 @@ public abstract class Entity implements Animation.AnimationListener {
     return target;
   }
 
-  public MapGraph.MapGraphPath path() {
+  public GraphPath path() {
     return path;
   }
 
-  public Iterator<MapGraph.Point2> targets() {
+  public Iterator<Point2> targets() {
     return targets;
   }
 
@@ -721,7 +722,7 @@ public abstract class Entity implements Animation.AnimationListener {
     targets = new Array.ArrayIterator<>(path.nodes);
     targets.next(); // consume src position
     if (targets.hasNext()) {
-      MapGraph.Point2 firstDst = targets.next();
+      Point2 firstDst = targets.next();
       target.set(firstDst.x, firstDst.y);
     } else {
       target.set(position);
@@ -788,7 +789,7 @@ public abstract class Entity implements Animation.AnimationListener {
       traveled += part;
       if (part == targetLen) {
         if (targets.hasNext()) {
-          MapGraph.Point2 next = targets.next();
+          Point2 next = targets.next();
           target.set(next.x, next.y);
         } else {
           break;
