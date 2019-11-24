@@ -507,10 +507,14 @@ public class Engine extends PooledEngine {
     PositionComponent positionComponent = createComponent(PositionComponent.class);
     positionComponent.position.set(position);
 
+    InteractableComponent interactableComponent = createComponent(InteractableComponent.class);
+    interactableComponent.range = 1f;
+
     Entity entity = createEntity("item");
     entity.add(typeComponent);
     entity.add(itemComponent);
     entity.add(positionComponent);
+    entity.add(interactableComponent);
 
     return entity;
   }
