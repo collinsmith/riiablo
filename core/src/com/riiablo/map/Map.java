@@ -707,8 +707,8 @@ public class Map implements Disposable {
     mapGraph.smoothPath(flags, size, path);
   }
 
-  public boolean castRay(Collision<Vector2> dst, Ray<Vector2> ray) {
-    return mapGraph.raycaster.findCollision(dst, ray);
+  public boolean castRay(Ray<Vector2> ray, int flags, int size, Collision<Vector2> dst) {
+    return mapGraph.raycaster.findCollision(ray, flags, size, dst);
   }
 
   public static class Zone {

@@ -8,23 +8,23 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.riiablo.map.pfa.PathFinder;
 import com.riiablo.map.pfa.PathSmoother;
 import com.riiablo.map.pfa.Point2;
-import com.riiablo.map.pfa.SimpleRaycastCollisionDetector;
+import com.riiablo.map.pfa.RaycastCollisionDetector;
 
 public class MapGraph {
   Map map;
   PathSmoother<Point2> smoother;
-  SimpleRaycastCollisionDetector raycaster;
+  RaycastCollisionDetector raycaster;
 
   final Point2 tmpPoint = new Point2();
   final ObjectSet<Point2> identity = new ObjectSet<>();
 
   public MapGraph(Map map) {
     this.map = map;
-    raycaster = new SimpleRaycastCollisionDetector(map);
+    raycaster = new RaycastCollisionDetector(map, this);
     smoother = new PathSmoother<>(raycaster);
   }
 
-  private Point2 getOrCreate(Vector2 src) {
+  public Point2 getOrCreate(Vector2 src) {
     return getOrCreate(tmpPoint.set(src));
   }
 

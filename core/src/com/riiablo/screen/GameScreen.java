@@ -487,7 +487,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         target.set(coords.x, coords.y);
         Ray<Vector2> ray = new Ray<>(position, target);
         Collision<Vector2> collision = new Collision<>(new Vector2(), new Vector2());
-        boolean hit = map.castRay(collision, ray);
+        boolean hit = map.castRay(ray, 0, 0, collision);
         if (hit) {
           if (position.epsilonEquals(collision.point, 1.0f)) {
             /*System.out.println("against wall");
