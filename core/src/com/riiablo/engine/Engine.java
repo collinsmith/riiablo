@@ -49,6 +49,7 @@ import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
 import com.riiablo.widget.Label;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -232,7 +233,7 @@ public class Engine extends PooledEngine {
     labelComponent.actor = createLabel(name);
 
     InteractableComponent interactableComponent = null;
-    if (base.OperateRange > 0) {
+    if (base.OperateRange > 0 && ArrayUtils.contains(base.Selectable, true)) {
       interactableComponent = createComponent(InteractableComponent.class);
       interactableComponent.range = base.OperateRange;
     }

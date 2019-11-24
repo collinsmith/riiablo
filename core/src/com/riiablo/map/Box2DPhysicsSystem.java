@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.component.Box2DComponent;
+import com.riiablo.engine.component.InteractableComponent;
 import com.riiablo.engine.component.ObjectComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.SizeComponent;
@@ -41,6 +42,7 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
   private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
 
   private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
+  private final ComponentMapper<InteractableComponent> interactableComponent = ComponentMapper.getFor(InteractableComponent.class);
   private final Family objectFamily = Family.all(ObjectComponent.class, SizeComponent.class, PositionComponent.class).get();
   private ImmutableArray<Entity> objectEntities;
 
@@ -139,7 +141,7 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
             shape.setAsBox(objectComponent.base.SizeX / 2f, objectComponent.base.SizeY / 2f);
             body.createFixture(shape, 1f);
           } shape.dispose();
-          if (map != null) {
+          if (map != null && !interactableComponent.has(entity)) { // FIXME: need to tune this to allow pathing to entity that's solid
             map.or(positionComponent.position, objectComponent.base.SizeX, objectComponent.base.SizeY, DT1.Tile.FLAG_BLOCK_WALK);
           }
         }
@@ -224,6 +226,7 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
     }
 
     for (Entity entity : objectEntities) {
+      if (interactableComponent.has(entity)) continue; // FIXME: need to tune this to allow pathing to entity that's solid
       PositionComponent positionComponent = this.positionComponent.get(entity);
       ObjectComponent objectComponent = this.objectComponent.get(entity);
       map.or(positionComponent.position, objectComponent.base.SizeX, objectComponent.base.SizeY, DT1.Tile.FLAG_BLOCK_WALK);
