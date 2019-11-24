@@ -117,12 +117,13 @@ public class TouchMovementSystem extends EntitySystem {
       requireRelease = false;
       TargetComponent targetComponent = this.targetComponent.get(src);
       if (targetComponent != null) {
+        Entity target = targetComponent.target;
         Vector2 srcPos = this.positionComponent.get(src).position;
-        Vector2 targetPos = this.positionComponent.get(targetComponent.target).position;
-        InteractableComponent interactableComponent = this.interactableComponent.get(targetComponent.target);
+        Vector2 targetPos = this.positionComponent.get(target).position;
+        InteractableComponent interactableComponent = this.interactableComponent.get(target);
         if (srcPos.dst(targetPos) <= interactableComponent.range) {
-          interactableComponent.interactor.interact(src, targetComponent.target);
           setTarget(src, (Entity) null);
+          interactableComponent.interactor.interact(src, target);
         }
       }
     }

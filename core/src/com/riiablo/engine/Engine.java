@@ -127,11 +127,13 @@ public class Engine extends PooledEngine {
 
   private final InteractableComponent.Interactor objectInteractor;
   private final InteractableComponent.Interactor itemInteractor;
+  private final InteractableComponent.Interactor warpInteractor;
 
   public Engine(ClientScreen gameScreen) {
     super();
     objectInteractor = new ObjectInteractor(gameScreen);
     itemInteractor = new ItemInteractor();
+    warpInteractor = new WarpInteractor();
   }
 
   @Override
@@ -428,6 +430,7 @@ public class Engine extends PooledEngine {
 
     InteractableComponent interactableComponent = createComponent(InteractableComponent.class);
     interactableComponent.range = 3.0f;
+    interactableComponent.interactor = warpInteractor;
 
     Entity entity = createEntity("warp");
     entity.add(typeComponent);
