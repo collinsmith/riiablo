@@ -64,8 +64,8 @@ import com.riiablo.util.DebugUtils;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-public class MapViewerTool extends ApplicationAdapter {
-  private static final String TAG = "MapViewerTool";
+public class MapViewer extends ApplicationAdapter {
+  private static final String TAG = "MapViewer";
 
   public static void main(String[] args) {
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -75,7 +75,7 @@ public class MapViewerTool extends ApplicationAdapter {
     config.width = 1280; // 1280
     config.height = 720;
     config.foregroundFPS = config.backgroundFPS = 1000;
-    MapViewerTool client = new MapViewerTool(args);
+    MapViewer client = new MapViewer(args);
     new LwjglApplication(client, config);
   }
 
@@ -120,11 +120,11 @@ public class MapViewerTool extends ApplicationAdapter {
   int act;
   int diff;
 
-  MapViewerTool(String[] args) {
+  MapViewer(String[] args) {
     this(args[0], NumberUtils.toInt(args[1]), NumberUtils.toInt(args[2]), NumberUtils.toInt(args[3]));
   }
 
-  MapViewerTool(String home, int seed, int act, int diff) {
+  MapViewer(String home, int seed, int act, int diff) {
     this.home = new FileHandle(home);
     this.seed = seed;
     this.act = act;
