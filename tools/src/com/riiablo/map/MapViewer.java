@@ -52,6 +52,7 @@ import com.riiablo.engine.system.WarpSystem;
 import com.riiablo.engine.system.debug.Box2DDebugRenderSystem;
 import com.riiablo.engine.system.debug.PathDebugSystem;
 import com.riiablo.engine.system.debug.PathfindDebugSystem;
+import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.COFLoader;
@@ -114,6 +115,7 @@ public class MapViewer extends ApplicationAdapter {
   boolean drawRawPathNodes = true;
   boolean drawBox2D = true;
   boolean drawDebug = true;
+  final StringBuilder builder = new StringBuilder(256);
 
   FileHandle home;
   int seed;
@@ -210,6 +212,8 @@ public class MapViewer extends ApplicationAdapter {
           case Input.Buttons.RIGHT:
             pathStart.setZero();
             pathEnd.setZero();
+            generatedPath.clear();
+            smoothedPath.clear();
             break;
           case Input.Buttons.LEFT:
             mapRenderer.iso.agg(pathStart.set(screenX, screenY)).unproject().toWorld();
@@ -516,17 +520,33 @@ public class MapViewer extends ApplicationAdapter {
     batch.begin();
     batch.setShader(null);
 
+    final int textHeight = 16;
+    final String SEPARATOR = "  |  ";
+    builder.setLength(0);
+    String details = builder
+        .append("F1 crosshair").append(SEPARATOR)
+        .append("F10 path nodes").append(SEPARATOR)
+        .append("F11 box2d").append(SEPARATOR)
+        .append("F12 debug")
+        .toString();
+    batch.setBlendMode(BlendMode.SOLID, Color.BLACK);
+    batch.draw(Riiablo.textures.modal, 0, height - textHeight, width, textHeight);
+    font.draw(batch, details, 2, height - 2);
+
     mapRenderer.iso.agg(tmpVec2a.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld().toTile();
-    String str = new StringBuilder()
+    builder.setLength(0);
+    String status = builder
         .append(Gdx.graphics.getFramesPerSecond() + " FPS").append('\n')
         .append(Gdx.app.getJavaHeap() / (1 << 20) + " MB").append('\n')
-        .append((int) tmpVec2a.x + ", " + (int) tmpVec2a.y).append('\n')
+        .append("(" + (int) tmpVec2a.x + ", " + (int) tmpVec2a.y + ")").append('\n')
         .append("(" + x + ", " + y + ")").append('\n')
         .append("Grid (TAB) " + (RenderSystem.RENDER_DEBUG_GRID == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_GRID)).append('\n')
         .append("Walkable (~) " + (RenderSystem.RENDER_DEBUG_WALKABLE == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_WALKABLE)).append('\n')
         .append("Zoom " + String.format("%.2f", mapRenderer.zoom()))
         .toString();
-    font.draw(batch, str, 0, height);
+    batch.setBlendMode(BlendMode.SOLID, Color.BLACK);
+    batch.draw(Riiablo.textures.modal, 0, height - 140, 120, 140 - textHeight);
+    font.draw(batch, status, 0, height - textHeight);
 
     batch.end();
     batch.setShader(Riiablo.shader);
