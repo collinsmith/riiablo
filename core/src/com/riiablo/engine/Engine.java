@@ -47,6 +47,7 @@ import com.riiablo.item.Item;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
+import com.riiablo.screen.ClientScreen;
 import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -124,8 +125,13 @@ public class Engine extends PooledEngine {
     return label;
   }
 
-  public Engine() {
+  private final InteractableComponent.Interactor objectInteractor;
+  private final InteractableComponent.Interactor itemInteractor;
+
+  public Engine(ClientScreen gameScreen) {
     super();
+    objectInteractor = new ObjectInteractor(gameScreen);
+    itemInteractor = new ItemInteractor();
   }
 
   @Override
@@ -236,6 +242,7 @@ public class Engine extends PooledEngine {
     if (base.OperateRange > 0 && ArrayUtils.contains(base.Selectable, true)) {
       interactableComponent = createComponent(InteractableComponent.class);
       interactableComponent.range = base.OperateRange;
+      interactableComponent.interactor = objectInteractor;
     }
 
     SizeComponent sizeComponent = createComponent(SizeComponent.class);
@@ -505,11 +512,17 @@ public class Engine extends PooledEngine {
     itemComponent.item = item;
     itemComponent.flippyDescriptor = flippyDescriptor;
 
+    /**
+     * FIXME: at least some items appear to be about a half subtile too high after their drop
+     *        animations finish -- is this expected? or some issue with offsets? It's happening with
+     *        runes -- but keys are placed correctly and other items I've tried look fine.
+     */
     PositionComponent positionComponent = createComponent(PositionComponent.class);
     positionComponent.position.set(position);
 
     InteractableComponent interactableComponent = createComponent(InteractableComponent.class);
     interactableComponent.range = 1f;
+    interactableComponent.interactor = itemInteractor;
 
     Entity entity = createEntity("item");
     entity.add(typeComponent);
