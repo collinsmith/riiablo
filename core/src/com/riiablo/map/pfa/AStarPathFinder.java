@@ -54,13 +54,6 @@ public class AStarPathFinder implements PathFinder {
   private int searchId;
   private final Array<Point2> neighbors = new Array<>(false, 8);
 
-  private int size;
-
-  public AStarPathFinder setSize(int size) {
-    this.size = size;
-    return this;
-  }
-
   public AStarPathFinder(MapGraph graph) {
     this(graph, false);
   }
@@ -86,7 +79,7 @@ public class AStarPathFinder implements PathFinder {
       if (current == endNode) return true;
       visitChildren(current, endNode, flags, size);
       if (metrics != null) metrics.visitedNodes++;
-    } while (openList.size > 0 && limit++ < 900);
+    } while (openList.size > 0 && limit++ < 300);
     return false;
   }
 
