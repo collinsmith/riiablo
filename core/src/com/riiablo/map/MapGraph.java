@@ -28,7 +28,7 @@ public class MapGraph {
     return getOrCreate(tmpPoint.set(src));
   }
 
-  private Point2 getOrCreate(int x, int y) {
+  public Point2 getOrCreate(int x, int y) {
     return getOrCreate(tmpPoint.set(x, y));
   }
 
@@ -74,9 +74,14 @@ public class MapGraph {
     return neighbors;
   }
 
-  private void tryNeighbor(Array<Point2> neighbors, int flags, int x, int y) {
-    if (map.flags(x, y) != 0) return;
+  public boolean tryNeighbor(Array<Point2> neighbors, int flags, int x, int y) {
+    if (!isWalkable(x, y, flags)) return false;
     Point2 point = getOrCreate(x, y);
     neighbors.add(point);
+    return true;
+  }
+
+  public boolean isWalkable(int x, int y, int flags) {
+    return map.flags(x, y) == 0;
   }
 }

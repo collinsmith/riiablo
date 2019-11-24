@@ -149,6 +149,10 @@ size:
     return x == other.x && y == other.y;
   }
 
+  public boolean equals(int x, int y) {
+    return x == this.x && y == this.y;
+  }
+
   @Override
   public String toString() {
     return "(" + x + ", " + y + ")";
