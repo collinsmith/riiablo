@@ -64,21 +64,25 @@ public class PathfindDebugSystem extends EntitySystem {
       PositionComponent positionComponent = this.positionComponent.get(entity);
       if (!renderer.withinRadius(positionComponent.position)) continue;
       PathfindComponent pathfindComponent = this.pathfindComponent.get(entity);
-      shapes.setProjectionMatrix(iso.combined);
-      shapes.begin(ShapeRenderer.ShapeType.Filled); {
-        drawDebugShapes(pathfindComponent);
-      } shapes.end();
-
-      batch.begin(); {
-        batch.setShader(null);
-        drawDebugBatch(pathfindComponent);
-      } batch.end();
-      batch.setShader(Riiablo.shader);
+      drawDebugPath(pathfindComponent.path, Color.PURPLE, true);
     }
   }
 
-  private void drawDebugShapes(PathfindComponent pathfindComponent) {
-    GraphPath path = pathfindComponent.path;
+  public void drawDebugPath(GraphPath path, Color lineColor, boolean drawNodes) {
+    shapes.setProjectionMatrix(iso.combined);
+    shapes.begin(ShapeRenderer.ShapeType.Filled); {
+      drawDebugShapes(path, lineColor, drawNodes);
+    } shapes.end();
+
+    if (!drawNodes) return;
+    batch.begin(); {
+      batch.setShader(null);
+      drawDebugBatch(path);
+    } batch.end();
+    batch.setShader(Riiablo.shader);
+  }
+
+  private void drawDebugShapes(GraphPath path, Color lineColor, boolean drawNodes) {
     Point2 point;
 
     tmpVec2a.setZero();
@@ -87,10 +91,11 @@ public class PathfindDebugSystem extends EntitySystem {
       point = path.get(i);
       iso.toScreen(point.x, point.y, tmpVec2b);
       if (tmpVec2a.isZero()) continue;
-      shapes.setColor(Color.PURPLE);
+      shapes.setColor(lineColor);
       shapes.rectLine(tmpVec2a, tmpVec2b, 2);
     }
 
+    if (!drawNodes) return;
     for (int i = 0; i < path.getCount(); i++) {
       point = path.get(i);
       iso.toScreen(point.x, point.y, tmpVec2a).sub(HALF_BOX, HALF_BOX);
@@ -99,8 +104,7 @@ public class PathfindDebugSystem extends EntitySystem {
     }
   }
 
-  private void drawDebugBatch(PathfindComponent pathfindComponent) {
-    GraphPath path = pathfindComponent.path;
+  private void drawDebugBatch(GraphPath path) {
     Point2 point;
 
     for (int i = 0; i < path.getCount(); i++) {

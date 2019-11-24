@@ -31,4 +31,12 @@ public class DebugUtils {
   public static void drawDiamond(ShapeRenderer shapes, float x, float y, int width, int height) {
     drawDiamond2(shapes, x - width / 2, y - height / 2, width, height);
   }
+
+  public static void drawEllipse2(ShapeRenderer shapes, float x, float y, int width, int height) {
+    shapes.ellipse(x - width / 2, y - height / 2, width, height);
+  }
+
+  public static void drawEllipse(ShapeRenderer shapes, float x, float y, int width, int height) {
+    drawEllipse2(shapes, x - width / 2, y - height / 2, width, height);
+  }
 }
