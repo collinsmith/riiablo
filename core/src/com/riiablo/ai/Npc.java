@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
+import com.riiablo.audio.Audio;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.component.AngleComponent;
@@ -145,6 +146,19 @@ public class Npc extends AI {
         .build();
     }
 
+    // TODO: need some kind of static method that can take in some state params, e.g., character
+    //       class, player mode and spit out the proper file index.
+    //       I.e., akara_act1_intro -> akara_act1_intro_sor automatically if it exists
+    String name = Npc.this.name.toLowerCase();
+    String id = name + "_greeting_1";
+    Audio.Instance instance = Riiablo.audio.play(id, false);
+    if (instance == null) {
+      id = name + "_greeting_inactive_1";
+      Riiablo.audio.play(id, false);
+    }
+
+    actionTimer = Float.POSITIVE_INFINITY;
+    actionPerformed = false;
     Riiablo.game.setMenu(menu, entity);
     interactableComponent.get(entity).count++;
   }
