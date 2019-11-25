@@ -43,7 +43,7 @@ public class LabelSystem extends IteratingSystem {
     tmpVec2.add(labelComponent.offset);
 
     Actor actor = labelComponent.actor;
-    actor.setPosition(tmpVec2.x, tmpVec2.y, Align.center);
+    actor.setPosition(tmpVec2.x, tmpVec2.y, Align.center | Align.bottom);
     labels.add(actor);
   }
 

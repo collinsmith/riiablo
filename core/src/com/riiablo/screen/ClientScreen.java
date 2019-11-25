@@ -37,6 +37,7 @@ import com.riiablo.cvar.CvarStateAdapter;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.AngleComponent;
+import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.VelocityComponent;
@@ -91,6 +92,7 @@ import com.riiablo.screen.panel.SpellsQuickPanel;
 import com.riiablo.screen.panel.StashPanel;
 import com.riiablo.screen.panel.WaygatePanel;
 import com.riiablo.server.PipedSocket;
+import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
 
 public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadable {
@@ -155,6 +157,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
   public SpellsQuickPanel spellsQuickPanelR;
 
   Actor details;
+  NpcMenu menu;
 
   boolean firstRender = true;
 
@@ -729,6 +732,36 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       tmpVec2.x = MathUtils.clamp(tmpVec2.x, 0, stage.getWidth()  - details.getWidth());
       tmpVec2.y = MathUtils.clamp(tmpVec2.y, 0, stage.getHeight() - details.getHeight());
       details.setPosition(tmpVec2.x, tmpVec2.y);
+    }
+  }
+
+  public NpcMenu getMenu() {
+    return menu;
+  }
+
+  public void setMenu(NpcMenu menu, Entity owner) {
+    if (this.menu == menu) return;
+    if (this.menu != null) {
+      // FIXME: Validate that cancel is only called if upnav, downnav -- looks good at a glance
+      if (menu == null || menu.getParent() != this.menu) {
+        NpcMenu parent = this.menu;
+        do parent.cancel(); while ((parent = parent.getParent()) != menu);
+      }
+      stage.getRoot().removeActor(this.menu);
+    }
+
+    this.menu = menu;
+    if (menu != null && owner != null) {
+      stage.addActor(menu);
+
+      LabelComponent labelComponent = owner.getComponent(LabelComponent.class);
+      PositionComponent positionComponent = owner.getComponent(PositionComponent.class);
+      iso.toScreen(tmpVec2.set(positionComponent.position));
+      tmpVec2.add(labelComponent.offset);
+      iso.project(tmpVec2);
+      tmpVec2.y = iso.viewportHeight - tmpVec2.y; // stage coords expect y-down coords
+      stage.screenToStageCoordinates(tmpVec2);
+      menu.setPosition(tmpVec2.x, tmpVec2.y, Align.center | Align.bottom);
     }
   }
 }

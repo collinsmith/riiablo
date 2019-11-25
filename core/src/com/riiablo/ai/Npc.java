@@ -1,17 +1,15 @@
 package com.riiablo.ai;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.IntSet;
 import com.riiablo.Riiablo;
-import com.riiablo.audio.Audio;
-import com.riiablo.entity.Monster;
-import com.riiablo.map.DS1;
-import com.riiablo.screen.GameScreen;
-import com.riiablo.widget.NpcDialogBox;
+import com.riiablo.codec.excel.MonStats;
+import com.riiablo.engine.component.AngleComponent;
+import com.riiablo.engine.component.MonsterComponent;
+import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.widget.NpcMenu;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -32,39 +30,33 @@ public class Npc extends AI {
     HIRERERS.addAll(150);
   }
 
+  final Vector2 tmpVec2 = new Vector2();
+
   int targetId = ArrayUtils.INDEX_NOT_FOUND;
   float actionTimer = 0;
   boolean actionPerformed = false;
   NpcMenu menu;
 
-  public Npc(Monster entity) {
+  String name;
+  MonStats.Entry monstats;
+
+  public Npc(Entity entity) {
     super(entity);
+    monstats = entity.getComponent(MonsterComponent.class).monstats;
+    name = monstats.NameStr.equalsIgnoreCase("dummy") ? monstats.Id : Riiablo.string.lookup(monstats.NameStr);
   }
 
   @Override
-  public void interact(final GameScreen gameScreen) {
-    // TODO: need some kind of static method that can take in some state params, e.g., character
-    //       class, player mode and spit out the proper file index.
-    //       I.e., akara_act1_intro -> akara_act1_intro_sor automatically if it exists
-    String name = entity.name().toLowerCase();
-    String id = name + "_greeting_1";
-    Audio.Instance instance = Riiablo.audio.play(id, false);
-    if (instance == null) {
-      id = name + "_greeting_inactive_1";
-      Riiablo.audio.play(id, false);
-    }
-
-    actionTimer = Float.POSITIVE_INFINITY;
-    actionPerformed = false;
-    entity.setMode(Monster.MODE_NU);
-    entity.target().set(entity.position());
-    entity.lookAt(gameScreen.player);
-    entity.update(0);
+  public void interact(Entity src, Entity entity) {
+    Vector2 srcPos = src.getComponent(PositionComponent.class).position;
+    Vector2 entityPos = entity.getComponent(PositionComponent.class).position;
+    tmpVec2.set(srcPos).sub(entityPos);
+    entity.getComponent(AngleComponent.class).target.set(tmpVec2).nor();
 
     if (menu == null) {
-      menu = new NpcMenu(entity, gameScreen, entity.name());
+      menu = new NpcMenu(entity, name);
 
-      final int entType = entity.monstats.hcIdx;
+      final int entType = monstats.hcIdx;
       if (TALKERS.contains(entType)) {
         // talk
         menu.addItem(3381, new NpcMenu(3381)
@@ -72,28 +64,12 @@ public class Npc extends AI {
             .addItem(3399, new ClickListener() {
               @Override
               public void clicked(InputEvent event, float x, float y) {
-                String name = entity.name().toLowerCase();
-                String id = name + "_act1_intro";
-                gameScreen.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
-                  @Override
-                  public void onCompleted(NpcDialogBox d) {
-                    gameScreen.setDialog(null);
-                  }
-                }));
               }
             })
             // gossip
             .addItem(3395, new ClickListener() {
               @Override
               public void clicked(InputEvent event, float x, float y) {
-                String name = entity.name().toLowerCase();
-                String id = name + "_act1_gossip_1";
-                gameScreen.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
-                  @Override
-                  public void onCompleted(NpcDialogBox d) {
-                    gameScreen.setDialog(null);
-                  }
-                }));
               }
             })
             .addCancel(null)
@@ -118,82 +94,12 @@ public class Npc extends AI {
           @Override
           public void onCancelled() {
             actionTimer = 4;
-            entity.target().setZero();
+            //entity.target().setZero();
           }
         })
         .build();
     }
 
-    gameScreen.setMenu(menu, entity);
-  }
-
-  public void update(float delta) {
-    Vector2 target = entity.target();
-    if (target.isZero() || (entity.position().epsilonEquals(target) && !entity.targets().hasNext())) {
-      DS1.Path path = entity.object.path;
-      if (targetId == ArrayUtils.INDEX_NOT_FOUND) {
-        targetId = 0;
-      } else if (actionTimer > 0) {
-        actionTimer -= delta;
-        actionPerformed = actionTimer < 0;
-        // TODO: need gameScreen reference
-        //if (entity.position().dst(gameScreen.player.position()) <= 10) {
-        //  entity.lookAt(gameScreen.player);
-        //}
-        return;
-      } else if (actionPerformed) {
-        actionPerformed = false;
-        targetId = MathUtils.random(path.numPoints - 1);
-      } else {
-        entity.setMode(Monster.MODE_NU);
-        actionTimer = action(path.points[targetId].action);
-        actionPerformed = actionTimer < 0;
-        return;
-      }
-
-      //entity.setMode("WL");
-      DS1.Path.Point dst = path.points[targetId];
-      entity.setPath(entity.map, new Vector2(dst.x, dst.y));
-    }
-  }
-
-  private float action(int action) {
-    // path.actions == look at nearest player, chill, hold time, quest?
-    // 1 = 4 second hold
-    // 2 = 6 second hold
-    // 3 = 4 second hold
-    // 4 = special action at end of 10 second warriv jamella spell
-    // 4 = special action at end of 8  second charsi jamella book
-    // 4? fara = 5 seconds
-    // 4 == S1
-    // 5 == S2
-    // etc
-
-    switch (action) {
-      case 1:
-      case 3:
-        return 4;
-      case 2:
-        return 6;
-      // TODO: play anim only once, after timer, ending the action
-      case 4:
-        entity.setMode(Monster.MODE_S1);
-        return 10;
-      case 5:
-        entity.setMode(Monster.MODE_S2);
-        return 10;
-      default:
-        Gdx.app.error(TAG, "Unknown action index: " + action);
-        return 4;
-    }
-  }
-
-  @Override
-  public String getState() { // TODO: proper NPC state machine -- PATH, IDLE, S1/S2, INTERACTING
-    if (actionTimer == Float.POSITIVE_INFINITY) {
-      return "INTERACT";
-    } else {
-      return "";
-    }
+    Riiablo.game.setMenu(menu, entity);
   }
 }

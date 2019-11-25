@@ -101,7 +101,9 @@ public class TouchMovementSystem extends EntitySystem {
       // exiting dialog should block all input until button is released to prevent menu from closing the following frame
 
       // dialog box -- block input
-      // menu
+      if (Riiablo.game.getMenu() != null) {
+        Riiablo.game.setMenu(null, null);
+      }
 
       // set target entity -- unsets and interacts when within range
       boolean touched = touchDown(src);

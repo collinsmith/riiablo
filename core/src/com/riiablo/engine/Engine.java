@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.CharData;
 import com.riiablo.Riiablo;
+import com.riiablo.ai.AI;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Levels;
@@ -20,6 +21,7 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Objects;
 import com.riiablo.codec.util.BBox;
+import com.riiablo.engine.component.AIComponent;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
@@ -316,6 +318,8 @@ public class Engine extends PooledEngine {
     PositionComponent positionComponent = createComponent(PositionComponent.class);
     positionComponent.position.set(x, y);
 
+    AngleComponent angleComponent = createComponent(AngleComponent.class);
+
     VelocityComponent velocityComponent = createComponent(VelocityComponent.class);
     velocityComponent.walkSpeed = monstats.Velocity;
     velocityComponent.runSpeed = monstats.Run;
@@ -350,6 +354,7 @@ public class Engine extends PooledEngine {
     if (interactableComponent != null) entity.add(interactableComponent);
     entity.add(sizeComponent);
     entity.add(box2DComponent);
+    entity.add(angleComponent);
 
     labelComponent.actor.setUserObject(entity);
 
@@ -358,6 +363,11 @@ public class Engine extends PooledEngine {
       pathComponent.path = object.path;
       entity.add(pathComponent);
     }
+
+    AIComponent aiComponent = createComponent(AIComponent.class);
+    aiComponent.ai = AI.findAI(entity, monsterComponent);
+    if (interactableComponent != null) interactableComponent.interactor = aiComponent.ai;
+    entity.add(aiComponent);
 
     return entity;
   }
