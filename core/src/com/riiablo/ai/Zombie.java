@@ -128,7 +128,6 @@ public class Zombie extends AI {
     }
   }
 
-  // FIXME: some actions must be too close to the border -- path finding seems to be tossng them
   private void setPath(Vector2 target) {
     if (target == null) {
       entity.remove(PathfindComponent.class);
