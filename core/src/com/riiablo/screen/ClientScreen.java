@@ -365,7 +365,9 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     engine.addSystem(new IdSystem());
 
     engine.addSystem(new CollisionSystem());
-    engine.addSystem(new TouchMovementSystem(iso, renderer));
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+      engine.addSystem(new TouchMovementSystem(iso, renderer));
+    }
 
     engine.addSystem(new PathfindSystem());
     engine.addSystem(new Box2DBodySystem());
@@ -431,7 +433,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
     stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
     Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, true);
-    {
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
       EntitySystem system;
       if ((system = engine.getSystem(TouchMovementSystem.class)) != null) system.setProcessing(!DEBUG_TOUCHPAD && hit == null);
     }
