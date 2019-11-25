@@ -14,6 +14,7 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.CofComponent;
+import com.riiablo.engine.component.InteractableComponent;
 import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.PathComponent;
 import com.riiablo.engine.component.PathfindComponent;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 public class Npc extends AI {
   private static final String TAG = "Npc";
 
+  private static final ComponentMapper<InteractableComponent> interactableComponent = ComponentMapper.getFor(InteractableComponent.class);
   private static final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
   private static final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
   private static final ComponentMapper<PathfindComponent> pathfindComponent = ComponentMapper.getFor(PathfindComponent.class);
@@ -58,8 +60,6 @@ public class Npc extends AI {
 
   final Vector2 tmpVec2 = new Vector2();
 
-  // TODO: count active interactions and remain idle while positive
-
   static final int NULL_TARGET = ArrayUtils.INDEX_NOT_FOUND;
   int targetId = NULL_TARGET;
   float actionTimer = 0;
@@ -77,7 +77,7 @@ public class Npc extends AI {
   }
 
   @Override
-  public void interact(Entity src, Entity entity) {
+  public void interact(Entity src, final Entity entity) {
     entity.remove(PathfindComponent.class);
     velocityComponent.get(entity).velocity.setZero();
     lookAt(src);
@@ -138,18 +138,24 @@ public class Npc extends AI {
       menu.addCancel(new NpcMenu.CancellationListener() {
           @Override
           public void onCancelled() {
+            interactableComponent.get(entity).count--;
             actionTimer = 4;
-            //entity.target().setZero();
           }
         })
         .build();
     }
 
     Riiablo.game.setMenu(menu, entity);
+    interactableComponent.get(entity).count++;
   }
 
   @Override
   public void update(float delta) {
+    if (interactableComponent.get(entity).count > 0) {
+      state = "INTERACTING";
+      return;
+    }
+
     PathfindComponent pathfindComponent = this.pathfindComponent.get(entity);
     if (pathfindComponent == null) {
       PathComponent pathComponent = this.pathComponent.get(entity);
