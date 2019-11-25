@@ -122,8 +122,9 @@ public class TouchMovementSystem extends EntitySystem {
         Entity target = targetComponent.target;
         Vector2 srcPos = this.positionComponent.get(src).position;
         Vector2 targetPos = this.positionComponent.get(target).position;
+        // not interactable -> attacking? check weapon range to auto attack or cast spell
         InteractableComponent interactableComponent = this.interactableComponent.get(target);
-        if (srcPos.dst(targetPos) <= interactableComponent.range) {
+        if (interactableComponent != null && srcPos.dst(targetPos) <= interactableComponent.range) {
           setTarget(src, (Entity) null);
           interactableComponent.interactor.interact(src, target);
         }
