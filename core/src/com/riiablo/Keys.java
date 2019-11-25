@@ -35,6 +35,7 @@ public class Keys {
   private Keys() {}
 
   public static final MappedKey Console = new MappedKey("Console", "console", Input.Keys.GRAVE);
+  public static final MappedKey DebugMode = new MappedKey("Debug Mode", "debug", Input.Keys.F12);
   public static final MappedKey Esc = new MappedKey("Esc", "esc", Input.Keys.ESCAPE, Input.Keys.BACK);
   public static final MappedKey Inventory = new MappedKey("Inventory", "inventory", Input.Keys.I, Input.Keys.B);
   public static final MappedKey Character = new MappedKey("Character", "character", Input.Keys.C, Input.Keys.A);

@@ -111,6 +111,13 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
   Stage stage;
   Viewport viewport;
+  boolean isDebug;
+  MappedKeyStateAdapter debugKeyListener = new MappedKeyStateAdapter() {
+    @Override
+    public void onPressed(MappedKey key, int keycode) {
+      isDebug = !isDebug;
+    }
+  };
 
   Engine engine;
   RenderSystem renderer;
@@ -483,7 +490,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
     batch.end();
 
-    if (Gdx.app.getType() != Application.ApplicationType.Android) {
+    if (isDebug) {
       ShapeRenderer shapes = Riiablo.shapes;
       shapes.identity();
       shapes.setProjectionMatrix(iso.combined);
@@ -550,6 +557,8 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
   @Override
   public void show() {
+    isDebug = DEBUG && Gdx.app.getType() == Application.ApplicationType.Desktop;
+    Keys.DebugMode.addStateListener(debugKeyListener);
     Keys.Esc.addStateListener(mappedKeyStateListener);
     Keys.Enter.addStateListener(mappedKeyStateListener);
     Keys.Inventory.addStateListener(mappedKeyStateListener);
@@ -640,6 +649,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
   @Override
   public void hide() {
+    Keys.DebugMode.removeStateListener(debugKeyListener);
     Keys.Esc.removeStateListener(mappedKeyStateListener);
     Keys.Enter.removeStateListener(mappedKeyStateListener);
     Keys.Inventory.removeStateListener(mappedKeyStateListener);
