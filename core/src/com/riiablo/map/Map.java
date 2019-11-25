@@ -421,6 +421,10 @@ public class Map implements Disposable {
                 int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
                 entity.position().set(px, py);
                 Riiablo.engine.add(entity);
+                if (Riiablo.engine2 != null) {
+                  com.badlogic.ashley.core.Entity e = Riiablo.engine2.createMonster(mapRef, zone, monster, px, py);
+                  Riiablo.engine2.addEntity(e);
+                }
               }
             }
           }

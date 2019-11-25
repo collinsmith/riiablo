@@ -270,6 +270,7 @@ public class Engine extends PooledEngine {
     return entity;
   }
 
+
   private Entity createMonster(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
     String id = Riiablo.files.obj.getType1(ds1.getAct(), object.id);
     MonStats.Entry monstats = Riiablo.files.monstats.get(id);
@@ -278,6 +279,23 @@ public class Engine extends PooledEngine {
       return null;
     }
 
+    DS1Component ds1Component = createComponent(DS1Component.class);
+    ds1Component.ds1 = ds1;
+    ds1Component.object = object;
+
+    Entity entity = createMonster(map, zone, monstats, x, y);
+    entity.add(ds1Component);
+
+    if (object != null && object.path != null) {
+      PathComponent pathComponent = createComponent(PathComponent.class);
+      pathComponent.path = object.path;
+      entity.add(pathComponent);
+    }
+
+    return entity;
+  }
+
+  public Entity createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
     MonStats2.Entry monstats2 = Riiablo.files.monstats2.get(monstats.MonStatsEx);
 
     String name = monstats.NameStr.equalsIgnoreCase("dummy") ? monstats.Id : Riiablo.string.lookup(monstats.NameStr);
@@ -289,10 +307,6 @@ public class Engine extends PooledEngine {
     MapComponent mapComponent = createComponent(MapComponent.class);
     mapComponent.map = map;
     mapComponent.zone = zone;
-
-    DS1Component ds1Component = createComponent(DS1Component.class);
-    ds1Component.ds1 = ds1;
-    ds1Component.object = object;
 
     TypeComponent typeComponent = createComponent(TypeComponent.class);
     typeComponent.type = TypeComponent.Type.MON;
@@ -354,7 +368,6 @@ public class Engine extends PooledEngine {
     entity.add(velocityComponent);
     entity.add(movementModeComponent);
     entity.add(mapComponent);
-    entity.add(ds1Component);
     entity.add(monsterComponent);
     entity.add(labelComponent);
     if (interactableComponent != null) entity.add(interactableComponent);
@@ -363,12 +376,6 @@ public class Engine extends PooledEngine {
     entity.add(angleComponent);
 
     labelComponent.actor.setUserObject(entity);
-
-    if (object != null && object.path != null) {
-      PathComponent pathComponent = createComponent(PathComponent.class);
-      pathComponent.path = object.path;
-      entity.add(pathComponent);
-    }
 
     AIComponent aiComponent = createComponent(AIComponent.class);
     aiComponent.ai = AI.findAI(entity, monsterComponent);
