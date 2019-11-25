@@ -19,7 +19,7 @@ import com.riiablo.engine.component.TypeComponent;
 public class CofLoaderSystem extends IteratingSystem {
   private static final String TAG = "CofLoaderSystem";
 
-  private static final boolean DEBUG       = true;
+  private static final boolean DEBUG       = !true;
   private static final boolean DEBUG_DIRTY = DEBUG && true;
 
   private static final String[] COMPOSITE = {

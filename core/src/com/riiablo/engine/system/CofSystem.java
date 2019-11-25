@@ -15,7 +15,7 @@ import com.riiablo.engine.component.TypeComponent;
 public class CofSystem extends IteratingSystem {
   private static final String TAG = "CofSystem";
 
-  private static final boolean DEBUG       = true;
+  private static final boolean DEBUG       = !true;
   private static final boolean DEBUG_COF   = DEBUG && true;
 
   private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);

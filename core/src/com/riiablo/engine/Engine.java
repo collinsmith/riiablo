@@ -324,6 +324,11 @@ public class Engine extends PooledEngine {
     velocityComponent.walkSpeed = monstats.Velocity;
     velocityComponent.runSpeed = monstats.Run;
 
+    MovementModeComponent movementModeComponent = createComponent(MovementModeComponent.class);
+    movementModeComponent.NU = Monster.MODE_NU;
+    movementModeComponent.WL = Monster.MODE_WL;
+    movementModeComponent.RN = Monster.MODE_RN;
+
     LabelComponent labelComponent = createComponent(LabelComponent.class);
     labelComponent.offset.y = monstats2.pixHeight;
     labelComponent.actor = createLabel(name);
@@ -347,6 +352,7 @@ public class Engine extends PooledEngine {
     entity.add(boxComponent);
     entity.add(positionComponent);
     entity.add(velocityComponent);
+    entity.add(movementModeComponent);
     entity.add(mapComponent);
     entity.add(ds1Component);
     entity.add(monsterComponent);

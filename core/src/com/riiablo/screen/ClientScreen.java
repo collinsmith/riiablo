@@ -34,6 +34,7 @@ import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.D2S;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
+import com.riiablo.engine.AISystem;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.AngleComponent;
@@ -369,6 +370,8 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       engine.addSystem(new TouchMovementSystem(iso, renderer));
     }
 
+    engine.addSystem(new AISystem());
+
     engine.addSystem(new PathfindSystem());
     engine.addSystem(new Box2DBodySystem());
     engine.addSystem(new Box2DPhysicsSystem(1 / 60f));
@@ -481,6 +484,8 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
             .setLength((player.flags & Flags.RUNNING) == Flags.RUNNING
                 ? velocityComponent.runSpeed : velocityComponent.walkSpeed);
         //playerBody.setLinearVelocity(velocityComponent.velocity);
+
+        setMenu(null, null);
       }
     }
 
@@ -498,6 +503,8 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     for (Actor label : labels) {
       label.draw(batch, 1);
     }
+
+    //if (menu != null) menu.draw(batch, 1);
 
     batch.end();
 
@@ -741,6 +748,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     return menu;
   }
 
+  // TODO: notify menu open/close to set AI for owner to not move
   public void setMenu(NpcMenu menu, Entity owner) {
     if (this.menu == menu) return;
     if (this.menu != null) {
