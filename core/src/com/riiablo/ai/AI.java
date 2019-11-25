@@ -1,5 +1,6 @@
 package com.riiablo.ai;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.engine.component.InteractableComponent;
@@ -25,14 +26,17 @@ public abstract class AI implements InteractableComponent.Interactor {
     }
   }
 
+  private static final ComponentMapper<MonsterComponent> monsterComponents = ComponentMapper.getFor(MonsterComponent.class);
+
 //  protected final float SLEEP;
 //  protected final int[] params;
   protected Entity entity;
+  protected MonsterComponent monsterComponent;
   protected String monsound;
 
   public AI(Entity entity) {
     this.entity = entity;
-
+    monsterComponent = monsterComponents.get(entity);
 //    // Special case for Idle AI -- TODO: fix Idle AI to remove this special case
 //    if (entity == null) {
 //      SLEEP = Float.POSITIVE_INFINITY;

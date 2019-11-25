@@ -1,5 +1,6 @@
 package com.riiablo.ai;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -8,7 +9,6 @@ import com.badlogic.gdx.utils.IntSet;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.component.AngleComponent;
-import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.widget.NpcMenu;
 
@@ -16,6 +16,9 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
+
+  private static final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
+  private static final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
 
   static final IntSet TALKERS    = new IntSet();
   static final IntSet REPAIRERS  = new IntSet();
@@ -42,16 +45,16 @@ public class Npc extends AI {
 
   public Npc(Entity entity) {
     super(entity);
-    monstats = entity.getComponent(MonsterComponent.class).monstats;
+    monstats = monsterComponent.monstats;
     name = monstats.NameStr.equalsIgnoreCase("dummy") ? monstats.Id : Riiablo.string.lookup(monstats.NameStr);
   }
 
   @Override
   public void interact(Entity src, Entity entity) {
-    Vector2 srcPos = src.getComponent(PositionComponent.class).position;
-    Vector2 entityPos = entity.getComponent(PositionComponent.class).position;
+    Vector2 srcPos = positionComponent.get(src).position;
+    Vector2 entityPos = positionComponent.get(entity).position;
     tmpVec2.set(srcPos).sub(entityPos);
-    entity.getComponent(AngleComponent.class).target.set(tmpVec2).nor();
+    angleComponent.get(entity).target.set(tmpVec2).nor();
 
     if (menu == null) {
       menu = new NpcMenu(entity, name);
