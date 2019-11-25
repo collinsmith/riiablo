@@ -25,6 +25,7 @@ import com.riiablo.codec.Animation;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Flags;
+import com.riiablo.engine.component.AIComponent;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.AnimationComponent;
 import com.riiablo.engine.component.BBoxComponent;
@@ -104,6 +105,7 @@ public class RenderSystem extends EntitySystem {
   private final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
   private final ComponentMapper<SelectableComponent> selectableComponent = ComponentMapper.getFor(SelectableComponent.class);
   private final ComponentMapper<HoveredComponent> hoveredComponent = ComponentMapper.getFor(HoveredComponent.class);
+  private final ComponentMapper<AIComponent> aiComponent = ComponentMapper.getFor(AIComponent.class);
   private final Family debugFamily = Family.all(PositionComponent.class).get();
   private ImmutableArray<Entity> debugEntities;
 
@@ -1235,6 +1237,10 @@ public class RenderSystem extends EntitySystem {
                     .append(animation.getFrameDelta())
                     .append('\n');
               }
+            }
+            AIComponent aiComponent = this.aiComponent.get(entity);
+            if (aiComponent != null) {
+              builder.append(aiComponent.ai.getState()).append('\n');
             }
             GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50 - 4, 0, Align.center, false);
             Pools.free(layout);

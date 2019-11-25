@@ -62,6 +62,7 @@ public class Npc extends AI {
   float actionTimer = 0;
   boolean actionPerformed = false;
   NpcMenu menu;
+  String state = "";
 
   String name;
   MonStats.Entry monstats;
@@ -139,14 +140,14 @@ public class Npc extends AI {
       } else if (actionTimer > 0) {
         actionTimer -= delta;
         actionPerformed = actionTimer < 0;
+        Entity player = Riiablo.game.player;
+        Vector2 targetPos = positionComponent.get(player).position;
+        Vector2 entityPos = positionComponent.get(entity).position;
+        if (entityPos.dst(targetPos) <= 8) {
+          lookAt(player);
+        }
 
-      Entity player = Riiablo.game.player;
-      Vector2 targetPos = positionComponent.get(player).position;
-      Vector2 entityPos = positionComponent.get(entity).position;
-      if (entityPos.dst(targetPos) <= 8) {
-        lookAt(player);
-      }
-
+        state = "IDLE";
         return;
       } else if (actionPerformed) {
         actionPerformed = false;
@@ -158,6 +159,7 @@ public class Npc extends AI {
         return;
       }
 
+      state = "PATHING";
       DS1.Path.Point dst = path.points[targetId];
       setPath(dst);
     }
@@ -219,23 +221,33 @@ public class Npc extends AI {
     switch (actionId) {
       case 1:
       case 3:
+        state = "WAITING";
         return 4f;
       case 2:
+        state = "WAITING";
         return 6f;
       // TODO: play anim only once, after timer, ending the action
       case 4: {
         CofComponent cofComponent = this.cofComponent.get(entity);
         cofComponent.mode = Engine.Monster.MODE_S1;
       }
+        state = "S1";
         return 10f;
       case 5: {
         CofComponent cofComponent = this.cofComponent.get(entity);
         cofComponent.mode = Engine.Monster.MODE_S2;
       }
+        state = "S2";
         return 10f;
       default:
         Gdx.app.error(TAG, "Unknown action index: " + actionId);
+        state = "ERROR - WAITING";
         return 4f;
     }
+  }
+
+  @Override
+  public String getState() {
+    return state;
   }
 }
