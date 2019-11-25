@@ -24,6 +24,7 @@ import com.riiablo.map.DS1;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
 import com.riiablo.map.pfa.GraphPath;
+import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,6 +57,8 @@ public class Npc extends AI {
   }
 
   final Vector2 tmpVec2 = new Vector2();
+
+  // TODO: count active interactions and remain idle while positive
 
   static final int NULL_TARGET = ArrayUtils.INDEX_NOT_FOUND;
   int targetId = NULL_TARGET;
@@ -90,12 +93,28 @@ public class Npc extends AI {
             .addItem(3399, new ClickListener() {
               @Override
               public void clicked(InputEvent event, float x, float y) {
+                String name = Npc.this.name.toLowerCase();
+                String id = name + "_act1_intro";
+                Riiablo.game.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
+                  @Override
+                  public void onCompleted(NpcDialogBox d) {
+                    Riiablo.game.setDialog(null);
+                  }
+                }));
               }
             })
             // gossip
             .addItem(3395, new ClickListener() {
               @Override
               public void clicked(InputEvent event, float x, float y) {
+                String name = Npc.this.name.toLowerCase();
+                String id = name + "_act1_gossip_1";
+                Riiablo.game.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
+                  @Override
+                  public void onCompleted(NpcDialogBox d) {
+                    Riiablo.game.setDialog(null);
+                  }
+                }));
               }
             })
             .addCancel(null)

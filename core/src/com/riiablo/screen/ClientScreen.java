@@ -93,6 +93,7 @@ import com.riiablo.screen.panel.SpellsQuickPanel;
 import com.riiablo.screen.panel.StashPanel;
 import com.riiablo.screen.panel.WaygatePanel;
 import com.riiablo.server.PipedSocket;
+import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
 
@@ -159,6 +160,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
   Actor details;
   NpcMenu menu;
+  NpcDialogBox dialog;
 
   boolean firstRender = true;
 
@@ -485,6 +487,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
                 ? velocityComponent.runSpeed : velocityComponent.walkSpeed);
         //playerBody.setLinearVelocity(velocityComponent.velocity);
 
+        setDialog(null);
         setMenu(null, null);
       }
     }
@@ -772,6 +775,27 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       tmpVec2.y = iso.viewportHeight - tmpVec2.y; // stage coords expect y-down coords
       stage.screenToStageCoordinates(tmpVec2);
       menu.setPosition(tmpVec2.x, tmpVec2.y, Align.center | Align.bottom);
+    }
+  }
+
+  public NpcDialogBox getDialog() {
+    return dialog;
+  }
+
+  public void setDialog(NpcDialogBox dialog) {
+    if (this.dialog != dialog) {
+      if (this.dialog != null) {
+        this.dialog.remove();
+        this.dialog.dispose();
+        if (menu != null) menu.setVisible(true);
+      }
+
+      this.dialog = dialog;
+      if (dialog != null) {
+        if (menu != null) menu.setVisible(false);
+        dialog.setPosition(stage.getWidth() / 2, stage.getHeight(), Align.top | Align.center);
+        stage.addActor(dialog);
+      }
     }
   }
 }
