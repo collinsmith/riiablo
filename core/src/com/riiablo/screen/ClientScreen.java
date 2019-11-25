@@ -610,8 +610,8 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     controlPanel.toFront();
     output.toFront();
     if (mobilePanel != null) mobilePanel.toFront();
-    if (mobileControls != null) mobileControls.toFront();
-    if (touchpad != null) touchpad.toFront();
+//  if (mobileControls != null) mobileControls.toFront();
+    if (touchpad != null) touchpad.toBack();
     input.toFront();
     escapePanel.toFront();
 
