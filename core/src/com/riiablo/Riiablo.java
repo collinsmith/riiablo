@@ -15,6 +15,7 @@ import com.riiablo.console.RenderedConsole;
 import com.riiablo.entity.Engine;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.screen.ClientScreen;
 
 public class Riiablo {
   private Riiablo() {}
@@ -54,4 +55,5 @@ public class Riiablo {
   public static CharData              charData;
   public static Engine                engine;
   public static com.riiablo.engine.Engine engine2;
+  public static ClientScreen          game;
 }

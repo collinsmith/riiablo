@@ -47,7 +47,6 @@ import com.riiablo.item.Item;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
-import com.riiablo.screen.ClientScreen;
 import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -125,15 +124,12 @@ public class Engine extends PooledEngine {
     return label;
   }
 
-  private final InteractableComponent.Interactor objectInteractor;
-  private final InteractableComponent.Interactor itemInteractor;
-  private final InteractableComponent.Interactor warpInteractor;
+  private final InteractableComponent.Interactor objectInteractor = new ObjectInteractor();
+  private final InteractableComponent.Interactor itemInteractor = new ItemInteractor();
+  private final InteractableComponent.Interactor warpInteractor = new WarpInteractor();
 
-  public Engine(ClientScreen gameScreen) {
+  public Engine() {
     super();
-    objectInteractor = new ObjectInteractor(gameScreen);
-    itemInteractor = new ItemInteractor();
-    warpInteractor = new WarpInteractor();
   }
 
   @Override

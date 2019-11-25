@@ -358,7 +358,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     renderer = new RenderSystem(Riiablo.batch);
     iso = renderer.iso();
 
-    engine = Riiablo.engine2 = new Engine(this);
+    engine = Riiablo.engine2 = new Engine();
     engine.addSystem(new IdSystem());
 
     engine.addSystem(new CollisionSystem());
@@ -399,6 +399,12 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     }
     engine.addSystem(new Box2DDebugRenderSystem(renderer));
     engine.addSystem(new PathfindDebugSystem(iso, renderer, Riiablo.batch, Riiablo.shapes));
+  }
+
+  @Override
+  public void resume() {
+    Riiablo.engine2 = engine;
+    Riiablo.game = this;
   }
 
   @Override
@@ -557,6 +563,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
   @Override
   public void show() {
+    Riiablo.game = this;
     isDebug = DEBUG && Gdx.app.getType() == Application.ApplicationType.Desktop;
     Keys.DebugMode.addStateListener(debugKeyListener);
     Keys.Esc.addStateListener(mappedKeyStateListener);

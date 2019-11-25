@@ -3,20 +3,14 @@ package com.riiablo.engine;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.riiablo.Riiablo;
 import com.riiablo.engine.component.InteractableComponent;
 import com.riiablo.engine.component.ObjectComponent;
-import com.riiablo.screen.ClientScreen;
 
 public class ObjectInteractor implements InteractableComponent.Interactor {
   private static final String TAG = "ObjectInteractor";
 
   private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
-
-  private final ClientScreen gameScreen;
-
-  public ObjectInteractor(ClientScreen gameScreen) {
-    this.gameScreen = gameScreen;
-  }
 
   @Override
   public void interact(Entity src, Entity entity) {
@@ -37,14 +31,14 @@ public class ObjectInteractor implements InteractableComponent.Interactor {
         //  sequence(MODE_OP, MODE_ON);
         //  Riiablo.audio.play("object_waypoint_open", true);
         //} else {
-          gameScreen.setLeftPanel(gameScreen.waygatePanel);
+          Riiablo.game.setLeftPanel(Riiablo.game.waygatePanel);
         //}
         break;
       case 24: case 25: case 26: case 27: case 28: case 29:
       case 30: case 31:
         break;
       case 32: // stash
-        gameScreen.setLeftPanel(gameScreen.stashPanel);
+        Riiablo.game.setLeftPanel(Riiablo.game.stashPanel);
         break;
       case 33: case 34: case 35: case 36: case 37: case 38: case 39:
       case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49:
