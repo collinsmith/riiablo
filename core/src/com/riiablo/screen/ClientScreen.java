@@ -509,6 +509,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       LabelSystem labelSystem = engine.getSystem(LabelSystem.class);
       labelSystem.update(0);
       Array<Actor> labels = labelSystem.getLabels();
+      layoutLabels(labels);
       for (Actor label : labels) {
         label.draw(batch, 1);
       }
@@ -735,6 +736,16 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     if (actor == null) return;
     actor.setVisible(true);
     left = actor;
+  }
+
+  private void layoutLabels(Array<Actor> labels) {
+    for (Actor label : labels) {
+      tmpVec2.x = label.getX();
+      tmpVec2.y = label.getY();
+      tmpVec2.x = MathUtils.clamp(tmpVec2.x, renderer.getMinX(), renderer.getMaxX() - label.getWidth());
+      tmpVec2.y = MathUtils.clamp(tmpVec2.y, renderer.getMinY(), renderer.getMaxY() - label.getHeight());
+      label.setPosition(tmpVec2.x, tmpVec2.y);
+    }
   }
 
   public void setDetails(Actor details, Item item, Actor parent, Actor slot) {

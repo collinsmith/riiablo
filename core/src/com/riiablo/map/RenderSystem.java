@@ -178,6 +178,22 @@ public class RenderSystem extends EntitySystem {
     return iso;
   }
 
+  public int getMinX() {
+    return renderMinX;
+  }
+
+  public int getMinY() {
+    return renderMinY;
+  }
+
+  public int getMaxX() {
+    return renderMaxX;
+  }
+
+  public int getMaxY() {
+    return renderMaxY;
+  }
+
   @Override
   public void addedToEngine(Engine engine) {
     entities = engine.getEntitiesFor(family);
