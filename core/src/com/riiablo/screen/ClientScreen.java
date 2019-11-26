@@ -500,11 +500,13 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     //batch.disableBlending();
     renderer.update(delta);
 
-    LabelSystem labelSystem = engine.getSystem(LabelSystem.class);
-    labelSystem.update(0);
-    Array<Actor> labels = labelSystem.getLabels();
-    for (Actor label : labels) {
-      label.draw(batch, 1);
+    if (menu == null && dialog == null) {
+      LabelSystem labelSystem = engine.getSystem(LabelSystem.class);
+      labelSystem.update(0);
+      Array<Actor> labels = labelSystem.getLabels();
+      for (Actor label : labels) {
+        label.draw(batch, 1);
+      }
     }
 
     //if (menu != null) menu.draw(batch, 1);
