@@ -343,9 +343,12 @@ public class Engine extends PooledEngine {
     movementModeComponent.WL = Monster.MODE_WL;
     movementModeComponent.RN = Monster.MODE_RN;
 
-    LabelComponent labelComponent = createComponent(LabelComponent.class);
-    labelComponent.offset.y = monstats2.pixHeight;
-    labelComponent.actor = createLabel(name);
+    LabelComponent labelComponent = null;
+    if (monstats.Align == 1) {
+      labelComponent = createComponent(LabelComponent.class);
+      labelComponent.offset.y = monstats2.pixHeight;
+      labelComponent.actor = createLabel(name);
+    }
 
     InteractableComponent interactableComponent = null;
     if (monstats.interact) {
@@ -369,13 +372,13 @@ public class Engine extends PooledEngine {
     entity.add(movementModeComponent);
     entity.add(mapComponent);
     entity.add(monsterComponent);
-    entity.add(labelComponent);
+    if (labelComponent != null) entity.add(labelComponent);
     if (interactableComponent != null) entity.add(interactableComponent);
     entity.add(sizeComponent);
     entity.add(box2DComponent);
     entity.add(angleComponent);
 
-    labelComponent.actor.setUserObject(entity);
+    if (labelComponent != null) labelComponent.actor.setUserObject(entity);
 
     AIComponent aiComponent = createComponent(AIComponent.class);
     aiComponent.ai = AI.findAI(entity, monsterComponent);

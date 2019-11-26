@@ -512,6 +512,14 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       for (Actor label : labels) {
         label.draw(batch, 1);
       }
+
+      Actor monsterLabel = labelSystem.getMonsterLabel();
+      if (monsterLabel != null && monsterLabel.isVisible()) {
+        tmpVec2.set(Gdx.graphics.getWidth() / 2, iso.viewportHeight * 0.05f);
+        iso.unproject(tmpVec2);
+        monsterLabel.setPosition(tmpVec2.x, tmpVec2.y, Align.top | Align.center);
+        monsterLabel.draw(batch, 1);
+      }
     }
 
     //if (menu != null) menu.draw(batch, 1);
