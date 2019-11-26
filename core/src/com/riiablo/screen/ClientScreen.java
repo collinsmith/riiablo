@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.CharData;
 import com.riiablo.Client;
@@ -114,6 +115,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
   Touchpad touchpad;
 
   Stage stage;
+  Stage scaledStage;
   Viewport viewport;
   boolean isDebug;
   MappedKeyStateAdapter debugKeyListener = new MappedKeyStateAdapter() {
@@ -363,6 +365,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
 
     renderer = new RenderSystem(Riiablo.batch);
     iso = renderer.iso();
+    scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
 
     engine = Riiablo.engine2 = new Engine();
     engine.addSystem(new IdSystem());
@@ -436,11 +439,14 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       player.flags |= Flags.RUNNING;
     }
 
-    stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
-    Actor hit = stage.hit(tmpVec2.x, tmpVec2.y, true);
     if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+      stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+      Actor hit1 = stage.hit(tmpVec2.x, tmpVec2.y, true);
+      scaledStage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+      Actor hit2 = scaledStage.hit(tmpVec2.x, tmpVec2.y, true);
+      boolean hit = hit1 != null || hit2 != null;
       EntitySystem system;
-      if ((system = engine.getSystem(TouchMovementSystem.class)) != null) system.setProcessing(!DEBUG_TOUCHPAD && hit == null);
+      if ((system = engine.getSystem(TouchMovementSystem.class)) != null) system.setProcessing(!DEBUG_TOUCHPAD && !hit);
     }
     /*
     if (!DEBUG_TOUCHPAD && hit == null) {
@@ -527,6 +533,9 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       if ((system = engine.getSystem(Box2DDebugRenderSystem.class)) != null) system.update(delta);
     }
 
+    scaledStage.act(delta);
+    scaledStage.draw();
+
     details = null;
     stage.act(delta);
     stage.draw();
@@ -593,6 +602,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     Keys.SwapWeapons.addStateListener(mappedKeyStateListener);
     Keys.Stash.addStateListener(mappedKeyStateListener);
     Riiablo.input.addProcessor(stage);
+    Riiablo.input.addProcessor(scaledStage);
     Riiablo.client.addScreenBoundsListener(screenBoundsListener = new Client.ScreenBoundsListener() {
       final float THRESHOLD = 150;
       float prevY = 0;
@@ -684,6 +694,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     Keys.SwapWeapons.removeStateListener(mappedKeyStateListener);
     Keys.Stash.removeStateListener(mappedKeyStateListener);
     Riiablo.input.removeProcessor(stage);
+    Riiablo.input.removeProcessor(scaledStage);
     Riiablo.client.removeScreenBoundsListener(screenBoundsListener);
     Cvars.Client.Display.KeepControlPanelGrouped.clearStateListeners();
   }
@@ -762,12 +773,12 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
         NpcMenu parent = this.menu;
         do parent.cancel(); while ((parent = parent.getParent()) != menu);
       }
-      stage.getRoot().removeActor(this.menu);
+      scaledStage.getRoot().removeActor(this.menu);
     }
 
     this.menu = menu;
     if (menu != null && owner != null) {
-      stage.addActor(menu);
+      scaledStage.addActor(menu);
 
       LabelComponent labelComponent = owner.getComponent(LabelComponent.class);
       PositionComponent positionComponent = owner.getComponent(PositionComponent.class);
@@ -775,7 +786,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       tmpVec2.add(labelComponent.offset);
       iso.project(tmpVec2);
       tmpVec2.y = iso.viewportHeight - tmpVec2.y; // stage coords expect y-down coords
-      stage.screenToStageCoordinates(tmpVec2);
+      scaledStage.screenToStageCoordinates(tmpVec2);
       menu.setPosition(tmpVec2.x, tmpVec2.y, Align.center | Align.bottom);
     }
   }
@@ -795,8 +806,11 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       this.dialog = dialog;
       if (dialog != null) {
         if (menu != null) menu.setVisible(false);
-        dialog.setPosition(stage.getWidth() / 2, stage.getHeight(), Align.top | Align.center);
-        stage.addActor(dialog);
+        //dialog.setPosition(stage.getWidth() / 2, stage.getHeight(), Align.top | Align.center);
+        tmpVec2.set(Gdx.graphics.getWidth() / 2, 0);
+        scaledStage.screenToStageCoordinates(tmpVec2);
+        dialog.setPosition(tmpVec2.x, tmpVec2.y, Align.top | Align.center);
+        scaledStage.addActor(dialog);
       }
     }
   }
