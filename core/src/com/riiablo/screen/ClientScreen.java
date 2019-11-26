@@ -5,6 +5,8 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
@@ -19,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -132,6 +135,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
   final AssetDescriptor<Map> mapDescriptor = new AssetDescriptor<>("Act 1", Map.class, MapLoader.MapParameters.of(0, 0, 0));
   Map map;
   IsometricCamera iso;
+  InputProcessor testingInputProcessor;
 
   public EscapePanel escapePanel;
   public ControlPanel controlPanel;
@@ -358,6 +362,50 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
           setLeftPanel(questsPanel.isVisible() ? null : questsPanel);
         } else if (key == Keys.SwapWeapons) {
           Riiablo.charData.alternate();
+        }
+      }
+    };
+
+    testingInputProcessor = new InputAdapter() {
+      private final float ZOOM_AMOUNT = 0.1f;
+
+      @Override
+      public boolean scrolled(int amount) {
+        switch (amount) {
+          case -1:
+            if (UIUtils.ctrl()) {
+              renderer.zoom(Math.max(0.20f, renderer.zoom() - ZOOM_AMOUNT));
+            }
+
+            break;
+          case 1:
+            if (UIUtils.ctrl()) {
+              renderer.zoom(Math.min(5.00f, renderer.zoom() + ZOOM_AMOUNT));
+            }
+
+            break;
+          default:
+        }
+
+        return true;
+      }
+
+      @Override
+      public boolean keyDown(int keycode) {
+        switch (keycode) {
+          case Input.Keys.TAB:
+            if (UIUtils.shift()) {
+              RenderSystem.RENDER_DEBUG_WALKABLE = RenderSystem.RENDER_DEBUG_WALKABLE == 0 ? 1 : 0;
+            } else {
+              RenderSystem.RENDER_DEBUG_GRID++;
+              if (RenderSystem.RENDER_DEBUG_GRID > RenderSystem.DEBUG_GRID_MODES) {
+                RenderSystem.RENDER_DEBUG_GRID = 0;
+              }
+            }
+            return true;
+
+          default:
+            return false;
         }
       }
     };
@@ -609,6 +657,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     Keys.Quests.addStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.addStateListener(mappedKeyStateListener);
     Keys.Stash.addStateListener(mappedKeyStateListener);
+    Riiablo.input.addProcessor(testingInputProcessor);
     Riiablo.input.addProcessor(stage);
     Riiablo.input.addProcessor(scaledStage);
     Riiablo.client.addScreenBoundsListener(screenBoundsListener = new Client.ScreenBoundsListener() {
@@ -701,6 +750,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
     Keys.Quests.removeStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.removeStateListener(mappedKeyStateListener);
     Keys.Stash.removeStateListener(mappedKeyStateListener);
+    Riiablo.input.removeProcessor(testingInputProcessor);
     Riiablo.input.removeProcessor(stage);
     Riiablo.input.removeProcessor(scaledStage);
     Riiablo.client.removeScreenBoundsListener(screenBoundsListener);
