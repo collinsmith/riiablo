@@ -35,7 +35,7 @@ import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.D2S;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
-import com.riiablo.engine.AISystem;
+import com.riiablo.engine.system.AISystem;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.AngleComponent;
@@ -375,7 +375,7 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
       engine.addSystem(new TouchMovementSystem(iso, renderer));
     }
 
-    engine.addSystem(new AISystem());
+    engine.addSystem(new AISystem(renderer));
 
     engine.addSystem(new PathfindSystem());
     engine.addSystem(new Box2DBodySystem());
