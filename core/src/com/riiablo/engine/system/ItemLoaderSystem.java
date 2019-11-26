@@ -62,7 +62,7 @@ public class ItemLoaderSystem extends IteratingSystem {
 
     LabelComponent labelComponent = getEngine().createComponent(LabelComponent.class);
     labelComponent.actor = itemComponent.item.details().header;
-    labelComponent.offset.set(box.xMin + box.width / 2, -box.yMax + box.height + labelComponent.actor.getHeight() / 2);
+    labelComponent.offset.set(box.xMin + box.width / 2, -box.yMax + box.height);
     entity.add(labelComponent);
   }
 }
