@@ -61,17 +61,9 @@ public class TCPIPScreen extends ScreenAdapter {
   public TCPIPScreen(Animation D2logoLeft, Animation D2logoRight) {
     this.D2logoLeft = D2logoLeft;
     this.D2logoRight = D2logoRight;
-    Riiablo.assets.load(TitleScreenDescriptor);
-    Riiablo.assets.load(D2logoFireLeftDescriptor);
-    Riiablo.assets.load(D2logoFireRightDescriptor);
-    Riiablo.assets.load(D2logoBlackLeftDescriptor);
-    Riiablo.assets.load(D2logoBlackRightDescriptor);
-    Riiablo.assets.load(WideButtonBlankDescriptor);
-    Riiablo.assets.load(MediumButtonBlankDescriptor);
-    Riiablo.assets.load(buttonDescriptor);
-    Riiablo.assets.load(selectDescriptor);
+    load();
 
-    stage = new Stage(Riiablo.viewport, Riiablo.batch);
+    stage = new Stage(Riiablo.defaultViewport, Riiablo.batch);
 
     Riiablo.assets.finishLoadingAsset(TitleScreenDescriptor);
     TitleScreen = Riiablo.assets.get(TitleScreenDescriptor).getTexture();
@@ -113,8 +105,10 @@ public class TCPIPScreen extends ScreenAdapter {
       public boolean mouseMoved(InputEvent event, float x, float y) {
         if (btnHostGame.isOver()) {
           lbDescription.setText(5122);
+          lbDescription.layout();
         } else if (btnJoinGame.isOver()) {
           lbDescription.setText(5123);
+          lbDescription.layout();
         }
 
         return super.mouseMoved(event, x, y);
@@ -168,14 +162,15 @@ public class TCPIPScreen extends ScreenAdapter {
     lbDescription.setWrap(true);
 
     // TODO: Sizing could be cleaned up some
-    Table panel = new Table() {{
-      add(lbHostIP).space(8).row();
-      add(btnHostGame).space(8).row();
-      add(btnJoinGame).space(8).row();
-      add(lbDescription).space(8).minSize(400, 112).row();
+    final Table panel = new Table() {{
+      final float SPACING = 8;
+      add(lbHostIP).space(SPACING).row();
+      add(btnHostGame).space(SPACING).row();
+      add(btnJoinGame).space(SPACING).row();
+      add(lbDescription).space(SPACING).minSize(400, 112).row();
+      pack();
     }};
-    panel.setX(stage.getWidth() / 2);
-    panel.setY(stage.getHeight() * 0.375f);
+    panel.setPosition(stage.getWidth() / 2, D2logo.getY() / 2, Align.center);
     stage.addActor(panel);
 
     TextButton.TextButtonStyle mediumButtonStyle = new TextButton.TextButtonStyle() {{
@@ -187,19 +182,33 @@ public class TCPIPScreen extends ScreenAdapter {
     }};
     btnCancel = new TextButton(5134, mediumButtonStyle);
     btnCancel.addListener(clickListener);
-    btnCancel.setPosition(20, 20);
+    btnCancel.setPosition(20, 20, Align.bottomLeft);
     stage.addActor(btnCancel);
   }
 
   @Override
   public void show() {
-
     Riiablo.input.addProcessor(stage);
+    load();
   }
 
   @Override
   public void hide() {
+    Riiablo.viewport = Riiablo.defaultViewport;
+    dispose();
     Riiablo.input.removeProcessor(stage);
+  }
+
+  private void load() {
+    Riiablo.assets.load(TitleScreenDescriptor);
+    Riiablo.assets.load(D2logoFireLeftDescriptor);
+    Riiablo.assets.load(D2logoFireRightDescriptor);
+    Riiablo.assets.load(D2logoBlackLeftDescriptor);
+    Riiablo.assets.load(D2logoBlackRightDescriptor);
+    Riiablo.assets.load(WideButtonBlankDescriptor);
+    Riiablo.assets.load(MediumButtonBlankDescriptor);
+    Riiablo.assets.load(buttonDescriptor);
+    Riiablo.assets.load(selectDescriptor);
   }
 
   @Override

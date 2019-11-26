@@ -60,18 +60,9 @@ public class LoginScreen extends ScreenAdapter {
   public LoginScreen(Animation D2logoLeft, Animation D2logoRight) {
     this.D2logoLeft = D2logoLeft;
     this.D2logoRight = D2logoRight;
-    Riiablo.assets.load(TitleScreenDescriptor);
-    Riiablo.assets.load(D2logoFireLeftDescriptor);
-    Riiablo.assets.load(D2logoFireRightDescriptor);
-    Riiablo.assets.load(D2logoBlackLeftDescriptor);
-    Riiablo.assets.load(D2logoBlackRightDescriptor);
-    Riiablo.assets.load(WideButtonBlankDescriptor);
-    Riiablo.assets.load(MediumButtonBlankDescriptor);
-    Riiablo.assets.load(buttonDescriptor);
-    Riiablo.assets.load(selectDescriptor);
-    Riiablo.assets.load(textbox2Descriptor);
+    load();
 
-    stage = new Stage(Riiablo.viewport, Riiablo.batch);
+    stage = new Stage(Riiablo.extendViewport, Riiablo.batch);
 
     Riiablo.assets.finishLoadingAsset(TitleScreenDescriptor);
     TitleScreen = Riiablo.assets.get(TitleScreenDescriptor).getTexture();
@@ -159,26 +150,26 @@ public class LoginScreen extends ScreenAdapter {
       cursor = new TextureRegionDrawable(Riiablo.textures.white);
     }};
 
-    Table panel = new Table() {{
+    final Table panel = new Table() {{
+      final float SPACING = 8;
       add(new Label(5205, Riiablo.fonts.font16, Riiablo.colors.white) {{
         setWrap(true);
         setAlignment(Align.center);
-      }}).width(400).space(8).row();
+      }}).width(400).space(SPACING).row();
       add(new Table() {{
         add(new Label(5224, Riiablo.fonts.font16, Riiablo.colors.gold)).align(Align.left).row();
         add(new TextField(textFieldStyle)).row();
         align(Align.left);
-      }}).space(8).row();
+      }}).space(SPACING).row();
       add(new Table() {{
         add(new Label(5225, Riiablo.fonts.font16, Riiablo.colors.gold)).align(Align.left).row();
         add(new TextField(textFieldStyle)).row();
-      }}).space(8).row();
-      add(btnLogIn).space(8).row();
-      add(btnAccountSettings).space(8).row();
-      add(btnCreateNewAccount).space(8).row();
+      }}).space(SPACING).row();
+      add(btnLogIn).space(SPACING).row();
+      add(btnAccountSettings).space(SPACING).row();
+      add(btnCreateNewAccount).space(SPACING).row();
     }};
-    panel.setX(stage.getWidth() / 2);
-    panel.setY(stage.getHeight() * 0.325f);
+    panel.setPosition(stage.getWidth() / 2, stage.getHeight() * 0.325f, Align.center);
     stage.addActor(panel);
 
     TextButton.TextButtonStyle mediumButtonStyle = new TextButton.TextButtonStyle() {{
@@ -190,19 +181,34 @@ public class LoginScreen extends ScreenAdapter {
     }};
     btnCancel = new TextButton(5134, mediumButtonStyle);
     btnCancel.addListener(clickListener);
-    btnCancel.setPosition(20, 20);
+    btnCancel.setPosition(20, 20, Align.bottomLeft);
     stage.addActor(btnCancel);
   }
 
   @Override
   public void show() {
-
+    Riiablo.viewport = Riiablo.extendViewport;
+    load();
     Riiablo.input.addProcessor(stage);
   }
 
   @Override
   public void hide() {
     Riiablo.input.removeProcessor(stage);
+    dispose();
+  }
+
+  private void load() {
+    Riiablo.assets.load(TitleScreenDescriptor);
+    Riiablo.assets.load(D2logoFireLeftDescriptor);
+    Riiablo.assets.load(D2logoFireRightDescriptor);
+    Riiablo.assets.load(D2logoBlackLeftDescriptor);
+    Riiablo.assets.load(D2logoBlackRightDescriptor);
+    Riiablo.assets.load(WideButtonBlankDescriptor);
+    Riiablo.assets.load(MediumButtonBlankDescriptor);
+    Riiablo.assets.load(buttonDescriptor);
+    Riiablo.assets.load(selectDescriptor);
+    Riiablo.assets.load(textbox2Descriptor);
   }
 
   @Override

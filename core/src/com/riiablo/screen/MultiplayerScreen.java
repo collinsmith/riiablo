@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC6;
@@ -44,19 +45,16 @@ public class MultiplayerScreen extends ScreenAdapter {
   private Button btnTCPIP;
   private Button btnCancel;
 
+  public MultiplayerScreen() {
+    this(null, null);
+  }
+
   public MultiplayerScreen(Animation D2logoLeft, Animation D2logoRight) {
     this.D2logoLeft = D2logoLeft;
     this.D2logoRight = D2logoRight;
-    Riiablo.assets.load(TitleScreenDescriptor);
-    Riiablo.assets.load(D2logoFireLeftDescriptor);
-    Riiablo.assets.load(D2logoFireRightDescriptor);
-    Riiablo.assets.load(D2logoBlackLeftDescriptor);
-    Riiablo.assets.load(D2logoBlackRightDescriptor);
-    Riiablo.assets.load(WideButtonBlankDescriptor);
-    Riiablo.assets.load(buttonDescriptor);
-    Riiablo.assets.load(selectDescriptor);
+    load();
 
-    stage = new Stage(Riiablo.viewport, Riiablo.batch);
+    stage = new Stage(Riiablo.defaultViewport, Riiablo.batch);
 
     Riiablo.assets.finishLoadingAsset(TitleScreenDescriptor);
     TitleScreen = Riiablo.assets.get(TitleScreenDescriptor).getTexture();
@@ -113,25 +111,39 @@ public class MultiplayerScreen extends ScreenAdapter {
     btnCancel = new TextButton(5134, style);
     btnCancel.addListener(clickListener);
 
-    Table panel = new Table() {{
-      add(btnOpenBattlenet).space(8).row();
-      add(btnTCPIP).space(8).row();
-      add(btnCancel).space(8).row();
+    final Table panel = new Table() {{
+      final float SPACING = 8;
+      add(btnOpenBattlenet).space(SPACING).row();
+      add(btnTCPIP).space(SPACING).row();
+      add(btnCancel).space(SPACING).row();
+      pack();
     }};
-    panel.setX(stage.getWidth() / 2);
-    panel.setY(stage.getHeight() * 0.40f);
+    panel.setPosition(stage.getWidth() / 2, D2logo.getY() / 2, Align.center);
     stage.addActor(panel);
   }
 
   @Override
   public void show() {
-
+    Riiablo.viewport = Riiablo.defaultViewport;
+    load();
     Riiablo.input.addProcessor(stage);
   }
 
   @Override
   public void hide() {
     Riiablo.input.removeProcessor(stage);
+    dispose();
+  }
+
+  private void load() {
+    Riiablo.assets.load(TitleScreenDescriptor);
+    Riiablo.assets.load(D2logoFireLeftDescriptor);
+    Riiablo.assets.load(D2logoFireRightDescriptor);
+    Riiablo.assets.load(D2logoBlackLeftDescriptor);
+    Riiablo.assets.load(D2logoBlackRightDescriptor);
+    Riiablo.assets.load(WideButtonBlankDescriptor);
+    Riiablo.assets.load(buttonDescriptor);
+    Riiablo.assets.load(selectDescriptor);
   }
 
   @Override
