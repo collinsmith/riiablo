@@ -1,6 +1,5 @@
 package com.riiablo.screen;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Application;
@@ -15,7 +14,6 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -35,14 +33,13 @@ import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.D2S;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
-import com.riiablo.engine.system.AISystem;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.LabelComponent;
-import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.VelocityComponent;
+import com.riiablo.engine.system.AISystem;
 import com.riiablo.engine.system.AngleSystem;
 import com.riiablo.engine.system.AngularVelocitySystem;
 import com.riiablo.engine.system.AnimationLoaderSystem;
@@ -130,7 +127,6 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
   float accumulator;
   float lastUpdate;
   public Entity player;
-  Body playerBody;
   CharData charData;
 
   final AssetDescriptor<Map> mapDescriptor = new AssetDescriptor<>("Act 1", Map.class, MapLoader.MapParameters.of(0, 0, 0));
@@ -164,9 +160,12 @@ public class ClientScreen extends ScreenAdapter implements LoadingScreen.Loadabl
   NpcMenu menu;
   NpcDialogBox dialog;
 
+  /**
+   * FIXME: there has to be a better way of doing this -- some way to layout the stage (or relevant
+   *        parts) and get the coordinates I need. Right now it flashes the control panel for a
+   *        frame before hiding it.
+   */
   boolean firstRender = true;
-
-  final ComponentMapper<PathfindComponent> pathfindComponent = ComponentMapper.getFor(PathfindComponent.class);
 
   @Override
   public Array<AssetDescriptor> getDependencies() {
