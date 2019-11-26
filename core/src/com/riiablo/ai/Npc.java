@@ -179,11 +179,13 @@ public class Npc extends AI {
       } else if (actionTimer > 0) {
         actionTimer -= delta;
         actionPerformed = actionTimer < 0;
-        Entity player = Riiablo.game.player;
-        Vector2 targetPos = positionComponent.get(player).position;
-        Vector2 entityPos = positionComponent.get(entity).position;
-        if (entityPos.dst(targetPos) <= 8) {
-          lookAt(player);
+        if (!actionPerformed) {
+          Entity player = Riiablo.game.player;
+          Vector2 targetPos = positionComponent.get(player).position;
+          Vector2 entityPos = positionComponent.get(entity).position;
+          if (entityPos.dst(targetPos) <= 8) {
+            lookAt(player);
+          }
         }
 
         state = "IDLE";
