@@ -46,6 +46,41 @@ compatible with playing with users using the original game client.
 ![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-1.png)
 ![Create Character](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-2.png)
 
+# Setup
+The Android SDK is required to build the project by default (even if you want
+the desktop module only), however you can circumvent this by following
+[this post](https://github.com/collinsmith/riiablo/issues/6#issuecomment-465661949)
+which explains which files to modify and references to delete.
+
+#### Windows
+```$etc
+git clone https://github.com/collinsmith/riiablo.git
+cd riiablo
+gradlew desktop:dist
+java -jar desktop/build/libs/desktop-1.0.jar -home "C:\diablo"
+```
+Sometimes it may be necessary to also run `gradlew --refresh-dependencies`
+
+#### Linux / MacOS
+I have not tested support on any Linux distros yet -- but it should work. Since
+this project is developed using the MPQ format from the Windows installation,
+it's likely that only the Windows MPQs will work. If there are any additional
+steps required, let me know and I can add them until I get a chance to test
+this myself.
+
+#### Android
+Steps will be provided when the project is further along and the configuration
+process can be cleaned up a bit. There are Android-specific implementations of
+some core gameplay systems, but everything is validated to work on Android.
+
+#### IntelliJ
+- [Importing into Intellij/Android Studio](https://libgdx.badlogicgames.com/documentation/gettingstarted/Importing%20into%20IDE.html#intellij)
+- Default run configurations are included within [.idea/runConfigurations](https://github.com/collinsmith/riiablo/tree/master/.idea/runConfigurations),
+however the program args must be changed to point to _your_ Diablo 2 directory.
+The default resolution is 854x480, other configurations are provided to ensure
+a wide range of support `-w` arg can be used to start in windowed mode, while
+`F12` can be used in-game to disable the debug UI.
+
 # MPQ Viewer
 Still a work in progress, but this allows you to look at the game's assets and
 is used to test my MPQ library implementation. Currently this does not allow
