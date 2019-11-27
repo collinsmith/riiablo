@@ -231,4 +231,10 @@ public class Direction {
     if (--index < 0) index = dirs - 1;
     return rads[index];
   }
+
+  public static float direction8ToRadians(int direction) {
+    int i = ArrayUtils.indexOf(DIRS_8M, direction);
+    if (i == ArrayUtils.INDEX_NOT_FOUND) return 0;
+    return RADIANS_8[i];
+  }
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+@Deprecated
 public class Direction {
   private Direction() {}
 

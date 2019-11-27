@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
@@ -27,7 +27,6 @@ import com.riiablo.item.Item;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 
@@ -57,16 +56,13 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> inv_weaponsDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\inv_weapons.DC6", DC6.class);
   DC6 inv_armor, inv_belt, inv_boots, inv_helm_glove, inv_ring_amulet, inv_weapons;
 
-  final GameScreen gameScreen;
   final Inventory.Entry inventory;
 
   final Texture fill;
   final Color backgroundColorG;
   final Color backgroundColorR;
 
-  public InventoryPanel(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public InventoryPanel() {
     Riiablo.assets.load(invcharDescriptor);
     Riiablo.assets.finishLoadingAsset(invcharDescriptor);
     invchar = Riiablo.assets.get(invcharDescriptor).getTexture(1);
@@ -223,7 +219,6 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       bodyParts[i].setBodyPart(Riiablo.files.bodylocs.get(i).Code);
     }
 
-
     Actor alternateWeaponsL = new Actor();
     alternateWeaponsL.setSize(invcharTabR.getRegionWidth(), 20); // width in file seems to be incorrectly stored as 135
     alternateWeaponsL.setPosition(
@@ -264,7 +259,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       }
     });
 
-    ItemGrid grid = new ItemGrid(gameScreen, inventory);
+    ItemGrid grid = new ItemGrid(inventory);
     grid.populate(Riiablo.charData.getStore(StoreLoc.INVENTORY));
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
@@ -406,7 +401,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       }
 
       if (isOver && item != null && cursorItem == null) {
-        gameScreen.setDetails(item.details(), item, InventoryPanel.this, this);
+        Riiablo.game.setDetails(item.details(), item, InventoryPanel.this, this);
       }
     }
   }

@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -15,16 +15,13 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-
-import com.riiablo.codec.excel.Misc;
-import com.riiablo.graphics.BlendMode;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
-import com.riiablo.entity.Player;
+import com.riiablo.codec.excel.Misc;
+import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.Item;
-import com.riiablo.screen.GameScreen;
 
 public class ItemGrid extends Group {
   private static final String TAG = "ItemGrid";
@@ -43,22 +40,17 @@ public class ItemGrid extends Group {
 
   final ObjectSet<Actor> hits = new ObjectSet<>(8, 1);
 
-  final GameScreen gameScreen;
-  final Player player;
-
   boolean blocked = true;
   StoredItem swap = null;
   Vector2 coords = new Vector2();
   Vector2 grid = new Vector2();
   Vector2 itemSize = new Vector2();
 
-  public ItemGrid(GameScreen gameScreen, Inventory.Entry inv) {
-    this(gameScreen, inv.gridX, inv.gridY, inv.gridBoxWidth, inv.gridBoxHeight);
+  public ItemGrid(Inventory.Entry inv) {
+    this(inv.gridX, inv.gridY, inv.gridBoxWidth, inv.gridBoxHeight);
   }
 
-  public ItemGrid(GameScreen gameScreen, int width, int height, int boxWidth, int boxHeight) {
-    this.gameScreen = gameScreen;
-    this.player = gameScreen.player;
+  public ItemGrid(int width, int height, int boxWidth, int boxHeight) {
     this.width = width;
     this.height = height;
     this.boxWidth = boxWidth;
@@ -276,7 +268,11 @@ public class ItemGrid extends Group {
               Misc.Entry misc = StoredItem.this.item.getBase();
               switch (misc.pSpell) {
                 case 7:
-                  gameScreen.cubePanel.setVisible(true);
+                  /**
+                   * FIXME: custom logic is needed -- should display OVER stash panel, but also
+                   *        close out when escaped (close stash and cube at once)
+                   */
+                  Riiablo.game.setLeftPanel(Riiablo.game.cubePanel);
                   break;
               }
             }
@@ -313,7 +309,7 @@ public class ItemGrid extends Group {
       b.resetBlendMode();
       item.draw(b, 1);
       if (clickListener.isOver() && Riiablo.cursor.getItem() == null) {
-        gameScreen.setDetails(item.details(), item, ItemGrid.this, item);
+        Riiablo.game.setDetails(item.details(), item, ItemGrid.this, item);
       }
     }
   }

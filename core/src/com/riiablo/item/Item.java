@@ -28,7 +28,7 @@ import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.codec.util.BitStream;
-import com.riiablo.entity.Player;
+import com.riiablo.engine.Engine;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
 import com.riiablo.widget.Label;
@@ -185,7 +185,7 @@ public class Item extends Actor implements Disposable {
       socketsFilled = 0;
       qualityId     = bitStream.readUnsigned7OrLess(3); // class
       qualityData   = bitStream.readUnsigned7OrLess(7); // level
-      inscription   = bitStream.readString2(Player.MAX_NAME_LENGTH + 1, 7); // name
+      inscription   = bitStream.readString2(Engine.MAX_NAME_LENGTH + 1, 7); // name
     } else {
       typeCode      = bitStream.readString(4).trim();
       socketsFilled = bitStream.readUnsigned7OrLess(3);
@@ -288,7 +288,7 @@ public class Item extends Actor implements Disposable {
       }
 
       if ((flags & INSCRIBED) == INSCRIBED) {
-        inscription = bitStream.readString2(Player.MAX_NAME_LENGTH + 1, 7);
+        inscription = bitStream.readString2(Engine.MAX_NAME_LENGTH + 1, 7);
       }
 
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)

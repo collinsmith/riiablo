@@ -1,18 +1,18 @@
 package com.riiablo.item;
 
 import com.badlogic.gdx.Gdx;
-import com.riiablo.entity.Entity;
+import com.riiablo.engine.Dirty;
 
-import static com.riiablo.entity.Entity.Dirty.HD;
-import static com.riiablo.entity.Entity.Dirty.LA;
-import static com.riiablo.entity.Entity.Dirty.LG;
-import static com.riiablo.entity.Entity.Dirty.LH;
-import static com.riiablo.entity.Entity.Dirty.RA;
-import static com.riiablo.entity.Entity.Dirty.RH;
-import static com.riiablo.entity.Entity.Dirty.S1;
-import static com.riiablo.entity.Entity.Dirty.S2;
-import static com.riiablo.entity.Entity.Dirty.SH;
-import static com.riiablo.entity.Entity.Dirty.TR;
+import static com.riiablo.engine.Dirty.HD;
+import static com.riiablo.engine.Dirty.LA;
+import static com.riiablo.engine.Dirty.LG;
+import static com.riiablo.engine.Dirty.LH;
+import static com.riiablo.engine.Dirty.RA;
+import static com.riiablo.engine.Dirty.RH;
+import static com.riiablo.engine.Dirty.S1;
+import static com.riiablo.engine.Dirty.S2;
+import static com.riiablo.engine.Dirty.SH;
+import static com.riiablo.engine.Dirty.TR;
 
 public enum BodyLoc {
   NONE,
@@ -76,7 +76,7 @@ public enum BodyLoc {
   final int components;
 
   BodyLoc() {
-    this.components = Entity.Dirty.NONE;
+    this.components = Dirty.NONE;
   }
 
   BodyLoc(int components) {

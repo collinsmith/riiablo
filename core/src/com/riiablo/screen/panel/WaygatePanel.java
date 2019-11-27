@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
@@ -20,7 +20,6 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.IconTextButton;
 
@@ -42,11 +41,7 @@ public class WaygatePanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   Button btnExit;
 
-  final GameScreen gameScreen;
-
-  public WaygatePanel(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public WaygatePanel() {
     Riiablo.assets.load(waygatebackgroundDescriptor);
     Riiablo.assets.finishLoadingAsset(waygatebackgroundDescriptor);
     waygatebackground = Riiablo.assets.get(waygatebackgroundDescriptor).getTexture();

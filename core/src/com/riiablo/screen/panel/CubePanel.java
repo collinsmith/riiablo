@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -14,7 +14,6 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 
 public class CubePanel extends WidgetGroup implements Disposable {
@@ -29,12 +28,9 @@ public class CubePanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class);
   Button btnExit;
 
-  final GameScreen gameScreen;
   final Inventory.Entry inventory;
 
-  public CubePanel(GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public CubePanel() {
     Riiablo.assets.load(supertransmogrifierDescriptor);
     Riiablo.assets.finishLoadingAsset(supertransmogrifierDescriptor);
     supertransmogrifier = Riiablo.assets.get(supertransmogrifierDescriptor).getTexture();
@@ -74,7 +70,7 @@ public class CubePanel extends WidgetGroup implements Disposable {
 
     inventory = Riiablo.files.inventory.get("Transmogrify Box Page 1");
 
-    ItemGrid grid = new ItemGrid(gameScreen, inventory);
+    ItemGrid grid = new ItemGrid(inventory);
     grid.populate(Riiablo.charData.getStore(StoreLoc.CUBE));
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,

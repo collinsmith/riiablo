@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -6,15 +6,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.item.Item;
 import com.riiablo.item.Type;
 import com.riiablo.key.MappedKey;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Label;
 
+/**
+ * FIXME: creating BeltGrid without setHidden(true) in constructor causes items to appear starting
+ *        on the top row. This requirement should not need to exist.
+ */
 public class BeltGrid extends ItemGrid {
   private static final String TAG = "BeltGrid";
 
@@ -25,8 +29,8 @@ public class BeltGrid extends ItemGrid {
   boolean hidden;
   int rows;
 
-  public BeltGrid(GameScreen gameScreen, int width, int height, int boxWidth, int boxHeight) {
-    super(gameScreen, width, height, boxWidth, boxHeight);
+  public BeltGrid(int width, int height, int boxWidth, int boxHeight) {
+    super(width, height, boxWidth, boxHeight);
     visibleArea.set(0, 0, width * boxWidth, boxHeight - 1);
     setRows(1);
     setHidden(true);
@@ -74,16 +78,26 @@ public class BeltGrid extends ItemGrid {
       hidden = b;
       setCullingArea(hidden ? visibleArea : null);
       setHeight(hidden ? boxHeight : rows * boxHeight);
-      Touchable touchable = hidden ? Touchable.disabled : Touchable.enabled;
-      SnapshotArray<Actor> snapshot = getChildren();
-      Actor[] children = snapshot.begin();
-      for (Actor child : children) {
-        StoredItem item = (StoredItem) child;
-        if (item == null) continue;
-        if (item.getY() >= boxHeight) item.setTouchable(touchable);
-      }
-      snapshot.end();
+      updateItems(hidden);
     }
+  }
+
+  private void updateItems(boolean hidden) {
+    Touchable touchable = hidden ? Touchable.disabled : Touchable.enabled;
+    SnapshotArray<Actor> snapshot = getChildren();
+    Actor[] children = snapshot.begin();
+    for (Actor child : children) {
+      StoredItem item = (StoredItem) child;
+      if (item == null) continue;
+      if (item.getY() >= boxHeight) item.setTouchable(touchable);
+    }
+    snapshot.end();
+  }
+
+  @Override
+  public void populate(Array<Item> items) {
+    super.populate(items);
+    updateItems(hidden);
   }
 
   @Override

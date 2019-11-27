@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
@@ -29,14 +29,13 @@ import com.riiablo.graphics.BlendMode;
 import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
 import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class ControlPanel extends Table implements Disposable {
+public class ControlPanel extends Table implements Disposable, EscapeController {
   private static final String TAG = "ControlPanel";
   private static final boolean DEBUG_MOBILE = !true;
 
@@ -81,10 +80,7 @@ public class ControlPanel extends Table implements Disposable {
 
   HotkeyButton leftSkill, rightSkill;
 
-  GameScreen gameScreen;
-
-  public ControlPanel(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
+  public ControlPanel() {
     Riiablo.assets.load(hlthmanaDescriptor);
     Riiablo.assets.finishLoadingAsset(hlthmanaDescriptor);
     hlthmana = Riiablo.assets.get(hlthmanaDescriptor);
@@ -143,7 +139,7 @@ public class ControlPanel extends Table implements Disposable {
       leftSkill.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          gameScreen.spellsQuickPanelL.setVisible(!gameScreen.spellsQuickPanelL.isVisible());
+          Riiablo.game.spellsQuickPanelL.setVisible(!Riiablo.game.spellsQuickPanelL.isVisible());
         }
       });
 
@@ -171,7 +167,7 @@ public class ControlPanel extends Table implements Disposable {
       rightSkill.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          gameScreen.spellsQuickPanelR.setVisible(!gameScreen.spellsQuickPanelR.isVisible());
+          Riiablo.game.spellsQuickPanelR.setVisible(!Riiablo.game.spellsQuickPanelR.isVisible());
         }
       });
 
@@ -206,6 +202,15 @@ public class ControlPanel extends Table implements Disposable {
     //setY(0);
     setTouchable(Touchable.childrenOnly);
     //setDebug(true, true);
+  }
+
+  @Override
+  public Button getEscapeButton() {
+    return controlWidget.minipanelWidget.btnEscapeMenu;
+  }
+
+  public void setMinipanelVisible(boolean b) {
+    if (controlWidget != null) controlWidget.setMinipanelVisible(b);
   }
 
   public HotkeyButton getLeftSkill() {
@@ -253,6 +258,7 @@ public class ControlPanel extends Table implements Disposable {
       batch.draw(overlay, x + 28, y +  6);
       super.draw(batch, a);
       if (label.isVisible()) {
+        label.setX(getX());
         label.setText(Riiablo.string.format("panelhealth",
             (int) Riiablo.charData.getStats().get(Stat.hitpoints).toFloat(),
             (int) Riiablo.charData.getStats().get(Stat.maxhp).toFloat()));
@@ -309,6 +315,12 @@ public class ControlPanel extends Table implements Disposable {
       setSize(background.getWidth(), background.getHeight() - 7);
       setTouchable(Touchable.enabled);
 
+      Riiablo.assets.load(minipanelDescriptor);
+      Riiablo.assets.finishLoadingAsset(minipanelDescriptor);
+      minipanelWidget = new MinipanelWidget(Riiablo.assets.get(minipanelDescriptor).getTexture(0));
+      minipanelWidget.setPosition((getWidth() / 2) - (minipanelWidget.getWidth() / 2), getHeight());
+      addActor(minipanelWidget);
+
       Riiablo.assets.load(menubuttonDescriptor);
       Riiablo.assets.finishLoadingAsset(menubuttonDescriptor);
       menuHidden = new Button.ButtonStyle() {{
@@ -319,30 +331,30 @@ public class ControlPanel extends Table implements Disposable {
         up   = new TextureRegionDrawable(Riiablo.assets.get(menubuttonDescriptor).getTexture(2));
         down = new TextureRegionDrawable(Riiablo.assets.get(menubuttonDescriptor).getTexture(3));
       }};
-      btnMenu = new Button(menuHidden);
+      btnMenu = new Button(minipanelWidget.isVisible() ? menuShown : menuHidden);
       btnMenu.setPosition((getWidth() / 2) - (btnMenu.getWidth() / 2), 15);
       btnMenu.addListener(new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          btnMenu.setStyle(btnMenu.getStyle() == menuHidden ? menuShown : menuHidden);
-          minipanelWidget.setVisible(!minipanelWidget.isVisible());
+          boolean visible = !minipanelWidget.isVisible();
+          setMinipanelVisible(visible);
         }
       });
       addActor(btnMenu);
 
-      Riiablo.assets.load(minipanelDescriptor);
-      Riiablo.assets.finishLoadingAsset(minipanelDescriptor);
-      minipanelWidget = new MinipanelWidget(Riiablo.assets.get(minipanelDescriptor).getTexture(0));
-      minipanelWidget.setPosition((getWidth() / 2) - (minipanelWidget.getWidth() / 2), getHeight());
-      addActor(minipanelWidget);
-
-      final BeltGrid belt = new BeltGrid(gameScreen, 4, 4, 31, 31);
+      final BeltGrid belt = new BeltGrid(4, 4, 31, 31);
       belt.setRows(4);
       belt.setBackground(popbelt);
       belt.setPosition(177, 8);
       belt.populate(Riiablo.charData.getBelt());
+      belt.setHidden(true);
       addActor(belt);
       //setDebug(true, true);
+    }
+
+    void setMinipanelVisible(boolean b) {
+        btnMenu.setStyle(b ? menuShown : menuHidden);
+        minipanelWidget.setVisible(b);
     }
 
     @Override
@@ -376,7 +388,7 @@ public class ControlPanel extends Table implements Disposable {
       MinipanelWidget(TextureRegion background) {
         this.background = background;
         setSize(background.getRegionWidth(), background.getRegionHeight());
-        setVisible(false);
+        //setVisible(false);
 
         Riiablo.assets.load(minipanelbtnDescriptor);
         Riiablo.assets.finishLoadingAsset(minipanelbtnDescriptor);
@@ -385,11 +397,14 @@ public class ControlPanel extends Table implements Disposable {
           public void clicked(InputEvent event, float x, float y) {
             Actor actor = event.getListenerActor();
             if (actor == btnCharacter) {
-              gameScreen.characterPanel.setVisible(!gameScreen.characterPanel.isVisible());
+              Actor panel = Riiablo.game.characterPanel;
+              Riiablo.game.setLeftPanel(panel.isVisible() ? null : panel);
             } else if (actor == btnInventory) {
-              gameScreen.inventoryPanel.setVisible(!gameScreen.inventoryPanel.isVisible());
+              Actor panel = Riiablo.game.inventoryPanel;
+              Riiablo.game.setRightPanel(panel.isVisible() ? null : panel);
             } else if (actor == btnSkillTree) {
-              gameScreen.spellsPanel.setVisible(!gameScreen.spellsPanel.isVisible());
+              Actor panel = Riiablo.game.spellsPanel;
+              Riiablo.game.setRightPanel(panel.isVisible() ? null : panel);
             } else if (actor == btnParty) {
 
             } else if (actor == btnMap) {
@@ -397,9 +412,10 @@ public class ControlPanel extends Table implements Disposable {
             } else if (actor == btnMessages) {
 
             } else if (actor == btnQuests) {
-              gameScreen.questsPanel.setVisible(!gameScreen.questsPanel.isVisible());
+              Actor panel = Riiablo.game.questsPanel;
+              Riiablo.game.setLeftPanel(panel.isVisible() ? null : panel);
             } else if (actor == btnEscapeMenu) {
-              gameScreen.escapePanel.setVisible(!gameScreen.escapePanel.isVisible());
+              Riiablo.game.escapePanel.setVisible(!Riiablo.game.escapePanel.isVisible());
             }
           }
         };

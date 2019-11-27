@@ -1,5 +1,7 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,8 +15,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
-import com.riiablo.entity.Entity;
-import com.riiablo.screen.GameScreen;
+import com.riiablo.engine.component.InteractableComponent;
+import com.riiablo.engine.system.AutoInteractSystem;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
 
@@ -25,16 +27,12 @@ public class MobileControls extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> SoSkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\SoSkillicon.DC6", DC6.class);
   DC6 SoSkillicon;
 
-  GameScreen gameScreen;
-
   Button interact;
   HotkeyButton skills[];
 
   final float SIZE = 64;
 
-  public MobileControls(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public MobileControls() {
     Riiablo.assets.load(SkilliconDescriptor);
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
     Skillicon = Riiablo.assets.get(SkilliconDescriptor);
@@ -51,15 +49,13 @@ public class MobileControls extends WidgetGroup implements Disposable {
     interact.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-        if (!gameScreen.labels.isEmpty()) {
-          for (Actor label : gameScreen.labels) {
-            Object obj = label.getUserObject();
-            if (obj instanceof Entity) {
-              Entity entity = (Entity) obj;
-              if (entity.isSelectable()) entity.interact(gameScreen);
-              break;
-            }
-          }
+        AutoInteractSystem system = Riiablo.engine.getSystem(AutoInteractSystem.class);
+        ImmutableArray<Entity> entities = system.getEntities();
+        if (entities.size() <= 0) return;
+        Entity target = entities.first();
+        InteractableComponent interactableComponent = target.getComponent(InteractableComponent.class);
+        if (interactableComponent != null) {
+          interactableComponent.interactor.interact(Riiablo.game.player, target);
         }
       }
     });
@@ -75,7 +71,7 @@ public class MobileControls extends WidgetGroup implements Disposable {
 
       @Override
       public boolean longPress(Actor actor, float x, float y) {
-        SpellsQuickPanel spellsQuickPanel = gameScreen.spellsQuickPanelR;
+        SpellsQuickPanel spellsQuickPanel = Riiablo.game.spellsQuickPanelR;
         final boolean visible = !spellsQuickPanel.isVisible();
         if (visible) {
           HotkeyButton dst = (HotkeyButton) actor;
@@ -91,13 +87,13 @@ public class MobileControls extends WidgetGroup implements Disposable {
 
       @Override
       public void tap(InputEvent event, float x, float y, int count, int button) {
-        if (gameScreen.spellsQuickPanelR.isVisible()) {
-          gameScreen.spellsQuickPanelR.setVisible(false);
+        if (Riiablo.game.spellsQuickPanelR.isVisible()) {
+          Riiablo.game.spellsQuickPanelR.setVisible(false);
           return;
         }
 
         HotkeyButton actor = (HotkeyButton) event.getListenerActor();
-        gameScreen.player.cast(actor.getSkill());
+//        gameScreen.player.cast(actor.getSkill());
       }
     };
     gestureListener.getGestureDetector().setLongPressSeconds(0.5f);

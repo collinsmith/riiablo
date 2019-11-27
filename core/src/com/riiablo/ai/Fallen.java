@@ -58,7 +58,7 @@ public class Fallen extends AI {
   public Fallen(Entity entity) {
     super(entity);
     stateMachine = new DefaultStateMachine<>(entity, State.IDLE);
-    if (enemyEntities == null) enemyEntities = Riiablo.engine2.getEntitiesFor(enemyFamily);
+    if (enemyEntities == null) enemyEntities = Riiablo.engine.getEntitiesFor(enemyFamily);
   }
 
   @Override
@@ -151,7 +151,7 @@ public class Fallen extends AI {
     if (success) {
       map.smoothPath(flags, size, path);
       PathfindComponent pathfindComponent = com.riiablo.engine.Engine
-          .getOrCreateComponent(entity, Riiablo.engine2, PathfindComponent.class, this.pathfindComponent);
+          .getOrCreateComponent(entity, Riiablo.engine, PathfindComponent.class, this.pathfindComponent);
       pathfindComponent.path = path;
       pathfindComponent.targets = path.vectorIterator();
       pathfindComponent.targets.next(); // consume src position

@@ -93,7 +93,7 @@ public class TouchMovementSystem extends EntitySystem {
 
         Riiablo.cursor.setItem(null);
         Entity item = ((com.riiablo.engine.Engine) getEngine()).createItem(cursor, tmpVec2);
-        Riiablo.engine2.addEntity(item);
+        Riiablo.engine.addEntity(item);
         requireRelease = true;
         return;
       }

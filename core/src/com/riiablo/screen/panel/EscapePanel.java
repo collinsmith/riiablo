@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -33,7 +33,6 @@ public class EscapePanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> pentspinDescriptor = new AssetDescriptor<>("data\\global\\ui\\CURSOR\\pentspin.DC6", DC6.class);
   Animation pentspin;
   FocusActor[] focusActor;
-
 
   public EscapePanel() {
     Riiablo.assets.load(optionsDescriptor);

@@ -15,6 +15,6 @@ public class ItemInteractor implements InteractableComponent.Interactor {
   public void interact(Entity src, Entity entity) {
     ItemComponent itemComponent = this.itemComponent.get(entity);
     Riiablo.cursor.setItem(itemComponent.item);
-    Riiablo.engine2.removeEntity(entity);
+    Riiablo.engine.removeEntity(entity);
   }
 }

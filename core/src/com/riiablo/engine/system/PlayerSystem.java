@@ -30,6 +30,9 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
   private static final boolean DEBUG_STATE = DEBUG && !true;
 
   private static final String[] TOKENS = {"AM", "SO", "NE", "PA", "BA", "DZ", "AI"};
+  public static String getToken(int classId) {
+    return TOKENS[classId];
+  }
 
   private final ComponentMapper<PlayerComponent> charDataComponent = ComponentMapper.getFor(PlayerComponent.class);
   private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);

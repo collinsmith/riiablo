@@ -1,6 +1,6 @@
 package com.riiablo.server;
 
-import com.riiablo.entity.Player;
+import com.badlogic.ashley.core.Entity;
 
 public class Connect {
 
@@ -19,7 +19,7 @@ public class Connect {
     this.colors     = colors;
   }
 
-  public Connect(Player player) {
+  public Connect(Entity player) {
 //    Player.D2SStats stats = (Player.D2SStats) player.stats;
 //    this.name       = stats.d2s.header.name;
 //    this.classId    = stats.d2s.header.charClass;

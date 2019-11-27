@@ -1,5 +1,6 @@
 package com.riiablo.server;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.math.MathUtils;
@@ -18,8 +19,6 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.riiablo.entity.Entity;
 
 public class Server implements Disposable, Runnable {
   private static final String TAG = "Server";

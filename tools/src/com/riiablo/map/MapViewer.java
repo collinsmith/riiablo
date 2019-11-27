@@ -169,8 +169,7 @@ public class MapViewer extends ApplicationAdapter {
     shapes = new ShapeRenderer();
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-    Riiablo.engine2 = engine = new Engine();
-    Riiablo.engine = new com.riiablo.entity.Engine();
+    Riiablo.engine = engine = new Engine();
 
     RenderSystem.RENDER_DEBUG_SUBTILE = true;
     mapRenderer = new RenderSystem(batch);

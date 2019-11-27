@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
@@ -21,7 +21,6 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Quests;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.AnimationWrapper;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.DCWrapper;
@@ -54,15 +53,12 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   Button btnExit;
 
-  final GameScreen gameScreen;
   Tab activeTab;
 
   private static final int[] QUESTS = { 6, 6, 6, 3, 6 };
 
   @SuppressWarnings("unchecked")
-  public QuestsPanel(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public QuestsPanel() {
     Riiablo.assets.load(questbackgroundDescriptor);
     Riiablo.assets.finishLoadingAsset(questbackgroundDescriptor);
     questbackground = Riiablo.assets.get(questbackgroundDescriptor).getTexture();
@@ -313,7 +309,7 @@ public class QuestsPanel extends WidgetGroup implements Disposable {
       addListener(clickListener = new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          parent.setSelected(QuestButton.this);
+          parent.setSelected(QuestsPanel.QuestButton.this);
         }
       });
     }

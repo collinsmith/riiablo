@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.util.BitStream;
-import com.riiablo.entity.Player;
+import com.riiablo.engine.Engine;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
 import com.riiablo.util.BufferUtils;
@@ -161,7 +161,7 @@ public class D2S {
       size          = slice.getInt();
       checksum      = slice.getInt();
       alternate     = slice.getInt();
-      name          = BufferUtils.readString2(slice, Player.MAX_NAME_LENGTH + 1);
+      name          = BufferUtils.readString2(slice, Engine.MAX_NAME_LENGTH + 1);
       flags         = slice.getInt();
       charClass     = slice.get();
       unk1          = BufferUtils.readBytes(slice, 2);

@@ -21,14 +21,13 @@ import com.riiablo.codec.DCC;
 import com.riiablo.codec.excel.Overlay;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BBox;
+import com.riiablo.engine.Direction;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
-import com.riiablo.map.DS1;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.Map;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.map.pfa.Point2;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.util.EngineUtils;
 import com.riiablo.widget.Label;
@@ -39,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
+@Deprecated
 public abstract class Entity implements Animation.AnimationListener {
   private static final String TAG = "Entity";
 
@@ -275,19 +275,6 @@ public abstract class Entity implements Animation.AnimationListener {
   int     size = 1;
 
   private static final Vector2 tmpVec2 = new Vector2();
-
-  public static Entity create(Map map, Map.Zone zone, DS1 ds1, DS1.Object object) {
-    final int type = object.type;
-    switch (type) {
-      case DS1.Object.DYNAMIC_TYPE:
-        return Monster.create(map, zone, ds1, object);
-      case DS1.Object.STATIC_TYPE:
-        return Object.create(map, zone, ds1, object);
-      default:
-        Gdx.app.error(TAG, "Unexpected type: " + type);
-        return null;
-    }
-  }
 
   Entity(Type type, String classname, String token) {
     this(type, classname, token, new byte[COF.Component.NUM_COMPONENTS], DEFAULT_TRANS.clone());
@@ -641,8 +628,6 @@ public abstract class Entity implements Animation.AnimationListener {
   public float getInteractRange() {
     return -1;
   }
-
-  public void interact(GameScreen gameScreen) {}
 
   public boolean isSelectable() {
     return false;

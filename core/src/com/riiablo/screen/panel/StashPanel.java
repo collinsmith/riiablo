@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -15,7 +15,6 @@ import com.riiablo.codec.excel.Inventory;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 
@@ -31,12 +30,9 @@ public class StashPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class);
   Button btnExit;
 
-  final GameScreen gameScreen;
   final Inventory.Entry inventory;
 
-  public StashPanel(GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public StashPanel() {
     Riiablo.assets.load(TradeStashDescriptor);
     Riiablo.assets.finishLoadingAsset(TradeStashDescriptor);
     TradeStash = Riiablo.assets.get(TradeStashDescriptor).getTexture();
@@ -61,7 +57,7 @@ public class StashPanel extends WidgetGroup implements Disposable {
 
     inventory = Riiablo.files.inventory.get("Big Bank Page 1");
 
-    ItemGrid grid = new ItemGrid(gameScreen, inventory);
+    ItemGrid grid = new ItemGrid(inventory);
     grid.populate(Riiablo.charData.getStore(StoreLoc.STASH));
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
@@ -98,5 +94,13 @@ public class StashPanel extends WidgetGroup implements Disposable {
   public void draw(Batch batch, float a) {
     batch.draw(TradeStash, getX(), getY());
     super.draw(batch, a);
+  }
+
+  @Override
+  public void setVisible(boolean visible) {
+    super.setVisible(visible);
+    if (visible) {
+      Riiablo.game.setRightPanel(Riiablo.game.inventoryPanel);
+    }
   }
 }

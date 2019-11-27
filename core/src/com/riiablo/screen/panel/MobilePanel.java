@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -10,13 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 
-public class MobilePanel extends Table implements Disposable {
+public class MobilePanel extends Table implements Disposable, EscapeController {
   final AssetDescriptor<DC6> minipanelbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\minipanelbtn.DC6", DC6.class);
-
-  GameScreen gameScreen;
 
   Button btnCharacter;
   Button btnInventory;
@@ -28,8 +25,7 @@ public class MobilePanel extends Table implements Disposable {
   Button btnEscapeMenu;
   Button btnSwapWeapons;
 
-  public MobilePanel(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
+  public MobilePanel() {
     Riiablo.assets.load(minipanelbtnDescriptor);
     Riiablo.assets.finishLoadingAsset(minipanelbtnDescriptor);
     final DC6 minipanelbtn = Riiablo.assets.get(minipanelbtnDescriptor);
@@ -38,24 +34,28 @@ public class MobilePanel extends Table implements Disposable {
       public void clicked(InputEvent event, float x, float y) {
         Actor actor = event.getListenerActor();
         if (actor == btnCharacter) {
-          gameScreen.characterPanel.setVisible(!gameScreen.characterPanel.isVisible());
+          Actor panel = Riiablo.game.characterPanel;
+          Riiablo.game.setLeftPanel(panel.isVisible() ? null : panel);
         } else if (actor == btnSwapWeapons) {
           Riiablo.charData.alternate();
         } else if (actor == btnInventory) {
-          gameScreen.inventoryPanel.setVisible(!gameScreen.inventoryPanel.isVisible());
+          Actor panel = Riiablo.game.inventoryPanel;
+          Riiablo.game.setRightPanel(panel.isVisible() ? null : panel);
         } else if (actor == btnSkillTree) {
-          gameScreen.spellsPanel.setVisible(!gameScreen.spellsPanel.isVisible());
+          Actor panel = Riiablo.game.spellsPanel;
+          Riiablo.game.setRightPanel(panel.isVisible() ? null : panel);
         } else if (actor == btnParty) {
 
         } else if (actor == btnMap) {
 
         } else if (actor == btnMessages) {
-          gameScreen.input.setVisible(!gameScreen.input.isVisible());
-          gameScreen.input.getStage().setKeyboardFocus(gameScreen.input);
+          Riiablo.game.input.setVisible(!Riiablo.game.input.isVisible());
+          Riiablo.game.input.getStage().setKeyboardFocus(Riiablo.game.input);
         } else if (actor == btnQuests) {
-          gameScreen.questsPanel.setVisible(!gameScreen.questsPanel.isVisible());
+          Actor panel = Riiablo.game.questsPanel;
+          Riiablo.game.setLeftPanel(panel.isVisible() ? null : panel);
         } else if (actor == btnEscapeMenu) {
-          gameScreen.escapePanel.setVisible(!gameScreen.escapePanel.isVisible());
+          Riiablo.game.escapePanel.setVisible(!Riiablo.game.escapePanel.isVisible());
         }
       }
     };
@@ -118,6 +118,11 @@ public class MobilePanel extends Table implements Disposable {
     pack();
     setTouchable(Touchable.childrenOnly);
     //setDebug(true, true);
+  }
+
+  @Override
+  public Actor getEscapeButton() {
+    return btnEscapeMenu;
   }
 
   @Override

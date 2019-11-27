@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
@@ -26,7 +26,6 @@ import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.HotkeyButton;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -59,7 +58,6 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     return i < icons.getNumPages() ? icons : null;
   }
 
-  GameScreen gameScreen;
   ObjectMap<MappedKey, HotkeyButton> keyMappings;
   MappedKeyStateAdapter mappedKeyListener;
   HotkeyButton observer;
@@ -68,8 +66,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   final float SIZE;
   final int ALIGN;
 
-  public SpellsQuickPanel(final GameScreen gameScreen, final HotkeyButton o, final boolean leftSkills) {
-    this.gameScreen = gameScreen;
+  public SpellsQuickPanel(final HotkeyButton o, final boolean leftSkills) {
     this.observer = o;
     this.leftSkills = leftSkills;
 
@@ -104,7 +101,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         HotkeyButton button = keyMappings.get(key);
         if (button == null) return;
         // TODO: Assign
-        ControlPanel controlPanel = gameScreen.controlPanel;
+        ControlPanel controlPanel = Riiablo.game.controlPanel;
         if (leftSkills) {
           controlPanel.getLeftSkill().copy(button);
         } else {

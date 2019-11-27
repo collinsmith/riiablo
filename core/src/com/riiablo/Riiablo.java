@@ -12,10 +12,10 @@ import com.riiablo.audio.Audio;
 import com.riiablo.audio.MusicController;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
-import com.riiablo.entity.Engine;
+import com.riiablo.engine.Engine;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.mpq.MPQFileHandleResolver;
-import com.riiablo.screen.ClientScreen;
+import com.riiablo.screen.GameScreen;
 
 public class Riiablo {
   private Riiablo() {}
@@ -54,6 +54,5 @@ public class Riiablo {
   public static Cursor                cursor;
   public static CharData              charData;
   public static Engine                engine;
-  public static com.riiablo.engine.Engine engine2;
-  public static ClientScreen          game;
+  public static GameScreen            game;
 }

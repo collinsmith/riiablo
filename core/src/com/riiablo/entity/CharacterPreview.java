@@ -1,16 +1,19 @@
 package com.riiablo.entity;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.D2S;
 import com.riiablo.codec.excel.Weapons;
+import com.riiablo.engine.Direction;
+import com.riiablo.engine.Engine;
+import com.riiablo.engine.system.PlayerSystem;
 import com.riiablo.item.ItemCodes;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
+@Deprecated
 public class CharacterPreview extends Entity {
   private static final String TAG = "CharacterPreview";
   private static final boolean DEBUG       = true;
@@ -19,11 +22,11 @@ public class CharacterPreview extends Entity {
   final D2S d2s;
 
   public CharacterPreview(D2S d2s) {
-    super(Type.PLR, "char-preview", Player.getToken(d2s.header.charClass), d2s.header.composites, d2s.header.colors);
+    super(Type.PLR, "char-preview", PlayerSystem.getToken(d2s.header.charClass), d2s.header.composites, d2s.header.colors);
     this.d2s = d2s;
-    setMode(Player.MODE_TN);
+    setMode(Engine.Player.MODE_TN);
     setWeapon(Entity.WEAPON_1HS);
-    angle(-MathUtils.PI / 2);
+    angle(Direction.direction8ToRadians(Direction.DOWN));
     updateWeaponClass();
   }
 

@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
 import com.riiablo.codec.excel.Inventory;
@@ -25,7 +26,6 @@ import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 
@@ -47,16 +47,13 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> inv_weaponsDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\inv_weapons.DC6", DC6.class);
   DC6 inv_armor, inv_helm_glove, inv_weapons;
 
-  final GameScreen gameScreen;
   final Inventory.Entry inventory;
 
   final Texture fill;
   final Color backgroundColorG;
   final Color backgroundColorR;
 
-  public HirelingPanel(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public HirelingPanel() {
     Riiablo.assets.load(NpcInvDescriptor);
     Riiablo.assets.finishLoadingAsset(NpcInvDescriptor);
     NpcInv = Riiablo.assets.get(NpcInvDescriptor).getTexture();
@@ -139,8 +136,9 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
     addActor(head);
 
     EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
-    if (gameScreen.player.merc.items.items != null) {
-      for (Item item : gameScreen.player.merc.items.items.items) {
+    D2S.MercData mercData = Riiablo.charData.getD2S().header.merc;
+    if (mercData.items.items != null) {
+      for (Item item : mercData.items.items.items) {
         equipped.put(item.bodyLoc, item);
       }
     }
@@ -384,7 +382,7 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
       }
 
       if (isOver && item != null && cursorItem == null) {
-        gameScreen.setDetails(item.details(), item, HirelingPanel.this, this);
+        Riiablo.game.setDetails(item.details(), item, HirelingPanel.this, this);
       }
     }
   }

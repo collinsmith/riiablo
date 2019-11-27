@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
@@ -16,11 +16,9 @@ import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Cvars;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
-import com.riiablo.entity.Player;
 import com.riiablo.item.Attributes;
 import com.riiablo.item.Stat;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.StatLabel;
@@ -35,11 +33,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class);
   Button btnExit;
 
-  final GameScreen gameScreen;
-
-  public CharacterPanel(GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
+  public CharacterPanel() {
     Riiablo.assets.load(invcharDescriptor);
     Riiablo.assets.finishLoadingAsset(invcharDescriptor);
     invchar = Riiablo.assets.get(invcharDescriptor).getTexture(0);
@@ -61,8 +55,6 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
       }
     });
     addActor(btnExit);
-
-    Player player = gameScreen.player;
 
     Label name = new Label(Riiablo.charData.getD2S().header.name, Riiablo.fonts.font16);
     name.setPosition(12, getHeight() - 24);

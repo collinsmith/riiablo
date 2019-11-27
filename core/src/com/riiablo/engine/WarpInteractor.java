@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.LvlWarp;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.Box2DComponent;
 import com.riiablo.engine.component.InteractableComponent;
@@ -13,7 +14,6 @@ import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.WarpComponent;
-import com.riiablo.entity.Warp;
 import com.riiablo.map.Map;
 import com.riiablo.map.pfa.GraphPath;
 
@@ -37,20 +37,23 @@ public class WarpInteractor implements InteractableComponent.Interactor {
     MapComponent mapComponent = this.mapComponent.get(entity);
     Map.Zone dst = mapComponent.map.findZone(warpComponent.dstLevel);
     int dstIndex = mapComponent.zone.getWarp(warpComponent.index);
-    Warp dstWarp = dst.findWarp(dstIndex);
-    if (dstWarp == null) throw new AssertionError("Invalid dstWarp: " + dstIndex);
+    Entity dstWarpEntity = dst.findWarp(dstIndex);
+    if (dstWarpEntity == null) throw new AssertionError("Invalid dstWarp: " + dstIndex);
+    Vector2 dstWarpPos = this.positionComponent.get(dstWarpEntity).position;
     PositionComponent positionComponent = this.positionComponent.get(src);
-    positionComponent.position.set(dstWarp.position());
+    positionComponent.position.set(dstWarpPos);
 
     Box2DComponent box2DComponent = this.box2DComponent.get(src);
     if (box2DComponent != null) box2DComponent.body.setTransform(positionComponent.position, 0);
 
-    tmpVec2.set(dstWarp.warp.ExitWalkX, dstWarp.warp.ExitWalkY);
+    WarpComponent dstWarpComponent = this.warpComponent.get(dstWarpEntity);
+    LvlWarp.Entry dstWarp = dstWarpComponent.warp;
+    tmpVec2.set(dstWarp.ExitWalkX, dstWarp.ExitWalkY);
     AngleComponent angleComponent = src.getComponent(AngleComponent.class);
     angleComponent.angle.set(tmpVec2).nor();
     angleComponent.target.set(angleComponent.angle);
 
-    tmpVec2.set(dstWarp.position()).add(dstWarp.warp.ExitWalkX, dstWarp.warp.ExitWalkY);
+    tmpVec2.set(dstWarpPos).add(dstWarp.ExitWalkX, dstWarp.ExitWalkY);
 
     // no collision or size to make sure path is generated
     GraphPath path = Pools.obtain(GraphPath.class);
@@ -58,7 +61,7 @@ public class WarpInteractor implements InteractableComponent.Interactor {
     if (success) {
       mapComponent.map.smoothPath(0, 0, path);
       PathfindComponent pathfindComponent = com.riiablo.engine.Engine
-          .getOrCreateComponent(src, Riiablo.engine2, PathfindComponent.class, this.pathfindComponent);
+          .getOrCreateComponent(src, Riiablo.engine, PathfindComponent.class, this.pathfindComponent);
       pathfindComponent.path = path;
       pathfindComponent.targets = path.vectorIterator();
       pathfindComponent.targets.next(); // consume src position

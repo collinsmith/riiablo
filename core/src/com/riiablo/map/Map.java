@@ -1,5 +1,7 @@
 package com.riiablo.map;
 
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
@@ -23,9 +25,7 @@ import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
 import com.riiablo.codec.excel.MonStats;
-import com.riiablo.entity.Entity;
-import com.riiablo.entity.Monster;
-import com.riiablo.entity.Warp;
+import com.riiablo.engine.component.WarpComponent;
 import com.riiablo.map.pfa.AStarPathFinder;
 import com.riiablo.map.pfa.Point2;
 
@@ -416,15 +416,10 @@ public class Map implements Disposable {
                   ? monster.MaxGrp
                   : MathUtils.random(monster.MinGrp, monster.MaxGrp);
               for (i = 0; i < count; i++) {
-                Monster entity = Monster.create(mapRef, zone, monster);
                 int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
                 int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
-                entity.position().set(px, py);
-                Riiablo.engine.add(entity);
-                if (Riiablo.engine2 != null) {
-                  com.badlogic.ashley.core.Entity e = Riiablo.engine2.createMonster(mapRef, zone, monster, px, py);
-                  Riiablo.engine2.addEntity(e);
-                }
+                Entity entity = Riiablo.engine.createMonster(mapRef, zone, monster, px, py);
+                Riiablo.engine.addEntity(entity);
               }
             }
           }
@@ -719,6 +714,8 @@ public class Map implements Disposable {
     static final Array<Entity> EMPTY_ENTITY_ARRAY = new Array<>(0);
     static final IntIntMap     EMPTY_INT_INT_MAP = new IntIntMap(0);
 
+    static final ComponentMapper<WarpComponent> warpComponent = ComponentMapper.getFor(WarpComponent.class);
+
     int x, y;
     int width, height;
     int gridSizeX, gridSizeY;
@@ -789,15 +786,10 @@ public class Map implements Disposable {
       if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        Entity entity = Entity.create(map, this, ds1, obj);
+        Entity entity = Riiablo.engine.createObject(map, this, ds1, obj, x + obj.x, y + obj.y);
         if (entity == null) continue;
-        entity.position().set(x + obj.x, y + obj.y);
         entities.add(entity);
-
-        if (Riiablo.engine2 != null) {
-          com.badlogic.ashley.core.Entity e = Riiablo.engine2.createObject(map, this, ds1, obj, x + obj.x, y + obj.y);
-          Riiablo.engine2.addEntity(e);
-        }
+        Riiablo.engine.addEntity(entity);
       }
     }
 
@@ -805,12 +797,9 @@ public class Map implements Disposable {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
       if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
-      Warp warp = new Warp(map, this, tile.cell.id, x, y);
-      entities.add(warp);
-      if (Riiablo.engine2 != null) {
-        com.badlogic.ashley.core.Entity e = Riiablo.engine2.createWarp(map, this, tile.cell.id, x, y);
-        Riiablo.engine2.addEntity(e);
-      }
+      Entity entity = Riiablo.engine.createWarp(map, this, tile.cell.id, x, y);
+      entities.add(entity);
+      Riiablo.engine.addEntity(entity);
     }
 
     void setWarp(int src, int dst) {
@@ -838,14 +827,9 @@ public class Map implements Disposable {
       return presets[x][y].ds1.find(id);
     }
 
-    public Warp findWarp(int id) {
+    public Entity findWarp(int id) {
       for (Entity entity : entities) {
-        if (entity instanceof Warp) {
-          Warp warp = (Warp) entity;
-          if (warp.index == id) {
-            return warp;
-          }
-        }
+        if (warpComponent.has(entity)) return entity;
       }
 
       return null;

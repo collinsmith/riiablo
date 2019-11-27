@@ -44,7 +44,7 @@ import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
-import com.riiablo.entity.Engine;
+import com.riiablo.engine.Engine;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.DC6Loader;
@@ -270,7 +270,6 @@ public class Client extends Game {
     Riiablo.textures = textures = new Textures();
     Riiablo.cursor = cursor = new Cursor();
     Riiablo.charData = charData = new CharData();
-    Riiablo.engine = engine = new Engine();
 
     Collection<Throwable> throwables;
     Riiablo.commands = commands = new GdxCommandManager();
@@ -502,7 +501,6 @@ public class Client extends Game {
     Riiablo.music = music;
     Riiablo.cursor = cursor;
     Riiablo.charData = charData;
-    Riiablo.engine = engine;
     super.resume();
   }
 

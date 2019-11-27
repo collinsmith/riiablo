@@ -1,4 +1,4 @@
-package com.riiablo.panel;
+package com.riiablo.screen.panel;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
@@ -22,7 +22,6 @@ import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.screen.GameScreen;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.LabelButton;
@@ -43,12 +42,8 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
 
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
 
-  final GameScreen gameScreen;
-
-  public SpellsPanel(final GameScreen gameScreen) {
-    this.gameScreen = gameScreen;
-
-    CharacterClass charClass = gameScreen.player.charClass;
+  public SpellsPanel() {
+    CharacterClass charClass = Riiablo.charData.getCharacterClass();
     skltreeDescriptor = new AssetDescriptor<>(SPELLS_PATH + charClass.spellsBackground + ".dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
     Riiablo.assets.load(skltreeDescriptor);
     Riiablo.assets.finishLoadingAsset(skltreeDescriptor);
@@ -201,7 +196,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
         public void draw(PaletteIndexedBatch batch, float parentAlpha) {
           super.draw(batch, parentAlpha);
           if (isOver()) {
-            gameScreen.setDetails(details, null, SpellsPanel.this, this);
+            Riiablo.game.setDetails(details, null, SpellsPanel.this, this);
           }
         }
       };
