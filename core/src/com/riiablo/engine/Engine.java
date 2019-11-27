@@ -479,6 +479,17 @@ public class Engine extends PooledEngine {
 
     CofComponent cofComponent = createComponent(CofComponent.class);
     cofComponent.mode = Player.MODE_TN;
+    if (charData.getD2S().file == null) {
+      // FIXME: extra checks to prevent crashes due to no save file existing -- see TransformUpdateSystem NPE fix
+      cofComponent.wclass = CofComponent.WEAPON_HTH;
+      cofComponent.setComponent(COF.Component.HD, CofComponent.COMPONENT_LIT);
+      cofComponent.setComponent(COF.Component.TR, CofComponent.COMPONENT_LIT);
+      cofComponent.setComponent(COF.Component.LG, CofComponent.COMPONENT_LIT);
+      cofComponent.setComponent(COF.Component.RA, CofComponent.COMPONENT_LIT);
+      cofComponent.setComponent(COF.Component.LA, CofComponent.COMPONENT_LIT);
+      cofComponent.setComponent(COF.Component.S1, CofComponent.COMPONENT_LIT);
+      cofComponent.setComponent(COF.Component.S2, CofComponent.COMPONENT_LIT);
+    }
 
     AnimationComponent animationComponent = createComponent(AnimationComponent.class);
 

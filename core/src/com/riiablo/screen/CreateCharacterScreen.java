@@ -330,7 +330,6 @@ public class CreateCharacterScreen extends ScreenAdapter {
     Riiablo.client.addScreenBoundsListener(screenBoundsListener = new Client.ScreenBoundsListener() {
       @Override
       public void updateScreenBounds(float x, float y, float width, float height) {
-        System.out.println("y = " + y);
         charOptions.setPosition(stage.getWidth() / 2, y + 20, Align.bottom | Align.center);
       }
     });
