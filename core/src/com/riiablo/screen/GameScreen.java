@@ -12,7 +12,6 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
@@ -728,8 +727,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.getSystem(WarpSystem.class).setMap(map);
     engine.getSystem(Box2DPhysicsSystem.class).setMap(map, iso);
 
-    GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-    Map.Zone zone = map.getZone(origin.x, origin.y);
+    Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+    Map.Zone zone = map.getZone(origin);
     player = engine.createPlayer(map, zone, charData, origin.x, origin.y);
 
     engine.addEntity(player);

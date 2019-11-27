@@ -4,7 +4,7 @@ import com.google.common.primitives.Ints;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.StreamUtils;
@@ -122,28 +122,28 @@ public class DS1 {
     return act;
   }
 
-  IntMap<GridPoint2> specials;
+  IntMap<Vector2> specials;
 
-  public GridPoint2 find(int id) {
+  public Vector2 find(int id) {
     return specials.get(id);
   }
 
   private DS1() {}
 
   public static DS1 loadFromFile(FileHandle handle) {
-    return loadFromStream(handle.read());
+    return loadFromStream(handle.toString(), handle.read());
   }
 
-  public static DS1 loadFromStream(InputStream in) {
+  public static DS1 loadFromStream(String name, InputStream in) {
     try {
-      in = IOUtils.buffer(in, 16384);
+      in = IOUtils.buffer(in, 8192);
       DS1 ds1 = new DS1().read(in);
       if (DEBUG) Gdx.app.debug(TAG, ds1.toString());
       if (ds1.version < 9 || 13 < ds1.version) {
-        // FIXME: version 9 <= 13 causes crash here /w 4B remaining, why?
         assert in.available() == 0 : in.available() + "B available!";
       } else if (DEBUG_STREAM && in.available() > 0) {
-        Gdx.app.error(TAG, in.available() + "B still available in stream!");
+        // FIXME: version 9 <= 13 causes crash here /w 4B remaining, why? always 0?
+        Gdx.app.error(TAG, name + " " + in.available() + "B still available in stream! version=" + ds1.version/* + "; " + EndianUtils.readSwappedInteger(in)*/);
       }
 
       return ds1;
@@ -332,7 +332,7 @@ public class DS1 {
         offset += numWalls;
 
         if (Orientation.isSpecial(wall.orientation)) {
-          specials.put(wall.id, new GridPoint2(x, y));
+          specials.put(wall.id, new Vector2(x, y));
           if (DEBUG_PROPS) {
             int mainIndex = (wall.value & 0x03F00000) >>> 20;
             int subIndex = (wall.value & 0x0000FF00) >>> 8;

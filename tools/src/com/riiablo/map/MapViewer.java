@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
@@ -409,10 +408,10 @@ public class MapViewer extends ApplicationAdapter {
     box2DPhysicsSystem.setMap(map, mapRenderer.iso);
     engine.getSystem(WarpSystem.class).setMap(map);
 
-    GridPoint2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+    Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin != null) {
-      x = origin.x;
-      y = origin.y;
+      x = (int) origin.x;
+      y = (int) origin.y;
     }
 
     ent = createSrc(x, y);

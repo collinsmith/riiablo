@@ -10,7 +10,6 @@ import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -449,8 +448,8 @@ public class Map implements Disposable {
     return numFiles;
   }
 
-  public GridPoint2 find(int id) {
-    GridPoint2 origin = zones.first().presets[0][0].ds1.find(id);
+  public Vector2 find(int id) {
+    Vector2 origin = zones.first().presets[0][0].ds1.find(id);
     if (origin == null) return null;
     origin = origin.cpy();
     origin.x *= DT1.Tile.SUBTILE_SIZE;
@@ -823,7 +822,7 @@ public class Map implements Disposable {
     }
 
     // TODO: define entrance, exit to eliminate x,y
-    public GridPoint2 find(int x, int y, int id) {
+    public Vector2 find(int x, int y, int id) {
       return presets[x][y].ds1.find(id);
     }
 

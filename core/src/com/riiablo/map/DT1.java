@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
-import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
@@ -174,7 +174,7 @@ public class DT1 implements Disposable {
     public static final int SUBTILE_WIDTH50  = SUBTILE_WIDTH  / 2;
     public static final int SUBTILE_HEIGHT50 = SUBTILE_HEIGHT / 2;
 
-    public static final GridPoint2 SUBTILE_CENTER = new GridPoint2(SUBTILE_SIZE / 2, SUBTILE_SIZE / 2);
+    public static final Vector2 SUBTILE_CENTER = new Vector2(SUBTILE_SIZE / 2, SUBTILE_SIZE / 2);
 
     public static final int[][] SUBTILE_INDEX/* = {
         {0, 5, 10, 15, 20},
