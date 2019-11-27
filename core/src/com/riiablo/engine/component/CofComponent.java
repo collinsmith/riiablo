@@ -102,4 +102,22 @@ public class CofComponent implements Component, Pool.Poolable {
       dirty |= (1 << component);
     }
   }
+
+  public int setTransform(int component, byte packedTransform) {
+    if (this.transform[component] != packedTransform) {
+      this.transform[component] = packedTransform;
+      return (1 << component);
+    }
+
+    return 0;
+  }
+
+  public int setAlpha(int component, float alpha) {
+    if (this.alpha[component] != alpha) {
+      this.alpha[component] = alpha;
+      return (1 << component);
+    }
+
+    return 0;
+  }
 }

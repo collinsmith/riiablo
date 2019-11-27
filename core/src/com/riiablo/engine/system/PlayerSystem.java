@@ -152,18 +152,21 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
     cof.setComponent(COF.Component.LH, LH != null ? TypeComponent.Type.PLR.getComponent(LH.base.alternateGfx) : CofComponent.COMPONENT_NIL);
     cof.setComponent(COF.Component.SH, SH != null ? TypeComponent.Type.PLR.getComponent(SH.base.alternateGfx) : CofComponent.COMPONENT_NIL);
 
-    cof.alpha[COF.Component.RH] = RH != null && RH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL;
-    cof.alpha[COF.Component.LH] = LH != null && LH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL;
-    cof.alpha[COF.Component.SH] = SH != null && SH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL;
-    com.riiablo.engine.Engine.getOrCreateComponent(entity, getEngine(), AlphaUpdate.class, this.alphaUpdate).flags |= BodyLoc.RARM.components();
+    int alphaFlags = 0;
+    alphaFlags |= cof.setAlpha(COF.Component.RH, RH != null && RH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL);
+    alphaFlags |= cof.setAlpha(COF.Component.LH, LH != null && LH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL);
+    alphaFlags |= cof.setAlpha(COF.Component.SH, SH != null && SH.isEthereal() ? Item.ETHEREAL_ALPHA : CofComponent.ALPHA_NULL);
+    if (alphaFlags != 0) {
+      AlphaUpdate alphaUpdate = com.riiablo.engine.Engine.getOrCreateComponent(entity, getEngine(), AlphaUpdate.class, this.alphaUpdate);
+      alphaUpdate.flags |= alphaFlags;
+    }
   }
 
   private void updateArmorClass(Entity entity, CharData charData, CofComponent cof) {
+    int transformFlags = 0;
     Item head = charData.getEquipped(BodyLoc.HEAD);
     cof.setComponent(COF.Component.HD, head != null ? TypeComponent.Type.PLR.getComponent(head.base.alternateGfx) : CofComponent.COMPONENT_LIT);
-    cof.transform[COF.Component.HD] = head != null ? (byte) ((head.base.Transform << 5) | (head.charColorIndex & 0x1F)) : CofComponent.TRANSFORM_NULL;
-    TransformUpdate transformUpdate = com.riiablo.engine.Engine.getOrCreateComponent(entity, getEngine(), TransformUpdate.class, this.transformUpdate);
-    transformUpdate.flags |= BodyLoc.HEAD.components();
+    transformFlags |= cof.setTransform(COF.Component.HD, head != null ? (byte) ((head.base.Transform << 5) | (head.charColorIndex & 0x1F)) : CofComponent.TRANSFORM_NULL);
 
     Item body = charData.getEquipped(BodyLoc.TORS);
     if (body != null) {
@@ -176,13 +179,12 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
       cof.setComponent(COF.Component.S2, (armor.rSPad + 1));
 
       byte packedTransform = (byte) ((body.base.Transform << 5) | (body.charColorIndex & 0x1F));
-      cof.transform[COF.Component.TR] = packedTransform;
-      cof.transform[COF.Component.LG] = packedTransform;
-      cof.transform[COF.Component.RA] = packedTransform;
-      cof.transform[COF.Component.LA] = packedTransform;
-      cof.transform[COF.Component.S1] = packedTransform;
-      cof.transform[COF.Component.S2] = packedTransform;
-      transformUpdate.flags |= BodyLoc.TORS.components();
+      transformFlags |= cof.setTransform(COF.Component.TR, packedTransform);
+      transformFlags |= cof.setTransform(COF.Component.LG, packedTransform);
+      transformFlags |= cof.setTransform(COF.Component.RA, packedTransform);
+      transformFlags |= cof.setTransform(COF.Component.LA, packedTransform);
+      transformFlags |= cof.setTransform(COF.Component.S1, packedTransform);
+      transformFlags |= cof.setTransform(COF.Component.S2, packedTransform);
     } else {
       cof.setComponent(COF.Component.TR, CofComponent.COMPONENT_LIT);
       cof.setComponent(COF.Component.LG, CofComponent.COMPONENT_LIT);
@@ -191,13 +193,17 @@ public class PlayerSystem extends EntitySystem implements EntityListener, CharDa
       cof.setComponent(COF.Component.S1, CofComponent.COMPONENT_LIT);
       cof.setComponent(COF.Component.S2, CofComponent.COMPONENT_LIT);
 
-      cof.transform[COF.Component.TR] = CofComponent.TRANSFORM_NULL;
-      cof.transform[COF.Component.LG] = CofComponent.TRANSFORM_NULL;
-      cof.transform[COF.Component.RA] = CofComponent.TRANSFORM_NULL;
-      cof.transform[COF.Component.LA] = CofComponent.TRANSFORM_NULL;
-      cof.transform[COF.Component.S1] = CofComponent.TRANSFORM_NULL;
-      cof.transform[COF.Component.S2] = CofComponent.TRANSFORM_NULL;
-      transformUpdate.flags |= BodyLoc.TORS.components();
+      transformFlags |= cof.setTransform(COF.Component.TR, CofComponent.TRANSFORM_NULL);
+      transformFlags |= cof.setTransform(COF.Component.LG, CofComponent.TRANSFORM_NULL);
+      transformFlags |= cof.setTransform(COF.Component.RA, CofComponent.TRANSFORM_NULL);
+      transformFlags |= cof.setTransform(COF.Component.LA, CofComponent.TRANSFORM_NULL);
+      transformFlags |= cof.setTransform(COF.Component.S1, CofComponent.TRANSFORM_NULL);
+      transformFlags |= cof.setTransform(COF.Component.S2, CofComponent.TRANSFORM_NULL);
+    }
+
+    if (transformFlags != 0) {
+      TransformUpdate transformUpdate = com.riiablo.engine.Engine.getOrCreateComponent(entity, getEngine(), TransformUpdate.class, this.transformUpdate);
+      transformUpdate.flags |= transformFlags;
     }
   }
 

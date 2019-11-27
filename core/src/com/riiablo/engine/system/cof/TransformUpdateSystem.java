@@ -36,9 +36,7 @@ public class TransformUpdateSystem extends IteratingSystem {
     for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
       int component = cofComponent.cof.getLayer(l).component;
       if (!Dirty.isDirty(flags, component)) continue;
-      // FIXME: NPE check here shouldn't be needed -- see note in Engine#createPlayer
-      Animation.Layer layer = animation.getLayer(component);
-      if (layer != null) layer.setTransform(transform[component]);
+      animation.getLayer(component).setTransform(transform[component]);
     }
 
     entity.remove(TransformUpdate.class);
