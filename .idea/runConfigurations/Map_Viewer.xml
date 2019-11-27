@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Map Viewer" type="Application" factoryName="Application" singleton="true">
+    <option name="MAIN_CLASS_NAME" value="com.riiablo.map.MapViewer" />
+    <module name="tools" />
+    <option name="PROGRAM_PARAMETERS" value="&quot;C:\Program Files (x86)\Steam\steamapps\common\Diablo II&quot; 0 0 0" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/android/assets" />
+    <method />
+  </configuration>
+</component>

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="desktop (debug) (854x480)" type="Application" factoryName="Application" singleton="true">
+    <option name="MAIN_CLASS_NAME" value="com.riiablo.DesktopLauncher" />
+    <module name="desktop" />
+    <option name="PROGRAM_PARAMETERS" value="-i 854 -o 480 -fps -w -logLevel debug -home &quot;C:\Program Files (x86)\Steam\steamapps\common\Diablo II&quot;" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/android/assets" />
+    <method />
+  </configuration>
+</component>
