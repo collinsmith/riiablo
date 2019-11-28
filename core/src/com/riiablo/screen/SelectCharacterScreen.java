@@ -58,7 +58,7 @@ public class SelectCharacterScreen extends ScreenAdapter {
         } else if (actor == btnOK) {
           assert selected != null;
           GameScreen game = new GameScreen(Riiablo.charData.setD2S(selected.getD2S()));
-          Riiablo.client.clearAndSet(new LoadingScreen(game));
+          Riiablo.client.clearAndSet(new GameLoadingScreen(game));
         } else if (actor == btnCreateNewCharacter) {
           Riiablo.client.pushScreen(new CreateCharacterScreen());
         }

@@ -77,7 +77,7 @@ public class ZoneEntrySystem extends EntitySystem {
 
     // TODO: i18n? Not sure if these have translations.
     String entryFile = zone.level.Id == 8 ? "A1Q1" : zone.level.EntryFile;
-    entryDescriptor = new AssetDescriptor<>("data\\local\\ui\\eng\\" + ACT_NAME[map.act] + "\\" + entryFile + ".dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
+    entryDescriptor = new AssetDescriptor<>("data\\local\\ui\\eng\\" + ACT_NAME[map.getAct()] + "\\" + entryFile + ".dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
     Riiablo.assets.load(entryDescriptor);
   }
 }

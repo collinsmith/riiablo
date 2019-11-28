@@ -76,7 +76,6 @@ import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.map.Box2DPhysicsSystem;
 import com.riiablo.map.Map;
-import com.riiablo.map.MapLoader;
 import com.riiablo.map.RenderSystem;
 import com.riiablo.screen.panel.CharacterPanel;
 import com.riiablo.screen.panel.ControlPanel;
@@ -113,6 +112,15 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   final AssetDescriptor<Texture> touchpadKnobDescriptor = new AssetDescriptor<>("textures/touchKnob.png", Texture.class);
   Touchpad touchpad;
 
+  final Array<AssetDescriptor> preloadedAssets = new Array<AssetDescriptor>() {{
+    add(windowopenDescriptor);
+    if (Gdx.app.getType() == Application.ApplicationType.Android || DEBUG_TOUCHPAD) {
+      add(touchpadBackgroundDescriptor);
+      add(touchpadKnobDescriptor);
+    }
+  }};
+
+
   Stage stage;
   Stage scaledStage;
   Viewport viewport;
@@ -131,7 +139,6 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   public Entity player;
   CharData charData;
 
-  final AssetDescriptor<Map> mapDescriptor = new AssetDescriptor<>("Act 1", Map.class, MapLoader.MapParameters.of(0, 0, 0));
   Map map;
   IsometricCamera iso;
   InputProcessor testingInputProcessor;
@@ -172,14 +179,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   @Override
   public Array<AssetDescriptor> getDependencies() {
-    Array<AssetDescriptor> dependencies = new Array<>();
-    dependencies.add(windowopenDescriptor);
-    dependencies.add(mapDescriptor);
-    if (Gdx.app.getType() == Application.ApplicationType.Android || DEBUG_TOUCHPAD) {
-      dependencies.add(touchpadBackgroundDescriptor);
-      dependencies.add(touchpadKnobDescriptor);
-    }
-    return dependencies;
+    return preloadedAssets;
   }
 
   public GameScreen(CharData charData) {
@@ -409,7 +409,9 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       }
     };
 
+    map = new Map(0, 0);
     renderer = new RenderSystem(Riiablo.batch);
+    renderer.setMap(map);
     iso = renderer.iso();
     scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
 
@@ -722,7 +724,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     }
     renderer.resize();
 
-    map = Riiablo.assets.get(mapDescriptor);
+    // TODO: move map into constructor of below methods or move these lines up top where they are created
     renderer.setMap(map);
     engine.getSystem(WarpSystem.class).setMap(map);
     engine.getSystem(Box2DPhysicsSystem.class).setMap(map, iso);
@@ -762,9 +764,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.removeAllSystems();
     for (Actor actor : stage.getActors()) if (actor instanceof Disposable) ((Disposable) actor).dispose();
     stage.dispose();
-    Riiablo.assets.unload(windowopenDescriptor.fileName);
-    if (Riiablo.assets.isLoaded(touchpadBackgroundDescriptor)) Riiablo.assets.load(touchpadBackgroundDescriptor);
-    if (Riiablo.assets.isLoaded(touchpadKnobDescriptor)) Riiablo.assets.load(touchpadKnobDescriptor);
+    for (AssetDescriptor asset : preloadedAssets) Riiablo.assets.unload(asset.fileName);
   }
 
   public void setRightPanel(Actor actor) {

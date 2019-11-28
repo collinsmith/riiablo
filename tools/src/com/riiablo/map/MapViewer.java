@@ -399,11 +399,16 @@ public class MapViewer extends ApplicationAdapter {
     }
     */
 
-    assets.setLoader(Map.class, new MapLoader(resolver));
-    assets.load("Act 1", Map.class, MapLoader.MapParameters.of(seed, act, diff));
-    assets.finishLoading();
+    //assets.setLoader(Map.class, new MapLoader(resolver));
+    //assets.load("Act 1", Map.class, MapLoader.MapParameters.of(seed, act, diff));
+    //assets.finishLoading();
 
-    map = assets.get("Act 1");
+    //map = assets.get("Act 1");
+    map = new Map(seed, diff);
+    map.setAct(act);
+    map.load();
+    map.finishLoading();
+    map.generate();
     mapRenderer.setMap(map);
     box2DPhysicsSystem.setMap(map, mapRenderer.iso);
     engine.getSystem(WarpSystem.class).setMap(map);

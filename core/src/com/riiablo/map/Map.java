@@ -8,7 +8,6 @@ import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
 import com.badlogic.gdx.ai.utils.Collision;
 import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -18,18 +17,19 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
-import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
-import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.component.WarpComponent;
 import com.riiablo.map.pfa.AStarPathFinder;
 import com.riiablo.map.pfa.Point2;
 
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.Arrays;
 
 public class Map implements Disposable {
   private static final String TAG = "Map";
@@ -138,7 +138,6 @@ public class Map implements Disposable {
     public static final int TOWN_ENTRY_2    = DT1.Tile.Index.create(Orientation.SPECIAL_10, 31, 0);
     public static final int CORPSE_LOCATION = DT1.Tile.Index.create(Orientation.SPECIAL_10, 32, 0);
     public static final int TP_LOCATION     = DT1.Tile.Index.create(Orientation.SPECIAL_10, 33, 0);
-
 
     static IntSet WARPS;
     static {
@@ -261,9 +260,8 @@ public class Map implements Disposable {
       return ID_TO_NAME.get(id, "null");
     }
 
-    public static int getGroup(DS1.Cell cell) {
-      if (cell == null) return 0;
-      switch (cell.mainIndex) {
+    public static int getGroup(int mainIndex) {
+      switch (mainIndex) {
         case 8: case 9: case 10:
           return 1;
         case 12: case 13:
@@ -277,9 +275,18 @@ public class Map implements Disposable {
       }
     }
 
-    public static Color getColor(DS1.Cell cell) {
-      if (cell == null) return Color.WHITE;
-      switch (cell.mainIndex) {
+    public static int getGroup(DT1.Tile tile) {
+      if (tile == null) return 0;
+      return getGroup(tile.mainIndex);
+    }
+
+    public static int getGroup(DS1.Cell cell) {
+      if (cell == null) return 0;
+      return getGroup(cell.mainIndex);
+    }
+
+    public static Color getColor(int mainIndex) {
+      switch (mainIndex) {
         case 8:  return Color.RED;
         case 9:  return Color.ORANGE;
         case 10: return Color.YELLOW;
@@ -290,400 +297,85 @@ public class Map implements Disposable {
         default: return Color.WHITE;
       }
     }
+
+    public static Color getColor(DS1.Cell cell) {
+      if (cell == null) return Color.WHITE;
+      return getColor(cell.mainIndex);
+    }
+
+    public static Color getColor(DT1.Tile tile) {
+      if (tile == null) return Color.WHITE;
+      return getColor(tile.mainIndex);
+    }
   }
 
   public static int round(float i) {
     return MathUtils.round(i);
   }
 
-  public final int act;
-  // TODO: maybe replace with R-tree? // https://en.wikipedia.org/wiki/R-tree
-  final Array<Zone>  zones = new Array<>();
-  IntMap<DT1s> dt1s;
-  final IntIntMap warpSubsts = new IntIntMap();
-  public static Map instance; // TODO: remove
+  final int seed;
+  final int diff;
+  int act = -1;
 
-  private Map(int act) {
-    this.act = act;
-  }
+  final IntMap<DT1s> dt1s = new IntMap<>();
+  final Array<Zone> zones = new Array<>();
 
   public static Map build(MapLoader.MapParameters params) {
-    return build(params.seed, params.act, params.diff);
+    throw new UnsupportedOperationException("stub!");
+  }
+  public static Map buildDT1s() {
+    throw new UnsupportedOperationException("stub!");
   }
 
-  public static Map build(int seed, int act, final int diff) {
-    MathUtils.random.setSeed(seed);
-
-    Map map = new Map(act);
-
-    int def = ACT_DEF[act];
-    LvlPrest.Entry preset = Riiablo.files.LvlPrest.get(def);
-    Levels.Entry   level  = Riiablo.files.Levels.get(preset.LevelId);
-    if (DEBUG_BUILD) Gdx.app.debug(TAG, level.LevelName);
-
-    int fileId[] = new int[6];
-    int numFiles = getPresets(preset, fileId);
-    int select = MathUtils.random(numFiles - 1);
-    String fileName = preset.File[select];
-    if (DEBUG_BUILD) Gdx.app.debug(TAG, "Select " + fileName);
-
-    Zone zone = map.addZone(level, diff, preset, select);
-    zone.town = true;
-    Zone prev = zone;
-
-    level = Riiablo.files.Levels.get(2);
-    zone = map.addZone(level, diff, 8, 8);
-    zone.setPosition(prev.width - zone.width, -zone.height);
-    if (DEBUG_BUILD) Gdx.app.debug(TAG, "Moved " + zone.level.LevelName + " " + zone);
-
-    Preset SB   = Preset.of(Riiablo.files.LvlPrest.get(4),  0);
-    Preset EB   = Preset.of(Riiablo.files.LvlPrest.get(5),  0);
-    Preset NB   = Preset.of(Riiablo.files.LvlPrest.get(6),  0);
-    Preset WB   = Preset.of(Riiablo.files.LvlPrest.get(7),  0);
-    Preset NWB  = Preset.of(Riiablo.files.LvlPrest.get(9),  0);
-    Preset LRC  = Preset.of(Riiablo.files.LvlPrest.get(27), 0);
-    Preset UR   = Preset.of(Riiablo.files.LvlPrest.get(26), 3);
-    Preset URNB = Preset.of(Riiablo.files.LvlPrest.get(26), 1);
-    Preset SWB  = Preset.of(Riiablo.files.LvlPrest.get(8),  0);
-    Preset LB   = Preset.of(Riiablo.files.LvlPrest.get(12), 0);
-
-    //Preset FILL[] = Preset.of(Diablo.files.LvlPrest.get(29));
-    /*for (int x = 0; x < zone.gridsX; x++) {
-      for (int y = 0; y < zone.gridsY; y++) {
-        zone.presets[x][y] = FILL[MathUtils.random(FILL.length - 1)];
-      }
-    }*/
-
-    for (int y = 0; y < zone.gridsY; y++) {
-      zone.presets[0][y] = EB;
-      zone.presets[zone.gridsX - 2][y] = UR;
-      zone.presets[zone.gridsX - 1][y] = LRC;
-    }
-    for (int x = 1; x < zone.gridsX - 1; x++) {
-      zone.presets[x][0] = NB;
-    }
-    zone.presets[0][0] = NWB;
-    zone.presets[zone.gridsX - 2][0] = URNB;
-    zone.presets[zone.gridsX - 1][0] = LRC;
-    zone.presets[0][zone.gridsY - 1] = SWB;
-    zone.presets[1][zone.gridsY - 1] = SB;
-    zone.presets[2][zone.gridsY - 1] = SB;
-    zone.presets[3][zone.gridsY - 1] = LB;
-
-    zone.presets[6][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(47), 1);
-
-    // ID_VIS_5_42
-    zone.presets[5][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(52), 0);
-    zone.setWarp(ID.VIS_5_42, ID.VIS_0_03);
-
-    final Map mapRef = map;
-    final Levels.Entry tmpLevel = level;
-    zone.generator = new Zone.Generator() {
-      final MonStats.Entry[] monsters;
-      final float SPAWN_MULT = 2f;
-
-      {
-        int prob = 0;
-        int numMon = tmpLevel.NumMon;
-        MonStats.Entry[] monstats = new MonStats.Entry[numMon];
-        for (int i = 0; i < numMon; i++) {
-          String mon = tmpLevel.mon[i];
-          monstats[i] = Riiablo.files.monstats.get(mon);
-          prob += monstats[i].Rarity;
-        }
-
-        monsters = new MonStats.Entry[prob];
-        prob = 0;
-        for (MonStats.Entry entry : monstats) {
-          for (int i = 0; i < entry.Rarity; i++) {
-            monsters[prob++] = entry;
-          }
-        }
-      }
-
-      @Override
-      public void generate(Zone zone, DT1s dt1s, int tx, int ty) {
-        if (zone.tiles[FLOOR_OFFSET] == null) zone.tiles[FLOOR_OFFSET] = new Tile[zone.tilesX][zone.tilesY];
-        final int startY = ty;
-        for (int x = 0; x < zone.gridSizeX; x++, tx++, ty = startY) {
-          for (int y = 0; y < zone.gridSizeY; y++, ty++) {
-            zone.tiles[FLOOR_OFFSET][tx][ty] = Tile.of(dt1s.get(0));
-            if (MathUtils.randomBoolean(SPAWN_MULT * tmpLevel.MonDen[diff] / 100000f)) {
-              int i = MathUtils.random(monsters.length - 1);
-              MonStats.Entry monster = monsters[i];
-              int count = monster.MinGrp == monster.MaxGrp
-                  ? monster.MaxGrp
-                  : MathUtils.random(monster.MinGrp, monster.MaxGrp);
-              for (i = 0; i < count; i++) {
-                int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
-                int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
-                Entity entity = Riiablo.engine.createMonster(mapRef, zone, monster, px, py);
-                Riiablo.engine.addEntity(entity);
-              }
-            }
-          }
-        }
-      }
-    };
-
-    level = Riiablo.files.Levels.get(8);
-    zone = map.addZone(level, diff, 24, 24);
-    zone.setPosition(level.OffsetX, level.OffsetY);
-    zone.presets[0][1] = Preset.of(Riiablo.files.LvlPrest.get(84), 0);
-    zone.presets[1][1] = Preset.of(Riiablo.files.LvlPrest.get(61), 1);
-    zone.presets[1][0] = Preset.of(Riiablo.files.LvlPrest.get(97), 0);
-    zone.setWarp(ID.VIS_0_03, ID.VIS_5_42);
-
-    return map;
+  public Map(int seed, int diff) {
+    this.seed = seed;
+    this.diff = diff;
   }
 
-  private static int getPresets(LvlPrest.Entry preset, int[] fileIds) {
-    int numFiles = 0;
-    for (int i = 0; i < preset.File.length; i++) {
-      if (preset.File[i].charAt(0) != '0') {
-        fileIds[numFiles++] = i;
-      }
-    }
-
-    return numFiles;
+  public int getAct() {
+    return act;
   }
 
-  public Vector2 find(int id) {
-    Vector2 origin = zones.first().presets[0][0].ds1.find(id);
-    if (origin == null) return null;
-    origin = origin.cpy();
-    origin.x *= DT1.Tile.SUBTILE_SIZE;
-    origin.y *= DT1.Tile.SUBTILE_SIZE;
-    return origin.add(DT1.Tile.SUBTILE_CENTER);
-  }
-
-  public Array<AssetDescriptor> getDependencies() {
-    Array<AssetDescriptor> dependencies = new Array<>();
-    for (Zone zone : zones) {
-      for (int x = 0; x < zone.gridsX; x++) {
-        for (int y = 0; y < zone.gridsY; y++) {
-          Map.Preset preset = zone.presets[x][y];
-          if (preset == null) continue;
-          dependencies.addAll(preset.getDependencies(zone.type));
-        }
-      }
-    }
-
-    return dependencies;
-  }
-
-  public void buildDT1s() {
-    Validate.validState(dt1s == null, "dt1s have already been loaded");
-    IntMap<ObjectSet<AssetDescriptor<DT1>>> typeDependencies = new IntMap<>();
-    for (Zone zone : zones) {
-      int type = zone.level.LevelType;
-      ObjectSet<AssetDescriptor<DT1>> dependencies = typeDependencies.get(type);
-      if (dependencies == null) typeDependencies.put(type, dependencies = new ObjectSet<>());
-      for (int x = 0; x < zone.gridsX; x++) {
-        for (int y = 0; y < zone.gridsY; y++) {
-          Map.Preset preset = zone.presets[x][y];
-          if (preset == null) continue;
-          int DT1Mask = preset.preset.Dt1Mask;
-          for (int i = 0; i < Integer.SIZE; i++) {
-            if ((DT1Mask & (1 << i)) != 0) {
-              dependencies.add(new AssetDescriptor<>(TILES_PATH + zone.type.File[i], DT1.class));
-            }
-          }
-        }
-      }
-    }
-
-    dt1s = new IntMap<>();
-    for (IntMap.Entry<ObjectSet<AssetDescriptor<DT1>>> entry : typeDependencies.entries()) {
-      int type = entry.key;
-      DT1s dt1s = this.dt1s.get(type);
-      if (dt1s == null) this.dt1s.put(type, dt1s = new DT1s());
-      for (AssetDescriptor<DT1> dt1 : entry.value) {
-        dt1s.add(Riiablo.assets.get(dt1));
-      }
-    }
-
-    for (Zone zone : zones) {
-      int type = zone.level.LevelType;
-      zone.load(dt1s.get(type));
+  public void setAct(int act) {
+    if (this.act != act) {
+      this.act = act;
+      dispose();
+      generate(act);
+      // trigger load screen...
     }
   }
+
+  /**
+   * TODO: the 3 methods below should be package-private and create a class which can delegate
+   */
 
   public void load() {
-    Validate.validState(dt1s == null, "dt1s have already been loaded");
+    for (Zone zone : zones) zone.load();
+  }
 
-    IntMap<ObjectSet<AssetDescriptor<DT1>>> typeDependencies = new IntMap<>();
-    for (Zone zone : zones) {
-      int type = zone.level.LevelType;
-      ObjectSet<AssetDescriptor<DT1>> dependencies = typeDependencies.get(type);
-      if (dependencies == null) typeDependencies.put(type, dependencies = new ObjectSet<>());
-      for (int x = 0; x < zone.gridsX; x++) {
-        for (int y = 0; y < zone.gridsY; y++) {
-          Map.Preset preset = zone.presets[x][y];
-          if (preset == null) continue;
-          preset.load(Riiablo.assets, zone.type, dependencies);
-          /*Diablo.assets.load(TILES_PATH + preset.ds1Path, DS1.class);
-          int DT1Mask = preset.preset.Dt1Mask;
-          for (int i = 0; i < Integer.SIZE; i++) {
-            if ((DT1Mask & (1 << i)) != 0) {
-              String dt1 = TILES_PATH + zone.type.File[i];
-              Diablo.assets.load(dt1, DT1.class); // DT1Loader.DT1LoaderParameters.newInstance(dt1s)
-              loaded.add(dt1);
-            }
-          }*/
-        }
-      }
-    }
+  public void finishLoading() {
+    for (Zone zone : zones) zone.finishLoading();
+  }
 
-    Riiablo.assets.finishLoading();
-
-    dt1s = new IntMap<>();
-    for (IntMap.Entry<ObjectSet<AssetDescriptor<DT1>>> entry : typeDependencies.entries()) {
-      int type = entry.key;
-      DT1s dt1s = this.dt1s.get(type);
-      if (dt1s == null) this.dt1s.put(type, dt1s = new DT1s());
-      for (AssetDescriptor<DT1> dt1 : entry.value) {
-        dt1s.add(Riiablo.assets.get(dt1));
-      }
-    }
-
-    for (Zone zone : zones) {
-      int type = zone.level.LevelType;
-      zone.load(dt1s.get(type));
-    }
+  public void generate() {
+    for (Zone zone : zones) zone.generate();
   }
 
   @Override
   public void dispose() {
-    for (Zone zone : zones) {
-      for (int x = 0; x < zone.gridsX; x++) {
-        for (int y = 0; y < zone.gridsY; y++) {
-          Preset preset = zone.presets[x][y];
-          if (preset == null) continue;
-          preset.dispose(Riiablo.assets);
-          /*Diablo.assets.unload(TILES_PATH + preset.ds1Path);
-          Gdx.app.debug(TAG, "unloading " + TILES_PATH + preset.ds1Path);
-
-          for (DT1 dt1 : preset.dt1s.dt1s) {
-            if (Diablo.assets.isLoaded(dt1.fileName)) {
-              Diablo.assets.unload(dt1.fileName);
-              Gdx.app.debug(TAG, "unloading " + dt1.fileName);
-            }
-          }*/
-        }
-      }
-    }
+    for (Zone zone : zones) Zone.free(zone);
+    zones.clear();
   }
 
-  public Zone findZone(Levels.Entry level) {
-    for (Zone zone : zones) {
-      if (zone.level == level) return zone;
-    }
-
-    return null;
+  public Array<AssetDescriptor> getDependencies() {
+    Array<AssetDescriptor> dependencies = new Array<>();
+    for (Zone zone : zones) dependencies.addAll(zone.getDependencies());
+    return dependencies;
   }
 
-  public Zone getZone(int x, int y) {
-    for (Zone zone : zones) {
-      if (zone.contains(x, y)) {
-        return zone;
-      }
-    }
-
-    return null;
-  }
-
-  public Zone getZone(Vector2 pos) {
-    return getZone(Map.round(pos.x), Map.round(pos.y));
-  }
-
-  Zone addZone(Levels.Entry level, int diff, LvlPrest.Entry preset, int ds1) {
-    assert preset.LevelId != 0 : "presets should have an assigned level id";
-    Zone zone = addZone(level, diff, level.SizeX[diff], level.SizeY[diff]);
-    zone.presets[0][0] = Preset.of(preset, ds1);
-    return zone;
-  }
-
-  Zone addZone(Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
-    Zone zone = new Zone(this, level, diff, gridSizeX, gridSizeY);
-    if (DEBUG_ZONES) Gdx.app.debug(TAG, zone.toString());
-    zones.add(zone);
-    return zone;
-  }
-
-  Zone addZone(Levels.Entry level, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
-    Zone zone = new Zone(this, level, gridSizeX, gridSizeY, gridsX, gridsY);
-    if (DEBUG_ZONES) Gdx.app.debug(TAG, zone.toString());
-    zones.add(zone);
-    return zone;
-  }
-
-  public int flags(Vector2 pos) {
-    return flags(pos.x, pos.y);
-  }
-
-  public int flags(float x, float y) {
-    return flags(round(x), round(y));
-  }
-
-  public int flags(int x, int y) {
-    Zone zone = getZone(x, y);
-    if (zone == null) return 0xFF;
-    return zone.flags(x, y);
-  }
-
-  void or(Vector2 position, int width, int height, int flags) {
-    if (width == 0 || height == 0) return;
-    int x0 = round(position.x - width  / 2f);
-    int y0 = round(position.y - height / 2f);
-    for (int x = 0, dx = x0; x < width; x++, dx++) {
-      for (int y = 0, dy = y0; y < height; y++, dy++) {
-        Zone zone = getZone(dx, dy);
-        if (zone != null) zone.or(dx, dy, flags);
-      }
-    }
-  }
-
-  public DT1.Tile getTile(int l, int x, int y) {
-    Zone zone = getZone(x, y);
-    if (zone == null) return null;
-    return zone.get(l, x, y).tile;
-  }
-
-  /**
-   * @param x   world sub-tile
-   * @param y   world sub-tile
-   * @param tx  world tile
-   * @param ty  world tile
-   * @param stx sub-tile (0-4)
-   * @param sty sub-tile (0-4)
-   */
-  // TODO: x,y alone should be enough, but others are available in MapRenderer on each position change anyways
-  public void updatePopPads(Bits bits, int x, int y, int tx, int ty, int stx, int sty) {
-    bits.clear();
-    Zone zone = getZone(x, y);
-    if (zone != null) {
-      Map.Preset preset = zone.getGrid(tx, ty);
-      if (preset != null) {
-        int presetX = zone.getGridX(tx) + stx;
-        int presetY = zone.getGridX(ty) + sty;
-        preset.updatePopPads(bits, presetX, presetY);
-      }
-    }
-  }
-
-  public void addWarpSubsts(IntIntMap warps) {
-    this.warpSubsts.putAll(warps);
-  }
-
-  public void clearWarpSubsts(IntIntMap warps) {
-    for (IntIntMap.Entry entry : warps.entries()) {
-      this.warpSubsts.remove(entry.key, entry.value);
-    }
-  }
-
-  public void clearWarpSubsts() {
-    this.warpSubsts.clear();
+  public void generate(int act) {
+    MathUtils.random.setSeed(seed);
+    Act1MapBuilder.INSTANCE.generate(this, seed, diff);
   }
 
   private MapGraph        mapGraph   = new MapGraph(this);
@@ -709,11 +401,152 @@ public class Map implements Disposable {
     return mapGraph.raycaster.findCollision(ray, flags, size, dst);
   }
 
-  public static class Zone {
-    static final Array<Entity> EMPTY_ENTITY_ARRAY = new Array<>(0);
-    static final IntIntMap     EMPTY_INT_INT_MAP = new IntIntMap(0);
+  /**
+   * @param x   world sub-tile
+   * @param y   world sub-tile
+   * @param tx  world tile
+   * @param ty  world tile
+   * @param stx sub-tile (0-4)
+   * @param sty sub-tile (0-4)
+   */
+  // TODO: x,y alone should be enough, but others are available in MapRenderer on each position change anyways
+  public void updatePopPads(Bits bits, int x, int y, int tx, int ty, int stx, int sty) {
+    bits.clear();
+    Zone zone = getZone(x, y);
+    if (zone != null) {
+      Map.Preset preset = zone.getGrid(tx, ty);
+      if (preset != null) {
+        int presetX = zone.getGridX(tx) + stx;
+        int presetY = zone.getGridX(ty) + sty;
+        preset.updatePopPads(bits, presetX, presetY);
+      }
+    }
+  }
 
-    static final ComponentMapper<WarpComponent> warpComponent = ComponentMapper.getFor(WarpComponent.class);
+  final IntIntMap warpSubsts = new IntIntMap();
+
+  public void addWarpSubsts(IntIntMap warps) {
+    this.warpSubsts.putAll(warps);
+  }
+
+  public void clearWarpSubsts(IntIntMap warps) {
+    for (IntIntMap.Entry entry : warps.entries()) {
+      this.warpSubsts.remove(entry.key, entry.value);
+    }
+  }
+
+  public void clearWarpSubsts() {
+    this.warpSubsts.clear();
+  }
+
+  // FIXME: only works properly for zone 0 at 0,0
+  public Vector2 find(int id) {
+    if (zones.size == 0) return null;
+    Vector2 origin = zones.first().presets[0][0].ds1.find(id);
+    if (origin == null) return null;
+    return origin.cpy()
+        .scl(DT1.Tile.SUBTILE_SIZE)
+        .add(DT1.Tile.SUBTILE_CENTER);
+  }
+
+  public int flags(Vector2 vec) {
+    return flags(round(vec.x), round(vec.y));
+  }
+
+  public int flags(int x, int y) {
+    Zone zone = getZone(x, y);
+    if (zone == null) return 0xFF;
+    return zone.flags(x - zone.x, y - zone.y);
+  }
+
+  void or(Vector2 position, int width, int height, int flags) {
+    if (width == 0 || height == 0) return;
+    int x0 = round(position.x - width  / 2f);
+    int y0 = round(position.y - height / 2f);
+    for (int x = 0, dx = x0; x < width; x++, dx++) {
+      for (int y = 0, dy = y0; y < height; y++, dy++) {
+        Zone zone = getZone(dx, dy);
+        if (zone != null) zone.or(dx - zone.x, dy - zone.y, flags);
+      }
+    }
+  }
+
+  public Zone getZone(Vector2 vec) {
+    return getZone(round(vec.x), round(vec.y));
+  }
+
+  public Zone getZone(int x, int y) {
+    for (Zone zone : zones) if (zone.contains(x, y)) return zone;
+    return null;
+  }
+
+  public Zone findZone(Levels.Entry level) {
+    for (Zone zone : zones) if (zone.level == level) return zone;
+    return null;
+  }
+
+  Zone addZone(Levels.Entry level, LvlPrest.Entry preset, int ds1) {
+    assert preset.LevelId != 0 : "presets should have an assigned level id";
+    Zone zone = addZone(level, level.SizeX[diff], level.SizeY[diff]);
+    zone.presets[0][0] = Preset.of(preset, ds1);
+    return zone;
+  }
+
+  Zone addZone(Levels.Entry level, int gridSizeX, int gridSizeY) {
+    Zone zone = Zone.obtain(this, level, diff, gridSizeX, gridSizeY);
+    if (DEBUG_ZONES) Gdx.app.debug(TAG, zone.toString());
+    zones.add(zone);
+    return zone;
+  }
+
+  Zone addZone(Levels.Entry level, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
+    Zone zone = Zone.obtain(this, level, diff, gridSizeX, gridSizeY, gridsX, gridsY);
+    if (DEBUG_ZONES) Gdx.app.debug(TAG, zone.toString());
+    zones.add(zone);
+    return zone;
+  }
+
+  public static class Zone implements Pool.Poolable, Disposable {
+    static final int[] sizes = {80 * 80, 200 * 200};
+    @SuppressWarnings("unchecked")
+    static final Pool<DT1.Tile[]>[] tilePools = (Pool<DT1.Tile[]>[]) new Pool[sizes.length];
+    @SuppressWarnings("unchecked")
+    static final Pool<byte[]>[] bytePools = (Pool<byte[]>[]) new Pool[sizes.length];
+    static {
+      for (int i = 0; i < tilePools.length; i++) tilePools[i] = new TileArrayPool(sizes[i]);
+      for (int i = 0; i < bytePools.length; i++) bytePools[i] = new ByteArrayPool(sizes[i] * DT1.Tile.NUM_SUBTILES);
+    }
+
+    static DT1.Tile[] obtainTileArray(int size) {
+      for (int i = 0; i < sizes.length; i++) {
+        if (size < sizes[i]) {
+          return tilePools[i].obtain();
+        }
+      }
+
+      Gdx.app.error(TAG, "Creating custom sized array: " + size);
+      return new DT1.Tile[size];
+    }
+    static void free(DT1.Tile[] layer) {
+      for (int i = 0; i < sizes.length; i++) {
+        if (layer == null) continue;
+        if (layer.length < sizes[i]) tilePools[i].free(layer);
+      }
+    }
+
+    static byte[] obtainByteArray(int size) {
+      for (int i = 0; i < sizes.length; i++) {
+        if (size < sizes[i] * DT1.Tile.NUM_SUBTILES) return bytePools[i].obtain();
+      }
+
+      Gdx.app.error(TAG, "Creating custom sized array: " + size);
+      return new byte[size];
+    }
+    static void free(byte[] b) {
+      for (int i = 0; i < sizes.length; i++) {
+        if (b.length < sizes[i]) bytePools[i].free(b);
+      }
+    }
 
     int x, y;
     int width, height;
@@ -724,114 +557,106 @@ public class Map implements Disposable {
 
     public Map          map;
     public Levels.Entry level;
+    public int          diff;
 
-    LvlTypes.Entry type;
-    Preset         presets[][];
-    Tile           tiles[][][];
-    byte           flags[][];
-    Array<Entity>  entities;
-    IntIntMap      warps;
     boolean        town;
+    LvlTypes.Entry type;
+    DT1s           dt1s;
+    byte           flags[];
+    final DT1.Tile tiles[][] = new DT1.Tile[Map.MAX_LAYERS][];
+    Preset         presets[][];
 
-    Generator generator;
+    static final Array<Entity> EMPTY_ENTITY_ARRAY = new Array<>(0);
+    Array<Entity> entities = EMPTY_ENTITY_ARRAY;
 
-    /**
-     * Constructs a zone using sizing info from levels.txt
-     */
-    Zone(Map map, Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
+    static final ComponentMapper<WarpComponent> warpComponent = ComponentMapper.getFor(WarpComponent.class);
+    static final IntIntMap EMPTY_INT_INT_MAP = new IntIntMap(0);
+    IntIntMap warps = EMPTY_INT_INT_MAP;
+
+    static final Array<AssetDescriptor> EMPTY_ASSET_ARRAY = new Array<>(0);
+    Array<AssetDescriptor> dependencies = EMPTY_ASSET_ARRAY;
+
+    static final IntMap<DS1.Cell> EMPTY_INT_CELL_MAP = new IntMap<>();
+    IntMap<DS1.Cell> specials = EMPTY_INT_CELL_MAP;
+
+    static final Generator EMPTY_GENERATOR = new Generator() {
+      @Override public void init(Zone zone) {}
+      @Override public void generate(Zone zone, DT1s dt1s, int tx, int ty) {}
+    };
+    Generator generator = EMPTY_GENERATOR;
+
+    static final Pool<Zone> pool = Pools.get(Zone.class, 16);
+
+    static Zone obtain(Map map, Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
+      return pool.obtain().set(map, level, diff, gridSizeX, gridSizeY);
+    }
+
+    static Zone obtain(Map map, Levels.Entry level, int diff, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
+      return pool.obtain().set(map, level, diff, gridSizeX, gridSizeY, gridsX, gridsY);
+    }
+
+    static void free(Zone zone) {
+      zone.dispose();
+      pool.free(zone);
+    }
+
+    private Zone setInternal(Map map, Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
       this.map       = map;
       this.level     = level;
+      this.diff      = diff;
       this.type      = Riiablo.files.LvlTypes.get(level.LevelType);
       this.gridSizeX = gridSizeX;
       this.gridSizeY = gridSizeY;
+      return this;
+    }
 
+    Zone set(Map map, Levels.Entry level, int diff, int gridSizeX, int gridSizeY) {
+      setInternal(map, level, diff, gridSizeX, gridSizeY);
       tilesX   = level.SizeX[diff];
       tilesY   = level.SizeY[diff];
       width    = tilesX * DT1.Tile.SUBTILE_SIZE;
       height   = tilesY * DT1.Tile.SUBTILE_SIZE;
       gridsX   = tilesX / gridSizeX;
       gridsY   = tilesY / gridSizeY;
+      flags    = obtainByteArray(width * height);
       presets  = new Preset[gridsX][gridsY];
-      flags    = new byte[width][height];
-      entities = EMPTY_ENTITY_ARRAY;
-      warps    = EMPTY_INT_INT_MAP;
+      return this;
     }
 
-    /**
-     * Constructs a zone using custom sizing info
-     */
-    Zone(Map map, Levels.Entry level, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
-      this.map       = map;
-      this.level     = level;
-      this.type      = Riiablo.files.LvlTypes.get(level.LevelType);
-      this.gridSizeX = gridSizeX;
-      this.gridSizeY = gridSizeY;
-      this.gridsX    = gridsX;
-      this.gridsY    = gridsY;
-
+    Zone set(Map map, Levels.Entry level, int diff, int gridSizeX, int gridSizeY, int gridsX, int gridsY) {
+      setInternal(map, level, diff, gridSizeX, gridSizeY);
+      this.gridsX = gridsX;
+      this.gridsY = gridsY;
       tilesX   = gridsX * gridSizeX;
       tilesY   = gridsY * gridSizeY;
       width    = gridsX * DT1.Tile.SUBTILE_SIZE;
       height   = gridsY * DT1.Tile.SUBTILE_SIZE;
+      flags    = obtainByteArray(width * height);
       presets  = new Preset[gridsX][gridsY];
-      flags    = new byte[width][height];
+      return this;
+    }
+
+    @Override
+    public void reset() {
+      dt1s = null;
+      flags = null;
+      Arrays.fill(tiles, null);
+      for (Preset[] x : presets) Arrays.fill(x, null);
       entities = EMPTY_ENTITY_ARRAY;
-      warps    = EMPTY_INT_INT_MAP;
+      warps = EMPTY_INT_INT_MAP;
+      dependencies = EMPTY_ASSET_ARRAY;
+      generator = EMPTY_GENERATOR;
+      town = false;
     }
 
-    private void loadEntities(DS1 ds1, int gridX, int gridY) {
-      final int x = this.x + (gridX * DT1.Tile.SUBTILE_SIZE);
-      final int y = this.y + (gridY * DT1.Tile.SUBTILE_SIZE);
-      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
-      for (int i = 0; i < ds1.numObjects; i++) {
-        DS1.Object obj = ds1.objects[i];
-        Entity entity = Riiablo.engine.createObject(map, this, ds1, obj, x + obj.x, y + obj.y);
-        if (entity == null) continue;
-        entities.add(entity);
-        Riiablo.engine.addEntity(entity);
-      }
-    }
-
-    private void addWarp(Tile tile, int warpX, int warpY) {
-      final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
-      final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
-      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
-      Entity entity = Riiablo.engine.createWarp(map, this, tile.cell.id, x, y);
-      entities.add(entity);
-      Riiablo.engine.addEntity(entity);
-    }
-
-    void setWarp(int src, int dst) {
-      if (warps == EMPTY_INT_INT_MAP) warps = new IntIntMap(4);
-      warps.put(src, dst);
-    }
-
-    public int getWarp(int src) {
-      return warps.get(src, -1);
-    }
-
-    public boolean isTown() {
-      return town;
-    }
-
-    public void setPosition(int x, int y) {
-      this.x = x;
-      this.y = y;
-      tx = x / DT1.Tile.SUBTILE_SIZE;
-      ty = y / DT1.Tile.SUBTILE_SIZE;
-    }
-
-    // TODO: define entrance, exit to eliminate x,y
-    public Vector2 find(int x, int y, int id) {
-      return presets[x][y].ds1.find(id);
-    }
-
-    public Entity findWarp(int id) {
-      for (Entity entity : entities) {
-        if (warpComponent.has(entity)) return entity;
-      }
-
-      return null;
+    @Override
+    public void dispose() {
+      free(flags);
+      for (DT1.Tile[] layer : tiles) free(layer);
+      //for (Preset[] x : presets) for (Preset y : x) if (y != null) y.dispose();
+      entities.clear();
+      warps.clear();
+      for (AssetDescriptor asset : dependencies) Riiablo.assets.unload(asset.fileName);
     }
 
     @Override
@@ -854,22 +679,78 @@ public class Map implements Disposable {
           .build();
     }
 
+    public void setPosition(int x, int y) {
+      this.x = x;
+      this.y = y;
+      tx = x / DT1.Tile.SUBTILE_SIZE;
+      ty = y / DT1.Tile.SUBTILE_SIZE;
+    }
+
+    public boolean isTown() {
+      return town;
+    }
+
+    static int index(int width, int x, int y) {
+      return y * width + x;
+    }
+
+    int tileIndex(int tx, int ty) {
+      return index(tilesX, tx, ty);
+    }
+
+    public DT1.Tile get(int layer, int tx, int ty) {
+      //System.out.println("layer " + layer + " " + tx + ", " + ty + " -W " + this.tx + ", " + this.ty + " -> " + (tx - this.tx) + ", " + (ty - this.ty));
+      return tiles[layer] == null ? null : tiles[layer][tileIndex(tx - this.tx, ty - this.ty)];
+    }
+
+    public int flags(int x, int y) {
+      return flags[index(width, x, y)] & 0xFF;
+    }
+
+    public int or(int x, int y, int flags) {
+      return (this.flags[index(width, x, y)] |= flags) & 0xFF;
+    }
+
+    void addEntity(Entity entity) {
+      if (entity == null) return;
+      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
+      entities.add(entity);
+      Riiablo.engine.addEntity(entity);
+    }
+
+    void addWarp(int index, int warpX, int warpY) {
+      final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
+      final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
+      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
+      Entity entity = Riiablo.engine.createWarp(map, this, index, x, y);
+      entities.add(entity);
+      Riiablo.engine.addEntity(entity);
+    }
+
+    void setWarp(int src, int dst) {
+      if (warps == EMPTY_INT_INT_MAP) warps = new IntIntMap(4);
+      warps.put(src, dst);
+    }
+
+    public int getWarp(int src) {
+      return warps.get(src, -1);
+    }
+
+    public Entity findWarp(int id) {
+      for (Entity entity : entities) {
+        WarpComponent warpComponent = this.warpComponent.get(entity);
+        if (warpComponent != null && warpComponent.index == id) {
+          return entity;
+        }
+      }
+
+      return null;
+    }
+
     public int getLocalTX(int tx) { return tx - this.tx; }
     public int getLocalTY(int ty) { return ty - this.ty; }
     public int getGlobalX(int x) { return this.x + x; }
     public int getGlobalY(int y) { return this.y + y; }
-
-    public boolean contains(int x, int y) {
-      x -= this.x;
-      y -= this.y;
-      return 0 <= x && x < width
-          && 0 <= y && y < height;
-    }
-
-    public Tile get(int layer, int tx, int ty) {
-      //System.out.println("layer " + layer + " " + tx + ", " + ty + " -W " + this.tx + ", " + this.ty + " -> " + (tx - this.tx) + ", " + (ty - this.ty));
-      return tiles[layer] == null ? null : tiles[layer][tx - this.tx][ty - this.ty];
-    }
 
     public int getGridX(int tx) { return ((tx - this.tx) % gridSizeX) * DT1.Tile.SUBTILE_SIZE; }
     public int getGridY(int ty) { return ((ty - this.ty) % gridSizeY) * DT1.Tile.SUBTILE_SIZE; }
@@ -878,78 +759,101 @@ public class Map implements Disposable {
       return presets[(tx - this.tx) / gridSizeX][(ty - this.ty) / gridSizeY];
     }
 
-    public int flags(int x, int y) {
+    public boolean contains(int x, int y) {
       x -= this.x;
-      if (x < 0 || x > width ) return 0xFF;
       y -= this.y;
-      if (y < 0 || y > height) return 0xFF;
-      return flags[x][y] & 0xFF;
+      return 0 <= x && x < width
+          && 0 <= y && y < height;
     }
 
-    int or(int x, int y, int flags) {
-      x -= this.x;
-      if (x < 0 || x > width ) return 0xFF;
-      y -= this.y;
-      if (y < 0 || y > height) return 0xFF;
-      return (this.flags[x][y] |= flags) & 0xFF;
+    public DT1.Tile[] getLayer(int layer) {
+      return tiles[layer];
     }
 
-    void load(DT1s dt1s) {
-      Validate.validState(tiles == null, "tiles have already been loaded");
-      tiles = new Tile[Map.MAX_LAYERS][][];
-      for (int x = 0, gridX = 0, gridY = 0; x < gridsX; x++, gridX += gridSizeX, gridY = 0) {
-        for (int y = 0; y < gridsY; y++, gridY += gridSizeY) {
-          Preset preset = presets[x][y];
-          if (preset == null) {
-            if (generator != null) generator.generate(this, dt1s, gridX, gridY);
-            continue;
-          }
+    Array<AssetDescriptor> getDependencies() {
+      if (dependencies == EMPTY_ASSET_ARRAY) {
+        dependencies = new Array<>(false, 64);
+        for (Preset[] x : presets) for (Preset y : x) if (y != null) dependencies.addAll(y.getDependencies(type));
+      }
+      return dependencies;
+    }
 
-          DS1 ds1 = Riiablo.assets.get(TILES_PATH + preset.ds1Path);
-          preset.set(ds1, dt1s);
-          preset.copyTo(this, gridX, gridY);
-          loadEntities(ds1, gridX, gridY);
+    void load() {
+      for (AssetDescriptor asset : getDependencies()) Riiablo.assets.load(asset);
+    }
+
+    void finishLoading() {
+      int type = this.type.Id;
+      DT1s dt1s = map.dt1s.get(type);
+      if (dt1s == null) map.dt1s.put(type, dt1s = new DT1s());
+      for (AssetDescriptor asset : getDependencies()) {
+        Riiablo.assets.finishLoadingAsset(asset);
+        if (asset.type == DT1.class) {
+          dt1s.add((DT1) Riiablo.assets.get(asset));
         }
       }
     }
 
+    void generate() {
+//      boolean allNull = true;
+//      for (int i = 0; allNull && i < MAX_LAYERS; i++) allNull = tiles[i] == null;
+//      Validate.validState(allNull, "tiles have already been loaded");
+      generator.init(this);
+      dt1s = map.dt1s.get(type.Id);
+      tiles[Map.FLOOR_OFFSET] = Zone.obtainTileArray(tilesX * tilesY);
+      for (int x = 0, gridX = 0, gridY = 0; x < gridsX; x++, gridX += gridSizeX, gridY = 0) {
+        for (int y = 0; y < gridsY; y++, gridY += gridSizeY) {
+          Preset preset = presets[x][y];
+          if (preset == null) {
+            generator.generate(this, dt1s, gridX, gridY);
+            continue;
+          }
+
+          preset.finishLoading();
+          preset.copyTo(this, gridX, gridY);
+        }
+      }
+    }
+
+    Vector2 find(int id) {
+      for (Preset[] x : presets) {
+        for (Preset y : x) if (y != null) {
+          Vector2 origin = y.ds1.find(id);
+          if (origin != null) return origin;
+        }
+      }
+
+      return null;
+    }
+
+    /**
+     * this key should be good enough -- layers are 0-15 and tiles are 0-200
+     */
+    static int tileHashCode(int layer, int tx, int ty) {
+      return ((layer & 0xF) << 28) | ((tx & 0x3FFF) << 14) | (ty & 0x3FFF);
+    }
+
+    void putCell(int layer, int tx, int ty, DS1.Cell cell) {
+      specials.put(tileHashCode(layer, tx, ty), cell);
+    }
+
+    DS1.Cell getCell(int layer, int tx, int ty) {
+      return specials.get(tileHashCode(layer, tx - this.tx, ty - this.ty));
+    }
+
     interface Generator {
+      void init(Zone zone);
       void generate(Zone zone, DT1s dt1s, int tx, int ty);
     }
   }
 
-  static class Tile {
-    DT1.Tile tile;
-    DS1.Cell cell;
-    DT1.Tile sibling;
-
-    public static Tile of(DT1.Tile tile) {
-      return of(tile, null);
-    }
-
-    public static Tile of(DT1s dt1s, DS1.Cell cell) {
-      return of(dt1s.get(cell), cell);
-    }
-
-    public static Tile of(DT1.Tile tile, DS1.Cell cell) {
-      Tile t = new Tile();
-      t.cell = cell;
-      t.tile = tile;
-      return t;
-    }
-
-    void setSibling(DT1.Tile sibling) {
-      this.sibling = sibling;
-    }
-  }
-
-  static class Preset {
+  static class Preset implements Disposable {
     LvlPrest.Entry preset;
     String         ds1Path;
     DS1            ds1;
-    DT1s           dt1s;
     IntMap<PopPad> popPads;
 
+    AssetDescriptor<DS1>   ds1Descriptor;
     Array<AssetDescriptor> dependencies;
 
     static Preset of(LvlPrest.Entry preset, int id) {
@@ -966,7 +870,8 @@ public class Map implements Disposable {
       return p;
     }
 
-    static Preset[] of(LvlPrest.Entry preset) {
+    @Deprecated
+    static Preset[] getPresets(LvlPrest.Entry preset) {
       Preset[] presets = new Preset[preset.Files];
       for (int i = 0; i < preset.Files; i++) {
         presets[i] = Preset.of(preset, i);
@@ -975,59 +880,54 @@ public class Map implements Disposable {
       return presets;
     }
 
-    Array<AssetDescriptor> getDependencies(LvlTypes.Entry type) {
-      Array<AssetDescriptor> dependencies = new Array<>();
-      dependencies.add(new AssetDescriptor<>(TILES_PATH + ds1Path, DS1.class));
+    static int getPresets(LvlPrest.Entry preset, int[] fileIds) {
+      int numFiles = 0;
+      for (int i = 0; i < preset.File.length; i++) {
+        if (preset.File[i].charAt(0) != '0') {
+          fileIds[numFiles++] = i;
+        }
+      }
 
-      int DT1Mask = preset.Dt1Mask;
-      for (int i = 0; i < Integer.SIZE; i++) {
-        if ((DT1Mask & (1 << i)) != 0) {
-          dependencies.add(new AssetDescriptor<>(TILES_PATH + type.File[i], DT1.class));
+      return numFiles;
+    }
+
+    @Override
+    public String toString() {
+      return ds1Path;
+    }
+
+    @Override
+    @Deprecated
+    public void dispose() {
+      throw new UnsupportedOperationException("Preset assets should be disposed by parent Zone");
+    }
+
+    Array<AssetDescriptor> getDependencies(LvlTypes.Entry type) {
+      if (dependencies == null) {
+        dependencies = new Array<>(16);
+        dependencies.add(ds1Descriptor = new AssetDescriptor<>(TILES_PATH + ds1Path, DS1.class));
+
+        int DT1Mask = preset.Dt1Mask;
+        for (int i = 0; i < Integer.SIZE; i++) {
+          if ((DT1Mask & (1 << i)) != 0) {
+            dependencies.add(new AssetDescriptor<>(TILES_PATH + type.File[i], DT1.class));
+          }
         }
       }
 
       return dependencies;
     }
 
-    void load(AssetManager assets, LvlTypes.Entry type, ObjectSet<AssetDescriptor<DT1>> dt1Dependencies) {
-      if (dependencies != null) return;
-      dependencies = new Array<>();
-
-      AssetDescriptor ds1Descriptor;
-      dependencies.add(ds1Descriptor = new AssetDescriptor<>(TILES_PATH + ds1Path, DS1.class));
-      assets.load(ds1Descriptor);
-
-      int DT1Mask = preset.Dt1Mask;
-      for (int i = 0; i < Integer.SIZE; i++) {
-        if ((DT1Mask & (1 << i)) != 0) {
-          AssetDescriptor<DT1> dt1Descriptor = new AssetDescriptor<>(TILES_PATH + type.File[i], DT1.class);
-          dependencies.add(dt1Descriptor);
-          dt1Dependencies.add(dt1Descriptor);
-          assets.load(dt1Descriptor);
-        }
-      }
-    }
-
-    void dispose(AssetManager assets) {
-      if (dependencies == null) return;
-      for (AssetDescriptor descriptor : dependencies) {
-        assets.unload(descriptor.fileName);
-      }
-
-      dependencies = null;
-    }
-
-    void set(DS1 ds1, DT1s dt1s) {
-      if (this.ds1 == null) {
-        this.ds1  = ds1;
-        this.dt1s = dt1s;
-      } else assert this.ds1 == ds1 && this.dt1s == dt1s;
+    DS1 finishLoading() {
+      assert Riiablo.assets.isLoaded(ds1Descriptor) : ds1Path + " should have been loaded by parent Zone";
+      return ds1 = Riiablo.assets.get(ds1Descriptor);
     }
 
     void copyTo(Zone zone, int tx, int ty) {
       copyFloors (zone, Map.FLOOR_OFFSET,  tx, ty);
       copyWalls  (zone, Map.WALL_OFFSET,   tx, ty);
       copyShadows(zone, Map.SHADOW_OFFSET, tx, ty);
+      copyObjects(zone, tx, ty);
     }
 
     void copyFloors(Zone zone, int layer, int tx, int ty) {
@@ -1047,18 +947,18 @@ public class Map implements Disposable {
       final int startTx = tx;
       final int startTy = ty;
       for (int l = 0; l < ds1.numFloors; l++, layer++, ty = startTy) {
-        if (zone.tiles[layer] == null) zone.tiles[layer] = new Tile[zone.tilesX][zone.tilesY];
+        if (zone.tiles[layer] == null) zone.tiles[layer] = Zone.obtainTileArray(zone.tilesX * zone.tilesY);
         for (int y = 0; y < ds1.height; y++, ty++, tx = startTx) {
           int ptr = l + (y * ds1.floorLine);
           for (int x = 0; x < ds1.width; x++, tx++, ptr += ds1.numFloors) {
             DS1.Cell cell = ds1.floors[ptr];
             if ((cell.value & DS1.Cell.UNWALKABLE_MASK) != 0) {
-              orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+              or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
             }
 
             if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
               // TODO: Technically this might not be needed since the level can be assumed enclosed
-              orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+              or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
               continue;
             }
 
@@ -1066,17 +966,16 @@ public class Map implements Disposable {
               continue;
             }
 
-            Tile tile = zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
+            DT1.Tile tile = zone.tiles[layer][zone.tileIndex(tx, ty)] = zone.dt1s.get(cell);
             // FIXME: These are "empty"/"unknown" tiles, in caves, they fill in the gaps
-            if (tile.tile == null) System.out.println(cell.orientation + ":" + cell.mainIndex + ":" + cell.subIndex + ": " + cell.prop1() + " " + cell.prop2() + " " + cell.prop3() + " " + cell.prop4());
-            if (tile.tile == null) {
-              zone.tiles[layer][tx][ty] = null;
+            if (tile == null) System.out.println(cell.orientation + ":" + cell.mainIndex + ":" + cell.subIndex + ": " + cell.prop1() + " " + cell.prop2() + " " + cell.prop3() + " " + cell.prop4());
+            if (tile == null) {
               continue;
             }
 
-            copyFlags(zone.flags, tx, ty, tile.tile);
+            or(zone, tx, ty, tile);
             if (NO_FLOOR) {
-              orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+              or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
             }
           }
         }
@@ -1087,13 +986,13 @@ public class Map implements Disposable {
       final int startTx = tx;
       final int startTy = ty;
       for (int l = 0; l < ds1.numWalls; l++, layer++, ty = startTy) {
-        if (zone.tiles[layer] == null) zone.tiles[layer] = new Tile[zone.tilesX][zone.tilesY];
+        if (zone.tiles[layer] == null) zone.tiles[layer] = Zone.obtainTileArray(zone.tilesX * zone.tilesY);
         for (int y = 0; y < ds1.height; y++, ty++, tx = startTx) {
           int ptr = l + (y * ds1.wallLine);
           for (int x = 0; x < ds1.width; x++, tx++, ptr += ds1.numWalls) {
             DS1.Cell cell = ds1.walls[ptr];
             if (Orientation.isSpecial(cell.orientation)) {
-              Tile tile = zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
+              //DT1.Tile tile = zone.tiles[layer][zone.tileIndex(tx, ty)] = zone.dt1s.get(cell);
               if (ID.POPPADS.contains(cell.id)) {
                 if (popPads == null) popPads = new IntMap<>();
                 PopPad popPad = popPads.get(cell.id);
@@ -1103,8 +1002,10 @@ public class Map implements Disposable {
                   popPad.setEnd(
                       x * DT1.Tile.SUBTILE_SIZE + DT1.Tile.SUBTILE_SIZE + preset.PopPad,
                       y * DT1.Tile.SUBTILE_SIZE + DT1.Tile.SUBTILE_SIZE + preset.PopPad);
+                zone.putCell(layer, tx, ty, cell);
               } else if (ID.WARPS.contains(cell.id) && cell.subIndex != 1) {
-                zone.addWarp(tile, tx, ty);
+                zone.addWarp(cell.id, tx, ty);
+                zone.putCell(layer, tx, ty, cell);
               }
             }
 
@@ -1119,7 +1020,9 @@ public class Map implements Disposable {
                 // prints all of the debug tiles on side of river (any maybe elsewhere)
                 //DT1.Tile tile = dt1s.get(cell);
                 //System.out.println(x + ", " + y + " " + tile);
-                orFlags(zone.flags, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+                or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+              } else {
+                zone.putCell(layer, tx, ty, cell);
               }
 
               continue;
@@ -1136,15 +1039,15 @@ public class Map implements Disposable {
             //  System.out.println("found it! " + String.format("%08x", cell.value));
             //}
 
-            Tile tile = zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
-            copyFlags(zone.flags, tx, ty, tile.tile);
+            DT1.Tile tile = zone.tiles[layer][zone.tileIndex(tx, ty)] = zone.dt1s.get(cell);
+            or(zone, tx, ty, tile);
 
             // Special case, because LEFT_NORTH_CORNER_WALL don't seem to exist, but they contain
             // collision data for RIGHT_NORTH_CORNER_WALL, ORing the data just in case some
             // RIGHT_NORTH_CORNER_WALL actually does anything
             if (cell.orientation == Orientation.RIGHT_NORTH_CORNER_WALL) {
-              tile.sibling = dt1s.get(Orientation.LEFT_NORTH_CORNER_WALL, cell.mainIndex, cell.subIndex);
-              copyFlags(zone.flags, tx, ty, tile.sibling);
+              DT1.Tile sibling = zone.dt1s.get(Orientation.LEFT_NORTH_CORNER_WALL, cell.mainIndex, cell.subIndex);
+              or(zone, tx, ty, sibling);
             }
           }
         }
@@ -1155,7 +1058,7 @@ public class Map implements Disposable {
       final int startTx = tx;
       final int startTy = ty;
       for (int l = 0; l < ds1.numShadows; l++, layer++, ty = startTy) {
-        if (zone.tiles[layer] == null) zone.tiles[layer] = new Tile[zone.tilesX][zone.tilesY];
+        if (zone.tiles[layer] == null) zone.tiles[layer] = Zone.obtainTileArray(zone.tilesX * zone.tilesY);
         for (int y = 0; y < ds1.height; y++, ty++, tx = startTx) {
           int ptr = l + (y * ds1.shadowLine);
           for (int x = 0; x < ds1.width; x++, tx++, ptr += ds1.numShadows) {
@@ -1168,38 +1071,43 @@ public class Map implements Disposable {
               continue;
             }
 
-            zone.tiles[layer][tx][ty] = Tile.of(dt1s, cell);
+            zone.tiles[layer][zone.tileIndex(tx, ty)] = zone.dt1s.get(cell);
           }
         }
       }
     }
 
-    static void orFlags(byte[][] flags, int tx, int ty, int flag) {
+    void copyObjects(Zone zone, int tx, int ty) {
+      final int x = zone.x + (tx * DT1.Tile.SUBTILE_SIZE);
+      final int y = zone.y + (ty * DT1.Tile.SUBTILE_SIZE);
+      for (int i = 0; i < ds1.numObjects; i++) {
+        DS1.Object obj = ds1.objects[i];
+        Entity entity = Riiablo.engine.createObject(zone.map, zone, ds1, obj, x + obj.x, y + obj.y);
+        zone.addEntity(entity);
+      }
+    }
+
+    static void or(Zone zone, int tx, int ty, int flags) {
       tx *= DT1.Tile.SUBTILE_SIZE;
       final int startY = ty * DT1.Tile.SUBTILE_SIZE;
       for (int x = 0; x < DT1.Tile.SUBTILE_SIZE; x++, tx++) {
         ty = startY;
         for (int y = 0; y < DT1.Tile.SUBTILE_SIZE; y++, ty++) {
-          flags[tx][ty] |= flag;
+          zone.or(tx, ty, flags);
         }
       }
     }
 
-    static void copyFlags(byte[][] flags, int tx, int ty, DT1.Tile tile) {
+    static void or(Zone zone, int tx, int ty, DT1.Tile tile) {
       // Note: walkable flags are stored inverted y-axis, this corrects it
       final int startX = tx * DT1.Tile.SUBTILE_SIZE;
       ty = (ty * DT1.Tile.SUBTILE_SIZE) + (DT1.Tile.SUBTILE_SIZE - 1);
       for (int y = 0, t = 0; y < DT1.Tile.SUBTILE_SIZE; y++, ty--) {
         tx = startX;
         for (int x = 0; x < DT1.Tile.SUBTILE_SIZE; x++, tx++, t++) {
-          flags[tx][ty] |= tile.flags[t];
+          zone.or(tx, ty, tile.flags[t]);
         }
       }
-    }
-
-    @Override
-    public String toString() {
-      return ds1Path;
     }
 
     public void updatePopPads(Bits bits, int x, int y) {

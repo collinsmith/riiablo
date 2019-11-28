@@ -298,7 +298,7 @@ public class LobbyScreen extends ScreenAdapter {
                     public void run() {
                       Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
                       Gdx.app.log(TAG, "create-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-                      Riiablo.client.pushScreen(new LoadingScreen(new GameScreen(player, socket)));
+                      Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
                     }
                   });
                 } catch (SerializationException e) {
@@ -426,7 +426,7 @@ public class LobbyScreen extends ScreenAdapter {
               public void run() {
                 Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
                 Gdx.app.log(TAG, "join-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-                Riiablo.client.pushScreen(new LoadingScreen(new GameScreen(player, socket)));
+                Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
               }
             });
           }

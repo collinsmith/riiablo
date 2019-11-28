@@ -654,14 +654,14 @@ public class RenderSystem extends EntitySystem {
   void drawLowerWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py) {
     if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
-      Map.Tile tile = zone.get(i, tx, ty);
-      if (tile == null || tile.tile == null) continue;
-      switch (tile.tile.orientation) {
+      Tile tile = zone.get(i, tx, ty);
+      if (tile == null) continue;
+      switch (tile.orientation) {
         case Orientation.LOWER_LEFT_WALL:
         case Orientation.LOWER_RIGHT_WALL:
         case Orientation.LOWER_NORTH_CORNER_WALL:
         case Orientation.LOWER_SOUTH_CORNER_WALL:
-          batch.draw(tile.tile.texture, px, py);
+          batch.draw(tile.texture, px, py);
           // fall-through to continue
         default:
       }
@@ -672,14 +672,14 @@ public class RenderSystem extends EntitySystem {
     if (px > renderMaxX || py > renderMaxY) return;
     if (px + Tile.WIDTH < renderMinX || py + Tile.HEIGHT < renderMinY) return;
     for (int i = Map.FLOOR_OFFSET; i < Map.FLOOR_OFFSET + Map.MAX_FLOORS; i++) {
-      Map.Tile tile = zone.get(i, tx, ty);
+      Tile tile = zone.get(i, tx, ty);
       if (tile == null) continue;
       TextureRegion texture;
-      int subst = tile.cell != null ? map.warpSubsts.get(tile.cell.id, -1) : -1;
+      int subst = map.warpSubsts.get(tile.id, -1);
       if (subst != -1) { // TODO: Performance can be improved if the reference is updated to below subst
         texture = map.dt1s.get(zone.level.LevelType).get(subst).texture;
       } else {
-        texture = tile.tile.texture;
+        texture = tile.texture;
       }
       //if (texture.getTexture().getTextureObjectHandle() == 0) return;
       batch.draw(texture, px, py);
@@ -689,10 +689,10 @@ public class RenderSystem extends EntitySystem {
   void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py, Array<Entity>[] cache) {
     batch.setBlendMode(BlendMode.SOLID, Riiablo.colors.modal75);
     for (int i = Map.SHADOW_OFFSET; i < Map.SHADOW_OFFSET + Map.MAX_SHADOWS; i++) {
-      Map.Tile tile = zone.get(i, tx, ty);
+      Tile tile = zone.get(i, tx, ty);
       if (tile == null) continue;
       if (px > renderMaxX || px + Tile.WIDTH  < renderMinX) continue;
-      TextureRegion texture = tile.tile.texture;
+      TextureRegion texture = tile.texture;
       if (py > renderMaxY || py + texture.getRegionHeight() < renderMinY) continue;
       batch.draw(texture, px, py);
     }
@@ -721,10 +721,10 @@ public class RenderSystem extends EntitySystem {
   void drawWalls(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py) {
     if (px > renderMaxX || py > renderMaxY || px + Tile.WIDTH < renderMinX) return;
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
-      Map.Tile tile = zone.get(i, tx, ty);
-      if (tile == null || tile.tile == null) continue;
-      if (popped.get(tile.tile.mainIndex)) continue;
-      switch (tile.tile.orientation) {
+      Tile tile = zone.get(i, tx, ty);
+      if (tile == null || tile == null) continue;
+      if (popped.get(tile.mainIndex)) continue;
+      switch (tile.orientation) {
         case Orientation.LEFT_WALL:
         case Orientation.LEFT_NORTH_CORNER_WALL:
         case Orientation.LEFT_END_WALL:
@@ -742,10 +742,11 @@ public class RenderSystem extends EntitySystem {
            *       that position as the tile position and render it as if its an entity
            */
         case Orientation.TREE: // TODO: should be in-line rendered with entities
-          if (py + tile.tile.texture.getRegionHeight() < renderMinY) break;
-          batch.draw(tile.tile.texture, px, py);
-          if (tile.tile.orientation == Orientation.RIGHT_NORTH_CORNER_WALL) {
-            batch.draw(tile.sibling.texture, px, py);
+          if (py + tile.texture.getRegionHeight() < renderMinY) break;
+          batch.draw(tile.texture, px, py);
+          if (tile.orientation == Orientation.RIGHT_NORTH_CORNER_WALL) {
+            Tile sibling = zone.dt1s.get(Orientation.LEFT_NORTH_CORNER_WALL, tile.mainIndex, tile.subIndex);
+            batch.draw(sibling.texture, px, py);
           }
           // fall-through to continue
         default:
@@ -756,13 +757,13 @@ public class RenderSystem extends EntitySystem {
   void drawRoofs(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py) {
     if (px > renderMaxX || px + Tile.WIDTH < renderMinX) return;
     for (int i = Map.WALL_OFFSET; i < Map.WALL_OFFSET + Map.MAX_WALLS; i++) {
-      Map.Tile tile = zone.get(i, tx, ty);
-      if (tile == null || tile.tile == null) continue;
-      if (popped.get(tile.tile.mainIndex)) continue;
-      if (!Orientation.isRoof(tile.tile.orientation)) continue;
-      if (py + tile.tile.roofHeight > renderMaxY) continue;
-      if (py + tile.tile.roofHeight + tile.tile.texture.getRegionHeight() < renderMinY) continue;
-      batch.draw(tile.tile.texture, px, py + tile.tile.roofHeight);
+      Tile tile = zone.get(i, tx, ty);
+      if (tile == null || tile == null) continue;
+      if (popped.get(tile.mainIndex)) continue;
+      if (!Orientation.isRoof(tile.orientation)) continue;
+      if (py + tile.roofHeight > renderMaxY) continue;
+      if (py + tile.roofHeight + tile.texture.getRegionHeight() < renderMinY) continue;
+      batch.draw(tile.texture, px, py + tile.roofHeight);
     }
   }
 
@@ -968,7 +969,7 @@ public class RenderSystem extends EntitySystem {
           if (RENDER_DEBUG_WALKABLE == 1) {
             for (int sty = 0, t = 0; sty < Tile.SUBTILE_SIZE; sty++) {
               for (int stx = 0; stx < Tile.SUBTILE_SIZE; stx++, t++) {
-                int flags = zone.flags[zone.getLocalTX(tx) * Tile.SUBTILE_SIZE + stx][zone.getLocalTY(ty) * Tile.SUBTILE_SIZE + sty] & 0xFF;
+                int flags = zone.flags(zone.getLocalTX(tx) * Tile.SUBTILE_SIZE + stx, zone.getLocalTY(ty) * Tile.SUBTILE_SIZE + sty);
                 if (flags == 0) continue;
                 drawDebugWalkableTiles(shapes, px, py, t, flags);
               }
@@ -976,9 +977,9 @@ public class RenderSystem extends EntitySystem {
           } else {
             //Map.Tile[][] tiles = zone.tiles[RENDER_DEBUG_WALKABLE - 1];
             //if (tiles != null) {
-              Map.Tile tile = zone.get(RENDER_DEBUG_WALKABLE - 2, tx, ty);
-              for (int t = 0; tile != null && tile.tile != null && t < Tile.NUM_SUBTILES; t++) {
-                int flags = tile.tile.flags[WALKABLE_ID[t]] & 0xFF;
+              Tile tile = zone.get(RENDER_DEBUG_WALKABLE - 2, tx, ty);
+              for (int t = 0; tile != null && tile != null && t < Tile.NUM_SUBTILES; t++) {
+                int flags = tile.flags[WALKABLE_ID[t]] & 0xFF;
                 if (flags == 0) continue;
                 drawDebugWalkableTiles(shapes, px, py, t, flags);
               }
@@ -1090,12 +1091,12 @@ public class RenderSystem extends EntitySystem {
         for (x = 0; x < size; x++) {
           Map.Zone zone = map.getZone(stx, sty);
           if (zone != null) {
-            Map.Tile tile = zone.get(i, tx, ty);
-            if (tile != null && Orientation.isSpecial(tile.cell.orientation)) {
-              if (Map.ID.POPPADS.contains(tile.cell.id)) {
-                shapes.setColor(Map.ID.getColor(tile.cell));
+            DS1.Cell cell = zone.getCell(i, tx, ty);
+            if (cell != null) {
+              if (Map.ID.POPPADS.contains(cell.id)) {
+                shapes.setColor(Map.ID.getColor(cell));
                 Map.Preset preset = zone.getGrid(tx, ty);
-                Map.Preset.PopPad popPad = preset.popPads.get(tile.cell.id);
+                Map.Preset.PopPad popPad = preset.popPads.get(cell.id);
                 if (popPad.startX == zone.getGridX(tx) && popPad.startY == zone.getGridY(ty)) {
                   int width  = popPad.endX - popPad.startX;
                   int height = popPad.endY - popPad.startY;
@@ -1127,7 +1128,7 @@ public class RenderSystem extends EntitySystem {
               batch.begin();
               batch.setShader(null);
               BitmapFont font = Riiablo.fonts.consolas12;
-              String str = String.format("%s%n%08x", Map.ID.getName(tile.cell.id), tile.cell.value);
+              String str = String.format("%s%n%08x", Map.ID.getName(cell.id), cell.value);
               GlyphLayout layout = new GlyphLayout(font, str, 0, str.length(), font.getColor(), 0, Align.center, false, null);
               font.draw(batch, layout,
                   px + Tile.WIDTH50,
