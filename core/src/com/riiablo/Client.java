@@ -55,8 +55,6 @@ import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
 import com.riiablo.map.DT1;
 import com.riiablo.map.DT1Loader;
-import com.riiablo.map.Map;
-import com.riiablo.map.MapLoader;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.screen.AudioUnpackerScreen;
 import com.riiablo.screen.SplashScreen;
@@ -255,7 +253,6 @@ public class Client extends Game {
     assets.setLoader(FontTBL.BitmapFont.class, new BitmapFontLoader(mpqs));
     assets.setLoader(DT1.class, new DT1Loader(mpqs));
     assets.setLoader(DS1.class, new DS1Loader(mpqs));
-    assets.setLoader(Map.class, new MapLoader(mpqs));
 
     Riiablo.palettes = palettes = new Palettes(assets);
     Riiablo.colormaps = colormaps = new Colormaps(assets);

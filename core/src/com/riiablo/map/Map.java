@@ -320,13 +320,6 @@ public class Map implements Disposable {
   final IntMap<DT1s> dt1s = new IntMap<>();
   final Array<Zone> zones = new Array<>();
 
-  public static Map build(MapLoader.MapParameters params) {
-    throw new UnsupportedOperationException("stub!");
-  }
-  public static Map buildDT1s() {
-    throw new UnsupportedOperationException("stub!");
-  }
-
   public Map(int seed, int diff) {
     this.seed = seed;
     this.diff = diff;
