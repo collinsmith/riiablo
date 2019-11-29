@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
@@ -26,6 +27,7 @@ import com.riiablo.codec.util.BBox;
 import com.riiablo.engine.component.AIComponent;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.AnimationComponent;
+import com.riiablo.engine.component.AudioEmitterComponent;
 import com.riiablo.engine.component.BBoxComponent;
 import com.riiablo.engine.component.Box2DComponent;
 import com.riiablo.engine.component.ClassnameComponent;
@@ -603,6 +605,13 @@ public class Engine extends PooledEngine {
     entity.add(positionComponent);
     entity.add(velocityComponent);
     entity.add(angleComponent);
+
+    if (!missile.TravelSound.isEmpty()) {
+      AudioEmitterComponent audioEmitterComponent = createComponent(AudioEmitterComponent.class);
+      audioEmitterComponent.sound = Riiablo.audio.play(missile.TravelSound, true);
+      audioEmitterComponent.interpolator = Interpolation.pow2OutInverse;
+      entity.add(audioEmitterComponent);
+    }
 
     return entity;
   }

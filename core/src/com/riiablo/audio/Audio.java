@@ -122,6 +122,10 @@ public class Audio {
       id = -1;
     }
 
+    public boolean isLoaded() {
+      return delegate != null;
+    }
+
     public boolean play() {
       if (stream) {
         ((Music) delegate).play();

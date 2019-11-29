@@ -47,6 +47,7 @@ import com.riiablo.engine.system.AngleSystem;
 import com.riiablo.engine.system.AngularVelocitySystem;
 import com.riiablo.engine.system.AnimationLoaderSystem;
 import com.riiablo.engine.system.AnimationSystem;
+import com.riiablo.engine.system.AudioEmitterSystem;
 import com.riiablo.engine.system.AutoInteractSystem;
 import com.riiablo.engine.system.Box2DBodySystem;
 import com.riiablo.engine.system.CofLoaderSystem;
@@ -464,6 +465,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.addSystem(new Box2DBodySystem());
     engine.addSystem(new Box2DPhysicsSystem(map, iso, 1 / 60f));
     engine.addSystem(new MissileCollisionSystem());
+
+    engine.addSystem(new AudioEmitterSystem(renderer));
 
     //engine.addSystem(new TargetInteractSystem());
 
