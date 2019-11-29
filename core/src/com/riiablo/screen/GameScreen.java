@@ -33,6 +33,7 @@ import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.D2S;
+import com.riiablo.codec.excel.Sounds;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
 import com.riiablo.engine.Engine;
@@ -104,6 +105,16 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   private static final boolean DEBUG_MOBILE   = !true;
   private static final boolean DEBUG_HIT      = DEBUG && !true;
 
+  private static final boolean PRECACHE_CURSOR = true;
+  private static final boolean PRECACHE_ITEMS = true;
+
+  private static final int[] ITEMS = {
+      205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223,
+      224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242,
+      243, 244, 245, 246, 247, 248, 249, 250
+  };
+  private static final int[] CURSORS = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
   private final Vector2 tmpVec2 = new Vector2();
   private final Vector2 tmpVec2b = new Vector2();
 
@@ -118,6 +129,18 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     if (Gdx.app.getType() == Application.ApplicationType.Android || DEBUG_TOUCHPAD) {
       add(touchpadBackgroundDescriptor);
       add(touchpadKnobDescriptor);
+    }
+    if (PRECACHE_CURSOR) {
+      for (int id : CURSORS) {
+        Sounds.Entry sound = Riiablo.files.Sounds.get(id);
+        add(new AssetDescriptor<>("data\\global\\sfx\\" + sound.FileName, Sound.class));
+      }
+    }
+    if (PRECACHE_ITEMS) {
+      for (int id : ITEMS) {
+        Sounds.Entry sound = Riiablo.files.Sounds.get(id);
+        add(new AssetDescriptor<>("data\\global\\sfx\\" + sound.FileName, Sound.class));
+      }
     }
   }};
 
