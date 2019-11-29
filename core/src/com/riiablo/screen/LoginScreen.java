@@ -144,7 +144,13 @@ public class LoginScreen extends ScreenAdapter {
     final TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle() {{
       Riiablo.assets.finishLoadingAsset(textbox2Descriptor);
       TextureRegion textbox2 = Riiablo.assets.get(textbox2Descriptor).getTexture();
-      background = new TextureRegionDrawable(textbox2);
+      background = new TextureRegionDrawable(textbox2) {{
+        final float padding = 4;
+        setLeftWidth(padding);
+        setTopHeight(padding);
+        setRightWidth(padding);
+        setBottomHeight(padding);
+      }};
       font = Riiablo.fonts.fontformal12;
       fontColor = Riiablo.colors.white;
       cursor = new TextureRegionDrawable(Riiablo.textures.white);
