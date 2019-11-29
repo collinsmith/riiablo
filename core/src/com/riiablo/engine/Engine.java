@@ -571,6 +571,10 @@ public class Engine extends PooledEngine {
     return entity;
   }
 
+  public <T extends Component> T getOrCreateComponent(Entity entity, Class<T> componentType, ComponentMapper<T> componentMapper) {
+    return getOrCreateComponent(entity, this, componentType, componentMapper);
+  }
+
   public static <T extends Component> T getOrCreateComponent(Entity entity, com.badlogic.ashley.core.Engine engine, Class<T> componentType, ComponentMapper<T> componentMapper) {
     T instance = componentMapper.get(entity);
     if (instance == null) entity.add(instance = engine.createComponent(componentType));

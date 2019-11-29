@@ -60,6 +60,7 @@ import com.riiablo.engine.system.PathfindSystem;
 import com.riiablo.engine.system.PlayerSystem;
 import com.riiablo.engine.system.SelectableSystem;
 import com.riiablo.engine.system.SelectedSystem;
+import com.riiablo.engine.system.SequenceSystem;
 import com.riiablo.engine.system.TouchMovementSystem;
 import com.riiablo.engine.system.WarpSystem;
 import com.riiablo.engine.system.ZoneEntrySystem;
@@ -467,6 +468,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     if (DEBUG_TOUCHPAD || Gdx.app.getType() == Application.ApplicationType.Android) {
       engine.addSystem(new AutoInteractSystem(renderer, 2.0f));
     }
+    engine.addSystem(new SequenceSystem());
     engine.addSystem(new Box2DDebugRenderSystem(renderer));
     engine.addSystem(new PathfindDebugSystem(iso, renderer, Riiablo.batch, Riiablo.shapes));
   }

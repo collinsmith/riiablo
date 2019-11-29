@@ -7,6 +7,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.riiablo.engine.Flags;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.MovementModeComponent;
+import com.riiablo.engine.component.SequenceComponent;
 import com.riiablo.engine.component.VelocityComponent;
 
 public class MovementModeSystem extends IteratingSystem {
@@ -15,7 +16,7 @@ public class MovementModeSystem extends IteratingSystem {
   private final ComponentMapper<MovementModeComponent> movementModeComponent = ComponentMapper.getFor(MovementModeComponent.class);
 
   public MovementModeSystem() {
-    super(Family.all(VelocityComponent.class, CofComponent.class, MovementModeComponent.class).get());
+    super(Family.all(VelocityComponent.class, CofComponent.class, MovementModeComponent.class).exclude(SequenceComponent.class).get());
   }
 
   @Override

@@ -4,13 +4,19 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.Riiablo;
+import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.InteractableComponent;
 import com.riiablo.engine.component.ObjectComponent;
+import com.riiablo.engine.component.SequenceComponent;
+
+import static com.riiablo.engine.Engine.Object;
 
 public class ObjectInteractor implements InteractableComponent.Interactor {
   private static final String TAG = "ObjectInteractor";
 
   private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
+  private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
+  private final ComponentMapper<SequenceComponent> sequenceComponent = ComponentMapper.getFor(SequenceComponent.class);
 
   @Override
   public void interact(Entity src, Entity entity) {
@@ -26,13 +32,17 @@ public class ObjectInteractor implements InteractableComponent.Interactor {
       case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18: case 19:
       case 20: case 21: case 22:
         break;
-      case 23: // waypoint
-        //if (mode == MODE_NU) {
-        //  sequence(MODE_OP, MODE_ON);
-        //  Riiablo.audio.play("object_waypoint_open", true);
-        //} else {
+      case 23: { // waypoint
+        CofComponent cofComponent = this.cofComponent.get(entity);
+        if (cofComponent.mode == Object.MODE_NU) {
+          SequenceComponent sequenceComponent = Riiablo.engine.getOrCreateComponent(entity, SequenceComponent.class, this.sequenceComponent);
+          sequenceComponent.mode1 = Object.MODE_OP;
+          sequenceComponent.mode2 = Object.MODE_ON;
+          Riiablo.audio.play("object_waypoint_open", true);
+        } else if (cofComponent.mode == Object.MODE_ON) {
           Riiablo.game.setLeftPanel(Riiablo.game.waygatePanel);
-        //}
+        }
+      }
         break;
       case 24: case 25: case 26: case 27: case 28: case 29:
       case 30: case 31:
