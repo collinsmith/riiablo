@@ -318,7 +318,7 @@ public class Map implements Disposable {
   int act = -1;
 
   final IntMap<DT1s> dt1s = new IntMap<>();
-  final Array<Zone> zones = new Array<>();
+  final Array<Zone> zones = new Array<>(); // TODO: replace with R-tree? https://en.wikipedia.org/wiki/R-tree
 
   public Map(int seed, int diff) {
     this.seed = seed;
@@ -351,7 +351,11 @@ public class Map implements Disposable {
   }
 
   public void generate() {
-    for (Zone zone : zones) zone.generate();
+    /**
+     * FIXME: throwing nested iterator error if not creating new wrapper
+     *        nested iterator is within systems which use Map#getZone()
+     */
+    for (Zone zone : new Array.ArrayIterator<>(zones)) zone.generate();
   }
 
   @Override

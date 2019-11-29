@@ -170,12 +170,14 @@ public class MapViewer extends ApplicationAdapter {
 
     Riiablo.engine = engine = new Engine();
 
+    map = new Map(seed, diff);
+
     RenderSystem.RENDER_DEBUG_SUBTILE = true;
-    mapRenderer = new RenderSystem(batch);
+    mapRenderer = new RenderSystem(batch, map);
     mapRenderer.resize();
     mapRenderer.setProcessing(false);
 
-    box2DPhysicsSystem = new Box2DPhysicsSystem(1 / 60f);
+    box2DPhysicsSystem = new Box2DPhysicsSystem(map, mapRenderer.iso, 1 / 60f);
     box2DPhysicsSystem.setProcessing(false);
 
     box2DDebugRenderSystem = new Box2DDebugRenderSystem(mapRenderer);
@@ -190,7 +192,7 @@ public class MapViewer extends ApplicationAdapter {
     engine.addSystem(new AnimationLoaderSystem());
     engine.addSystem(new AnimationSystem());
     engine.addSystem(new ObjectSystem());
-    engine.addSystem(new WarpSystem());
+    engine.addSystem(new WarpSystem(map));
     engine.addSystem(new SelectableSystem());
     engine.addSystem(new SelectedSystem(mapRenderer.iso));
     engine.addSystem(new CollisionSystem());
@@ -199,6 +201,12 @@ public class MapViewer extends ApplicationAdapter {
     engine.addSystem(box2DDebugRenderSystem);
     engine.addSystem(new PathDebugSystem(mapRenderer.iso, mapRenderer, batch, shapes));
     engine.addSystem(pathfindDebugSystem);
+
+    map.setAct(act);
+    map.load();
+    map.finishLoading();
+    map.generate();
+    box2DPhysicsSystem.createBodies();
 
     RenderSystem.RENDER_DEBUG_TILE = true;
 
@@ -398,15 +406,6 @@ public class MapViewer extends ApplicationAdapter {
       Gdx.app.debug(TAG, Diablo.assets.getReferenceCount(asset) + " : " + asset);
     }
     */
-
-    map = new Map(seed, diff);
-    map.setAct(act);
-    map.load();
-    map.finishLoading();
-    map.generate();
-    mapRenderer.setMap(map);
-    box2DPhysicsSystem.setMap(map, mapRenderer.iso);
-    engine.getSystem(WarpSystem.class).setMap(map);
 
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin != null) {

@@ -97,7 +97,7 @@ import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
 
 public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
-  private static final String TAG = "ClientScreen";
+  private static final String TAG = "GameScreen";
   private static final boolean DEBUG          = true;
   private static final boolean DEBUG_TOUCHPAD = !true;
   private static final boolean DEBUG_MOBILE   = !true;
@@ -410,8 +410,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     };
 
     map = new Map(0, 0);
-    renderer = new RenderSystem(Riiablo.batch);
-    renderer.setMap(map);
+    renderer = new RenderSystem(Riiablo.batch, map);
     iso = renderer.iso();
     scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
 
@@ -427,7 +426,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
     engine.addSystem(new PathfindSystem());
     engine.addSystem(new Box2DBodySystem());
-    engine.addSystem(new Box2DPhysicsSystem(1 / 60f));
+    engine.addSystem(new Box2DPhysicsSystem(map, iso, 1 / 60f));
 
     //engine.addSystem(new TargetInteractSystem());
 
@@ -445,7 +444,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.addSystem(new AlphaUpdateSystem());
     engine.addSystem(new AnimationSystem());
     engine.addSystem(new ObjectSystem());
-    engine.addSystem(new WarpSystem());
+    engine.addSystem(new WarpSystem(map));
     engine.addSystem(new SelectableSystem());
     if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
       engine.addSystem(new SelectedSystem(iso));
@@ -724,10 +723,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     }
     renderer.resize();
 
-    // TODO: move map into constructor of below methods or move these lines up top where they are created
-    renderer.setMap(map);
-    engine.getSystem(WarpSystem.class).setMap(map);
-    engine.getSystem(Box2DPhysicsSystem.class).setMap(map, iso);
+    engine.getSystem(Box2DPhysicsSystem.class).createBodies();
 
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     Map.Zone zone = map.getZone(origin);

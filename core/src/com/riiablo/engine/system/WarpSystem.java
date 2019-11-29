@@ -13,18 +13,9 @@ public class WarpSystem extends IteratingSystem {
 
   private Map map;
 
-  public WarpSystem() {
+  public WarpSystem(Map map) {
     super(Family.all(WarpComponent.class, HoveredComponent.class).get());
-  }
-
-  public Map getMap() {
-    return map;
-  }
-
-  public void setMap(Map map) {
-    if (this.map != map) {
-      this.map = map;
-    }
+    this.map = map;
   }
 
   @Override

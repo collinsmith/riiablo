@@ -65,12 +65,15 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
   private final BodyDef playerBodyDef = monsterBodyDef;
 
   private Map map;
+  private IsometricCamera iso;
   public World world;
 
   private final ObjectMap<Entity, Body> bodies = new ObjectMap<>();
 
-  public Box2DPhysicsSystem(float timeStep) {
+  public Box2DPhysicsSystem(Map map, IsometricCamera iso, float timeStep) {
     super(Family.all(PositionComponent.class, VelocityComponent.class, Box2DComponent.class).get(), timeStep);
+    this.map = map;
+    this.iso = iso;
     this.timeStep = timeStep;
     Box2D.init();
     world = new World(Vector2.Zero, true);
@@ -115,13 +118,10 @@ public class Box2DPhysicsSystem extends IntervalIteratingSystem implements Entit
     world.destroyBody(body);
   }
 
-  public void setMap(Map map, IsometricCamera iso) {
-    if (this.map != map) {
-      this.map = map;
-      Vector2 tileOffset = iso.getTileOffset(new Vector2()).scl(-1); // offset inverse of tile offset
-      createBodies(tileOffset);
-      if (DEBUG) Gdx.app.debug(TAG, "bodies=" + world.getBodyCount());
-    }
+  public void createBodies() {
+    Vector2 tileOffset = iso.getTileOffset(new Vector2()).scl(-1); // offset inverse of tile offset
+    createBodies(tileOffset);
+    if (DEBUG) Gdx.app.debug(TAG, "bodies=" + world.getBodyCount());
   }
 
   private Body createBody(Entity entity) {

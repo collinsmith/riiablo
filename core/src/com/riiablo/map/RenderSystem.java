@@ -157,8 +157,9 @@ public class RenderSystem extends EntitySystem {
   // DT1 mainIndexes to not draw
   final Bits popped = new Bits();
 
-  public RenderSystem(PaletteIndexedBatch batch) {
+  public RenderSystem(PaletteIndexedBatch batch, Map map) {
     this.batch = batch;
+    this.map = map;
     this.iso = new IsometricCamera();
     iso.setToOrtho(false);
     iso.offset(0, -Tile.SUBTILE_HEIGHT50);
@@ -208,12 +209,6 @@ public class RenderSystem extends EntitySystem {
 
   public Map getMap() {
     return map;
-  }
-
-  public void setMap(Map map) {
-    if (this.map != map) {
-      this.map = map;
-    }
   }
 
   public Entity getSrc() {
