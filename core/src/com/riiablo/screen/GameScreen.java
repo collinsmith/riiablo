@@ -766,6 +766,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   @Override
   public void dispose() {
+    charData.clearListeners();
     engine.removeAllEntities();
     engine.removeAllSystems();
     for (Actor actor : stage.getActors()) if (actor instanceof Disposable) ((Disposable) actor).dispose();

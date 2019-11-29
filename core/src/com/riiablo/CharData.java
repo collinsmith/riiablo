@@ -431,6 +431,11 @@ public class CharData {
     for (EquippedListener l : EQUIPPED_LISTENERS) l.onAlternated(this, alternate, LH, RH);
   }
 
+  public void clearListeners() {
+    EQUIPPED_LISTENERS.clear();
+    SKILLS_LISTENERS.clear();
+  }
+
   public boolean addEquippedListener(EquippedListener l) {
     EQUIPPED_LISTENERS.add(l);
     return true;
