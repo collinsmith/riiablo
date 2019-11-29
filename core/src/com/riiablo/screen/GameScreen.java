@@ -766,6 +766,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   @Override
   public void dispose() {
+    //map.dispose(); // FIXME: additional instances aren't reloading textures properly
     charData.clearListeners();
     engine.removeAllEntities();
     engine.removeAllSystems();
