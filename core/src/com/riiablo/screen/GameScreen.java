@@ -55,6 +55,8 @@ import com.riiablo.engine.system.CollisionSystem;
 import com.riiablo.engine.system.IdSystem;
 import com.riiablo.engine.system.ItemLoaderSystem;
 import com.riiablo.engine.system.LabelSystem;
+import com.riiablo.engine.system.MissileCollisionSystem;
+import com.riiablo.engine.system.MissileLoaderSystem;
 import com.riiablo.engine.system.MovementModeSystem;
 import com.riiablo.engine.system.ObjectSystem;
 import com.riiablo.engine.system.PathfindSystem;
@@ -461,6 +463,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.addSystem(new PathfindSystem());
     engine.addSystem(new Box2DBodySystem());
     engine.addSystem(new Box2DPhysicsSystem(map, iso, 1 / 60f));
+    engine.addSystem(new MissileCollisionSystem());
 
     //engine.addSystem(new TargetInteractSystem());
 
@@ -473,6 +476,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.addSystem(new CofLoaderSystem());
     engine.addSystem(new AnimationLoaderSystem());
     engine.addSystem(new ItemLoaderSystem());
+    engine.addSystem(new MissileLoaderSystem());
     //engine.addSystem(new ModeUpdateSystem());
     engine.addSystem(new TransformUpdateSystem());
     engine.addSystem(new AlphaUpdateSystem());

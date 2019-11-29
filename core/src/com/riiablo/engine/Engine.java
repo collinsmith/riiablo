@@ -15,8 +15,10 @@ import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.DC6;
+import com.riiablo.codec.DCC;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlWarp;
+import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Objects;
@@ -34,6 +36,7 @@ import com.riiablo.engine.component.InteractableComponent;
 import com.riiablo.engine.component.ItemComponent;
 import com.riiablo.engine.component.LabelComponent;
 import com.riiablo.engine.component.MapComponent;
+import com.riiablo.engine.component.MissileComponent;
 import com.riiablo.engine.component.MonsterComponent;
 import com.riiablo.engine.component.MovementModeComponent;
 import com.riiablo.engine.component.ObjectComponent;
@@ -567,6 +570,39 @@ public class Engine extends PooledEngine {
     entity.add(itemComponent);
     entity.add(positionComponent);
     entity.add(interactableComponent);
+
+    return entity;
+  }
+
+  public Entity createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
+    TypeComponent typeComponent = createComponent(TypeComponent.class);
+    typeComponent.type = TypeComponent.Type.MIS;
+
+    AssetDescriptor<DCC> missileDescriptor = new AssetDescriptor<>(TypeComponent.Type.MIS.PATH + "\\" + missile.CelFile + ".dcc", DCC.class);
+    Riiablo.assets.load(missileDescriptor);
+
+    MissileComponent missileComponent = createComponent(MissileComponent.class);
+    missileComponent.missile = missile;
+    missileComponent.range = missile.Range;
+    missileComponent.start.set(position);
+    missileComponent.missileDescriptor = missileDescriptor;
+
+    PositionComponent positionComponent = createComponent(PositionComponent.class);
+    positionComponent.position.set(position);
+
+    VelocityComponent velocityComponent = createComponent(VelocityComponent.class);
+    velocityComponent.velocity.set(angle).setLength(missile.Vel);
+
+    AngleComponent angleComponent = createComponent(AngleComponent.class);
+    angleComponent.target.set(angle);
+    angleComponent.angle.set(angleComponent.target);
+
+    Entity entity = createEntity(missile.Missile);
+    entity.add(typeComponent);
+    entity.add(missileComponent);
+    entity.add(positionComponent);
+    entity.add(velocityComponent);
+    entity.add(angleComponent);
 
     return entity;
   }

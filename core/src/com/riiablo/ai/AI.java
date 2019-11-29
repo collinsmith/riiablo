@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
+import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.InteractableComponent;
@@ -152,5 +153,13 @@ public abstract class AI implements InteractableComponent.Interactor {
     sequenceComponent.mode1 = mode1;
     sequenceComponent.mode2 = mode2;
     return sequenceComponent;
+  }
+
+  protected Entity fire(Missiles.Entry missile) {
+    PositionComponent positionComponent = this.positionComponent.get(entity);
+    AngleComponent angleComponent = this.angleComponent.get(entity);
+    Entity missileEntity = Riiablo.engine.createMissile(missile, angleComponent.target, positionComponent.position);
+    Riiablo.engine.addEntity(missileEntity);
+    return missileEntity;
   }
 }

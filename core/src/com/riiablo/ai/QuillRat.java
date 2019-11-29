@@ -10,6 +10,7 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.Missiles;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PlayerComponent;
@@ -17,7 +18,7 @@ import com.riiablo.engine.component.PositionComponent;
 import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.engine.component.VelocityComponent;
 
-public class Fallen extends AI {
+public class QuillRat extends AI {
   enum State implements com.badlogic.gdx.ai.fsm.State<Entity> {
     IDLE,
     WANDER,
@@ -27,7 +28,8 @@ public class Fallen extends AI {
     @Override public void enter(Entity entity) {}
     @Override public void update(Entity entity) {}
     @Override public void exit(Entity entity) {}
-    @Override public boolean onMessage(Entity entity, Telegram telegram) {
+    @Override
+    public boolean onMessage(Entity entity, Telegram telegram) {
       return false;
     }
   }
@@ -45,11 +47,14 @@ public class Fallen extends AI {
   final StateMachine<Entity, State> stateMachine;
   float nextAction;
   float time;
+  Missiles.Entry missile;
 
-  public Fallen(Entity entity) {
+  public QuillRat(Entity entity) {
     super(entity);
     stateMachine = new DefaultStateMachine<>(entity, State.IDLE);
     if (enemyEntities == null) enemyEntities = Riiablo.engine.getEntitiesFor(enemyFamily);
+    monsound = "spikefiend";
+    missile = Riiablo.files.Missiles.get(monsterComponent.monstats.MissA2);
   }
 
   @Override
@@ -74,15 +79,21 @@ public class Fallen extends AI {
             float dst = entityPos.dst(targetPos);
             if (dst < melerng) {
               setPath(null);
+              lookAt(ent);
               stateMachine.changeState(State.ATTACK);
-              sequence(MathUtils.randomBoolean(params[3] / 100f) ? Engine.Monster.MODE_A2 : Engine.Monster.MODE_A1, Engine.Monster.MODE_NU);
+              sequence(Engine.Monster.MODE_A1, Engine.Monster.MODE_NU);
               Riiablo.audio.play(monsound + "_attack_1", true);
               time = MathUtils.random(1f, 2);
               return;
-            } else if (dst < 25) {
-              if (MathUtils.randomBoolean(params[0] / 100f)) {
-                setPath(targetPos);
-                stateMachine.changeState(State.APPROACH);
+            } else if (dst < params[0]) {
+              if (MathUtils.randomBoolean(params[1] / 100f)) {
+                setPath(null);
+                lookAt(ent);
+                stateMachine.changeState(State.ATTACK);
+                sequence(Engine.Monster.MODE_A2, Engine.Monster.MODE_NU);
+                Riiablo.audio.play(monsound + "_shoot_1", true);
+                time = MathUtils.random(1f, 2);
+                fire(missile);
                 return;
               }
             }
@@ -101,7 +112,7 @@ public class Fallen extends AI {
         break;
       case WANDER:
         if (!pathfindComponent.has(entity)) {
-          nextAction = MathUtils.random(0f, 1);
+          nextAction = MathUtils.random(3f, 5);
           stateMachine.changeState(State.IDLE);
         } else {
           Vector2 dst = tmpVec2.set(positionComponent.get(entity).position);
