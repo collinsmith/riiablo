@@ -1240,7 +1240,7 @@ public class RenderSystem extends EntitySystem {
             AnimationComponent animationComponent = this.animationComponent.get(entity);
             if (animationComponent != null) {
               Animation animation = animationComponent.animation;
-              if (animation != null) {
+              if (animation != null && animation.getNumFramesPerDir() > 1) {
                 builder
                     .append(StringUtils.leftPad(Integer.toString(animation.getFrame()), 2))
                     .append('/')
