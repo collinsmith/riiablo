@@ -142,6 +142,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   Map map;
   IsometricCamera iso;
   InputProcessor testingInputProcessor;
+  boolean debugBox2d = true;
+  boolean debugPath = true;
 
   public EscapePanel escapePanel;
   public ControlPanel controlPanel;
@@ -403,6 +405,14 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
             }
             return true;
 
+          case Input.Keys.F11:
+            debugBox2d = !debugBox2d;
+            return true;
+
+          case Input.Keys.F10:
+            debugPath = !debugPath;
+            return true;
+
           default:
             return false;
         }
@@ -585,8 +595,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
       shapes.end();
 
       EntitySystem system;
-      if ((system = engine.getSystem(PathfindDebugSystem.class)) != null) system.update(delta);
-      if ((system = engine.getSystem(Box2DDebugRenderSystem.class)) != null) system.update(delta);
+      if (debugPath && (system = engine.getSystem(PathfindDebugSystem.class)) != null) system.update(delta);
+      if (debugBox2d && (system = engine.getSystem(Box2DDebugRenderSystem.class)) != null) system.update(delta);
     }
 
     scaledStage.act(delta);
