@@ -9,20 +9,13 @@ import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
-import com.riiablo.engine.component.MapComponent;
+import com.riiablo.engine.Engine;
 import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PlayerComponent;
 import com.riiablo.engine.component.PositionComponent;
-import com.riiablo.engine.component.SizeComponent;
 import com.riiablo.engine.component.TypeComponent;
 import com.riiablo.engine.component.VelocityComponent;
-import com.riiablo.map.DT1;
-import com.riiablo.map.Map;
-import com.riiablo.map.pfa.GraphPath;
-
-import java.util.Iterator;
 
 public class Fallen extends AI {
   enum State implements com.badlogic.gdx.ai.fsm.State<Entity> {
@@ -39,8 +32,6 @@ public class Fallen extends AI {
     }
   }
 
-  private static final ComponentMapper<MapComponent> mapComponent = ComponentMapper.getFor(MapComponent.class);
-  private static final ComponentMapper<SizeComponent> sizeComponent = ComponentMapper.getFor(SizeComponent.class);
   private static final ComponentMapper<PathfindComponent> pathfindComponent = ComponentMapper.getFor(PathfindComponent.class);
   private static final ComponentMapper<VelocityComponent> velocityComponent = ComponentMapper.getFor(VelocityComponent.class);
 
@@ -84,7 +75,7 @@ public class Fallen extends AI {
             if (dst < melerng) {
               setPath(null);
               stateMachine.changeState(State.ATTACK);
-              //entity.sequence(MathUtils.randomBoolean(params[3] / 100f) ? Monster.MODE_A2 : Monster.MODE_A1, Monster.MODE_NU);
+              sequence(MathUtils.randomBoolean(params[3] / 100f) ? Engine.Monster.MODE_A2 : Engine.Monster.MODE_A1, Engine.Monster.MODE_NU);
               Riiablo.audio.play(monsound + "_attack_1", true);
               time = MathUtils.random(1f, 2);
               return;
@@ -125,44 +116,6 @@ public class Fallen extends AI {
       case ATTACK:
         stateMachine.changeState(State.IDLE);
         break;
-    }
-  }
-
-  private void setPath(Vector2 target) {
-    if (target == null) {
-      entity.remove(PathfindComponent.class);
-      velocityComponent.get(entity).velocity.setZero();
-      return;
-    }
-
-    PositionComponent positionComponent = this.positionComponent.get(entity);
-    Vector2 position = positionComponent.position;
-
-    int flags = DT1.Tile.FLAG_BLOCK_WALK;
-
-    SizeComponent sizeComponent = this.sizeComponent.get(entity);
-    int size = sizeComponent.size;
-
-    MapComponent mapComponent = this.mapComponent.get(entity);
-    Map map = mapComponent.map;
-
-    GraphPath path = Pools.obtain(GraphPath.class);
-    boolean success = map.findPath(position, target, flags, size, path);
-    if (success) {
-      map.smoothPath(flags, size, path);
-      PathfindComponent pathfindComponent = com.riiablo.engine.Engine
-          .getOrCreateComponent(entity, Riiablo.engine, PathfindComponent.class, this.pathfindComponent);
-      pathfindComponent.path = path;
-      pathfindComponent.targets = path.vectorIterator();
-      pathfindComponent.targets.next(); // consume src position
-      Iterator<Vector2> targets = pathfindComponent.targets;
-      if (targets.hasNext()) {
-        pathfindComponent.target.set(targets.next());
-      } else {
-        pathfindComponent.target.set(position);
-      }
-    } else {
-      Pools.free(path);
     }
   }
 

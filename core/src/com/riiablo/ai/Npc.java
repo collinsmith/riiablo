@@ -8,41 +8,29 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.IntSet;
-import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.audio.Audio;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.Engine;
-import com.riiablo.engine.component.AngleComponent;
 import com.riiablo.engine.component.CofComponent;
 import com.riiablo.engine.component.InteractableComponent;
-import com.riiablo.engine.component.MapComponent;
 import com.riiablo.engine.component.PathComponent;
 import com.riiablo.engine.component.PathfindComponent;
 import com.riiablo.engine.component.PositionComponent;
-import com.riiablo.engine.component.SizeComponent;
 import com.riiablo.engine.component.VelocityComponent;
 import com.riiablo.map.DS1;
-import com.riiablo.map.DT1;
-import com.riiablo.map.Map;
-import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 
 import org.apache.commons.lang3.ArrayUtils;
-
-import java.util.Iterator;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
 
   private static final ComponentMapper<InteractableComponent> interactableComponent = ComponentMapper.getFor(InteractableComponent.class);
   private static final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
-  private static final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
   private static final ComponentMapper<PathfindComponent> pathfindComponent = ComponentMapper.getFor(PathfindComponent.class);
   private static final ComponentMapper<PathComponent> pathComponent = ComponentMapper.getFor(PathComponent.class);
-  private static final ComponentMapper<MapComponent> mapComponent = ComponentMapper.getFor(MapComponent.class);
-  private static final ComponentMapper<SizeComponent> sizeComponent = ComponentMapper.getFor(SizeComponent.class);
   private static final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
   private static final ComponentMapper<VelocityComponent> velocityComponent = ComponentMapper.getFor(VelocityComponent.class);
 
@@ -206,45 +194,9 @@ public class Npc extends AI {
     }
   }
 
-  private void lookAt(Entity target) {
-    Vector2 targetPos = positionComponent.get(target).position;
-    Vector2 entityPos = positionComponent.get(entity).position;
-    tmpVec2.set(targetPos).sub(entityPos);
-    angleComponent.get(entity).target.set(tmpVec2).nor();
-  }
-
-  // FIXME: some actions must be too close to the border -- path finding seems to be tossng them
+  // FIXME: some actions must be too close to the border -- path finding seems to be tossing them
   private void setPath(DS1.Path.Point dst) {
-    PositionComponent positionComponent = this.positionComponent.get(entity);
-    Vector2 position = positionComponent.position;
-
-    int flags = DT1.Tile.FLAG_BLOCK_WALK;
-
-    SizeComponent sizeComponent = this.sizeComponent.get(entity);
-    int size = sizeComponent.size;
-
-    MapComponent mapComponent = this.mapComponent.get(entity);
-    Map map = mapComponent.map;
-
-    tmpVec2.set(dst.x, dst.y);
-    GraphPath path = Pools.obtain(GraphPath.class);
-    boolean success = map.findPath(position, tmpVec2, flags, size, path);
-    if (success) {
-      map.smoothPath(flags, size, path);
-      PathfindComponent pathfindComponent = com.riiablo.engine.Engine
-          .getOrCreateComponent(entity, Riiablo.engine, PathfindComponent.class, this.pathfindComponent);
-      pathfindComponent.path = path;
-      pathfindComponent.targets = path.vectorIterator();
-      pathfindComponent.targets.next(); // consume src position
-      Iterator<Vector2> targets = pathfindComponent.targets;
-      if (targets.hasNext()) {
-        pathfindComponent.target.set(targets.next());
-      } else {
-        pathfindComponent.target.set(position);
-      }
-    } else {
-      Pools.free(path);
-    }
+    setPath(tmpVec2.set(dst.x, dst.y));
   }
 
   private float action(int actionId) {

@@ -25,8 +25,10 @@ public class SequenceSystem extends IteratingSystem {
     Animation animation = animationComponent.get(entity).animation;
     if (cofComponent.mode != sequenceComponent.mode1) {
       cofComponent.mode = sequenceComponent.mode1;
+      cofComponent.speed = CofComponent.SPEED_NULL;
     } else if (animation.isFinished()) {
       cofComponent.mode = sequenceComponent.mode2;
+      cofComponent.speed = CofComponent.SPEED_NULL;
       entity.remove(SequenceComponent.class);
     }
   }
