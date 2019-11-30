@@ -1,0 +1,4 @@
+namespace com.riiablo.net.packet.bnls;
+
+table ConnectionAccepted {
+}

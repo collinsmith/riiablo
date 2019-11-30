@@ -12,7 +12,9 @@ import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.riiablo.net.packet.bnls.BNLSData;
+import com.riiablo.net.packet.bnls.ConnectionAccepted;
 import com.riiablo.net.packet.bnls.ConnectionClosed;
+import com.riiablo.net.packet.bnls.LoginResponse;
 import com.riiablo.net.packet.bnls.QueryRealms;
 import com.riiablo.net.packet.bnls.Realm;
 
@@ -92,7 +94,12 @@ public class BNLS extends ApplicationAdapter {
               socket.dispose();
             }
           } else {
-            new Client(socket).start();
+            try {
+              ConnectionAccepted(socket);
+              new Client(socket).start();
+            } catch (Throwable ignored) {
+              socket.dispose();
+            }
           }
         }
 
@@ -150,6 +157,9 @@ public class BNLS extends ApplicationAdapter {
       case BNLSData.QueryRealms:
         QueryRealms(socket);
         break;
+      case BNLSData.LoginResponse:
+        LoginResponse(socket, packet);
+        break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
     }
@@ -167,6 +177,21 @@ public class BNLS extends ApplicationAdapter {
     WritableByteChannel channel = Channels.newChannel(out);
     channel.write(data);
     return true;
+  }
+
+  private boolean ConnectionAccepted(Socket socket) throws IOException {
+    Gdx.app.debug(TAG, "Connection accepted!");
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    ConnectionAccepted.startConnectionAccepted(builder);
+    int connectionAcceptedId = ConnectionAccepted.endConnectionAccepted(builder);
+    int id = com.riiablo.net.packet.bnls.BNLS.createBNLS(builder, BNLSData.ConnectionAccepted, connectionAcceptedId);
+    builder.finish(id);
+
+    ByteBuffer data = builder.dataBuffer();
+    OutputStream out = socket.getOutputStream();
+    WritableByteChannel channel = Channels.newChannel(out);
+    channel.write(data);
+    return false;
   }
 
   private boolean QueryRealms(Socket socket) throws IOException {
@@ -195,6 +220,26 @@ public class BNLS extends ApplicationAdapter {
     return false;
   }
 
+  private boolean LoginResponse(Socket socket, com.riiablo.net.packet.bnls.BNLS packet) throws IOException {
+    LoginResponse request = (LoginResponse) packet.data(new LoginResponse());
+    String username = request.username();
+    Gdx.app.log(TAG, "Login request from username " + username);
+
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    int usernameOffset = builder.createString(username);
+    int offset = LoginResponse.createLoginResponse(builder, usernameOffset);
+    int id = com.riiablo.net.packet.bnls.BNLS.createBNLS(builder, BNLSData.LoginResponse, offset);
+    builder.finish(id);
+
+    ByteBuffer data = builder.dataBuffer();
+
+    OutputStream out = socket.getOutputStream();
+    WritableByteChannel channel = Channels.newChannel(out);
+    channel.write(data);
+    Gdx.app.log(TAG, "returning login response...");
+    return true;
+  }
+
   static String generateClientName() {
     return String.format("Client-%08X", MathUtils.random(1, Integer.MAX_VALUE - 1));
   }
@@ -212,9 +257,13 @@ public class BNLS extends ApplicationAdapter {
     public void run() {
       while (!kill.get()) {
         try {
+          buffer.clear();
           buffer.mark();
           ReadableByteChannel in = Channels.newChannel(socket.getInputStream());
-          in.read(buffer);
+          if (in.read(buffer) == -1) {
+            kill.set(true);
+            break;
+          }
           buffer.limit(buffer.position());
           buffer.reset();
 
@@ -222,12 +271,13 @@ public class BNLS extends ApplicationAdapter {
           Gdx.app.log(TAG, "packet type " + BNLSData.name(packet.dataType()));
           process(socket, packet);
         } catch (Throwable t) {
-          Gdx.app.log(TAG, t.getMessage());
-        } finally {
-          Gdx.app.log(TAG, "closing socket...");
-          if (socket != null) socket.dispose();
+          Gdx.app.log(TAG, t.getMessage(), t);
+          kill.set(true);
         }
       }
+
+      Gdx.app.log(TAG, "closing socket...");
+      if (socket != null) socket.dispose();
     }
   }
 }

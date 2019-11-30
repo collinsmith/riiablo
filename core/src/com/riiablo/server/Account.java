@@ -17,9 +17,18 @@ public class Account {
     return account;
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public static class Builder {
     public String account;
     public String hash;
+
+    public Builder setAccount(String account) {
+      this.account = account;
+      return this;
+    }
 
     public Account build() {
       return new Account(this);

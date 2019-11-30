@@ -1,12 +1,14 @@
 package com.riiablo.screen;
 
+import com.google.flatbuffers.FlatBufferBuilder;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.net.HttpRequestBuilder;
+import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -15,7 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.BufferUtils;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC6;
@@ -23,14 +26,26 @@ import com.riiablo.codec.StringTBL;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.net.packet.bnls.BNLS;
+import com.riiablo.net.packet.bnls.BNLSData;
+import com.riiablo.net.packet.bnls.LoginResponse;
 import com.riiablo.server.Account;
 import com.riiablo.widget.AnimationWrapper;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.TextButton;
 import com.riiablo.widget.TextField;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class LoginScreen extends ScreenAdapter {
   private static final String TAG = "LoginScreen";
+  private static final boolean DEBUG            = true;
+  private static final boolean DEBUG_CONNECTION = DEBUG && true;
 
   final AssetDescriptor<DC6> TitleScreenDescriptor = new AssetDescriptor<>("data\\global\\ui\\FrontEnd\\TitleScreen.dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   TextureRegion TitleScreen;
@@ -56,6 +71,8 @@ public class LoginScreen extends ScreenAdapter {
   private Button btnAccountSettings;
   private Button btnCreateNewAccount;
   private Button btnCancel;
+
+  private Connection connection;
 
   public LoginScreen(Animation D2logoLeft, Animation D2logoRight) {
     this.D2logoLeft = D2logoLeft;
@@ -100,33 +117,17 @@ public class LoginScreen extends ScreenAdapter {
       public void clicked(InputEvent event, float x, float y) {
         Actor actor = event.getListenerActor();
         if (actor == btnLogIn) {
-          Net.HttpRequest request = new HttpRequestBuilder()
-              .newRequest()
-              .method(Net.HttpMethods.POST)
-              .url("http://" + Riiablo.client.getRealm() + ":6112/login")
-              .jsonContent(new Account.Builder() {{ account = "test"; }})
-              .build();
-          Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
-            @Override
-            public void handleHttpResponse(Net.HttpResponse httpResponse) {
-              final Account account = new Json().fromJson(Account.class, httpResponse.getResultAsStream());
-              Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                  Riiablo.client.pushScreen(new SelectCharacterScreen2(account));
-                }
-              });
-            }
 
-            @Override
-            public void failed(Throwable t) {
-              Gdx.app.error(TAG, t.getMessage());
-            }
-
-            @Override
-            public void cancelled() {
-            }
-          });
+          Socket socket = null;
+          try {
+            socket = Gdx.net.newClientSocket(Net.Protocol.TCP, Riiablo.client.getRealm(), 6110, null);
+            connection = new Connection(socket);
+            connection.start();
+          } catch (GdxRuntimeException t) {
+            Gdx.app.error(TAG, t.getMessage());
+            if (connection != null) connection.kill.set(true);
+            else if (socket != null) socket.dispose();
+          }
         } else if (actor == btnAccountSettings) {
         } else if (actor == btnCreateNewAccount) {
         } else if (actor == btnCancel) {
@@ -229,16 +230,123 @@ public class LoginScreen extends ScreenAdapter {
     Riiablo.assets.unload(buttonDescriptor.fileName);
     Riiablo.assets.unload(selectDescriptor.fileName);
     Riiablo.assets.unload(textbox2Descriptor.fileName);
+    if (connection != null) connection.kill.set(true);
   }
 
   @Override
   public void render(float delta) {
     PaletteIndexedBatch b = Riiablo.batch;
     b.begin(Riiablo.palettes.units);
-    b.draw(TitleScreen, (stage.getWidth() / 2) - (TitleScreen.getRegionWidth() / 2), 0);
+    b.draw(TitleScreen, (stage.getViewport().getScreenWidth() / 2) - (TitleScreen.getRegionWidth() / 2), 0);
     b.end();
 
     stage.act(delta);
     stage.draw();
+  }
+
+  private void process(Socket socket, BNLS packet) throws IOException {
+    switch (packet.dataType()) {
+      case BNLSData.ConnectionClosed:
+        Gdx.app.debug(TAG, "Connection closed :(");
+        break;
+      case BNLSData.ConnectionAccepted:
+        Gdx.app.debug(TAG, "Connection accepted!");
+        break;
+      case BNLSData.LoginResponse:
+        Gdx.app.debug(TAG, "Login successful!");
+        LoginResponse response = (LoginResponse) packet.data(new LoginResponse());
+        final Account account = Account.builder().setAccount(response.username()).build();
+        Gdx.app.postRunnable(new Runnable() {
+          @Override
+          public void run() {
+            Riiablo.client.pushScreen(new SelectCharacterScreen2(account));
+          }
+        });
+        break;
+      default:
+        Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
+    }
+  }
+
+  private enum State {
+    PENDING,
+    LOGIN,
+    WAITING,
+    ACCEPTED
+  }
+
+  private class Connection extends Thread {
+    Socket socket;
+    ByteBuffer buffer = BufferUtils.newByteBuffer(4096);
+    AtomicBoolean kill = new AtomicBoolean(false);
+
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    LoginScreen.State state = LoginScreen.State.PENDING;
+
+    Connection(Socket socket) {
+      super(Connection.class.getName());
+      this.socket = socket;
+    }
+
+    @Override
+    public void run() {
+      while (!kill.get()) {
+        try {
+          switch (state) {
+            case PENDING: {
+              if (DEBUG_CONNECTION) Gdx.app.debug(TAG, "pending connection...");
+              buffer.clear();
+              buffer.mark();
+              ReadableByteChannel in = Channels.newChannel(socket.getInputStream());
+              in.read(buffer);
+              buffer.limit(buffer.position());
+              buffer.reset();
+
+              BNLS packet = BNLS.getRootAsBNLS(buffer);
+              Gdx.app.log(TAG, "packet type " + BNLSData.name(packet.dataType()));
+              process(socket, packet);
+              state = LoginScreen.State.LOGIN;
+            }
+              break;
+            case LOGIN: {
+              if (DEBUG_CONNECTION) Gdx.app.debug(TAG, "sending login request");
+              builder.clear();
+              int usernameOffset = builder.createString("test");
+              int offset = LoginResponse.createLoginResponse(builder, usernameOffset);
+              int id = BNLS.createBNLS(builder, BNLSData.LoginResponse, offset);
+              builder.finish(id);
+              WritableByteChannel out = Channels.newChannel(socket.getOutputStream());
+              out.write(builder.dataBuffer());
+              state = LoginScreen.State.WAITING;
+            }
+              break;
+            case WAITING: {
+              if (DEBUG_CONNECTION) Gdx.app.debug(TAG, "pending login response...");
+              buffer.clear();
+              buffer.mark();
+              ReadableByteChannel in = Channels.newChannel(socket.getInputStream());
+              in.read(buffer);
+              buffer.limit(buffer.position());
+              buffer.reset();
+
+              BNLS packet = BNLS.getRootAsBNLS(buffer);
+              Gdx.app.log(TAG, "packet type " + BNLSData.name(packet.dataType()));
+              process(socket, packet);
+              state = LoginScreen.State.ACCEPTED;
+            }
+              break;
+            case ACCEPTED:
+              kill.set(true);
+              break;
+          }
+        } catch (Throwable t) {
+          Gdx.app.log(TAG, t.getMessage(), t);
+          kill.set(true);
+        }
+      }
+
+      Gdx.app.log(TAG, "closing socket...");
+      if (socket != null) socket.dispose();
+    }
   }
 }
