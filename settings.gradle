@@ -1,1 +1,1 @@
-include 'tools', 'tester', 'ds1viewer', 'mpqviewer', 'server:bnls', 'server:mcp', 'desktop', 'android', 'mpqlib', 'core'
+include 'tools', 'tester', 'ds1viewer', 'mpqviewer', 'server:bnls', 'server:mcp', 'server:d2gs', 'desktop', 'android', 'mpqlib', 'core'
