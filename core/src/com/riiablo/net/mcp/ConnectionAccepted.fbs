@@ -1,0 +1,4 @@
+namespace com.riiablo.net.packet.mcp;
+
+table ConnectionAccepted {
+}

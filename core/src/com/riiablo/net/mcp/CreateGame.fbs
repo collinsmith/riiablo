@@ -1,0 +1,25 @@
+include "Result.fbs";
+
+namespace com.riiablo.net.packet.mcp;
+
+//enum Result : int {
+//  SUCCESS       = 0x00,
+//  INVALID_NAME  = 0x1E,
+//  ALREAD_EXISTS = 0x1F,
+//  SERVER_DOWN   = 0x20,
+//  HARDCORE_DEAD = 0x6E,
+//}
+
+table CreateGame {
+  // request
+  diff:int;
+  levelDifference:int;
+  maxPlayers:int;
+  gameName:string;
+  password:string;
+  description:string;
+
+  // response
+  gameToken:int;
+  result:Result;
+}

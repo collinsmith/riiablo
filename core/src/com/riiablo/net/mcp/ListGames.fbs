@@ -1,0 +1,17 @@
+namespace com.riiablo.net.packet.mcp;
+
+table ListGames {
+  // request
+  flags:uint32;
+
+  // response
+  games:[GameSession];
+}
+
+table GameSession {
+  index:uint32;
+  players:uint8;
+  name:string;
+  desc:string;
+  flags:uint32;
+}

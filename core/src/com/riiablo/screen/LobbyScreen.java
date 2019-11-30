@@ -1,12 +1,13 @@
 package com.riiablo.screen;
 
+import com.google.flatbuffers.FlatBufferBuilder;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.net.SocketHints;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -24,17 +25,20 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.BufferUtils;
+import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.SerializationException;
 import com.riiablo.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.net.GameSession;
+import com.riiablo.net.packet.mcp.ListGames;
+import com.riiablo.net.packet.mcp.MCP;
+import com.riiablo.net.packet.mcp.MCPData;
 import com.riiablo.server.Account;
-import com.riiablo.server.Session;
-import com.riiablo.server.SessionError;
 import com.riiablo.util.EventUtils;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.TextArea;
@@ -45,13 +49,20 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LobbyScreen extends ScreenAdapter {
   private static final String TAG = "LobbyScreen";
+  private static final boolean DEBUG            = true;
+  private static final boolean DEBUG_CONNECTION = DEBUG && true;
 
   // FIXME: This background is not feasible and will always require shaving, easier to just use
   //        component panels and button groups to create my own?
@@ -90,6 +101,8 @@ public class LobbyScreen extends ScreenAdapter {
   private Socket socket;
   private PrintWriter out;
   private BufferedReader in;
+
+  private Connection connection;
 
   public LobbyScreen(Account account, CharData player) {
     this.account = account;
@@ -277,47 +290,47 @@ public class LobbyScreen extends ScreenAdapter {
         btnCreateGame.addListener(new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            Net.HttpRequest request = new HttpRequestBuilder()
-                .newRequest()
-                .method(Net.HttpMethods.POST)
-                .url("http://" + Riiablo.client.getRealm() + ":6112/create-session")
-                .jsonContent(new Session.Builder() {{
-                  name     = tfGameName.getText();
-                  password = tfPassword.getText();
-                  desc     = tfDesc.getText();
-                }})
-                .build();
-            Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
-              @Override
-              public void handleHttpResponse(Net.HttpResponse httpResponse) {
-                String response = httpResponse.getResultAsString();
-                try {
-                  final Session session = new Json().fromJson(Session.class, response);
-                  Gdx.app.log(TAG, "create-session " + response);
-                  Gdx.app.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                      Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
-                      Gdx.app.log(TAG, "create-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-                      Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
-                    }
-                  });
-                } catch (SerializationException e) {
-                  SessionError error = new Json().fromJson(SessionError.class, response);
-                  Gdx.app.log(TAG, "create-session " + error.toString());
-                }
-              }
-
-              @Override
-              public void failed(Throwable t) {
-                Gdx.app.log(TAG, "create-session " + t.getMessage());
-              }
-
-              @Override
-              public void cancelled() {
-                Gdx.app.log(TAG, "create-session " + "cancelled");
-              }
-            });
+//            Net.HttpRequest request = new HttpRequestBuilder()
+//                .newRequest()
+//                .method(Net.HttpMethods.POST)
+//                .url("http://" + Riiablo.client.getRealm() + ":6112/create-session")
+//                .jsonContent(new Session.Builder() {{
+//                  name     = tfGameName.getText();
+//                  password = tfPassword.getText();
+//                  desc     = tfDesc.getText();
+//                }})
+//                .build();
+//            Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+//              @Override
+//              public void handleHttpResponse(Net.HttpResponse httpResponse) {
+//                String response = httpResponse.getResultAsString();
+//                try {
+//                  final Session session = new Json().fromJson(Session.class, response);
+//                  Gdx.app.log(TAG, "create-session " + response);
+//                  Gdx.app.postRunnable(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                      Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
+//                      Gdx.app.log(TAG, "create-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
+//                      Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
+//                    }
+//                  });
+//                } catch (SerializationException e) {
+//                  SessionError error = new Json().fromJson(SessionError.class, response);
+//                  Gdx.app.log(TAG, "create-session " + error.toString());
+//                }
+//              }
+//
+//              @Override
+//              public void failed(Throwable t) {
+//                Gdx.app.log(TAG, "create-session " + t.getMessage());
+//              }
+//
+//              @Override
+//              public void cancelled() {
+//                Gdx.app.log(TAG, "create-session " + "cancelled");
+//              }
+//            });
           }
         });
         tfGameName.addListener(new ChangeListener() {
@@ -392,7 +405,7 @@ public class LobbyScreen extends ScreenAdapter {
 
         List.ListStyle style3 = new List.ListStyle(Riiablo.fonts.fontformal10, Riiablo.colors.gold, Riiablo.colors.white,
             new TextureRegionDrawable(Riiablo.textures.white));
-        final List<Session> list = new List<>(style3);
+        final List<GameSession> list = new List<>(style3);
         list.setPosition(14, 54);
         list.setSize(158, 177);
         addActor(list);
@@ -412,7 +425,7 @@ public class LobbyScreen extends ScreenAdapter {
           public void changed(ChangeEvent event, Actor actor) {
             list.getSelection().setRequired(true);
             btnJoinGame.setDisabled(list.getSelection().isEmpty());
-            Session selected = list.getSelected();
+            GameSession selected = list.getSelected();
             tfGameName.setText(selected != null ? selected.toString() : "");
           }
         });
@@ -420,14 +433,14 @@ public class LobbyScreen extends ScreenAdapter {
           @Override
           public void clicked(InputEvent event, float x, float y) {
             if (btnJoinGame.isDisabled()) return;
-            final Session session = list.getSelected();
+            final GameSession session = list.getSelected();
             Gdx.app.log(TAG, "join-session " + session);
             Gdx.app.postRunnable(new Runnable() {
               @Override
               public void run() {
-                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
-                Gdx.app.log(TAG, "join-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-                Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
+//                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
+//                Gdx.app.log(TAG, "join-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
+//                Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
               }
             });
           }
@@ -459,31 +472,22 @@ public class LobbyScreen extends ScreenAdapter {
             list.clearItems();
             list.getSelection().setRequired(false);
             stage.setKeyboardFocus(tfGameName);
-            Net.HttpRequest request = new HttpRequestBuilder()
-                .newRequest()
-                .method(Net.HttpMethods.GET)
-                .url("http://" + Riiablo.client.getRealm() + ":6112/get-sessions")
-                .build();
-            Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+
+            ListGames(new ResponseListener() {
               @Override
-              public void handleHttpResponse(Net.HttpResponse httpResponse) {
-                Array<Session> sessions = (Array<Session>) new Json().fromJson(Array.class, httpResponse.getResultAsStream());
+              public void handleResponse(MCP packet) {
+                Array<GameSession> sessions = new Array<>();
+                ListGames listGames = (ListGames) packet.data(new ListGames());
+                for (int i = 0, length = listGames.gamesLength(); i < length; i++) {
+                  sessions.add(new GameSession(listGames.games(i)));
+                }
                 Gdx.app.log(TAG, sessions.toString());
                 list.setItems(sessions);
               }
 
               @Override
               public void failed(Throwable t) {
-                if (t.getClass() == SocketTimeoutException.class
-                    || t.getClass() == ConnectException.class) {
-                  Gdx.app.log(TAG, t.getMessage());
-                } else {
-                  Gdx.app.log(TAG, t.getMessage(), t);
-                }
-              }
-
-              @Override
-              public void cancelled() {
+                Gdx.app.error(TAG, t.getMessage(), t);
               }
             });
           }
@@ -521,8 +525,10 @@ public class LobbyScreen extends ScreenAdapter {
 
     Riiablo.input.addProcessor(stage);
     connect();
+    connectToMCP();
   }
 
+  // BNCS
   private void connect() {
     new Thread(new Runnable() {
       @Override
@@ -538,6 +544,20 @@ public class LobbyScreen extends ScreenAdapter {
         }
       }
     }).start();
+  }
+
+  private void connectToMCP() {
+    assert connection == null;
+    Socket socket = null;
+    try {
+      socket = Gdx.net.newClientSocket(Net.Protocol.TCP, Riiablo.client.getRealm(), 6111, null);
+      connection = new Connection(socket);
+      connection.start();
+    } catch (GdxRuntimeException t) {
+      Gdx.app.error(TAG, t.getMessage());
+      if (connection != null) connection.kill.set(true);
+      else if (socket != null) socket.dispose();
+    }
   }
 
   @Override
@@ -557,6 +577,7 @@ public class LobbyScreen extends ScreenAdapter {
     Riiablo.assets.unload(chatrighttopbuttonsDescriptor.fileName);
     Riiablo.assets.unload(cancelbuttonblankDescriptor.fileName);
     Riiablo.assets.unload(gamebuttonblankDescriptor.fileName);
+    if (connection != null) connection.dispose();
   }
 
   @Override
@@ -581,6 +602,30 @@ public class LobbyScreen extends ScreenAdapter {
 
     stage.act(delta);
     stage.draw();
+  }
+
+  private void process(Socket socket, MCP packet) throws IOException {
+    switch (packet.dataType()) {
+      case MCPData.ConnectionClosed:
+        Gdx.app.debug(TAG, "Connection closed :(");
+        break;
+      case MCPData.ConnectionAccepted:
+        Gdx.app.debug(TAG, "Connection accepted!");
+        break;
+      default:
+        Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
+    }
+  }
+
+  private void ListGames(ResponseListener listener) {
+    Gdx.app.debug(TAG, "Requesting games list");
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    ListGames.startListGames(builder);
+    int listGamesOffset = ListGames.endListGames(builder);
+    int id = MCP.createMCP(builder, MCPData.ListGames, listGamesOffset);
+    builder.finish(id);
+    ByteBuffer data = builder.dataBuffer();
+    connection.sendRequest(data, listener);
   }
 
   static class TabbedPane extends Container<TabbedPane.TabGroup> {
@@ -663,6 +708,95 @@ public class LobbyScreen extends ScreenAdapter {
     static abstract class TabAdapter implements TabListener {
       @Override public void entered() {}
       @Override public void exited() {}
+    }
+  }
+
+  private enum State {
+    PENDING,
+    WAITING
+  }
+
+  interface ResponseListener {
+    void handleResponse(MCP packet);
+    void failed(Throwable t);
+  }
+
+  class Connection extends Thread implements Disposable {
+    Socket socket;
+    ByteBuffer buffer = BufferUtils.newByteBuffer(4096);
+    AtomicBoolean kill = new AtomicBoolean(false);
+
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    LobbyScreen.State state = LobbyScreen.State.PENDING;
+
+    Connection(Socket socket) {
+      super(Connection.class.getName());
+      this.socket = socket;
+    }
+
+    public void sendRequest(ByteBuffer data, ResponseListener listener) {
+      if (state != LobbyScreen.State.WAITING) throw new IllegalStateException("Sending request before connection has been accepted!");
+      try {
+        OutputStream out = socket.getOutputStream();
+        WritableByteChannel channelOut = Channels.newChannel(out);
+        channelOut.write(data);
+
+        buffer.clear();
+        buffer.mark();
+        InputStream in = socket.getInputStream();
+        ReadableByteChannel channelIn = Channels.newChannel(in);
+        channelIn.read(buffer);
+        buffer.limit(buffer.position());
+        buffer.reset();
+
+        MCP packet = MCP.getRootAsMCP(buffer);
+        Gdx.app.log(TAG, "packet type " + MCPData.name(packet.dataType()));
+        listener.handleResponse(packet);
+      } catch (Throwable t) {
+        listener.failed(t);
+      }
+    }
+
+    @Override
+    public void run() {
+      Gdx.app.log(TAG, "Connecting to MCP " + socket.getRemoteAddress());
+      while (!kill.get()) {
+        try {
+          switch (state) {
+            case PENDING: {
+              if (DEBUG_CONNECTION) Gdx.app.debug(TAG, "pending connection...");
+              buffer.clear();
+              buffer.mark();
+              ReadableByteChannel in = Channels.newChannel(socket.getInputStream());
+              in.read(buffer);
+              buffer.limit(buffer.position());
+              buffer.reset();
+
+              MCP packet = MCP.getRootAsMCP(buffer);
+              Gdx.app.log(TAG, "packet type " + MCPData.name(packet.dataType()));
+              process(socket, packet);
+              state = LobbyScreen.State.WAITING;
+            }
+              break;
+            case WAITING:
+              try {
+                Thread.sleep(100); // sleep to save cpu
+              } catch (Throwable ignored) {}
+              break;
+          }
+        } catch (Throwable t) {
+          Gdx.app.log(TAG, t.getMessage(), t);
+          kill.set(true);
+        }
+      }
+
+      Gdx.app.log(TAG, "closing socket...");
+      if (socket != null) socket.dispose();
+    }
+
+    @Override
+    public void dispose() {
+      kill.set(true);
     }
   }
 }

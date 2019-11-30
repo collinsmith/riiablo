@@ -1,0 +1,19 @@
+namespace com.riiablo.net.packet.mcp;
+
+enum Result : int {
+  SUCCESS             = 0x00,
+  INVALID_NAME        = 0x1E,
+  ALREAD_EXISTS       = 0x1F,
+  SERVER_DOWN         = 0x20,
+  INVALID_PASSWORD    = 0x29,
+  GAME_DOES_NOT_EXIST = 0x2A,
+  GAME_IS_FULL        = 0x2B,
+  LEVEL_REQUIREMENTS  = 0x2C,
+  HARDCORE_DEAD       = 0x6E,
+  HARDCORE_SOFTCORE   = 0x71,
+  UNABLE_NIGHTMARE    = 0x73,
+  UNABLE_HELL         = 0x74,
+  NONEXP_EXPANSION    = 0x78,
+  EXPANSION_NONEXP    = 0x79,
+  NONLADDER_LADDER    = 0x7D,
+}

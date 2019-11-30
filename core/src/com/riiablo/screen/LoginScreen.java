@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.BufferUtils;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
@@ -125,7 +126,7 @@ public class LoginScreen extends ScreenAdapter {
             connection.start();
           } catch (GdxRuntimeException t) {
             Gdx.app.error(TAG, t.getMessage());
-            if (connection != null) connection.kill.set(true);
+            if (connection != null) connection.dispose();
             else if (socket != null) socket.dispose();
           }
         } else if (actor == btnAccountSettings) {
@@ -230,7 +231,7 @@ public class LoginScreen extends ScreenAdapter {
     Riiablo.assets.unload(buttonDescriptor.fileName);
     Riiablo.assets.unload(selectDescriptor.fileName);
     Riiablo.assets.unload(textbox2Descriptor.fileName);
-    if (connection != null) connection.kill.set(true);
+    if (connection != null) connection.dispose();
   }
 
   @Override
@@ -275,7 +276,7 @@ public class LoginScreen extends ScreenAdapter {
     ACCEPTED
   }
 
-  private class Connection extends Thread {
+  private class Connection extends Thread implements Disposable {
     Socket socket;
     ByteBuffer buffer = BufferUtils.newByteBuffer(4096);
     AtomicBoolean kill = new AtomicBoolean(false);
@@ -290,6 +291,7 @@ public class LoginScreen extends ScreenAdapter {
 
     @Override
     public void run() {
+      Gdx.app.log(TAG, "Connecting to BNLS " + socket.getRemoteAddress());
       while (!kill.get()) {
         try {
           switch (state) {
@@ -347,6 +349,11 @@ public class LoginScreen extends ScreenAdapter {
 
       Gdx.app.log(TAG, "closing socket...");
       if (socket != null) socket.dispose();
+    }
+
+    @Override
+    public void dispose() {
+      kill.set(true);
     }
   }
 }

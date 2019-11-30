@@ -1,0 +1,22 @@
+include "Result.fbs";
+include "ConnectionClosed.fbs";
+include "ConnectionAccepted.fbs";
+include "CreateGame.fbs";
+include "JoinGame.fbs";
+include "ListGames.fbs";
+
+namespace com.riiablo.net.packet.mcp;
+
+union MCPData {
+  ConnectionClosed,
+  ConnectionAccepted,
+  CreateGame,
+  JoinGame,
+  ListGames,
+}
+
+table MCP {
+  data:MCPData;
+}
+
+root_type MCP;
