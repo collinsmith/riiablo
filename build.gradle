@@ -216,7 +216,7 @@ project(":core") {
     }
 }
 
-project(":server") {
+project(":server:bnls") {
     apply plugin: "java"
 
     dependencies {

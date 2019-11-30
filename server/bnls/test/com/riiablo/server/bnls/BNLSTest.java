@@ -1,4 +1,4 @@
-package com.riiablo.server;
+package com.riiablo.server.bnls;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 
