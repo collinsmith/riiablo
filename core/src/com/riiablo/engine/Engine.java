@@ -123,6 +123,7 @@ public class Engine extends PooledEngine {
     //public static final byte MODE_GH = 19;
   }
 
+  public static final int MAX_PLAYERS = 8;
   public static final int MAX_NAME_LENGTH = 15;
 
   private static Label createLabel(String text) {

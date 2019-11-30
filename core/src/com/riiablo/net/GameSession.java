@@ -6,6 +6,9 @@ public class GameSession {
   public String name;
   public String password;
   public String desc;
+  public int numPlayers;
+  public int ip;
+  public short port;
 
   public GameSession() {}
 

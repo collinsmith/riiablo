@@ -23,6 +23,7 @@ table JoinGame {
   password:string;
 
   // response
-  ip:uint32;
+  ip:int32;
+  port:int16;
   result:Result;
 }

@@ -20,27 +20,31 @@ public final class JoinGame extends Table {
   public String password() { int o = __offset(6); return o != 0 ? __string(o + bb_pos) : null; }
   public ByteBuffer passwordAsByteBuffer() { return __vector_as_bytebuffer(6, 1); }
   public ByteBuffer passwordInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 1); }
-  public long ip() { int o = __offset(8); return o != 0 ? (long)bb.getInt(o + bb_pos) & 0xFFFFFFFFL : 0L; }
-  public int result() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int ip() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public short port() { int o = __offset(10); return o != 0 ? bb.getShort(o + bb_pos) : 0; }
+  public int result() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createJoinGame(FlatBufferBuilder builder,
       int gameNameOffset,
       int passwordOffset,
-      long ip,
+      int ip,
+      short port,
       int result) {
-    builder.startObject(4);
+    builder.startObject(5);
     JoinGame.addResult(builder, result);
     JoinGame.addIp(builder, ip);
     JoinGame.addPassword(builder, passwordOffset);
     JoinGame.addGameName(builder, gameNameOffset);
+    JoinGame.addPort(builder, port);
     return JoinGame.endJoinGame(builder);
   }
 
-  public static void startJoinGame(FlatBufferBuilder builder) { builder.startObject(4); }
+  public static void startJoinGame(FlatBufferBuilder builder) { builder.startObject(5); }
   public static void addGameName(FlatBufferBuilder builder, int gameNameOffset) { builder.addOffset(0, gameNameOffset, 0); }
   public static void addPassword(FlatBufferBuilder builder, int passwordOffset) { builder.addOffset(1, passwordOffset, 0); }
-  public static void addIp(FlatBufferBuilder builder, long ip) { builder.addInt(2, (int)ip, (int)0L); }
-  public static void addResult(FlatBufferBuilder builder, int result) { builder.addInt(3, result, 0); }
+  public static void addIp(FlatBufferBuilder builder, int ip) { builder.addInt(2, ip, 0); }
+  public static void addPort(FlatBufferBuilder builder, short port) { builder.addShort(3, port, 0); }
+  public static void addResult(FlatBufferBuilder builder, int result) { builder.addInt(4, result, 0); }
   public static int endJoinGame(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

@@ -12,10 +12,12 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.BufferUtils;
+import com.riiablo.engine.Engine;
 import com.riiablo.net.GameSession;
 import com.riiablo.net.packet.bnls.ConnectionAccepted;
 import com.riiablo.net.packet.bnls.ConnectionClosed;
 import com.riiablo.net.packet.mcp.CreateGame;
+import com.riiablo.net.packet.mcp.JoinGame;
 import com.riiablo.net.packet.mcp.ListGames;
 import com.riiablo.net.packet.mcp.MCPData;
 import com.riiablo.net.packet.mcp.Result;
@@ -171,11 +173,14 @@ public class MCP extends ApplicationAdapter {
 
   private void process(Socket socket, com.riiablo.net.packet.mcp.MCP packet) throws IOException {
     switch (packet.dataType()) {
-      case MCPData.ListGames:
-        ListGames(socket, packet);
-        break;
       case MCPData.CreateGame:
         CreateGame(socket, packet);
+        break;
+      case MCPData.JoinGame:
+        JoinGame(socket, packet);
+        break;
+      case MCPData.ListGames:
+        ListGames(socket, packet);
         break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
@@ -265,6 +270,37 @@ public class MCP extends ApplicationAdapter {
     WritableByteChannel channel = Channels.newChannel(out);
     channel.write(data);
     Gdx.app.log(TAG, "returning game creation response...");
+    return false;
+  }
+
+  private boolean JoinGame(Socket socket, com.riiablo.net.packet.mcp.MCP packet) throws IOException {
+    JoinGame joinGame = (JoinGame) packet.data(new JoinGame());
+    String gameName = joinGame.gameName();
+    Gdx.app.debug(TAG, "Attempting to join " + gameName + " for " + socket.getRemoteAddress());
+    GameSession session = sessions.get(gameName);
+
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    JoinGame.startJoinGame(builder);
+    if (session == null) {
+      JoinGame.addResult(builder, Result.GAME_DOES_NOT_EXIST);
+    } else if (session.numPlayers >= Engine.MAX_PLAYERS) {
+      JoinGame.addResult(builder, Result.GAME_IS_FULL);
+    } else {
+      JoinGame.addResult(builder, Result.SUCCESS);
+      JoinGame.addIp(builder, session.ip);
+      JoinGame.addPort(builder, session.port);
+      Gdx.app.debug(TAG, "Sending session info for " + gameName);
+    }
+
+    int joinGameOffset = JoinGame.endJoinGame(builder);
+    int id = com.riiablo.net.packet.mcp.MCP.createMCP(builder, MCPData.JoinGame, joinGameOffset);
+    builder.finish(id);
+
+    ByteBuffer data = builder.dataBuffer();
+    OutputStream out = socket.getOutputStream();
+    WritableByteChannel channel = Channels.newChannel(out);
+    channel.write(data);
+    Gdx.app.log(TAG, "returning game join response...");
     return false;
   }
 

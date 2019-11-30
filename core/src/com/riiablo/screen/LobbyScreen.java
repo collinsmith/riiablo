@@ -36,6 +36,7 @@ import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.net.GameSession;
 import com.riiablo.net.packet.mcp.CreateGame;
+import com.riiablo.net.packet.mcp.JoinGame;
 import com.riiablo.net.packet.mcp.ListGames;
 import com.riiablo.net.packet.mcp.MCP;
 import com.riiablo.net.packet.mcp.MCPData;
@@ -304,6 +305,7 @@ public class LobbyScreen extends ScreenAdapter {
                 switch (createGame.result()) {
                   case Result.SUCCESS:
                     Gdx.app.debug(TAG, "Session created! " + session);
+                    tryJoinGame(session);
                     break;
                   case Result.ALREADY_EXISTS:
                     Gdx.app.debug(TAG, "ALREADY_EXISTS");
@@ -319,47 +321,6 @@ public class LobbyScreen extends ScreenAdapter {
                 Gdx.app.error(TAG, t.getMessage(), t);
               }
             });
-//            Net.HttpRequest request = new HttpRequestBuilder()
-//                .newRequest()
-//                .method(Net.HttpMethods.POST)
-//                .url("http://" + Riiablo.client.getRealm() + ":6112/create-session")
-//                .jsonContent(new Session.Builder() {{
-//                  name     = tfGameName.getText();
-//                  password = tfPassword.getText();
-//                  desc     = tfDesc.getText();
-//                }})
-//                .build();
-//            Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
-//              @Override
-//              public void handleHttpResponse(Net.HttpResponse httpResponse) {
-//                String response = httpResponse.getResultAsString();
-//                try {
-//                  final Session session = new Json().fromJson(Session.class, response);
-//                  Gdx.app.log(TAG, "create-session " + response);
-//                  Gdx.app.postRunnable(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                      Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
-//                      Gdx.app.log(TAG, "create-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-//                      Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
-//                    }
-//                  });
-//                } catch (SerializationException e) {
-//                  SessionError error = new Json().fromJson(SessionError.class, response);
-//                  Gdx.app.log(TAG, "create-session " + error.toString());
-//                }
-//              }
-//
-//              @Override
-//              public void failed(Throwable t) {
-//                Gdx.app.log(TAG, "create-session " + t.getMessage());
-//              }
-//
-//              @Override
-//              public void cancelled() {
-//                Gdx.app.log(TAG, "create-session " + "cancelled");
-//              }
-//            });
           }
         });
         tfGameName.addListener(new ChangeListener() {
@@ -462,16 +423,8 @@ public class LobbyScreen extends ScreenAdapter {
           @Override
           public void clicked(InputEvent event, float x, float y) {
             if (btnJoinGame.isDisabled()) return;
-            final GameSession session = list.getSelected();
-            Gdx.app.log(TAG, "join-session " + session);
-            Gdx.app.postRunnable(new Runnable() {
-              @Override
-              public void run() {
-//                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
-//                Gdx.app.log(TAG, "join-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-//                Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
-              }
-            });
+            GameSession session = list.getSelected();
+            tryJoinGame(session);
           }
         });
 
@@ -658,18 +611,65 @@ public class LobbyScreen extends ScreenAdapter {
   }
 
   private void CreateGame(GameSession session, ResponseListener listener) {
-    Gdx.app.debug(TAG, "Creating game");
+    Gdx.app.debug(TAG, "Creating game " + session);
     FlatBufferBuilder builder = new FlatBufferBuilder();
     int gameNameOffset = builder.createString(session.name);
     int descriptionOffset = builder.createString(session.desc);
     CreateGame.startCreateGame(builder);
     CreateGame.addGameName(builder, gameNameOffset);
     CreateGame.addDescription(builder, descriptionOffset);
-    int createGamesOffset = CreateGame.endCreateGame(builder);
-    int id = MCP.createMCP(builder, MCPData.CreateGame, createGamesOffset);
+    int createGameOffset = CreateGame.endCreateGame(builder);
+    int id = MCP.createMCP(builder, MCPData.CreateGame, createGameOffset);
     builder.finish(id);
     ByteBuffer data = builder.dataBuffer();
     connection.sendRequest(data, listener);
+  }
+
+  private void JoinGame(GameSession session, ResponseListener listener) {
+    Gdx.app.debug(TAG, "Joining game " + session);
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    int gameNameOffset = builder.createString(session.name);
+    JoinGame.startJoinGame(builder);
+    JoinGame.addGameName(builder, gameNameOffset);
+    int joinGameOffset = JoinGame.endJoinGame(builder);
+    int id = MCP.createMCP(builder, MCPData.JoinGame, joinGameOffset);
+    builder.finish(id);
+    ByteBuffer data = builder.dataBuffer();
+    connection.sendRequest(data, listener);
+  }
+
+  private void tryJoinGame(final GameSession session) {
+    JoinGame(session, new ResponseListener() {
+      @Override
+      public void handleResponse(MCP packet) {
+        JoinGame joinGame = (JoinGame) packet.data(new JoinGame());
+        switch (joinGame.result()) {
+          case Result.SUCCESS:
+            Gdx.app.debug(TAG, "Session joined! " + session);
+//            Gdx.app.log(TAG, "join-session " + session);
+//            Gdx.app.postRunnable(new Runnable() {
+//              @Override
+//              public void run() {
+//                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
+//                Gdx.app.log(TAG, "join-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
+//                Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
+//              }
+//            });
+            break;
+          case Result.GAME_DOES_NOT_EXIST:
+            Gdx.app.debug(TAG, "GAME_DOES_NOT_EXIST");
+            break;
+          case Result.GAME_IS_FULL:
+            Gdx.app.debug(TAG, "GAME_IS_FULL");
+            break;
+        }
+      }
+
+      @Override
+      public void failed(Throwable t) {
+        Gdx.app.error(TAG, t.getMessage(), t);
+      }
+    });
   }
 
   static class TabbedPane extends Container<TabbedPane.TabGroup> {
