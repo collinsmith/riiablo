@@ -104,11 +104,12 @@ public class LobbyScreen extends ScreenAdapter {
     Riiablo.assets.load(cancelbuttonblankDescriptor);
     Riiablo.assets.load(gamebuttonblankDescriptor);
 
-    stage = new Stage(Riiablo.viewport, Riiablo.batch);
+    stage = new Stage(Riiablo.extendViewport, Riiablo.batch);
   }
 
   @Override
   public void show() {
+    Riiablo.viewport = Riiablo.extendViewport;
     Riiablo.assets.finishLoadingAsset(waitingroombkgdDescriptor);
     waitingroombkgd = Riiablo.assets.get(waitingroombkgdDescriptor).getTexture();
 
