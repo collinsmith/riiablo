@@ -2,6 +2,7 @@ package com.riiablo.server.bnls;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
@@ -61,6 +62,8 @@ public class BNLS extends ApplicationAdapter {
 
   @Override
   public void create() {
+    Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
     final Calendar calendar = Calendar.getInstance();
     DateFormat format = DateFormat.getDateTimeInstance();
     Gdx.app.log(TAG, format.format(calendar.getTime()));

@@ -3,7 +3,7 @@ namespace com.riiablo.net.packet.mcp;
 enum Result : int {
   SUCCESS             = 0x00,
   INVALID_NAME        = 0x1E,
-  ALREAD_EXISTS       = 0x1F,
+  ALREADY_EXISTS      = 0x1F,
   SERVER_DOWN         = 0x20,
   INVALID_PASSWORD    = 0x29,
   GAME_DOES_NOT_EXIST = 0x2A,

@@ -2,6 +2,7 @@ package com.riiablo.server.mcp;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
@@ -14,8 +15,10 @@ import com.badlogic.gdx.utils.BufferUtils;
 import com.riiablo.net.GameSession;
 import com.riiablo.net.packet.bnls.ConnectionAccepted;
 import com.riiablo.net.packet.bnls.ConnectionClosed;
+import com.riiablo.net.packet.mcp.CreateGame;
 import com.riiablo.net.packet.mcp.ListGames;
 import com.riiablo.net.packet.mcp.MCPData;
+import com.riiablo.net.packet.mcp.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -73,6 +76,8 @@ public class MCP extends ApplicationAdapter {
 
   @Override
   public void create() {
+    Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
     final Calendar calendar = Calendar.getInstance();
     DateFormat format = DateFormat.getDateTimeInstance();
     Gdx.app.log(TAG, format.format(calendar.getTime()));
@@ -169,9 +174,9 @@ public class MCP extends ApplicationAdapter {
       case MCPData.ListGames:
         ListGames(socket, packet);
         break;
-//      case MCPData.LoginResponse:
-//        LoginResponse(socket, packet);
-//        break;
+      case MCPData.CreateGame:
+        CreateGame(socket, packet);
+        break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
     }
@@ -231,6 +236,35 @@ public class MCP extends ApplicationAdapter {
     WritableByteChannel channel = Channels.newChannel(out);
     channel.write(data);
     Gdx.app.log(TAG, "returning games list...");
+    return false;
+  }
+
+  private boolean CreateGame(Socket socket, com.riiablo.net.packet.mcp.MCP packet) throws IOException {
+    CreateGame createGame = (CreateGame) packet.data(new CreateGame());
+    String gameName = createGame.gameName();
+    Gdx.app.debug(TAG, "Attempting to create " + gameName + " for " + socket.getRemoteAddress());
+
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    CreateGame.startCreateGame(builder);
+    if (sessions.containsKey(gameName)) {
+      CreateGame.addResult(builder, Result.ALREADY_EXISTS);
+    } else if (sessions.size() >= 4) {
+      CreateGame.addResult(builder, Result.SERVER_DOWN);
+    } else {
+      CreateGame.addResult(builder, Result.SUCCESS);
+      sessions.put(gameName, new GameSession(createGame));
+      Gdx.app.debug(TAG, "Created session " + gameName);
+    }
+
+    int createGameOffset = CreateGame.endCreateGame(builder);
+    int id = com.riiablo.net.packet.mcp.MCP.createMCP(builder, MCPData.CreateGame, createGameOffset);
+    builder.finish(id);
+
+    ByteBuffer data = builder.dataBuffer();
+    OutputStream out = socket.getOutputStream();
+    WritableByteChannel channel = Channels.newChannel(out);
+    channel.write(data);
+    Gdx.app.log(TAG, "returning game creation response...");
     return false;
   }
 

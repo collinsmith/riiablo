@@ -35,9 +35,11 @@ import com.riiablo.codec.DC6;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.net.GameSession;
+import com.riiablo.net.packet.mcp.CreateGame;
 import com.riiablo.net.packet.mcp.ListGames;
 import com.riiablo.net.packet.mcp.MCP;
 import com.riiablo.net.packet.mcp.MCPData;
+import com.riiablo.net.packet.mcp.Result;
 import com.riiablo.server.Account;
 import com.riiablo.util.EventUtils;
 import com.riiablo.widget.Label;
@@ -290,6 +292,33 @@ public class LobbyScreen extends ScreenAdapter {
         btnCreateGame.addListener(new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
+            final GameSession session = new GameSession.Builder() {{
+              name     = tfGameName.getText();
+              password = tfPassword.getText();
+              desc     = tfDesc.getText();
+            }}.build();
+            CreateGame(session, new ResponseListener() {
+              @Override
+              public void handleResponse(MCP packet) {
+                CreateGame createGame = (CreateGame) packet.data(new CreateGame());
+                switch (createGame.result()) {
+                  case Result.SUCCESS:
+                    Gdx.app.debug(TAG, "Session created! " + session);
+                    break;
+                  case Result.ALREADY_EXISTS:
+                    Gdx.app.debug(TAG, "ALREADY_EXISTS");
+                    break;
+                  case Result.SERVER_DOWN:
+                    Gdx.app.debug(TAG, "SERVER_DOWN");
+                    break;
+                }
+              }
+
+              @Override
+              public void failed(Throwable t) {
+                Gdx.app.error(TAG, t.getMessage(), t);
+              }
+            });
 //            Net.HttpRequest request = new HttpRequestBuilder()
 //                .newRequest()
 //                .method(Net.HttpMethods.POST)
@@ -623,6 +652,21 @@ public class LobbyScreen extends ScreenAdapter {
     ListGames.startListGames(builder);
     int listGamesOffset = ListGames.endListGames(builder);
     int id = MCP.createMCP(builder, MCPData.ListGames, listGamesOffset);
+    builder.finish(id);
+    ByteBuffer data = builder.dataBuffer();
+    connection.sendRequest(data, listener);
+  }
+
+  private void CreateGame(GameSession session, ResponseListener listener) {
+    Gdx.app.debug(TAG, "Creating game");
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    int gameNameOffset = builder.createString(session.name);
+    int descriptionOffset = builder.createString(session.desc);
+    CreateGame.startCreateGame(builder);
+    CreateGame.addGameName(builder, gameNameOffset);
+    CreateGame.addDescription(builder, descriptionOffset);
+    int createGamesOffset = CreateGame.endCreateGame(builder);
+    int id = MCP.createMCP(builder, MCPData.CreateGame, createGamesOffset);
     builder.finish(id);
     ByteBuffer data = builder.dataBuffer();
     connection.sendRequest(data, listener);

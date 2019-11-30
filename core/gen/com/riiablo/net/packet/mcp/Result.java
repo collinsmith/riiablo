@@ -6,7 +6,7 @@ public final class Result {
   private Result() { }
   public static final int SUCCESS = 0;
   public static final int INVALID_NAME = 30;
-  public static final int ALREAD_EXISTS = 31;
+  public static final int ALREADY_EXISTS = 31;
   public static final int SERVER_DOWN = 32;
   public static final int INVALID_PASSWORD = 41;
   public static final int GAME_DOES_NOT_EXIST = 42;
