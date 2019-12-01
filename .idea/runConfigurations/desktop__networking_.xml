@@ -2,6 +2,7 @@
   <configuration default="false" name="desktop (networking)" type="CompoundRunConfigurationType" factoryName="Compound Run Configuration">
     <toRun type="Application" name="BNLS" />
     <toRun type="Application" name="MCP" />
+    <toRun type="Application" name="MSI" />
     <toRun type="Application" name="desktop (debug) (854x480)" />
     <method />
   </configuration>

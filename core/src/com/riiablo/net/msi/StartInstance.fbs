@@ -1,0 +1,15 @@
+namespace com.riiablo.net.packet.msi;
+
+enum Result : byte {
+  SUCCESS = 0,
+  FAILURE = 1,
+}
+
+table StartInstance {
+  // request
+
+  // response
+  result:Result;
+  ip:int32;
+  port:int16;
+}

@@ -1,0 +1,13 @@
+include "StartInstance.fbs";
+
+namespace com.riiablo.net.packet.msi;
+
+union MSIData {
+  StartInstance,
+}
+
+table MSI {
+  data:MSIData;
+}
+
+root_type MSI;

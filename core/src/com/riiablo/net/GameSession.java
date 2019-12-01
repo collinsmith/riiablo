@@ -1,6 +1,7 @@
 package com.riiablo.net;
 
 import com.riiablo.net.packet.mcp.CreateGame;
+import com.riiablo.net.packet.msi.StartInstance;
 
 public class GameSession {
   public String name;
@@ -26,6 +27,12 @@ public class GameSession {
     name = builder.name;
     password = builder.password;
     desc = builder.desc;
+  }
+
+  public GameSession setConnectInfo(StartInstance info) {
+    ip   = info.ip();
+    port = info.port();
+    return this;
   }
 
   @Override

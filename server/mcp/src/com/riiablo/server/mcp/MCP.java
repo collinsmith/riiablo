@@ -21,9 +21,13 @@ import com.riiablo.net.packet.mcp.JoinGame;
 import com.riiablo.net.packet.mcp.ListGames;
 import com.riiablo.net.packet.mcp.MCPData;
 import com.riiablo.net.packet.mcp.Result;
+import com.riiablo.net.packet.msi.MSI;
+import com.riiablo.net.packet.msi.MSIData;
+import com.riiablo.net.packet.msi.StartInstance;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -245,20 +249,38 @@ public class MCP extends ApplicationAdapter {
   }
 
   private boolean CreateGame(Socket socket, com.riiablo.net.packet.mcp.MCP packet) throws IOException {
-    CreateGame createGame = (CreateGame) packet.data(new CreateGame());
-    String gameName = createGame.gameName();
+    final CreateGame createGame = (CreateGame) packet.data(new CreateGame());
+    final String gameName = createGame.gameName();
     Gdx.app.debug(TAG, "Attempting to create " + gameName + " for " + socket.getRemoteAddress());
 
-    FlatBufferBuilder builder = new FlatBufferBuilder();
+    final FlatBufferBuilder builder = new FlatBufferBuilder();
     CreateGame.startCreateGame(builder);
     if (sessions.containsKey(gameName)) {
       CreateGame.addResult(builder, Result.ALREADY_EXISTS);
     } else if (sessions.size() >= 4) {
       CreateGame.addResult(builder, Result.SERVER_DOWN);
     } else {
-      CreateGame.addResult(builder, Result.SUCCESS);
-      sessions.put(gameName, new GameSession(createGame));
-      Gdx.app.debug(TAG, "Created session " + gameName);
+      final GameSession session = new GameSession(createGame);
+      StartInstance(createGame, new ResponseListener() {
+        @Override
+        public void handleResponse(MSI msi) {
+          StartInstance startInstance = (StartInstance) msi.data(new StartInstance());
+          switch (startInstance.result()) {
+            case Result.SUCCESS:
+              sessions.put(gameName, session.setConnectInfo(startInstance));
+              CreateGame.addResult(builder, Result.SUCCESS);
+              Gdx.app.debug(TAG, "Created session " + gameName);
+              break;
+            default:
+              CreateGame.addResult(builder, Result.SERVER_DOWN);
+          }
+        }
+
+        @Override
+        public void failed(Throwable t) {
+          Gdx.app.error(TAG, t.getMessage(), t);
+        }
+      });
     }
 
     int createGameOffset = CreateGame.endCreateGame(builder);
@@ -302,6 +324,46 @@ public class MCP extends ApplicationAdapter {
     channel.write(data);
     Gdx.app.log(TAG, "returning game join response...");
     return false;
+  }
+
+  interface ResponseListener {
+    void handleResponse(MSI msi);
+    void failed(Throwable t);
+  }
+
+  private void StartInstance(CreateGame createGame, ResponseListener listener) {
+    Gdx.app.debug(TAG, "Requesting game instance for " + createGame);
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    StartInstance.startStartInstance(builder);
+    int startInstanceOffset = StartInstance.endStartInstance(builder);
+    int id = MSI.createMSI(builder, MSIData.StartInstance, startInstanceOffset);
+    builder.finish(id);
+    ByteBuffer data = builder.dataBuffer();
+
+    Socket socket = null;
+    try {
+      socket = Gdx.net.newClientSocket(Net.Protocol.TCP, "localhost", com.riiablo.server.mcp.MSI.PORT, null);
+
+      OutputStream out = socket.getOutputStream();
+      WritableByteChannel channelOut = Channels.newChannel(out);
+      channelOut.write(data);
+
+      buffer.clear();
+      buffer.mark();
+      InputStream in = socket.getInputStream();
+      ReadableByteChannel channelIn = Channels.newChannel(in);
+      channelIn.read(buffer);
+      buffer.limit(buffer.position());
+      buffer.reset();
+
+      MSI packet = MSI.getRootAsMSI(buffer);
+      Gdx.app.log(TAG, "packet type " + MCPData.name(packet.dataType()));
+      listener.handleResponse(packet);
+    } catch (Throwable t) {
+      listener.failed(t);
+    } finally {
+      if (socket != null) socket.dispose();
+    }
   }
 
   static String generateClientName() {
