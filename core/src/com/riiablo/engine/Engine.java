@@ -73,12 +73,6 @@ public class Engine extends PooledEngine {
     public static final int MODE_S3 = 5;
     public static final int MODE_S4 = 6;
     public static final int MODE_S5 = 7;
-
-    static final int[] DEFAULT_COMPONENTS;
-    static {
-      DEFAULT_COMPONENTS = new int[COF.Component.NUM_COMPONENTS];
-      Arrays.fill(DEFAULT_COMPONENTS, (byte) 1);
-    }
   }
 
   public static final class Monster {
