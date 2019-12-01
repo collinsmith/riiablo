@@ -30,7 +30,7 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.net.packet.bnls.BNLS;
 import com.riiablo.net.packet.bnls.BNLSData;
 import com.riiablo.net.packet.bnls.LoginResponse;
-import com.riiablo.server.Account;
+import com.riiablo.net.Account;
 import com.riiablo.widget.AnimationWrapper;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.TextButton;
@@ -118,7 +118,6 @@ public class LoginScreen extends ScreenAdapter {
       public void clicked(InputEvent event, float x, float y) {
         Actor actor = event.getListenerActor();
         if (actor == btnLogIn) {
-
           Socket socket = null;
           try {
             socket = Gdx.net.newClientSocket(Net.Protocol.TCP, Riiablo.client.getRealm(), 6110, null);
@@ -256,7 +255,7 @@ public class LoginScreen extends ScreenAdapter {
       case BNLSData.LoginResponse:
         Gdx.app.debug(TAG, "Login successful!");
         LoginResponse response = (LoginResponse) packet.data(new LoginResponse());
-        final Account account = Account.builder().setAccount(response.username()).build();
+        final Account account = new Account(response);
         Gdx.app.postRunnable(new Runnable() {
           @Override
           public void run() {

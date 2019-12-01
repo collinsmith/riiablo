@@ -21,7 +21,7 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.StringTBL;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
-import com.riiablo.server.Account;
+import com.riiablo.net.Account;
 import com.riiablo.widget.CharacterSelectButton;
 import com.riiablo.widget.TextButton;
 

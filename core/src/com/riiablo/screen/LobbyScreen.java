@@ -41,7 +41,7 @@ import com.riiablo.net.packet.mcp.ListGames;
 import com.riiablo.net.packet.mcp.MCP;
 import com.riiablo.net.packet.mcp.MCPData;
 import com.riiablo.net.packet.mcp.Result;
-import com.riiablo.server.Account;
+import com.riiablo.net.Account;
 import com.riiablo.util.EventUtils;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.TextArea;
