@@ -269,7 +269,7 @@ public class MCP extends ApplicationAdapter {
             case Result.SUCCESS:
               sessions.put(gameName, session.setConnectInfo(startInstance));
               CreateGame.addResult(builder, Result.SUCCESS);
-              Gdx.app.debug(TAG, "Created session " + gameName);
+              Gdx.app.debug(TAG, "Created session " + gameName + "@" + session.ip + ":" + session.port);
               break;
             default:
               CreateGame.addResult(builder, Result.SERVER_DOWN);

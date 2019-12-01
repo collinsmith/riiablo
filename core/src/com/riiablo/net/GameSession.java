@@ -1,6 +1,7 @@
 package com.riiablo.net;
 
 import com.riiablo.net.packet.mcp.CreateGame;
+import com.riiablo.net.packet.mcp.JoinGame;
 import com.riiablo.net.packet.msi.StartInstance;
 
 public class GameSession {
@@ -30,6 +31,12 @@ public class GameSession {
   }
 
   public GameSession setConnectInfo(StartInstance info) {
+    ip   = info.ip();
+    port = info.port();
+    return this;
+  }
+
+  public GameSession setConnectInfo(JoinGame info) {
     ip   = info.ip();
     port = info.port();
     return this;

@@ -643,18 +643,12 @@ public class LobbyScreen extends ScreenAdapter {
       @Override
       public void handleResponse(MCP packet) {
         JoinGame joinGame = (JoinGame) packet.data(new JoinGame());
+        session.setConnectInfo(joinGame);
         switch (joinGame.result()) {
           case Result.SUCCESS:
-            Gdx.app.debug(TAG, "Session joined! " + session);
-//            Gdx.app.log(TAG, "join-session " + session);
-//            Gdx.app.postRunnable(new Runnable() {
-//              @Override
-//              public void run() {
-//                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
-//                Gdx.app.log(TAG, "join-session connect " + session.host + ":" + session.port + " " + socket.isConnected());
-//                Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
-//              }
-//            });
+            Gdx.app.debug(TAG, "Session joined! " + session + "@" + session.ip + ":" + session.port);
+//            Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
+//            Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
             break;
           case Result.GAME_DOES_NOT_EXIST:
             Gdx.app.debug(TAG, "GAME_DOES_NOT_EXIST");

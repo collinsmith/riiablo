@@ -23,7 +23,7 @@ task dist(type: Jar) {
  
     manifest {
         attributes 'Server-Class': project.mainClassName
-        attributes 'Main-Class': project.mainClassName
+        attributes 'Main-Class': project.mainClassName // TODO: not needed in production?
     }
 }
 
