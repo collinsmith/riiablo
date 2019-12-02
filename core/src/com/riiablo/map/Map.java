@@ -516,32 +516,32 @@ public class Map implements Disposable {
 
     static DT1.Tile[] obtainTileArray(int size) {
       for (int i = 0; i < sizes.length; i++) {
-        if (size < sizes[i]) {
+        if (size <= sizes[i]) {
           return tilePools[i].obtain();
         }
       }
 
-      Gdx.app.error(TAG, "Creating custom sized array: " + size);
+      Gdx.app.error(TAG, "Creating custom sized tile array: " + size);
       return new DT1.Tile[size];
     }
     static void free(DT1.Tile[] layer) {
       for (int i = 0; i < sizes.length; i++) {
         if (layer == null) continue;
-        if (layer.length < sizes[i]) tilePools[i].free(layer);
+        if (layer.length <= sizes[i]) tilePools[i].free(layer);
       }
     }
 
     static byte[] obtainByteArray(int size) {
       for (int i = 0; i < sizes.length; i++) {
-        if (size < sizes[i] * DT1.Tile.NUM_SUBTILES) return bytePools[i].obtain();
+        if (size <= sizes[i] * DT1.Tile.NUM_SUBTILES) return bytePools[i].obtain();
       }
 
-      Gdx.app.error(TAG, "Creating custom sized array: " + size);
+      Gdx.app.error(TAG, "Creating custom sized byte array: " + size);
       return new byte[size];
     }
     static void free(byte[] b) {
       for (int i = 0; i < sizes.length; i++) {
-        if (b.length < sizes[i]) bytePools[i].free(b);
+        if (b.length <= sizes[i] * DT1.Tile.NUM_SUBTILES) bytePools[i].free(b);
       }
     }
 
