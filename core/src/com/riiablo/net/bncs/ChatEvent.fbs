@@ -1,0 +1,27 @@
+namespace com.riiablo.net.packet.bncs;
+
+enum EID : byte {
+  EID_SHOWUSER            = 0x01, // User in channel
+  EID_JOIN                = 0x02, // User joined channel
+  EID_LEAVE               = 0x03, // User left channel
+  EID_WHISPER             = 0x04, // Recieved whisper
+  EID_TALK                = 0x05, // Chat text
+  EID_BROADCAST           = 0x06, // Server broadcast
+  EID_CHANNEL             = 0x07, // Channel information
+  EID_USERFLAGS           = 0x09, // Flags update
+  EID_WHISPERSENT         = 0x0A, // Sent whisper
+  EID_CHANNELFULL         = 0x0D, // Channel full
+  EID_CHANNELDOESNOTEXIST = 0x0E, // Channel doesn't exist
+  EID_CHANNELRESTRICTED   = 0x0F, // Channel is restricted
+  EID_INFO                = 0x12, // Information
+  EID_ERROR               = 0x13, // Error message
+  EID_IGNORE              = 0x15, // Notifies that a user has been ignored (DEFUNCT)
+  EID_ACCEPT              = 0x16, // Notifies that a user has been unignored (DEFUNCT)
+  EID_EMOTE               = 0x17, // Emote
+}
+
+table ChatEvent {
+  eid:EID = EID_ERROR;
+  name:string;
+  text:string;
+}

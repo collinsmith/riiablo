@@ -234,6 +234,24 @@ project(":server:bnls") {
     }
 }
 
+project(":server:bncs") {
+    apply plugin: "java"
+
+    dependencies {
+        compile project(":core")
+        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+
+    dependencies {
+        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+    }
+
+    dependencies {
+        testCompile 'junit:junit:4.12'
+    }
+}
+
 project(":server:mcp") {
     apply plugin: "java"
 

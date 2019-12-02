@@ -1,0 +1,13 @@
+include "ChatEvent.fbs";
+
+namespace com.riiablo.net.packet.bncs;
+
+union BNCSData {
+  ChatEvent,
+}
+
+table BNCS {
+  data:BNCSData;
+}
+
+root_type BNCS;
