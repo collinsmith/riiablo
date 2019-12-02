@@ -129,7 +129,7 @@ public class TCPIPScreen extends ScreenAdapter {
             Gdx.input.getTextInput(new Input.TextInputListener() {
               @Override
               public void input(String text) {
-                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, text, 6112, new SocketHints());
+                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, text, 6114, new SocketHints());
                 socket.dispose();
               }
 

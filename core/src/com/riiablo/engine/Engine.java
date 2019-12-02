@@ -272,7 +272,6 @@ public class Engine extends PooledEngine {
     return entity;
   }
 
-
   private Entity createMonster(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
     String id = Riiablo.files.obj.getType1(ds1.getAct(), object.id);
     MonStats.Entry monstats = Riiablo.files.monstats.get(id);

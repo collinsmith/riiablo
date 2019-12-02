@@ -13,16 +13,18 @@ import com.badlogic.gdx.utils.BufferUtils;
 import com.riiablo.engine.Engine;
 import com.riiablo.net.packet.d2gs.D2GSData;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -41,14 +43,11 @@ public class D2GS extends ApplicationAdapter {
   ByteBuffer buffer;
   Thread main;
   AtomicBoolean kill;
-  Thread cli;
   ThreadGroup clientThreads;
   CopyOnWriteArrayList<Client> CLIENTS = new CopyOnWriteArrayList<>();
 
-  private static final String[][] REALMS = new String[][] {
-      {"localhost", "U.S. West"},
-      {"localhost", "PTR"},
-  };
+  final BlockingQueue<com.riiablo.net.packet.d2gs.D2GS> packets = new ArrayBlockingQueue<>(32);
+  final Collection<com.riiablo.net.packet.d2gs.D2GS> cache = new ArrayList<>();
 
   D2GS() {}
 
@@ -110,31 +109,6 @@ public class D2GS extends ApplicationAdapter {
     });
     main.setName("D2GS");
     main.start();
-
-    cli = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        while (!kill.get()) {
-          try {
-            if (!reader.ready()) continue;
-            String in = reader.readLine();
-            if (in.equalsIgnoreCase("exit")) {
-              Gdx.app.exit();
-            } else if (in.equalsIgnoreCase("realms")) {
-              Gdx.app.log(TAG, "realms:");
-              for (String[] realms : REALMS) {
-                Gdx.app.log(TAG, "  " + realms[0] + " " + realms[1]);
-              }
-            }
-          } catch (Throwable t) {
-            Gdx.app.log(TAG, t.getMessage());
-          }
-        }
-      }
-    });
-    cli.setName("CLI");
-    cli.start();
   }
 
   @Override
@@ -147,7 +121,17 @@ public class D2GS extends ApplicationAdapter {
     } catch (Throwable ignored) {}
   }
 
-  private void process(Socket socket, com.riiablo.net.packet.d2gs.D2GS packet) throws IOException {
+  @Override
+  public void render() {
+    cache.clear();
+    packets.drainTo(cache);
+    for (com.riiablo.net.packet.d2gs.D2GS packet : cache) {
+      Gdx.app.log(TAG, "processing packet from " + packet);
+      process(null, packet);
+    }
+  }
+
+  private void process(Socket socket, com.riiablo.net.packet.d2gs.D2GS packet) {
 //    switch (packet.dataType()) {
 //      case BNLSData.QueryRealms:
 //        QueryRealms(socket);
@@ -218,7 +202,11 @@ public class D2GS extends ApplicationAdapter {
 
           com.riiablo.net.packet.d2gs.D2GS packet = com.riiablo.net.packet.d2gs.D2GS.getRootAsD2GS(buffer);
           Gdx.app.log(TAG, "packet type " + D2GSData.name(packet.dataType()));
-          process(socket, packet);
+          boolean success = packets.offer(packet);
+          if (!success) {
+            Gdx.app.log(TAG, "queue full -- kicking client");
+            kill.set(true);
+          }
         } catch (Throwable t) {
           Gdx.app.log(TAG, t.getMessage(), t);
           kill.set(true);
@@ -227,6 +215,7 @@ public class D2GS extends ApplicationAdapter {
 
       Gdx.app.log(TAG, "closing socket...");
       if (socket != null) socket.dispose();
+      CLIENTS.remove(this);
     }
   }
 }
