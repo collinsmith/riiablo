@@ -536,7 +536,9 @@ public class Map implements Disposable {
     static DT1.Tile[] obtainTileArray(int size) {
       for (int i = 0; i < sizes.length; i++) {
         if (size <= sizes[i]) {
-          return tilePools[i].obtain();
+          DT1.Tile[] tiles = tilePools[i].obtain();
+          Arrays.fill(tiles, 0, size, null);
+          return tiles;
         }
       }
 
@@ -552,7 +554,11 @@ public class Map implements Disposable {
 
     static byte[] obtainByteArray(int size) {
       for (int i = 0; i < sizes.length; i++) {
-        if (size <= sizes[i] * DT1.Tile.NUM_SUBTILES) return bytePools[i].obtain();
+        if (size <= sizes[i] * DT1.Tile.NUM_SUBTILES) {
+          byte[] bytes = bytePools[i].obtain();
+          Arrays.fill(bytes, 0, size, (byte) 0);
+          return bytes;
+        }
       }
 
       Gdx.app.error(TAG, "Creating custom sized byte array: " + size);
@@ -652,27 +658,38 @@ public class Map implements Disposable {
       return this;
     }
 
+    /**
+     * This is called when zones are cleared before they are disposed -- not when obtained.
+     */
     @Override
-    public void reset() {
-      dt1s = null;
-      flags = null;
-      Arrays.fill(tiles, null);
-      for (Preset[] x : presets) Arrays.fill(x, null);
-      entities = EMPTY_ENTITY_ARRAY;
-      warps = EMPTY_INT_INT_MAP;
-      dependencies = EMPTY_ASSET_ARRAY;
-      generator = EMPTY_GENERATOR;
-      town = false;
-    }
+    public void reset() {}
 
     @Override
     public void dispose() {
+      x = y = 0;
+      width = height = 0;
+      gridSizeX = gridSizeY = 0;
+      gridsX = gridsY = 0;
+      tx = ty = 0;
+      tilesX = tilesY = 0;
+
       free(flags);
+      flags = null;
+
       for (DT1.Tile[] layer : tiles) free(layer);
+      Arrays.fill(tiles, null);
+
       //for (Preset[] x : presets) for (Preset y : x) if (y != null) y.dispose();
-      entities.clear();
-      warps.clear();
+      for (Preset[] x : presets) Arrays.fill(x, null);
+
       for (AssetDescriptor asset : dependencies) Riiablo.assets.unload(asset.fileName);
+      dependencies = EMPTY_ASSET_ARRAY;
+
+      dt1s = null; // TODO: clear this properly -- how?
+      town = false;
+      entities = EMPTY_ENTITY_ARRAY;
+      warps = EMPTY_INT_INT_MAP;
+      generator = EMPTY_GENERATOR;
     }
 
     @Override
