@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -156,6 +157,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   Stage scaledStage;
   Viewport viewport;
   GameLoadingScreen loadingScreen;
+  boolean created;
   boolean isDebug;
   MappedKeyStateAdapter debugKeyListener = new MappedKeyStateAdapter() {
     @Override
@@ -510,6 +512,43 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     loadingScreen = new GameLoadingScreen(map, getDependencies());
   }
 
+  public void create() {
+    if (created) return;
+    created = true;
+
+    isDebug = DEBUG && Gdx.app.getType() == Application.ApplicationType.Desktop;
+
+    if (DEBUG_TOUCHPAD || Gdx.app.getType() == Application.ApplicationType.Android) {
+      touchpad = new Touchpad(10, new Touchpad.TouchpadStyle() {{
+        //background = new TextureRegionDrawable(Riiablo.assets.get(touchpadBackgroundDescriptor));
+        background = null;
+        knob = new TextureRegionDrawable(Riiablo.assets.get(touchpadKnobDescriptor));
+      }});
+      touchpad.setSize(164, 164);
+      touchpad.setPosition(0, mobilePanel != null ? mobilePanel.getHeight() : 0);
+      stage.addActor(touchpad);
+      if (!DEBUG_TOUCHPAD) touchpad.toBack();
+    }
+
+    // TODO: sort children based on custom indexes
+    controlPanel.toFront();
+    output.toFront();
+    if (mobilePanel != null) mobilePanel.toFront();
+//  if (mobileControls != null) mobileControls.toFront();
+    if (touchpad != null) touchpad.toBack();
+    input.toFront();
+    escapePanel.toFront();
+
+    renderer.setProcessing(false);
+    if (Gdx.app.getType() == Application.ApplicationType.Android
+     || Riiablo.defaultViewport.getWorldHeight() == Riiablo.MOBILE_VIEWPORT_HEIGHT) {
+      renderer.zoom(Riiablo.MOBILE_VIEWPORT_HEIGHT / (float) Gdx.graphics.getHeight());
+    } else {
+      renderer.zoom(Riiablo.DESKTOP_VIEWPORT_HEIGHT / (float) Gdx.graphics.getHeight());
+    }
+    renderer.resize();
+  }
+
   @Override
   public void resume() {
     Riiablo.engine = engine;
@@ -699,8 +738,9 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
       return;
     }
 
+    create();
+
     Riiablo.game = this;
-    isDebug = DEBUG && Gdx.app.getType() == Application.ApplicationType.Desktop;
     Keys.DebugMode.addStateListener(debugKeyListener);
     Keys.Esc.addStateListener(mappedKeyStateListener);
     Keys.Enter.addStateListener(mappedKeyStateListener);
@@ -727,27 +767,6 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     });
     screenBoundsListener.updateScreenBounds(0, 0, 0, 0);
 
-    if (DEBUG_TOUCHPAD || Gdx.app.getType() == Application.ApplicationType.Android) {
-      touchpad = new Touchpad(10, new Touchpad.TouchpadStyle() {{
-        //background = new TextureRegionDrawable(Riiablo.assets.get(touchpadBackgroundDescriptor));
-        background = null;
-        knob = new TextureRegionDrawable(Riiablo.assets.get(touchpadKnobDescriptor));
-      }});
-      touchpad.setSize(164, 164);
-      touchpad.setPosition(0, mobilePanel != null ? mobilePanel.getHeight() : 0);
-      stage.addActor(touchpad);
-      if (!DEBUG_TOUCHPAD) touchpad.toBack();
-    }
-
-    // TODO: sort children based on custom indexes
-    controlPanel.toFront();
-    output.toFront();
-    if (mobilePanel != null) mobilePanel.toFront();
-//  if (mobileControls != null) mobileControls.toFront();
-    if (touchpad != null) touchpad.toBack();
-    input.toFront();
-    escapePanel.toFront();
-
     if (!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop) {
       Cvars.Client.Display.KeepControlPanelGrouped.addStateListener(new CvarStateAdapter<Boolean>() {
         @Override
@@ -768,15 +787,6 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     Riiablo.music.stop();
     Riiablo.assets.get(windowopenDescriptor).play();
 
-    renderer.setProcessing(false);
-    if (Gdx.app.getType() == Application.ApplicationType.Android
-     || Riiablo.defaultViewport.getWorldHeight() == Riiablo.MOBILE_VIEWPORT_HEIGHT) {
-      renderer.zoom(Riiablo.MOBILE_VIEWPORT_HEIGHT / (float) Gdx.graphics.getHeight());
-    } else {
-      renderer.zoom(Riiablo.DESKTOP_VIEWPORT_HEIGHT / (float) Gdx.graphics.getHeight());
-    }
-    renderer.resize();
-
     engine.getSystem(Box2DPhysicsSystem.class).createBodies();
 
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
@@ -788,7 +798,6 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     engine.addEntity(player);
     renderer.setSrc(player);
     renderer.updatePosition(true);
-    //charData.loadItems();
   }
 
   @Override
@@ -937,17 +946,24 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   }
 
   public void setAct(int act) {
+    player = null;
+    Riiablo.engine.removeAllEntities();
+
+    engine.getSystem(Box2DPhysicsSystem.class).world.dispose();
+    engine.getSystem(Box2DPhysicsSystem.class).world = new World(Vector2.Zero, true);
+
     loadingScreen.loadAct(act);
     Riiablo.client.pushScreen(loadingScreen);
   }
 
   public void setLevel(Levels.Entry target) {
     assert target.Waypoint != 0xFF;
-    //if (target.Act != map.getAct()) {
-    //  setAct(target.Act);
-    //  return;
-    //}
+    if (target.Act != map.getAct()) {
+      setAct(target.Act);
+      return;
+    }
 
+    // TODO: support waypoints from same act
 //    Riiablo.engine.removeAllEntities(Family.exclude(PlayerComponent.class).get());
 //    Box2DPhysicsSystem system = engine.getSystem(Box2DPhysicsSystem.class);
 //    World body2dWorld = system.world;
