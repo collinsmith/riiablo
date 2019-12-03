@@ -1,6 +1,6 @@
 package com.riiablo.screen;
 
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -12,21 +12,20 @@ import com.riiablo.map.Map;
 import com.riiablo.widget.AnimationWrapper;
 
 public class GameLoadingScreen extends ScreenAdapter {
+  private static final String TAG = "GameLoadingScreen";
 
   private final AssetDescriptor<DC6> loadingscreenDescriptor = new AssetDescriptor<>("data\\local\\ui\\loadingscreen.dc6", DC6.class);
 
-  private Screen screen;
-  private Array<AssetDescriptor> assets;
+  private Array<AssetDescriptor> dependencies;
 
   private Stage stage;
   private AnimationWrapper loadingscreenWrapper;
 
   private Map map;
+  private int act;
 
-  public GameLoadingScreen(Array<AssetDescriptor> assets, GameScreen screen) {
-    this.screen = screen;
-    this.map = screen.map;
-
+  public GameLoadingScreen(Map map, Array<AssetDescriptor> dependencies) {
+    this.map = map;
     stage = new Stage(Riiablo.defaultViewport, Riiablo.batch);
 
     Riiablo.assets.load(loadingscreenDescriptor);
@@ -47,42 +46,44 @@ public class GameLoadingScreen extends ScreenAdapter {
         (stage.getHeight() / 2) - (loadingscreen.getMinHeight() / 2));
     stage.addActor(loadingscreenWrapper);
 
-    this.assets = assets;
-    if (assets != null) {
-      for (AssetDescriptor asset : assets) {
-        Riiablo.assets.load(asset);
-      }
-    }
-
-    map.setAct(0);
-    map.load();
+    this.dependencies = new Array<>(dependencies);
   }
 
-  public GameLoadingScreen(GameScreen screen) {
-    this(screen.getDependencies(), screen);
+  public void loadAct(int act) {
+    this.act = act;
   }
 
   @Override
   public void show() {
+    Gdx.app.log(TAG, "Loading act " + (act + 1));
     Riiablo.viewport = Riiablo.defaultViewport;
-    if (assets == null) {
-      Riiablo.client.clearAndSet(screen);
+
+    Riiablo.assets.load(loadingscreenDescriptor);
+    if (dependencies != null) {
+      for (AssetDescriptor asset : dependencies) {
+        Riiablo.assets.load(asset);
+      }
+      dependencies = null;
     }
+
+    map.setAct(act);
+    map.load();
   }
 
   @Override
   public void hide() {
-    if (assets != null) {
-      Riiablo.assets.unload(loadingscreenDescriptor.fileName);
-    }
+    Riiablo.assets.unload(loadingscreenDescriptor.fileName);
   }
+
+  @Override
+  public void dispose() {}
 
   @Override
   public void render(float delta) {
     if (Riiablo.assets.update()) {
       map.finishLoading();
       map.generate();
-      Riiablo.client.clearAndSet(screen);
+      Riiablo.client.popScreen();
       return;
     }
 

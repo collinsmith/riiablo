@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -40,6 +41,8 @@ public class WaygatePanel extends WidgetGroup implements Disposable {
 
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   Button btnExit;
+
+  ClickListener clickListener;
 
   public WaygatePanel() {
     Riiablo.assets.load(waygatebackgroundDescriptor);
@@ -78,6 +81,15 @@ public class WaygatePanel extends WidgetGroup implements Disposable {
       down     = new TextureRegionDrawable(waygateicons.getTexture(4));
     }};
 
+    clickListener = new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        IconTextButton button = (IconTextButton) event.getListenerActor();
+        Levels.Entry target = (Levels.Entry) button.getUserObject();
+        Riiablo.game.setLevel(target);
+      }
+    };
+
     @SuppressWarnings("unchecked")
     Array<Levels.Entry>[] waypoints = (Array<Levels.Entry>[]) new Array[5];
     for (int i = 0; i < waypoints.length; i++) waypoints[i] = new Array<>(9);
@@ -100,7 +112,9 @@ public class WaygatePanel extends WidgetGroup implements Disposable {
     for (int i = 0; i < tabs.length; i++) {
       Tab tab = tabs[i] = new Tab();
       for (Levels.Entry entry : waypoints[i]) {
-        tab.addWaypoint(entry.LevelName);
+        Actor controller = tab.addWaypoint(entry.LevelName);
+        controller.setUserObject(entry);
+        controller.addListener(clickListener);
       }
 
       tab.pack();
@@ -164,8 +178,10 @@ public class WaygatePanel extends WidgetGroup implements Disposable {
       columnDefaults(0).height(32).spaceBottom(4).growX();
     }
 
-    void addWaypoint(String descId) {
-      add(new IconTextButton(waygateButtonStyle, Riiablo.string.lookup(descId), Riiablo.fonts.font16)).row();
+    Actor addWaypoint(String descId) {
+      IconTextButton button = new IconTextButton(waygateButtonStyle, Riiablo.string.lookup(descId), Riiablo.fonts.font16);
+      add(button).row();
+      return button;
     }
   }
 }

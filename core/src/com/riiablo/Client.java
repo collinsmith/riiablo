@@ -195,9 +195,9 @@ public class Client extends Game {
   }
 
   public void clearAndSet(Screen screen) {
-    setScreen(screen);
     for (Screen s : screens) s.dispose();
     screens.clear();
+    setScreen(screen);
   }
 
   @Override

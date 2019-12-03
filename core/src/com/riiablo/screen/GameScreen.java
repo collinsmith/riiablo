@@ -33,6 +33,8 @@ import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.D2S;
+import com.riiablo.codec.DC6;
+import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.Sounds;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
@@ -101,7 +103,7 @@ import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
 
-public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable {
+public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loadable {
   private static final String TAG = "GameScreen";
   private static final boolean DEBUG          = true;
   private static final boolean DEBUG_TOUCHPAD = !true;
@@ -121,6 +123,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   private final Vector2 tmpVec2 = new Vector2();
   private final Vector2 tmpVec2b = new Vector2();
 
+  final AssetDescriptor<DC6> loadingscreenDescriptor = new AssetDescriptor<>("data\\local\\ui\\loadingscreen.dc6", DC6.class);
   final AssetDescriptor<Sound> windowopenDescriptor = new AssetDescriptor<>("data\\global\\sfx\\cursor\\windowopen.wav", Sound.class);
 
   final AssetDescriptor<Texture> touchpadBackgroundDescriptor = new AssetDescriptor<>("textures/touchBackground.png", Texture.class);
@@ -128,6 +131,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   Touchpad touchpad;
 
   final Array<AssetDescriptor> preloadedAssets = new Array<AssetDescriptor>() {{
+    add(loadingscreenDescriptor);
     add(windowopenDescriptor);
     if (Gdx.app.getType() == Application.ApplicationType.Android || DEBUG_TOUCHPAD) {
       add(touchpadBackgroundDescriptor);
@@ -151,6 +155,7 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
   Stage stage;
   Stage scaledStage;
   Viewport viewport;
+  GameLoadingScreen loadingScreen;
   boolean isDebug;
   MappedKeyStateAdapter debugKeyListener = new MappedKeyStateAdapter() {
     @Override
@@ -501,6 +506,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.addSystem(new SequenceSystem());
     engine.addSystem(new Box2DDebugRenderSystem(renderer));
     engine.addSystem(new PathfindDebugSystem(iso, renderer, Riiablo.batch, Riiablo.shapes));
+
+    loadingScreen = new GameLoadingScreen(map, getDependencies());
   }
 
   @Override
@@ -687,6 +694,11 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
 
   @Override
   public void show() {
+    if (map.getAct() == -1) {
+      setAct(0);
+      return;
+    }
+
     Riiablo.game = this;
     isDebug = DEBUG && Gdx.app.getType() == Application.ApplicationType.Desktop;
     Keys.DebugMode.addStateListener(debugKeyListener);
@@ -922,5 +934,45 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
         scaledStage.addActor(dialog);
       }
     }
+  }
+
+  public void setAct(int act) {
+    loadingScreen.loadAct(act);
+    Riiablo.client.pushScreen(loadingScreen);
+  }
+
+  public void setLevel(Levels.Entry target) {
+    assert target.Waypoint != 0xFF;
+    //if (target.Act != map.getAct()) {
+    //  setAct(target.Act);
+    //  return;
+    //}
+
+//    Riiablo.engine.removeAllEntities(Family.exclude(PlayerComponent.class).get());
+//    Box2DPhysicsSystem system = engine.getSystem(Box2DPhysicsSystem.class);
+//    World body2dWorld = system.world;
+//    Array<Body> bodies = new Array<>(32768);
+//    body2dWorld.getBodies(bodies);
+//    for (Body body : bodies) body2dWorld.destroyBody(body);
+//    player.getComponent(Box2DComponent.class).body = null;
+//    system.entityAdded(player);
+//
+//    loadingScreen.loadAct(target.Act);
+//    Riiablo.client.pushScreen(loadingScreen);
+    /*
+    map.clear();
+    map.setAct(target.Act);
+    map.load();
+    map.finishLoading();
+    map.generate();
+    */
+
+//    Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+//    if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
+//    if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
+//    player.getComponent(PositionComponent.class).position.set(origin);
+//    player.getComponent(Box2DComponent.class).body.setTransform(origin, 0);
+//    player.getComponent(MapComponent.class).zone = map.getZone(origin);
+
   }
 }
