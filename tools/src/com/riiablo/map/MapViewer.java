@@ -106,13 +106,13 @@ public class MapViewer extends ApplicationAdapter {
   boolean drawCrosshair;
   boolean drawGrid;
   boolean drawFlags;
-  boolean drawObjects = true;
   boolean drawWalls = true;
   boolean drawRoofs = true;
   boolean drawSpecial = true;
   boolean drawRawPathNodes = true;
   boolean drawBox2D = true;
   boolean drawDebug = true;
+  boolean drawGraphics = true;
   final StringBuilder builder = new StringBuilder(256);
 
   FileHandle home;
@@ -299,7 +299,7 @@ public class MapViewer extends ApplicationAdapter {
             drawFlags = !drawFlags;
             return true;
           case Input.Keys.F4:
-            drawObjects = !drawObjects;
+            RenderSystem.RENDER_DEBUG_ENTITIES = !RenderSystem.RENDER_DEBUG_ENTITIES;
             return true;
           case Input.Keys.F5:
             drawWalls = !drawWalls;
@@ -309,6 +309,9 @@ public class MapViewer extends ApplicationAdapter {
             return true;
           case Input.Keys.F7:
             drawSpecial = !drawSpecial;
+            return true;
+          case Input.Keys.F8:
+            drawGraphics = !drawGraphics;
             return true;
           case Input.Keys.F9:
             RenderSystem.RENDER_DEBUG_CELLS++;
@@ -420,6 +423,10 @@ public class MapViewer extends ApplicationAdapter {
       y = (int) origin.y;
     }
 
+    // den of evil
+//    x = 1500;
+//    y = 1000;
+
     ent = createSrc(x, y);
     mapRenderer.setSrc(ent);
     mapRenderer.updatePosition(true);
@@ -462,14 +469,18 @@ public class MapViewer extends ApplicationAdapter {
 
     PaletteIndexedBatch batch = Riiablo.batch;
     batch.begin();
-    //batch.disableBlending();
-    mapRenderer.update(Gdx.graphics.getDeltaTime());
+    if (drawGraphics) {
+      //batch.disableBlending();
+      mapRenderer.update(Gdx.graphics.getDeltaTime());
 
-    LabelSystem labelSystem = engine.getSystem(LabelSystem.class);
-    labelSystem.update(0);
-    Array<Actor> labels = labelSystem.getLabels();
-    for (Actor label : labels) {
-      label.draw(batch, 1);
+      LabelSystem labelSystem = engine.getSystem(LabelSystem.class);
+      labelSystem.update(0);
+      Array<Actor> labels = labelSystem.getLabels();
+      for (Actor label : labels) {
+        label.draw(batch, 1);
+      }
+    } else {
+      mapRenderer.updatePosition();
     }
 
     batch.end();
@@ -529,6 +540,7 @@ public class MapViewer extends ApplicationAdapter {
     builder.setLength(0);
     String details = builder
         .append("F1 crosshair").append(SEPARATOR)
+        .append("F4 objects").append(SEPARATOR)
         .append("F10 path nodes").append(SEPARATOR)
         .append("F11 box2d").append(SEPARATOR)
         .append("F12 debug")

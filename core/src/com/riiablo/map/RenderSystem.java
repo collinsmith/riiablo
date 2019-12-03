@@ -74,6 +74,7 @@ public class RenderSystem extends EntitySystem {
   public static boolean RENDER_DEBUG_SPECIAL  = DEBUG_SPECIAL;
   public static boolean RENDER_DEBUG_SELECT   = DEBUG_SELECT;
   public static int     RENDER_DEBUG_CELLS    = DEBUG_CELLS ? 1 : 0;
+  public static boolean RENDER_DEBUG_ENTITIES = DEBUG_ENTITIES;
 
   private static final Color RENDER_DEBUG_GRID_COLOR_1 = new Color(0x3f3f3f3f);
   private static final Color RENDER_DEBUG_GRID_COLOR_2 = new Color(0x7f7f7f3f);
@@ -802,7 +803,7 @@ public class RenderSystem extends EntitySystem {
       DebugUtils.drawDiamond2(shapes, spx, spy, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     }
 
-    if (DEBUG_ENTITIES)
+    if (RENDER_DEBUG_ENTITIES)
       drawDebugObjects(shapes);
 
     if (RENDER_DEBUG_CAMERA)
@@ -1161,6 +1162,7 @@ public class RenderSystem extends EntitySystem {
             }
 
             if (value != 0) {
+              value &= ~(DS1.Cell.MAIN_INDEX_MASK | DS1.Cell.SUB_INDEX_MASK);
               BitmapFont font = Riiablo.fonts.consolas12;
               String str = String.format("%08x", value);
               GlyphLayout layout = new GlyphLayout(font, str, 0, str.length(), font.getColor(), 0, Align.center, false, null);

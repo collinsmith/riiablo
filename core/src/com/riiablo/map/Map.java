@@ -999,10 +999,9 @@ public class Map implements Disposable {
               or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
             }
 
-            if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
-              // TODO: Technically this might not be needed since the level can be assumed enclosed
-              // NOTE: disabled because this was causing clear issues in act 2
-              //or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+            // this seems to consistently block non-level cells
+            if (l == 0 && (cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
+              or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
               continue;
             }
 
