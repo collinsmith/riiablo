@@ -1108,24 +1108,25 @@ public class RenderSystem extends EntitySystem {
                 if (popPad.startX == zone.getGridX(tx) && popPad.startY == zone.getGridY(ty)) {
                   int width  = popPad.endX - popPad.startX;
                   int height = popPad.endY - popPad.startY;
-                  shapes.line(
-                      px + Tile.WIDTH50, py + Tile.HEIGHT,
-                      px + Tile.WIDTH50 + (width  * Tile.SUBTILE_WIDTH50),
-                      py + Tile.HEIGHT  - (height * Tile.SUBTILE_HEIGHT50));
-                  shapes.line(
-                      px + Tile.WIDTH50, py + Tile.HEIGHT,
-                      px + Tile.WIDTH50 - (height * Tile.SUBTILE_WIDTH50),
-                      py + Tile.HEIGHT  - (height * Tile.SUBTILE_HEIGHT50));
-                  shapes.line(
-                      px + Tile.WIDTH50 + (width * Tile.SUBTILE_WIDTH50),
-                      py + Tile.HEIGHT - (height * Tile.SUBTILE_HEIGHT50),
-                      px + Tile.WIDTH50 + (width * Tile.SUBTILE_WIDTH50) - (height * Tile.SUBTILE_WIDTH50),
-                      py + Tile.HEIGHT - (height * Tile.SUBTILE_HEIGHT50) - (height * Tile.SUBTILE_HEIGHT50));
-                  shapes.line(
-                      px + Tile.WIDTH50 - (height * Tile.SUBTILE_WIDTH50),
-                      py + Tile.HEIGHT - (height * Tile.SUBTILE_HEIGHT50),
-                      px + Tile.WIDTH50 - (height * Tile.SUBTILE_WIDTH50) + (width  * Tile.SUBTILE_WIDTH50),
-                      py + Tile.HEIGHT - (height * Tile.SUBTILE_HEIGHT50) - (height * Tile.SUBTILE_HEIGHT50));
+                  iso.getPixOffset(tmpVec2);
+                  float offsetX = tmpVec2.x;
+                  float offsetY = tmpVec2.y;
+                  iso.toScreen(tmpVec2.set(stx, sty));
+                  float topLeftX = tmpVec2.x - offsetX;
+                  float topLeftY = tmpVec2.y - offsetY;
+                  iso.toScreen(tmpVec2.set(stx, sty).add(width, 0));
+                  float topRightX = tmpVec2.x - offsetX;
+                  float topRightY = tmpVec2.y - offsetY;
+                  iso.toScreen(tmpVec2.set(stx, sty).add(0, height));
+                  float bottomLeftX = tmpVec2.x - offsetX;
+                  float bottomLeftY = tmpVec2.y - offsetY;
+                  iso.toScreen(tmpVec2.set(stx, sty).add(width, height));
+                  float bottomRightX = tmpVec2.x - offsetX;
+                  float bottomRightY = tmpVec2.y - offsetY;
+                  shapes.line(topLeftX, topLeftY, topRightX, topRightY);
+                  shapes.line(topRightX, topRightY, bottomRightX, bottomRightY);
+                  shapes.line(bottomRightX, bottomRightY, bottomLeftX, bottomLeftY);
+                  shapes.line(bottomLeftX, bottomLeftY, topLeftX, topLeftY);
                 }
               } else {
                 shapes.setColor(Color.WHITE);

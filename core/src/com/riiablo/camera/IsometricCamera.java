@@ -26,6 +26,10 @@ public class IsometricCamera extends OrthographicCamera {
     return dst.set(tileOffset);
   }
 
+  public Vector2 getPixOffset(Vector2 dst) {
+    return dst.set(pixOffset);
+  }
+
   @Override
   public void translate(Vector2 vec) {
     translate(vec.x, vec.y);

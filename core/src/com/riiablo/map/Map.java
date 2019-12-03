@@ -688,7 +688,7 @@ public class Map implements Disposable {
       Arrays.fill(tiles, null);
 
       //for (Preset[] x : presets) for (Preset y : x) if (y != null) y.dispose();
-      for (Preset[] x : presets) Arrays.fill(x, null);
+      presets = null;
 
       for (AssetDescriptor asset : dependencies) Riiablo.assets.unload(asset.fileName);
       dependencies = EMPTY_ASSET_ARRAY;
@@ -698,6 +698,7 @@ public class Map implements Disposable {
       entities = EMPTY_ENTITY_ARRAY;
       warps = EMPTY_INT_INT_MAP;
       generator = EMPTY_GENERATOR;
+      specials = EMPTY_INT_CELL_MAP;
     }
 
     @Override
@@ -875,6 +876,7 @@ public class Map implements Disposable {
     }
 
     void putCell(int layer, int tx, int ty, DS1.Cell cell) {
+      if (specials == EMPTY_INT_CELL_MAP) specials = new IntMap<>();
       specials.put(tileHashCode(layer, tx, ty), cell);
     }
 
