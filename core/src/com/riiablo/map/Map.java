@@ -546,9 +546,12 @@ public class Map implements Disposable {
       return new DT1.Tile[size];
     }
     static void free(DT1.Tile[] layer) {
+      if (layer == null) return;
       for (int i = 0; i < sizes.length; i++) {
-        if (layer == null) continue;
-        if (layer.length <= sizes[i]) tilePools[i].free(layer);
+        if (layer.length <= sizes[i]) {
+          tilePools[i].free(layer);
+          return;
+        }
       }
     }
 
@@ -566,7 +569,10 @@ public class Map implements Disposable {
     }
     static void free(byte[] b) {
       for (int i = 0; i < sizes.length; i++) {
-        if (b.length <= sizes[i] * DT1.Tile.NUM_SUBTILES) bytePools[i].free(b);
+        if (b.length <= sizes[i] * DT1.Tile.NUM_SUBTILES) {
+          bytePools[i].free(b);
+          return;
+        }
       }
     }
 
