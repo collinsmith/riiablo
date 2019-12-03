@@ -310,6 +310,12 @@ public class MapViewer extends ApplicationAdapter {
           case Input.Keys.F7:
             drawSpecial = !drawSpecial;
             return true;
+          case Input.Keys.F9:
+            RenderSystem.RENDER_DEBUG_CELLS++;
+            if (RenderSystem.RENDER_DEBUG_CELLS > Map.MAX_LAYERS + 1) {
+              RenderSystem.RENDER_DEBUG_CELLS = 0;
+            }
+            return true;
           case Input.Keys.F10:
             drawRawPathNodes = !drawRawPathNodes;
             return true;
@@ -540,6 +546,7 @@ public class MapViewer extends ApplicationAdapter {
         .append("(" + x + ", " + y + ")").append('\n')
         .append("Grid (TAB) " + (RenderSystem.RENDER_DEBUG_GRID == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_GRID)).append('\n')
         .append("Walkable (~) " + (RenderSystem.RENDER_DEBUG_WALKABLE == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_WALKABLE)).append('\n')
+        .append("Cell (F9) " + (RenderSystem.RENDER_DEBUG_CELLS == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_CELLS)).append('\n')
         .append("Zoom " + String.format("%.2f", mapRenderer.zoom()))
         .toString();
     batch.setBlendMode(BlendMode.SOLID, Color.BLACK);

@@ -63,6 +63,7 @@ public class RenderSystem extends EntitySystem {
   private static final boolean DEBUG_POPPADS  = DEBUG && !true;
   private static final boolean DEBUG_ENTITIES = DEBUG && true;
   private static final boolean DEBUG_SELECT   = DEBUG && true;
+  private static final boolean DEBUG_CELLS    = DEBUG && !true;
 
   public static boolean RENDER_DEBUG_SUBTILE  = DEBUG_SUBTILE;
   public static boolean RENDER_DEBUG_TILE     = DEBUG_TILE;
@@ -72,6 +73,7 @@ public class RenderSystem extends EntitySystem {
   public static int     RENDER_DEBUG_WALKABLE = DEBUG_WALKABLE ? 1 : 0;
   public static boolean RENDER_DEBUG_SPECIAL  = DEBUG_SPECIAL;
   public static boolean RENDER_DEBUG_SELECT   = DEBUG_SELECT;
+  public static int     RENDER_DEBUG_CELLS    = DEBUG_CELLS ? 1 : 0;
 
   private static final Color RENDER_DEBUG_GRID_COLOR_1 = new Color(0x3f3f3f3f);
   private static final Color RENDER_DEBUG_GRID_COLOR_2 = new Color(0x7f7f7f3f);
@@ -784,6 +786,9 @@ public class RenderSystem extends EntitySystem {
     if (RENDER_DEBUG_WALKABLE > 0)
       drawDebugWalkable(shapes);
 
+    if (RENDER_DEBUG_CELLS > 0)
+      drawDebugCells(shapes);
+
     if (RENDER_DEBUG_SPECIAL)
       drawDebugSpecial(shapes);
 
@@ -1080,6 +1085,111 @@ public class RenderSystem extends EntitySystem {
           offX + 16, offY + 8,
           offX + 8, offY + 4);
     }
+  }
+
+  private void drawDebugCells(ShapeRenderer shapes) {
+    int type;
+    int l = RENDER_DEBUG_CELLS - 1;
+    if (Map.FLOOR_OFFSET <= l && l < Map.FLOOR_OFFSET + Map.MAX_FLOORS) {
+      l -= Map.FLOOR_OFFSET;
+      type = 0;
+    } else if (Map.SHADOW_OFFSET <= l && l < Map.SHADOW_OFFSET + Map.MAX_SHADOWS) {
+      l -= Map.SHADOW_OFFSET;
+      type = 1;
+    } else if (Map.WALL_OFFSET <= l && l < Map.WALL_OFFSET + Map.MAX_WALLS) {
+      l -= Map.WALL_OFFSET;
+      type = 2;
+    } else if (Map.TAG_OFFSET <= l && l < Map.TAG_OFFSET + Map.MAX_TAGS) {
+      l -= Map.TAG_OFFSET;
+      type = 3;
+    } else {
+      return;
+    }
+
+    shapes.end();
+    batch.begin();
+    batch.setShader(null);
+    int startX2 = startX;
+    int startY2 = startY;
+    float startPx2 = startPx;
+    float startPy2 = startPy;
+    int x, y;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      int stx = tx * Tile.SUBTILE_SIZE;
+      int sty = ty * Tile.SUBTILE_SIZE;
+      float px = startPx2;
+      float py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(stx, sty);
+        if (zone != null) {
+          Map.Preset preset = zone.getGrid(tx, ty);
+          if (preset != null) {
+            DS1 ds1 = preset.ds1;
+            int value = 0;
+            int gx = (tx - zone.tx) % zone.gridSizeX;
+            int gy = (ty - zone.ty) % zone.gridSizeY;
+            switch (type) {
+              case 0: {
+                int ptr = l + (gy * ds1.floorLine) + (gx * ds1.numFloors);
+                if (ptr >= ds1.floorLen) break;
+                value = ds1.floors[ptr].value;
+              }
+                break;
+              case 1: {
+                int ptr = l + (gy * ds1.shadowLine) + (gx * ds1.numShadows);
+                if (ptr >= ds1.shadowLen) break;
+                value = ds1.shadows[ptr].value;
+              }
+                break;
+              case 2: {
+                int ptr = l + (gy * ds1.wallLine) + (gx * ds1.numWalls);
+                if (ptr >= ds1.wallLen) break;
+                value = ds1.walls[ptr].value;
+              }
+                break;
+              case 3: {
+                int ptr = l + (gy * ds1.tagLine) + (gx * ds1.numTags);
+                if (ptr >= ds1.tagLen) break;
+                value = ds1.tags[ptr];
+              }
+                break;
+              default:
+                value = 0;
+            }
+
+            if (value != 0) {
+              BitmapFont font = Riiablo.fonts.consolas12;
+              String str = String.format("%08x", value);
+              GlyphLayout layout = new GlyphLayout(font, str, 0, str.length(), font.getColor(), 0, Align.center, false, null);
+              font.draw(batch, layout,
+                  px + Tile.WIDTH50,
+                  py + Tile.HEIGHT50 + font.getLineHeight() / 4);
+            }
+          }
+        }
+
+        tx++;
+        stx += Tile.SUBTILE_SIZE;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
+      }
+    }
+
+    batch.end();
+    batch.setShader(Riiablo.shader);
+    shapes.begin(ShapeRenderer.ShapeType.Line);
   }
 
   private void drawDebugSpecial(ShapeRenderer shapes) {
