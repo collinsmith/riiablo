@@ -974,6 +974,9 @@ public class Map implements Disposable {
     }
 
     void copyFloors(Zone zone, int layer, int tx, int ty) {
+      /**
+       * TODO: can this be safely removed? Maybe the first tile has some special flags?
+       */
       final boolean NO_FLOOR;
       switch (ds1.numFloors) {
         case 1:

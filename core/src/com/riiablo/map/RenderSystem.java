@@ -1134,26 +1134,26 @@ public class RenderSystem extends EntitySystem {
             int gy = (ty - zone.ty) % zone.gridSizeY;
             switch (type) {
               case 0: {
+                if (l >= ds1.numFloors) break;
                 int ptr = l + (gy * ds1.floorLine) + (gx * ds1.numFloors);
-                if (ptr >= ds1.floorLen) break;
                 value = ds1.floors[ptr].value;
               }
                 break;
               case 1: {
+                if (l >= ds1.numShadows) break;
                 int ptr = l + (gy * ds1.shadowLine) + (gx * ds1.numShadows);
-                if (ptr >= ds1.shadowLen) break;
                 value = ds1.shadows[ptr].value;
               }
                 break;
               case 2: {
+                if (l >= ds1.numWalls) break;
                 int ptr = l + (gy * ds1.wallLine) + (gx * ds1.numWalls);
-                if (ptr >= ds1.wallLen) break;
                 value = ds1.walls[ptr].value;
               }
                 break;
               case 3: {
+                if (l >= ds1.numTags) break;
                 int ptr = l + (gy * ds1.tagLine) + (gx * ds1.numTags);
-                if (ptr >= ds1.tagLen) break;
                 value = ds1.tags[ptr];
               }
                 break;
