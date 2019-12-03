@@ -9,6 +9,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.DC;
+import com.riiablo.codec.DC6;
 import com.riiablo.codec.DCC;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.SystemPriority;
@@ -48,8 +49,8 @@ public class CofLoaderSystem extends IteratingSystem {
     builder
         .append(type.PATH).append('\\')
         .append(cofComponent.token).append('\\')
-        .append("AA").append("\\")
-        .append(cofComponent.token).append("AABBB").append(type.MODE[cofComponent.mode]).append("CCC").append(".dcc");
+        .append("AA").append('\\')
+        .append(cofComponent.token).append("AABBB").append(type.MODE[cofComponent.mode]).append("CCC").append('.');
     for (int l = 0, numLayers = cofComponent.cof.getNumLayers(); l < numLayers; l++) {
       COF.Layer layer = cofComponent.cof.getLayer(l);
       if (!Dirty.isDirty(cofComponent.dirty, layer.component)) continue;
@@ -68,11 +69,18 @@ public class CofLoaderSystem extends IteratingSystem {
           .replace(start +  5, start +  7, composite)
           .replace(start +  7, start + 10, type.COMP[cofComponent.component[layer.component]])
           .replace(start + 12, start + 15, layer.weaponClass);
-      String path = builder.toString();
-      if (DEBUG_DIRTY) Gdx.app.log(TAG, path);
 
       // TODO: unload existing asset?
-      AssetDescriptor<? extends DC> descriptor = cofComponent.layer[layer.component] = new AssetDescriptor<>(path, DCC.class);
+      AssetDescriptor<? extends DC> descriptor;
+      String path = builder.replace(start + 16, start + 19, DCC.EXT).toString();
+      if (Riiablo.mpqs.contains(path)) {
+        descriptor = cofComponent.layer[layer.component] = new AssetDescriptor<>(path, DCC.class);
+      } else {
+        path = builder.replace(start + 16, start + 19, DC6.EXT).toString();
+        descriptor = cofComponent.layer[layer.component] = new AssetDescriptor<>(path, DC6.class);
+      }
+
+      if (DEBUG_DIRTY) Gdx.app.log(TAG, path);
       Riiablo.assets.load(descriptor);
       cofComponent.load |= (1 << layer.component);
     }
