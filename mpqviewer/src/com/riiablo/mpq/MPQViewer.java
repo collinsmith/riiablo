@@ -1648,7 +1648,7 @@ public class MPQViewer {
           System.out.println(prefix);
           Array<String> wclasses = compClasses.get(comp);
           for (String dcc : dccs.keySet()) {
-            if (!FilenameUtils.isExtension(dcc, "dcc")) {
+            if (!FilenameUtils.isExtension(dcc, DC.EXTS)) {
               continue;
             }
 
@@ -1692,10 +1692,17 @@ public class MPQViewer {
               if (clazz == null) continue;
 
               comp = components.getItems().get(layer.component);
-              String dcc = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s.dcc", type, token, comp, clazz, mode, layer.weaponClass);
-              System.out.println(comp + "=" + dcc);
+              String dcPath = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s", type, token, comp, clazz, mode, layer.weaponClass);
 
-              DC dc = DCC.loadFromFile(Riiablo.mpqs.resolve(dcc));
+              DC dc = null;
+              for (String ext : DC.EXTS) {
+                FileHandle handle = Riiablo.mpqs.resolve(dcPath + "." + ext);
+                if (handle != null) {
+                  System.out.println(comp + "=" + handle);
+                  dc = DC.loadFromFile(handle);
+                }
+              }
+
               anim.setLayer(layer, dc, false);
             }
             setDelegate(anim);

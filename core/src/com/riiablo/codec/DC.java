@@ -1,5 +1,6 @@
 package com.riiablo.codec;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Disposable;
@@ -7,7 +8,20 @@ import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
 
+import java.util.Arrays;
+
 public abstract class DC implements Disposable {
+  public static final String[] EXTS = {DC6.EXT, DCC.EXT }; // I think uncompressed first is better
+
+  public static DC loadFromFile(FileHandle handle) {
+    String path = handle.toString();
+    switch (path.charAt(path.length() - 1)) {
+      case 'c': return DCC.loadFromFile(handle);
+      case '6': return DC6.loadFromFile(handle);
+      default:  throw new IllegalArgumentException("Invalid handle given -- not one of " + Arrays.toString(EXTS));
+    }
+  }
+
   public abstract int getNumDirections();
   public abstract Direction getDirection(int d);
 

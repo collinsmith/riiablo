@@ -31,6 +31,8 @@ public class DCC extends com.riiablo.codec.DC {
   private static final boolean DEBUG_SHEETS     = DEBUG && false;
   private static final boolean DEBUG_PB_SIZE    = DEBUG && true;
 
+  public static final String EXT = "dcc";
+
   Header    header;
   Direction directions[];
   Frame     frames[][];
