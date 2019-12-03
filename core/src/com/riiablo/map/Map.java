@@ -363,6 +363,8 @@ public class Map implements Disposable {
   public void dispose() {
     for (Zone zone : zones) Zone.free(zone);
     zones.clear();
+    for (DT1s dt1s : this.dt1s.values()) dt1s.clear();
+    dt1s.clear();
   }
 
   public Array<AssetDescriptor> getDependencies() {
@@ -691,7 +693,7 @@ public class Map implements Disposable {
       for (AssetDescriptor asset : dependencies) Riiablo.assets.unload(asset.fileName);
       dependencies = EMPTY_ASSET_ARRAY;
 
-      dt1s = null; // TODO: clear this properly -- how?
+      dt1s = null; // TODO: setting null -- depending on Map dispose to clear DT1s on act change
       town = false;
       entities = EMPTY_ENTITY_ARRAY;
       warps = EMPTY_INT_INT_MAP;

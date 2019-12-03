@@ -69,4 +69,10 @@ public class DT1s {
 
     return null;
   }
+
+  public void clear() {
+    dt1s.clear();
+    tiles.clear();
+    prob.clear();
+  }
 }
