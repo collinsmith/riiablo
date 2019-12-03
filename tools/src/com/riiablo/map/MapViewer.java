@@ -541,6 +541,7 @@ public class MapViewer extends ApplicationAdapter {
     String details = builder
         .append("F1 crosshair").append(SEPARATOR)
         .append("F4 objects").append(SEPARATOR)
+        .append("F8 graphics").append(SEPARATOR)
         .append("F10 path nodes").append(SEPARATOR)
         .append("F11 box2d").append(SEPARATOR)
         .append("F12 debug")
