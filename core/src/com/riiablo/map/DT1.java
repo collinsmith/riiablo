@@ -213,6 +213,8 @@ public class DT1 implements Disposable {
       }
     }
 
+    public static final int WALL_HEIGHT = 96;
+
     public static final int FLAG_BLOCK_WALK        = 1 << 0;
     public static final int FLAG_BLOCK_LIGHT_LOS   = 1 << 1;
     public static final int FLAG_BLOCK_JUMP        = 1 << 2;
@@ -320,6 +322,12 @@ public class DT1 implements Disposable {
     public boolean isRoof()    { return Orientation.isRoof(orientation); }
     public boolean isSpecial() { return Orientation.isSpecial(orientation); }
 
+    /**
+     * FIXME: rewrite eventually -- I don't think any of absWidth absHeight, y_add are really needed
+     *        and can be safely removed -- refactoring RenderSystems so all still looks alright. It
+     *        looks like a lot of this is written when less was understood and tries to do too much
+     *        to the tile textures -- stuff that should be done with RenderSystem offsets.
+     */
     public void createPixmap() {
       Validate.validState(pixmap == null, "pixmap should be null");
       int absWidth  =  width;
@@ -329,7 +337,7 @@ public class DT1 implements Disposable {
         absWidth = WIDTH;
       }
 
-      int y_add = 96;
+      int y_add = WALL_HEIGHT;
       if (orientation == Orientation.FLOOR || orientation == Orientation.ROOF) {
         if (height != 0) {
           height    = -80;

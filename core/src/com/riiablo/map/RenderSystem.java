@@ -672,7 +672,7 @@ public class RenderSystem extends EntitySystem {
         case Orientation.LOWER_RIGHT_WALL:
         case Orientation.LOWER_NORTH_CORNER_WALL:
         case Orientation.LOWER_SOUTH_CORNER_WALL:
-          batch.draw(tile.texture, px, py);
+          batch.draw(tile.texture, px, py + tile.height + Tile.WALL_HEIGHT);
           // fall-through to continue
         default:
       }
