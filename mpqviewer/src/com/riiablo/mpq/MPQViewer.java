@@ -1616,6 +1616,8 @@ public class MPQViewer {
           type = "monsters";
         } else if (path.contains("chars")) {
           type = "chars";
+        } else if (path.contains("objects")) {
+          type = "objects";
         } else {
           type = "null";
         }
