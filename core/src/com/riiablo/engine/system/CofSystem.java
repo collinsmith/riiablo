@@ -6,6 +6,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.SystemPriority;
@@ -30,7 +32,9 @@ public class CofSystem extends IteratingSystem {
     TypeComponent.Type type = typeComponent.get(entity).type;
     CofComponent cofComponent = this.cofComponent.get(entity);
     String cofName = generateCof(cofComponent, type);
-    COF newCof = type.getCOFs().lookup(cofName);
+    if (cofName.equals(cofComponent.asset)) return;
+    cofComponent.asset = cofName;
+    COF newCof = resolveCof(type, cofComponent, cofName);
     if (cofComponent.cof == newCof) return;
 
     cofComponent.cof = newCof;
@@ -42,5 +46,13 @@ public class CofSystem extends IteratingSystem {
 
   private static String generateCof(CofComponent c, TypeComponent.Type t) {
     return c.token + t.MODE[c.mode] + CofComponent.WCLASS[c.wclass];
+  }
+
+  private COF resolveCof(TypeComponent.Type type, CofComponent cofComponent, String cofName) {
+    COF cof = type.getCOFs().lookup(cofName);
+    if (cof != null) return cof;
+    // FIXME: create a proper COF resolver to that below code can be removed
+    FileHandle handle = Riiablo.mpqs.resolve(type.PATH + "\\" + cofComponent.token + "\\cof\\" + cofName + ".cof");
+    return COF.loadFromFile(handle);
   }
 }

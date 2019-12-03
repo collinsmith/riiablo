@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.COFD2;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
@@ -372,7 +373,25 @@ public class Map implements Disposable {
 
   public void generate(int act) {
     MathUtils.random.setSeed(seed);
-    Act1MapBuilder.INSTANCE.generate(this, seed, diff);
+    Riiablo.cofs.active = updateCofs(act);
+    switch (act) {
+      case 0: Act1MapBuilder.INSTANCE.generate(this, seed, diff); break;
+      case 1: Act2MapBuilder.INSTANCE.generate(this, seed, diff); break;
+      case 2: Act3MapBuilder.INSTANCE.generate(this, seed, diff); break;
+      case 3: Act4MapBuilder.INSTANCE.generate(this, seed, diff); break;
+      case 4: Act5MapBuilder.INSTANCE.generate(this, seed, diff); break;
+    }
+  }
+
+  private COFD2 updateCofs(int act) {
+    switch (act) {
+      case 0:  return Riiablo.cofs.cmncof_a1;
+      case 1:  return Riiablo.cofs.cmncof_a2;
+      case 2:  return Riiablo.cofs.cmncof_a3;
+      case 3:  return Riiablo.cofs.cmncof_a4;
+      case 4:  return Riiablo.cofs.cmncof_a6;
+      default: return Riiablo.cofs.active;
+    }
   }
 
   private MapGraph        mapGraph   = new MapGraph(this);
@@ -955,7 +974,8 @@ public class Map implements Disposable {
 
             if ((cell.value & DS1.Cell.FLOOR_UNWALK_MASK) == 0) {
               // TODO: Technically this might not be needed since the level can be assumed enclosed
-              or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
+              // NOTE: disabled because this was causing clear issues in act 2
+              //or(zone, tx, ty, DT1.Tile.FLAG_BLOCK_WALK);
               continue;
             }
 

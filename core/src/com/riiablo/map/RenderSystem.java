@@ -8,6 +8,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -416,7 +417,19 @@ public class RenderSystem extends EntitySystem {
   }
 
   private void prepareBatch() {
+    batch.setPalette(getPalette());
     batch.setProjectionMatrix(iso.combined);
+  }
+
+  private Texture getPalette() {
+    switch (map.getAct()) {
+      case 0:  return Riiablo.palettes.act1;
+      case 1:  return Riiablo.palettes.act2;
+      case 2:  return Riiablo.palettes.act3;
+      case 3:  return Riiablo.palettes.act4;
+      case 4:  return Riiablo.palettes.act5;
+      default: return Riiablo.palettes.act1;
+    }
   }
 
   /**

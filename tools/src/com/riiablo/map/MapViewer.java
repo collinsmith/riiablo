@@ -13,7 +13,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -57,6 +56,7 @@ import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
+import com.riiablo.loader.PaletteLoader;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.mpq.MPQFileHandleResolver;
@@ -82,7 +82,6 @@ public class MapViewer extends ApplicationAdapter {
   private final String[] PALETTES = {Palettes.ACT1, Palettes.ACT2, Palettes.ACT3, Palettes.ACT4, Palettes.ACT5};
 
   ShapeRenderer shapes;
-  Texture palette;
   Map map;
 
   Entity ent;
@@ -145,12 +144,14 @@ public class MapViewer extends ApplicationAdapter {
     assets.setLoader(COF.class, new COFLoader(resolver));
     assets.setLoader(DCC.class, new DCCLoader(resolver));
     assets.setLoader(DC6.class, new DC6Loader(resolver));
+    assets.setLoader(Palette.class, new PaletteLoader(resolver));
     assets.setLoader(FontTBL.BitmapFont.class, new BitmapFontLoader(resolver));
 
     font = new BitmapFont();
 
     Riiablo.files = new Files(assets);
     Riiablo.fonts = new Fonts(assets);
+    Riiablo.palettes = new Palettes(assets);
     Riiablo.colors = new Colors();
     Riiablo.textures = new Textures();
     Riiablo.string = new StringTBLs(resolver);
@@ -392,8 +393,6 @@ public class MapViewer extends ApplicationAdapter {
     }
     */
 
-    palette = Palette.loadFromFile(Riiablo.mpqs.resolve(PALETTES[0])).render();
-
     /*
     for (String asset : Diablo.assets.getAssetNames()) {
       Gdx.app.debug(TAG, Diablo.assets.getReferenceCount(asset) + " : " + asset);
@@ -408,6 +407,8 @@ public class MapViewer extends ApplicationAdapter {
     */
 
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+    if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
+    if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
     if (origin != null) {
       x = (int) origin.x;
       y = (int) origin.y;
@@ -454,7 +455,7 @@ public class MapViewer extends ApplicationAdapter {
     mapRenderer.iso.update();
 
     PaletteIndexedBatch batch = Riiablo.batch;
-    batch.begin(palette);
+    batch.begin();
     //batch.disableBlending();
     mapRenderer.update(Gdx.graphics.getDeltaTime());
 
@@ -553,7 +554,7 @@ public class MapViewer extends ApplicationAdapter {
   public void dispose() {
     font.dispose();
     shapes.dispose();
-    palette.dispose();
+    Riiablo.palettes.dispose();
     Riiablo.textures.dispose();
     Riiablo.assets.dispose();
     Riiablo.batch.dispose();

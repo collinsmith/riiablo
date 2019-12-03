@@ -768,6 +768,8 @@ public class GameScreen extends ScreenAdapter implements LoadingScreen.Loadable 
     engine.getSystem(Box2DPhysicsSystem.class).createBodies();
 
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+    if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
+    if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
     Map.Zone zone = map.getZone(origin);
     player = engine.createPlayer(map, zone, charData, origin.x, origin.y);
 

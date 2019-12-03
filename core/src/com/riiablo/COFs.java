@@ -20,11 +20,11 @@ public class COFs {
   public COFs(AssetManager assets) {
     chars_cof = load(assets, "chars_cof");
     cmncof_a1 = load(assets, "cmncof_a1");
-//  cmncof_a2 = load(assets, "cmncof_a2");
-//  cmncof_a3 = load(assets, "cmncof_a3");
-//  cmncof_a4 = load(assets, "cmncof_a4");
+    cmncof_a2 = load(assets, "cmncof_a2");
+    cmncof_a3 = load(assets, "cmncof_a3");
+    cmncof_a4 = load(assets, "cmncof_a4");
 //  cmncof_a5 = load(assets, "cmncof_a5");
-//  cmncof_a6 = load(assets, "cmncof_a6");
+    cmncof_a6 = load(assets, "cmncof_a6");
 //  cmncof_a7 = load(assets, "cmncof_a7");
     active = cmncof_a1;
   }

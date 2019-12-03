@@ -78,6 +78,8 @@ public class CofComponent implements Component, Pool.Poolable {
     reset();
   }
 
+  public String asset = ""; // FIXME: this shouldn't be required
+
   @SuppressWarnings("unchecked")
   public final AssetDescriptor<? extends DC>[] layer = (AssetDescriptor<DC>[]) new AssetDescriptor[COF.Component.NUM_COMPONENTS];
 
@@ -86,6 +88,7 @@ public class CofComponent implements Component, Pool.Poolable {
     token  = null;
     mode   = MODE_NULL;
     wclass = WEAPON_NIL;
+    asset  = "";
     cof    = null;
     dirty  = Dirty.NONE;
     load   = Dirty.NONE;
