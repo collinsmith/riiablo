@@ -78,8 +78,8 @@ public class D2Finder extends ApplicationAdapter {
       writer = new PrintWriter(handle.write(false));
       writer.println("cof"
           + '\t' + "framesPerDir"
-          + '\t' + "b1"
-          + '\t' + "b2"
+          + '\t' + "speed"
+          + '\t' + "unk1"
           + '\t' + "data"
       );
       for (D2.Block block : lib.blocks) {
@@ -87,8 +87,8 @@ public class D2Finder extends ApplicationAdapter {
           for (D2.Entry entry : block.entries) {
             writer.println(entry.cof
                 + '\t' + entry.framesPerDir
-                + '\t' + (entry.b1 & 0xFF)
-                + '\t' + (entry.b2 & 0xFF)
+                + '\t' + (entry.speed & 0xFF)
+                + '\t' + (entry.unk1 & 0xFF)
                 + '\t' + DebugUtils.toByteArray(entry.data)
             );
           }
