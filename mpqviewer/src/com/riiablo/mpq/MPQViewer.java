@@ -1741,6 +1741,7 @@ public class MPQViewer {
 
               anim.setLayer(layer, dc, false);
             }
+            anim.updateBox();
             setDelegate(anim);
           }
 

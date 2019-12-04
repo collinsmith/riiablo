@@ -382,12 +382,12 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
         shapes.set(ShapeRenderer.ShapeType.Line);
       }
 
-      //shapes.setColor(Color.RED);
-      //shapes.line(x, y, x + 50, y);
-      //shapes.setColor(Color.GREEN);
-      //shapes.line(x, y, x, y + 50);
-      //shapes.setColor(Color.BLUE);
-      //shapes.line(x, y, x + 15, y - 20);
+      shapes.setColor(Color.RED);
+      shapes.line(x, y, x + 50, y);
+      shapes.setColor(Color.GREEN);
+      shapes.line(x, y, x, y + 50);
+      shapes.setColor(Color.BLUE);
+      shapes.line(x, y, x + 15, y - 20);
       shapes.setColor(Color.GREEN);
       shapes.rect(x + box.xMin, y - box.yMax, box.width, box.height);
       if (reset) shapes.end();
@@ -648,20 +648,17 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
         shapeRenderer.set(ShapeRenderer.ShapeType.Line);
       }
 
-      //shapeRenderer.setColor(Color.RED);
-      //shapeRenderer.line(x, y, x + 40, y);
-      //shapeRenderer.setColor(Color.GREEN);
-      //shapeRenderer.line(x, y, x, y + 20);
-      //shapeRenderer.setColor(Color.BLUE);
-      //shapeRenderer.line(x, y, x + 20, y - 10);
+      shapeRenderer.setColor(Color.RED);
+      shapeRenderer.line(x, y, x + 40, y);
+      shapeRenderer.setColor(Color.GREEN);
+      shapeRenderer.line(x, y, x, y + 20);
+      shapeRenderer.setColor(Color.BLUE);
+      shapeRenderer.line(x, y, x + 20, y - 10);
 
-      BBox box = dc.getDirection(d).box;
+      BBox box = dc.getBox(d, f);
       shapeRenderer.setColor(DEBUG_COLOR);
       shapeRenderer.rect(x + box.xMin, y - box.yMax, box.width, box.height);
-
-      if (reset) {
-        shapeRenderer.end();
-      }
+      if (reset) shapeRenderer.end();
     }
   }
 
