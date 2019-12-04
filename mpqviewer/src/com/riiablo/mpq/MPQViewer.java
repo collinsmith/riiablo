@@ -66,6 +66,7 @@ import com.riiablo.Colors;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.COF;
+import com.riiablo.codec.CofInfo;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.DCC;
@@ -107,7 +108,7 @@ public class MPQViewer {
     config.addIcon(ASSETS + "ic_launcher_32.png",  Files.FileType.Internal);
     config.addIcon(ASSETS + "ic_launcher_16.png",  Files.FileType.Internal);
     config.resizable = true;
-    config.width  = 1280;
+    config.width  = 1700;
     config.height = 960;
     config.foregroundFPS = config.backgroundFPS = 144;
     Client client = new Client();
@@ -189,6 +190,7 @@ public class MPQViewer {
     VisSlider             slVolume;
 
     CollapsibleVisTable   cofPanel;
+    CofInfo               cofInfo;
     EnumMap<COF.Keyframe, VisLabel> lbKeyframes;
     VisList<String>       components;
     VisScrollPane         componentScroller;
@@ -593,11 +595,11 @@ public class MPQViewer {
             add(new VisTable() {{
               add("Speed:").growX();
               add(lbFrameDuration = new VisLabel()).row();
-              add(slFrameDuration = new VisSlider(1, 25, 0.5f, false) {{
+              add(slFrameDuration = new VisSlider(0, 1024, 8, false) {{
                 addListener(new ChangeListener() {
                   @Override
                   public void changed(ChangeEvent event, Actor actor) {
-                    lbFrameDuration.setText(getValue() + " fps");
+                    lbFrameDuration.setText(getValue() + " delta");
                   }
                 });
               }}).growX().colspan(2).row();
@@ -743,7 +745,7 @@ public class MPQViewer {
         add().growY();
       }}).growY().space(4);
       optionsPanel.add(cofPanel = new CollapsibleVisTable() {{
-        add("COF:").align(Align.left).row();
+        add("COF: S=shadow, C=selectable, O=overrideTransLvl, T=newTransLvl, W=weaponClass").align(Align.left).row();
         add(new VisTable() {{
           add(new VisTable() {{
             add("Triggers:").growX().row();
@@ -790,7 +792,7 @@ public class MPQViewer {
                     stage.setScrollFocus(null);
                   }
                 });
-              }}).prefWidth(50).growY();
+              }}).minWidth(50).growY();
             }}).grow();
             add(new VisTable() {{
               setBackground(VisUI.getSkin().getDrawable("default-pane"));
@@ -814,6 +816,7 @@ public class MPQViewer {
               }}).minWidth(64).growY();
             }}).grow();
           }}).growY();
+          add(cofInfo = new CofInfo()).space(4).growY();
         }}).grow().row();
       }}).growY().space(4);
       optionsPanel.add(dccPanel = new CollapsibleVisTable() {{
@@ -1279,7 +1282,8 @@ public class MPQViewer {
 
             Animation anim = Animation.newAnimation(dc);
             anim.setDirection((int) slDirection.getValue());
-            anim.setFrameDuration(1 / slFrameDuration.getValue());
+            //anim.setFrameDuration(1 / slFrameDuration.getValue());
+            anim.setFrameDelta((int) slFrameDuration.getValue());
             setDelegate(anim);
           }
 
@@ -1365,7 +1369,8 @@ public class MPQViewer {
               delegate.setFrame((int) slFrameIndex.getValue());
               updateInfo();
             } else if (actor == slFrameDuration) {
-              delegate.setFrameDuration(1 / slFrameDuration.getValue());
+              //delegate.setFrameDuration(1 / slFrameDuration.getValue());
+              delegate.setFrameDelta((int) slFrameDuration.getValue());
             } else if (actor == slPage) {
               //delegate.setFrame((int) slPage.getValue());
             //} else if (actor == slDirectionPage || /*actor == sbBlendModePage || */(actor == paletteList && pages != null)) {
@@ -1402,7 +1407,7 @@ public class MPQViewer {
           @Override
           public void setDelegate(Animation drawable) {
             super.setDelegate(drawable);
-            slFrameDuration.setValue(25);
+            slFrameDuration.setValue(256);
           }
 
           @Override
@@ -1598,8 +1603,9 @@ public class MPQViewer {
       } else if (extension.equals("cof")) {
         imageControlsPanel.setCollapsed(false);
         palettePanel.setCollapsed(false);
-        cofPanel.setCollapsed(false);
         final COF cof = COF.loadFromFile(handle);
+        cofInfo.setCOF(cof);
+        cofPanel.setCollapsed(false);
         COF.Keyframe[] keyframes = COF.Keyframe.values();
         for (COF.Keyframe keyframe : keyframes) {
           lbKeyframes.get(keyframe).setText(cof.getKeyframeFrame(keyframe));
@@ -1610,7 +1616,6 @@ public class MPQViewer {
         final String token  = name.substring(0,2);
         final String mode   = name.substring(2,4);
         final String wclass = name.substring(4);
-
         final String type;
         if (path.contains("monsters")) {
           type = "monsters";
@@ -1640,31 +1645,31 @@ public class MPQViewer {
         for (String comp : components.getItems()) {
           comp = comp.toLowerCase();
           String prefix = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s", type, token, comp);
-          SortedMap<String, Node> dccs = fileTreeNodes.prefixMap(prefix);
-          if (dccs.isEmpty()) {
+          SortedMap<String, Node> dcs = fileTreeNodes.prefixMap(prefix);
+          if (dcs.isEmpty()) {
             continue;
           }
 
           System.out.println(prefix);
           Array<String> wclasses = compClasses.get(comp);
-          for (String dcc : dccs.keySet()) {
-            if (!FilenameUtils.isExtension(dcc, DC.EXTS)) {
+          for (String dc : dcs.keySet()) {
+            if (!FilenameUtils.isExtension(dc, DC.EXTS)) {
               continue;
             }
 
             // TODO: hth should probably only be included if wclass doesn't exist to overwrite it
-            if (!dcc.substring(prefix.length() + 5, prefix.length() + 8).equalsIgnoreCase(wclass)
-             && !dcc.substring(prefix.length() + 5, prefix.length() + 8).equalsIgnoreCase("HTH")) {
+            if (!dc.substring(prefix.length() + 5, prefix.length() + 8).equalsIgnoreCase(wclass)
+             && !dc.substring(prefix.length() + 5, prefix.length() + 8).equalsIgnoreCase("HTH")) {
               continue;
             }
 
-            if (!dcc.substring(prefix.length() + 3, prefix.length() + 5).equalsIgnoreCase(mode)) {
+            if (!dc.substring(prefix.length() + 3, prefix.length() + 5).equalsIgnoreCase(mode)) {
               continue;
             }
 
-            String clazz = dcc.substring(prefix.length(), prefix.length() + 3);
-            wclasses.add(clazz);
-            System.out.println("\t" + dcc + " " + clazz);
+            String clazz = dc.substring(prefix.length(), prefix.length() + 3);
+            if (!wclasses.contains(clazz, false)) wclasses.add(clazz);
+            System.out.println("\t" + dc + " " + clazz);
 
             int l = COMP_TO_ID.get(comp, -1);
             if (selectedWClass[l] == null) selectedWClass[l] = clazz;
@@ -1675,17 +1680,29 @@ public class MPQViewer {
 
         renderer.setDrawable(new DelegatingDrawable<Animation>() {
           {
+            imageControls.switchTo("Animation");
+
+            slDirection.setValue(0);
+            slDirection.setRange(0, cof.getNumDirections() - 1);
+            lbDirection.setText((int) slDirection.getMinValue() + " / " + (int) slDirection.getMaxValue());
             daDirection.setDirections(cof.getNumDirections());
 
-            components.setSelectedIndex(0);
-            String comp = components.getSelected().toLowerCase();
-            wclasses.setItems(compClasses.get(comp));
+            slFrameIndex.setValue(0);
+            slFrameIndex.setRange(0, cof.getNumFramesPerDir() - 1);
+            lbFrameIndex.setText((int) slFrameIndex.getMinValue() + " / " + (int) slFrameIndex.getMaxValue());
 
             String palette = paletteList.getSelected();
             Riiablo.batch.setPalette(palettes.get(palette));
 
+            components.setSelectedIndex(0);
+            String comp = components.getSelected().toLowerCase();
+            wclasses.setItems(compClasses.get(comp));
+            wclasses.setSelected(selectedWClass[COMP_TO_ID.get(comp, -1)]);
+
             Animation anim = Animation.newAnimation(cof);
-            for (int l = 0; l < cof.getNumLayers(); l++) {
+            anim.setDirection((int) slDirection.getValue());
+            //anim.setFrameDuration(1 / slFrameDuration.getValue());
+            anim.setFrameDelta((int) slFrameDuration.getValue());for (int l = 0; l < cof.getNumLayers(); l++) {
               COF.Layer layer = cof.getLayer(l);
 
               String clazz = selectedWClass[layer.component];
@@ -1709,12 +1726,46 @@ public class MPQViewer {
           }
 
           @Override
+          protected void clicked(InputEvent event, float x, float y) {
+            if (delegate == null) {
+              return;
+            }
+
+            Actor actor = event.getListenerActor();
+            if (actor == btnPlayPause) {
+              slFrameIndex.setDisabled(!btnPlayPause.isChecked());
+            } else if (actor == btnFirstFrame) {
+              delegate.setFrame(0);
+              slFrameIndex.setValue(delegate.getFrame());
+            } else if (actor == btnLastFrame) {
+              delegate.setFrame(delegate.getNumFramesPerDir() - 1);
+              slFrameIndex.setValue(delegate.getFrame());
+            } else if (actor == btnPrevFrame) {
+              int frame = delegate.getFrame();
+              if (frame > 0) {
+                delegate.setFrame(frame - 1);
+                slFrameIndex.setValue(delegate.getFrame());
+              }
+            } else if (actor == btnNextFrame) {
+              int frame = delegate.getFrame();
+              if (frame < delegate.getNumFramesPerDir() - 1) {
+                delegate.setFrame(frame + 1);
+                slFrameIndex.setValue(delegate.getFrame());
+              }
+            }
+          }
+
+          @Override
           protected void changed(ChangeEvent event, Actor actor) {
+            if (delegate == null) {
+              return;
+            }
+
             if (actor == components) {
               String comp = components.getSelected().toLowerCase();
               wclasses.setItems(compClasses.get(comp));
               wclasses.setSelected(selectedWClass[COMP_TO_ID.get(comp, -1)]);
-            } else if (actor == wclasses && delegate != null) {
+            } else if (actor == wclasses) {
               String comp = components.getSelected().toLowerCase();
               String clazz = wclasses.getSelected();
               if (clazz == null) return;
@@ -1728,28 +1779,50 @@ public class MPQViewer {
               if (clazz.equalsIgnoreCase("NONE")) {
                 if (layer != null) delegate.setLayer(layer, null, false);
               } else if (layer != null) {
-                String dcc = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s.dcc", type, token, comp, clazz, mode, layer.weaponClass);
-                System.out.println(comp + "=" + dcc);
+                String dcPath = String.format("data\\global\\%s\\%2$s\\%3$s\\%2$s%3$s%4$s%5$s%6$s", type, token, comp, clazz, mode, layer.weaponClass);
 
-                DC dc = DCC.loadFromFile(Riiablo.mpqs.resolve(dcc));
+                DC dc = null;
+                for (String ext : DC.EXTS) {
+                  FileHandle handle = Riiablo.mpqs.resolve(dcPath + "." + ext);
+                  if (handle != null) {
+                    System.out.println(comp + "=" + handle);
+                    dc = DC.loadFromFile(handle);
+                  }
+                }
+
                 delegate.setLayer(layer, dc, false);
+                delegate.updateBox();
               }
 
               if (old != null) old.dispose();
-            } else if (delegate != null && actor == daDirection) {
+            } else if (actor == daDirection) {
               int d = daDirection.getDirection();
               delegate.setDirection(d);
+              slDirection.setValue(d);
+            } else if (actor == slDirection) {
+              delegate.setDirection((int) slDirection.getValue());
+              updateInfo();
+            } else if (actor == paletteList) {
+              String palette = paletteList.getSelected();
+              Riiablo.batch.setPalette(palettes.get(palette));
+              Gdx.app.debug(TAG, "palette set to " + palette);
+            } else if (actor == slFrameIndex) {
+              delegate.setFrame((int) slFrameIndex.getValue());
+              updateInfo();
+            } else if (actor == slFrameDuration) {
+              //delegate.setFrameDuration(1 / slFrameDuration.getValue());
+              delegate.setFrameDelta((int) slFrameDuration.getValue());
             }
           }
 
+          void updateInfo() {
+            cofInfo.update(delegate.getDirection(), delegate.getFrame());
+          }
+
           @Override
-          public void dispose() {
-            for (int l = 0; l < cof.getNumLayers(); l++) {
-              COF.Layer layer = cof.getLayer(l);
-              Animation.Layer animLayer = delegate.getLayer(layer.component);
-              if (animLayer != null) animLayer.getDC().dispose();
-            }
-            super.dispose();
+          public void setDelegate(Animation drawable) {
+            super.setDelegate(drawable);
+            slFrameDuration.setValue(256);
           }
 
           @Override
@@ -1758,6 +1831,7 @@ public class MPQViewer {
             if (!btnPlayPause.isChecked()) {
               delegate.act();
               slFrameIndex.setValue(delegate.getFrame());
+              updateInfo();
             }
 
             batch.end();
