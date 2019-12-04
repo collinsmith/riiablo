@@ -138,6 +138,7 @@ public class MPQViewer {
 
     VisTextField       fileTreeFilter;
     Trie<String, Node> fileTreeNodes;
+    Trie<String, Node> fileTreeCofNodes;
     VisTree            fileTree;
     VisScrollPane      fileTreeScroller;
 
@@ -301,16 +302,27 @@ public class MPQViewer {
                       return true;
                     }
 
+                    String key;
+                    Node selectedNode = null;
                     SortedMap<String, Node> prefixMap = fileTreeNodes.prefixMap(text);
                     if (prefixMap.isEmpty()) {
-                      return true;
+                      text = text.trim().toLowerCase();
+                      if (text.length() != 7) {
+                        return true;
+                      } else {
+                        selectedNode = fileTreeCofNodes.get(text);
+                        if (selectedNode == null) return true;
+                        key = text;
+                        System.out.println("trying to set to special");
+                      }
+                    } else {
+                      key = prefixMap.firstKey();
                     }
 
-                    String key = prefixMap.firstKey();
                     setText(key);
                     setCursorAtTextEnd();
 
-                    Node selectedNode = fileTreeNodes.get(key);
+                    if (selectedNode == null) selectedNode = fileTreeNodes.get(key);
                     if (selectedNode != null) {
                       fileTree.collapseAll();
                       selectedNode.expandTo();
@@ -1018,8 +1030,10 @@ public class MPQViewer {
     private void readMPQs() {
       if (fileTreeNodes == null) {
         fileTreeNodes = new PatriciaTrie<>();
+        fileTreeCofNodes = new PatriciaTrie<>();
       } else {
         fileTreeNodes.clear();
+        fileTreeCofNodes.clear();
       }
 
       BufferedReader reader = null;
@@ -1057,7 +1071,12 @@ public class MPQViewer {
             }
           });
 
-          fileTreeNodes.put(fileName.toLowerCase(), node);
+          String key = fileName.toLowerCase();
+          fileTreeNodes.put(key, node);
+          if (FilenameUtils.isExtension(key, "cof")) {
+            key = FilenameUtils.getBaseName(key);
+            fileTreeCofNodes.put(key, node);
+          }
           if (path.isEmpty()) {
             root.add(node);
           } else {
