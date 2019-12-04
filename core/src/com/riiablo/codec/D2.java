@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
+import com.riiablo.util.BufferUtils;
 
 import org.apache.commons.io.EndianUtils;
 import org.apache.commons.io.IOUtils;
@@ -14,13 +15,11 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.riiablo.util.BufferUtils;
-
 public class D2 {
   private static final String TAG = "D2";
-  private static final boolean DEBUG         = true;
+  private static final boolean DEBUG         = !true;
   private static final boolean DEBUG_BLOCKS  = DEBUG && true;
-  private static final boolean DEBUG_ENTRIES = DEBUG && false;
+  private static final boolean DEBUG_ENTRIES = DEBUG && true;
 
   Block blocks[];
 
