@@ -1013,7 +1013,6 @@ public class Map implements Disposable {
 
             DT1.Tile tile = zone.tiles[layer][zone.tileIndex(tx, ty)] = zone.dt1s.get(cell);
             // FIXME: These are "empty"/"unknown" tiles, in caves, they fill in the gaps
-            if (tile == null) System.out.println(cell.orientation + ":" + cell.mainIndex + ":" + cell.subIndex + ": " + cell.prop1() + " " + cell.prop2() + " " + cell.prop3() + " " + cell.prop4());
             if (tile == null) {
               continue;
             }
