@@ -313,7 +313,7 @@ public class MPQViewer {
                         selectedNode = fileTreeCofNodes.get(text);
                         if (selectedNode == null) return true;
                         key = text;
-                        System.out.println("trying to set to special");
+                        System.out.println("Found " + text + " at " + selectedNode.getValue());
                       }
                     } else {
                       key = prefixMap.firstKey();
