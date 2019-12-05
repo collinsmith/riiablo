@@ -24,6 +24,10 @@ public class MapGraph {
     smoother = new PathSmoother<>(raycaster);
   }
 
+  public void clear() {
+    identity.clear();
+  }
+
   public Point2 getOrCreate(Vector2 src) {
     return getOrCreate(tmpPoint.set(src));
   }

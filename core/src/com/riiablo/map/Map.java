@@ -365,6 +365,7 @@ public class Map implements Disposable {
     zones.clear();
     for (DT1s dt1s : this.dt1s.values()) dt1s.clear();
     dt1s.clear();
+    mapGraph.clear();
   }
 
   public Array<AssetDescriptor> getDependencies() {
