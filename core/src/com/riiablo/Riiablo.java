@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.riiablo.audio.Audio;
 import com.riiablo.audio.MusicController;
+import com.riiablo.codec.D2;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
 import com.riiablo.engine.Engine;
@@ -55,4 +56,5 @@ public class Riiablo {
   public static CharData              charData;
   public static Engine                engine;
   public static GameScreen            game;
+  public static D2                    anim;
 }

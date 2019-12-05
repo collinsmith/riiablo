@@ -424,6 +424,8 @@ public class DS1 {
     public static final int UNWALKABLE_MASK    = 0x00020000;
     public static final int HIDDEN_MASK        = 0x80000000;
     public static final int FLOOR_UNWALK_MASK  = 0x000000FF;
+    public static final int FLAG_UNK1          = 0x00020000; // on some walls
+    public static final int FLAG_UNK2          = 0x000000C2; // on most in layer 0
 
     int id;
     int value;

@@ -35,6 +35,7 @@ import com.riiablo.audio.MusicVolumeController;
 import com.riiablo.audio.SoundVolumeController;
 import com.riiablo.audio.VolumeControlledMusicLoader;
 import com.riiablo.audio.VolumeControlledSoundLoader;
+import com.riiablo.codec.D2;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.DCC;
 import com.riiablo.codec.FontTBL;
@@ -44,7 +45,6 @@ import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
-import com.riiablo.engine.Engine;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.DC6Loader;
@@ -106,7 +106,7 @@ public class Client extends Game {
   private MusicController       music;
   private Cursor                cursor;
   private CharData              charData;
-  private Engine                engine;
+  private D2                    anim;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
@@ -267,6 +267,7 @@ public class Client extends Game {
     Riiablo.textures = textures = new Textures();
     Riiablo.cursor = cursor = new Cursor();
     Riiablo.charData = charData = new CharData();
+    Riiablo.anim = anim = D2.loadFromFile(mpqs.resolve("data\\global\\eanimdata.d2"));
 
     Collection<Throwable> throwables;
     Riiablo.commands = commands = new GdxCommandManager();
@@ -498,6 +499,7 @@ public class Client extends Game {
     Riiablo.music = music;
     Riiablo.cursor = cursor;
     Riiablo.charData = charData;
+    Riiablo.anim = anim;
     super.resume();
   }
 
