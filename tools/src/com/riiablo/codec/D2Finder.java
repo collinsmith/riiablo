@@ -13,6 +13,7 @@ import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.util.DebugUtils;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.PrintWriter;
@@ -79,7 +80,6 @@ public class D2Finder extends ApplicationAdapter {
       writer.println("cof"
           + '\t' + "framesPerDir"
           + '\t' + "speed"
-          + '\t' + "unk1"
           + '\t' + "data"
       );
       for (D2.Block block : lib.blocks) {
@@ -87,9 +87,8 @@ public class D2Finder extends ApplicationAdapter {
           for (D2.Entry entry : block.entries) {
             writer.println(entry.cof
                 + '\t' + entry.framesPerDir
-                + '\t' + (entry.speed & 0xFF)
-                + '\t' + (entry.unk1 & 0xFF)
-                + '\t' + DebugUtils.toByteArray(entry.data)
+                + '\t' + entry.speed
+                + '\t' + (ArrayUtils.isSorted(entry.data) ? "" : DebugUtils.toByteArray(entry.data))
             );
           }
       }

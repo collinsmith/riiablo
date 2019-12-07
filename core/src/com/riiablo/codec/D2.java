@@ -98,20 +98,15 @@ public class D2 {
 
     public String cof;
     public int    framesPerDir;
-    public short  speed;
-    public short  unk1;
-    public short  zero;
+    public int    speed;
     public byte   data[];
 
     Entry(InputStream in) throws IOException {
       ByteBuffer buffer = ByteBuffer.wrap(IOUtils.readFully(in, SIZE)).order(ByteOrder.LITTLE_ENDIAN);
       cof          = BufferUtils.readString2(buffer, 8);
       framesPerDir = buffer.getInt();
-      speed        = (short) (buffer.get() & 0xFF);
-      unk1         = (short) (buffer.get() & 0xFF);
-      zero         = buffer.getShort();
+      speed        = buffer.getInt();
       data         = BufferUtils.readBytes(buffer, 144);
-      assert zero == 0;
       assert !buffer.hasRemaining();
     }
 
@@ -121,8 +116,6 @@ public class D2 {
           .append("cof", cof)
           .append("framesPerDir", framesPerDir)
           .append("speed", speed)
-          .append("unk1", unk1)
-          .append("zero", zero)
           //.append("data", data)
           .build();
     }
