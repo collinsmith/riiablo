@@ -34,6 +34,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.net.Account;
 import com.riiablo.net.GameSession;
 import com.riiablo.net.packet.mcp.CreateGame;
 import com.riiablo.net.packet.mcp.JoinGame;
@@ -41,7 +42,6 @@ import com.riiablo.net.packet.mcp.ListGames;
 import com.riiablo.net.packet.mcp.MCP;
 import com.riiablo.net.packet.mcp.MCPData;
 import com.riiablo.net.packet.mcp.Result;
-import com.riiablo.net.Account;
 import com.riiablo.util.EventUtils;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.TextArea;
@@ -105,7 +105,7 @@ public class LobbyScreen extends ScreenAdapter {
   private PrintWriter out;
   private BufferedReader in;
 
-  private Connection connection;
+  private MCPConnection connection;
 
   public LobbyScreen(Account account, CharData player) {
     this.account = account;
@@ -533,7 +533,7 @@ public class LobbyScreen extends ScreenAdapter {
     Socket socket = null;
     try {
       socket = Gdx.net.newClientSocket(Net.Protocol.TCP, Riiablo.client.getRealm(), 6111, null);
-      connection = new Connection(socket);
+      connection = new MCPConnection(socket);
       connection.start();
     } catch (GdxRuntimeException t) {
       Gdx.app.error(TAG, t.getMessage());
@@ -647,8 +647,9 @@ public class LobbyScreen extends ScreenAdapter {
         switch (joinGame.result()) {
           case Result.SUCCESS:
             Gdx.app.debug(TAG, "Session joined! " + session + "@" + session.ip + ":" + session.port);
-//            Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, session.host, session.port, null);
-//            Riiablo.client.pushScreen(new GameLoadingScreen(new GameScreen(player, socket)));
+//            Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, "127.0.0.1", session.port, null);
+//            socket.dispose();
+            //Riiablo.client.pushScreen(new GameScreen(player, socket));
             break;
           case Result.GAME_DOES_NOT_EXIST:
             Gdx.app.debug(TAG, "GAME_DOES_NOT_EXIST");
@@ -759,7 +760,7 @@ public class LobbyScreen extends ScreenAdapter {
     void failed(Throwable t);
   }
 
-  class Connection extends Thread implements Disposable {
+  class MCPConnection extends Thread implements Disposable {
     Socket socket;
     ByteBuffer buffer = BufferUtils.newByteBuffer(4096);
     AtomicBoolean kill = new AtomicBoolean(false);
@@ -767,8 +768,8 @@ public class LobbyScreen extends ScreenAdapter {
     FlatBufferBuilder builder = new FlatBufferBuilder();
     LobbyScreen.State state = LobbyScreen.State.PENDING;
 
-    Connection(Socket socket) {
-      super(Connection.class.getName());
+    MCPConnection(Socket socket) {
+      super(MCPConnection.class.getName());
       this.socket = socket;
     }
 

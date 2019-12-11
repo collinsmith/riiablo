@@ -1,8 +1,10 @@
 package com.riiablo.ai;
 
+import com.riiablo.engine.Engine;
+
 public class Idle extends AI {
   public Idle() {
-    super(null);
+    super(Engine.INVALID_ENTITY);
   }
 
   @Override

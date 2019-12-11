@@ -1,7 +1,5 @@
 package com.riiablo.screen.panel;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -15,10 +13,11 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
-import com.riiablo.engine.component.InteractableComponent;
-import com.riiablo.engine.system.AutoInteractSystem;
+import com.riiablo.engine.client.event.InteractEvent;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
+
+import net.mostlyoriginal.api.event.common.EventSystem;
 
 public class MobileControls extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
@@ -26,6 +25,8 @@ public class MobileControls extends WidgetGroup implements Disposable {
 
   final AssetDescriptor<DC6> SoSkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\SoSkillicon.DC6", DC6.class);
   DC6 SoSkillicon;
+
+  protected EventSystem events;
 
   Button interact;
   HotkeyButton skills[];
@@ -49,14 +50,7 @@ public class MobileControls extends WidgetGroup implements Disposable {
     interact.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-        AutoInteractSystem system = Riiablo.engine.getSystem(AutoInteractSystem.class);
-        ImmutableArray<Entity> entities = system.getEntities();
-        if (entities.size() <= 0) return;
-        Entity target = entities.first();
-        InteractableComponent interactableComponent = target.getComponent(InteractableComponent.class);
-        if (interactableComponent != null) {
-          interactableComponent.interactor.interact(Riiablo.game.player, target);
-        }
+        events.dispatch(InteractEvent.obtain());
       }
     });
 

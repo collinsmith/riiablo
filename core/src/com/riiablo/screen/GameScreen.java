@@ -1,7 +1,11 @@
 package com.riiablo.screen;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntitySystem;
+import com.artemis.Aspect;
+import com.artemis.World;
+import com.artemis.WorldConfiguration;
+import com.artemis.WorldConfigurationBuilder;
+import com.artemis.managers.TagManager;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -11,11 +15,9 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -40,49 +42,64 @@ import com.riiablo.codec.excel.Sounds;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
 import com.riiablo.engine.Engine;
-import com.riiablo.engine.Flags;
-import com.riiablo.engine.component.AngleComponent;
-import com.riiablo.engine.component.LabelComponent;
-import com.riiablo.engine.component.PositionComponent;
-import com.riiablo.engine.component.VelocityComponent;
-import com.riiablo.engine.system.AISystem;
-import com.riiablo.engine.system.AngleSystem;
-import com.riiablo.engine.system.AngularVelocitySystem;
-import com.riiablo.engine.system.AnimationLoaderSystem;
-import com.riiablo.engine.system.AnimationSystem;
-import com.riiablo.engine.system.AudioEmitterSystem;
-import com.riiablo.engine.system.AutoInteractSystem;
-import com.riiablo.engine.system.Box2DBodySystem;
-import com.riiablo.engine.system.CofLoaderSystem;
-import com.riiablo.engine.system.CofSystem;
-import com.riiablo.engine.system.CollisionSystem;
-import com.riiablo.engine.system.IdSystem;
-import com.riiablo.engine.system.ItemLoaderSystem;
-import com.riiablo.engine.system.LabelSystem;
-import com.riiablo.engine.system.MissileCollisionSystem;
-import com.riiablo.engine.system.MissileLoaderSystem;
-import com.riiablo.engine.system.MovementModeSystem;
-import com.riiablo.engine.system.ObjectSystem;
-import com.riiablo.engine.system.PathfindSystem;
-import com.riiablo.engine.system.PlayerSystem;
-import com.riiablo.engine.system.SelectableSystem;
-import com.riiablo.engine.system.SelectedSystem;
-import com.riiablo.engine.system.SequenceSystem;
-import com.riiablo.engine.system.TouchMovementSystem;
-import com.riiablo.engine.system.WarpSystem;
-import com.riiablo.engine.system.ZoneEntrySystem;
-import com.riiablo.engine.system.ZoneSystem;
-import com.riiablo.engine.system.ZoneUpdateSystem;
-import com.riiablo.engine.system.cof.AlphaUpdateSystem;
-import com.riiablo.engine.system.cof.TransformUpdateSystem;
-import com.riiablo.engine.system.debug.Box2DDebugRenderSystem;
-import com.riiablo.engine.system.debug.PathfindDebugSystem;
-import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.engine.EntityFactory;
+import com.riiablo.engine.client.AnimationStepper;
+import com.riiablo.engine.client.AutoInteracter;
+import com.riiablo.engine.client.ClientEntityFactory;
+import com.riiablo.engine.client.CofAlphaHandler;
+import com.riiablo.engine.client.CofLayerCacher;
+import com.riiablo.engine.client.CofLayerLoader;
+import com.riiablo.engine.client.CofLayerUnloader;
+import com.riiablo.engine.client.CofLoader;
+import com.riiablo.engine.client.CofResolver;
+import com.riiablo.engine.client.CofTransformHandler;
+import com.riiablo.engine.client.CofUnloader;
+import com.riiablo.engine.client.CursorMovementSystem;
+import com.riiablo.engine.client.DialogManager;
+import com.riiablo.engine.client.DirectionResolver;
+import com.riiablo.engine.client.HoveredManager;
+import com.riiablo.engine.client.ItemLoader;
+import com.riiablo.engine.client.LabelManager;
+import com.riiablo.engine.client.MenuManager;
+import com.riiablo.engine.client.MissileLoader;
+import com.riiablo.engine.client.MonsterLabelManager;
+import com.riiablo.engine.client.NetworkIdManager;
+import com.riiablo.engine.client.SelectableManager;
+import com.riiablo.engine.client.SoundEmitterHandler;
+import com.riiablo.engine.client.WarpSubstManager;
+import com.riiablo.engine.client.ZoneChangeTracker;
+import com.riiablo.engine.client.ZoneEntryDisplayer;
+import com.riiablo.engine.client.debug.Box2DDebugger;
+import com.riiablo.engine.client.debug.PathDebugger;
+import com.riiablo.engine.client.debug.PathfindDebugger;
+import com.riiablo.engine.client.debug.RenderSystemDebugger;
+import com.riiablo.engine.server.AIStepper;
+import com.riiablo.engine.server.AngularVelocity;
+import com.riiablo.engine.server.AnimDataResolver;
+import com.riiablo.engine.server.AnimStepper;
+import com.riiablo.engine.server.Box2DSynchronizerPre;
+import com.riiablo.engine.server.Box2DSynchronizerPost;
+import com.riiablo.engine.server.CofManager;
+import com.riiablo.engine.server.ItemInteractor;
+import com.riiablo.engine.server.ObjectCollisionUpdater;
+import com.riiablo.engine.server.ObjectInitializer;
+import com.riiablo.engine.server.ObjectInteractor;
+import com.riiablo.engine.server.Pathfinder;
+import com.riiablo.engine.server.PlayerItemHandler;
+import com.riiablo.engine.server.SequenceHandler;
+import com.riiablo.engine.server.VelocityModeChanger;
+import com.riiablo.engine.server.WarpInteractor;
+import com.riiablo.engine.server.ZoneMovementModesChanger;
+import com.riiablo.engine.server.component.Angle;
+import com.riiablo.engine.server.component.Position;
+import com.riiablo.engine.server.component.Velocity;
+import com.riiablo.engine.server.event.ZoneChangeEvent;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
 import com.riiablo.item.Item;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
-import com.riiablo.map.Box2DPhysicsSystem;
+import com.riiablo.map.Act1MapBuilder;
+import com.riiablo.map.Box2DPhysics;
 import com.riiablo.map.Map;
 import com.riiablo.map.RenderSystem;
 import com.riiablo.screen.panel.CharacterPanel;
@@ -99,17 +116,16 @@ import com.riiablo.screen.panel.SpellsPanel;
 import com.riiablo.screen.panel.SpellsQuickPanel;
 import com.riiablo.screen.panel.StashPanel;
 import com.riiablo.screen.panel.WaygatePanel;
-import com.riiablo.server.PipedSocket;
-import com.riiablo.widget.NpcDialogBox;
-import com.riiablo.widget.NpcMenu;
 import com.riiablo.widget.TextArea;
+
+import net.mostlyoriginal.api.event.common.EventSystem;
+import net.mostlyoriginal.plugin.ProfilerPlugin;
 
 public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loadable {
   private static final String TAG = "GameScreen";
   private static final boolean DEBUG          = true;
   private static final boolean DEBUG_TOUCHPAD = !true;
   private static final boolean DEBUG_MOBILE   = !true;
-  private static final boolean DEBUG_HIT      = DEBUG && !true;
 
   private static final boolean PRECACHE_CURSOR = true;
   private static final boolean PRECACHE_ITEMS = true;
@@ -162,22 +178,20 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   MappedKeyStateAdapter debugKeyListener = new MappedKeyStateAdapter() {
     @Override
     public void onPressed(MappedKey key, int keycode) {
-      isDebug = !isDebug;
+      RenderSystemDebugger debugger = engine.getSystem(RenderSystemDebugger.class);
+      debugger.setEnabled(!debugger.isEnabled());
     }
   };
 
-  Engine engine;
+  World engine;
+  EntityFactory factory;
   RenderSystem renderer;
-  float accumulator;
-  float lastUpdate;
-  public Entity player;
+  public int player;
   CharData charData;
 
   Map map;
   IsometricCamera iso;
   InputProcessor testingInputProcessor;
-  boolean debugBox2d = true;
-  boolean debugPath = true;
 
   public EscapePanel escapePanel;
   public ControlPanel controlPanel;
@@ -203,8 +217,6 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   public SpellsQuickPanel spellsQuickPanelR;
 
   Actor details;
-  NpcMenu menu;
-  NpcDialogBox dialog;
 
   /**
    * FIXME: there has to be a better way of doing this -- some way to layout the stage (or relevant
@@ -219,7 +231,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   }
 
   public GameScreen(CharData charData) {
-    this(charData, new PipedSocket());
+    this(charData, null);
   }
 
   public GameScreen(CharData charData, Socket socket) {
@@ -374,6 +386,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
               Gdx.app.debug(TAG, text);
               //Message message = new Message(player.stats.getName(), text);
               //out.println(Packets.build(message));
+              output.appendText(text);
+              output.appendText("\n");
               input.setText("");
             }
           }
@@ -439,13 +453,23 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
             }
             return true;
 
-          case Input.Keys.F11:
-            debugBox2d = !debugBox2d;
+          case Input.Keys.F9: {
+            PathDebugger debugger = engine.getSystem(PathDebugger.class);
+            debugger.setEnabled(!debugger.isEnabled());
             return true;
+          }
 
-          case Input.Keys.F10:
-            debugPath = !debugPath;
+          case Input.Keys.F11: {
+            Box2DDebugger debugger = engine.getSystem(Box2DDebugger.class);
+            debugger.setEnabled(!debugger.isEnabled());
             return true;
+          }
+
+          case Input.Keys.F10: {
+            PathfindDebugger debugger = engine.getSystem(PathfindDebugger.class);
+            debugger.setEnabled(!debugger.isEnabled());
+            return true;
+          }
 
           default:
             return false;
@@ -457,59 +481,100 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     renderer = new RenderSystem(Riiablo.batch, map);
     iso = renderer.iso();
     scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
+    factory = new ClientEntityFactory();
 
-    engine = Riiablo.engine = new Engine();
-    engine.addSystem(new IdSystem());
+    WorldConfiguration config = getWorldConfiguration();
+    config
+        .register("iso", iso)
+        .register("map", map)
+        .register("factory", factory)
+        .register("batch", Riiablo.batch)
+        .register("shapes", Riiablo.shapes)
+        .register("stage", stage)
+        .register("scaledStage", scaledStage)
+        ;
+    if (socket != null) config.register("client.socket", socket);
+    engine = Riiablo.engine = new World(config);
 
-    engine.addSystem(new CollisionSystem());
-    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      engine.addSystem(new TouchMovementSystem(iso, renderer));
-    }
+    // hacked until I can rewrite into proper system
+    engine.getInjector().inject(Act1MapBuilder.INSTANCE);
 
-    engine.addSystem(new AISystem(renderer));
-
-    engine.addSystem(new PathfindSystem());
-    engine.addSystem(new Box2DBodySystem());
-    engine.addSystem(new Box2DPhysicsSystem(map, iso, 1 / 60f));
-    engine.addSystem(new MissileCollisionSystem());
-
-    engine.addSystem(new AudioEmitterSystem(renderer));
-
-    //engine.addSystem(new TargetInteractSystem());
-
-    //engine.addSystem(new PhysicsSystem());
-    engine.addSystem(new ZoneSystem());
-    engine.addSystem(new ZoneEntrySystem(renderer, stage)); // needs to run before ZoneUpdateSystem removes component
-    engine.addSystem(new ZoneUpdateSystem());
-    engine.addSystem(new MovementModeSystem());
-    engine.addSystem(new CofSystem());
-    engine.addSystem(new CofLoaderSystem());
-    engine.addSystem(new AnimationLoaderSystem());
-    engine.addSystem(new ItemLoaderSystem());
-    engine.addSystem(new MissileLoaderSystem());
-    //engine.addSystem(new ModeUpdateSystem());
-    engine.addSystem(new TransformUpdateSystem());
-    engine.addSystem(new AlphaUpdateSystem());
-    engine.addSystem(new AnimationSystem());
-    engine.addSystem(new ObjectSystem());
-    engine.addSystem(new WarpSystem(map));
-    engine.addSystem(new SelectableSystem());
-    if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      engine.addSystem(new SelectedSystem(iso));
-    }
-    engine.addSystem(renderer);
-    engine.addSystem(new LabelSystem(iso));
-    engine.addSystem(new PlayerSystem());
-    engine.addSystem(new AngularVelocitySystem());
-    engine.addSystem(new AngleSystem());
-    if (DEBUG_TOUCHPAD || Gdx.app.getType() == Application.ApplicationType.Android) {
-      engine.addSystem(new AutoInteractSystem(renderer, 2.0f));
-    }
-    engine.addSystem(new SequenceSystem());
-    engine.addSystem(new Box2DDebugRenderSystem(renderer));
-    engine.addSystem(new PathfindDebugSystem(iso, renderer, Riiablo.batch, Riiablo.shapes));
+    if (mobileControls != null) engine.getInjector().inject(mobileControls);
 
     loadingScreen = new GameLoadingScreen(map, getDependencies());
+  }
+
+  protected WorldConfiguration getWorldConfiguration() {
+    return getWorldConfigurationBuilder().build();
+  }
+
+  protected WorldConfigurationBuilder getWorldConfigurationBuilder() {
+    WorldConfigurationBuilder builder = new WorldConfigurationBuilder()
+        .with(new NetworkIdManager())
+        .with(new EventSystem())
+        .with(new TagManager())
+        .with(new CofManager())
+        .with(new ObjectInitializer())
+        .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
+        .with(new MenuManager(), new DialogManager())
+        ;
+    if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
+      builder.with(new CursorMovementSystem());
+    }
+    builder
+        .with(new AIStepper())
+        .with(new Pathfinder())
+
+        .with(new SoundEmitterHandler())
+
+        .with(factory)
+        .with(new AnimDataResolver())
+        .with(new AnimStepper())
+        .with(new CofUnloader(), new CofResolver(), new CofLoader())
+        .with(new CofLayerUnloader(), new CofLayerLoader(), new CofLayerCacher())
+        .with(new CofAlphaHandler(), new CofTransformHandler())
+        .with(new ItemLoader())
+        .with(new MissileLoader())
+        .with(new AnimationStepper())
+        .with(new ObjectCollisionUpdater())
+
+        .with(new VelocityModeChanger())
+//        .with(new VelocityAdder())
+        .with(new Box2DSynchronizerPre())
+        .with(new Box2DPhysics(1 / 60f))
+        .with(new Box2DSynchronizerPost())
+
+        .with(new ZoneChangeTracker())
+        .with(new ZoneMovementModesChanger())
+        .with(new ZoneEntryDisplayer())
+
+        .with(new SelectableManager())
+        .with(new HoveredManager())
+        .with(new WarpSubstManager())
+        ;
+    if (DEBUG_TOUCHPAD || Gdx.app.getType() == Application.ApplicationType.Android) {
+      builder.with(new AutoInteracter());
+    }
+    builder
+        .with(new PlayerItemHandler())
+
+        .with(new SequenceHandler())
+
+        .with(new AngularVelocity())
+        .with(new DirectionResolver())
+
+        .with(renderer)
+        .with(new LabelManager())
+        .with(new MonsterLabelManager())
+
+        .with(new PathDebugger())
+        .with(new Box2DDebugger())
+        .with(new PathfindDebugger())
+        .with(new RenderSystemDebugger())
+
+        .dependsOn(ProfilerPlugin.class)
+        ;
+    return builder;
   }
 
   public void create() {
@@ -539,7 +604,6 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     input.toFront();
     escapePanel.toFront();
 
-    renderer.setProcessing(false);
     if (Gdx.app.getType() == Application.ApplicationType.Android
      || Riiablo.defaultViewport.getWorldHeight() == Riiablo.MOBILE_VIEWPORT_HEIGHT) {
       renderer.zoom(Riiablo.MOBILE_VIEWPORT_HEIGHT / (float) Gdx.graphics.getHeight());
@@ -557,125 +621,31 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
 
   @Override
   public void render(float delta) {
-    /*
-    accumulator += delta;
-    while (accumulator >= Animation.FRAME_DURATION) {
-      lastUpdate = accumulator;
-      accumulator -= Animation.FRAME_DURATION;
-      engine.update(Animation.FRAME_DURATION);
-    }
-
-    renderer.update(delta);
-    */
-
-    if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-      player.flags &= ~Flags.RUNNING;
-    } else {
-      player.flags |= Flags.RUNNING;
-    }
-
-    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
-      Actor hit1 = stage.hit(tmpVec2.x, tmpVec2.y, true);
-      scaledStage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
-      Actor hit2 = scaledStage.hit(tmpVec2.x, tmpVec2.y, true);
-      boolean hit = hit1 != null || hit2 != null;
-      EntitySystem system;
-      if ((system = engine.getSystem(TouchMovementSystem.class)) != null) system.setProcessing(!DEBUG_TOUCHPAD && !hit);
-    }
-    /*
-    if (!DEBUG_TOUCHPAD && hit == null) {
-      if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-        iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
-
-        PositionComponent positionComponent = player.getComponent(PositionComponent.class);
-        Vector2 position = positionComponent.position;
-
-        AngleComponent angleComponent = player.getComponent(AngleComponent.class);
-        angleComponent.target.set(tmpVec2.sub(position)).nor();
-
-        VelocityComponent velocityComponent = player.getComponent(VelocityComponent.class);
-        velocityComponent.velocity.set(tmpVec2)
-            .setLength((player.flags & Flags.RUNNING) == Flags.RUNNING
-                ? velocityComponent.runSpeed : velocityComponent.walkSpeed);
-        playerBody.setLinearVelocity(velocityComponent.velocity);
-      } else {
-        VelocityComponent velocityComponent = player.getComponent(VelocityComponent.class);
-        velocityComponent.velocity.setZero();
-        playerBody.setLinearVelocity(velocityComponent.velocity);
-      }
-    }
-    */
-
-    if (DEBUG_TOUCHPAD || Gdx.app.getType() == Application.ApplicationType.Android) {
+    // TODO: move to a separate system TouchpadMovementSystem
+    if (touchpad != null) {
       tmpVec2.set(touchpad.getKnobPercentX(), touchpad.getKnobPercentY()).nor();
       if (tmpVec2.isZero()) {
-        VelocityComponent velocityComponent = player.getComponent(VelocityComponent.class);
-        velocityComponent.velocity.setZero();
-        //playerBody.setLinearVelocity(velocityComponent.velocity);
+        Velocity velocity = engine.getMapper(Velocity.class).get(player);
+        velocity.velocity.setZero();
       } else {
-        PositionComponent positionComponent = player.getComponent(PositionComponent.class);
-        Vector2 position = positionComponent.position;
+        Vector2 position = engine.getMapper(Position.class).get(player).position;
         iso.toScreen(tmpVec2b.set(position)).add(tmpVec2);
         iso.toWorld(tmpVec2b).sub(position);
 
-        AngleComponent angleComponent = player.getComponent(AngleComponent.class);
-        angleComponent.target.set(tmpVec2b).nor();
+        Angle angle = engine.getMapper(Angle.class).get(player);
+        angle.target.set(tmpVec2b).nor();
 
-        VelocityComponent velocityComponent = player.getComponent(VelocityComponent.class);
-        velocityComponent.velocity.set(tmpVec2b)
-            .setLength((player.flags & Flags.RUNNING) == Flags.RUNNING
-                ? velocityComponent.runSpeed : velocityComponent.walkSpeed);
-        //playerBody.setLinearVelocity(velocityComponent.velocity);
+        Velocity velocity = engine.getMapper(Velocity.class).get(player);
+        velocity.velocity.set(tmpVec2b);
 
-        setDialog(null);
-        setMenu(null, null);
+        engine.getSystem(DialogManager.class).setDialog(null);
+        engine.getSystem(MenuManager.class).setMenu(null, Engine.INVALID_ENTITY);
       }
     }
 
     Riiablo.assets.update();
-    engine.update(delta);
-
-    PaletteIndexedBatch batch = Riiablo.batch;
-    batch.begin(Riiablo.palettes.act1);
-    //batch.disableBlending();
-    renderer.update(delta);
-
-    if (menu == null && dialog == null) {
-      LabelSystem labelSystem = engine.getSystem(LabelSystem.class);
-      labelSystem.update(0);
-      Array<Actor> labels = labelSystem.getLabels();
-      layoutLabels(labels);
-      for (Actor label : labels) {
-        label.draw(batch, 1);
-      }
-
-      Actor monsterLabel = labelSystem.getMonsterLabel();
-      if (monsterLabel != null && monsterLabel.isVisible()) {
-        tmpVec2.set(Gdx.graphics.getWidth() / 2, iso.viewportHeight * 0.05f);
-        iso.unproject(tmpVec2);
-        monsterLabel.setPosition(tmpVec2.x, tmpVec2.y, Align.top | Align.center);
-        monsterLabel.draw(batch, 1);
-      }
-    }
-
-    //if (menu != null) menu.draw(batch, 1);
-
-    batch.end();
-
-    if (isDebug) {
-      ShapeRenderer shapes = Riiablo.shapes;
-      shapes.identity();
-      shapes.setProjectionMatrix(iso.combined);
-      shapes.setAutoShapeType(true);
-      shapes.begin(ShapeRenderer.ShapeType.Line);
-      renderer.drawDebug(shapes);
-      shapes.end();
-
-      EntitySystem system;
-      if (debugPath && (system = engine.getSystem(PathfindDebugSystem.class)) != null) system.update(delta);
-      if (debugBox2d && (system = engine.getSystem(Box2DDebugRenderSystem.class)) != null) system.update(delta);
-    }
+    engine.setDelta(delta);
+    engine.process();
 
     scaledStage.act(delta);
     scaledStage.draw();
@@ -699,21 +669,10 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
       controlPanel.setMinipanelVisible(false);
     }
 
-//    if (menu == null && !labels.isEmpty()) {
-//      layoutLabels();
-//      b.begin();
-//      mapRenderer.prepare(b);
-//      for (Actor label : labels) label.draw(b, 1);
-//      b.end();
-//    } else if (menu == null && details != null) {
-//      b.begin();
-//      details.draw(b, 1);
-//      b.end();
-//    }
     if (details != null) {
-      batch.begin();
-      details.draw(batch, 1);
-      batch.end();
+      Riiablo.batch.begin();
+      details.draw(Riiablo.batch, 1);
+      Riiablo.batch.end();
     }
 
     //3 modes
@@ -787,15 +746,15 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     Riiablo.music.stop();
     Riiablo.assets.get(windowopenDescriptor).play();
 
-    engine.getSystem(Box2DPhysicsSystem.class).createBodies();
+    engine.getSystem(Box2DPhysics.class).createBodies();
 
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
     if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
     Map.Zone zone = map.getZone(origin);
-    player = engine.createPlayer(map, zone, charData, origin.x, origin.y);
+    player = engine.getSystem(ClientEntityFactory.class).createPlayer(map, zone, charData, origin);
+    engine.getSystem(EventSystem.class).dispatch(ZoneChangeEvent.obtain(player, zone));
 
-    engine.addEntity(player);
     renderer.setSrc(player);
     renderer.updatePosition(true);
   }
@@ -821,10 +780,9 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
 
   @Override
   public void dispose() {
-    //map.dispose(); // FIXME: additional instances aren't reloading textures properly
+    //map.dispose(); // FIXME: additional instances aren't reloading textures properly (DT1s disposal)
     charData.clearListeners();
-    engine.removeAllEntities();
-    engine.removeAllSystems();
+    engine.dispose();
     for (Actor actor : stage.getActors()) if (actor instanceof Disposable) ((Disposable) actor).dispose();
     stage.dispose();
     for (AssetDescriptor asset : preloadedAssets) Riiablo.assets.unload(asset.fileName);
@@ -848,16 +806,6 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     if (actor == null) return;
     actor.setVisible(true);
     left = actor;
-  }
-
-  private void layoutLabels(Array<Actor> labels) {
-    for (Actor label : labels) {
-      tmpVec2.x = label.getX();
-      tmpVec2.y = label.getY();
-      tmpVec2.x = MathUtils.clamp(tmpVec2.x, renderer.getMinX(), renderer.getMaxX() - label.getWidth());
-      tmpVec2.y = MathUtils.clamp(tmpVec2.y, renderer.getMinY(), renderer.getMaxY() - label.getHeight());
-      label.setPosition(tmpVec2.x, tmpVec2.y);
-    }
   }
 
   public void setDetails(Actor details, Item item, Actor parent, Actor slot) {
@@ -890,67 +838,14 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     }
   }
 
-  public NpcMenu getMenu() {
-    return menu;
-  }
-
-  // TODO: notify menu open/close to set AI for owner to not move
-  public void setMenu(NpcMenu menu, Entity owner) {
-    if (this.menu == menu) return;
-    if (this.menu != null) {
-      // FIXME: Validate that cancel is only called if upnav, downnav -- looks good at a glance
-      if (menu == null || menu.getParent() != this.menu) {
-        NpcMenu parent = this.menu;
-        do parent.cancel(); while ((parent = parent.getParent()) != menu);
-      }
-      scaledStage.getRoot().removeActor(this.menu);
-    }
-
-    this.menu = menu;
-    if (menu != null && owner != null) {
-      scaledStage.addActor(menu);
-
-      LabelComponent labelComponent = owner.getComponent(LabelComponent.class);
-      PositionComponent positionComponent = owner.getComponent(PositionComponent.class);
-      iso.toScreen(tmpVec2.set(positionComponent.position));
-      tmpVec2.add(labelComponent.offset);
-      iso.project(tmpVec2);
-      tmpVec2.y = iso.viewportHeight - tmpVec2.y; // stage coords expect y-down coords
-      scaledStage.screenToStageCoordinates(tmpVec2);
-      menu.setPosition(tmpVec2.x, tmpVec2.y, Align.center | Align.bottom);
-    }
-  }
-
-  public NpcDialogBox getDialog() {
-    return dialog;
-  }
-
-  public void setDialog(NpcDialogBox dialog) {
-    if (this.dialog != dialog) {
-      if (this.dialog != null) {
-        this.dialog.remove();
-        this.dialog.dispose();
-        if (menu != null) menu.setVisible(true);
-      }
-
-      this.dialog = dialog;
-      if (dialog != null) {
-        if (menu != null) menu.setVisible(false);
-        //dialog.setPosition(stage.getWidth() / 2, stage.getHeight(), Align.top | Align.center);
-        tmpVec2.set(Gdx.graphics.getWidth() / 2, 0);
-        scaledStage.screenToStageCoordinates(tmpVec2);
-        dialog.setPosition(tmpVec2.x, tmpVec2.y, Align.top | Align.center);
-        scaledStage.addActor(dialog);
-      }
-    }
-  }
-
   public void setAct(int act) {
-    player = null;
-    Riiablo.engine.removeAllEntities();
+    player = Engine.INVALID_ENTITY;
+    IntBag entities = engine.getAspectSubscriptionManager().get(Aspect.all()).getEntities();
+    for (int i = 0, size = entities.size(); i < size; i++) {
+      engine.delete(entities.get(i));
+    }
 
-    engine.getSystem(Box2DPhysicsSystem.class).world.dispose();
-    engine.getSystem(Box2DPhysicsSystem.class).world = new World(Vector2.Zero, true);
+    engine.getSystem(Box2DPhysics.class).clear();
 
     loadingScreen.loadAct(act);
     Riiablo.client.pushScreen(loadingScreen);

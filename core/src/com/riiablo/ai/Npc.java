@@ -1,7 +1,5 @@
 package com.riiablo.ai;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -12,12 +10,10 @@ import com.riiablo.Riiablo;
 import com.riiablo.audio.Audio;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.Engine;
-import com.riiablo.engine.component.CofComponent;
-import com.riiablo.engine.component.InteractableComponent;
-import com.riiablo.engine.component.PathComponent;
-import com.riiablo.engine.component.PathfindComponent;
-import com.riiablo.engine.component.PositionComponent;
-import com.riiablo.engine.component.VelocityComponent;
+import com.riiablo.engine.client.DialogManager;
+import com.riiablo.engine.client.MenuManager;
+import com.riiablo.engine.server.component.PathWrapper;
+import com.riiablo.engine.server.component.Pathfind;
 import com.riiablo.map.DS1;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
@@ -26,13 +22,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
-
-  private static final ComponentMapper<InteractableComponent> interactableComponent = ComponentMapper.getFor(InteractableComponent.class);
-  private static final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
-  private static final ComponentMapper<PathfindComponent> pathfindComponent = ComponentMapper.getFor(PathfindComponent.class);
-  private static final ComponentMapper<PathComponent> pathComponent = ComponentMapper.getFor(PathComponent.class);
-  private static final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
-  private static final ComponentMapper<VelocityComponent> velocityComponent = ComponentMapper.getFor(VelocityComponent.class);
 
   static final IntSet TALKERS    = new IntSet();
   static final IntSet REPAIRERS  = new IntSet();
@@ -47,6 +36,9 @@ public class Npc extends AI {
     HIRERERS.addAll(150);
   }
 
+  protected MenuManager menuManager;
+  protected DialogManager dialogManager;
+
   final Vector2 tmpVec2 = new Vector2();
 
   static final int NULL_TARGET = ArrayUtils.INDEX_NOT_FOUND;
@@ -59,35 +51,40 @@ public class Npc extends AI {
   String name;
   MonStats.Entry monstats;
 
-  public Npc(Entity entity) {
-    super(entity);
-    monstats = monsterComponent.monstats;
-    name = monstats.NameStr.equalsIgnoreCase("dummy") ? monstats.Id : Riiablo.string.lookup(monstats.NameStr);
+  public Npc(int entityId) {
+    super(entityId);
   }
 
   @Override
-  public void interact(Entity src, final Entity entity) {
-    entity.remove(PathfindComponent.class);
-    velocityComponent.get(entity).velocity.setZero();
+  public void initialize() {
+    super.initialize();
+    monstats = monster.monstats;
+    name = monstats.NameStr.equalsIgnoreCase("dummy") ? monstats.Id : Riiablo.string.lookup(monstats.NameStr);
+    mSize.get(entityId).size = 1; // fixes pathfinding issues
+  }
+
+  @Override
+  public void interact(int src, final int entityId) {
+    pathfinder.findPath(entityId, null);
     lookAt(src);
 
     if (menu == null) {
-      menu = new NpcMenu(entity, name);
+      menu = new NpcMenu(menuManager, entityId, name);
 
       final int entType = monstats.hcIdx;
       if (TALKERS.contains(entType)) {
         // talk
-        menu.addItem(3381, new NpcMenu(3381)
+        menu.addItem(3381, new NpcMenu(menuManager, 3381)
             // introduction
             .addItem(3399, new ClickListener() {
               @Override
               public void clicked(InputEvent event, float x, float y) {
                 String name = Npc.this.name.toLowerCase();
                 String id = name + "_act1_intro";
-                Riiablo.game.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
+                dialogManager.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
                   @Override
                   public void onCompleted(NpcDialogBox d) {
-                    Riiablo.game.setDialog(null);
+                    dialogManager.setDialog(null);
                   }
                 }));
               }
@@ -98,10 +95,10 @@ public class Npc extends AI {
               public void clicked(InputEvent event, float x, float y) {
                 String name = Npc.this.name.toLowerCase();
                 String id = name + "_act1_gossip_1";
-                Riiablo.game.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
+                dialogManager.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
                   @Override
                   public void onCompleted(NpcDialogBox d) {
-                    Riiablo.game.setDialog(null);
+                    dialogManager.setDialog(null);
                   }
                 }));
               }
@@ -127,7 +124,7 @@ public class Npc extends AI {
       menu.addCancel(new NpcMenu.CancellationListener() {
           @Override
           public void onCancelled() {
-            interactableComponent.get(entity).count--;
+            mInteractable.get(entityId).count--;
             actionTimer = 4;
           }
         })
@@ -147,30 +144,30 @@ public class Npc extends AI {
 
     actionTimer = Float.POSITIVE_INFINITY;
     actionPerformed = false;
-    Riiablo.game.setMenu(menu, entity);
-    interactableComponent.get(entity).count++;
+    menuManager.setMenu(menu, entityId);
+    mInteractable.get(entityId).count++;
   }
 
   @Override
   public void update(float delta) {
-    if (interactableComponent.get(entity).count > 0) {
+    if (mInteractable.get(entityId).count > 0) {
       state = "INTERACTING";
       return;
     }
 
-    PathfindComponent pathfindComponent = this.pathfindComponent.get(entity);
-    if (pathfindComponent == null) {
-      PathComponent pathComponent = this.pathComponent.get(entity);
-      DS1.Path path = pathComponent.path;
+    Pathfind pathfind = mPathfind.get(entityId);
+    if (pathfind == null) {
+      PathWrapper pathWrapper = mPathWrapper.get(entityId);
+      DS1.Path path = pathWrapper.path;
       if (targetId == NULL_TARGET) {
         targetId = 0;
       } else if (actionTimer > 0) {
         actionTimer -= delta;
         actionPerformed = actionTimer < 0;
         if (!actionPerformed) {
-          Entity player = Riiablo.game.player;
-          Vector2 targetPos = positionComponent.get(player).position;
-          Vector2 entityPos = positionComponent.get(entity).position;
+          int player = Riiablo.game.player;
+          Vector2 targetPos = mPosition.get(player).position;
+          Vector2 entityPos = mPosition.get(entityId).position;
           if (entityPos.dst(targetPos) <= 8) {
             lookAt(player);
           }
@@ -190,14 +187,10 @@ public class Npc extends AI {
 
       state = "PATHING";
       DS1.Path.Point dst = path.points[targetId];
-      setPath(dst);
+      pathfinder.findPath(entityId, tmpVec2.set(dst.x, dst.y), true);
     }
   }
 
-  // FIXME: some actions must be too close to the border -- path finding seems to be tossing them
-  private void setPath(DS1.Path.Point dst) {
-    setPath(tmpVec2.set(dst.x, dst.y));
-  }
 
   private float action(int actionId) {
     // path.actions == look at nearest player, chill, hold time, quest?
@@ -221,14 +214,12 @@ public class Npc extends AI {
         return 6f;
       // TODO: play anim only once, after timer, ending the action
       case 4: {
-        CofComponent cofComponent = this.cofComponent.get(entity);
-        cofComponent.mode = Engine.Monster.MODE_S1;
+        cofs.setMode(entityId, Engine.Monster.MODE_S1);
       }
         state = "S1";
         return 10f;
       case 5: {
-        CofComponent cofComponent = this.cofComponent.get(entity);
-        cofComponent.mode = Engine.Monster.MODE_S2;
+        cofs.setMode(entityId, Engine.Monster.MODE_S2);
       }
         state = "S2";
         return 10f;

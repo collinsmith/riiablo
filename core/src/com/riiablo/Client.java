@@ -35,6 +35,7 @@ import com.riiablo.audio.MusicVolumeController;
 import com.riiablo.audio.SoundVolumeController;
 import com.riiablo.audio.VolumeControlledMusicLoader;
 import com.riiablo.audio.VolumeControlledSoundLoader;
+import com.riiablo.codec.COF;
 import com.riiablo.codec.D2;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.DCC;
@@ -47,6 +48,7 @@ import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.BitmapFontLoader;
+import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.IndexLoader;
@@ -253,6 +255,7 @@ public class Client extends Game {
     assets.setLoader(FontTBL.BitmapFont.class, new BitmapFontLoader(mpqs));
     assets.setLoader(DT1.class, new DT1Loader(mpqs));
     assets.setLoader(DS1.class, new DS1Loader(mpqs));
+    assets.setLoader(COF.class, new COFLoader(mpqs));
 
     Riiablo.palettes = palettes = new Palettes(assets);
     Riiablo.colormaps = colormaps = new Colormaps(assets);

@@ -1,6 +1,11 @@
 package com.riiablo.map;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.BaseSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.World;
+import com.artemis.WorldConfiguration;
+import com.artemis.WorldConfigurationBuilder;
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -17,9 +22,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.riiablo.COFs;
 import com.riiablo.Colors;
@@ -29,27 +32,45 @@ import com.riiablo.Palettes;
 import com.riiablo.Riiablo;
 import com.riiablo.Textures;
 import com.riiablo.codec.COF;
+import com.riiablo.codec.D2;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.DCC;
 import com.riiablo.codec.FontTBL;
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.StringTBLs;
-import com.riiablo.engine.Engine;
-import com.riiablo.engine.component.PositionComponent;
-import com.riiablo.engine.system.AnimationLoaderSystem;
-import com.riiablo.engine.system.AnimationSystem;
-import com.riiablo.engine.system.CofLoaderSystem;
-import com.riiablo.engine.system.CofSystem;
-import com.riiablo.engine.system.CollisionSystem;
-import com.riiablo.engine.system.IdSystem;
-import com.riiablo.engine.system.LabelSystem;
-import com.riiablo.engine.system.ObjectSystem;
-import com.riiablo.engine.system.SelectableSystem;
-import com.riiablo.engine.system.SelectedSystem;
-import com.riiablo.engine.system.WarpSystem;
-import com.riiablo.engine.system.debug.Box2DDebugRenderSystem;
-import com.riiablo.engine.system.debug.PathDebugSystem;
-import com.riiablo.engine.system.debug.PathfindDebugSystem;
+import com.riiablo.engine.client.AnimationStepper;
+import com.riiablo.engine.client.ClientEntityFactory;
+import com.riiablo.engine.client.CofAlphaHandler;
+import com.riiablo.engine.client.CofLayerCacher;
+import com.riiablo.engine.client.CofLayerLoader;
+import com.riiablo.engine.client.CofLayerUnloader;
+import com.riiablo.engine.client.CofLoader;
+import com.riiablo.engine.client.CofResolver;
+import com.riiablo.engine.client.CofTransformHandler;
+import com.riiablo.engine.client.CofUnloader;
+import com.riiablo.engine.client.DialogManager;
+import com.riiablo.engine.client.DirectionResolver;
+import com.riiablo.engine.client.HoveredManager;
+import com.riiablo.engine.client.LabelManager;
+import com.riiablo.engine.client.MenuManager;
+import com.riiablo.engine.client.MonsterLabelManager;
+import com.riiablo.engine.client.SelectableManager;
+import com.riiablo.engine.client.WarpSubstManager;
+import com.riiablo.engine.client.debug.Box2DDebugger;
+import com.riiablo.engine.client.debug.PathDebugger;
+import com.riiablo.engine.client.debug.PathfindDebugger;
+import com.riiablo.engine.client.debug.RenderSystemDebugger;
+import com.riiablo.engine.server.AnimDataResolver;
+import com.riiablo.engine.server.AnimStepper;
+import com.riiablo.engine.server.CofManager;
+import com.riiablo.engine.server.ItemInteractor;
+import com.riiablo.engine.server.ObjectInitializer;
+import com.riiablo.engine.server.ObjectInteractor;
+import com.riiablo.engine.server.Pathfinder;
+import com.riiablo.engine.server.WarpInteractor;
+import com.riiablo.engine.server.component.Class;
+import com.riiablo.engine.server.component.Classname;
+import com.riiablo.engine.server.component.Position;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.BitmapFontLoader;
@@ -61,6 +82,8 @@ import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.util.DebugUtils;
+
+import net.mostlyoriginal.api.event.common.EventSystem;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -74,24 +97,23 @@ public class MapViewer extends ApplicationAdapter {
     config.vSyncEnabled = false;
     config.width = 1280; // 1280
     config.height = 720;
-    config.foregroundFPS = config.backgroundFPS = 1000;
+    config.foregroundFPS = config.backgroundFPS = 300;
     MapViewer client = new MapViewer(args);
     new LwjglApplication(client, config);
   }
 
-  private final String[] PALETTES = {Palettes.ACT1, Palettes.ACT2, Palettes.ACT3, Palettes.ACT4, Palettes.ACT5};
-
   ShapeRenderer shapes;
   Map map;
 
-  Entity ent;
-  Engine engine;
+  int ent;
+  World engine;
   RenderSystem mapRenderer;
+  PathfindDebugger pathfindDebugger;
+  protected ComponentMapper<Position> mPosition;
 
   BitmapFont font;
 
-  Box2DPhysicsSystem box2DPhysicsSystem;
-  Box2DDebugRenderSystem box2DDebugRenderSystem;
+  Box2DPhysics box2DPhysics;
 
   int x, y;
   final Vector2 tmpVec2a = new Vector2();
@@ -101,7 +123,6 @@ public class MapViewer extends ApplicationAdapter {
   final Vector2 pathEnd = new Vector2();
   GraphPath generatedPath = new GraphPath();
   GraphPath smoothedPath = new GraphPath();
-  PathfindDebugSystem pathfindDebugSystem;
 
   boolean drawCrosshair;
   boolean drawGrid;
@@ -111,8 +132,6 @@ public class MapViewer extends ApplicationAdapter {
   boolean drawSpecial = true;
   boolean drawRawPathNodes = true;
   boolean drawBox2D = true;
-  boolean drawDebug = true;
-  boolean drawGraphics = true;
   final StringBuilder builder = new StringBuilder(256);
 
   FileHandle home;
@@ -156,6 +175,7 @@ public class MapViewer extends ApplicationAdapter {
     Riiablo.textures = new Textures();
     Riiablo.string = new StringTBLs(resolver);
     Riiablo.cofs = new COFs(assets);//COFD2.loadFromFile(resolver.resolve("data\\global\\cmncof_a1.d2"));
+    Riiablo.anim = D2.loadFromFile(resolver.resolve("data\\global\\eanimdata.d2"));
 
     ShaderProgram.pedantic = false;
     ShaderProgram shader = Riiablo.shader = new ShaderProgram(
@@ -166,48 +186,70 @@ public class MapViewer extends ApplicationAdapter {
     }
 
     PaletteIndexedBatch batch = Riiablo.batch = new PaletteIndexedBatch(2048, shader);
-    shapes = new ShapeRenderer();
+    Riiablo.shapes = shapes = new ShapeRenderer();
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-    Riiablo.engine = engine = new Engine();
+//    Riiablo.engine = engine = new Engine();
 
     map = new Map(seed, diff);
 
     RenderSystem.RENDER_DEBUG_SUBTILE = true;
     mapRenderer = new RenderSystem(batch, map);
     mapRenderer.resize();
-    mapRenderer.setProcessing(false);
 
-    box2DPhysicsSystem = new Box2DPhysicsSystem(map, mapRenderer.iso, 1 / 60f);
-    box2DPhysicsSystem.setProcessing(false);
+    WorldConfiguration config = new WorldConfigurationBuilder()
+        .with(new EventSystem())
+        .with(new TagManager())
+        .with(new CofManager())
+        .with(new ObjectInitializer())
+        .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
+        .with(new MenuManager(), new DialogManager())
 
-    box2DDebugRenderSystem = new Box2DDebugRenderSystem(mapRenderer);
-    box2DDebugRenderSystem.setProcessing(false);
+        .with(box2DPhysics = new Box2DPhysics(1 / 60f))
+        .with(new Pathfinder())
 
-    pathfindDebugSystem = new PathfindDebugSystem(mapRenderer.iso, mapRenderer, batch, shapes);
+        .with(new ClientEntityFactory())
+        .with(new AnimDataResolver())
+        .with(new AnimStepper())
+        .with(new CofUnloader(), new CofResolver(), new CofLoader())
+        .with(new CofLayerUnloader(), new CofLayerLoader(), new CofLayerCacher())
+        .with(new CofAlphaHandler(), new CofTransformHandler())
+        .with(new AnimationStepper())
 
-    engine.addSystem(new IdSystem());
-    engine.addSystem(box2DPhysicsSystem);
-    engine.addSystem(new CofSystem());
-    engine.addSystem(new CofLoaderSystem());
-    engine.addSystem(new AnimationLoaderSystem());
-    engine.addSystem(new AnimationSystem());
-    engine.addSystem(new ObjectSystem());
-    engine.addSystem(new WarpSystem(map));
-    engine.addSystem(new SelectableSystem());
-    engine.addSystem(new SelectedSystem(mapRenderer.iso));
-    engine.addSystem(new CollisionSystem());
-    engine.addSystem(mapRenderer);
-    engine.addSystem(new LabelSystem(mapRenderer.iso));
-    engine.addSystem(box2DDebugRenderSystem);
-    engine.addSystem(new PathDebugSystem(mapRenderer.iso, mapRenderer, batch, shapes));
-    engine.addSystem(pathfindDebugSystem);
+        .with(new SelectableManager())
+        .with(new HoveredManager())
+        .with(new WarpSubstManager())
+
+        .with(new DirectionResolver())
+
+        .with(mapRenderer)
+        .with(new LabelManager())
+        .with(new MonsterLabelManager())
+
+        .with(new PathDebugger())
+        .with(pathfindDebugger = new PathfindDebugger())
+        .with(new Box2DDebugger())
+        .with(new RenderSystemDebugger())
+        .build()
+        .register("iso", mapRenderer.iso)
+        .register("map", map)
+        .register("batch", Riiablo.batch)
+        .register("shapes", Riiablo.shapes)
+        .register("stage", null)
+        .register("scaledStage", null)
+        ;
+    Riiablo.engine = engine = new World(config);
+    mPosition = engine.getMapper(Position.class);
+
+    engine.getInjector().inject(Act1MapBuilder.INSTANCE);
 
     map.setAct(act);
     map.load();
     map.finishLoading();
     map.generate();
-    box2DPhysicsSystem.createBodies();
+
+    box2DPhysics.setEnabled(false);
+    box2DPhysics.createBodies();
 
     RenderSystem.RENDER_DEBUG_TILE = true;
 
@@ -311,7 +353,7 @@ public class MapViewer extends ApplicationAdapter {
             drawSpecial = !drawSpecial;
             return true;
           case Input.Keys.F8:
-            drawGraphics = !drawGraphics;
+            mapRenderer.setEnabled(!mapRenderer.isEnabled());
             return true;
           case Input.Keys.F9:
             RenderSystem.RENDER_DEBUG_CELLS++;
@@ -322,63 +364,71 @@ public class MapViewer extends ApplicationAdapter {
           case Input.Keys.F10:
             drawRawPathNodes = !drawRawPathNodes;
             return true;
-          case Input.Keys.F11:
-            drawBox2D = !drawBox2D;
+          case Input.Keys.F11: {
+            BaseSystem debugger = engine.getSystem(Box2DDebugger.class);
+            debugger.setEnabled(!debugger.isEnabled());
             return true;
+          }
           case Input.Keys.F12:
-            drawDebug = !drawDebug;
+            BaseSystem debugger;
+            debugger = engine.getSystem(RenderSystemDebugger.class);
+            debugger.setEnabled(!debugger.isEnabled());
+            debugger = engine.getSystem(PathDebugger.class);
+            debugger.setEnabled(!debugger.isEnabled());
+            debugger = pathfindDebugger;
+            debugger.setEnabled(!debugger.isEnabled());
             return true;
           case Input.Keys.W:
-          //case Input.Keys.UP:
+          case Input.Keys.UP:
             int amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             y -= amount;
-            ent.getComponent(PositionComponent.class).position.set(x, y);
+            mPosition.get(ent).position.set(x, y);
             return true;
           case Input.Keys.S:
-          //case Input.Keys.DOWN:
+          case Input.Keys.DOWN:
             amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             y += amount;
-            ent.getComponent(PositionComponent.class).position.set(x, y);
+            mPosition.get(ent).position.set(x, y);
             return true;
           case Input.Keys.A:
-          //case Input.Keys.LEFT:
+          case Input.Keys.LEFT:
             amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             x -= amount;
-            ent.getComponent(PositionComponent.class).position.set(x, y);
+            mPosition.get(ent).position.set(x, y);
             return true;
           case Input.Keys.D:
-          //case Input.Keys.RIGHT:
+          case Input.Keys.RIGHT:
             amount = UIUtils.ctrl() ? 1 : Tile.SUBTILE_SIZE;
             if (UIUtils.shift()) amount *= 8;
             x += amount;
-            ent.getComponent(PositionComponent.class).position.set(x, y);
+            mPosition.get(ent).position.set(x, y);
             return true;
-          case Input.Keys.UP:
-            Gdx.input.setCursorPosition(Gdx.input.getX(), Gdx.input.getY() - 1);
-            return true;
-          case Input.Keys.DOWN:
-            Gdx.input.setCursorPosition(Gdx.input.getX(), Gdx.input.getY() + 1);
-            return true;
-          case Input.Keys.LEFT:
-            Gdx.input.setCursorPosition(Gdx.input.getX() - 1, Gdx.input.getY());
-            return true;
-          case Input.Keys.RIGHT:
-            Gdx.input.setCursorPosition(Gdx.input.getX() + 1, Gdx.input.getY());
-            return true;
+//          case Input.Keys.UP:
+//            Gdx.input.setCursorPosition(Gdx.input.getX(), Gdx.input.getY() - 1);
+//            return true;
+//          case Input.Keys.DOWN:
+//            Gdx.input.setCursorPosition(Gdx.input.getX(), Gdx.input.getY() + 1);
+//            return true;
+//          case Input.Keys.LEFT:
+//            Gdx.input.setCursorPosition(Gdx.input.getX() - 1, Gdx.input.getY());
+//            return true;
+//          case Input.Keys.RIGHT:
+//            Gdx.input.setCursorPosition(Gdx.input.getX() + 1, Gdx.input.getY());
+//            return true;
           default:
             return false;
         }
       }
 
-      @Override
-      public boolean mouseMoved(int screenX, int screenY) {
-        //GridPoint2 pt = mapRenderer.toWorldSpace(screenX, screenY);
-        //System.out.println(pt);
-        return true;
-      }
+//      @Override
+//      public boolean mouseMoved(int screenX, int screenY) {
+//        //GridPoint2 pt = mapRenderer.toWorldSpace(screenX, screenY);
+//        //System.out.println(pt);
+//        return true;
+//      }
     });
     Gdx.input.setInputProcessor(multiplexer);
 
@@ -437,25 +487,14 @@ public class MapViewer extends ApplicationAdapter {
 
     Gdx.app.debug(TAG, "JAVA: " + Gdx.app.getJavaHeap() + " Bytes; NATIVE: " + Gdx.app.getNativeHeap() + " Bytes");
     Riiablo.batch.setGamma(1.2f);
-
-    //World world = new World(0, 0);
-    //world.setAct(0);
-    //Gdx.app.exit();
   }
 
-  private static boolean allEqual(Map map, int x, int y, int len, int flags) {
-    len += x;
-    while (x < len && map.flags(x, y) == flags) x++;
-    return x == len;
-  }
-
-  private Entity createSrc(float x, float y) {
-    PositionComponent positionComponent = engine.createComponent(PositionComponent.class);
-    positionComponent.position.set(x, y);
-
-    Entity entity = engine.createEntity();
-    entity.add(positionComponent);
-    return entity;
+  private int createSrc(float x, float y) {
+    int id = engine.create();
+    mPosition.create(id).position.set(x, y);
+    engine.getMapper(Classname.class).create(id).classname = "null";
+    engine.getMapper(Class.class).create(id).type = null;
+    return id;
   }
 
   @Override
@@ -463,58 +502,27 @@ public class MapViewer extends ApplicationAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
     Riiablo.assets.update();
-    engine.update(Gdx.graphics.getDeltaTime());
+    engine.setDelta(Gdx.graphics.getDeltaTime());
+    engine.process();
 
     mapRenderer.iso.update();
 
     PaletteIndexedBatch batch = Riiablo.batch;
-    batch.begin();
-    if (drawGraphics) {
-      //batch.disableBlending();
-      mapRenderer.update(Gdx.graphics.getDeltaTime());
 
-      LabelSystem labelSystem = engine.getSystem(LabelSystem.class);
-      labelSystem.update(0);
-      Array<Actor> labels = labelSystem.getLabels();
-      for (Actor label : labels) {
-        label.draw(batch, 1);
-      }
-    } else {
-      mapRenderer.updatePosition();
-    }
+    if (pathfindDebugger.isEnabled() && !pathStart.isZero() && !pathEnd.isZero()) {
+      pathfindDebugger.drawDebugPath(generatedPath, Color.RED, drawRawPathNodes);
+      pathfindDebugger.drawDebugPath(smoothedPath, Color.GREEN, true);
 
-    batch.end();
-    //batch.enableBlending();
-
-    if (drawDebug) {
-      shapes.identity();
-      shapes.setProjectionMatrix(mapRenderer.iso.combined);
-      shapes.setAutoShapeType(true);
-      shapes.begin(ShapeRenderer.ShapeType.Line);
-      mapRenderer.drawDebug(shapes);
+      mapRenderer.iso.agg(tmpVec2a.set(pathStart)).toScreen();
+      mapRenderer.iso.agg(tmpVec2b.set(pathEnd)).toScreen();
+      shapes.begin();
+      shapes.set(ShapeRenderer.ShapeType.Line);
+      shapes.setColor(Color.WHITE);
+      DebugUtils.drawEllipse2(shapes, tmpVec2a.x, tmpVec2a.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+      shapes.set(ShapeRenderer.ShapeType.Filled);
+      shapes.setColor(Color.ORANGE);
+      shapes.rectLine(tmpVec2a, tmpVec2b, 1);
       shapes.end();
-
-      if (drawBox2D) {
-        box2DDebugRenderSystem.update(0);
-      }
-
-      engine.getSystem(PathDebugSystem.class).update(0);
-
-      if (!pathStart.isZero() && !pathEnd.isZero()) {
-        pathfindDebugSystem.drawDebugPath(generatedPath, Color.RED, drawRawPathNodes);
-        pathfindDebugSystem.drawDebugPath(smoothedPath, Color.GREEN, true);
-
-        mapRenderer.iso.agg(tmpVec2a.set(pathStart)).toScreen();
-        mapRenderer.iso.agg(tmpVec2b.set(pathEnd)).toScreen();
-        shapes.begin();
-        shapes.set(ShapeRenderer.ShapeType.Line);
-        shapes.setColor(Color.WHITE);
-        DebugUtils.drawEllipse2(shapes, tmpVec2a.x, tmpVec2a.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-        shapes.set(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(Color.ORANGE);
-        shapes.rectLine(tmpVec2a, tmpVec2b, 1);
-        shapes.end();
-      }
     }
 
     final int width  = Gdx.graphics.getWidth();

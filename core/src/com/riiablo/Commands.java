@@ -4,7 +4,9 @@ import android.support.annotation.NonNull;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Net;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
@@ -16,9 +18,12 @@ import com.riiablo.command.Parameter;
 import com.riiablo.command.ParameterException;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.key.MappedKey;
+import com.riiablo.screen.SelectCharacterScreen3;
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.serializer.StringSerializer;
 import com.riiablo.validator.ValidationException;
+
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -231,6 +236,34 @@ public class Commands {
         @Override
         public void onExecuted(Command.Instance instance) {
           Riiablo.console.out.println(Gdx.gl.glGetString(GL20.GL_VERSION));
+        }
+      })
+      .build();
+
+  public static final Command connect = Command.builder()
+      .alias("connect")
+      .description("Connects to specified server")
+      .params(
+          Parameter.of(String.class),
+          OptionalParameter.of(String.class))
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          int port = instance.numArgs() == 1 ? 6114 : NumberUtils.toInt(instance.getArg(1), 6114);
+          Socket socket = null;
+          try {
+            socket = Gdx.net.newClientSocket(Net.Protocol.TCP, instance.getArg(0), port, null);
+            final Socket socketRef = socket;
+            Gdx.app.postRunnable(new Runnable() {
+              @Override
+              public void run() {
+                Riiablo.client.clearAndSet(new SelectCharacterScreen3(socketRef));
+              }
+            });
+          } catch (Throwable t) {
+            Gdx.app.error("Command", t.getMessage(), t);
+            if (socket != null) socket.dispose();
+          }
         }
       })
       .build();

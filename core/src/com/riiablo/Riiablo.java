@@ -1,5 +1,6 @@
 package com.riiablo;
 
+import com.artemis.World;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -13,7 +14,6 @@ import com.riiablo.audio.MusicController;
 import com.riiablo.codec.D2;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
-import com.riiablo.engine.Engine;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.screen.GameScreen;
@@ -54,7 +54,7 @@ public class Riiablo {
   public static MusicController       music;
   public static Cursor                cursor;
   public static CharData              charData;
-  public static Engine                engine;
+  public static World                 engine;
   public static GameScreen            game;
   public static D2                    anim;
 }

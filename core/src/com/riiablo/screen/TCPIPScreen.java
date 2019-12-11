@@ -8,7 +8,6 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.net.Socket;
-import com.badlogic.gdx.net.SocketHints;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -129,8 +128,20 @@ public class TCPIPScreen extends ScreenAdapter {
             Gdx.input.getTextInput(new Input.TextInputListener() {
               @Override
               public void input(String text) {
-                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, text, 6114, new SocketHints());
-                socket.dispose();
+                Socket socket = null;
+                try {
+                  socket = Gdx.net.newClientSocket(Net.Protocol.TCP, text, 6114, null);
+                  final Socket socketRef = socket;
+                  Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                      Riiablo.client.clearAndSet(new SelectCharacterScreen3(socketRef));
+                    }
+                  });
+                } catch (Throwable t) {
+                  Gdx.app.error(TAG, t.getMessage(), t);
+                  if (socket != null) socket.dispose();
+                }
               }
 
               @Override

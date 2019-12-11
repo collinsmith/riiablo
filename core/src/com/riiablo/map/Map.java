@@ -1,7 +1,6 @@
 package com.riiablo.map;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
@@ -14,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
@@ -24,7 +24,9 @@ import com.riiablo.codec.COFD2;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
-import com.riiablo.engine.component.WarpComponent;
+import com.riiablo.engine.Engine;
+import com.riiablo.engine.client.ClientEntityFactory;
+import com.riiablo.engine.server.component.Warp;
 import com.riiablo.map.pfa.AStarPathFinder;
 import com.riiablo.map.pfa.Point2;
 
@@ -597,10 +599,9 @@ public class Map implements Disposable {
     final DT1.Tile tiles[][] = new DT1.Tile[Map.MAX_LAYERS][];
     Preset         presets[][];
 
-    static final Array<Entity> EMPTY_ENTITY_ARRAY = new Array<>(0);
-    Array<Entity> entities = EMPTY_ENTITY_ARRAY;
+    static final IntArray EMPTY_ENTITY_ARRAY = new IntArray(0);
+    IntArray entities = EMPTY_ENTITY_ARRAY;
 
-    static final ComponentMapper<WarpComponent> warpComponent = ComponentMapper.getFor(WarpComponent.class);
     static final IntIntMap EMPTY_INT_INT_MAP = new IntIntMap(0);
     IntIntMap warps = EMPTY_INT_INT_MAP;
 
@@ -697,7 +698,7 @@ public class Map implements Disposable {
       dt1s = null; // TODO: setting null -- depending on Map dispose to clear DT1s on act change
       town = false;
       entities = EMPTY_ENTITY_ARRAY;
-      warps = EMPTY_INT_INT_MAP;
+//      warps = EMPTY_INT_INT_MAP;
       generator = EMPTY_GENERATOR;
       specials = EMPTY_INT_CELL_MAP;
     }
@@ -754,20 +755,18 @@ public class Map implements Disposable {
       return (this.flags[index(width, x, y)] |= flags) & 0xFF;
     }
 
-    void addEntity(Entity entity) {
-      if (entity == null) return;
-      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
-      entities.add(entity);
-      Riiablo.engine.addEntity(entity);
+    void addEntity(int entityId) {
+      if (entityId == Engine.INVALID_ENTITY) return;
+      if (entities == EMPTY_ENTITY_ARRAY) entities = new IntArray();
+      entities.add(entityId);
     }
 
     void addWarp(int index, int warpX, int warpY) {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
-      if (entities == EMPTY_ENTITY_ARRAY) entities = new Array<>();
-      Entity entity = Riiablo.engine.createWarp(map, this, index, x, y);
+      if (entities == EMPTY_ENTITY_ARRAY) entities = new IntArray();
+      int entity = Riiablo.engine.getSystem(ClientEntityFactory.class).createWarp(map, this, index, x, y);
       entities.add(entity);
-      Riiablo.engine.addEntity(entity);
     }
 
     void setWarp(int src, int dst) {
@@ -779,15 +778,17 @@ public class Map implements Disposable {
       return warps.get(src, -1);
     }
 
-    public Entity findWarp(int id) {
-      for (Entity entity : entities) {
-        WarpComponent warpComponent = this.warpComponent.get(entity);
-        if (warpComponent != null && warpComponent.index == id) {
-          return entity;
+    public int findWarp(int id) {
+      ComponentMapper<Warp> mWarp = Riiablo.engine.getMapper(Warp.class);
+      for (int i = 0, size = entities.size; i < size; i++) {
+        int entityId = entities.get(i);
+        Warp warp = mWarp.get(entityId);
+        if (warp != null && warp.index == id) {
+          return entityId;
         }
       }
 
-      return null;
+      return Engine.INVALID_ENTITY;
     }
 
     public int getLocalTX(int tx) { return tx - this.tx; }
@@ -1127,8 +1128,8 @@ public class Map implements Disposable {
       final int y = zone.y + (ty * DT1.Tile.SUBTILE_SIZE);
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        Entity entity = Riiablo.engine.createObject(zone.map, zone, ds1, obj, x + obj.x, y + obj.y);
-        zone.addEntity(entity);
+        int entityId = Riiablo.engine.getSystem(ClientEntityFactory.class).createObject(zone.map, zone, ds1, obj, x + obj.x, y + obj.y);
+        zone.addEntity(entityId); // FIXME: waypoints are placed correctly when adding 0.25f to ds1 object position -- is this consistent with others?
       }
     }
 

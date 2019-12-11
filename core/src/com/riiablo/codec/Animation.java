@@ -486,6 +486,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
 
     if (layer.regions[d] == null) layer.load(d);
     TextureRegion region = layer.regions[d][f];
+    if (region.getTexture().getTextureObjectHandle() == 0) return;
     batch.draw(region, region.getRegionWidth(), region.getRegionHeight(), SHADOW_TRANSFORM);
   }
 
@@ -634,10 +635,12 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
       x += box.xMin;
       y -= box.yMax;
       if (regions[d] == null) load(d);
+      TextureRegion region = regions[d][f];
+      if (region.getTexture().getTextureObjectHandle() == 0) return;
       PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
       b.setBlendMode(blendMode, tint, true);
       b.setColormap(transform, transformColor);
-      b.draw(regions[d][f], x, y);
+      b.draw(region, x, y);
     }
 
     protected void drawDebug(ShapeRenderer shapeRenderer, int d, int f, float x, float y) {
@@ -662,18 +665,25 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
     }
   }
 
+  public Builder edit() {
+    return Builder.obtain(this);
+  }
+
   public static Builder builder() {
-    return Builder.obtain();
+    return Builder.obtain(null);
   }
 
   public static class Builder implements Pool.Poolable {
     private static final Pool<Builder> pool = Pools.get(Builder.class, 32);
 
+    Animation animation;
     final Layer layers[] = new Layer[NUM_LAYERS];
     int size = 0;
 
-    public static Builder obtain() {
-      return pool.obtain();
+    public static Builder obtain(Animation animation) {
+      Builder builder = pool.obtain();
+      builder.animation = animation;
+      return builder;
     }
 
     @Override
@@ -703,11 +713,17 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
 
     public Animation build() {
       Layer first = layers[0];
-      Animation animation = Animation .newAnimation();
+      if (animation == null) {
+        animation = Animation.newAnimation();
+      } else {
+        animation.reset();
+      }
       animation.numDirections = first.numDirections;
       animation.numFrames     = first.numFrames;
       animation.startIndex    = 0;
       animation.endIndex      = animation.numFrames;
+      animation.frame         = animation.startIndex;
+      animation.elapsedTime   = 0;
       System.arraycopy(layers, 0, animation.layers, 0, size);
       animation.updateBox();
       pool.free(this);

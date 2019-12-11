@@ -1,12 +1,13 @@
 package com.riiablo.map;
 
-import com.badlogic.ashley.core.Entity;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.MonStats;
+import com.riiablo.engine.EntityFactory;
 import com.riiablo.map.Map.Preset;
 import com.riiablo.map.Map.Zone;
 
@@ -16,6 +17,9 @@ public enum Act1MapBuilder implements MapBuilder {
   private static final String TAG = "Act1MapBuilder";
   private static final boolean DEBUG       = true;
   private static final boolean DEBUG_BUILD = DEBUG && true;
+
+  @Wire(name = "factory")
+  protected EntityFactory factory;
 
   @Override
   public void generate(Map map, int seed, int diff) {
@@ -111,8 +115,7 @@ public enum Act1MapBuilder implements MapBuilder {
               for (i = 0; i < count; i++) {
                 int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
                 int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
-                Entity entity = Riiablo.engine.createMonster(zone.map, zone, monster, px, py);
-                Riiablo.engine.addEntity(entity);
+                factory.createMonster(zone.map, zone, monster, px, py);
               }
             }
           }

@@ -1,11 +1,11 @@
 package com.riiablo.map;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.Aspect;
+import com.artemis.BaseEntitySystem;
+import com.artemis.ComponentMapper;
+import com.artemis.EntitySubscription;
+import com.artemis.annotations.All;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -24,19 +24,19 @@ import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.util.BBox;
-import com.riiablo.engine.Dirty;
-import com.riiablo.engine.Flags;
-import com.riiablo.engine.component.AIComponent;
-import com.riiablo.engine.component.AngleComponent;
-import com.riiablo.engine.component.AnimationComponent;
-import com.riiablo.engine.component.BBoxComponent;
-import com.riiablo.engine.component.ClassnameComponent;
-import com.riiablo.engine.component.CofComponent;
-import com.riiablo.engine.component.HoveredComponent;
-import com.riiablo.engine.component.ObjectComponent;
-import com.riiablo.engine.component.PositionComponent;
-import com.riiablo.engine.component.SelectableComponent;
-import com.riiablo.engine.component.TypeComponent;
+import com.riiablo.engine.Engine;
+import com.riiablo.engine.client.component.AnimationWrapper;
+import com.riiablo.engine.client.component.BBoxWrapper;
+import com.riiablo.engine.client.component.Hovered;
+import com.riiablo.engine.client.component.Selectable;
+import com.riiablo.engine.server.component.AIWrapper;
+import com.riiablo.engine.server.component.Angle;
+import com.riiablo.engine.server.component.AnimData;
+import com.riiablo.engine.server.component.Class;
+import com.riiablo.engine.server.component.Classname;
+import com.riiablo.engine.server.component.CofReference;
+import com.riiablo.engine.server.component.Object;
+import com.riiablo.engine.server.component.Position;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1.Tile;
@@ -47,7 +47,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class RenderSystem extends EntitySystem {
+@All(AnimationWrapper.class)
+public class RenderSystem extends BaseEntitySystem {
   private static final String TAG = "RenderSystem";
   private static final boolean DEBUG          = true;
   private static final boolean DEBUG_MATH     = DEBUG && !true;
@@ -85,33 +86,33 @@ public class RenderSystem extends EntitySystem {
   private static final int TILES_PADDING_X = 3;
   private static final int TILES_PADDING_Y = 7;
 
-  private final Comparator<Entity> SUBTILE_ORDER = new Comparator<Entity>() {
+  private final Comparator<Integer> SUBTILE_ORDER = new Comparator<Integer>() {
     @Override
-    public int compare(Entity e1, Entity e2) {
-      Vector2 pos1 = positionComponent.get(e1).position;
-      Vector2 pos2 = positionComponent.get(e2).position;
+    public int compare(Integer e1, Integer e2) {
+      Vector2 pos1 = mPosition.get(e1).position;
+      Vector2 pos2 = mPosition.get(e2).position;
       int i = Float.compare(pos1.y, pos2.y);
       return i == 0 ? Float.compare(pos1.x, pos2.x): i;
     }
   };
 
-  private final ComponentMapper<AnimationComponent> animationComponent = ComponentMapper.getFor(AnimationComponent.class);
-  private final ComponentMapper<CofComponent> cofComponent = ComponentMapper.getFor(CofComponent.class);
-  private final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
-  private final ComponentMapper<ObjectComponent> objectComponent = ComponentMapper.getFor(ObjectComponent.class);
-  private final Family family = Family.all(AnimationComponent.class, PositionComponent.class).get();
-  private ImmutableArray<Entity> entities;
-
-  // DEBUG
-  private final ComponentMapper<ClassnameComponent> classnameComponent = ComponentMapper.getFor(ClassnameComponent.class);
-  private final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
-  private final ComponentMapper<BBoxComponent> boxComponent = ComponentMapper.getFor(BBoxComponent.class);
-  private final ComponentMapper<AngleComponent> angleComponent = ComponentMapper.getFor(AngleComponent.class);
-  private final ComponentMapper<SelectableComponent> selectableComponent = ComponentMapper.getFor(SelectableComponent.class);
-  private final ComponentMapper<HoveredComponent> hoveredComponent = ComponentMapper.getFor(HoveredComponent.class);
-  private final ComponentMapper<AIComponent> aiComponent = ComponentMapper.getFor(AIComponent.class);
-  private final Family debugFamily = Family.all(PositionComponent.class).get();
-  private ImmutableArray<Entity> debugEntities;
+  protected ComponentMapper<AnimationWrapper> mAnimationWrapper;
+  protected ComponentMapper<CofReference> mCofReference;
+  protected ComponentMapper<Position> mPosition;
+  protected ComponentMapper<Object> mObject;
+//  private final Family family = Family.all(AnimationComponent.class, PositionComponent.class).get();
+//  private ImmutableArray<Entity> entities;
+//
+//  // DEBUG
+  protected ComponentMapper<Classname> mClassname;
+  protected ComponentMapper<Class> mClass;
+  protected ComponentMapper<BBoxWrapper> mBBoxWrapper;
+  protected ComponentMapper<Angle> mAngle;
+  protected ComponentMapper<Selectable> mSelectable;
+  protected ComponentMapper<Hovered> mHovered;
+  protected ComponentMapper<AIWrapper> mAIWrapper;
+  protected ComponentMapper<AnimData> mAnimData;
+  protected EntitySubscription debugEntitites;
 
   private final Vector2 tmpVec2 = new Vector2();
 
@@ -119,8 +120,8 @@ public class RenderSystem extends EntitySystem {
   IsometricCamera     iso;
   Map                 map;
   int                 viewBuffer[];
-  Array<Entity>       cache[][][];
-  Entity              src;
+  Array<Integer>      cache[][][];
+  int                 src = -1;
   boolean             dirty;
   final Vector2       currentPos = new Vector2();
 
@@ -200,28 +201,26 @@ public class RenderSystem extends EntitySystem {
   }
 
   @Override
-  public void addedToEngine(Engine engine) {
-    entities = engine.getEntitiesFor(family);
-    debugEntities = engine.getEntitiesFor(debugFamily);
+  protected void initialize() {
+    debugEntitites = world.getAspectSubscriptionManager().get(Aspect.all());
   }
 
   @Override
-  public void removedFromEngine(Engine engine) {
-    entities = null;
-    debugEntities = null;
+  protected void dispose() {
+    debugEntitites = null;
   }
 
   public Map getMap() {
     return map;
   }
 
-  public Entity getSrc() {
+  public int getSrc() {
     return src;
   }
 
-  public void setSrc(Entity src) {
+  public void setSrc(int src) {
     if (this.src != src) {
-      assert positionComponent.has(src) : "src entity must have a position component";
+      assert mPosition.has(src) : "src entity must have a position component";
       this.src = src;
     }
   }
@@ -276,9 +275,9 @@ public class RenderSystem extends EntitySystem {
       cache[i] = new Array[viewBufferRun][];
       for (int j = 0; j < viewBufferRun; j++) {
         cache[i][j] = new Array[] {
-            new Array<Entity>(Tile.NUM_SUBTILES), // TODO: Really {@code (Tile.SUBTILE_SIZE - 1) * (Tile.SUBTILE_SIZE - 1)}
-            new Array<Entity>(1), // better size TBD
-            new Array<Entity>(Tile.SUBTILE_SIZE + Tile.SUBTILE_SIZE - 1), // only upper walls
+            new Array<Integer>(Tile.NUM_SUBTILES), // TODO: Really {@code (Tile.SUBTILE_SIZE - 1) * (Tile.SUBTILE_SIZE - 1)}
+            new Array<Integer>(1), // better size TBD
+            new Array<Integer>(Tile.SUBTILE_SIZE + Tile.SUBTILE_SIZE - 1), // only upper walls
         };
       }
     }
@@ -322,16 +321,16 @@ public class RenderSystem extends EntitySystem {
    * updates position of camera -- once per frame
    */
   public void updatePosition(boolean force) {
-    if (src == null) return;
-    Vector2 pos = positionComponent.get(src).position;
+    if (src == -1) return;
+    Vector2 pos = mPosition.get(src).position;
+    iso.set(pos);
+    iso.update();
     if (pos.epsilonEquals(currentPos) && !force && !dirty) return;
     dirty = false;
     currentPos.set(pos);
     iso.toTile(tmpVec2.set(pos));
     this.x = (int) tmpVec2.x;
     this.y = (int) tmpVec2.y;
-    iso.set(currentPos);
-    iso.update();
 
     // subtile index in tile-space
     stx = x < 0
@@ -399,13 +398,23 @@ public class RenderSystem extends EntitySystem {
     return builder.toString();
   }
 
+  @Override
+  protected void begin() {
+    Riiablo.batch.begin();
+  }
+
+  @Override
+  protected void end() {
+    Riiablo.batch.end();
+  }
+
   /**
    * renders map
    */
   @Override
-  public void update(float delta) {
+  protected void processSystem() {
     updatePosition();
-    draw(delta);
+    draw(world.delta);
   }
 
   /**
@@ -470,23 +479,24 @@ public class RenderSystem extends EntitySystem {
     }
   }
 
-  private void buildCache(Array<Entity>[] cache, Map.Zone zone, int stx, int sty) {
+  private void buildCache(Array<Integer>[] cache, Map.Zone zone, int stx, int sty) {
     cache[0].size = cache[1].size = cache[2].size = 0;
     int orderFlag;
-    for (Entity entity : entities) {
-      Vector2 pos = positionComponent.get(entity).position;
+    IntBag entitites = getEntityIds();
+    for (int i = 0, size = entitites.size(); i < size; i++) {
+      int id = entitites.get(i);
+      Vector2 pos = mPosition.get(id).position;
       if ((stx <= pos.x && pos.x < stx + Tile.SUBTILE_SIZE)
        && (sty <= pos.y && pos.y < sty + Tile.SUBTILE_SIZE)) {
-        ObjectComponent objectComponent = this.objectComponent.get(entity);
+        Object objectComponent = mObject.get(id);
         if (objectComponent != null) {
-          assert this.cofComponent.has(entity);
-          CofComponent cofComponent = this.cofComponent.get(entity);
-          orderFlag = objectComponent.base.OrderFlag[cofComponent.mode];
+          CofReference reference = mCofReference.get(id);
+          orderFlag = objectComponent.base.OrderFlag[reference.mode];
         } else {
           orderFlag = stx == pos.x || sty == pos.y ? 2 : 0;
         }
 
-        cache[orderFlag].add(entity);
+        cache[orderFlag].add(id);
       }
     }
     cache[0].sort(SUBTILE_ORDER);
@@ -585,7 +595,7 @@ public class RenderSystem extends EntitySystem {
         Map.Zone zone = map.getZone(stx, sty);
         if (zone != null) {
           //buildCaches(zone, stx, sty);
-          Array<Entity>[] cache = this.cache[y][x];
+          Array<Integer>[] cache = this.cache[y][x];
           drawEntities(cache, 1); // floors
           drawEntities(cache, 2); // walls/doors
           drawWalls(batch, zone, tx, ty, px, py);
@@ -647,16 +657,16 @@ public class RenderSystem extends EntitySystem {
     }
   }
 
-  void drawEntities(Array<Entity>[] cache, int i) {
-    for (Entity entity : cache[i]) {
+  void drawEntities(Array<Integer>[] cache, int i) {
+    for (int entity : cache[i]) {
 //      if (!entity.target().isZero() && !entity.position().epsilonEquals(entity.target())) {
 //        entity.angle(angle(entity.position(), entity.target()));
 //      }
 
-      CofComponent cofComponent = this.cofComponent.get(entity);
-      if (cofComponent != null && cofComponent.load != Dirty.NONE) return;
-      Animation animation = animationComponent.get(entity).animation;
-      Vector2 pos = positionComponent.get(entity).position;
+//      CofComponent cofComponent = this.cofComponent.get(entity);
+//      if (cofComponent != null && cofComponent.load != Dirty.NONE) return;
+      Animation animation = mAnimationWrapper.get(entity).animation;
+      Vector2 pos = mPosition.get(entity).position;
       Vector2 tmp = iso.toScreen(tmpVec2.set(pos));
       animation.draw(batch, tmp.x, tmp.y);
     }
@@ -697,7 +707,7 @@ public class RenderSystem extends EntitySystem {
     }
   }
 
-  void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py, Array<Entity>[] cache) {
+  void drawShadows(PaletteIndexedBatch batch, Map.Zone zone, int tx, int ty, float px, float py, Array<Integer>[] cache) {
     batch.setBlendMode(BlendMode.SOLID, Riiablo.colors.modal75);
     for (int i = Map.SHADOW_OFFSET; i < Map.SHADOW_OFFSET + Map.MAX_SHADOWS; i++) {
       Tile tile = zone.get(i, tx, ty);
@@ -716,12 +726,12 @@ public class RenderSystem extends EntitySystem {
       batch.draw(texture, px, py, texture.getRegionWidth(), texture.getRegionHeight());
     }
     */
-    for (Array<Entity> c : cache) {
-      for (Entity entity : c) {
-        CofComponent cofComponent = this.cofComponent.get(entity);
-        if (cofComponent != null && cofComponent.load != Dirty.NONE) continue;
-        Animation animation = animationComponent.get(entity).animation;
-        Vector2 pos = positionComponent.get(entity).position;
+    for (Array<Integer> c : cache) {
+      for (int entity : c) {
+//        CofComponent cofComponent = this.cofComponent.get(entity);
+//        if (cofComponent != null && cofComponent.load != Dirty.NONE) continue;
+        Animation animation = mAnimationWrapper.get(entity).animation;
+        Vector2 pos = mPosition.get(entity).position;
         Vector2 tmp = iso.toScreen(tmpVec2.set(pos));
         animation.drawShadow(batch, tmp.x, tmp.y, false);
       }
@@ -1291,19 +1301,21 @@ public class RenderSystem extends EntitySystem {
       int sty = ty * Tile.SUBTILE_SIZE;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
-        for (Entity entity : debugEntities) {
-          Vector2 position = positionComponent.get(entity).position;
+        IntBag entities = debugEntitites.getEntities();
+        for (int i = 0, numEntities = entities.size(); i < numEntities; i++) {
+          int id = entities.get(i);
+          Vector2 position = mPosition.get(id).position;
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
             Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
             shapes.setColor(Color.WHITE);
             DebugUtils.drawDiamond(shapes, tmp.x, tmp.y, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-            if (RENDER_DEBUG_SELECT && selectableComponent.has(entity)) {
-              BBoxComponent boxComponent = this.boxComponent.get(entity);
-              if (boxComponent != null) {
-                BBox box = boxComponent.box;
+            if (RENDER_DEBUG_SELECT && mSelectable.has(id)) {
+              BBoxWrapper boxWrapper = mBBoxWrapper.get(id);
+              if (boxWrapper != null) {
+                BBox box = boxWrapper.box;
                 if (box != null) {
-                  shapes.setColor(hoveredComponent.has(entity) ? Color.GREEN : Color.GRAY);
+                  shapes.setColor(mHovered.has(id) ? Color.GREEN : Color.GRAY);
                   shapes.rect(tmpVec2.x + box.xMin, tmpVec2.y - box.yMax, box.width, box.height);
                 }
               }
@@ -1338,48 +1350,62 @@ public class RenderSystem extends EntitySystem {
       int sty = ty * Tile.SUBTILE_SIZE;
       int size = viewBuffer[y];
       for (x = 0; x < size; x++) {
-        for (Entity entity : debugEntities) {
-          Vector2 position = positionComponent.get(entity).position;
+        IntBag entities = debugEntitites.getEntities();
+        for (int i = 0, numEntities = entities.size(); i < numEntities; i++) {
+          int id = entities.get(i);
+          Vector2 position = mPosition.get(id).position;
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
-            Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
             builder.setLength(0);
-            builder.append(classnameComponent.get(entity).classname).append('\n');
-            builder.append(Flags.toString(entity.flags)).append('\n');
-            CofComponent cofComponent = this.cofComponent.get(entity);
-            if (cofComponent != null) {
-              TypeComponent.Type type = typeComponent.get(entity).type;
+            builder.append(mClassname.get(id).classname).append('\n');
+
+            Class.Type type = mClass.get(id).type;
+            builder.append(type).append('\n');
+
+            CofReference reference = mCofReference.get(id);
+            if (reference != null) {
               builder
-                  .append(cofComponent.token.toUpperCase())
+                  .append(reference.token.toUpperCase())
                   .append(' ')
-                  .append(type.MODE[cofComponent.mode])
+                  .append(type.getMode(reference.mode))
                   .append(' ')
-                  .append(CofComponent.WCLASS[cofComponent.wclass])
+                  .append(Engine.getWClass(reference.wclass))
                   .append('\n');
             }
-            AngleComponent angleComponent = this.angleComponent.get(entity);
-            if (angleComponent != null) {
+            Angle angle = mAngle.get(id);
+            if (angle != null) {
               builder
-                  .append(String.format("%.02f", angleComponent.angle.angleRad()))
+                  .append(String.format("%.02f", angle.angle.angleRad()))
                   .append('\n');
             }
-            AnimationComponent animationComponent = this.animationComponent.get(entity);
-            if (animationComponent != null) {
-              Animation animation = animationComponent.animation;
-              if (animation != null && animation.getNumFramesPerDir() > 1) {
+            AnimData animData = mAnimData.get(id);
+            if (animData != null) {
+              builder
+                  .append(StringUtils.leftPad(String.format("%d.%02X", animData.frame >>> 8, animData.frame & 0xFF), animData.numFrames >>> 8 > 10 ? 5 : 4))
+                  .append('/')
+                  .append(Integer.toString(animData.numFrames >>> 8))
+                  .append(' ')
+                  .append(String.format("%02X", animData.override >= 0 ? animData.override : animData.speed))
+                  .append('\n');
+            }
+            AnimationWrapper animationWrapper = mAnimationWrapper.get(id);
+            if (animationWrapper != null) {
+              Animation animation = animationWrapper.animation;
+              if (animation.getNumFramesPerDir() > 1) {
                 builder
                     .append(StringUtils.leftPad(Integer.toString(animation.getFrame()), 2))
                     .append('/')
-                    .append(StringUtils.leftPad(Integer.toString(animation.getNumFramesPerDir() - 1), 2))
+                    .append(Integer.toString(animation.getNumFramesPerDir() - 1))
                     .append(' ')
                     .append(animation.getFrameDelta())
                     .append('\n');
               }
             }
-            AIComponent aiComponent = this.aiComponent.get(entity);
+            AIWrapper aiComponent = mAIWrapper.get(id);
             if (aiComponent != null) {
               builder.append(aiComponent.ai.getState()).append('\n');
             }
+            Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
             GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50 - 4, 0, Align.center, false);
             Pools.free(layout);
           }

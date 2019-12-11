@@ -1,11 +1,13 @@
 namespace com.riiablo.net.packet.d2gs;
 
 table Connection {
-  MCPCookie:uint32;
-  gameId:uint16;
+  // request
   charClass:uint8;
-  gameVersion:uint32;
-  gameConst:uint64;
-  locale:uint8;
   charName:string;
+  cofComponents:[uint8];
+  cofTransforms:[uint8];
+  cofAlphas:[float32];
+
+  // response
+  entityId:int32;
 }

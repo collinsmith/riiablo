@@ -1,9 +1,9 @@
 package com.riiablo.ai;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
+import com.artemis.EntitySubscription;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
@@ -12,49 +12,51 @@ import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.engine.Engine;
-import com.riiablo.engine.component.PathfindComponent;
-import com.riiablo.engine.component.PlayerComponent;
-import com.riiablo.engine.component.PositionComponent;
-import com.riiablo.engine.component.TypeComponent;
-import com.riiablo.engine.component.VelocityComponent;
+import com.riiablo.engine.server.component.Class;
+import com.riiablo.engine.server.component.Player;
 
 public class QuillRat extends AI {
-  enum State implements com.badlogic.gdx.ai.fsm.State<Entity> {
+  enum State implements com.badlogic.gdx.ai.fsm.State<Integer> {
     IDLE,
     WANDER,
     APPROACH,
     ATTACK;
 
-    @Override public void enter(Entity entity) {}
-    @Override public void update(Entity entity) {}
-    @Override public void exit(Entity entity) {}
+    @Override public void enter(Integer entity) {}
+    @Override public void update(Integer entity) {}
+    @Override public void exit(Integer entity) {}
     @Override
-    public boolean onMessage(Entity entity, Telegram telegram) {
+    public boolean onMessage(Integer entity, Telegram telegram) {
       return false;
     }
   }
 
-  private static final ComponentMapper<PathfindComponent> pathfindComponent = ComponentMapper.getFor(PathfindComponent.class);
-  private static final ComponentMapper<VelocityComponent> velocityComponent = ComponentMapper.getFor(VelocityComponent.class);
+  protected ComponentMapper<Class> mClass;
 
-  private static final ComponentMapper<PositionComponent> positionComponent = ComponentMapper.getFor(PositionComponent.class);
-  private static final ComponentMapper<TypeComponent> typeComponent = ComponentMapper.getFor(TypeComponent.class);
-  private static final Family enemyFamily = Family.all(TypeComponent.class).one(PlayerComponent.class).get();
-  private static ImmutableArray<Entity> enemyEntities;
+  private static EntitySubscription enemyEntities;
 
   final Vector2 tmpVec2 = new Vector2();
 
-  final StateMachine<Entity, State> stateMachine;
+  final StateMachine<Integer, State> stateMachine;
   float nextAction;
   float time;
   Missiles.Entry missile;
 
-  public QuillRat(Entity entity) {
-    super(entity);
-    stateMachine = new DefaultStateMachine<>(entity, State.IDLE);
-    if (enemyEntities == null) enemyEntities = Riiablo.engine.getEntitiesFor(enemyFamily);
+  public QuillRat(int entityId) {
+    super(entityId);
+    stateMachine = new DefaultStateMachine<>(entityId, State.IDLE);
+  }
+
+  @Override
+  public void initialize() {
+    super.initialize();
     monsound = "spikefiend";
-    missile = Riiablo.files.Missiles.get(monsterComponent.monstats.MissA2);
+    missile = Riiablo.files.Missiles.get(monster.monstats.MissA2);
+    if (enemyEntities == null) {
+      enemyEntities = Riiablo.engine.getAspectSubscriptionManager().get(Aspect
+              .all(Class.class)
+              .one(Player.class));
+    }
   }
 
   @Override
@@ -69,28 +71,30 @@ public class QuillRat extends AI {
     time = SLEEP;
 
     if (stateMachine.getCurrentState() != State.ATTACK) {
-      Vector2 entityPos = positionComponent.get(entity).position;
-      float melerng = 2f + monsterComponent.monstats2.MeleeRng;
-      for (Entity ent : enemyEntities) {
-        TypeComponent typeComponent = this.typeComponent.get(ent);
-        switch (typeComponent.type) {
+      Vector2 entityPos = mPosition.get(entityId).position;
+      float melerng = 2f + monster.monstats2.MeleeRng;
+      IntBag entities = enemyEntities.getEntities();
+      for (int i = 0, size = entities.size(); i < size; i++) {
+        int ent = entities.get(i);
+        Class.Type type = mClass.get(ent).type;
+        switch (type) {
           case PLR:
-            Vector2 targetPos = positionComponent.get(ent).position;
+            Vector2 targetPos = mPosition.get(ent).position;
             float dst = entityPos.dst(targetPos);
             if (dst < melerng) {
-              setPath(null);
+              pathfinder.findPath(entityId, null);
               lookAt(ent);
               stateMachine.changeState(State.ATTACK);
-              sequence(Engine.Monster.MODE_A1, Engine.Monster.MODE_NU);
+              mSequence.create(entityId).sequence(Engine.Monster.MODE_A1, Engine.Monster.MODE_NU);
               Riiablo.audio.play(monsound + "_attack_1", true);
               time = MathUtils.random(1f, 2);
               return;
             } else if (dst < params[0]) {
               if (MathUtils.randomBoolean(params[1] / 100f)) {
-                setPath(null);
+                pathfinder.findPath(entityId, null);
                 lookAt(ent);
                 stateMachine.changeState(State.ATTACK);
-                sequence(Engine.Monster.MODE_A2, Engine.Monster.MODE_NU);
+                mSequence.create(entityId).sequence(Engine.Monster.MODE_A2, Engine.Monster.MODE_NU);
                 Riiablo.audio.play(monsound + "_shoot_1", true);
                 time = MathUtils.random(1f, 2);
                 fire(missile);
@@ -105,19 +109,18 @@ public class QuillRat extends AI {
     switch (stateMachine.getCurrentState()) {
       case IDLE:
         if (nextAction < 0) {
-          entity.remove(PathfindComponent.class);
-          velocityComponent.get(entity).velocity.setZero();
+          pathfinder.findPath(entityId, null);
           stateMachine.changeState(State.WANDER);
         }
         break;
       case WANDER:
-        if (!pathfindComponent.has(entity)) {
+        if (!mPathfind.has(entityId)) {
           nextAction = MathUtils.random(3f, 5);
           stateMachine.changeState(State.IDLE);
         } else {
-          Vector2 dst = tmpVec2.set(positionComponent.get(entity).position);
+          Vector2 dst = tmpVec2.set(mPosition.get(entityId).position);
           dst.add(MathUtils.random(-5, 5), MathUtils.random(-5, 5));
-          setPath(dst);
+          pathfinder.findPath(entityId, dst);
         }
         break;
       case APPROACH:
