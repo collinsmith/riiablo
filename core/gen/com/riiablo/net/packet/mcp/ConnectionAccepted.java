@@ -11,7 +11,7 @@ import com.google.flatbuffers.*;
 public final class ConnectionAccepted extends Table {
   public static ConnectionAccepted getRootAsConnectionAccepted(ByteBuffer _bb) { return getRootAsConnectionAccepted(_bb, new ConnectionAccepted()); }
   public static ConnectionAccepted getRootAsConnectionAccepted(ByteBuffer _bb, ConnectionAccepted obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public ConnectionAccepted __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
 

@@ -11,7 +11,7 @@ import com.google.flatbuffers.*;
 public final class D2GS extends Table {
   public static D2GS getRootAsD2GS(ByteBuffer _bb) { return getRootAsD2GS(_bb, new D2GS()); }
   public static D2GS getRootAsD2GS(ByteBuffer _bb, D2GS obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public D2GS __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte dataType() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }

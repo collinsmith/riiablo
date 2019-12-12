@@ -11,7 +11,7 @@ import com.google.flatbuffers.*;
 public final class WalkToLocation extends Table {
   public static WalkToLocation getRootAsWalkToLocation(ByteBuffer _bb) { return getRootAsWalkToLocation(_bb, new WalkToLocation()); }
   public static WalkToLocation getRootAsWalkToLocation(ByteBuffer _bb, WalkToLocation obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public WalkToLocation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public short x() { int o = __offset(4); return o != 0 ? bb.getShort(o + bb_pos) : 0; }
