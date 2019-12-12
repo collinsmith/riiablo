@@ -1,5 +1,6 @@
 package com.riiablo.screen;
 
+import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.Gdx;
@@ -12,14 +13,18 @@ import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.ClientEntityFactory;
 import com.riiablo.engine.client.ClientNetworkSyncronizer;
+import com.riiablo.engine.client.NetworkIdManager;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
+import com.riiablo.engine.server.component.Networked;
+import com.riiablo.engine.server.component.Player;
 import com.riiablo.map.Map;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
+import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.util.DebugUtils;
 
 import java.io.InputStream;
@@ -34,9 +39,16 @@ public class NetworkedGameScreen extends GameScreen {
 
   private Socket socket;
 
+  protected ComponentMapper<Networked> mNetworked;
+  protected ComponentMapper<Player> mPlayer;
+  protected NetworkIdManager sync;
+
   public NetworkedGameScreen(CharData charData, Socket socket) {
     super(charData, socket);
     this.socket = socket;
+    sync = engine.getSystem(NetworkIdManager.class);
+    mPlayer = engine.getMapper(Player.class);
+    mNetworked = engine.getMapper(Networked.class);
   }
 
   @Override
@@ -66,10 +78,19 @@ public class NetworkedGameScreen extends GameScreen {
     super.render(delta);
   }
 
+  @Override
+  public void dispose() {
+    super.dispose();
+    socket.dispose();
+  }
+
   private void process(D2GS packet) {
     switch (packet.dataType()) {
       case D2GSData.Connection:
         Connection(packet);
+        break;
+      case D2GSData.Disconnect:
+        Disconnect(packet);
         break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
@@ -91,6 +112,7 @@ public class NetworkedGameScreen extends GameScreen {
     if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
     Map.Zone zone = map.getZone(origin);
     int entityId = engine.getSystem(ClientEntityFactory.class).createPlayer(map, zone, charData, origin);
+    sync.put(connection.entityId(), entityId);
     Entity entity = engine.getEntity(entityId);
     int[] component = entity.getComponent(CofComponents.class).component;
     for (int i = 0; i < 16; i++) component[i] = connection.cofComponents(i);
@@ -119,5 +141,19 @@ public class NetworkedGameScreen extends GameScreen {
     System.out.println(Arrays.toString(component));
     System.out.println(Arrays.toString(alpha));
     System.out.println(DebugUtils.toByteArray(transform));
+  }
+
+  private void Disconnect(D2GS packet) {
+    Disconnect disconnect = (Disconnect) packet.data(new Disconnect());
+    int serverEntityId = disconnect.entityId();
+    System.out.println("serverEntityId=" + serverEntityId);
+    int entityId = sync.get(serverEntityId);
+
+    CharData data = mPlayer.get(entityId).data;
+
+    output.appendText(Riiablo.string.format(3642, data.getD2S().header.name));
+    output.appendText("\n");
+
+    engine.delete(entityId);
   }
 }

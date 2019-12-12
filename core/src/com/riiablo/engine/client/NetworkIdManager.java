@@ -25,4 +25,14 @@ public class NetworkIdManager extends BaseEntitySystem {
   protected void removed(int entityId) {
     serverToEntityId.remove(mNetworked.get(entityId).serverId, Engine.INVALID_ENTITY);
   }
+
+  public int get(int serverEntityId) {
+    return serverToEntityId.get(serverEntityId, Engine.INVALID_ENTITY);
+  }
+
+  public void put(int serverEntityId, int entityId) {
+    mNetworked.create(entityId).serverId = serverEntityId;
+    serverToEntityId.put(serverEntityId, entityId);
+    System.out.println("put " + serverEntityId + "->" + entityId);
+  }
 }

@@ -27,6 +27,8 @@ import java.nio.channels.WritableByteChannel;
 public class ClientNetworkSyncronizer extends BaseEntitySystem {
   private static final String TAG = "ClientNetworkSyncronizer";
 
+  protected NetworkIdManager idManager;
+
   boolean init = false;
   @Wire(name="client.socket") Socket socket;
 
@@ -88,7 +90,7 @@ public class ClientNetworkSyncronizer extends BaseEntitySystem {
       Connection connection = (Connection) response.data(new Connection());
       int serverId = connection.entityId();
       System.out.println("assign " + player + " to " + serverId);
-      player.getComponent(Networked.class).serverId = serverId;
+      idManager.put(connection.entityId(), Riiablo.game.player);
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
     }

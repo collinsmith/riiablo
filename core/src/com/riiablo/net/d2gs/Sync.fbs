@@ -1,0 +1,24 @@
+namespace com.riiablo.net.packet.d2gs;
+
+union SyncData {
+  CofComponents,
+  CofTransforms,
+  CofAlphas,
+}
+
+table Sync {
+  entityId:int32;
+  data:[SyncData];
+}
+
+table CofComponents {
+  component:[uint8];
+}
+
+table CofTransforms {
+  transform:[uint8];
+}
+
+table CofAlphas {
+  alpha:[float32];
+}

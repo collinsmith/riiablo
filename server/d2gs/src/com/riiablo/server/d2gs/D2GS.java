@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.riiablo.COFs;
 import com.riiablo.CharData;
@@ -37,6 +38,7 @@ import com.riiablo.map.Map;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GSData;
+import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.util.DebugUtils;
 
 import net.mostlyoriginal.api.event.common.EventSystem;
@@ -133,6 +135,7 @@ public class D2GS extends ApplicationAdapter {
   final BlockingQueue<Packet> packets = new ArrayBlockingQueue<>(32);
   final Collection<Packet> cache = new ArrayList<>();
   final BlockingQueue<Packet> outPackets = new ArrayBlockingQueue<>(32);
+  final IntIntMap player = new IntIntMap();
 
   FileHandle home;
   int seed;
@@ -342,6 +345,8 @@ public class D2GS extends ApplicationAdapter {
     Vector2 origin = new Vector2(132, 37); // FIXME: hacked for the time being
     Map.Zone zone = map.getZone(origin);
     int entityId = world.getSystem(ServerEntityFactory.class).createPlayer(map, zone, charData, origin);
+    player.put(packet.id, entityId);
+    Gdx.app.log(TAG, "  entityId=" + entityId);
 
     FlatBufferBuilder builder = new FlatBufferBuilder();
     Connection.startConnection(builder);
@@ -354,10 +359,61 @@ public class D2GS extends ApplicationAdapter {
     Packet response = Packet.obtain(1 << packet.id, responseData);
     outPackets.offer(response);
 
-    Packet broadcast = Packet.obtain(~(1 << packet.id), packet.data);
+    Synchronize(packet.id, entityId);
+    BroadcastConnect(packet.id, connection, charData, entityId);
+  }
+
+  private void BroadcastConnect(int id, Connection connection, CharData charData, int entityId) {
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    int charNameOffset = builder.createString(charData.getD2S().header.name);
+
+    byte[] components = new byte[16];
+    connection.cofComponentsAsByteBuffer().get(components);
+    int componentsOffset = Connection.createCofComponentsVector(builder, components);
+
+    float[] alphas = new float[16];
+    connection.cofAlphasAsByteBuffer().asFloatBuffer().get(alphas);
+    int alphasOffset = Connection.createCofAlphasVector(builder, alphas);
+
+    byte[] transforms = new byte[16];
+    connection.cofTransformsAsByteBuffer().get(transforms);
+    int transformsOffset = Connection.createCofTransformsVector(builder, transforms);
+
+    Connection.startConnection(builder);
+    Connection.addEntityId(builder, entityId);
+    Connection.addCharClass(builder, charData.getD2S().header.charClass);
+    Connection.addCharName(builder, charNameOffset);
+    Connection.addCofComponents(builder, componentsOffset);
+    Connection.addCofAlphas(builder, alphasOffset);
+    Connection.addCofTransforms(builder, transformsOffset);
+    int connectionOffset = Connection.endConnection(builder);
+    int offset = com.riiablo.net.packet.d2gs.D2GS.createD2GS(builder, D2GSData.Connection, connectionOffset);
+    builder.finish(offset);
+    com.riiablo.net.packet.d2gs.D2GS data = com.riiablo.net.packet.d2gs.D2GS.getRootAsD2GS(builder.dataBuffer());
+
+    Packet broadcast = Packet.obtain(~(1 << id), data);
     //broadcast.rewind = true;
     boolean success = outPackets.offer(broadcast);
     assert success;
+  }
+
+  private void Disconnect(int id) {
+    int entityId = player.get(id, Engine.INVALID_ENTITY);
+    assert entityId != Engine.INVALID_ENTITY;
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    int disconnectOffset = Disconnect.createDisconnect(builder, entityId);
+    int offset = com.riiablo.net.packet.d2gs.D2GS.createD2GS(builder, D2GSData.Disconnect, disconnectOffset);
+    builder.finish(offset);
+    ByteBuffer buffer = builder.dataBuffer();
+    com.riiablo.net.packet.d2gs.D2GS responseData = com.riiablo.net.packet.d2gs.D2GS.getRootAsD2GS(buffer);
+    Packet broadcast = Packet.obtain(~(1 << id), responseData);
+    outPackets.offer(broadcast);
+  }
+
+  private void Synchronize(int id, int entityId) {
+    FlatBufferBuilder builder = new FlatBufferBuilder(0);
+
+
   }
 
   static String generateClientName() {
@@ -413,6 +469,7 @@ public class D2GS extends ApplicationAdapter {
       Gdx.app.log(TAG, "closing socket...");
       if (socket != null) socket.dispose();
       CLIENTS.remove(this);
+      Disconnect(id);
     }
   }
 

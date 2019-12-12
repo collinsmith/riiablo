@@ -3,6 +3,7 @@ include "WalkToEntity.fbs";
 include "RunToLocation.fbs";
 include "RunToEntity.fbs";
 include "Connection.fbs";
+include "Disconnect.fbs";
 include "Sync.fbs";
 
 namespace com.riiablo.net.packet.d2gs;
@@ -14,6 +15,7 @@ union D2GSData {
   RunToEntity,
   Connection,
   Sync,
+  Disconnect,
 }
 
 table D2GS {
