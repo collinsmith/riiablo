@@ -2,6 +2,7 @@ package com.riiablo.server.d2gs;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 
+import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
@@ -34,11 +35,13 @@ import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ObjectInitializer;
 import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.ServerNetworkIdManager;
+import com.riiablo.engine.server.component.Networked;
 import com.riiablo.map.Map;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
+import com.riiablo.net.packet.d2gs.Sync;
 import com.riiablo.util.DebugUtils;
 
 import net.mostlyoriginal.api.event.common.EventSystem;
@@ -144,6 +147,11 @@ public class D2GS extends ApplicationAdapter {
   World world;
   Map map;
 
+  EntityFactory factory;
+  NetworkSynchronizer sync;
+
+  protected ComponentMapper<Networked> mNetworked;
+
   D2GS(FileHandle home, int seed, int diff) {
     this.home = home;
     this.seed = seed;
@@ -196,7 +204,8 @@ public class D2GS extends ApplicationAdapter {
 //    map.load();
 //    map.finishLoading();
 
-    EntityFactory factory = new ServerEntityFactory();
+    factory = new ServerEntityFactory();
+    sync = new NetworkSynchronizer();
     WorldConfigurationBuilder builder = new WorldConfigurationBuilder()
         .with(new EventSystem())
         .with(new ServerNetworkIdManager())
@@ -204,13 +213,17 @@ public class D2GS extends ApplicationAdapter {
         .with(new ObjectInitializer())
 
         .with(factory)
+        .with(sync)
         .with(new AnimDataResolver())
         ;
     WorldConfiguration config = builder.build()
         .register("map", map)
         .register("factory", factory)
+        .register("player", player)
+        .register("outPackets", outPackets)
         ;
     Riiablo.engine = world = new World(config);
+    mNetworked = world.getMapper(Networked.class);
     world.delta = Animation.FRAME_DURATION;
 
     clientThreads = new ThreadGroup("D2GSClients");
@@ -268,7 +281,8 @@ public class D2GS extends ApplicationAdapter {
   @Override
   public void render() {
     cache.clear();
-    packets.drainTo(cache);
+    int cached = packets.drainTo(cache);
+    if (cached > 0) Gdx.app.log(TAG, "processing " + cached + " packets");
     for (Packet packet : cache) {
       Gdx.app.log(TAG, "processing packet from " + packet.id);
       process(packet);
@@ -284,7 +298,6 @@ public class D2GS extends ApplicationAdapter {
         for (Client client : CLIENTS) {
           try {
             System.out.println("  dispatching packet to " + client.id);
-            if (packet.rewind) packet.data.getByteBuffer().rewind();
             client.send(packet.data);
           } catch (Throwable t) {
             Gdx.app.error(TAG, t.getMessage(), t);
@@ -295,7 +308,6 @@ public class D2GS extends ApplicationAdapter {
           if ((packet.id & flag) == flag && i < CLIENTS.size()) {
             try {
               System.out.println("  dispatching packet to " + i);
-              if (packet.rewind) packet.data.getByteBuffer().rewind();
               CLIENTS.get(i).send(packet.data);
             } catch (Throwable t) {
               Gdx.app.error(TAG, t.getMessage(), t);
@@ -313,6 +325,9 @@ public class D2GS extends ApplicationAdapter {
     switch (packet.data.dataType()) {
       case D2GSData.Connection:
         Connection(packet);
+        break;
+      case D2GSData.Sync:
+        Synchronize(packet);
         break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.data.dataType());
@@ -392,7 +407,6 @@ public class D2GS extends ApplicationAdapter {
     com.riiablo.net.packet.d2gs.D2GS data = com.riiablo.net.packet.d2gs.D2GS.getRootAsD2GS(builder.dataBuffer());
 
     Packet broadcast = Packet.obtain(~(1 << id), data);
-    //broadcast.rewind = true;
     boolean success = outPackets.offer(broadcast);
     assert success;
   }
@@ -410,9 +424,13 @@ public class D2GS extends ApplicationAdapter {
     outPackets.offer(broadcast);
   }
 
-  private void Synchronize(int id, int entityId) {
-    FlatBufferBuilder builder = new FlatBufferBuilder(0);
+  private void Synchronize(Packet packet) {
+    int entityId = player.get(packet.id, Engine.INVALID_ENTITY);
+    assert entityId != Engine.INVALID_ENTITY;
+    sync.sync(entityId, (Sync) packet.data.data(new Sync()));
+  }
 
+  private void Synchronize(int id, int entityId) {
 
   }
 
@@ -473,10 +491,9 @@ public class D2GS extends ApplicationAdapter {
     }
   }
 
-  private static class Packet {
+  public static class Packet {
     int id;
     com.riiablo.net.packet.d2gs.D2GS data;
-    boolean rewind = false;
 
     public static Packet obtain(int id, com.riiablo.net.packet.d2gs.D2GS data) {
       Packet packet = new Packet();

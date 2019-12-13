@@ -25,6 +25,9 @@ import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
+import com.riiablo.net.packet.d2gs.Sync;
+import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.util.ArrayUtils;
 import com.riiablo.util.DebugUtils;
 
 import java.io.InputStream;
@@ -42,11 +45,13 @@ public class NetworkedGameScreen extends GameScreen {
   protected ComponentMapper<Networked> mNetworked;
   protected ComponentMapper<Player> mPlayer;
   protected NetworkIdManager sync;
+  protected CofManager cofs;
 
   public NetworkedGameScreen(CharData charData, Socket socket) {
     super(charData, socket);
     this.socket = socket;
     sync = engine.getSystem(NetworkIdManager.class);
+    cofs = engine.getSystem(CofManager.class);
     mPlayer = engine.getMapper(Player.class);
     mNetworked = engine.getMapper(Networked.class);
   }
@@ -91,6 +96,9 @@ public class NetworkedGameScreen extends GameScreen {
         break;
       case D2GSData.Disconnect:
         Disconnect(packet);
+        break;
+      case D2GSData.Sync:
+        Synchronize(packet);
         break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
@@ -138,9 +146,9 @@ public class NetworkedGameScreen extends GameScreen {
     cofs.updateTransform(entityId, transformFlags);
     cofs.setMode(entityId, Engine.Player.MODE_TN, true);
 
-    System.out.println(Arrays.toString(component));
-    System.out.println(Arrays.toString(alpha));
-    System.out.println(DebugUtils.toByteArray(transform));
+    System.out.println("  " + DebugUtils.toByteArray(ArrayUtils.toByteArray(component)));
+    System.out.println("  " + Arrays.toString(alpha));
+    System.out.println("  " + DebugUtils.toByteArray(transform));
   }
 
   private void Disconnect(D2GS packet) {
@@ -155,5 +163,44 @@ public class NetworkedGameScreen extends GameScreen {
     output.appendText("\n");
 
     engine.delete(entityId);
+  }
+
+  private void Synchronize(D2GS packet) {
+    Sync s = (Sync) packet.data(new Sync());
+    int entityId = sync.get(s.entityId());
+    if (entityId == Engine.INVALID_ENTITY) return;
+
+    int flags1 = Dirty.NONE;
+    int flags2 = Dirty.NONE;
+    Gdx.app.log(TAG, "syncing " + entityId);
+    for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
+      System.out.println(SyncData.name(s.dataType(i)));
+      switch (s.dataType(i)) {
+        case SyncData.CofComponents: {
+          com.riiablo.net.packet.d2gs.CofComponents data = (com.riiablo.net.packet.d2gs.CofComponents) s.data(new com.riiablo.net.packet.d2gs.CofComponents(), i);
+          for (int j = 0, s0 = data.componentLength(); j < s0; j++) {
+            cofs.setComponent(entityId, j, data.component(j));
+          }
+          break;
+        }
+        case SyncData.CofTransforms: {
+          com.riiablo.net.packet.d2gs.CofTransforms data = (com.riiablo.net.packet.d2gs.CofTransforms) s.data(new com.riiablo.net.packet.d2gs.CofTransforms(), i);
+          for (int j = 0, s0 = data.transformLength(); j < s0; j++) {
+            flags1 |= cofs.setTransform(entityId, j, (byte) data.transform(j));
+          }
+          break;
+        }
+        case SyncData.CofAlphas: {
+          com.riiablo.net.packet.d2gs.CofAlphas data = (com.riiablo.net.packet.d2gs.CofAlphas) s.data(new com.riiablo.net.packet.d2gs.CofAlphas(), i);
+          for (int j = 0, s0 = data.alphaLength(); j < s0; j++) {
+            flags2 |= cofs.setAlpha(entityId, j, data.alpha(j));
+          }
+          break;
+        }
+      }
+    }
+
+    cofs.updateTransform(entityId, flags1);
+    cofs.updateAlpha(entityId, flags2);
   }
 }
