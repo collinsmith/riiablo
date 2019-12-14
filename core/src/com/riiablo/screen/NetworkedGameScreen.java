@@ -174,7 +174,6 @@ public class NetworkedGameScreen extends GameScreen {
     int flags2 = Dirty.NONE;
     Gdx.app.log(TAG, "syncing " + entityId);
     for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
-      System.out.println(SyncData.name(s.dataType(i)));
       switch (s.dataType(i)) {
         case SyncData.CofComponents: {
           com.riiablo.net.packet.d2gs.CofComponents data = (com.riiablo.net.packet.d2gs.CofComponents) s.data(new com.riiablo.net.packet.d2gs.CofComponents(), i);
@@ -197,6 +196,8 @@ public class NetworkedGameScreen extends GameScreen {
           }
           break;
         }
+        default:
+          Gdx.app.error(TAG, "Unknown packet type: " + SyncData.name(s.dataType(i)));
       }
     }
 

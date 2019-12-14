@@ -41,7 +41,7 @@ public class NetworkSynchronizer extends IteratingSystem {
   @Override
   protected void process(int entityId) {
     com.riiablo.net.packet.d2gs.D2GS sync = sync(entityId);
-    int id = player.get(entityId, -1);
+    int id = player.findKey(entityId, -1);
     assert id != -1;
     boolean success = outPackets.offer(D2GS.Packet.obtain(~(1 << id), sync));
     assert success;
@@ -89,9 +89,8 @@ public class NetworkSynchronizer extends IteratingSystem {
   }
 
   public void sync(int entityId, Sync sync) {
-    Gdx.app.log(TAG, "syncing " + sync.entityId());
+    Gdx.app.log(TAG, "syncing " + entityId);
     for (int i = 0, len = sync.dataTypeLength(); i < len; i++) {
-      System.out.println(SyncData.name(sync.dataType(i)));
       switch (sync.dataType(i)) {
         case SyncData.CofComponents: {
           int[] component = mCofComponents.get(entityId).component;
@@ -120,6 +119,8 @@ public class NetworkSynchronizer extends IteratingSystem {
           Gdx.app.log(TAG, "  " + Arrays.toString(alpha));
           break;
         }
+        default:
+          Gdx.app.error(TAG, "Unknown packet type: " + SyncData.name(sync.dataType(i)));
       }
     }
   }
