@@ -8,8 +8,11 @@ public final class SyncData {
   public static final byte CofComponents = 1;
   public static final byte CofTransforms = 2;
   public static final byte CofAlphas = 3;
+  public static final byte Position = 4;
+  public static final byte Velocity = 5;
+  public static final byte Angle = 6;
 
-  public static final String[] names = { "NONE", "CofComponents", "CofTransforms", "CofAlphas", };
+  public static final String[] names = { "NONE", "CofComponents", "CofTransforms", "CofAlphas", "Position", "Velocity", "Angle", };
 
   public static String name(int e) { return names[e]; }
 }

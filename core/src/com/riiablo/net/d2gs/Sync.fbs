@@ -4,6 +4,9 @@ union SyncData {
   CofComponents,
   CofTransforms,
   CofAlphas,
+  Position,
+  Velocity,
+  Angle,
 }
 
 table Sync {
@@ -21,4 +24,19 @@ table CofTransforms {
 
 table CofAlphas {
   alpha:[float32];
+}
+
+table Position {
+  x:float32;
+  y:float32;
+}
+
+table Velocity {
+  x:float32;
+  y:float32;
+}
+
+table Angle {
+  x:float32;
+  y:float32;
 }

@@ -8,12 +8,16 @@ import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.riiablo.Riiablo;
+import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.Networked;
+import com.riiablo.engine.server.component.Position;
+import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
@@ -34,6 +38,9 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
   protected ComponentMapper<CofComponents> mCofComponents;
   protected ComponentMapper<CofTransforms> mCofTransforms;
   protected ComponentMapper<CofAlphas> mCofAlphas;
+  protected ComponentMapper<Position> mPosition;
+  protected ComponentMapper<Velocity> mVelocity;
+  protected ComponentMapper<Angle> mAngle;
 
   protected NetworkIdManager idManager;
 
@@ -117,21 +124,30 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
 
     byte[] transform = mCofTransforms.get(entityId).transform;
     float[] alpha = mCofAlphas.get(entityId).alpha;
+    Vector2 position = mPosition.get(entityId).position;
+    Vector2 velocity = mVelocity.get(entityId).velocity;
+    Vector2 angle = mAngle.get(entityId).target;
 
     int cofComponents = com.riiablo.net.packet.d2gs.CofComponents.createComponentVector(builder, component);
     int cofTransforms = com.riiablo.net.packet.d2gs.CofTransforms.createTransformVector(builder, transform);
     int cofAlphas = com.riiablo.net.packet.d2gs.CofAlphas.createAlphaVector(builder, alpha);
 
-    byte[] dataTypes = new byte[3];
+    byte[] dataTypes = new byte[6];
     dataTypes[0] = SyncData.CofComponents;
     dataTypes[1] = SyncData.CofTransforms;
     dataTypes[2] = SyncData.CofAlphas;
+    dataTypes[3] = SyncData.Position;
+    dataTypes[4] = SyncData.Velocity;
+    dataTypes[5] = SyncData.Angle;
     int dataTypesOffset = Sync.createDataTypeVector(builder, dataTypes);
 
-    int[] data = new int[3];
+    int[] data = new int[6];
     data[0] = com.riiablo.net.packet.d2gs.CofComponents.createCofComponents(builder, cofComponents);
     data[1] = com.riiablo.net.packet.d2gs.CofTransforms.createCofTransforms(builder, cofTransforms);
     data[2] = com.riiablo.net.packet.d2gs.CofAlphas.createCofAlphas(builder, cofAlphas);
+    data[3] = com.riiablo.net.packet.d2gs.Position.createPosition(builder, position.x, position.y);
+    data[4] = com.riiablo.net.packet.d2gs.Velocity.createVelocity(builder, velocity.x, velocity.y);
+    data[5] = com.riiablo.net.packet.d2gs.Angle.createAngle(builder, angle.x, angle.y);
     int dataOffset = Sync.createDataVector(builder, data);
 
     Sync.startSync(builder);

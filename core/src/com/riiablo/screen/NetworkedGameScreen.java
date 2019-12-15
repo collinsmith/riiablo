@@ -6,6 +6,7 @@ import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -15,11 +16,15 @@ import com.riiablo.engine.client.ClientEntityFactory;
 import com.riiablo.engine.client.ClientNetworkSyncronizer;
 import com.riiablo.engine.client.NetworkIdManager;
 import com.riiablo.engine.server.CofManager;
+import com.riiablo.engine.server.component.Angle;
+import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.engine.server.component.Player;
+import com.riiablo.engine.server.component.Position;
+import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.map.Map;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
@@ -194,6 +199,32 @@ public class NetworkedGameScreen extends GameScreen {
           for (int j = 0, s0 = data.alphaLength(); j < s0; j++) {
             flags2 |= cofs.setAlpha(entityId, j, data.alpha(j));
           }
+          break;
+        }
+        case SyncData.Position: {
+          Vector2 position = engine.getMapper(Position.class).get(entityId).position;
+          com.riiablo.net.packet.d2gs.Position data = (com.riiablo.net.packet.d2gs.Position) s.data(new com.riiablo.net.packet.d2gs.Position(), i);
+          position.x = data.x();
+          position.y = data.y();
+          Body body = engine.getMapper(Box2DBody.class).get(entityId).body;
+          body.setTransform(position, body.getAngle());
+          Gdx.app.log(TAG, "  " + position);
+          break;
+        }
+        case SyncData.Velocity: {
+          Vector2 velocity = engine.getMapper(Velocity.class).get(entityId).velocity;
+          com.riiablo.net.packet.d2gs.Velocity data = (com.riiablo.net.packet.d2gs.Velocity) s.data(new com.riiablo.net.packet.d2gs.Velocity(), i);
+          velocity.x = data.x();
+          velocity.y = data.y();
+          Gdx.app.log(TAG, "  " + velocity);
+          break;
+        }
+        case SyncData.Angle: {
+          Vector2 angle = engine.getMapper(Angle.class).get(entityId).target;
+          com.riiablo.net.packet.d2gs.Angle data = (com.riiablo.net.packet.d2gs.Angle) s.data(new com.riiablo.net.packet.d2gs.Angle(), i);
+          angle.x = data.x();
+          angle.y = data.y();
+          Gdx.app.log(TAG, "  " + angle);
           break;
         }
         default:
