@@ -79,17 +79,17 @@ public class ServerEntityFactory extends EntityFactory {
   }
 
   @Override
-  public int createDynamicObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
+  public int createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  public int createStaticObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
+  public int createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.STATIC_TYPE;
-    int objectType = Riiablo.files.obj.getType2(ds1.getAct(), object.id);
+    int objectType = Riiablo.files.obj.getType2(preset.getDS1().getAct(), object.id);
     Objects.Entry base = Riiablo.files.objects.get(objectType);
     if (base == null) {
-      Gdx.app.error(TAG, "Unknown static entity id: " + objectType + "; object=" + object);
+      Gdx.app.error(TAG, "Unknown static entity id: " + objectType + "; " + preset + "; object=" + object);
       return Engine.INVALID_ENTITY;
     }
 
@@ -119,7 +119,7 @@ public class ServerEntityFactory extends EntityFactory {
     }
 
     DS1ObjectWrapper ds1ObjectWrapper = mDS1ObjectWrapper.create(id);
-    ds1ObjectWrapper.ds1 = ds1;
+    ds1ObjectWrapper.ds1 = preset.getDS1();
     ds1ObjectWrapper.object = object;
 
     if (base.Draw) {

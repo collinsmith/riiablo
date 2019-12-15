@@ -22,12 +22,12 @@ public abstract class EntityFactory extends PassiveSystem {
   protected ComponentMapper<Classname> mClassname;
   protected ComponentMapper<MapWrapper> mMapWrapper;
 
-  public final int createObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y) {
+  public final int createObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     switch (object.type) {
       case DS1.Object.DYNAMIC_TYPE:
-        return createDynamicObject(map, zone, ds1, object, x, y);
+        return createDynamicObject(map, zone, preset, object, x, y);
       case DS1.Object.STATIC_TYPE:
-        return createStaticObject(map, zone, ds1, object, x, y);
+        return createStaticObject(map, zone, preset, object, x, y);
       default:
         Gdx.app.error(TAG, "Unexpected ds1 object type: " + object.type);
         return Engine.INVALID_ENTITY;
@@ -50,8 +50,8 @@ public abstract class EntityFactory extends PassiveSystem {
   }
 
   public abstract int createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position);
-  public abstract int createDynamicObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y);
-  public abstract int createStaticObject(Map map, Map.Zone zone, DS1 ds1, DS1.Object object, float x, float y);
+  public abstract int createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y);
+  public abstract int createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y);
   public abstract int createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y);
   public abstract int createWarp(Map map, Map.Zone zone, int index, float x, float y);
   public abstract int createItem(Item item, Vector2 position);

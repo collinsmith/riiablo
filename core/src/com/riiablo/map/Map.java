@@ -698,7 +698,7 @@ public class Map implements Disposable {
       dt1s = null; // TODO: setting null -- depending on Map dispose to clear DT1s on act change
       town = false;
       entities = EMPTY_ENTITY_ARRAY;
-//      warps = EMPTY_INT_INT_MAP;
+      warps = EMPTY_INT_INT_MAP;
       generator = EMPTY_GENERATOR;
       specials = EMPTY_INT_CELL_MAP;
     }
@@ -892,7 +892,7 @@ public class Map implements Disposable {
     }
   }
 
-  static class Preset implements Disposable {
+  public static class Preset implements Disposable {
     LvlPrest.Entry preset;
     String         ds1Path;
     DS1            ds1;
@@ -934,6 +934,10 @@ public class Map implements Disposable {
       }
 
       return numFiles;
+    }
+
+    public DS1 getDS1() {
+      return ds1;
     }
 
     @Override
@@ -1128,7 +1132,7 @@ public class Map implements Disposable {
       final int y = zone.y + (ty * DT1.Tile.SUBTILE_SIZE);
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        int entityId = Riiablo.engine.getSystem(ClientEntityFactory.class).createObject(zone.map, zone, ds1, obj, x + obj.x, y + obj.y);
+        int entityId = Riiablo.engine.getSystem(ClientEntityFactory.class).createObject(zone.map, zone, this, obj, x + obj.x, y + obj.y);
         zone.addEntity(entityId); // FIXME: waypoints are placed correctly when adding 0.25f to ds1 object position -- is this consistent with others?
       }
     }
@@ -1156,7 +1160,7 @@ public class Map implements Disposable {
       }
     }
 
-    public void updatePopPads(Bits bits, int x, int y) {
+    void updatePopPads(Bits bits, int x, int y) {
       if (popPads == null) return;
       for (PopPad popPad : popPads.values()) {
         if (popPad.contains(x, y)) {
