@@ -94,6 +94,18 @@ public class Class extends Component {
     public int getComponent(String comp) {
       return COMPS.get(comp.toLowerCase(), -1);
     }
+
+    public static Type valueOf(int i) {
+      switch (i) {
+        case 0:  return OBJ;
+        case 1:  return MON;
+        case 2:  return PLR;
+        case 3:  return ITM;
+        case 4:  return WRP;
+        case 5:  return MIS;
+        default: throw new AssertionError("Unknown type id: " + i);
+      }
+    }
   }
 
   public Type type;

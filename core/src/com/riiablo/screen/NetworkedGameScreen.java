@@ -170,10 +170,32 @@ public class NetworkedGameScreen extends GameScreen {
     engine.delete(entityId);
   }
 
+  private com.riiablo.net.packet.d2gs.Player findPlayer(Sync s) {
+    for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
+      if (s.dataType(i) == SyncData.Player) {
+        return (com.riiablo.net.packet.d2gs.Player) s.data(new com.riiablo.net.packet.d2gs.Player(), i);
+      }
+    }
+
+    return null;
+  }
+
   private void Synchronize(D2GS packet) {
     Sync s = (Sync) packet.data(new Sync());
     int entityId = sync.get(s.entityId());
-    if (entityId == Engine.INVALID_ENTITY) return;
+    if (entityId == Engine.INVALID_ENTITY) {
+      com.riiablo.net.packet.d2gs.Player player = findPlayer(s);
+      CharData charData = new CharData().createD2S(player.charName(), CharacterClass.get(player.charClass()));
+
+      // TODO: assert entity id is player
+      // TODO: add support for other entity types
+      Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+      if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
+      if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
+      Map.Zone zone = map.getZone(origin);
+      entityId = factory.createPlayer(map, zone, charData, origin);
+      sync.put(s.entityId(), entityId);
+    }
 
     int flags1 = Dirty.NONE;
     int flags2 = Dirty.NONE;

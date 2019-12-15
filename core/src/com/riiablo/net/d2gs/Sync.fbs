@@ -1,17 +1,23 @@
 namespace com.riiablo.net.packet.d2gs;
 
 union SyncData {
+  Class,
   CofComponents,
   CofTransforms,
   CofAlphas,
   Position,
   Velocity,
   Angle,
+  Player,
 }
 
 table Sync {
   entityId:int32;
   data:[SyncData];
+}
+
+table Class {
+  type:uint8;
 }
 
 table CofComponents {
@@ -39,4 +45,9 @@ table Velocity {
 table Angle {
   x:float32;
   y:float32;
+}
+
+table Player {
+  charClass:uint8;
+  charName:string;
 }

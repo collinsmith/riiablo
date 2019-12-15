@@ -378,6 +378,10 @@ public class D2GS extends ApplicationAdapter {
     BroadcastConnect(packet.id, connection, charData, entityId);
   }
 
+  private void Synchronize(int id, int entityId) {
+
+  }
+
   private void BroadcastConnect(int id, Connection connection, CharData charData, int entityId) {
     FlatBufferBuilder builder = new FlatBufferBuilder();
     int charNameOffset = builder.createString(charData.getD2S().header.name);
@@ -435,10 +439,6 @@ public class D2GS extends ApplicationAdapter {
     int entityId = player.get(packet.id, Engine.INVALID_ENTITY);
     assert entityId != Engine.INVALID_ENTITY;
     sync.sync(entityId, (Sync) packet.data.data(new Sync()));
-  }
-
-  private void Synchronize(int id, int entityId) {
-
   }
 
   static String generateClientName() {

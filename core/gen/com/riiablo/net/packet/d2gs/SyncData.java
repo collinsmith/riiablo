@@ -5,14 +5,16 @@ package com.riiablo.net.packet.d2gs;
 public final class SyncData {
   private SyncData() { }
   public static final byte NONE = 0;
-  public static final byte CofComponents = 1;
-  public static final byte CofTransforms = 2;
-  public static final byte CofAlphas = 3;
-  public static final byte Position = 4;
-  public static final byte Velocity = 5;
-  public static final byte Angle = 6;
+  public static final byte Class = 1;
+  public static final byte CofComponents = 2;
+  public static final byte CofTransforms = 3;
+  public static final byte CofAlphas = 4;
+  public static final byte Position = 5;
+  public static final byte Velocity = 6;
+  public static final byte Angle = 7;
+  public static final byte Player = 8;
 
-  public static final String[] names = { "NONE", "CofComponents", "CofTransforms", "CofAlphas", "Position", "Velocity", "Angle", };
+  public static final String[] names = { "NONE", "Class", "CofComponents", "CofTransforms", "CofAlphas", "Position", "Velocity", "Angle", "Player", };
 
   public static String name(int e) { return names[e]; }
 }
