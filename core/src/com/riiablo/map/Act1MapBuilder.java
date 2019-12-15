@@ -70,7 +70,7 @@ public enum Act1MapBuilder implements MapBuilder {
     zone.presets[2][zone.gridsY - 1] = SB;
     zone.presets[3][zone.gridsY - 1] = LB;
 
-    zone.presets[6][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(47), 1);
+    zone.presets[6][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(48), 1);
 
     // ID_VIS_5_42
     zone.presets[5][zone.gridsY - 2] = Preset.of(Riiablo.files.LvlPrest.get(52), 0);
