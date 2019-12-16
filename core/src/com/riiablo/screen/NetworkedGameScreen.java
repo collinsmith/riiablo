@@ -136,7 +136,6 @@ public class NetworkedGameScreen extends GameScreen {
 
     int alphaFlags = Dirty.NONE;
     int transformFlags = Dirty.NONE;
-    CofManager cofs = engine.getSystem(CofManager.class);
     cofs.setMode(entityId, Engine.Player.MODE_TN);
     cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
     for (int i = 0; i < 16; i++) {
@@ -195,6 +194,9 @@ public class NetworkedGameScreen extends GameScreen {
       Map.Zone zone = map.getZone(origin);
       entityId = factory.createPlayer(map, zone, charData, origin);
       sync.put(s.entityId(), entityId);
+
+      cofs.setMode(entityId, Engine.Player.MODE_TN);
+      cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
     }
 
     int flags1 = Dirty.NONE;
@@ -202,6 +204,9 @@ public class NetworkedGameScreen extends GameScreen {
     Gdx.app.log(TAG, "syncing " + entityId);
     for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
       switch (s.dataType(i)) {
+        case SyncData.Class:
+        case SyncData.Player:
+          break;
         case SyncData.CofComponents: {
           com.riiablo.net.packet.d2gs.CofComponents data = (com.riiablo.net.packet.d2gs.CofComponents) s.data(new com.riiablo.net.packet.d2gs.CofComponents(), i);
           for (int j = 0, s0 = data.componentLength(); j < s0; j++) {
@@ -230,7 +235,7 @@ public class NetworkedGameScreen extends GameScreen {
           position.y = data.y();
           Body body = engine.getMapper(Box2DBody.class).get(entityId).body;
           body.setTransform(position, body.getAngle());
-          Gdx.app.log(TAG, "  " + position);
+          //Gdx.app.log(TAG, "  " + position);
           break;
         }
         case SyncData.Velocity: {
@@ -238,7 +243,7 @@ public class NetworkedGameScreen extends GameScreen {
           com.riiablo.net.packet.d2gs.Velocity data = (com.riiablo.net.packet.d2gs.Velocity) s.data(new com.riiablo.net.packet.d2gs.Velocity(), i);
           velocity.x = data.x();
           velocity.y = data.y();
-          Gdx.app.log(TAG, "  " + velocity);
+          //Gdx.app.log(TAG, "  " + velocity);
           break;
         }
         case SyncData.Angle: {
@@ -246,7 +251,7 @@ public class NetworkedGameScreen extends GameScreen {
           com.riiablo.net.packet.d2gs.Angle data = (com.riiablo.net.packet.d2gs.Angle) s.data(new com.riiablo.net.packet.d2gs.Angle(), i);
           angle.x = data.x();
           angle.y = data.y();
-          Gdx.app.log(TAG, "  " + angle);
+          //Gdx.app.log(TAG, "  " + angle);
           break;
         }
         default:
