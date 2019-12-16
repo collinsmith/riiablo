@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.riiablo.util.BufferUtils;
+import com.riiablo.util.DebugUtils;
 
 import org.apache.commons.io.EndianUtils;
 import org.apache.commons.io.IOUtils;
@@ -29,8 +30,9 @@ public class DS1 {
   private static final boolean DEBUG_OBJECTS = DEBUG && true;
   private static final boolean DEBUG_GROUPS  = DEBUG && true;
   private static final boolean DEBUG_PATHS   = DEBUG && true;
-  private static final boolean DEBUG_STREAM  = DEBUG && true;
   private static final boolean DEBUG_PROPS   = DEBUG && true;
+
+  private static final boolean DEBUG_STREAM = true;
 
   private static final int ACT_MAX = 5;
 
@@ -51,6 +53,8 @@ public class DS1 {
   private static final int SHADOW_OFFSET = FLOOR_OFFSET  + MAX_FLOORS;
   private static final int TAG_OFFSET    = SHADOW_OFFSET + MAX_SHADOWS;
   private static final int MAX_LAYERS    = TAG_OFFSET    + MAX_TAGS;
+
+  String fileName;
 
   int    version;
   int    width;
@@ -93,6 +97,7 @@ public class DS1 {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
+        .append("fileName", fileName)
         .append("version", version)
         .append("width", width)
         .append("height", height)
@@ -128,22 +133,26 @@ public class DS1 {
     return specials.get(id);
   }
 
-  private DS1() {}
+  private DS1(String fileName) {
+    this.fileName = fileName;
+  }
 
   public static DS1 loadFromFile(FileHandle handle) {
     return loadFromStream(handle.toString(), handle.read());
   }
 
-  public static DS1 loadFromStream(String name, InputStream in) {
+  public static DS1 loadFromStream(String fileName, InputStream in) {
     try {
       in = IOUtils.buffer(in, 8192);
-      DS1 ds1 = new DS1().read(in);
+      DS1 ds1 = new DS1(fileName).read(in);
       if (DEBUG) Gdx.app.debug(TAG, ds1.toString());
       if (ds1.version < 9 || 13 < ds1.version) {
         assert in.available() == 0 : in.available() + "B available!";
       } else if (DEBUG_STREAM && in.available() > 0) {
         // FIXME: version 9 <= 13 causes crash here /w 4B remaining, why? always 0?
-        Gdx.app.error(TAG, name + " " + in.available() + "B still available in stream! version=" + ds1.version/* + "; " + EndianUtils.readSwappedInteger(in)*/);
+        byte[] data = new byte[in.available()];
+        in.read(data);
+        Gdx.app.error(TAG, fileName + " " + data.length + "B still available in stream! version=" + ds1.version + "; " + DebugUtils.toByteArray(data));
       }
 
       return ds1;
