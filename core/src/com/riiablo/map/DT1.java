@@ -27,7 +27,7 @@ import java.util.Arrays;
 // TODO: In production, skip unused data (zeros/unknowns)
 public class DT1 implements Disposable {
   private static final String TAG = "DT1";
-  private static final boolean DEBUG               = true;
+  private static final boolean DEBUG               = !true;
   private static final boolean DEBUG_TILE_HEADERS  = DEBUG && !true;
   private static final boolean DEBUG_BLOCK_HEADERS = DEBUG && !true;
 

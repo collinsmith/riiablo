@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 public class DS1 {
   private static final String TAG = "DS1";
-  private static final boolean DEBUG         = true;
+  private static final boolean DEBUG         = !true;
   private static final boolean DEBUG_FILES   = DEBUG && true;
   private static final boolean DEBUG_SIZES   = DEBUG && true;
   private static final boolean DEBUG_LAYERS  = DEBUG && true;
