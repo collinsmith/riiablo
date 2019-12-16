@@ -150,8 +150,7 @@ public class DS1 {
         assert in.available() == 0 : in.available() + "B available!";
       } else if (DEBUG_STREAM && in.available() > 0) {
         // FIXME: version 9 <= 13 causes crash here /w 4B remaining, why? always 0?
-        byte[] data = new byte[in.available()];
-        in.read(data);
+        byte[] data = IOUtils.readFully(in, in.available());
         Gdx.app.error(TAG, fileName + " " + data.length + "B still available in stream! version=" + ds1.version + "; " + DebugUtils.toByteArray(data));
       }
 
