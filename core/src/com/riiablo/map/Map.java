@@ -25,7 +25,7 @@ import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
 import com.riiablo.codec.excel.LvlTypes;
 import com.riiablo.engine.Engine;
-import com.riiablo.engine.client.ClientEntityFactory;
+import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.component.Warp;
 import com.riiablo.map.pfa.AStarPathFinder;
 import com.riiablo.map.pfa.Point2;
@@ -322,6 +322,9 @@ public class Map implements Disposable {
 
   final IntMap<DT1s> dt1s = new IntMap<>();
   final Array<Zone> zones = new Array<>(); // TODO: replace with R-tree? https://en.wikipedia.org/wiki/R-tree
+
+  ComponentMapper<Warp> mWarp;
+  EntityFactory factory;
 
   public Map(int seed, int diff) {
     this.seed = seed;
@@ -765,7 +768,7 @@ public class Map implements Disposable {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
       if (entities == EMPTY_ENTITY_ARRAY) entities = new IntArray();
-      int entity = Riiablo.engine.getSystem(ClientEntityFactory.class).createWarp(map, this, index, x, y);
+      int entity = map.factory.createWarp(map, this, index, x, y);
       entities.add(entity);
     }
 
@@ -779,10 +782,9 @@ public class Map implements Disposable {
     }
 
     public int findWarp(int id) {
-      ComponentMapper<Warp> mWarp = Riiablo.engine.getMapper(Warp.class);
       for (int i = 0, size = entities.size; i < size; i++) {
         int entityId = entities.get(i);
-        Warp warp = mWarp.get(entityId);
+        Warp warp = map.mWarp.get(entityId);
         if (warp != null && warp.index == id) {
           return entityId;
         }
@@ -1132,7 +1134,7 @@ public class Map implements Disposable {
       final int y = zone.y + (ty * DT1.Tile.SUBTILE_SIZE);
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        int entityId = Riiablo.engine.getSystem(ClientEntityFactory.class).createObject(zone.map, zone, this, obj, x + obj.x, y + obj.y);
+        int entityId = zone.map.factory.createObject(zone.map, zone, this, obj, x + obj.x, y + obj.y);
         zone.addEntity(entityId); // FIXME: waypoints are placed correctly when adding 0.25f to ds1 object position -- is this consistent with others?
       }
     }

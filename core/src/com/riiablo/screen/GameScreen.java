@@ -497,9 +497,10 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     engine = Riiablo.engine = new World(config);
 
     // hacked until I can rewrite into proper system
-    engine.getInjector().inject(Act1MapBuilder.INSTANCE);
+    engine.inject(map);
+    engine.inject(Act1MapBuilder.INSTANCE);
 
-    if (mobileControls != null) engine.getInjector().inject(mobileControls);
+    if (mobileControls != null) engine.inject(mobileControls);
 
     loadingScreen = new GameLoadingScreen(map, getDependencies());
   }
