@@ -31,7 +31,7 @@ public class DT1Loader extends AsynchronousAssetLoader<DT1, DT1Loader.DT1LoaderP
     }
 
     dt1.prepareTextures();
-    if (params != null) params.dt1s.add(dt1);
+//    if (params != null) params.dt1s.add(dt1); // See below note
     return dt1;
   }
 
@@ -41,13 +41,14 @@ public class DT1Loader extends AsynchronousAssetLoader<DT1, DT1Loader.DT1LoaderP
   }
 
   public static class DT1LoaderParameters extends AssetLoaderParameters<DT1> {
-    public DT1s dt1s;
-
-    public static DT1LoaderParameters newInstance(DT1s dt1s) {
-      DT1LoaderParameters params = new DT1LoaderParameters();
-      params.dt1s = dt1s;
-      return params;
-    }
+// This was never implemented -- should be handled by map -- kept in case it is eventually needed
+//    public DT1s dt1s;
+//
+//    public static DT1LoaderParameters newInstance(DT1s dt1s) {
+//      DT1LoaderParameters params = new DT1LoaderParameters();
+//      params.dt1s = dt1s;
+//      return params;
+//    }
   }
 
 }

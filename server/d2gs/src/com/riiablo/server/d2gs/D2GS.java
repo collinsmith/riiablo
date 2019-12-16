@@ -36,6 +36,10 @@ import com.riiablo.engine.server.ObjectInitializer;
 import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.component.Networked;
+import com.riiablo.map.DS1;
+import com.riiablo.map.DS1Loader;
+import com.riiablo.map.DT1;
+import com.riiablo.map.DT1Loader;
 import com.riiablo.map.Map;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.net.packet.d2gs.Connection;
@@ -186,6 +190,11 @@ public class D2GS extends ApplicationAdapter {
     Riiablo.cofs = new COFs(Riiablo.assets); // TODO: not needed in prod
     Riiablo.anim = D2.loadFromFile(Riiablo.mpqs.resolve("data\\global\\eanimdata.d2"));
 
+    // set DT1 to headless mode
+    DT1.loadData = false;
+    Riiablo.assets.setLoader(DS1.class, new DS1Loader(Riiablo.mpqs));
+    Riiablo.assets.setLoader(DT1.class, new DT1Loader(Riiablo.mpqs));
+
     if (seed == 0) {
       Gdx.app.log(TAG, "Generating seed...");
       seed = 0;
@@ -199,11 +208,9 @@ public class D2GS extends ApplicationAdapter {
     map.generate(0);
     Gdx.app.log(TAG, "  act 1 generated in " + (TimeUtils.millis() - start) + "ms");
 
-//    Gdx.app.log(TAG, "Loading act 1...");
-//    Riiablo.assets.setLoader(DS1.class, new DS1Loader(Riiablo.mpqs));
-//    Riiablo.assets.setLoader(DT1.class, new DT1Loader(Riiablo.mpqs));
-//    map.load();
-//    map.finishLoading();
+    Gdx.app.log(TAG, "Loading act 1...");
+    map.load();
+    map.finishLoading();
 
     factory = new ServerEntityFactory();
     sync = new NetworkSynchronizer();

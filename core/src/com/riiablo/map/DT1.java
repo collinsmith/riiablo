@@ -34,6 +34,9 @@ public class DT1 implements Disposable {
   private static final int X_JUMP[] = { 14, 12, 10, 8, 6, 4, 2, 0, 2, 4, 6, 8, 10, 12, 14 };
   private static final int PIXEL_WIDTH[] = { 4, 8, 12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4 };
 
+  // Used to disable loading GL data for textures in headless mode
+  public static boolean loadData = true;
+
   String  fileName;
   Header  header;
   Tile    tiles[];
@@ -54,16 +57,19 @@ public class DT1 implements Disposable {
   }
 
   public TextureRegion getTexture(int i) {
+    assert loadData : "GL function called in non-GL mode";
     return tiles[i].texture;
   }
 
   @Override
   public void dispose() {
+    if (!loadData) return;
     if (textures == null) return;
     for (Texture texture : textures) texture.dispose();
   }
 
   public void prepareTextures() {
+    if (!loadData) return;
     Validate.validState(textures == null, "textures have already been prepared");
     textures = new Texture[header.numTiles];
     for (int i = 0; i < header.numTiles; i++) {
@@ -94,6 +100,7 @@ public class DT1 implements Disposable {
         if (DEBUG_TILE_HEADERS) Gdx.app.debug(TAG, tile.toString());
       }
 
+      if (loadData) {
       for (Tile tile : tiles) {
         Block[] blockHeaders = tile.blocks = new Block[tile.numBlocks];
         for (int i = 0; i < tile.numBlocks; i++) {
@@ -109,6 +116,7 @@ public class DT1 implements Disposable {
       }
 
       assert in.available() == 0;
+      }
       return new DT1(fileName, header, tiles);
     } catch (Throwable t) {
       throw new GdxRuntimeException("Couldn't read DT1", t);
