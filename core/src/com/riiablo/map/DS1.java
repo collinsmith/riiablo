@@ -148,10 +148,10 @@ public class DS1 {
       if (DEBUG) Gdx.app.debug(TAG, ds1.toString());
       if (ds1.version < 9 || 13 < ds1.version) {
         assert in.available() == 0 : in.available() + "B available!";
-      } else if (DEBUG_STREAM && in.available() > 0) {
-        // FIXME: version 9 <= 13 causes crash here /w 4B remaining, why? always 0?
+      } else if (DEBUG_STREAM && in.available() > 0) { // FIXME: https://github.com/collinsmith/riiablo/issues/73
         byte[] data = IOUtils.readFully(in, in.available());
         Gdx.app.error(TAG, fileName + " " + data.length + "B still available in stream! version=" + ds1.version + "; " + DebugUtils.toByteArray(data));
+        Gdx.app.error(TAG, ds1.toString());
       }
 
       return ds1;
