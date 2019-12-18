@@ -140,9 +140,7 @@ public class ClientEntityFactory extends EntityFactory {
 
     int id = createMonster(map, zone, monstats, x, y);
 
-    DS1ObjectWrapper ds1ObjectWrapper = mDS1ObjectWrapper.create(id);
-    ds1ObjectWrapper.ds1 = preset.getDS1();
-    ds1ObjectWrapper.object = object;
+    mDS1ObjectWrapper.create(id).set(preset.getDS1(), object);
 
     if (object != null && object.path != null) {
       mPathWrapper.create(id).path = object.path;
@@ -204,9 +202,7 @@ public class ClientEntityFactory extends EntityFactory {
     label.actor = createLabel(name);
     label.actor.setUserObject(id);
 
-    DS1ObjectWrapper ds1ObjectWrapper = mDS1ObjectWrapper.create(id);
-    ds1ObjectWrapper.ds1 = preset.getDS1();
-    ds1ObjectWrapper.object = object;
+    mDS1ObjectWrapper.create(id).set(preset.getDS1(), object);
 
     if (base.OperateRange > 0 && ArrayUtils.contains(base.Selectable, true)) {
       mInteractable.create(id).set(base.OperateRange, objectInteractor);
