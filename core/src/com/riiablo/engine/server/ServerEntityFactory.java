@@ -57,7 +57,8 @@ public class ServerEntityFactory extends EntityFactory {
   protected CofManager cofs;
   protected ObjectInitializer objectInitializer;
 
-  public int createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
+  @Override
+  protected int _createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
     int id = super.createEntity(Class.Type.PLR, "player", map, zone);
     mPlayer.create(id).data = charData;
 
@@ -77,19 +78,16 @@ public class ServerEntityFactory extends EntityFactory {
     mRunning.create(id);
     mNetworked.create(id);
     mZoneAware.create(id);
-
-    cofs.setMode(id, Engine.Player.MODE_TN, true);
-    cofs.setWClass(id, Engine.WEAPON_HTH, true);
     return id;
   }
 
   @Override
-  public int createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
+  protected int _createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  public int createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
+  protected int _createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.STATIC_TYPE;
     int objectType = Riiablo.files.obj.getType2(preset.getDS1().getAct(), object.id);
     Objects.Entry base = Riiablo.files.objects.get(objectType);
@@ -137,22 +135,22 @@ public class ServerEntityFactory extends EntityFactory {
   }
 
   @Override
-  public int createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
+  protected int _createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  public int createWarp(Map map, Map.Zone zone, int index, float x, float y) {
+  protected int _createWarp(Map map, Map.Zone zone, int index, float x, float y) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  public int createItem(Item item, Vector2 position) {
+  protected int _createItem(Item item, Vector2 position) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  public int createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
+  protected int _createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
     return Engine.INVALID_ENTITY;
   }
 }
