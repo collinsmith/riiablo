@@ -142,9 +142,7 @@ public class ClientEntityFactory extends EntityFactory {
 
     mDS1ObjectWrapper.create(id).set(preset.getDS1(), object);
 
-    if (object != null && object.path != null) {
-      mPathWrapper.create(id).path = object.path;
-    }
+    if (object.path != null) mPathWrapper.create(id).path = object.path;
 
     return id;
   }
