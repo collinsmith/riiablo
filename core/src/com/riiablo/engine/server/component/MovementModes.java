@@ -10,4 +10,11 @@ public class MovementModes extends Component {
   public byte NU;
   public byte WL;
   public byte RN;
+
+  public MovementModes set(byte NU, byte WL, byte RN) {
+    this.NU = NU;
+    this.WL = WL;
+    this.RN = RN;
+    return this;
+  }
 }

@@ -19,12 +19,15 @@ import com.riiablo.engine.server.component.CofReference;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.DS1ObjectWrapper;
 import com.riiablo.engine.server.component.MapWrapper;
+import com.riiablo.engine.server.component.MovementModes;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.engine.server.component.Object;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Running;
+import com.riiablo.engine.server.component.Size;
 import com.riiablo.engine.server.component.Velocity;
+import com.riiablo.engine.server.component.ZoneAware;
 import com.riiablo.item.Item;
 import com.riiablo.map.DS1;
 import com.riiablo.map.Map;
@@ -49,6 +52,9 @@ public class ServerEntityFactory extends EntityFactory {
   protected ComponentMapper<Networked> mNetworked;
   protected ComponentMapper<MapWrapper> mMapWrapper;
   protected ComponentMapper<DS1ObjectWrapper> mDS1ObjectWrapper;
+  protected ComponentMapper<MovementModes> mMovementModes;
+  protected ComponentMapper<Size> mSize;
+  protected ComponentMapper<ZoneAware> mZoneAware;
 
   protected CofManager cofs;
   protected ObjectInitializer objectInitializer;
@@ -66,8 +72,13 @@ public class ServerEntityFactory extends EntityFactory {
     mCofAlphas.create(id);
     mCofTransforms.create(id);
 
+    mMovementModes.create(id).set(Engine.Player.MODE_TN, Engine.Player.MODE_TW, Engine.Player.MODE_RN);
+
+    mSize.create(id).size = Size.MEDIUM;
+
     mRunning.create(id);
     mNetworked.create(id);
+    mZoneAware.create(id);
 
     MapWrapper mapWrapper = mMapWrapper.create(id);
     mapWrapper.map = map;
