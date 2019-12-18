@@ -101,7 +101,7 @@ public class ClientEntityFactory extends EntityFactory {
   protected ItemInteractor itemInteractor;
 
   @Override
-  protected int _createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
+  public int createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
     int id = super.createEntity(Class.Type.PLR, "player", map, zone);
     mPlayer.create(id).data = charData;
 
@@ -109,7 +109,7 @@ public class ClientEntityFactory extends EntityFactory {
     mVelocity.create(id).set(6, 9);
     mAngle.create(id);
 
-    mCofReference.create(id).token = Engine.Player.getToken(charData.getD2S().header.charClass);
+    mCofReference.create(id).set(Engine.Player.getToken(charData.getD2S().header.charClass), Class.Type.PLR.DEFAULT_MODE);
     mCofComponents.create(id);
     mCofComponentDescriptors.create(id);
     mCofAlphas.create(id);
@@ -130,7 +130,7 @@ public class ClientEntityFactory extends EntityFactory {
   }
 
   @Override
-  protected int _createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
+  public int createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     String objectType = Riiablo.files.obj.getType1(preset.getDS1().getAct(), object.id);
     MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
     if (monstats == null) {
@@ -148,7 +148,7 @@ public class ClientEntityFactory extends EntityFactory {
   }
 
   @Override
-  protected int _createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
+  public int createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.STATIC_TYPE;
     int objectType = Riiablo.files.obj.getType2(preset.getDS1().getAct(), object.id);
     Objects.Entry base = Riiablo.files.objects.get(objectType);
@@ -172,7 +172,7 @@ public class ClientEntityFactory extends EntityFactory {
     mPosition.create(id).position.set(x, y);
 
     if (base.Draw) {
-      mCofReference.create(id).token = base.Token;
+      mCofReference.create(id).set(base.Token, Class.Type.OBJ.DEFAULT_MODE);
       int[] component = mCofComponents.create(id).component;
       Arrays.fill(component, CofComponents.COMPONENT_NULL);
       mCofComponentDescriptors.create(id);
@@ -212,7 +212,7 @@ public class ClientEntityFactory extends EntityFactory {
   }
 
   @Override
-  protected int _createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
+  public int createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
     MonStats2.Entry monstats2 = Riiablo.files.monstats2.get(monstats.MonStatsEx);
 
     String name = monstats.NameStr.equalsIgnoreCase("dummy")
@@ -270,7 +270,7 @@ public class ClientEntityFactory extends EntityFactory {
   }
 
   @Override
-  protected int _createWarp(Map map, Map.Zone zone, int index, float x, float y) {
+  public int createWarp(Map map, Map.Zone zone, int index, float x, float y) {
     final int mainIndex   = DT1.Tile.Index.mainIndex(index);
     final int subIndex    = DT1.Tile.Index.subIndex(index);
     final int orientation = DT1.Tile.Index.orientation(index);
@@ -327,7 +327,7 @@ public class ClientEntityFactory extends EntityFactory {
   }
 
   @Override
-  protected int _createItem(Item item, Vector2 position) {
+  public int createItem(Item item, Vector2 position) {
     int id = super.createEntity(Class.Type.ITM, "item");
     com.riiablo.engine.server.component.Item itemWrapper = mItem.create(id).set(item);
     Riiablo.assets.load(itemWrapper.flippyDescriptor);
@@ -343,7 +343,7 @@ public class ClientEntityFactory extends EntityFactory {
   }
 
   @Override
-  protected int _createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
+  public int createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
     int id = super.createEntity(Class.Type.MIS, missile.Missile);
     Missile missileWrapper = mMissile.create(id).set(missile, position, missile.Range);
     Riiablo.assets.load(missileWrapper.missileDescriptor);

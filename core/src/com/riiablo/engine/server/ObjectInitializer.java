@@ -1,21 +1,30 @@
 package com.riiablo.engine.server;
 
+import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.codec.excel.Objects;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.Classname;
 import com.riiablo.engine.server.component.Object;
 
-import net.mostlyoriginal.api.system.core.PassiveSystem;
-
-public class ObjectInitializer extends PassiveSystem {
+@All(Object.class)
+public class ObjectInitializer extends BaseEntitySystem {
   private static final String TAG = "ObjectInitializer";
 
   protected ComponentMapper<Object> mObject;
   protected ComponentMapper<Classname> mClassname;
 
   protected CofManager cofs;
+
+  @Override
+  protected void inserted(int entityId) {
+    initialize(entityId);
+  }
+
+  @Override
+  protected void processSystem() {}
 
   public void initialize(int entityId) {
     Objects.Entry base = mObject.get(entityId).base;

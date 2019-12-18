@@ -9,10 +9,10 @@ import com.riiablo.codec.COFD2;
 @PooledWeaver
 public class Class extends Component {
   public enum Type {
-    OBJ("OBJECTS",
+    OBJ("OBJECTS", (byte) 0,
         new String[] {"NU", "OP", "ON", "S1", "S2", "S3", "S4", "S5"},
         new String[] {"NIL", "LIT"}),
-    MON("MONSTERS",
+    MON("MONSTERS", (byte) 1,
         new String[] {
             "DT", "NU", "WL", "GH", "A1", "A2", "BL", "SC", "S1", "S2", "S3", "S4", "DD", "GH",
             "XX", "RN"
@@ -29,7 +29,7 @@ public class Class extends Component {
             "BRN", "BLK", "SRT", "LNG", "DLN", "BTP", "MTP", "STP", "SVT", "COL", "HOD", "HRN",
             "LNK", "TUR", "MLK", "FHM", "GHM", "BHN", "HED",
         }),
-    PLR("CHARS",
+    PLR("CHARS", (byte) 5,
         new String[] {
             "DT", "NU", "WL", "RN", "GH", "TN", "TW", "A1", "A2", "BL", "SC", "TH", "KK", "S1",
             "S2", "S3", "S4", "DD", "GH", "GH"
@@ -52,25 +52,27 @@ public class Class extends Component {
             return Riiablo.cofs.chars_cof;
           }
         },
-    ITM("ITEMS",
+    ITM("ITEMS", (byte) 0,
         new String[] {"NU"},
         new String[] {"NIL"}),
-    WRP("WARPS",
+    WRP("WARPS", (byte) 0,
         new String[] {"NU"},
         new String[] {"NIL"}),
-    MIS("MISSILES",
+    MIS("MISSILES", (byte) 0,
         new String[] {"NU"},
         new String[] {"NIL"});
 
     public final String PATH;
     public final String MODE[];
     public final String COMP[];
+    public final byte   DEFAULT_MODE;
 
     private ObjectIntMap<String> MODES;
     private ObjectIntMap<String> COMPS;
 
-    Type(String path, String[] modes, String[] comps) {
+    Type(String path, byte mode, String[] modes, String[] comps) {
       PATH = "data\\global\\" + path;
+      DEFAULT_MODE = mode;
       MODE = modes;
       MODES = new ObjectIntMap<>();
       for (int i = 0; i < modes.length; i++) MODES.put(modes[i].toLowerCase(), i);

@@ -54,11 +54,8 @@ public class ServerEntityFactory extends EntityFactory {
   protected ComponentMapper<Size> mSize;
   protected ComponentMapper<ZoneAware> mZoneAware;
 
-  protected CofManager cofs;
-  protected ObjectInitializer objectInitializer;
-
   @Override
-  protected int _createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
+  public int createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
     int id = super.createEntity(Class.Type.PLR, "player", map, zone);
     mPlayer.create(id).data = charData;
 
@@ -66,7 +63,7 @@ public class ServerEntityFactory extends EntityFactory {
     mVelocity.create(id);
     mAngle.create(id);
 
-    mCofReference.create(id).token = Engine.Player.getToken(charData.getD2S().header.charClass);
+    mCofReference.create(id).set(Engine.Player.getToken(charData.getD2S().header.charClass), Class.Type.PLR.DEFAULT_MODE);
     mCofComponents.create(id);
     mCofAlphas.create(id);
     mCofTransforms.create(id);
@@ -82,12 +79,12 @@ public class ServerEntityFactory extends EntityFactory {
   }
 
   @Override
-  protected int _createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
+  public int createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  protected int _createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
+  public int createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.STATIC_TYPE;
     int objectType = Riiablo.files.obj.getType2(preset.getDS1().getAct(), object.id);
     Objects.Entry base = Riiablo.files.objects.get(objectType);
@@ -114,7 +111,7 @@ public class ServerEntityFactory extends EntityFactory {
     mPosition.create(id).position.set(x, y);
 
     if (base.Draw) {
-      mCofReference.create(id).token = base.Token;
+      mCofReference.create(id).set(base.Token, Class.Type.OBJ.DEFAULT_MODE);
       int[] component = mCofComponents.create(id).component;
       Arrays.fill(component, CofComponents.COMPONENT_NULL);
       mCofAlphas.create(id);
@@ -124,33 +121,26 @@ public class ServerEntityFactory extends EntityFactory {
     DS1ObjectWrapper ds1ObjectWrapper = mDS1ObjectWrapper.create(id);
     ds1ObjectWrapper.ds1 = preset.getDS1();
     ds1ObjectWrapper.object = object;
-
-    if (base.Draw) {
-      cofs.setMode(id, Engine.Object.MODE_NU, true);
-      cofs.setWClass(id, Engine.WEAPON_HTH, true);
-    }
-
-    objectInitializer.initialize(id);
     return id;
   }
 
   @Override
-  protected int _createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
+  public int createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  protected int _createWarp(Map map, Map.Zone zone, int index, float x, float y) {
+  public int createWarp(Map map, Map.Zone zone, int index, float x, float y) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  protected int _createItem(Item item, Vector2 position) {
+  public int createItem(Item item, Vector2 position) {
     return Engine.INVALID_ENTITY;
   }
 
   @Override
-  protected int _createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
+  public int createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
     return Engine.INVALID_ENTITY;
   }
 }

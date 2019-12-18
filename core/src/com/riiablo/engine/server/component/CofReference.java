@@ -9,4 +9,10 @@ public class CofReference extends Component {
   public String token;
   public byte   mode;
   public byte   wclass = Engine.WEAPON_HTH;
+
+  public CofReference set(String token, byte mode) {
+    this.token = token;
+    this.mode = mode;
+    return this;
+  }
 }

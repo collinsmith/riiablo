@@ -1,6 +1,8 @@
 package com.riiablo.engine.server;
 
+import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
+import com.artemis.annotations.All;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.client.component.CofDirtyComponents;
 import com.riiablo.engine.server.component.CofAlphas;
@@ -13,9 +15,9 @@ import com.riiablo.engine.server.event.TransformChangeEvent;
 import com.riiablo.engine.server.event.WClassChangeEvent;
 
 import net.mostlyoriginal.api.event.common.EventSystem;
-import net.mostlyoriginal.api.system.core.PassiveSystem;
 
-public class CofManager extends PassiveSystem {
+@All(CofReference.class)
+public class CofManager extends BaseEntitySystem {
   protected ComponentMapper<CofReference> mCofReference;
   protected ComponentMapper<CofComponents> mCofComponents;
   protected ComponentMapper<CofDirtyComponents> mCofDirtyComponents;
@@ -23,6 +25,16 @@ public class CofManager extends PassiveSystem {
   protected ComponentMapper<CofTransforms> mCofTransforms;
 
   protected EventSystem event;
+
+  @Override
+  protected void inserted(int entityId) {
+    CofReference reference = mCofReference.get(entityId);
+    setMode(entityId, reference.mode, true);
+    setWClass(entityId, reference.wclass, true);
+  }
+
+  @Override
+  protected void processSystem() {}
 
   public void setMode(int id, byte mode) {
     setMode(id, mode, false);
