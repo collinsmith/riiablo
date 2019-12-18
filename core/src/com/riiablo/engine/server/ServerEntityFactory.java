@@ -18,7 +18,6 @@ import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofReference;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.DS1ObjectWrapper;
-import com.riiablo.engine.server.component.MapWrapper;
 import com.riiablo.engine.server.component.MovementModes;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.engine.server.component.Object;
@@ -50,7 +49,6 @@ public class ServerEntityFactory extends EntityFactory {
   protected ComponentMapper<Object> mObject;
   protected ComponentMapper<Running> mRunning;
   protected ComponentMapper<Networked> mNetworked;
-  protected ComponentMapper<MapWrapper> mMapWrapper;
   protected ComponentMapper<DS1ObjectWrapper> mDS1ObjectWrapper;
   protected ComponentMapper<MovementModes> mMovementModes;
   protected ComponentMapper<Size> mSize;
@@ -79,10 +77,6 @@ public class ServerEntityFactory extends EntityFactory {
     mRunning.create(id);
     mNetworked.create(id);
     mZoneAware.create(id);
-
-    MapWrapper mapWrapper = mMapWrapper.create(id);
-    mapWrapper.map = map;
-    mapWrapper.zone = zone;
 
     cofs.setMode(id, Engine.Player.MODE_TN, true);
     cofs.setWClass(id, Engine.WEAPON_HTH, true);

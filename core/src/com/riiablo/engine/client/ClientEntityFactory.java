@@ -39,7 +39,6 @@ import com.riiablo.engine.server.component.CofReference;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.DS1ObjectWrapper;
 import com.riiablo.engine.server.component.Interactable;
-import com.riiablo.engine.server.component.MapWrapper;
 import com.riiablo.engine.server.component.Missile;
 import com.riiablo.engine.server.component.Monster;
 import com.riiablo.engine.server.component.MovementModes;
@@ -129,10 +128,6 @@ public class ClientEntityFactory extends EntityFactory {
     mRunning.create(id);
     mNetworked.create(id);
     mZoneAware.create(id);
-
-    MapWrapper mapWrapper = mMapWrapper.create(id);
-    mapWrapper.map = map;
-    mapWrapper.zone = zone;
 
     cofs.setMode(id, Engine.Player.MODE_TN, true);
     cofs.setWClass(id, Engine.WEAPON_HTH, true);
