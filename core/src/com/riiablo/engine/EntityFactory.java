@@ -41,9 +41,7 @@ public abstract class EntityFactory extends PassiveSystem {
 
   protected final int createEntity(Class.Type type, String classname, Map map, Map.Zone zone) {
     int id = createEntity(type, classname);
-    MapWrapper mapWrapper = mMapWrapper.create(id);
-    mapWrapper.map = map;
-    mapWrapper.zone = zone;
+    mMapWrapper.create(id).set(map, zone);
     return id;
   }
 

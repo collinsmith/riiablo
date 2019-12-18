@@ -10,4 +10,10 @@ import com.riiablo.map.Map;
 public class MapWrapper extends Component {
   public Map      map;
   public Map.Zone zone;
+
+  public MapWrapper set(Map map, Map.Zone zone) {
+    this.map = map;
+    this.zone = zone;
+    return this;
+  }
 }
