@@ -173,7 +173,6 @@ public class ClientEntityFactory extends ServerEntityFactory {
     int id = super.createItem(item, position);
     Item itemWrapper = mItem.get(id);
     Riiablo.assets.load(itemWrapper.flippyDescriptor);
-//    Riiablo.audio.play("item_flippy", true);
     /**
      * FIXME: at least some items appear to be about a half subtile too high after their drop
      *        animations finish -- is this expected? or some issue with offsets? It's happening with
