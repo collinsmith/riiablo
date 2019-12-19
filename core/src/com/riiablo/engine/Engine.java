@@ -77,6 +77,9 @@ public class Engine {
   }
 
   public static final class Player {
+    public static final float SPEED_WALK = 6;
+    public static final float SPEED_RUN  = 9;
+
     public static final byte TOKEN_AM = 0;
     public static final byte TOKEN_SO = 1;
     public static final byte TOKEN_NE = 2;
