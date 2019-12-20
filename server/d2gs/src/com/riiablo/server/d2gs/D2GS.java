@@ -32,9 +32,13 @@ import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.CofManager;
+import com.riiablo.engine.server.ItemInteractor;
 import com.riiablo.engine.server.ObjectInitializer;
+import com.riiablo.engine.server.ObjectInteractor;
+import com.riiablo.engine.server.Pathfinder;
 import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.ServerNetworkIdManager;
+import com.riiablo.engine.server.WarpInteractor;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
@@ -219,6 +223,9 @@ public class D2GS extends ApplicationAdapter {
         .with(new ServerNetworkIdManager())
         .with(new CofManager())
         .with(new ObjectInitializer())
+        .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
+
+        .with(new Pathfinder())
 
         .with(factory)
         .with(sync)

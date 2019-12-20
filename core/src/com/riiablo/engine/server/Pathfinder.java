@@ -4,14 +4,11 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.utils.Collision;
 import com.badlogic.gdx.ai.utils.Ray;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pools;
-import com.riiablo.Riiablo;
-import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.Pathfind;
 import com.riiablo.engine.server.component.Position;
@@ -35,9 +32,6 @@ public class Pathfinder extends IteratingSystem {
 
   @Wire(name = "map")
   protected Map map;
-
-  @Wire(name = "iso")
-  protected IsometricCamera iso;
 
   private final Vector2 tmpVec2 = new Vector2();
   private final Ray<Vector2> ray = new Ray<>(new Vector2(), new Vector2());
@@ -77,13 +71,14 @@ public class Pathfinder extends IteratingSystem {
       }
     }
 
-    // FIXME: removes much of the jitter for player -- maybe there's a better solution though
-    if (entityId == Riiablo.game.player && pathfind.path.getCount() <= 1) {
-      iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
-    }
-
-    Angle angle = mAngle.get(entityId);
-    angle.target.set(tmpVec2.sub(position0)).nor();
+    /**
+     * FIXME: there is a lot of jitter here in the direction for shorter movements because of
+     *        repathing every frame-- need to create some kind of target component which is a target
+     *        entity or target point and if it's down to the last remaining waypoint, set angle to
+     *        the actual point or entity.
+     */
+    tmpVec2.sub(position0);
+    mAngle.get(entityId).target.set(tmpVec2).nor();
 
     velocity.velocity.set(tmpVec2).setLength(speed);
   }
