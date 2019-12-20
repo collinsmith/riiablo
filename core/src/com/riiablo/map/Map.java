@@ -758,12 +758,14 @@ public class Map implements Disposable {
       return (this.flags[index(width, x, y)] |= flags) & 0xFF;
     }
 
+    @Deprecated
     void addEntity(int entityId) {
       if (entityId == Engine.INVALID_ENTITY) return;
       if (entities == EMPTY_ENTITY_ARRAY) entities = new IntArray();
       entities.add(entityId);
     }
 
+    @Deprecated
     void addWarp(int index, int warpX, int warpY) {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
@@ -879,6 +881,18 @@ public class Map implements Disposable {
       return ((layer & 0xF) << 28) | ((tx & 0x3FFF) << 14) | (ty & 0x3FFF);
     }
 
+    static int tileHashLayer(int hash) {
+      return (hash >>> 28) & 0xF;
+    }
+
+    static int tileHashX(int hash) {
+      return (hash >>> 14) & 0x3FFF;
+    }
+
+    static int tileHashY(int hash) {
+      return hash & 0x3FFF;
+    }
+
     void putCell(int layer, int tx, int ty, DS1.Cell cell) {
       if (specials == EMPTY_INT_CELL_MAP) specials = new IntMap<>();
       specials.put(tileHashCode(layer, tx, ty), cell);
@@ -978,7 +992,7 @@ public class Map implements Disposable {
       copyFloors (zone, Map.FLOOR_OFFSET,  tx, ty);
       copyWalls  (zone, Map.WALL_OFFSET,   tx, ty);
       copyShadows(zone, Map.SHADOW_OFFSET, tx, ty);
-      copyObjects(zone, tx, ty);
+      //copyObjects(zone, tx, ty);
     }
 
     void copyFloors(Zone zone, int layer, int tx, int ty) {
@@ -1056,7 +1070,7 @@ public class Map implements Disposable {
                       y * DT1.Tile.SUBTILE_SIZE + DT1.Tile.SUBTILE_SIZE + preset.PopPad);
                 zone.putCell(layer, tx, ty, cell);
               } else if (ID.WARPS.contains(cell.id) && cell.subIndex != 1) {
-                zone.addWarp(cell.id, tx, ty);
+                //zone.addWarp(cell.id, tx, ty);
                 zone.putCell(layer, tx, ty, cell);
               }
             }
@@ -1129,6 +1143,7 @@ public class Map implements Disposable {
       }
     }
 
+    @Deprecated
     void copyObjects(Zone zone, int tx, int ty) {
       final int x = zone.x + (tx * DT1.Tile.SUBTILE_SIZE);
       final int y = zone.y + (ty * DT1.Tile.SUBTILE_SIZE);

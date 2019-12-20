@@ -102,6 +102,7 @@ import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.map.Act1MapBuilder;
 import com.riiablo.map.Box2DPhysics;
 import com.riiablo.map.Map;
+import com.riiablo.map.MapManager;
 import com.riiablo.map.RenderSystem;
 import com.riiablo.screen.panel.CharacterPanel;
 import com.riiablo.screen.panel.ControlPanel;
@@ -191,6 +192,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   CharData charData;
 
   Map map;
+  MapManager mapManager;
   IsometricCamera iso;
   InputProcessor testingInputProcessor;
 
@@ -479,6 +481,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     };
 
     map = new Map(0, 0);
+    mapManager = new MapManager();
     renderer = new RenderSystem(Riiablo.batch, map);
     iso = renderer.iso();
     scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
@@ -515,6 +518,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new NetworkIdManager())
         .with(new EventSystem())
         .with(new TagManager())
+        .with(mapManager)
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
@@ -749,6 +753,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     Riiablo.viewport = viewport;
     Riiablo.music.stop();
     Riiablo.assets.get(windowopenDescriptor).play();
+
+    mapManager.createEntities();
 
     engine.getSystem(Box2DPhysics.class).createBodies();
 
