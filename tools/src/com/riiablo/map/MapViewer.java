@@ -107,6 +107,7 @@ public class MapViewer extends ApplicationAdapter {
 
   int ent;
   World engine;
+  MapManager mapManager;
   RenderSystem mapRenderer;
   PathfindDebugger pathfindDebugger;
   protected ComponentMapper<Position> mPosition;
@@ -193,6 +194,8 @@ public class MapViewer extends ApplicationAdapter {
 
     map = new Map(seed, diff);
 
+    mapManager = new MapManager();
+
     RenderSystem.RENDER_DEBUG_SUBTILE = true;
     mapRenderer = new RenderSystem(batch, map);
     mapRenderer.resize();
@@ -200,6 +203,7 @@ public class MapViewer extends ApplicationAdapter {
     WorldConfiguration config = new WorldConfigurationBuilder()
         .with(new EventSystem())
         .with(new TagManager())
+        .with(mapManager)
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
@@ -247,6 +251,7 @@ public class MapViewer extends ApplicationAdapter {
     map.load();
     map.finishLoading();
     map.generate();
+    mapManager.createEntities();
 
     box2DPhysics.setEnabled(false);
     box2DPhysics.createBodies();
