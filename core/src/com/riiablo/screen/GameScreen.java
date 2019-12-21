@@ -190,6 +190,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   RenderSystem renderer;
   public int player;
   CharData charData;
+  Socket socket;
 
   Map map;
   MapManager mapManager;
@@ -239,6 +240,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
 
   public GameScreen(CharData charData, Socket socket) {
     this.charData = charData;
+    this.socket = socket;
     charData.getD2S().loadRemaining();
     charData.updateD2S(2);
     charData.loadItems();
@@ -756,7 +758,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     Riiablo.music.stop();
     Riiablo.assets.get(windowopenDescriptor).play();
 
-    mapManager.createEntities();
+    if (socket == null) mapManager.createEntities();
 
     engine.getSystem(Box2DPhysics.class).createBodies();
 
