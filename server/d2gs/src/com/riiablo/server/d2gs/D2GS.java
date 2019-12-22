@@ -28,6 +28,7 @@ import com.riiablo.Files;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.D2;
+import com.riiablo.codec.StringTBLs;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.AnimDataResolver;
@@ -192,6 +193,7 @@ public class D2GS extends ApplicationAdapter {
     Riiablo.assets = new AssetManager();
     Riiablo.files = new Files(Riiablo.assets);
     Riiablo.cofs = new COFs(Riiablo.assets); // TODO: not needed in prod
+    Riiablo.string = new StringTBLs(Riiablo.mpqs); // TODO: not needed in prod
     Riiablo.anim = D2.loadFromFile(Riiablo.mpqs.resolve("data\\global\\eanimdata.d2"));
 
     // set DT1 to headless mode
