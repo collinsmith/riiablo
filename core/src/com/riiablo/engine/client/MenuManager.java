@@ -1,5 +1,6 @@
 package com.riiablo.engine.client;
 
+import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.math.Vector2;
@@ -8,14 +9,17 @@ import com.badlogic.gdx.utils.Align;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.component.Label;
+import com.riiablo.engine.server.component.MenuWrapper;
 import com.riiablo.engine.server.component.Position;
+import com.riiablo.engine.server.event.NpcInteractionEvent;
 import com.riiablo.widget.NpcMenu;
 
-import net.mostlyoriginal.api.system.core.PassiveSystem;
+import net.mostlyoriginal.api.event.common.Subscribe;
 
-public class MenuManager extends PassiveSystem {
+public class MenuManager extends BaseSystem {
   protected ComponentMapper<Label> mLabel;
   protected ComponentMapper<Position> mPosition;
+  protected ComponentMapper<MenuWrapper> mMenuWrapper;
 
   @Wire(name = "iso")
   protected IsometricCamera iso;
@@ -26,6 +30,16 @@ public class MenuManager extends PassiveSystem {
   private NpcMenu menu;
 
   private final Vector2 tmpVec2 = new Vector2();
+
+  @Subscribe
+  public void onNpcInteraction(NpcInteractionEvent event) {
+    MenuWrapper menuWrapper = mMenuWrapper.get(event.npcId);
+    if (menuWrapper == null) return;
+    setMenu(menuWrapper.menu, event.npcId);
+  }
+
+  @Override
+  protected void processSystem() {}
 
   public NpcMenu getMenu() {
     return menu;

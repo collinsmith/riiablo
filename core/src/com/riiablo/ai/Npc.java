@@ -1,5 +1,6 @@
 package com.riiablo.ai;
 
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -12,13 +13,18 @@ import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.DialogManager;
 import com.riiablo.engine.client.MenuManager;
+import com.riiablo.engine.server.component.MenuWrapper;
 import com.riiablo.engine.server.component.PathWrapper;
 import com.riiablo.engine.server.component.Pathfind;
+import com.riiablo.engine.server.event.NpcInteractionEvent;
 import com.riiablo.map.DS1;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 
+import net.mostlyoriginal.api.event.common.EventSystem;
+
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Validate;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
@@ -36,8 +42,9 @@ public class Npc extends AI {
     HIRERERS.addAll(150);
   }
 
-  protected MenuManager menuManager;
-  protected DialogManager dialogManager;
+  protected ComponentMapper<MenuWrapper> mMenuWrapper;
+
+  protected EventSystem event;
 
   final Vector2 tmpVec2 = new Vector2();
 
@@ -63,73 +70,74 @@ public class Npc extends AI {
     mSize.get(entityId).size = 1; // fixes pathfinding issues
   }
 
+  public void createMenu(MenuManager menuManager, final DialogManager dialogManager) {
+    Validate.validState(menu == null, "menu already initialized!");
+    menu = mMenuWrapper.create(entityId).menu = new NpcMenu(menuManager, entityId, name);
+
+    final int entType = monstats.hcIdx;
+    if (TALKERS.contains(entType)) {
+      // talk
+      menu.addItem(3381, new NpcMenu(menuManager, 3381)
+          // introduction
+          .addItem(3399, new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              String name = Npc.this.name.toLowerCase();
+              String id = name + "_act1_intro";
+              dialogManager.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
+                @Override
+                public void onCompleted(NpcDialogBox d) {
+                  dialogManager.setDialog(null);
+                }
+              }));
+            }
+          })
+          // gossip
+          .addItem(3395, new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              String name = Npc.this.name.toLowerCase();
+              String id = name + "_act1_gossip_1";
+              dialogManager.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
+                @Override
+                public void onCompleted(NpcDialogBox d) {
+                  dialogManager.setDialog(null);
+                }
+              }));
+            }
+          })
+          .addCancel(null)
+          .build());
+    }
+
+    if (REPAIRERS.contains(entType)) {
+      menu.addItem(3334, new ClickListener()); // trade/repair
+    } else if (TRADERS.contains(entType)) {
+      menu.addItem(3396, new ClickListener()); // trade
+    }
+
+    if (HIRERERS.contains(entType)) {
+      menu.addItem(3397, new ClickListener()); // gamble
+    }
+
+    if (GAMBLERS.contains(entType)) {
+      menu.addItem(3398, new ClickListener()); // gamble
+    }
+
+    menu.addCancel(new NpcMenu.CancellationListener() {
+        @Override
+        public void onCancelled() {
+          mInteractable.get(entityId).count--;
+          actionTimer = 4;
+        }
+      })
+      .build();
+  }
+
   @Override
   public void interact(int src, final int entityId) {
     pathfinder.findPath(entityId, null);
     lookAt(src);
-
-    if (menu == null) {
-      menu = new NpcMenu(menuManager, entityId, name);
-
-      final int entType = monstats.hcIdx;
-      if (TALKERS.contains(entType)) {
-        // talk
-        menu.addItem(3381, new NpcMenu(menuManager, 3381)
-            // introduction
-            .addItem(3399, new ClickListener() {
-              @Override
-              public void clicked(InputEvent event, float x, float y) {
-                String name = Npc.this.name.toLowerCase();
-                String id = name + "_act1_intro";
-                dialogManager.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
-                  @Override
-                  public void onCompleted(NpcDialogBox d) {
-                    dialogManager.setDialog(null);
-                  }
-                }));
-              }
-            })
-            // gossip
-            .addItem(3395, new ClickListener() {
-              @Override
-              public void clicked(InputEvent event, float x, float y) {
-                String name = Npc.this.name.toLowerCase();
-                String id = name + "_act1_gossip_1";
-                dialogManager.setDialog(new NpcDialogBox(id, new NpcDialogBox.DialogCompletionListener() {
-                  @Override
-                  public void onCompleted(NpcDialogBox d) {
-                    dialogManager.setDialog(null);
-                  }
-                }));
-              }
-            })
-            .addCancel(null)
-            .build());
-      }
-
-      if (REPAIRERS.contains(entType)) {
-        menu.addItem(3334, new ClickListener()); // trade/repair
-      } else if (TRADERS.contains(entType)) {
-        menu.addItem(3396, new ClickListener()); // trade
-      }
-
-      if (HIRERERS.contains(entType)) {
-        menu.addItem(3397, new ClickListener()); // gamble
-      }
-
-      if (GAMBLERS.contains(entType)) {
-        menu.addItem(3398, new ClickListener()); // gamble
-      }
-
-      menu.addCancel(new NpcMenu.CancellationListener() {
-          @Override
-          public void onCancelled() {
-            mInteractable.get(entityId).count--;
-            actionTimer = 4;
-          }
-        })
-        .build();
-    }
 
     // TODO: need some kind of static method that can take in some state params, e.g., character
     //       class, player mode and spit out the proper file index.
@@ -144,7 +152,7 @@ public class Npc extends AI {
 
     actionTimer = Float.POSITIVE_INFINITY;
     actionPerformed = false;
-    menuManager.setMenu(menu, entityId);
+    event.dispatch(NpcInteractionEvent.obatin(src, entityId));
     mInteractable.get(entityId).count++;
   }
 

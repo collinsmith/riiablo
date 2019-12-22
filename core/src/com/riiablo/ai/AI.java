@@ -2,12 +2,13 @@ package com.riiablo.ai;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.EntityId;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonStats;
-import com.riiablo.engine.client.ClientEntityFactory;
+import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.Pathfinder;
 import com.riiablo.engine.server.component.Angle;
@@ -54,7 +55,9 @@ public abstract class AI implements Interactable.Interactor {
 
   protected CofManager cofs;
   protected Pathfinder pathfinder;
-  protected ClientEntityFactory factory;
+
+  @Wire(name = "factory")
+  protected EntityFactory factory;
 
   private static final Vector2 tmpVec2 = new Vector2();
 

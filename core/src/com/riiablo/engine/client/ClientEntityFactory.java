@@ -7,6 +7,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.CharData;
 import com.riiablo.Riiablo;
+import com.riiablo.ai.AI;
+import com.riiablo.ai.Npc;
 import com.riiablo.codec.excel.LvlWarp;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonStats;
@@ -39,6 +41,9 @@ public class ClientEntityFactory extends ServerEntityFactory {
   protected ComponentMapper<Selectable> mSelectable;
   protected ComponentMapper<SoundEmitter> mSoundEmitter;
   protected ComponentMapper<Box2DBody> mBox2DBody;
+
+  protected MenuManager menuManager;
+  protected DialogManager dialogManager;
 
   @Override
   public int createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
@@ -118,6 +123,12 @@ public class ClientEntityFactory extends ServerEntityFactory {
     }
 
     if (monstats2.isSel) mSelectable.create(id);
+
+    AI ai = mAIWrapper.get(id).ai;
+    if (ai instanceof Npc) {
+      ((Npc) ai).createMenu(menuManager, dialogManager);
+    }
+
     return id;
   }
 
