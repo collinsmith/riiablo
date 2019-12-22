@@ -9,24 +9,24 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
-public final class Class extends Table {
-  public static Class getRootAsClass(ByteBuffer _bb) { return getRootAsClass(_bb, new Class()); }
-  public static Class getRootAsClass(ByteBuffer _bb, Class obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+public final class ClassP extends Table {
+  public static ClassP getRootAsClassP(ByteBuffer _bb) { return getRootAsClassP(_bb, new ClassP()); }
+  public static ClassP getRootAsClassP(ByteBuffer _bb, ClassP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
-  public Class __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public ClassP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
 
-  public static int createClass(FlatBufferBuilder builder,
+  public static int createClassP(FlatBufferBuilder builder,
       int type) {
     builder.startObject(1);
-    Class.addType(builder, type);
-    return Class.endClass(builder);
+    ClassP.addType(builder, type);
+    return ClassP.endClassP(builder);
   }
 
-  public static void startClass(FlatBufferBuilder builder) { builder.startObject(1); }
+  public static void startClassP(FlatBufferBuilder builder) { builder.startObject(1); }
   public static void addType(FlatBufferBuilder builder, int type) { builder.addByte(0, (byte)type, (byte)0); }
-  public static int endClass(FlatBufferBuilder builder) {
+  public static int endClassP(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
   }

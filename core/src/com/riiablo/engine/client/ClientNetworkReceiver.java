@@ -17,6 +17,7 @@ import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.Box2DBody;
+import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
@@ -25,12 +26,20 @@ import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.map.Map;
+import com.riiablo.net.packet.d2gs.AngleP;
+import com.riiablo.net.packet.d2gs.ClassP;
+import com.riiablo.net.packet.d2gs.CofAlphasP;
+import com.riiablo.net.packet.d2gs.CofComponentsP;
+import com.riiablo.net.packet.d2gs.CofTransformsP;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
+import com.riiablo.net.packet.d2gs.PlayerP;
+import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.Sync;
 import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.VelocityP;
 import com.riiablo.util.ArrayUtils;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.widget.TextArea;
@@ -168,34 +177,60 @@ public class ClientNetworkReceiver extends IntervalSystem {
     world.delete(entityId);
   }
 
-  private com.riiablo.net.packet.d2gs.Player findPlayer(Sync s) {
+  private int findType(Sync s) {
     for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
-      if (s.dataType(i) == SyncData.Player) {
-        return (com.riiablo.net.packet.d2gs.Player) s.data(new com.riiablo.net.packet.d2gs.Player(), i);
+      if (s.dataType(i) == SyncData.ClassP) {
+        return ((ClassP) s.data(new ClassP(), i)).type();
+      }
+    }
+
+    return -1;
+  }
+
+  private PlayerP findPlayer(Sync s) {
+    for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
+      if (s.dataType(i) == SyncData.PlayerP) {
+        return (PlayerP) s.data(new PlayerP(), i);
       }
     }
 
     return null;
   }
 
+  private void createEntity(Sync sync) {
+    assert syncIds.get(sync.entityId()) == Engine.INVALID_ENTITY;
+    Class.Type type = Class.Type.valueOf(findType(sync));
+    switch (type) {
+      case OBJ:
+        break;
+      case MON:
+
+        break;
+      case PLR: {
+        PlayerP player = findPlayer(sync);
+        CharData charData = new CharData().createD2S(player.charName(), CharacterClass.get(player.charClass()));
+
+        // TODO: assert entity id is player
+        // TODO: add support for other entity types
+        Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+        if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
+        if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
+        Map.Zone zone = map.getZone(origin);
+        int entityId = factory.createPlayer(map, zone, charData, origin);
+        syncIds.put(sync.entityId(), entityId);
+
+        cofs.setMode(entityId, Engine.Player.MODE_TN);
+        cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
+        break;
+      }
+    }
+  }
+
   private void Synchronize(D2GS packet) {
     Sync sync = (Sync) packet.data(new Sync());
     int entityId = syncIds.get(sync.entityId());
     if (entityId == Engine.INVALID_ENTITY) {
-      com.riiablo.net.packet.d2gs.Player player = findPlayer(sync);
-      CharData charData = new CharData().createD2S(player.charName(), CharacterClass.get(player.charClass()));
-
-      // TODO: assert entity id is player
-      // TODO: add support for other entity types
-      Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-      if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
-      if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
-      Map.Zone zone = map.getZone(origin);
-      entityId = factory.createPlayer(map, zone, charData, origin);
-      syncIds.put(sync.entityId(), entityId);
-
-      cofs.setMode(entityId, Engine.Player.MODE_TN);
-      cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
+      createEntity(sync);
     }
 
     int flags1 = Dirty.NONE;
@@ -203,33 +238,33 @@ public class ClientNetworkReceiver extends IntervalSystem {
     Gdx.app.log(TAG, "syncing " + entityId);
     for (int i = 0, len = sync.dataTypeLength(); i < len; i++) {
       switch (sync.dataType(i)) {
-        case SyncData.Class:
-        case SyncData.Player:
+        case SyncData.ClassP:
+        case SyncData.PlayerP:
           break;
-        case SyncData.CofComponents: {
-          com.riiablo.net.packet.d2gs.CofComponents data = (com.riiablo.net.packet.d2gs.CofComponents) sync.data(new com.riiablo.net.packet.d2gs.CofComponents(), i);
+        case SyncData.CofComponentsP: {
+          CofComponentsP data = (CofComponentsP) sync.data(new CofComponentsP(), i);
           for (int j = 0, s0 = data.componentLength(); j < s0; j++) {
             cofs.setComponent(entityId, j, data.component(j));
           }
           break;
         }
-        case SyncData.CofTransforms: {
-          com.riiablo.net.packet.d2gs.CofTransforms data = (com.riiablo.net.packet.d2gs.CofTransforms) sync.data(new com.riiablo.net.packet.d2gs.CofTransforms(), i);
+        case SyncData.CofTransformsP: {
+          CofTransformsP data = (CofTransformsP) sync.data(new CofTransformsP(), i);
           for (int j = 0, s0 = data.transformLength(); j < s0; j++) {
             flags1 |= cofs.setTransform(entityId, j, (byte) data.transform(j));
           }
           break;
         }
-        case SyncData.CofAlphas: {
-          com.riiablo.net.packet.d2gs.CofAlphas data = (com.riiablo.net.packet.d2gs.CofAlphas) sync.data(new com.riiablo.net.packet.d2gs.CofAlphas(), i);
+        case SyncData.CofAlphasP: {
+          CofAlphasP data = (CofAlphasP) sync.data(new CofAlphasP(), i);
           for (int j = 0, s0 = data.alphaLength(); j < s0; j++) {
             flags2 |= cofs.setAlpha(entityId, j, data.alpha(j));
           }
           break;
         }
-        case SyncData.Position: {
+        case SyncData.PositionP: {
           Vector2 position = mPosition.get(entityId).position;
-          com.riiablo.net.packet.d2gs.Position data = (com.riiablo.net.packet.d2gs.Position) sync.data(new com.riiablo.net.packet.d2gs.Position(), i);
+          PositionP data = (PositionP) sync.data(new PositionP(), i);
           position.x = data.x();
           position.y = data.y();
           Body body = mBox2DBody.get(entityId).body;
@@ -237,17 +272,17 @@ public class ClientNetworkReceiver extends IntervalSystem {
           //Gdx.app.log(TAG, "  " + position);
           break;
         }
-        case SyncData.Velocity: {
+        case SyncData.VelocityP: {
           Vector2 velocity = mVelocity.get(entityId).velocity;
-          com.riiablo.net.packet.d2gs.Velocity data = (com.riiablo.net.packet.d2gs.Velocity) sync.data(new com.riiablo.net.packet.d2gs.Velocity(), i);
+          VelocityP data = (VelocityP) sync.data(new VelocityP(), i);
           velocity.x = data.x();
           velocity.y = data.y();
           //Gdx.app.log(TAG, "  " + velocity);
           break;
         }
-        case SyncData.Angle: {
+        case SyncData.AngleP: {
           Vector2 angle = mAngle.get(entityId).target;
-          com.riiablo.net.packet.d2gs.Angle data = (com.riiablo.net.packet.d2gs.Angle) sync.data(new com.riiablo.net.packet.d2gs.Angle(), i);
+          AngleP data = (AngleP) sync.data(new AngleP(), i);
           angle.x = data.x();
           angle.y = data.y();
           //Gdx.app.log(TAG, "  " + angle);

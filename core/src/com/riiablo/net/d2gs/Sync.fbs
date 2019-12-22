@@ -1,14 +1,14 @@
 namespace com.riiablo.net.packet.d2gs;
 
 union SyncData {
-  Class,
-  CofComponents,
-  CofTransforms,
-  CofAlphas,
-  Position,
-  Velocity,
-  Angle,
-  Player,
+  ClassP,
+  CofComponentsP,
+  CofTransformsP,
+  CofAlphasP,
+  PositionP,
+  VelocityP,
+  AngleP,
+  PlayerP,
 }
 
 table Sync {
@@ -16,38 +16,38 @@ table Sync {
   data:[SyncData];
 }
 
-table Class {
+table ClassP {
   type:uint8;
 }
 
-table CofComponents {
+table CofComponentsP {
   component:[uint8];
 }
 
-table CofTransforms {
+table CofTransformsP {
   transform:[uint8];
 }
 
-table CofAlphas {
+table CofAlphasP {
   alpha:[float32];
 }
 
-table Position {
+table PositionP {
   x:float32;
   y:float32;
 }
 
-table Velocity {
+table VelocityP {
   x:float32;
   y:float32;
 }
 
-table Angle {
+table AngleP {
   x:float32;
   y:float32;
 }
 
-table Player {
+table PlayerP {
   charClass:uint8;
   charName:string;
 }

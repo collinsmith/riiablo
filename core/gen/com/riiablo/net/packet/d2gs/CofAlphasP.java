@@ -8,29 +8,29 @@ import java.util.*;
 import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
-public final class CofAlphas extends Table {
-  public static CofAlphas getRootAsCofAlphas(ByteBuffer _bb) { return getRootAsCofAlphas(_bb, new CofAlphas()); }
-  public static CofAlphas getRootAsCofAlphas(ByteBuffer _bb, CofAlphas obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+public final class CofAlphasP extends Table {
+  public static CofAlphasP getRootAsCofAlphasP(ByteBuffer _bb) { return getRootAsCofAlphasP(_bb, new CofAlphasP()); }
+  public static CofAlphasP getRootAsCofAlphasP(ByteBuffer _bb, CofAlphasP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
-  public CofAlphas __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public CofAlphasP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float alpha(int j) { int o = __offset(4); return o != 0 ? bb.getFloat(__vector(o) + j * 4) : 0; }
   public int alphaLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer alphaAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
   public ByteBuffer alphaInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 4); }
 
-  public static int createCofAlphas(FlatBufferBuilder builder,
+  public static int createCofAlphasP(FlatBufferBuilder builder,
       int alphaOffset) {
     builder.startObject(1);
-    CofAlphas.addAlpha(builder, alphaOffset);
-    return CofAlphas.endCofAlphas(builder);
+    CofAlphasP.addAlpha(builder, alphaOffset);
+    return CofAlphasP.endCofAlphasP(builder);
   }
 
-  public static void startCofAlphas(FlatBufferBuilder builder) { builder.startObject(1); }
+  public static void startCofAlphasP(FlatBufferBuilder builder) { builder.startObject(1); }
   public static void addAlpha(FlatBufferBuilder builder, int alphaOffset) { builder.addOffset(0, alphaOffset, 0); }
   public static int createAlphaVector(FlatBufferBuilder builder, float[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addFloat(data[i]); return builder.endVector(); }
   public static void startAlphaVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static int endCofAlphas(FlatBufferBuilder builder) {
+  public static int endCofAlphasP(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
   }

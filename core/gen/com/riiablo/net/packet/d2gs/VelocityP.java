@@ -9,28 +9,28 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
-public final class Angle extends Table {
-  public static Angle getRootAsAngle(ByteBuffer _bb) { return getRootAsAngle(_bb, new Angle()); }
-  public static Angle getRootAsAngle(ByteBuffer _bb, Angle obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+public final class VelocityP extends Table {
+  public static VelocityP getRootAsVelocityP(ByteBuffer _bb) { return getRootAsVelocityP(_bb, new VelocityP()); }
+  public static VelocityP getRootAsVelocityP(ByteBuffer _bb, VelocityP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
-  public Angle __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public VelocityP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float x() { int o = __offset(4); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
   public float y() { int o = __offset(6); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
 
-  public static int createAngle(FlatBufferBuilder builder,
+  public static int createVelocityP(FlatBufferBuilder builder,
       float x,
       float y) {
     builder.startObject(2);
-    Angle.addY(builder, y);
-    Angle.addX(builder, x);
-    return Angle.endAngle(builder);
+    VelocityP.addY(builder, y);
+    VelocityP.addX(builder, x);
+    return VelocityP.endVelocityP(builder);
   }
 
-  public static void startAngle(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startVelocityP(FlatBufferBuilder builder) { builder.startObject(2); }
   public static void addX(FlatBufferBuilder builder, float x) { builder.addFloat(0, x, 0.0f); }
   public static void addY(FlatBufferBuilder builder, float y) { builder.addFloat(1, y, 0.0f); }
-  public static int endAngle(FlatBufferBuilder builder) {
+  public static int endVelocityP(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
   }

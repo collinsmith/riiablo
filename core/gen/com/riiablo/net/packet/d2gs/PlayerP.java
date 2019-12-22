@@ -2,37 +2,36 @@
 
 package com.riiablo.net.packet.d2gs;
 
-import com.google.flatbuffers.FlatBufferBuilder;
-import com.google.flatbuffers.Table;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.nio.*;
+import java.lang.*;
+import java.util.*;
+import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
-public final class Player extends Table {
-  public static Player getRootAsPlayer(ByteBuffer _bb) { return getRootAsPlayer(_bb, new Player()); }
-  public static Player getRootAsPlayer(ByteBuffer _bb, Player obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+public final class PlayerP extends Table {
+  public static PlayerP getRootAsPlayerP(ByteBuffer _bb) { return getRootAsPlayerP(_bb, new PlayerP()); }
+  public static PlayerP getRootAsPlayerP(ByteBuffer _bb, PlayerP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
-  public Player __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public PlayerP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int charClass() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
   public String charName() { int o = __offset(6); return o != 0 ? __string(o + bb_pos) : null; }
   public ByteBuffer charNameAsByteBuffer() { return __vector_as_bytebuffer(6, 1); }
   public ByteBuffer charNameInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 1); }
 
-  public static int createPlayer(FlatBufferBuilder builder,
+  public static int createPlayerP(FlatBufferBuilder builder,
       int charClass,
       int charNameOffset) {
     builder.startObject(2);
-    Player.addCharName(builder, charNameOffset);
-    Player.addCharClass(builder, charClass);
-    return Player.endPlayer(builder);
+    PlayerP.addCharName(builder, charNameOffset);
+    PlayerP.addCharClass(builder, charClass);
+    return PlayerP.endPlayerP(builder);
   }
 
-  public static void startPlayer(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startPlayerP(FlatBufferBuilder builder) { builder.startObject(2); }
   public static void addCharClass(FlatBufferBuilder builder, int charClass) { builder.addByte(0, (byte)charClass, (byte)0); }
   public static void addCharName(FlatBufferBuilder builder, int charNameOffset) { builder.addOffset(1, charNameOffset, 0); }
-  public static int endPlayer(FlatBufferBuilder builder) {
+  public static int endPlayerP(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
   }

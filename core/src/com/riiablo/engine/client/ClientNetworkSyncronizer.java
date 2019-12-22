@@ -18,11 +18,17 @@ import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
+import com.riiablo.net.packet.d2gs.AngleP;
+import com.riiablo.net.packet.d2gs.CofAlphasP;
+import com.riiablo.net.packet.d2gs.CofComponentsP;
+import com.riiablo.net.packet.d2gs.CofTransformsP;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
+import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.Sync;
 import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.VelocityP;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -128,26 +134,26 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
     Vector2 velocity = mVelocity.get(entityId).velocity;
     Vector2 angle = mAngle.get(entityId).target;
 
-    int cofComponents = com.riiablo.net.packet.d2gs.CofComponents.createComponentVector(builder, component);
-    int cofTransforms = com.riiablo.net.packet.d2gs.CofTransforms.createTransformVector(builder, transform);
-    int cofAlphas = com.riiablo.net.packet.d2gs.CofAlphas.createAlphaVector(builder, alpha);
+    int cofComponents = CofComponentsP.createComponentVector(builder, component);
+    int cofTransforms = CofTransformsP.createTransformVector(builder, transform);
+    int cofAlphas = CofAlphasP.createAlphaVector(builder, alpha);
 
     byte[] dataTypes = new byte[6];
-    dataTypes[0] = SyncData.CofComponents;
-    dataTypes[1] = SyncData.CofTransforms;
-    dataTypes[2] = SyncData.CofAlphas;
-    dataTypes[3] = SyncData.Position;
-    dataTypes[4] = SyncData.Velocity;
-    dataTypes[5] = SyncData.Angle;
+    dataTypes[0] = SyncData.CofComponentsP;
+    dataTypes[1] = SyncData.CofTransformsP;
+    dataTypes[2] = SyncData.CofAlphasP;
+    dataTypes[3] = SyncData.PositionP;
+    dataTypes[4] = SyncData.VelocityP;
+    dataTypes[5] = SyncData.AngleP;
     int dataTypesOffset = Sync.createDataTypeVector(builder, dataTypes);
 
     int[] data = new int[6];
-    data[0] = com.riiablo.net.packet.d2gs.CofComponents.createCofComponents(builder, cofComponents);
-    data[1] = com.riiablo.net.packet.d2gs.CofTransforms.createCofTransforms(builder, cofTransforms);
-    data[2] = com.riiablo.net.packet.d2gs.CofAlphas.createCofAlphas(builder, cofAlphas);
-    data[3] = com.riiablo.net.packet.d2gs.Position.createPosition(builder, position.x, position.y);
-    data[4] = com.riiablo.net.packet.d2gs.Velocity.createVelocity(builder, velocity.x, velocity.y);
-    data[5] = com.riiablo.net.packet.d2gs.Angle.createAngle(builder, angle.x, angle.y);
+    data[0] = CofComponentsP.createCofComponentsP(builder, cofComponents);
+    data[1] = CofTransformsP.createCofTransformsP(builder, cofTransforms);
+    data[2] = CofAlphasP.createCofAlphasP(builder, cofAlphas);
+    data[3] = PositionP.createPositionP(builder, position.x, position.y);
+    data[4] = VelocityP.createVelocityP(builder, velocity.x, velocity.y);
+    data[5] = AngleP.createAngleP(builder, angle.x, angle.y);
     int dataOffset = Sync.createDataVector(builder, data);
 
     Sync.startSync(builder);
@@ -157,7 +163,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
     int syncOffset = Sync.endSync(builder);
 
     //int syncOffset = Sync.createSync(builder, entityId, dataTypesOffset, dataOffset);
-    int root = com.riiablo.net.packet.d2gs.D2GS.createD2GS(builder, D2GSData.Sync, syncOffset);
+    int root = D2GS.createD2GS(builder, D2GSData.Sync, syncOffset);
     builder.finish(root);
 
     try {
