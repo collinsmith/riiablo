@@ -37,6 +37,7 @@ import com.riiablo.engine.server.ItemInteractor;
 import com.riiablo.engine.server.ObjectInitializer;
 import com.riiablo.engine.server.ObjectInteractor;
 import com.riiablo.engine.server.Pathfinder;
+import com.riiablo.engine.server.SerializationManager;
 import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.WarpInteractor;
@@ -52,7 +53,6 @@ import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
-import com.riiablo.net.packet.d2gs.Sync;
 import com.riiablo.util.DebugUtils;
 
 import net.mostlyoriginal.api.event.common.EventSystem;
@@ -162,6 +162,7 @@ public class D2GS extends ApplicationAdapter {
   EntityFactory factory;
   MapManager mapManager;
   NetworkSynchronizer sync;
+  SerializationManager serializer;
 
   protected ComponentMapper<Networked> mNetworked;
 
@@ -228,6 +229,7 @@ public class D2GS extends ApplicationAdapter {
     WorldConfigurationBuilder builder = new WorldConfigurationBuilder()
         .with(new EventSystem())
         .with(new ServerNetworkIdManager())
+        .with(new SerializationManager())
         .with(mapManager)
         .with(new CofManager())
         .with(new ObjectInitializer())
@@ -467,7 +469,7 @@ public class D2GS extends ApplicationAdapter {
   private void Synchronize(Packet packet) {
     int entityId = player.get(packet.id, Engine.INVALID_ENTITY);
     assert entityId != Engine.INVALID_ENTITY;
-    sync.sync(entityId, (Sync) packet.data.data(new Sync()));
+    sync.sync(entityId, packet.data);
   }
 
   static String generateClientName() {
