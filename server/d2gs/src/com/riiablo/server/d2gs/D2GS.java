@@ -41,11 +41,13 @@ import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.WarpInteractor;
 import com.riiablo.engine.server.component.Networked;
+import com.riiablo.map.Act1MapBuilder;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
 import com.riiablo.map.DT1;
 import com.riiablo.map.DT1Loader;
 import com.riiablo.map.Map;
+import com.riiablo.map.MapManager;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GSData;
@@ -158,6 +160,7 @@ public class D2GS extends ApplicationAdapter {
   Map map;
 
   EntityFactory factory;
+  MapManager mapManager;
   NetworkSynchronizer sync;
 
   protected ComponentMapper<Networked> mNetworked;
@@ -209,6 +212,7 @@ public class D2GS extends ApplicationAdapter {
 
     Gdx.app.log(TAG, "Generating map...");
     map = new Map(seed, diff);
+    mapManager = new MapManager();
     Gdx.app.log(TAG, "  generating act 1...");
     long start = TimeUtils.millis();
     map.generate(0);
@@ -219,10 +223,12 @@ public class D2GS extends ApplicationAdapter {
     map.finishLoading();
 
     factory = new ServerEntityFactory();
+    mapManager = new MapManager();
     sync = new NetworkSynchronizer();
     WorldConfigurationBuilder builder = new WorldConfigurationBuilder()
         .with(new EventSystem())
         .with(new ServerNetworkIdManager())
+        .with(mapManager)
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
@@ -240,6 +246,13 @@ public class D2GS extends ApplicationAdapter {
         .register("outPackets", outPackets)
         ;
     Riiablo.engine = world = new World(config);
+
+    world.inject(map);
+    world.inject(Act1MapBuilder.INSTANCE);
+
+    map.generate();
+    mapManager.createEntities();
+
     mNetworked = world.getMapper(Networked.class);
     world.delta = Animation.FRAME_DURATION;
 
