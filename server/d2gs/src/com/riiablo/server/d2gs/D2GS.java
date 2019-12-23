@@ -459,7 +459,7 @@ public class D2GS extends ApplicationAdapter {
     outPackets.offer(broadcast);
 
     world.delete(entityId);
-    player.put(id, Engine.INVALID_ENTITY);
+    player.remove(id, Engine.INVALID_ENTITY);
     synchronized (clients) {
       clients[id] = null;
       numClients--;

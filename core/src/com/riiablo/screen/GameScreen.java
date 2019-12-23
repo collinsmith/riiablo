@@ -531,8 +531,10 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
       builder.with(new CursorMovementSystem());
     }
+    if (socket == null) {
+      builder.with(new AIStepper());
+    }
     builder
-        .with(new AIStepper())
         .with(new Pathfinder())
 
         .with(new SoundEmitterHandler())

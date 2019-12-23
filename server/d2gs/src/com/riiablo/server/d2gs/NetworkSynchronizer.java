@@ -27,11 +27,15 @@ public class NetworkSynchronizer extends IteratingSystem {
   protected IntIntMap players;
 
   @Override
+  protected boolean checkProcessing() {
+    return players.size > 0;
+  }
+
+  @Override
   protected void process(int entityId) {
     D2GS sync = sync(entityId);
     int id = players.findKey(entityId, -1);
-    assert id != -1;
-    boolean success = outPackets.offer(com.riiablo.server.d2gs.D2GS.Packet.obtain(~(1 << id), sync));
+    boolean success = outPackets.offer(com.riiablo.server.d2gs.D2GS.Packet.obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, sync));
     assert success;
   }
 
