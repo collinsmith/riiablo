@@ -2,12 +2,14 @@ package com.riiablo.engine.server;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
+import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 import com.riiablo.engine.server.component.AIWrapper;
 import com.riiablo.engine.server.component.Monster;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.map.RenderSystem;
 
+@Wire(failOnNull = false)
 @All({AIWrapper.class, Position.class, Monster.class})
 public class AIStepper extends IteratingSystem {
   protected ComponentMapper<AIWrapper> mAIWrapper;
@@ -34,7 +36,7 @@ public class AIStepper extends IteratingSystem {
 
   @Override
   protected void process(int entityId) {
-    if (!renderer.withinRadius(mPosition.get(entityId).position)) return;
+    if (renderer != null && !renderer.withinRadius(mPosition.get(entityId).position)) return;
     mAIWrapper.get(entityId).ai.update(world.delta);
   }
 }

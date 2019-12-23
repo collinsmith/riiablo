@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
@@ -21,7 +22,6 @@ import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
-import com.riiablo.engine.server.component.Networked;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
@@ -34,6 +34,7 @@ import com.riiablo.net.packet.d2gs.CofTransformsP;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
+import com.riiablo.net.packet.d2gs.DS1ObjectWrapperP;
 import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.net.packet.d2gs.PlayerP;
 import com.riiablo.net.packet.d2gs.PositionP;
@@ -50,11 +51,11 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 
-@All(Networked.class)
+@All
 public class ClientNetworkReceiver extends IntervalSystem {
   private static final String TAG = "ClientNetworkReceiver";
 
-  protected ComponentMapper<Networked> mNetworked;
+//  protected ComponentMapper<Networked> mNetworked;
   protected ComponentMapper<CofComponents> mCofComponents;
   protected ComponentMapper<CofTransforms> mCofTransforms;
   protected ComponentMapper<CofAlphas> mCofAlphas;
@@ -187,6 +188,16 @@ public class ClientNetworkReceiver extends IntervalSystem {
     return -1;
   }
 
+  private DS1ObjectWrapperP findDS1ObjectWrapper(Sync s) {
+    for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
+      if (s.dataType(i) == SyncData.DS1ObjectWrapperP) {
+        return (DS1ObjectWrapperP) s.data(new DS1ObjectWrapperP(), i);
+      }
+    }
+
+    return null;
+  }
+
   private PlayerP findPlayer(Sync s) {
     for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
       if (s.dataType(i) == SyncData.PlayerP) {
@@ -197,15 +208,28 @@ public class ClientNetworkReceiver extends IntervalSystem {
     return null;
   }
 
-  private void createEntity(Sync sync) {
+  private int createEntity(Sync sync) {
     assert syncIds.get(sync.entityId()) == Engine.INVALID_ENTITY;
     Class.Type type = Class.Type.valueOf(findType(sync));
     switch (type) {
       case OBJ:
-        break;
+        return Engine.INVALID_ENTITY;
       case MON:
+        DS1ObjectWrapperP ds1ObjectWrapper = findDS1ObjectWrapper(sync);
+        if (ds1ObjectWrapper != null) {
+          Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+          if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
+          if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
+          Map.Zone zone = map.getZone(origin);
+          String objectType = Riiablo.files.obj.getType1(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
+          MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
+          int entityId = factory.createMonster(map, zone, monstats, 0, 0);
+//          syncIds.put(sync.entityId(), entityId);
+          System.out.println("testa creating monster " + monstats.Code);
+          return entityId;
+        }
 
-        break;
+        return Engine.INVALID_ENTITY;
       case PLR: {
         PlayerP player = findPlayer(sync);
         CharData charData = new CharData().createD2S(player.charName(), CharacterClass.get(player.charClass()));
@@ -217,12 +241,14 @@ public class ClientNetworkReceiver extends IntervalSystem {
         if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
         Map.Zone zone = map.getZone(origin);
         int entityId = factory.createPlayer(map, zone, charData, origin);
-        syncIds.put(sync.entityId(), entityId);
+//        syncIds.put(sync.entityId(), entityId);
 
         cofs.setMode(entityId, Engine.Player.MODE_TN);
         cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
-        break;
+        return entityId;
       }
+      default:
+        return Engine.INVALID_ENTITY;
     }
   }
 
@@ -230,7 +256,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
     Sync sync = (Sync) packet.data(new Sync());
     int entityId = syncIds.get(sync.entityId());
     if (entityId == Engine.INVALID_ENTITY) {
-      createEntity(sync);
+      syncIds.put(sync.entityId(), entityId = createEntity(sync));
     }
 
     int flags1 = Dirty.NONE;
@@ -240,6 +266,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
       switch (sync.dataType(i)) {
         case SyncData.ClassP:
         case SyncData.PlayerP:
+        case SyncData.DS1ObjectWrapperP:
           break;
         case SyncData.CofComponentsP: {
           CofComponentsP data = (CofComponentsP) sync.data(new CofComponentsP(), i);
@@ -268,7 +295,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
           position.x = data.x();
           position.y = data.y();
           Body body = mBox2DBody.get(entityId).body;
-          body.setTransform(position, body.getAngle());
+          if (body != null) body.setTransform(position, body.getAngle());
           //Gdx.app.log(TAG, "  " + position);
           break;
         }

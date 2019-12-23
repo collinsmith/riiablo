@@ -36,7 +36,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-@All(Networked.class)
+@All
 public class ClientNetworkSyncronizer extends IntervalSystem {
   private static final String TAG = "ClientNetworkSyncronizer";
 
@@ -49,6 +49,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
   protected ComponentMapper<Angle> mAngle;
 
   protected NetworkIdManager idManager;
+  protected ClientNetworkReceiver receiver;
 
   boolean init = false;
   @Wire(name="client.socket") Socket socket;
@@ -59,7 +60,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
 
   @Override
   protected void initialize() {
-    super.initialize();
+    receiver.setEnabled(false);
   }
 
   @Override
@@ -99,20 +100,36 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
       WritableByteChannel channelOut = Channels.newChannel(out);
       channelOut.write(data);
 
-      ByteBuffer buffer = com.badlogic.gdx.utils.BufferUtils.newByteBuffer(4096);
-      buffer.clear();
-      buffer.mark();
-      ReadableByteChannel channelIn = Channels.newChannel(socket.getInputStream());
-      channelIn.read(buffer);
-      buffer.limit(buffer.position());
-      buffer.reset();
-      D2GS response = D2GS.getRootAsD2GS(buffer);
-      System.out.println("packet type " + D2GSData.name(response.dataType()));
-      assert response.dataType() == D2GSData.Connection;
-      Connection connection = (Connection) response.data(new Connection());
-      int serverId = connection.entityId();
-      System.out.println("assign " + player + " to " + serverId);
-      idManager.put(connection.entityId(), Riiablo.game.player);
+      boolean connected = false;
+      ByteBuffer buffer = ByteBuffer.allocate(4096);
+      while (!connected) {
+        try {
+          buffer.clear();
+          ReadableByteChannel channelIn = Channels.newChannel(socket.getInputStream());
+          int i = channelIn.read(buffer);
+          System.out.println("read " + i + ": " + buffer.position());
+          buffer.rewind();
+          D2GS response = D2GS.getRootAsD2GS(buffer);
+          System.out.println("packet type " + D2GSData.name(response.dataType()));
+          connected = response.dataType() == D2GSData.Connection;
+          if (!connected) {
+            System.out.println("dropping...");
+            continue;
+          }
+          Connection connection = (Connection) response.data(new Connection());
+          connected = connection.charName() == null;
+          if (!connected) {
+            System.out.println("dropping...");
+            continue;
+          }
+          int serverId = connection.entityId();
+          System.out.println("assign " + player + " to " + serverId);
+          idManager.put(connection.entityId(), Riiablo.game.player);
+        } catch (Throwable t) {
+          Gdx.app.error(TAG, t.getMessage(), t);
+        }
+      }
+      receiver.setEnabled(true);
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
     }

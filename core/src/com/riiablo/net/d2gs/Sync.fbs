@@ -9,6 +9,7 @@ union SyncData {
   VelocityP,
   AngleP,
   PlayerP,
+  DS1ObjectWrapperP,
 }
 
 table Sync {
@@ -50,4 +51,9 @@ table AngleP {
 table PlayerP {
   charClass:uint8;
   charName:string;
+}
+
+table DS1ObjectWrapperP {
+  act:uint8;
+  id:uint8;
 }

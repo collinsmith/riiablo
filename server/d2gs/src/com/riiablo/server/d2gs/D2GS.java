@@ -235,6 +235,7 @@ public class D2GS extends ApplicationAdapter {
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
 
+//        .with(new AIStepper())
         .with(new Pathfinder())
 
         .with(factory)

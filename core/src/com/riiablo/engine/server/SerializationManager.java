@@ -14,13 +14,16 @@ import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
+import com.riiablo.engine.server.component.DS1ObjectWrapper;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.engine.server.component.serializer.AngleSerializer;
+import com.riiablo.engine.server.component.serializer.ClassSerializer;
 import com.riiablo.engine.server.component.serializer.CofAlphasSerializer;
 import com.riiablo.engine.server.component.serializer.CofComponentsSerializer;
 import com.riiablo.engine.server.component.serializer.CofTransformsSerializer;
+import com.riiablo.engine.server.component.serializer.DS1ObjectWrapperSerializer;
 import com.riiablo.engine.server.component.serializer.FlatBuffersSerializer;
 import com.riiablo.engine.server.component.serializer.PlayerSerializer;
 import com.riiablo.engine.server.component.serializer.PositionSerializer;
@@ -48,12 +51,14 @@ public class SerializationManager extends PassiveSystem {
   private Class<? extends Component>[] deserializers;
   private final Sync sync = new Sync();
 
+  protected ComponentMapper<com.riiablo.engine.server.component.Class> mClass;
   protected ComponentMapper<CofComponents> mCofComponents;
   protected ComponentMapper<CofTransforms> mCofTransforms;
   protected ComponentMapper<CofAlphas> mCofAlphas;
   protected ComponentMapper<Position> mPosition;
   protected ComponentMapper<Velocity> mVelocity;
   protected ComponentMapper<Angle> mAngle;
+  protected ComponentMapper<DS1ObjectWrapper> mDS1ObjectWrapper;
   protected ComponentMapper[] cm;
 
   protected ComponentManager componentManager;
@@ -63,6 +68,7 @@ public class SerializationManager extends PassiveSystem {
   @SuppressWarnings("unchecked")
   protected void initialize() {
     serializers = new ObjectMap<>();
+    serializers.put(com.riiablo.engine.server.component.Class.class, new ClassSerializer());
     serializers.put(CofComponents.class, new CofComponentsSerializer());
     serializers.put(CofTransforms.class, new CofTransformsSerializer());
     serializers.put(CofAlphas.class, new CofAlphasSerializer());
@@ -70,8 +76,10 @@ public class SerializationManager extends PassiveSystem {
     serializers.put(Velocity.class, new VelocitySerializer());
     serializers.put(Angle.class, new AngleSerializer());
     serializers.put(Player.class, new PlayerSerializer());
+    serializers.put(DS1ObjectWrapper.class, new DS1ObjectWrapperSerializer());
 
     deserializers = (Class<? extends Component>[]) new Class[SyncData.names.length];
+    deserializers[SyncData.ClassP] = com.riiablo.engine.server.component.Class.class;
     deserializers[SyncData.CofComponentsP] = CofComponents.class;
     deserializers[SyncData.CofTransformsP] = CofTransforms.class;
     deserializers[SyncData.CofAlphasP] = CofAlphas.class;
@@ -79,8 +87,10 @@ public class SerializationManager extends PassiveSystem {
     deserializers[SyncData.VelocityP] = Velocity.class;
     deserializers[SyncData.AngleP] = Angle.class;
     deserializers[SyncData.PlayerP] = Player.class;
+    deserializers[SyncData.DS1ObjectWrapperP] = DS1ObjectWrapper.class;
 
     cm = new ComponentMapper[SyncData.names.length];
+    cm[SyncData.ClassP] = mClass;
     cm[SyncData.CofComponentsP] = null;
     cm[SyncData.CofTransformsP] = null;
     cm[SyncData.CofAlphasP] = null;
@@ -88,6 +98,7 @@ public class SerializationManager extends PassiveSystem {
     cm[SyncData.VelocityP] = mVelocity;
     cm[SyncData.AngleP] = mAngle;
     cm[SyncData.PlayerP] = null;
+    cm[SyncData.DS1ObjectWrapperP] = mDS1ObjectWrapper;
   }
 
   @SuppressWarnings("unchecked")
@@ -167,6 +178,7 @@ public class SerializationManager extends PassiveSystem {
         }
         case SyncData.ClassP:
         case SyncData.PlayerP:
+        case SyncData.DS1ObjectWrapperP:
           break;
         default: {
           Class<? extends Component> clazz = deserializers[dataType];
