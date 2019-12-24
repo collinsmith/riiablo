@@ -1,9 +1,9 @@
 package com.riiablo.engine.client;
 
+import com.google.flatbuffers.ByteBufferUtil;
 import com.google.flatbuffers.FlatBufferBuilder;
 
 import com.artemis.ComponentMapper;
-import com.artemis.Entity;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
@@ -32,6 +32,7 @@ import com.riiablo.net.packet.d2gs.VelocityP;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -39,6 +40,9 @@ import java.nio.channels.WritableByteChannel;
 @All
 public class ClientNetworkSyncronizer extends IntervalSystem {
   private static final String TAG = "ClientNetworkSyncronizer";
+  private static final boolean DEBUG         = true;
+  private static final boolean DEBUG_PACKET  = DEBUG && !true;
+  private static final boolean DEBUG_CONNECT = DEBUG && !true;
 
   protected ComponentMapper<Networked> mNetworked;
   protected ComponentMapper<CofComponents> mCofComponents;
@@ -73,16 +77,16 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
       FlatBufferBuilder builder = new FlatBufferBuilder();
       int charNameOffset = builder.createString(Riiablo.charData.getD2S().header.name);
 
-      Entity player = world.getEntity(Riiablo.game.player);
-      int[] component = player.getComponent(CofComponents.class).component;
+      int entityId = Riiablo.game.player;
+      int[] component = mCofComponents.get(entityId).component;
       builder.startVector(1, component.length, 1);
       for (int i = component.length - 1; i >= 0; i--) builder.addByte((byte) component[i]);
       int componentsOffset = builder.endVector();
 
-      float[] alphas = player.getComponent(CofAlphas.class).alpha;
+      float[] alphas = mCofAlphas.get(entityId).alpha;
       int alphasOffset = Connection.createCofAlphasVector(builder, alphas);
 
-      byte[] transforms = player.getComponent(CofTransforms.class).transform;
+      byte[] transforms = mCofTransforms.get(entityId).transform;
       int transformsOffset = Connection.createCofTransformsVector(builder, transforms);
 
       Connection.startConnection(builder);
@@ -93,38 +97,46 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
       Connection.addCofTransforms(builder, transformsOffset);
       int connectionOffset = Connection.endConnection(builder);
       int offset = D2GS.createD2GS(builder, D2GSData.Connection, connectionOffset);
-      builder.finish(offset);
-      ByteBuffer data = builder.dataBuffer();
+      D2GS.finishSizePrefixedD2GSBuffer(builder, offset);
 
       OutputStream out = socket.getOutputStream();
       WritableByteChannel channelOut = Channels.newChannel(out);
-      channelOut.write(data);
+      channelOut.write(builder.dataBuffer());
 
       boolean connected = false;
-      ByteBuffer buffer = ByteBuffer.allocate(4096);
+      ByteBuffer buffer = ByteBuffer.allocate(1 << 20).order(ByteOrder.LITTLE_ENDIAN);
       while (!connected) {
         try {
           buffer.clear();
           ReadableByteChannel channelIn = Channels.newChannel(socket.getInputStream());
           int i = channelIn.read(buffer);
-          System.out.println("read " + i + ": " + buffer.position());
-          buffer.rewind();
-          D2GS response = D2GS.getRootAsD2GS(buffer);
-          System.out.println("packet type " + D2GSData.name(response.dataType()));
-          connected = response.dataType() == D2GSData.Connection;
-          if (!connected) {
-            System.out.println("dropping...");
-            continue;
+          buffer.rewind().limit(i);
+          D2GS d2gs = new D2GS();
+          while (buffer.hasRemaining()) {
+            int size = ByteBufferUtil.getSizePrefix(buffer);
+            D2GS.getRootAsD2GS(ByteBufferUtil.removeSizePrefix(buffer), d2gs);
+            if (DEBUG_PACKET) Gdx.app.debug(TAG, "packet type " + D2GSData.name(d2gs.dataType()) + ":" + ByteBufferUtil.getSizePrefix(buffer) + "B");
+            connected = d2gs.dataType() == D2GSData.Connection;
+            if (!connected) {
+              if (DEBUG_CONNECT) Gdx.app.debug(TAG, "dropping... ");
+//              System.out.println(buffer.position() + "->" + (buffer.position() + size + 4));
+              buffer.position(buffer.position() + size + 4);
+              continue;
+            }
+            Connection connection = (Connection) d2gs.data(new Connection());
+            connected = connection.charName() == null;
+            if (!connected) {
+              if (DEBUG_CONNECT) Gdx.app.debug(TAG, "dropping... ");
+//              System.out.println(buffer.position() + "->" + (buffer.position() + size + 4));
+              buffer.position(buffer.position() + size + 4);
+              continue;
+            }
+
+            int serverId = connection.entityId();
+            Gdx.app.log(TAG, "assign " + entityId + " to " + serverId);
+            idManager.put(connection.entityId(), Riiablo.game.player);
+            break;
           }
-          Connection connection = (Connection) response.data(new Connection());
-          connected = connection.charName() == null;
-          if (!connected) {
-            System.out.println("dropping...");
-            continue;
-          }
-          int serverId = connection.entityId();
-          System.out.println("assign " + player + " to " + serverId);
-          idManager.put(connection.entityId(), Riiablo.game.player);
         } catch (Throwable t) {
           Gdx.app.error(TAG, t.getMessage(), t);
         }
@@ -181,7 +193,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
 
     //int syncOffset = Sync.createSync(builder, entityId, dataTypesOffset, dataOffset);
     int root = D2GS.createD2GS(builder, D2GSData.Sync, syncOffset);
-    builder.finish(root);
+    D2GS.finishSizePrefixedD2GSBuffer(builder, root);
 
     try {
       OutputStream out = socket.getOutputStream();

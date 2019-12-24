@@ -78,6 +78,7 @@ import com.riiablo.engine.server.AIStepper;
 import com.riiablo.engine.server.AngularVelocity;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.AnimStepper;
+import com.riiablo.engine.server.Box2DDisposer;
 import com.riiablo.engine.server.Box2DSynchronizerPre;
 import com.riiablo.engine.server.Box2DSynchronizerPost;
 import com.riiablo.engine.server.CofManager;
@@ -552,6 +553,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
 
         .with(new VelocityModeChanger())
 //        .with(new VelocityAdder())
+        .with(new Box2DDisposer())
         .with(new Box2DSynchronizerPre())
         .with(new Box2DPhysics(1 / 60f))
         .with(new Box2DSynchronizerPost())

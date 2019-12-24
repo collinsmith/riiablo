@@ -12,6 +12,7 @@ import com.riiablo.engine.server.component.Networked;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
 
 @All(Networked.class)
@@ -33,18 +34,19 @@ public class NetworkSynchronizer extends IteratingSystem {
 
   @Override
   protected void process(int entityId) {
-    D2GS sync = sync(entityId);
+    ByteBuffer sync = sync(entityId);
     int id = players.findKey(entityId, -1);
-    boolean success = outPackets.offer(com.riiablo.server.d2gs.D2GS.Packet.obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, sync));
+    boolean success = outPackets.offer(com.riiablo.server.d2gs.D2GS.Packet
+        .obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, sync));
     assert success;
   }
 
-  public D2GS sync(int entityId) {
+  public ByteBuffer sync(int entityId) {
     FlatBufferBuilder builder = new FlatBufferBuilder(0);
     int syncOffset = serializer.serialize(builder, entityId);
     int root = D2GS.createD2GS(builder, D2GSData.Sync, syncOffset);
-    builder.finish(root);
-    return D2GS.getRootAsD2GS(builder.dataBuffer());
+    D2GS.finishSizePrefixedD2GSBuffer(builder, root);
+    return builder.dataBuffer();
   }
 
   public void sync(int entityId, D2GS packet) {

@@ -1,5 +1,7 @@
 package com.riiablo.engine.client;
 
+import com.google.flatbuffers.ByteBufferUtil;
+
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
@@ -21,6 +23,7 @@ import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
+import com.riiablo.engine.server.component.CofReference;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
@@ -47,6 +50,7 @@ import com.riiablo.widget.TextArea;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
@@ -54,8 +58,12 @@ import java.util.Arrays;
 @All
 public class ClientNetworkReceiver extends IntervalSystem {
   private static final String TAG = "ClientNetworkReceiver";
+  private static final boolean DEBUG         = true;
+  private static final boolean DEBUG_PACKET  = DEBUG && !true;
+  private static final boolean DEBUG_SYNC    = DEBUG && !true;
 
 //  protected ComponentMapper<Networked> mNetworked;
+  protected ComponentMapper<CofReference> mCofReference;
   protected ComponentMapper<CofComponents> mCofComponents;
   protected ComponentMapper<CofTransforms> mCofTransforms;
   protected ComponentMapper<CofAlphas> mCofAlphas;
@@ -80,7 +88,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
   @Wire(name = "output")
   protected TextArea output;
 
-  private final ByteBuffer buffer = ByteBuffer.allocate(8192);
+  private final ByteBuffer buffer = ByteBuffer.allocate(1 << 20).order(ByteOrder.LITTLE_ENDIAN);
 
   public ClientNetworkReceiver() {
     super(null, 1 / 60f);
@@ -90,14 +98,21 @@ public class ClientNetworkReceiver extends IntervalSystem {
   protected void processSystem() {
     InputStream in = socket.getInputStream();
     try {
-      while (in.available() > 0) {
+      if (in.available() > 0) {
         ReadableByteChannel channel = Channels.newChannel(in);
         buffer.clear();
-        channel.read(buffer);
-        buffer.limit(buffer.position()).rewind();
-        D2GS packet = D2GS.getRootAsD2GS(buffer);
-        System.out.println("packet type " + D2GSData.name(packet.dataType()));
-        process(packet);
+        int i = channel.read(buffer);
+        buffer.rewind().limit(i);
+        D2GS d2gs = new D2GS();
+        int p = 0;
+        while (buffer.hasRemaining()) {
+          int size = ByteBufferUtil.getSizePrefix(buffer);
+          D2GS.getRootAsD2GS(ByteBufferUtil.removeSizePrefix(buffer), d2gs);
+          if (DEBUG_PACKET) Gdx.app.debug(TAG, p++ + " packet type " + D2GSData.name(d2gs.dataType()) + ":" + size + "B");
+          process(d2gs);
+//          System.out.println(buffer.position() + "->" + (buffer.position() + size + 4));
+          buffer.position(buffer.position() + size + 4);
+        }
       }
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
@@ -145,8 +160,6 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
     int alphaFlags = Dirty.NONE;
     int transformFlags = Dirty.NONE;
-    cofs.setMode(entityId, Engine.Player.MODE_TN);
-    cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
     for (int i = 0; i < 16; i++) {
       cofs.setComponent(entityId, i, connection.cofComponents(i));
     }
@@ -158,6 +171,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
     cofs.updateAlpha(entityId, alphaFlags);
     cofs.updateTransform(entityId, transformFlags);
     cofs.setMode(entityId, Engine.Player.MODE_TN, true);
+    cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
 
     System.out.println("  " + DebugUtils.toByteArray(ArrayUtils.toByteArray(component)));
     System.out.println("  " + Arrays.toString(alpha));
@@ -176,6 +190,8 @@ public class ClientNetworkReceiver extends IntervalSystem {
     output.appendText("\n");
 
     world.delete(entityId);
+    Body body = mBox2DBody.get(entityId).body;
+    if (body != null) ;
   }
 
   private int findType(Sync s) {
@@ -259,9 +275,9 @@ public class ClientNetworkReceiver extends IntervalSystem {
       syncIds.put(sync.entityId(), entityId = createEntity(sync));
     }
 
-    int flags1 = Dirty.NONE;
-    int flags2 = Dirty.NONE;
-    Gdx.app.log(TAG, "syncing " + entityId);
+    int tFlags = Dirty.NONE;
+    int aFlags = Dirty.NONE;
+    if (DEBUG_SYNC) Gdx.app.debug(TAG, "syncing " + entityId);
     for (int i = 0, len = sync.dataTypeLength(); i < len; i++) {
       switch (sync.dataType(i)) {
         case SyncData.ClassP:
@@ -278,14 +294,14 @@ public class ClientNetworkReceiver extends IntervalSystem {
         case SyncData.CofTransformsP: {
           CofTransformsP data = (CofTransformsP) sync.data(new CofTransformsP(), i);
           for (int j = 0, s0 = data.transformLength(); j < s0; j++) {
-            flags1 |= cofs.setTransform(entityId, j, (byte) data.transform(j));
+            tFlags |= cofs.setTransform(entityId, j, (byte) data.transform(j));
           }
           break;
         }
         case SyncData.CofAlphasP: {
           CofAlphasP data = (CofAlphasP) sync.data(new CofAlphasP(), i);
           for (int j = 0, s0 = data.alphaLength(); j < s0; j++) {
-            flags2 |= cofs.setAlpha(entityId, j, data.alpha(j));
+            aFlags |= cofs.setAlpha(entityId, j, data.alpha(j));
           }
           break;
         }
@@ -294,8 +310,10 @@ public class ClientNetworkReceiver extends IntervalSystem {
           PositionP data = (PositionP) sync.data(new PositionP(), i);
           position.x = data.x();
           position.y = data.y();
-          Body body = mBox2DBody.get(entityId).body;
-          if (body != null) body.setTransform(position, body.getAngle());
+          if (mBox2DBody.has(entityId)) {
+            Body body = mBox2DBody.get(entityId).body;
+            if (body != null) body.setTransform(position, body.getAngle());
+          }
           //Gdx.app.log(TAG, "  " + position);
           break;
         }
@@ -320,7 +338,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
       }
     }
 
-    cofs.updateTransform(entityId, flags1);
-    cofs.updateAlpha(entityId, flags2);
+    cofs.updateTransform(entityId, tFlags);
+    cofs.updateAlpha(entityId, aFlags);
   }
 }

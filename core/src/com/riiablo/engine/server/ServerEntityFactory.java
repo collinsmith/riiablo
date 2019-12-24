@@ -113,7 +113,7 @@ public class ServerEntityFactory extends EntityFactory {
     int id = createMonster(map, zone, monstats, x, y);
     mDS1ObjectWrapper.create(id).set(preset.getDS1(), object);
     if (object.path != null) mPathWrapper.create(id).path = object.path;
-//    mNetworked.create(id);
+    mNetworked.create(id);
     return id;
   }
 
