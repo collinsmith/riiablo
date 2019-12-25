@@ -1,32 +1,24 @@
 package com.riiablo.codec.excel;
 
-import java.util.Arrays;
+import com.badlogic.gdx.utils.IntArray;
 
 @Excel.Binned
 public class Obj extends Excel<Obj.Entry> {
   private static final int MAX_ACTS = 5;
-  private static final int MAX_ENTRIES = 150;
+  private static final int INITIAL_ENTRIES = 150;
 
-  private final int[][] lookup = new int[MAX_ACTS + 1][MAX_ENTRIES];
-  private final int[] index = new int[MAX_ACTS + 1];
+  private final IntArray[] lookup = new IntArray[MAX_ACTS + 1]; {
+    for (int act = 1; act <= MAX_ACTS; act++) lookup[act] = new IntArray(INITIAL_ENTRIES);
+  }
 
   @Override
   protected void put(int id, Entry value) {
     super.put(id, value);
-    int act = value.Act;
-    lookup[act][index[act]++] = id;
-  }
-
-  @Override
-  protected void init() {
-    for (int act = 1; act <= MAX_ACTS; act++) {
-      int[] lookup = this.lookup[act];
-      Arrays.fill(lookup, index[act], lookup.length, -1);
-    }
+    lookup[value.Act].add(id);
   }
 
   public Entry get(int act, int id) {
-    return get(lookup[act][id]);
+    return get(lookup[act].get(id));
   }
 
   public int getObjectId(int act, int id) {
@@ -34,7 +26,7 @@ public class Obj extends Excel<Obj.Entry> {
   }
 
   public int getSize(int act) {
-    return index[act];
+    return lookup[act].size;
   }
 
   @Excel.Index
