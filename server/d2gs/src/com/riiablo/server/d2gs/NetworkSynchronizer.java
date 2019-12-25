@@ -22,7 +22,7 @@ public class NetworkSynchronizer extends IteratingSystem {
   protected SerializationManager serializer;
 
   @Wire(name = "outPackets")
-  protected BlockingQueue<com.riiablo.server.d2gs.D2GS.Packet> outPackets;
+  protected BlockingQueue<Packet> outPackets;
 
   @Wire(name = "player")
   protected IntIntMap players;
@@ -36,8 +36,8 @@ public class NetworkSynchronizer extends IteratingSystem {
   protected void process(int entityId) {
     ByteBuffer sync = sync(entityId);
     int id = players.findKey(entityId, -1);
-    boolean success = outPackets.offer(com.riiablo.server.d2gs.D2GS.Packet
-        .obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, sync));
+    Packet packet = Packet.obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, sync);
+    boolean success = outPackets.offer(packet);
     assert success;
   }
 
