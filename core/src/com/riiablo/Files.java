@@ -28,6 +28,7 @@ import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonAI;
 import com.riiablo.codec.excel.MonMode;
+import com.riiablo.codec.excel.MonPreset;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.excel.MonStats2;
 import com.riiablo.codec.excel.Obj;
@@ -85,6 +86,7 @@ public class Files {
   public final MonMode          MonMode;
   public final MonStats         monstats;
   public final MonStats2        monstats2;
+  public final MonPreset        MonPreset;
   public final Objects          objects;
   public final ObjMode          ObjMode;
   public final Overlay          Overlay;
@@ -142,6 +144,7 @@ public class Files {
     MonMode          = load(MonMode.class);
     monstats         = load(MonStats.class, Excel.EXPANSION);
     monstats2        = load(MonStats2.class, Excel.EXPANSION);
+    MonPreset        = load(MonPreset.class, Excel.EXPANSION);
     RarePrefix       = load(RarePrefix.class, Excel.EXPANSION);
     RareSuffix       = load(RareSuffix.class, Excel.EXPANSION);
     Runes            = load(Runes.class);
