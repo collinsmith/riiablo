@@ -1,51 +1,52 @@
 package com.riiablo.codec.excel;
 
+import java.util.Arrays;
+
 @Excel.Binned
 public class Obj extends Excel<Obj.Entry> {
   private static final int MAX_ACTS = 5;
-  private static final int TYPE_SIZE[] = {60, 150};
+  private static final int MAX_ENTRIES = 150;
 
-  public static final int TYPE1 = 1;
-  public static final int TYPE2 = 2;
-
-  private int[][][] lookup = new int[MAX_ACTS + 1][TYPE_SIZE.length + 1][]; {
-    for (int i = 1; i <= MAX_ACTS; i++) {
-      for (int j = 1; j <= TYPE_SIZE.length; j++) {
-        lookup[i][j] = new int[TYPE_SIZE[j - 1]];
-      }
-    }
-  }
+  private final int[][] lookup = new int[MAX_ACTS + 1][MAX_ENTRIES];
+  private final int[] index = new int[MAX_ACTS + 1];
 
   @Override
   protected void put(int id, Entry value) {
     super.put(id, value);
-    lookup[value.Act][value.Type][value.Id] = id;
+    int act = value.Act;
+    lookup[act][index[act]++] = id;
   }
 
-  public Entry get(int act, int type, int id) {
-    return get(lookup[act][type][id]);
+  @Override
+  protected void init() {
+    for (int act = 1; act <= MAX_ACTS; act++) {
+      int[] lookup = this.lookup[act];
+      Arrays.fill(lookup, index[act], lookup.length, -1);
+    }
   }
 
-  public String getType1(int act, int id) {
-    return get(act, TYPE1, id).Description;
+  public Entry get(int act, int id) {
+    return get(lookup[act][id]);
   }
 
-  public int getType2(int act, int id) {
-    return get(act, TYPE2, id).ObjectId;
+  public int getObjectId(int act, int id) {
+    return get(act, id).ObjectId;
   }
 
+  public int getSize(int act) {
+    return index[act];
+  }
+
+  @Excel.Index
   public static class Entry extends Excel.Entry {
     @Override
     public String toString() {
       return Description;
     }
 
-    @Column
-    @Key
-    public String  Description;
-    @Column public int    Act;
-    @Column public int    Id;
-    @Column public int    Type;
-    @Column public int    ObjectId;
+    @Column public int     Act;
+    @Column public int     Id;
+    @Column public String  Description;
+    @Column public int     ObjectId;
   }
 }

@@ -237,7 +237,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
           if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
           if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
           Map.Zone zone = map.getZone(origin);
-          String objectType = Riiablo.files.obj.getType1(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
+          String objectType = Riiablo.files.MonPreset.getPlace(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
           MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
           int entityId = factory.createMonster(map, zone, monstats, 0, 0);
 //          syncIds.put(sync.entityId(), entityId);

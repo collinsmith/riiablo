@@ -551,9 +551,13 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new AnimationStepper())
         .with(new ObjectCollisionUpdater())
 
-        .with(new VelocityModeChanger())
-//        .with(new VelocityAdder())
-        .with(new Box2DDisposer())
+        .with(new VelocityModeChanger());
+//        .with(new VelocityAdder());
+    if (socket != null) {
+      // FIXME: crash when changing acts in multiplayer
+      builder.with(new Box2DDisposer());
+    }
+    builder
         .with(new Box2DSynchronizerPre())
         .with(new Box2DPhysics(1 / 60f))
         .with(new Box2DSynchronizerPost())

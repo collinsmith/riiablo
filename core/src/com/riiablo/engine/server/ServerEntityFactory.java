@@ -103,7 +103,7 @@ public class ServerEntityFactory extends EntityFactory {
 
   @Override
   public int createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
-    String objectType = Riiablo.files.obj.getType1(preset.getDS1().getAct(), object.id);
+    String objectType = Riiablo.files.MonPreset.getPlace(preset.getDS1().getAct(), object.id);
     MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
     if (monstats == null) {
       Gdx.app.error(TAG, "Unknown dynamic entity id: " + objectType + "; " + preset + "; object=" + object);
@@ -120,7 +120,7 @@ public class ServerEntityFactory extends EntityFactory {
   @Override
   public int createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
     assert object.type == DS1.Object.STATIC_TYPE;
-    int objectType = Riiablo.files.obj.getType2(preset.getDS1().getAct(), object.id);
+    int objectType = Riiablo.files.obj.getObjectId(preset.getDS1().getAct(), object.id);
     Objects.Entry base = Riiablo.files.objects.get(objectType);
     if (base == null) {
       Gdx.app.error(TAG, "Unknown static entity id: " + objectType + "; " + preset + "; object=" + object);

@@ -5,7 +5,7 @@ import java.util.Arrays;
 @Excel.Binned
 public class MonPreset extends Excel<MonPreset.Entry> {
   private static final int MAX_ACTS = 5;
-  private static final int MAX_ENTRIES = 64;
+  private static final int MAX_ENTRIES = 60;
 
   private final int[][] lookup = new int[MAX_ACTS + 1][MAX_ENTRIES];
   private final int[] index = new int[MAX_ACTS + 1];
@@ -39,6 +39,11 @@ public class MonPreset extends Excel<MonPreset.Entry> {
 
   @Excel.Index
   public static class Entry extends Excel.Entry {
+    @Override
+    public String toString() {
+      return Place;
+    }
+
     @Column public int     Act;
     @Column public String  Place;
   }
