@@ -204,20 +204,12 @@ public class ClientNetworkReceiver extends IntervalSystem {
     return -1;
   }
 
-  private DS1ObjectWrapperP findDS1ObjectWrapper(Sync s) {
-    for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
-      if (s.dataType(i) == SyncData.DS1ObjectWrapperP) {
-        return (DS1ObjectWrapperP) s.data(new DS1ObjectWrapperP(), i);
-      }
-    }
-
-    return null;
-  }
-
-  private PlayerP findPlayer(Sync s) {
-    for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
-      if (s.dataType(i) == SyncData.PlayerP) {
-        return (PlayerP) s.data(new PlayerP(), i);
+  private <T extends Table> T findTable(Sync s, byte dataType, T table) {
+    ByteBuffer dataTypes = s.dataTypeAsByteBuffer();
+    for (int i = 0; dataTypes.hasRemaining(); i++) {
+      if (dataTypes.get() == dataType) {
+        s.data(table, i);
+        return table;
       }
     }
 
@@ -228,10 +220,18 @@ public class ClientNetworkReceiver extends IntervalSystem {
     assert syncIds.get(sync.entityId()) == Engine.INVALID_ENTITY;
     Class.Type type = Class.Type.valueOf(findType(sync));
     switch (type) {
-      case OBJ:
+      case OBJ: {
+        DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());
+        if (ds1ObjectWrapper != null) {
+//          String objectType = Riiablo.files.obj.getType1(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
+//          int entityId = factory.createStaticObject(map, null, null, object, 0, 0);
+//          return entityId;
+        }
+
         return Engine.INVALID_ENTITY;
-      case MON:
-        DS1ObjectWrapperP ds1ObjectWrapper = findDS1ObjectWrapper(sync);
+      }
+      case MON: {
+        DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());
         if (ds1ObjectWrapper != null) {
           Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
           if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
@@ -240,14 +240,13 @@ public class ClientNetworkReceiver extends IntervalSystem {
           String objectType = Riiablo.files.MonPreset.getPlace(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
           MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
           int entityId = factory.createMonster(map, zone, monstats, 0, 0);
-//          syncIds.put(sync.entityId(), entityId);
-          System.out.println("testa creating monster " + monstats.Code);
           return entityId;
         }
 
         return Engine.INVALID_ENTITY;
+      }
       case PLR: {
-        PlayerP player = findPlayer(sync);
+        PlayerP player = findTable(sync, SyncData.PlayerP, new PlayerP());
         CharData charData = new CharData().createD2S(player.charName(), CharacterClass.get(player.charClass()));
 
         // TODO: assert entity id is player
@@ -257,7 +256,6 @@ public class ClientNetworkReceiver extends IntervalSystem {
         if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
         Map.Zone zone = map.getZone(origin);
         int entityId = factory.createPlayer(map, zone, charData, origin);
-//        syncIds.put(sync.entityId(), entityId);
 
         cofs.setMode(entityId, Engine.Player.MODE_TN);
         cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...

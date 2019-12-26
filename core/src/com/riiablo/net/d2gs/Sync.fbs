@@ -55,5 +55,6 @@ table PlayerP {
 
 table DS1ObjectWrapperP {
   act:uint8;
+  type:uint8;
   id:uint8;
 }

@@ -16,20 +16,24 @@ public final class DS1ObjectWrapperP extends Table {
   public DS1ObjectWrapperP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int act() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
-  public int id() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
+  public int type() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
+  public int id() { int o = __offset(8); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
 
   public static int createDS1ObjectWrapperP(FlatBufferBuilder builder,
       int act,
+      int type,
       int id) {
-    builder.startObject(2);
+    builder.startObject(3);
     DS1ObjectWrapperP.addId(builder, id);
+    DS1ObjectWrapperP.addType(builder, type);
     DS1ObjectWrapperP.addAct(builder, act);
     return DS1ObjectWrapperP.endDS1ObjectWrapperP(builder);
   }
 
-  public static void startDS1ObjectWrapperP(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startDS1ObjectWrapperP(FlatBufferBuilder builder) { builder.startObject(3); }
   public static void addAct(FlatBufferBuilder builder, int act) { builder.addByte(0, (byte)act, (byte)0); }
-  public static void addId(FlatBufferBuilder builder, int id) { builder.addByte(1, (byte)id, (byte)0); }
+  public static void addType(FlatBufferBuilder builder, int type) { builder.addByte(1, (byte)type, (byte)0); }
+  public static void addId(FlatBufferBuilder builder, int id) { builder.addByte(2, (byte)id, (byte)0); }
   public static int endDS1ObjectWrapperP(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

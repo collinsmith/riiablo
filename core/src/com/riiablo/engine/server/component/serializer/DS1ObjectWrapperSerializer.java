@@ -17,7 +17,7 @@ public class DS1ObjectWrapperSerializer implements FlatBuffersSerializer<DS1Obje
 
   @Override
   public int putData(FlatBufferBuilder builder, DS1ObjectWrapper c) {
-    return DS1ObjectWrapperP.createDS1ObjectWrapperP(builder, c.ds1.getAct(), c.object.id);
+    return DS1ObjectWrapperP.createDS1ObjectWrapperP(builder, c.ds1.getAct(), c.object.type, c.object.id);
   }
 
   @Override
