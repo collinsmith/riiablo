@@ -25,9 +25,9 @@ import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.Item;
 import com.riiablo.engine.server.component.Missile;
+import com.riiablo.engine.server.component.Monster;
 import com.riiablo.engine.server.component.SoundEmitter;
 import com.riiablo.engine.server.component.Warp;
-import com.riiablo.map.DS1;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
 
@@ -46,8 +46,8 @@ public class ClientEntityFactory extends ServerEntityFactory {
   protected DialogManager dialogManager;
 
   @Override
-  public int createPlayer(Map map, Map.Zone zone, CharData charData, Vector2 position) {
-    int id = super.createPlayer(map, zone, charData, position);
+  public int createPlayer(CharData charData, Vector2 position) {
+    int id = super.createPlayer(charData, position);
     mCofComponentDescriptors.create(id);
     mAnimationWrapper.create(id);
     mBBoxWrapper.create(id).box = mAnimationWrapper.get(id).animation.getBox();
@@ -56,17 +56,19 @@ public class ClientEntityFactory extends ServerEntityFactory {
   }
 
   @Override
-  public int createDynamicObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
-    return super.createDynamicObject(map, zone, preset, object, x, y);
+  public int createDynamicObject(int act, int monPresetId, float x, float y) {
+    return super.createDynamicObject(act, monPresetId, x, y);
   }
 
   @Override
-  public int createStaticObject(Map map, Map.Zone zone, Map.Preset preset, DS1.Object object, float x, float y) {
-    int id = super.createStaticObject(map, zone, preset, object, x, y);
+  public int createStaticObject(int act, int objId, float x, float y) {
+    int id = super.createStaticObject(act, objId, x, y);
     Objects.Entry base = mObject.get(id).base;
 
     String name;
     if ((base.SubClass & Engine.Object.SUBCLASS_WAYPOINT) == Engine.Object.SUBCLASS_WAYPOINT) {
+      Map.Zone zone = map.getZone(x, y);
+      mMapWrapper.create(id).set(map, zone);
       String levelName = Riiablo.string.lookup(zone.level.LevelName);
       String objectName = Riiablo.string.lookup(base.Name);
       name = String.format("%s\n%s", levelName, objectName);
@@ -102,9 +104,11 @@ public class ClientEntityFactory extends ServerEntityFactory {
   }
 
   @Override
-  public int createMonster(Map map, Map.Zone zone, MonStats.Entry monstats, float x, float y) {
-    int id = super.createMonster(map, zone, monstats, x, y);
-    MonStats2.Entry monstats2 = mMonster.get(id).monstats2;
+  public int createMonster(int monsterId, float x, float y) {
+    int id = super.createMonster(monsterId, x, y);
+    Monster monster = mMonster.get(id);
+    MonStats.Entry monstats = monster.monstats;
+    MonStats2.Entry monstats2 = monster.monstats2;
 
     String name = monstats.NameStr.equalsIgnoreCase("dummy")
         ? monstats.Id : Riiablo.string.lookup(monstats.NameStr);
@@ -133,12 +137,12 @@ public class ClientEntityFactory extends ServerEntityFactory {
   }
 
   @Override
-  public int createWarp(Map map, Map.Zone zone, int index, float x, float y) {
+  public int createWarp(int index, float x, float y) {
     final int mainIndex   = DT1.Tile.Index.mainIndex(index);
     final int subIndex    = DT1.Tile.Index.subIndex(index);
     final int orientation = DT1.Tile.Index.orientation(index);
 
-    int id = super.createWarp(map, zone, index, x, y);
+    int id = super.createWarp(index, x, y);
     Warp warp = mWarp.get(id);
     LvlWarp.Entry entry = warp.warp;
 
@@ -193,11 +197,12 @@ public class ClientEntityFactory extends ServerEntityFactory {
   }
 
   @Override
-  public int createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
-    int id = super.createMissile(missile, angle, position);
+  public int createMissile(int missileId, Vector2 angle, Vector2 position) {
+    int id = super.createMissile(missileId, angle, position);
     Missile missileWrapper = mMissile.get(id);
     Riiablo.assets.load(missileWrapper.missileDescriptor);
 
+    Missiles.Entry missile = mMissile.get(id).missile;
     if (!missile.TravelSound.isEmpty()) {
       mSoundEmitter.create(id).set(Riiablo.audio.play(missile.TravelSound, true), Interpolation.pow2OutInverse);
     }

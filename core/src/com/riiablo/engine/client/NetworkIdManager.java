@@ -3,12 +3,16 @@ package com.riiablo.engine.client;
 import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.Networked;
 
 @All(Networked.class)
 public class NetworkIdManager extends BaseEntitySystem {
+  private static final String TAG = "NetworkIdManager";
+  private static final boolean DEBUG = true;
+
   final IntIntMap serverToEntityId = new IntIntMap();
 
   protected ComponentMapper<Networked> mNetworked;
@@ -33,6 +37,6 @@ public class NetworkIdManager extends BaseEntitySystem {
   public void put(int serverEntityId, int entityId) {
     mNetworked.create(entityId).serverId = serverEntityId;
     serverToEntityId.put(serverEntityId, entityId);
-    System.out.println("put " + serverEntityId + "->" + entityId);
+    if (DEBUG) Gdx.app.debug(TAG, "put " + serverEntityId + "->" + entityId);
   }
 }

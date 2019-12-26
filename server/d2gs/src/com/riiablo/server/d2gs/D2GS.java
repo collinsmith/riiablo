@@ -23,7 +23,6 @@ import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.riiablo.COFs;
 import com.riiablo.CharData;
-import com.riiablo.CharacterClass;
 import com.riiablo.Files;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
@@ -42,6 +41,7 @@ import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.WarpInteractor;
 import com.riiablo.engine.server.component.Networked;
+import com.riiablo.engine.server.component.Player;
 import com.riiablo.map.Act1MapBuilder;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
@@ -386,14 +386,10 @@ public class D2GS extends ApplicationAdapter {
     connection.cofTransformsAsByteBuffer().get(cofTransforms);
     Gdx.app.log(TAG, "  " + DebugUtils.toByteArray(cofTransforms));
 
-    CharData charData = new CharData().createD2S(charName, CharacterClass.get(charClass));
-//    Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-//    if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
-//    if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
-//    Map.Zone zone = map.getZone(origin);
-    Vector2 origin = new Vector2(132, 37); // FIXME: hacked for the time being
-    Map.Zone zone = map.getZone(origin);
-    int entityId = world.getSystem(ServerEntityFactory.class).createPlayer(map, zone, charData, origin);
+    Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
+    if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
+    if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
+    int entityId = factory.createPlayer(charName, charClass, origin.x, origin.y);
     player.put(packet.id, entityId);
     Gdx.app.log(TAG, "  entityId=" + entityId);
 
@@ -407,6 +403,8 @@ public class D2GS extends ApplicationAdapter {
     outPackets.offer(response);
 
     Synchronize(packet.id, entityId);
+
+    CharData charData = world.getMapper(Player.class).get(entityId).data;
     BroadcastConnect(packet.id, connection, charData, entityId);
   }
 

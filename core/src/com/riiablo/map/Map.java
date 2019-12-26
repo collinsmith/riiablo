@@ -496,7 +496,11 @@ public class Map implements Disposable {
   }
 
   public Zone getZone(Vector2 vec) {
-    return getZone(round(vec.x), round(vec.y));
+    return getZone(vec.x, vec.y);
+  }
+
+  public Zone getZone(float x, float y) {
+    return getZone(round(x), round(y));
   }
 
   public Zone getZone(int x, int y) {
@@ -770,7 +774,7 @@ public class Map implements Disposable {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
       final int y = this.y + (warpY * DT1.Tile.SUBTILE_SIZE);
       if (entities == EMPTY_ENTITY_ARRAY) entities = new IntArray();
-      int entity = map.factory.createWarp(map, this, index, x, y);
+      int entity = map.factory.createWarp(index, x, y);
       entities.add(entity);
     }
 
@@ -1149,7 +1153,7 @@ public class Map implements Disposable {
       final int y = zone.y + (ty * DT1.Tile.SUBTILE_SIZE);
       for (int i = 0; i < ds1.numObjects; i++) {
         DS1.Object obj = ds1.objects[i];
-        int entityId = zone.map.factory.createObject(zone.map, zone, this, obj, x + obj.x, y + obj.y);
+        int entityId = zone.map.factory.createObject(this, obj, x + obj.x, y + obj.y);
         zone.addEntity(entityId); // FIXME: waypoints are placed correctly when adding 0.25f to ds1 object position -- is this consistent with others?
       }
     }

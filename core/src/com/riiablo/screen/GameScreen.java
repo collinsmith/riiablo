@@ -774,7 +774,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
     if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
     Map.Zone zone = map.getZone(origin);
-    player = engine.getSystem(ClientEntityFactory.class).createPlayer(map, zone, charData, origin);
+    player = factory.createPlayer(charData, origin);
     engine.getSystem(EventSystem.class).dispatch(ZoneChangeEvent.obtain(player, zone));
 
     renderer.setSrc(player);

@@ -1,6 +1,7 @@
 package com.riiablo.engine.client;
 
 import com.google.flatbuffers.ByteBufferUtil;
+import com.google.flatbuffers.Table;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
@@ -11,7 +12,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.riiablo.CharData;
-import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.Dirty;
@@ -143,13 +143,10 @@ public class ClientNetworkReceiver extends IntervalSystem {
     output.appendText(Riiablo.string.format(3641, charName));
     output.appendText("\n");
 
-    CharData charData = new CharData().createD2S(charName, CharacterClass.get(charClass));
-
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
     if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
-    Map.Zone zone = map.getZone(origin);
-    int entityId = factory.createPlayer(map, zone, charData, origin);
+    int entityId = factory.createPlayer(charName, charClass, origin.x, origin.y);
     syncIds.put(connection.entityId(), entityId);
     int[] component = mCofComponents.get(entityId).component;
     for (int i = 0; i < 16; i++) component[i] = connection.cofComponents(i);
@@ -181,7 +178,6 @@ public class ClientNetworkReceiver extends IntervalSystem {
   private void Disconnect(D2GS packet) {
     Disconnect disconnect = (Disconnect) packet.data(new Disconnect());
     int serverEntityId = disconnect.entityId();
-    System.out.println("serverEntityId=" + serverEntityId);
     int entityId = syncIds.get(serverEntityId);
 
     CharData data = mPlayer.get(entityId).data;
@@ -224,7 +220,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
         DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());
         if (ds1ObjectWrapper != null) {
 //          String objectType = Riiablo.files.obj.getType1(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
-//          int entityId = factory.createStaticObject(map, null, null, object, 0, 0);
+//          int entityId = factory.createObject(map, null, null, object, 0, 0);
 //          return entityId;
         }
 
@@ -233,13 +229,10 @@ public class ClientNetworkReceiver extends IntervalSystem {
       case MON: {
         DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());
         if (ds1ObjectWrapper != null) {
-          Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-          if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
-          if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
-          Map.Zone zone = map.getZone(origin);
+          PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
           String objectType = Riiablo.files.MonPreset.getPlace(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
           MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
-          int entityId = factory.createMonster(map, zone, monstats, 0, 0);
+          int entityId = factory.createMonster(monstats, position.x(), position.y());
           return entityId;
         }
 
@@ -247,16 +240,8 @@ public class ClientNetworkReceiver extends IntervalSystem {
       }
       case PLR: {
         PlayerP player = findTable(sync, SyncData.PlayerP, new PlayerP());
-        CharData charData = new CharData().createD2S(player.charName(), CharacterClass.get(player.charClass()));
-
-        // TODO: assert entity id is player
-        // TODO: add support for other entity types
-        Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
-        if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
-        if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
-        Map.Zone zone = map.getZone(origin);
-        int entityId = factory.createPlayer(map, zone, charData, origin);
-
+        PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+        int entityId = factory.createPlayer(player.charName(), player.charClass(), position.x(), position.y());
         cofs.setMode(entityId, Engine.Player.MODE_TN);
         cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
         return entityId;

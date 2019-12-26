@@ -115,7 +115,7 @@ public enum Act1MapBuilder implements MapBuilder {
               for (i = 0; i < count; i++) {
                 int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
                 int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
-                factory.createMonster(zone.map, zone, monster, px, py);
+                factory.createMonster(monster, px, py);
               }
             }
           }

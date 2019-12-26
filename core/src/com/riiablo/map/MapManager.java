@@ -1,7 +1,9 @@
 package com.riiablo.map;
 
 import com.artemis.annotations.Wire;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
 
 import net.mostlyoriginal.api.system.core.PassiveSystem;
@@ -15,7 +17,7 @@ public class MapManager extends PassiveSystem {
   protected EntityFactory factory;
 
   public void createEntities() {
-    for (Map.Zone zone : map.zones) {
+    for (Map.Zone zone : new Array.ArrayIterator<>(map.zones)) {
       createWarps(zone);
       createEntities(zone);
     }
@@ -29,8 +31,8 @@ public class MapManager extends PassiveSystem {
         int hash = entry.key;
         int x = zone.x + (Map.Zone.tileHashX(hash) * DT1.Tile.SUBTILE_SIZE);
         int y = zone.y + (Map.Zone.tileHashY(hash) * DT1.Tile.SUBTILE_SIZE);
-        int id = factory.createWarp(map, zone, cell.id, x, y);
-        zone.entities.add(id);
+        int id = factory.createWarp(cell.id, x, y);
+        if (id != Engine.INVALID_ENTITY) zone.entities.add(id);
       }
     }
   }
@@ -51,8 +53,8 @@ public class MapManager extends PassiveSystem {
     DS1 ds1 = preset.ds1;
     for (int i = 0, size = ds1.numObjects; i < size; i++) {
       DS1.Object object = ds1.objects[i];
-      int id = factory.createObject(map, zone, preset, object, x + object.x, y + object.y);
-      zone.entities.add(id);
+      int id = factory.createObject(preset, object, x + object.x, y + object.y);
+      if (id != Engine.INVALID_ENTITY) zone.entities.add(id);
     }
   }
 }
