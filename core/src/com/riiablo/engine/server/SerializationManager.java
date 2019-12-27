@@ -18,6 +18,7 @@ import com.riiablo.engine.server.component.DS1ObjectWrapper;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
+import com.riiablo.engine.server.component.Warp;
 import com.riiablo.engine.server.component.serializer.AngleSerializer;
 import com.riiablo.engine.server.component.serializer.ClassSerializer;
 import com.riiablo.engine.server.component.serializer.CofAlphasSerializer;
@@ -28,6 +29,7 @@ import com.riiablo.engine.server.component.serializer.FlatBuffersSerializer;
 import com.riiablo.engine.server.component.serializer.PlayerSerializer;
 import com.riiablo.engine.server.component.serializer.PositionSerializer;
 import com.riiablo.engine.server.component.serializer.VelocitySerializer;
+import com.riiablo.engine.server.component.serializer.WarpSerializer;
 import com.riiablo.net.packet.d2gs.CofAlphasP;
 import com.riiablo.net.packet.d2gs.CofComponentsP;
 import com.riiablo.net.packet.d2gs.CofTransformsP;
@@ -77,6 +79,7 @@ public class SerializationManager extends PassiveSystem {
     serializers.put(Angle.class, new AngleSerializer());
     serializers.put(Player.class, new PlayerSerializer());
     serializers.put(DS1ObjectWrapper.class, new DS1ObjectWrapperSerializer());
+    serializers.put(Warp.class, new WarpSerializer());
 
     deserializers = (Class<? extends Component>[]) new Class[SyncData.names.length];
     deserializers[SyncData.ClassP] = com.riiablo.engine.server.component.Class.class;
@@ -88,6 +91,7 @@ public class SerializationManager extends PassiveSystem {
     deserializers[SyncData.AngleP] = Angle.class;
     deserializers[SyncData.PlayerP] = Player.class;
     deserializers[SyncData.DS1ObjectWrapperP] = DS1ObjectWrapper.class;
+    deserializers[SyncData.WarpP] = Warp.class;
 
     cm = new ComponentMapper[SyncData.names.length];
     cm[SyncData.ClassP] = mClass;
@@ -99,6 +103,7 @@ public class SerializationManager extends PassiveSystem {
     cm[SyncData.AngleP] = mAngle;
     cm[SyncData.PlayerP] = null;
     cm[SyncData.DS1ObjectWrapperP] = mDS1ObjectWrapper;
+    cm[SyncData.WarpP] = null;
   }
 
   @SuppressWarnings("unchecked")
@@ -179,6 +184,7 @@ public class SerializationManager extends PassiveSystem {
         case SyncData.ClassP:
         case SyncData.PlayerP:
         case SyncData.DS1ObjectWrapperP:
+        case SyncData.WarpP:
           break;
         default: {
           Class<? extends Component> clazz = deserializers[dataType];

@@ -25,6 +25,7 @@ import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofReference;
 import com.riiablo.engine.server.component.CofTransforms;
+import com.riiablo.engine.server.component.MapWrapper;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
@@ -44,6 +45,7 @@ import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.Sync;
 import com.riiablo.net.packet.d2gs.SyncData;
 import com.riiablo.net.packet.d2gs.VelocityP;
+import com.riiablo.net.packet.d2gs.WarpP;
 import com.riiablo.util.ArrayUtils;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.widget.TextArea;
@@ -72,6 +74,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
   protected ComponentMapper<Angle> mAngle;
   protected ComponentMapper<Player> mPlayer;
   protected ComponentMapper<Box2DBody> mBox2DBody;
+  protected ComponentMapper<MapWrapper> mMapWrapper;
 
   protected CofManager cofs;
   protected NetworkIdManager syncIds;
@@ -248,7 +251,12 @@ public class ClientNetworkReceiver extends IntervalSystem {
         return Engine.INVALID_ENTITY;
       }
       case WRP: {
-        return Engine.INVALID_ENTITY;
+        WarpP warp = findTable(sync, SyncData.WarpP, new WarpP());
+        PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+        int entityId = factory.createWarp(warp.index(), position.x(), position.y());
+        Map.Zone zone = mMapWrapper.get(entityId).zone;
+        zone.addWarp(entityId);
+        return entityId;
       }
       case MIS: {
         return Engine.INVALID_ENTITY;
@@ -273,6 +281,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
         case SyncData.ClassP:
         case SyncData.PlayerP:
         case SyncData.DS1ObjectWrapperP:
+        case SyncData.WarpP:
           break;
         case SyncData.CofComponentsP: {
           CofComponentsP data = (CofComponentsP) sync.data(new CofComponentsP(), i);

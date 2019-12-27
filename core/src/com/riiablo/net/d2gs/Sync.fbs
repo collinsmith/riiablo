@@ -10,6 +10,7 @@ union SyncData {
   AngleP,
   PlayerP,
   DS1ObjectWrapperP,
+  WarpP,
 }
 
 table Sync {
@@ -57,4 +58,8 @@ table DS1ObjectWrapperP {
   act:uint8;
   type:uint8;
   id:uint8;
+}
+
+table WarpP {
+  index:int32;
 }

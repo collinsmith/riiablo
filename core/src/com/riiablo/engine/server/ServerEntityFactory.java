@@ -202,6 +202,7 @@ public class ServerEntityFactory extends EntityFactory {
     mPosition.create(id).position.set(x, y).add(warp.OffsetX, warp.OffsetY);
 
     mInteractable.create(id).set(3.0f, warpInteractor);
+    mNetworked.create(id);
     return id;
   }
 

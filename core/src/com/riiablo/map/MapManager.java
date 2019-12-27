@@ -32,7 +32,7 @@ public class MapManager extends PassiveSystem {
         int x = zone.x + (Map.Zone.tileHashX(hash) * DT1.Tile.SUBTILE_SIZE);
         int y = zone.y + (Map.Zone.tileHashY(hash) * DT1.Tile.SUBTILE_SIZE);
         int id = factory.createWarp(cell.id, x, y);
-        if (id != Engine.INVALID_ENTITY) zone.entities.add(id);
+        zone.addWarp(id);
       }
     }
   }

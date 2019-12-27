@@ -778,6 +778,11 @@ public class Map implements Disposable {
       entities.add(entity);
     }
 
+    public void addWarp(int entityId) {
+      assert map.mWarp.has(entityId);
+      addEntity(entityId);
+    }
+
     void setWarp(int src, int dst) {
       if (warps == EMPTY_INT_INT_MAP) warps = new IntIntMap(4);
       warps.put(src, dst);

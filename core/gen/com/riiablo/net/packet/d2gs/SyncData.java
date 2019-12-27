@@ -14,8 +14,9 @@ public final class SyncData {
   public static final byte AngleP = 7;
   public static final byte PlayerP = 8;
   public static final byte DS1ObjectWrapperP = 9;
+  public static final byte WarpP = 10;
 
-  public static final String[] names = { "NONE", "ClassP", "CofComponentsP", "CofTransformsP", "CofAlphasP", "PositionP", "VelocityP", "AngleP", "PlayerP", "DS1ObjectWrapperP", };
+  public static final String[] names = { "NONE", "ClassP", "CofComponentsP", "CofTransformsP", "CofAlphasP", "PositionP", "VelocityP", "AngleP", "PlayerP", "DS1ObjectWrapperP", "WarpP", };
 
   public static String name(int e) { return names[e]; }
 }
