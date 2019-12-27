@@ -244,6 +244,15 @@ public class ClientNetworkReceiver extends IntervalSystem {
         cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
         return entityId;
       }
+      case ITM: {
+        return Engine.INVALID_ENTITY;
+      }
+      case WRP: {
+        return Engine.INVALID_ENTITY;
+      }
+      case MIS: {
+        return Engine.INVALID_ENTITY;
+      }
       default:
         return Engine.INVALID_ENTITY;
     }
