@@ -151,7 +151,7 @@ public class SerializationManager extends PassiveSystem {
           CofComponentsSerializer serializer = (CofComponentsSerializer) serializers.get(clazz);
           CofComponentsP table = serializer.getTable(sync, i);
           for (int j = 0, s = table.componentLength(); j < s; j++) {
-            cofs.setComponent(entityId, j, table.component(j));
+            cofs.setComponent(entityId, j, (byte) table.component(j));
           }
 //          if (DEBUG_DESERIALIZE) Gdx.app.log(TAG, "  " + DebugUtils.toByteArray(ArrayUtils.toByteArray(mCofComponents.get(entityId).component)));
           break;

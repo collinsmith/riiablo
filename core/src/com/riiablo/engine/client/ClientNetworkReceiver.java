@@ -219,9 +219,8 @@ public class ClientNetworkReceiver extends IntervalSystem {
       case OBJ: {
         DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());
         if (ds1ObjectWrapper != null) {
-//          String objectType = Riiablo.files.obj.getType1(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
-//          int entityId = factory.createObject(map, null, null, object, 0, 0);
-//          return entityId;
+          PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+          return factory.createObject(ds1ObjectWrapper.act(), ds1ObjectWrapper.type(), ds1ObjectWrapper.id(), position.x(), position.y());
         }
 
         return Engine.INVALID_ENTITY;
@@ -232,8 +231,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
           PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
           String objectType = Riiablo.files.MonPreset.getPlace(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
           MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
-          int entityId = factory.createMonster(monstats, position.x(), position.y());
-          return entityId;
+          return factory.createMonster(monstats, position.x(), position.y());
         }
 
         return Engine.INVALID_ENTITY;
@@ -270,7 +268,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
         case SyncData.CofComponentsP: {
           CofComponentsP data = (CofComponentsP) sync.data(new CofComponentsP(), i);
           for (int j = 0, s0 = data.componentLength(); j < s0; j++) {
-            cofs.setComponent(entityId, j, data.component(j));
+            cofs.setComponent(entityId, j, (byte) data.component(j));
           }
           break;
         }

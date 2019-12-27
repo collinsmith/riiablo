@@ -150,7 +150,7 @@ public class D2GS extends ApplicationAdapter {
 
   final BlockingQueue<Packet> packets = new ArrayBlockingQueue<>(32);
   final Collection<Packet> cache = new ArrayList<>();
-  final BlockingQueue<Packet> outPackets = new ArrayBlockingQueue<>(32);
+  final BlockingQueue<Packet> outPackets = new ArrayBlockingQueue<>(1024);
   final IntIntMap player = new IntIntMap();
 
   FileHandle home;

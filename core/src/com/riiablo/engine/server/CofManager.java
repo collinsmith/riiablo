@@ -61,6 +61,7 @@ public class CofManager extends BaseEntitySystem {
   public int setComponent(int id, int c, int code) {
     int[] component = mCofComponents.get(id).component;
     if (component[c] == code) return Dirty.NONE;
+    if (code == CofComponents.COMPONENT_NULL && component[c] == CofComponents.COMPONENT_LIT) return Dirty.NONE;
     component[c] = code;
     return mCofDirtyComponents.create(id).flags |= (1 << c);
   }

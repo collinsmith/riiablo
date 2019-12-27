@@ -133,6 +133,7 @@ public class ServerEntityFactory extends EntityFactory {
     }
 
     mSize.create(id); // single size doesn't make any sense in this case because this is a rect
+    mNetworked.create(id);
     return id;
   }
 
