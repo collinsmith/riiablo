@@ -25,11 +25,13 @@ import com.riiablo.COFs;
 import com.riiablo.CharData;
 import com.riiablo.Files;
 import com.riiablo.Riiablo;
+import com.riiablo.audio.ServerAudio;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.D2;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
+import com.riiablo.engine.server.AIStepper;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ItemInteractor;
@@ -39,6 +41,7 @@ import com.riiablo.engine.server.Pathfinder;
 import com.riiablo.engine.server.SerializationManager;
 import com.riiablo.engine.server.ServerEntityFactory;
 import com.riiablo.engine.server.ServerNetworkIdManager;
+import com.riiablo.engine.server.VelocityAdder;
 import com.riiablo.engine.server.WarpInteractor;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.engine.server.component.Player;
@@ -199,6 +202,7 @@ public class D2GS extends ApplicationAdapter {
     Riiablo.cofs = new COFs(Riiablo.assets); // TODO: not needed in prod
     Riiablo.string = new StringTBLs(Riiablo.mpqs); // TODO: not needed in prod
     Riiablo.anim = D2.loadFromFile(Riiablo.mpqs.resolve("data\\global\\eanimdata.d2"));
+    Riiablo.audio = new ServerAudio(Riiablo.assets);
 
     // set DT1 to headless mode
     DT1.loadData = false;
@@ -235,8 +239,10 @@ public class D2GS extends ApplicationAdapter {
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
 
-//        .with(new AIStepper())
+        .with(new AIStepper())
         .with(new Pathfinder())
+
+        .with(new VelocityAdder()) // FIXME: temp until proper physics implemented
 
         .with(factory)
         .with(sync)

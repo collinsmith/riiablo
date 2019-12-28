@@ -172,7 +172,7 @@ public class Npc extends AI {
       } else if (actionTimer > 0) {
         actionTimer -= delta;
         actionPerformed = actionTimer < 0;
-        if (!actionPerformed) {
+        if (!actionPerformed && Riiablo.game != null) { // FIXME: checking Riiablo.game != null for server instances
           int player = Riiablo.game.player;
           Vector2 targetPos = mPosition.get(player).position;
           Vector2 entityPos = mPosition.get(entityId).position;
