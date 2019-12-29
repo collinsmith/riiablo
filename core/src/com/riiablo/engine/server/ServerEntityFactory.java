@@ -176,6 +176,7 @@ public class ServerEntityFactory extends EntityFactory {
       mInteractable.create(id).set(size, ai);
     }
 
+    mNetworked.create(id);
     return id;
   }
 

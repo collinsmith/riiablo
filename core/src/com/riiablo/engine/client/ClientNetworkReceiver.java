@@ -40,6 +40,7 @@ import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.DS1ObjectWrapperP;
 import com.riiablo.net.packet.d2gs.Disconnect;
+import com.riiablo.net.packet.d2gs.MonsterP;
 import com.riiablo.net.packet.d2gs.PlayerP;
 import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.Sync;
@@ -235,9 +236,11 @@ public class ClientNetworkReceiver extends IntervalSystem {
           String objectType = Riiablo.files.MonPreset.getPlace(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
           MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
           return factory.createMonster(monstats, position.x(), position.y());
+        } else {
+          PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+          MonsterP monster = findTable(sync, SyncData.MonsterP, new MonsterP());
+          return factory.createMonster(monster.monsterId(), position.x(), position.y());
         }
-
-        return Engine.INVALID_ENTITY;
       }
       case PLR: {
         PlayerP player = findTable(sync, SyncData.PlayerP, new PlayerP());
@@ -282,6 +285,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
         case SyncData.PlayerP:
         case SyncData.DS1ObjectWrapperP:
         case SyncData.WarpP:
+        case SyncData.MonsterP:
           break;
         case SyncData.CofComponentsP: {
           CofComponentsP data = (CofComponentsP) sync.data(new CofComponentsP(), i);

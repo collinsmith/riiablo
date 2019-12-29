@@ -15,6 +15,7 @@ import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.DS1ObjectWrapper;
+import com.riiablo.engine.server.component.Monster;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
@@ -26,6 +27,7 @@ import com.riiablo.engine.server.component.serializer.CofComponentsSerializer;
 import com.riiablo.engine.server.component.serializer.CofTransformsSerializer;
 import com.riiablo.engine.server.component.serializer.DS1ObjectWrapperSerializer;
 import com.riiablo.engine.server.component.serializer.FlatBuffersSerializer;
+import com.riiablo.engine.server.component.serializer.MonsterSerializer;
 import com.riiablo.engine.server.component.serializer.PlayerSerializer;
 import com.riiablo.engine.server.component.serializer.PositionSerializer;
 import com.riiablo.engine.server.component.serializer.VelocitySerializer;
@@ -80,6 +82,7 @@ public class SerializationManager extends PassiveSystem {
     serializers.put(Player.class, new PlayerSerializer());
     serializers.put(DS1ObjectWrapper.class, new DS1ObjectWrapperSerializer());
     serializers.put(Warp.class, new WarpSerializer());
+    serializers.put(Monster.class, new MonsterSerializer());
 
     deserializers = (Class<? extends Component>[]) new Class[SyncData.names.length];
     deserializers[SyncData.ClassP] = com.riiablo.engine.server.component.Class.class;
@@ -92,6 +95,7 @@ public class SerializationManager extends PassiveSystem {
     deserializers[SyncData.PlayerP] = Player.class;
     deserializers[SyncData.DS1ObjectWrapperP] = DS1ObjectWrapper.class;
     deserializers[SyncData.WarpP] = Warp.class;
+    deserializers[SyncData.MonsterP] = Monster.class;
 
     cm = new ComponentMapper[SyncData.names.length];
     cm[SyncData.ClassP] = mClass;
@@ -104,6 +108,7 @@ public class SerializationManager extends PassiveSystem {
     cm[SyncData.PlayerP] = null;
     cm[SyncData.DS1ObjectWrapperP] = mDS1ObjectWrapper;
     cm[SyncData.WarpP] = null;
+    cm[SyncData.MonsterP] = null;
   }
 
   @SuppressWarnings("unchecked")
@@ -185,6 +190,7 @@ public class SerializationManager extends PassiveSystem {
         case SyncData.PlayerP:
         case SyncData.DS1ObjectWrapperP:
         case SyncData.WarpP:
+        case SyncData.MonsterP:
           break;
         default: {
           Class<? extends Component> clazz = deserializers[dataType];

@@ -11,6 +11,7 @@ union SyncData {
   PlayerP,
   DS1ObjectWrapperP,
   WarpP,
+  MonsterP,
 }
 
 table Sync {
@@ -62,4 +63,8 @@ table DS1ObjectWrapperP {
 
 table WarpP {
   index:int32;
+}
+
+table MonsterP {
+  monsterId:uint16;
 }

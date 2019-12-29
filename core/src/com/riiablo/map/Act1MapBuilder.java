@@ -3,6 +3,7 @@ package com.riiablo.map;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.net.Socket;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
@@ -20,6 +21,9 @@ public enum Act1MapBuilder implements MapBuilder {
 
   @Wire(name = "factory")
   protected EntityFactory factory;
+
+  @Wire(name = "client.socket", failOnNull = false)
+  protected Socket socket;
 
   @Override
   public void generate(Map map, int seed, int diff) {
@@ -106,6 +110,7 @@ public enum Act1MapBuilder implements MapBuilder {
           for (int y = 0; y < zone.gridSizeY; y++, ty++) {
             // TODO: Zone.index() can be replaced with incrementer
             zone.getLayer(Map.FLOOR_OFFSET)[Zone.index(zone.tilesX, tx, ty)] = dt1s.get(0);
+            if (socket != null) continue;
             if (MathUtils.randomBoolean(SPAWN_MULT * zone.level.MonDen[zone.diff] / 100000f)) {
               int i = MathUtils.random(monsters.length - 1);
               MonStats.Entry monster = monsters[i];
