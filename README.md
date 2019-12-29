@@ -32,6 +32,8 @@ added in the future, but it isn't a priority, and I expect most people to
 create new characters anyways). I do not plan on, or want to make this game
 compatible with playing with users using the original game client.
 
+[![SP Test](https://media.giphy.com/media/Lmwarnns5D8dQfhbEV/giphy.gif)](https://www.youtube.com/watch?v=eAusi7BcS6A)
+
 # Features
 - Written using Java + LibGDX + OpenGL
 - Runs on PC, Android and eventually more (IOS, Linux, etc.)
@@ -45,6 +47,7 @@ compatible with playing with users using the original game client.
 # Screenshots
 ![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-1.png)
 ![Create Character](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-2.png)
+[![MP Test](https://media.giphy.com/media/U7aXAwLcaQM0lxvPVY/giphy.gif)](https://www.youtube.com/watch?v=B2XhiS_JbIA)
 
 # Setup
 The Android SDK is required to build the project by default (even if you want
