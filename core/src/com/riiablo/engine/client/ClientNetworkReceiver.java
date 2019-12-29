@@ -35,16 +35,16 @@ import com.riiablo.net.packet.d2gs.ClassP;
 import com.riiablo.net.packet.d2gs.CofAlphasP;
 import com.riiablo.net.packet.d2gs.CofComponentsP;
 import com.riiablo.net.packet.d2gs.CofTransformsP;
+import com.riiablo.net.packet.d2gs.ComponentP;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.DS1ObjectWrapperP;
 import com.riiablo.net.packet.d2gs.Disconnect;
+import com.riiablo.net.packet.d2gs.EntitySync;
 import com.riiablo.net.packet.d2gs.MonsterP;
 import com.riiablo.net.packet.d2gs.PlayerP;
 import com.riiablo.net.packet.d2gs.PositionP;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
 import com.riiablo.net.packet.d2gs.VelocityP;
 import com.riiablo.net.packet.d2gs.WarpP;
 import com.riiablo.util.ArrayUtils;
@@ -93,6 +93,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
   protected TextArea output;
 
   private final ByteBuffer buffer = ByteBuffer.allocate(1 << 20).order(ByteOrder.LITTLE_ENDIAN);
+  private final EntitySync sync = new EntitySync();
 
   public ClientNetworkReceiver() {
     super(null, 1 / 60f);
@@ -131,7 +132,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
       case D2GSData.Disconnect:
         Disconnect(packet);
         break;
-      case D2GSData.Sync:
+      case D2GSData.EntitySync:
         Synchronize(packet);
         break;
       default:
@@ -195,21 +196,21 @@ public class ClientNetworkReceiver extends IntervalSystem {
   }
 
   @Deprecated
-  private int findType(Sync s) {
-    for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
-      if (s.dataType(i) == SyncData.ClassP) {
-        return ((ClassP) s.data(new ClassP(), i)).type();
+  private int findType(EntitySync s) {
+    for (int i = 0, len = s.componentLength(); i < len; i++) {
+      if (s.componentType(i) == ComponentP.ClassP) {
+        return ((ClassP) s.component(new ClassP(), i)).type();
       }
     }
 
     return -1;
   }
 
-  private <T extends Table> T findTable(Sync s, byte dataType, T table) {
-    ByteBuffer dataTypes = s.dataTypeAsByteBuffer();
+  private <T extends Table> T findTable(EntitySync s, byte dataType, T table) {
+    ByteBuffer dataTypes = s.componentTypeAsByteBuffer();
     for (int i = 0; dataTypes.hasRemaining(); i++) {
       if (dataTypes.get() == dataType) {
-        s.data(table, i);
+        s.component(table, i);
         return table;
       }
     }
@@ -217,35 +218,35 @@ public class ClientNetworkReceiver extends IntervalSystem {
     return null;
   }
 
-  private int createEntity(Sync sync) {
+  private int createEntity(EntitySync sync) {
     assert syncIds.get(sync.entityId()) == Engine.INVALID_ENTITY;
     Class.Type type = Class.Type.valueOf(sync.type());
     switch (type) {
       case OBJ: {
-        DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());
+        DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, ComponentP.DS1ObjectWrapperP, new DS1ObjectWrapperP());
         if (ds1ObjectWrapper != null) {
-          PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+          PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
           return factory.createObject(ds1ObjectWrapper.act(), ds1ObjectWrapper.type(), ds1ObjectWrapper.id(), position.x(), position.y());
         }
 
         return Engine.INVALID_ENTITY;
       }
       case MON: {
-        DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());
+        DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, ComponentP.DS1ObjectWrapperP, new DS1ObjectWrapperP());
         if (ds1ObjectWrapper != null) {
-          PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+          PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
           String objectType = Riiablo.files.MonPreset.getPlace(ds1ObjectWrapper.act(), ds1ObjectWrapper.id());
           MonStats.Entry monstats = Riiablo.files.monstats.get(objectType);
           return factory.createMonster(monstats, position.x(), position.y());
         } else {
-          PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
-          MonsterP monster = findTable(sync, SyncData.MonsterP, new MonsterP());
+          PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
+          MonsterP monster = findTable(sync, ComponentP.MonsterP, new MonsterP());
           return factory.createMonster(monster.monsterId(), position.x(), position.y());
         }
       }
       case PLR: {
-        PlayerP player = findTable(sync, SyncData.PlayerP, new PlayerP());
-        PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+        PlayerP player = findTable(sync, ComponentP.PlayerP, new PlayerP());
+        PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
         int entityId = factory.createPlayer(player.charName(), player.charClass(), position.x(), position.y());
         cofs.setMode(entityId, Engine.Player.MODE_TN);
         cofs.setWClass(entityId, Engine.WEAPON_1HS); // TODO...
@@ -255,8 +256,8 @@ public class ClientNetworkReceiver extends IntervalSystem {
         return Engine.INVALID_ENTITY;
       }
       case WRP: {
-        WarpP warp = findTable(sync, SyncData.WarpP, new WarpP());
-        PositionP position = findTable(sync, SyncData.PositionP, new PositionP());
+        WarpP warp = findTable(sync, ComponentP.WarpP, new WarpP());
+        PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
         int entityId = factory.createWarp(warp.index(), position.x(), position.y());
         Map.Zone zone = mMapWrapper.get(entityId).zone;
         zone.addWarp(entityId);
@@ -270,48 +271,54 @@ public class ClientNetworkReceiver extends IntervalSystem {
     }
   }
 
+
+
   private void Synchronize(D2GS packet) {
-    Sync sync = (Sync) packet.data(new Sync());
-    int entityId = syncIds.get(sync.entityId());
+    packet.data(sync);
+    Synchronize(sync);
+  }
+
+  private void Synchronize(EntitySync entityData) {
+    int entityId = syncIds.get(entityData.entityId());
     if (entityId == Engine.INVALID_ENTITY) {
-      syncIds.put(sync.entityId(), entityId = createEntity(sync));
+      syncIds.put(entityData.entityId(), entityId = createEntity(entityData));
     }
 
     int tFlags = Dirty.NONE;
     int aFlags = Dirty.NONE;
     if (DEBUG_SYNC) Gdx.app.debug(TAG, "syncing " + entityId);
-    for (int i = 0, len = sync.dataTypeLength(); i < len; i++) {
-      switch (sync.dataType(i)) {
-        case SyncData.ClassP:
-        case SyncData.PlayerP:
-        case SyncData.DS1ObjectWrapperP:
-        case SyncData.WarpP:
-        case SyncData.MonsterP:
+    for (int i = 0, len = entityData.componentLength(); i < len; i++) {
+      switch (entityData.componentType(i)) {
+        case ComponentP.ClassP:
+        case ComponentP.PlayerP:
+        case ComponentP.DS1ObjectWrapperP:
+        case ComponentP.WarpP:
+        case ComponentP.MonsterP:
           break;
-        case SyncData.CofComponentsP: {
-          CofComponentsP data = (CofComponentsP) sync.data(new CofComponentsP(), i);
+        case ComponentP.CofComponentsP: {
+          CofComponentsP data = (CofComponentsP) entityData.component(new CofComponentsP(), i);
           for (int j = 0, s0 = data.componentLength(); j < s0; j++) {
             cofs.setComponent(entityId, j, (byte) data.component(j));
           }
           break;
         }
-        case SyncData.CofTransformsP: {
-          CofTransformsP data = (CofTransformsP) sync.data(new CofTransformsP(), i);
+        case ComponentP.CofTransformsP: {
+          CofTransformsP data = (CofTransformsP) entityData.component(new CofTransformsP(), i);
           for (int j = 0, s0 = data.transformLength(); j < s0; j++) {
             tFlags |= cofs.setTransform(entityId, j, (byte) data.transform(j));
           }
           break;
         }
-        case SyncData.CofAlphasP: {
-          CofAlphasP data = (CofAlphasP) sync.data(new CofAlphasP(), i);
+        case ComponentP.CofAlphasP: {
+          CofAlphasP data = (CofAlphasP) entityData.component(new CofAlphasP(), i);
           for (int j = 0, s0 = data.alphaLength(); j < s0; j++) {
             aFlags |= cofs.setAlpha(entityId, j, data.alpha(j));
           }
           break;
         }
-        case SyncData.PositionP: {
+        case ComponentP.PositionP: {
           Vector2 position = mPosition.get(entityId).position;
-          PositionP data = (PositionP) sync.data(new PositionP(), i);
+          PositionP data = (PositionP) entityData.component(new PositionP(), i);
           position.x = data.x();
           position.y = data.y();
           if (mBox2DBody.has(entityId)) {
@@ -321,24 +328,24 @@ public class ClientNetworkReceiver extends IntervalSystem {
           //Gdx.app.log(TAG, "  " + position);
           break;
         }
-        case SyncData.VelocityP: {
+        case ComponentP.VelocityP: {
           Vector2 velocity = mVelocity.get(entityId).velocity;
-          VelocityP data = (VelocityP) sync.data(new VelocityP(), i);
+          VelocityP data = (VelocityP) entityData.component(new VelocityP(), i);
           velocity.x = data.x();
           velocity.y = data.y();
           //Gdx.app.log(TAG, "  " + velocity);
           break;
         }
-        case SyncData.AngleP: {
+        case ComponentP.AngleP: {
           Vector2 angle = mAngle.get(entityId).target;
-          AngleP data = (AngleP) sync.data(new AngleP(), i);
+          AngleP data = (AngleP) entityData.component(new AngleP(), i);
           angle.x = data.x();
           angle.y = data.y();
           //Gdx.app.log(TAG, "  " + angle);
           break;
         }
         default:
-          Gdx.app.error(TAG, "Unknown packet type: " + SyncData.name(sync.dataType(i)));
+          Gdx.app.error(TAG, "Unknown packet type: " + ComponentP.name(entityData.componentType(i)));
       }
     }
 

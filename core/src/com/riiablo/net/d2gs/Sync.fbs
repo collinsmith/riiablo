@@ -1,6 +1,6 @@
 namespace com.riiablo.net.packet.d2gs;
 
-union SyncData {
+union ComponentP {
   ClassP,
   CofComponentsP,
   CofTransformsP,
@@ -14,10 +14,10 @@ union SyncData {
   MonsterP,
 }
 
-table Sync {
+table EntitySync {
   entityId:int32;
   type:uint8;
-  data:[SyncData];
+  component:[ComponentP];
 }
 
 table ClassP {

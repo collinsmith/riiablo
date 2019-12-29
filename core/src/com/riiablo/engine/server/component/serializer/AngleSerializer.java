@@ -5,15 +5,15 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.net.packet.d2gs.AngleP;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.ComponentP;
+import com.riiablo.net.packet.d2gs.EntitySync;
 
 public class AngleSerializer implements FlatBuffersSerializer<Angle, AngleP> {
   public static final AngleP table = new AngleP();
 
   @Override
   public byte getDataType() {
-    return SyncData.AngleP;
+    return ComponentP.AngleP;
   }
 
   @Override
@@ -23,13 +23,13 @@ public class AngleSerializer implements FlatBuffersSerializer<Angle, AngleP> {
   }
 
   @Override
-  public AngleP getTable(Sync sync, int j) {
-    sync.data(table, j);
+  public AngleP getTable(EntitySync sync, int j) {
+    sync.component(table, j);
     return table;
   }
 
   @Override
-  public Angle getData(Sync sync, int j, Angle c) {
+  public Angle getData(EntitySync sync, int j, Angle c) {
     getTable(sync, j);
     Vector2 angle = c.target;
     angle.x = table.x();

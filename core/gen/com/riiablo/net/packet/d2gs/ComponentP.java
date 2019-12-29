@@ -2,8 +2,8 @@
 
 package com.riiablo.net.packet.d2gs;
 
-public final class SyncData {
-  private SyncData() { }
+public final class ComponentP {
+  private ComponentP() { }
   public static final byte NONE = 0;
   public static final byte ClassP = 1;
   public static final byte CofComponentsP = 2;

@@ -22,12 +22,12 @@ import com.riiablo.net.packet.d2gs.AngleP;
 import com.riiablo.net.packet.d2gs.CofAlphasP;
 import com.riiablo.net.packet.d2gs.CofComponentsP;
 import com.riiablo.net.packet.d2gs.CofTransformsP;
+import com.riiablo.net.packet.d2gs.ComponentP;
 import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
+import com.riiablo.net.packet.d2gs.EntitySync;
 import com.riiablo.net.packet.d2gs.PositionP;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
 import com.riiablo.net.packet.d2gs.VelocityP;
 
 import java.io.OutputStream;
@@ -168,13 +168,13 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
     int cofAlphas = CofAlphasP.createAlphaVector(builder, alpha);
 
     byte[] dataTypes = new byte[6];
-    dataTypes[0] = SyncData.CofComponentsP;
-    dataTypes[1] = SyncData.CofTransformsP;
-    dataTypes[2] = SyncData.CofAlphasP;
-    dataTypes[3] = SyncData.PositionP;
-    dataTypes[4] = SyncData.VelocityP;
-    dataTypes[5] = SyncData.AngleP;
-    int dataTypesOffset = Sync.createDataTypeVector(builder, dataTypes);
+    dataTypes[0] = ComponentP.CofComponentsP;
+    dataTypes[1] = ComponentP.CofTransformsP;
+    dataTypes[2] = ComponentP.CofAlphasP;
+    dataTypes[3] = ComponentP.PositionP;
+    dataTypes[4] = ComponentP.VelocityP;
+    dataTypes[5] = ComponentP.AngleP;
+    int dataTypesOffset = EntitySync.createComponentTypeVector(builder, dataTypes);
 
     int[] data = new int[6];
     data[0] = CofComponentsP.createCofComponentsP(builder, cofComponents);
@@ -183,16 +183,14 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
     data[3] = PositionP.createPositionP(builder, position.x, position.y);
     data[4] = VelocityP.createVelocityP(builder, velocity.x, velocity.y);
     data[5] = AngleP.createAngleP(builder, angle.x, angle.y);
-    int dataOffset = Sync.createDataVector(builder, data);
+    int dataOffset = EntitySync.createComponentVector(builder, data);
 
-    Sync.startSync(builder);
-    Sync.addEntityId(builder, mNetworked.get(entityId).serverId);
-    Sync.addDataType(builder, dataTypesOffset);
-    Sync.addData(builder, dataOffset);
-    int syncOffset = Sync.endSync(builder);
-
-    //int syncOffset = Sync.createSync(builder, entityId, dataTypesOffset, dataOffset);
-    int root = D2GS.createD2GS(builder, D2GSData.Sync, syncOffset);
+    EntitySync.startEntitySync(builder);
+    EntitySync.addEntityId(builder, mNetworked.get(entityId).serverId);
+    EntitySync.addComponentType(builder, dataTypesOffset);
+    EntitySync.addComponent(builder, dataOffset);
+    int syncOffset = EntitySync.endEntitySync(builder);
+    int root = D2GS.createD2GS(builder, D2GSData.EntitySync, syncOffset);
     D2GS.finishSizePrefixedD2GSBuffer(builder, root);
 
     try {

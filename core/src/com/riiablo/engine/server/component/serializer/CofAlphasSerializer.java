@@ -4,15 +4,15 @@ import com.google.flatbuffers.FlatBufferBuilder;
 
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.net.packet.d2gs.CofAlphasP;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.EntitySync;
+import com.riiablo.net.packet.d2gs.ComponentP;
 
 public class CofAlphasSerializer implements FlatBuffersSerializer<CofAlphas, CofAlphasP> {
   public static final CofAlphasP table = new CofAlphasP();
 
   @Override
   public byte getDataType() {
-    return SyncData.CofAlphasP;
+    return ComponentP.CofAlphasP;
   }
 
   @Override
@@ -22,13 +22,13 @@ public class CofAlphasSerializer implements FlatBuffersSerializer<CofAlphas, Cof
   }
 
   @Override
-  public CofAlphasP getTable(Sync sync, int i) {
-    sync.data(table, i);
+  public CofAlphasP getTable(EntitySync sync, int j) {
+    sync.component(table, j);
     return table;
   }
 
   @Override
-  public CofAlphas getData(Sync sync, int j, CofAlphas c) {
+  public CofAlphas getData(EntitySync sync, int j, CofAlphas c) {
     getTable(sync, j);
     float[] alpha = c.alpha;
     for (int i = 0, s = table.alphaLength(); i < s; i++) {

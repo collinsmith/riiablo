@@ -14,7 +14,7 @@ union D2GSData {
   RunToLocation,
   RunToEntity,
   Connection,
-  Sync,
+  EntitySync,
   Disconnect,
 }
 

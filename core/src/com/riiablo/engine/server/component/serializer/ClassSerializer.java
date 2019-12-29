@@ -4,15 +4,15 @@ import com.google.flatbuffers.FlatBufferBuilder;
 
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.net.packet.d2gs.ClassP;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.EntitySync;
+import com.riiablo.net.packet.d2gs.ComponentP;
 
 public class ClassSerializer implements FlatBuffersSerializer<Class, ClassP> {
   public static final ClassP table = new ClassP();
 
   @Override
   public byte getDataType() {
-    return SyncData.ClassP;
+    return ComponentP.ClassP;
   }
 
   @Override
@@ -21,13 +21,13 @@ public class ClassSerializer implements FlatBuffersSerializer<Class, ClassP> {
   }
 
   @Override
-  public ClassP getTable(Sync sync, int j) {
-    sync.data(table, j);
+  public ClassP getTable(EntitySync sync, int j) {
+    sync.component(table, j);
     return table;
   }
 
   @Override
-  public Class getData(Sync sync, int j, Class c) {
+  public Class getData(EntitySync sync, int j, Class c) {
     getTable(sync, j);
     c.type = Class.Type.valueOf(table.type());
     return c;

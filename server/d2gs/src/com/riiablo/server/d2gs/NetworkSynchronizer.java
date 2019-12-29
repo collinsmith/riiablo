@@ -13,7 +13,6 @@ import com.riiablo.engine.server.component.Networked;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
 
 @All(Networked.class)
@@ -43,19 +42,18 @@ public class NetworkSynchronizer extends BaseEntitySystem {
   }
 
   protected void process(int entityId) {
-    ByteBuffer sync = sync(entityId);
-    int id = players.findKey(entityId, -1);
-    Packet packet = Packet.obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, sync);
+    FlatBufferBuilder builder = sync(new FlatBufferBuilder(0), entityId);
+    int id = players.findKey(entityId, -1); // TODO: replace with component referencing player id
+    Packet packet = Packet.obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, builder.dataBuffer());
     boolean success = outPackets.offer(packet);
     assert success;
   }
 
-  public ByteBuffer sync(int entityId) {
-    FlatBufferBuilder builder = new FlatBufferBuilder(0);
+  public FlatBufferBuilder sync(FlatBufferBuilder builder, int entityId) {
     int syncOffset = serializer.serialize(builder, entityId);
-    int root = D2GS.createD2GS(builder, D2GSData.Sync, syncOffset);
+    int root = D2GS.createD2GS(builder, D2GSData.EntitySync, syncOffset);
     D2GS.finishSizePrefixedD2GSBuffer(builder, root);
-    return builder.dataBuffer();
+    return builder;
   }
 
   public void sync(int entityId, D2GS packet) {

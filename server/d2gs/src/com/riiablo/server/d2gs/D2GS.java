@@ -366,7 +366,7 @@ public class D2GS extends ApplicationAdapter {
       case D2GSData.Connection:
         Connection(packet);
         break;
-      case D2GSData.Sync:
+      case D2GSData.EntitySync:
         Synchronize(packet);
         break;
       default:

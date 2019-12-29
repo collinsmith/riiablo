@@ -4,16 +4,16 @@ import com.google.flatbuffers.FlatBufferBuilder;
 
 import com.badlogic.gdx.math.Vector2;
 import com.riiablo.engine.server.component.Position;
+import com.riiablo.net.packet.d2gs.EntitySync;
 import com.riiablo.net.packet.d2gs.PositionP;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.ComponentP;
 
 public class PositionSerializer implements FlatBuffersSerializer<Position, PositionP> {
   public static final PositionP table = new PositionP();
 
   @Override
   public byte getDataType() {
-    return SyncData.PositionP;
+    return ComponentP.PositionP;
   }
 
   @Override
@@ -23,13 +23,13 @@ public class PositionSerializer implements FlatBuffersSerializer<Position, Posit
   }
 
   @Override
-  public PositionP getTable(Sync sync, int j) {
-    sync.data(table, j);
+  public PositionP getTable(EntitySync sync, int j) {
+    sync.component(table, j);
     return table;
   }
 
   @Override
-  public Position getData(Sync sync, int j, Position c) {
+  public Position getData(EntitySync sync, int j, Position c) {
     getTable(sync, j);
     Vector2 position = c.position;
     position.x = table.x();

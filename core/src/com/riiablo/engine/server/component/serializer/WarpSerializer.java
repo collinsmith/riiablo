@@ -3,8 +3,8 @@ package com.riiablo.engine.server.component.serializer;
 import com.google.flatbuffers.FlatBufferBuilder;
 
 import com.riiablo.engine.server.component.Warp;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.EntitySync;
+import com.riiablo.net.packet.d2gs.ComponentP;
 import com.riiablo.net.packet.d2gs.WarpP;
 
 public class WarpSerializer implements FlatBuffersSerializer<Warp, WarpP> {
@@ -12,7 +12,7 @@ public class WarpSerializer implements FlatBuffersSerializer<Warp, WarpP> {
 
   @Override
   public byte getDataType() {
-    return SyncData.WarpP;
+    return ComponentP.WarpP;
   }
 
   @Override
@@ -21,13 +21,13 @@ public class WarpSerializer implements FlatBuffersSerializer<Warp, WarpP> {
   }
 
   @Override
-  public WarpP getTable(Sync sync, int j) {
-    sync.data(table, j);
+  public WarpP getTable(EntitySync sync, int j) {
+    sync.component(table, j);
     return table;
   }
 
   @Override
-  public Warp getData(Sync sync, int j, Warp c) {
+  public Warp getData(EntitySync sync, int j, Warp c) {
     throw new UnsupportedOperationException("Not supported!");
   }
 }

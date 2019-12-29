@@ -4,15 +4,15 @@ import com.google.flatbuffers.FlatBufferBuilder;
 
 import com.riiablo.engine.server.component.DS1ObjectWrapper;
 import com.riiablo.net.packet.d2gs.DS1ObjectWrapperP;
-import com.riiablo.net.packet.d2gs.Sync;
-import com.riiablo.net.packet.d2gs.SyncData;
+import com.riiablo.net.packet.d2gs.EntitySync;
+import com.riiablo.net.packet.d2gs.ComponentP;
 
 public class DS1ObjectWrapperSerializer implements FlatBuffersSerializer<DS1ObjectWrapper, DS1ObjectWrapperP> {
   public static final DS1ObjectWrapperP table = new DS1ObjectWrapperP();
 
   @Override
   public byte getDataType() {
-    return SyncData.DS1ObjectWrapperP;
+    return ComponentP.DS1ObjectWrapperP;
   }
 
   @Override
@@ -21,13 +21,13 @@ public class DS1ObjectWrapperSerializer implements FlatBuffersSerializer<DS1Obje
   }
 
   @Override
-  public DS1ObjectWrapperP getTable(Sync sync, int j) {
-    sync.data(table, j);
+  public DS1ObjectWrapperP getTable(EntitySync sync, int j) {
+    sync.component(table, j);
     return table;
   }
 
   @Override
-  public DS1ObjectWrapper getData(Sync sync, int j, DS1ObjectWrapper c) {
+  public DS1ObjectWrapper getData(EntitySync sync, int j, DS1ObjectWrapper c) {
     throw new UnsupportedOperationException("Not supported!");
   }
 }

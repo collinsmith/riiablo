@@ -10,10 +10,10 @@ public final class D2GSData {
   public static final byte RunToLocation = 3;
   public static final byte RunToEntity = 4;
   public static final byte Connection = 5;
-  public static final byte Sync = 6;
+  public static final byte EntitySync = 6;
   public static final byte Disconnect = 7;
 
-  public static final String[] names = { "NONE", "WalkToLocation", "WalkToEntity", "RunToLocation", "RunToEntity", "Connection", "Sync", "Disconnect", };
+  public static final String[] names = { "NONE", "WalkToLocation", "WalkToEntity", "RunToLocation", "RunToEntity", "Connection", "EntitySync", "Disconnect", };
 
   public static String name(int e) { return names[e]; }
 }
