@@ -152,7 +152,7 @@ public class D2GS extends ApplicationAdapter {
   int connected = 0;
 
   final BlockingQueue<Packet> packets = new ArrayBlockingQueue<>(32);
-  final Collection<Packet> cache = new ArrayList<>();
+  final Collection<Packet> cache = new ArrayList<>(1024);
   final BlockingQueue<Packet> outPackets = new ArrayBlockingQueue<>(1024);
   final IntIntMap player = new IntIntMap();
 
@@ -287,7 +287,7 @@ public class D2GS extends ApplicationAdapter {
                 Gdx.app.log(TAG, "assigned " + socket.getRemoteAddress() + " to " + id);
                 Client client = clients[id] = new Client(id, socket);
                 numClients++;
-                connected |= (1 << id);
+                //connected |= (1 << id);
                 client.start();
               }
             } catch (Throwable t) {
@@ -347,7 +347,7 @@ public class D2GS extends ApplicationAdapter {
     for (Packet packet : cache) {
       Gdx.app.log(TAG, "dispatching " + D2GSData.name(packet.data.dataType()) + " packet to " + String.format("0x%08X", packet.id));
       for (int i = 0, flag = 1; i < MAX_CLIENTS; i++, flag <<= 1) {
-        if ((packet.id & flag) == flag && (connected & flag) == flag) {
+        if ((packet.id & flag) == flag && ((connected & flag) == flag || packet.data.dataType() == D2GSData.Connection)) {
           Client client = clients[i];
           if (client == null) continue;
           try {
@@ -499,6 +499,9 @@ public class D2GS extends ApplicationAdapter {
       packet.buffer.mark();
       out.write(packet.buffer);
       packet.buffer.reset();
+      if ((connected & (1 << id)) == 0 && packet.data.dataType() == D2GSData.Connection) {
+        connected |= (1 << id);
+      }
     }
 
     @Override

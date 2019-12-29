@@ -115,7 +115,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
           while (buffer.hasRemaining()) {
             int size = ByteBufferUtil.getSizePrefix(buffer);
             D2GS.getRootAsD2GS(ByteBufferUtil.removeSizePrefix(buffer), d2gs);
-            if (DEBUG_PACKET) Gdx.app.debug(TAG, "packet type " + D2GSData.name(d2gs.dataType()) + ":" + ByteBufferUtil.getSizePrefix(buffer) + "B");
+            if (DEBUG_PACKET) Gdx.app.debug(TAG, "packet type " + D2GSData.name(d2gs.dataType()) + ":" + size + "B");
             connected = d2gs.dataType() == D2GSData.Connection;
             if (!connected) {
               if (DEBUG_CONNECT) Gdx.app.debug(TAG, "dropping... ");
