@@ -16,6 +16,7 @@ union SyncData {
 
 table Sync {
   entityId:int32;
+  type:uint8;
   data:[SyncData];
 }
 

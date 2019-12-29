@@ -194,6 +194,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
     if (body != null) ;
   }
 
+  @Deprecated
   private int findType(Sync s) {
     for (int i = 0, len = s.dataTypeLength(); i < len; i++) {
       if (s.dataType(i) == SyncData.ClassP) {
@@ -218,7 +219,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
   private int createEntity(Sync sync) {
     assert syncIds.get(sync.entityId()) == Engine.INVALID_ENTITY;
-    Class.Type type = Class.Type.valueOf(findType(sync));
+    Class.Type type = Class.Type.valueOf(sync.type());
     switch (type) {
       case OBJ: {
         DS1ObjectWrapperP ds1ObjectWrapper = findTable(sync, SyncData.DS1ObjectWrapperP, new DS1ObjectWrapperP());

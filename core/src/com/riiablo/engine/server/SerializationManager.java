@@ -21,7 +21,6 @@ import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.engine.server.component.Warp;
 import com.riiablo.engine.server.component.serializer.AngleSerializer;
-import com.riiablo.engine.server.component.serializer.ClassSerializer;
 import com.riiablo.engine.server.component.serializer.CofAlphasSerializer;
 import com.riiablo.engine.server.component.serializer.CofComponentsSerializer;
 import com.riiablo.engine.server.component.serializer.CofTransformsSerializer;
@@ -72,7 +71,7 @@ public class SerializationManager extends PassiveSystem {
   @SuppressWarnings("unchecked")
   protected void initialize() {
     serializers = new ObjectMap<>();
-    serializers.put(com.riiablo.engine.server.component.Class.class, new ClassSerializer());
+//    serializers.put(com.riiablo.engine.server.component.Class.class, new ClassSerializer());
     serializers.put(CofComponents.class, new CofComponentsSerializer());
     serializers.put(CofTransforms.class, new CofTransformsSerializer());
     serializers.put(CofAlphas.class, new CofAlphasSerializer());
@@ -85,7 +84,7 @@ public class SerializationManager extends PassiveSystem {
     serializers.put(Monster.class, new MonsterSerializer());
 
     deserializers = (Class<? extends Component>[]) new Class[SyncData.names.length];
-    deserializers[SyncData.ClassP] = com.riiablo.engine.server.component.Class.class;
+//    deserializers[SyncData.ClassP] = com.riiablo.engine.server.component.Class.class;
     deserializers[SyncData.CofComponentsP] = CofComponents.class;
     deserializers[SyncData.CofTransformsP] = CofTransforms.class;
     deserializers[SyncData.CofAlphasP] = CofAlphas.class;
@@ -98,7 +97,7 @@ public class SerializationManager extends PassiveSystem {
     deserializers[SyncData.MonsterP] = Monster.class;
 
     cm = new ComponentMapper[SyncData.names.length];
-    cm[SyncData.ClassP] = mClass;
+    cm[SyncData.ClassP] = null; //mClass;
     cm[SyncData.CofComponentsP] = null;
     cm[SyncData.CofTransformsP] = null;
     cm[SyncData.CofAlphasP] = null;
@@ -117,6 +116,7 @@ public class SerializationManager extends PassiveSystem {
     data.clear();
     components.clear();
 
+    int type = mClass.get(entityId).type.ordinal();
     componentManager.getComponentsFor(entityId, components);
     for (Component c : components) {
       FlatBuffersSerializer serializer = serializers.get(c.getClass());
@@ -139,7 +139,7 @@ public class SerializationManager extends PassiveSystem {
     for (int i = 0; i < dataSize; i++) builder.addOffset(data[i]);
     int dataOffset = builder.endVector();
 
-    return Sync.createSync(builder, entityId, dataTypeOffset, dataOffset);
+    return Sync.createSync(builder, entityId, type, dataTypeOffset, dataOffset);
   }
 
   public void deserialize(int entityId, D2GS packet) {
