@@ -2,9 +2,10 @@ package com.riiablo.server.d2gs;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 
+import com.artemis.BaseEntitySystem;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
-import com.artemis.systems.IteratingSystem;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.engine.server.SerializationManager;
@@ -16,7 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
 
 @All(Networked.class)
-public class NetworkSynchronizer extends IteratingSystem {
+public class NetworkSynchronizer extends BaseEntitySystem {
   private static final String TAG = "NetworkSynchronizer";
 
   protected SerializationManager serializer;
@@ -33,6 +34,14 @@ public class NetworkSynchronizer extends IteratingSystem {
   }
 
   @Override
+  protected void processSystem() {
+    IntBag entities = subscription.getEntities();
+    int[] entityIds = entities.getData();
+    for (int i = 0, s = entities.size(); i < s; i++) {
+      process(entityIds[i]);
+    }
+  }
+
   protected void process(int entityId) {
     ByteBuffer sync = sync(entityId);
     int id = players.findKey(entityId, -1);
