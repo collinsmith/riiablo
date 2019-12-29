@@ -35,7 +35,7 @@ compatible with playing with users using the original game client.
 [![SP Test](https://media.giphy.com/media/Lmwarnns5D8dQfhbEV/giphy.gif)](https://www.youtube.com/watch?v=eAusi7BcS6A)
 
 # Features
-- Written using Java + LibGDX + OpenGL
+- Written using Java + LibGDX + OpenGL + Flatbuffers
 - Runs on PC, Android and eventually more (IOS, Linux, etc.)
 - Cross-platform multiplayer
 - Dedicated servers, TCP/IP (listen servers) connections, and single player
