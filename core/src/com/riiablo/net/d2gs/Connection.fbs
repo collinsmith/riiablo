@@ -7,6 +7,7 @@ table Connection {
   cofComponents:[uint8];
   cofTransforms:[uint8];
   cofAlphas:[float32];
+  d2s:[ubyte];
 
   // response
   entityId:int32;

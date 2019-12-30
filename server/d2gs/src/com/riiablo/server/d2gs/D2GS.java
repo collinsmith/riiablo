@@ -28,6 +28,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.audio.ServerAudio;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.D2;
+import com.riiablo.codec.D2S;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
@@ -44,7 +45,6 @@ import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.VelocityAdder;
 import com.riiablo.engine.server.WarpInteractor;
 import com.riiablo.engine.server.component.Networked;
-import com.riiablo.engine.server.component.Player;
 import com.riiablo.map.Act1MapBuilder;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
@@ -392,10 +392,15 @@ public class D2GS extends ApplicationAdapter {
     connection.cofTransformsAsByteBuffer().get(cofTransforms);
     Gdx.app.log(TAG, "  " + DebugUtils.toByteArray(cofTransforms));
 
+    ByteBuffer d2sData = connection.d2sAsByteBuffer();
+    D2S d2s = D2S.loadFromBuffer(d2sData);
+    CharData charData = new CharData().setD2S(d2s);
+    Gdx.app.log(TAG, "  " + d2s);
+
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
     if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
-    int entityId = factory.createPlayer(charName, charClass, origin.x, origin.y);
+    int entityId = factory.createPlayer(charData, origin);
     player.put(packet.id, entityId);
     Gdx.app.log(TAG, "  entityId=" + entityId);
 
@@ -410,7 +415,6 @@ public class D2GS extends ApplicationAdapter {
 
     Synchronize(packet.id, entityId);
 
-    CharData charData = world.getMapper(Player.class).get(entityId).data;
     BroadcastConnect(packet.id, connection, charData, entityId);
   }
 

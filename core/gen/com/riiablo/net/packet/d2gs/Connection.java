@@ -2,10 +2,11 @@
 
 package com.riiablo.net.packet.d2gs;
 
-import java.nio.*;
-import java.lang.*;
-import java.util.*;
-import com.google.flatbuffers.*;
+import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.Table;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class Connection extends Table {
@@ -30,7 +31,11 @@ public final class Connection extends Table {
   public int cofAlphasLength() { int o = __offset(12); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer cofAlphasAsByteBuffer() { return __vector_as_bytebuffer(12, 4); }
   public ByteBuffer cofAlphasInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 12, 4); }
-  public int entityId() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int d2s(int j) { int o = __offset(14); return o != 0 ? bb.get(__vector(o) + j * 1) & 0xFF : 0; }
+  public int d2sLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer d2sAsByteBuffer() { return __vector_as_bytebuffer(14, 1); }
+  public ByteBuffer d2sInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 14, 1); }
+  public int entityId() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createConnection(FlatBufferBuilder builder,
       int charClass,
@@ -38,9 +43,11 @@ public final class Connection extends Table {
       int cofComponentsOffset,
       int cofTransformsOffset,
       int cofAlphasOffset,
+      int d2sOffset,
       int entityId) {
-    builder.startObject(6);
+    builder.startObject(7);
     Connection.addEntityId(builder, entityId);
+    Connection.addD2s(builder, d2sOffset);
     Connection.addCofAlphas(builder, cofAlphasOffset);
     Connection.addCofTransforms(builder, cofTransformsOffset);
     Connection.addCofComponents(builder, cofComponentsOffset);
@@ -49,7 +56,7 @@ public final class Connection extends Table {
     return Connection.endConnection(builder);
   }
 
-  public static void startConnection(FlatBufferBuilder builder) { builder.startObject(6); }
+  public static void startConnection(FlatBufferBuilder builder) { builder.startObject(7); }
   public static void addCharClass(FlatBufferBuilder builder, int charClass) { builder.addByte(0, (byte)charClass, (byte)0); }
   public static void addCharName(FlatBufferBuilder builder, int charNameOffset) { builder.addOffset(1, charNameOffset, 0); }
   public static void addCofComponents(FlatBufferBuilder builder, int cofComponentsOffset) { builder.addOffset(2, cofComponentsOffset, 0); }
@@ -61,7 +68,10 @@ public final class Connection extends Table {
   public static void addCofAlphas(FlatBufferBuilder builder, int cofAlphasOffset) { builder.addOffset(4, cofAlphasOffset, 0); }
   public static int createCofAlphasVector(FlatBufferBuilder builder, float[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addFloat(data[i]); return builder.endVector(); }
   public static void startCofAlphasVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addEntityId(FlatBufferBuilder builder, int entityId) { builder.addInt(5, entityId, 0); }
+  public static void addD2s(FlatBufferBuilder builder, int d2sOffset) { builder.addOffset(5, d2sOffset, 0); }
+  public static int createD2sVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
+  public static void startD2sVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
+  public static void addEntityId(FlatBufferBuilder builder, int entityId) { builder.addInt(6, entityId, 0); }
   public static int endConnection(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

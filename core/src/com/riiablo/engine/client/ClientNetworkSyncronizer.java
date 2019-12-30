@@ -11,6 +11,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.D2S;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
@@ -74,8 +75,10 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
     init = true;
 
     try {
+      D2S d2s = Riiablo.charData.getD2S();
+
       FlatBufferBuilder builder = new FlatBufferBuilder();
-      int charNameOffset = builder.createString(Riiablo.charData.getD2S().header.name);
+      int charNameOffset = builder.createString(d2s.header.name);
 
       int entityId = Riiablo.game.player;
       int[] component = mCofComponents.get(entityId).component;
@@ -89,12 +92,15 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
       byte[] transforms = mCofTransforms.get(entityId).transform;
       int transformsOffset = Connection.createCofTransformsVector(builder, transforms);
 
+      int d2sOffset = Connection.createD2sVector(builder, d2s.file.readBytes());
+
       Connection.startConnection(builder);
-      Connection.addCharClass(builder, Riiablo.charData.getD2S().header.charClass);
+      Connection.addCharClass(builder, d2s.header.charClass);
       Connection.addCharName(builder, charNameOffset);
       Connection.addCofComponents(builder, componentsOffset);
       Connection.addCofAlphas(builder, alphasOffset);
       Connection.addCofTransforms(builder, transformsOffset);
+      Connection.addD2s(builder, d2sOffset);
       int connectionOffset = Connection.endConnection(builder);
       int offset = D2GS.createD2GS(builder, D2GSData.Connection, connectionOffset);
       D2GS.finishSizePrefixedD2GSBuffer(builder, offset);

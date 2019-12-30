@@ -125,6 +125,15 @@ public class D2S {
     return new D2S(file, header);
   }
 
+  public static D2S loadFromBuffer(ByteBuffer buffer) {
+    buffer.order(ByteOrder.LITTLE_ENDIAN);
+    Header header = Header.obtain(buffer);
+    if (DEBUG_HEADER) Gdx.app.debug(TAG, header.toString());
+    if (header.magicNumber != MAGIC_NUMBER) throw new GdxRuntimeException("Magic number doesn't match " + String.format("0x%08X", MAGIC_NUMBER) + ": " + String.format("0x%08X", header.magicNumber));
+    if (header.version != VERSION_110) throw new GdxRuntimeException("Unsupported D2S version: " + header.version + " -- Only supports " + header.getVersionString(VERSION_110));
+    return new D2S(null, header);
+  }
+
   public static class Header {
     static final int SIZE = 0x14F;
 
