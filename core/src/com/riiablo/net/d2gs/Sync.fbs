@@ -33,7 +33,7 @@ table CofTransformsP {
 }
 
 table CofAlphasP {
-  alpha:[float32];
+  alpha:[uint8];
 }
 
 table PositionP {

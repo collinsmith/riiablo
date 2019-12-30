@@ -181,7 +181,7 @@ public class SerializationManager extends PassiveSystem {
           CofAlphasSerializer serializer = (CofAlphasSerializer) serializers.get(clazz);
           CofAlphasP table = serializer.getTable(sync, i);
           for (int j = 0, s = table.alphaLength(); j < s; j++) {
-            aFlags |= cofs.setAlpha(entityId, j, table.alpha(j));
+            aFlags |= cofs.setAlpha(entityId, j, table.alpha(j) / 255f);
           }
 //          if (DEBUG_DESERIALIZE) Gdx.app.log(TAG, "  " + Arrays.toString(mCofAlphas.get(entityId).alpha));
           break;

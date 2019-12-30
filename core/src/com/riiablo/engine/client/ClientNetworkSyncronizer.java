@@ -165,7 +165,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
     for (int i = 0; i < 16; i++) component[i] = (byte) component2[i];
 
     byte[] transform = mCofTransforms.get(entityId).transform;
-    float[] alpha = mCofAlphas.get(entityId).alpha;
+    byte[] alpha = ArrayUtils.toFixedPoint(mCofAlphas.get(entityId).alpha);
     Vector2 position = mPosition.get(entityId).position;
     Vector2 velocity = mVelocity.get(entityId).velocity;
     Vector2 angle = mAngle.get(entityId).target;

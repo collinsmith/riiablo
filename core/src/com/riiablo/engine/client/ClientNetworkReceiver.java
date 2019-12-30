@@ -312,7 +312,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
         case ComponentP.CofAlphasP: {
           CofAlphasP data = (CofAlphasP) entityData.component(new CofAlphasP(), i);
           for (int j = 0, s0 = data.alphaLength(); j < s0; j++) {
-            aFlags |= cofs.setAlpha(entityId, j, data.alpha(j));
+            aFlags |= cofs.setAlpha(entityId, j, data.alpha(j) / 255f);
           }
           break;
         }

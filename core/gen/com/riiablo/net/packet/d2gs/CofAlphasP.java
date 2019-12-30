@@ -2,10 +2,11 @@
 
 package com.riiablo.net.packet.d2gs;
 
-import java.nio.*;
-import java.lang.*;
-import java.util.*;
-import com.google.flatbuffers.*;
+import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.Table;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class CofAlphasP extends Table {
@@ -14,10 +15,10 @@ public final class CofAlphasP extends Table {
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public CofAlphasP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public float alpha(int j) { int o = __offset(4); return o != 0 ? bb.getFloat(__vector(o) + j * 4) : 0; }
+  public int alpha(int j) { int o = __offset(4); return o != 0 ? bb.get(__vector(o) + j * 1) & 0xFF : 0; }
   public int alphaLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer alphaAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
-  public ByteBuffer alphaInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 4); }
+  public ByteBuffer alphaAsByteBuffer() { return __vector_as_bytebuffer(4, 1); }
+  public ByteBuffer alphaInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 1); }
 
   public static int createCofAlphasP(FlatBufferBuilder builder,
       int alphaOffset) {
@@ -28,8 +29,8 @@ public final class CofAlphasP extends Table {
 
   public static void startCofAlphasP(FlatBufferBuilder builder) { builder.startObject(1); }
   public static void addAlpha(FlatBufferBuilder builder, int alphaOffset) { builder.addOffset(0, alphaOffset, 0); }
-  public static int createAlphaVector(FlatBufferBuilder builder, float[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addFloat(data[i]); return builder.endVector(); }
-  public static void startAlphaVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static int createAlphaVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
+  public static void startAlphaVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
   public static int endCofAlphasP(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
