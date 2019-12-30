@@ -32,7 +32,7 @@ added in the future, but it isn't a priority, and I expect most people to
 create new characters anyways). I do not plan on, or want to make this game
 compatible with playing with users using the original game client.
 
-[![SP Test](https://media.giphy.com/media/Lmwarnns5D8dQfhbEV/giphy.gif)](https://www.youtube.com/watch?v=eAusi7BcS6A)
+[![SP Test](https://media.giphy.com/media/f3pIneZddlMaFpFExx/giphy.gif)](https://www.youtube.com/watch?v=eAusi7BcS6A)
 
 # Features
 - Written using Java + LibGDX + OpenGL + Flatbuffers
