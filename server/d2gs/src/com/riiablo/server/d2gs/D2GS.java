@@ -488,7 +488,7 @@ public class D2GS extends ApplicationAdapter {
 
     int id;
     Socket socket;
-    ByteBuffer buffer = ByteBuffer.allocate(4096);
+    ByteBuffer buffer = ByteBuffer.allocate(8192);
     volatile boolean kill = false;
 
     Client(int id, Socket socket) {

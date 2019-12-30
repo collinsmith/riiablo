@@ -77,7 +77,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
     try {
       D2S d2s = Riiablo.charData.getD2S();
 
-      FlatBufferBuilder builder = new FlatBufferBuilder();
+      FlatBufferBuilder builder = new FlatBufferBuilder(8192);
       int charNameOffset = builder.createString(d2s.header.name);
 
       int entityId = Riiablo.game.player;
