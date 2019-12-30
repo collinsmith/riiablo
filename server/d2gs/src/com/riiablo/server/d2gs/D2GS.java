@@ -384,9 +384,10 @@ public class D2GS extends ApplicationAdapter {
     connection.cofComponentsAsByteBuffer().get(cofComponents);
     Gdx.app.log(TAG, "  " + DebugUtils.toByteArray(cofComponents));
 
-    float[] cofAlphas = new float[16];
-    connection.cofAlphasAsByteBuffer().asFloatBuffer().get(cofAlphas);
+    byte[] cofAlphas = new byte[16];
+    connection.cofAlphasAsByteBuffer().get(cofAlphas);
     Gdx.app.log(TAG, "  " + Arrays.toString(cofAlphas));
+    Gdx.app.log(TAG, "  >" + Arrays.toString(com.riiablo.util.ArrayUtils.toFloatingPoint(cofAlphas)));
 
     byte[] cofTransforms = new byte[16];
     connection.cofTransformsAsByteBuffer().get(cofTransforms);
@@ -430,8 +431,8 @@ public class D2GS extends ApplicationAdapter {
     connection.cofComponentsAsByteBuffer().get(components);
     int componentsOffset = Connection.createCofComponentsVector(builder, components);
 
-    float[] alphas = new float[16];
-    connection.cofAlphasAsByteBuffer().asFloatBuffer().get(alphas);
+    byte[] alphas = new byte[16];
+    connection.cofAlphasAsByteBuffer().get(alphas);
     int alphasOffset = Connection.createCofAlphasVector(builder, alphas);
 
     byte[] transforms = new byte[16];

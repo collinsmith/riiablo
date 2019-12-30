@@ -6,7 +6,7 @@ table Connection {
   charName:string;
   cofComponents:[uint8];
   cofTransforms:[uint8];
-  cofAlphas:[float32];
+  cofAlphas:[uint8];
   d2s:[ubyte];
 
   // response

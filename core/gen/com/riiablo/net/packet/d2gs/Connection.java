@@ -27,10 +27,10 @@ public final class Connection extends Table {
   public int cofTransformsLength() { int o = __offset(10); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer cofTransformsAsByteBuffer() { return __vector_as_bytebuffer(10, 1); }
   public ByteBuffer cofTransformsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 10, 1); }
-  public float cofAlphas(int j) { int o = __offset(12); return o != 0 ? bb.getFloat(__vector(o) + j * 4) : 0; }
+  public int cofAlphas(int j) { int o = __offset(12); return o != 0 ? bb.get(__vector(o) + j * 1) & 0xFF : 0; }
   public int cofAlphasLength() { int o = __offset(12); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer cofAlphasAsByteBuffer() { return __vector_as_bytebuffer(12, 4); }
-  public ByteBuffer cofAlphasInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 12, 4); }
+  public ByteBuffer cofAlphasAsByteBuffer() { return __vector_as_bytebuffer(12, 1); }
+  public ByteBuffer cofAlphasInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 12, 1); }
   public int d2s(int j) { int o = __offset(14); return o != 0 ? bb.get(__vector(o) + j * 1) & 0xFF : 0; }
   public int d2sLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer d2sAsByteBuffer() { return __vector_as_bytebuffer(14, 1); }
@@ -66,8 +66,8 @@ public final class Connection extends Table {
   public static int createCofTransformsVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
   public static void startCofTransformsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
   public static void addCofAlphas(FlatBufferBuilder builder, int cofAlphasOffset) { builder.addOffset(4, cofAlphasOffset, 0); }
-  public static int createCofAlphasVector(FlatBufferBuilder builder, float[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addFloat(data[i]); return builder.endVector(); }
-  public static void startCofAlphasVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static int createCofAlphasVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
+  public static void startCofAlphasVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
   public static void addD2s(FlatBufferBuilder builder, int d2sOffset) { builder.addOffset(5, d2sOffset, 0); }
   public static int createD2sVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
   public static void startD2sVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }

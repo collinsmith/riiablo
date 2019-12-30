@@ -154,11 +154,11 @@ public class ClientNetworkReceiver extends IntervalSystem {
     int entityId = factory.createPlayer(charName, charClass, origin.x, origin.y);
     syncIds.put(connection.entityId(), entityId);
     int[] component = mCofComponents.get(entityId).component;
-    for (int i = 0; i < 16; i++) component[i] = connection.cofComponents(i);
+//    for (int i = 0; i < 16; i++) component[i] = connection.cofComponents(i);
     float[] alpha = mCofAlphas.get(entityId).alpha;
-    for (int i = 0; i < 16; i++) alpha[i] = connection.cofAlphas(i);
+//    for (int i = 0; i < 16; i++) alpha[i] = connection.cofAlphas(i) / 255f;
     byte[] transform = mCofTransforms.get(entityId).transform;
-    for (int i = 0; i < 16; i++) transform[i] = (byte) connection.cofTransforms(i);
+//    for (int i = 0; i < 16; i++) transform[i] = (byte) connection.cofTransforms(i);
 
     int alphaFlags = Dirty.NONE;
     int transformFlags = Dirty.NONE;
@@ -166,7 +166,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
       cofs.setComponent(entityId, i, connection.cofComponents(i));
     }
     for (int i = 0; i < 16; i++) {
-      alphaFlags |= cofs.setAlpha(entityId, i, connection.cofAlphas(i));
+      alphaFlags |= cofs.setAlpha(entityId, i, connection.cofAlphas(i) / 255f);
       transformFlags |= cofs.setTransform(entityId, i, (byte) connection.cofTransforms(i));
     }
 

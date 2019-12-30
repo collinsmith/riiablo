@@ -30,6 +30,7 @@ import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.EntitySync;
 import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.VelocityP;
+import com.riiablo.util.ArrayUtils;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -86,7 +87,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
       for (int i = component.length - 1; i >= 0; i--) builder.addByte((byte) component[i]);
       int componentsOffset = builder.endVector();
 
-      float[] alphas = mCofAlphas.get(entityId).alpha;
+      byte[] alphas = ArrayUtils.toFixedPoint(mCofAlphas.get(entityId).alpha);
       int alphasOffset = Connection.createCofAlphasVector(builder, alphas);
 
       byte[] transforms = mCofTransforms.get(entityId).transform;

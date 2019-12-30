@@ -18,4 +18,16 @@ public class ArrayUtils {
     for (int i = 0; i < array.length; i++) b[i] = (byte) array[i];
     return b;
   }
+
+  public static byte[] toFixedPoint(float[] array) {
+    byte[] b = new byte[array.length];
+    for (int i = 0; i < array.length; i++) b[i] = (byte) (array[i] * 255f);
+    return b;
+  }
+
+  public static float[] toFloatingPoint(byte[] array) {
+    float[] f = new float[array.length];
+    for (int i = 0; i < array.length; i++) f[i] = (array[i] & 0xFF) / 255f;
+    return f;
+  }
 }
