@@ -1,0 +1,8 @@
+namespace com.riiablo.net.packet.d2gs;
+
+table DropItem {
+  // request
+  itemId:int32;
+
+  // response
+}

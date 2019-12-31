@@ -5,6 +5,8 @@ include "RunToEntity.fbs";
 include "Connection.fbs";
 include "Disconnect.fbs";
 include "Sync.fbs";
+include "DropItem.fbs";
+include "PickupItem.fbs";
 
 namespace com.riiablo.net.packet.d2gs;
 
@@ -16,6 +18,8 @@ union D2GSData {
   Connection,
   EntitySync,
   Disconnect,
+  DropItem,
+  PickupItem,
 }
 
 table D2GS {

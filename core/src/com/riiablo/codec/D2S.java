@@ -87,6 +87,10 @@ public class D2S {
     if (file == null) return;
     ByteBuffer buffer = file.map().order(ByteOrder.LITTLE_ENDIAN);
     buffer.position(Header.SIZE);
+    loadRemaining(buffer);
+  }
+
+  private void loadRemaining(ByteBuffer buffer) {
     quests    = QuestData.obtain(buffer);
     waypoints = WaypointData.obtain(buffer);
     npcs      = NPCData.obtain(buffer);
@@ -125,13 +129,18 @@ public class D2S {
     return new D2S(file, header);
   }
 
-  public static D2S loadFromBuffer(ByteBuffer buffer) {
+  public static D2S loadFromBuffer(ByteBuffer buffer, boolean loadRemaining) {
     buffer.order(ByteOrder.LITTLE_ENDIAN);
     Header header = Header.obtain(buffer);
     if (DEBUG_HEADER) Gdx.app.debug(TAG, header.toString());
     if (header.magicNumber != MAGIC_NUMBER) throw new GdxRuntimeException("Magic number doesn't match " + String.format("0x%08X", MAGIC_NUMBER) + ": " + String.format("0x%08X", header.magicNumber));
     if (header.version != VERSION_110) throw new GdxRuntimeException("Unsupported D2S version: " + header.version + " -- Only supports " + header.getVersionString(VERSION_110));
-    return new D2S(null, header);
+    D2S d2s = new D2S(null, header);
+    if (loadRemaining) {
+      BufferUtils.skip(buffer, Header.SIZE);
+      d2s.loadRemaining(buffer);
+    }
+    return d2s;
   }
 
   public static class Header {
@@ -677,6 +686,7 @@ public class D2S {
   public static class ItemData {
     static final byte[] SECTION_HEADER = {0x4A, 0x4D};
     static final byte[] SECTION_FOOTER = ArrayUtils.addAll(SECTION_HEADER, new byte[] {0x00, 0x00});
+    public static final int SECTION_HEADER_BITS = SECTION_HEADER.length * Byte.SIZE;
 
     public byte                   header[];
     public short                  size;
@@ -697,7 +707,7 @@ public class D2S {
         //else System.out.println(i + " = " + slice.remaining());
         byte[] bytes = BufferUtils.readRemaining(slice);
         BitStream bitStream = new BitStream(bytes);
-        bitStream.skip(SECTION_HEADER.length * Byte.SIZE);
+        bitStream.skip(SECTION_HEADER_BITS);
         Item item = Item.loadFromStream(bitStream);
         items.add(item);
 
@@ -707,7 +717,7 @@ public class D2S {
           //else System.out.println(i + " = " + slice.remaining());
           bytes = BufferUtils.readRemaining(slice);
           bitStream = new BitStream(bytes);
-          bitStream.skip(SECTION_HEADER.length * Byte.SIZE);
+          bitStream.skip(SECTION_HEADER_BITS);
           Item socket = Item.loadFromStream(bitStream);
           item.sockets.add(socket);
           assert socket.location == Location.SOCKET;
@@ -751,7 +761,7 @@ public class D2S {
       if (slice.remaining() <= 0) return this;
       byte[] bytes = BufferUtils.readRemaining(buffer);
       BitStream bitStream = new BitStream(bytes);
-      bitStream.skip(ItemData.SECTION_HEADER.length * Byte.SIZE);
+      bitStream.skip(ItemData.SECTION_HEADER_BITS);
       item = Item.loadFromStream(bitStream);
       for (int j = 0; j < item.socketsFilled; j++) {
         slice = BufferUtils.slice(buffer, ItemData.SECTION_HEADER, true);
@@ -759,7 +769,7 @@ public class D2S {
         //else System.out.println(i + " = " + slice.remaining());
         bytes = BufferUtils.readRemaining(slice);
         bitStream = new BitStream(bytes);
-        bitStream.skip(ItemData.SECTION_HEADER.length * Byte.SIZE);
+        bitStream.skip(ItemData.SECTION_HEADER_BITS);
         Item socket = Item.loadFromStream(bitStream);
         item.sockets.add(socket);
         assert socket.location == Location.SOCKET;

@@ -13,7 +13,9 @@ import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.riiablo.CharData;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.D2S;
 import com.riiablo.codec.excel.MonStats;
+import com.riiablo.codec.util.BitStream;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
@@ -29,6 +31,7 @@ import com.riiablo.engine.server.component.MapWrapper;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
+import com.riiablo.item.Item;
 import com.riiablo.map.Map;
 import com.riiablo.net.packet.d2gs.AngleP;
 import com.riiablo.net.packet.d2gs.ClassP;
@@ -42,12 +45,14 @@ import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.DS1ObjectWrapperP;
 import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.net.packet.d2gs.EntitySync;
+import com.riiablo.net.packet.d2gs.ItemP;
 import com.riiablo.net.packet.d2gs.MonsterP;
 import com.riiablo.net.packet.d2gs.PlayerP;
 import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.VelocityP;
 import com.riiablo.net.packet.d2gs.WarpP;
 import com.riiablo.util.ArrayUtils;
+import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.widget.TextArea;
 
@@ -253,7 +258,13 @@ public class ClientNetworkReceiver extends IntervalSystem {
         return entityId;
       }
       case ITM: {
-        return Engine.INVALID_ENTITY;
+        ItemP item = findTable(sync, ComponentP.ItemP, new ItemP());
+        PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
+        byte[] bytes = BufferUtils.readRemaining(item.dataAsByteBuffer());
+        BitStream bitStream = new BitStream(bytes);
+        bitStream.skip(D2S.ItemData.SECTION_HEADER_BITS);
+        Item itemObj = com.riiablo.item.Item.loadFromStream(bitStream);
+        return factory.createItem(itemObj, position.x(), position.y());
       }
       case WRP: {
         WarpP warp = findTable(sync, ComponentP.WarpP, new WarpP());
@@ -294,6 +305,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
         case ComponentP.DS1ObjectWrapperP:
         case ComponentP.WarpP:
         case ComponentP.MonsterP:
+        case ComponentP.ItemP:
           break;
         case ComponentP.CofComponentsP: {
           CofComponentsP data = (CofComponentsP) entityData.component(new CofComponentsP(), i);

@@ -184,8 +184,8 @@ public class ClientEntityFactory extends ServerEntityFactory {
   }
 
   @Override
-  public int createItem(com.riiablo.item.Item item, Vector2 position) {
-    int id = super.createItem(item, position);
+  public int createItem(com.riiablo.item.Item item, float x, float y) {
+    int id = super.createItem(item, x, y);
     Item itemWrapper = mItem.get(id);
     Riiablo.assets.load(itemWrapper.flippyDescriptor);
     /**

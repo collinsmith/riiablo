@@ -208,12 +208,13 @@ public class ServerEntityFactory extends EntityFactory {
   }
 
   @Override
-  public int createItem(com.riiablo.item.Item item, Vector2 position) {
+  public int createItem(com.riiablo.item.Item item, float x, float y) {
     int id = super.createEntity(Class.Type.ITM, "item");
     mItem.create(id).set(item);
 
-    mPosition.create(id).position.set(position);
+    mPosition.create(id).position.set(x, y);
     mInteractable.create(id).set(1f, itemInteractor);
+    mNetworked.create(id);
     return id;
   }
 

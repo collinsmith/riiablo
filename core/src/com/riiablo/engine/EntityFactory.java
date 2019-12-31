@@ -94,7 +94,11 @@ public abstract class EntityFactory extends PassiveSystem {
 
   public abstract int createWarp(int index, float x, float y);
 
-  public abstract int createItem(Item item, Vector2 position);
+  public final int createItem(Item item, Vector2 position) {
+    return createItem(item, position.x, position.y);
+  }
+
+  public abstract int createItem(Item item, float x, float y);
 
   public final int createMissile(Missiles.Entry missile, Vector2 angle, Vector2 position) {
     return createMissile(missile.Id, angle, position);

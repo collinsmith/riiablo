@@ -124,6 +124,8 @@ public class Item extends Actor implements Disposable {
     WEAPON_DESC.put("orb", "WeaponDescOrb");
   }
 
+  public byte     data[];
+
   public int      flags;
   public int      version; // 0 = pre-1.08; 1 = 1.08/1.09 normal; 2 = 1.10 normal; 100 = 1.08/1.09 expansion; 101 = 1.10 expansion
   public Location location;
@@ -170,7 +172,12 @@ public class Item extends Actor implements Disposable {
 
   Item() {}
 
+  public byte[] serialize() {
+    return data;
+  }
+
   private Item read(BitStream bitStream) {
+    data     = bitStream.getBufferView();
     flags    = bitStream.read32BitsOrLess(Integer.SIZE);
     version  = bitStream.readUnsigned8OrLess(8);
     bitStream.skip(2); // TODO: Unknown, likely included with location, should log at some point to check
@@ -214,7 +221,7 @@ public class Item extends Actor implements Disposable {
       Armor.Entry armor = getBase();
       baseProps.put(Stat.reqstr, armor.reqstr);
       baseProps.put(Stat.reqdex, 0);
-      baseProps.put(Stat.toblock, Riiablo.charData.getCharacterClass().entry().BlockFactor + armor.block);
+      baseProps.put(Stat.toblock, armor.block); // FIXME: apply Riiablo.charData.getCharacterClass().entry().BlockFactor for view stats
       baseProps.put(Stat.mindamage, armor.mindam);
       baseProps.put(Stat.maxdamage, armor.maxdam);
     } else if (base instanceof Misc.Entry) {

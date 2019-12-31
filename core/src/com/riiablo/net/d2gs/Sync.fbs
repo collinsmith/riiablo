@@ -12,6 +12,7 @@ union ComponentP {
   DS1ObjectWrapperP,
   WarpP,
   MonsterP,
+  ItemP,
 }
 
 table EntitySync {
@@ -68,4 +69,8 @@ table WarpP {
 
 table MonsterP {
   monsterId:uint16;
+}
+
+table ItemP {
+  data:[ubyte];
 }
