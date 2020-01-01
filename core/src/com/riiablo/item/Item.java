@@ -384,9 +384,7 @@ public class Item extends Actor implements Disposable {
     if (invFileDescriptor != null) return;
     invFileDescriptor = new AssetDescriptor<>("data\\global\\items\\" + getInvFileName() + '.' + DC6.EXT, DC6.class);
     Riiablo.assets.load(invFileDescriptor);
-    Riiablo.assets.finishLoadingAsset(invFileDescriptor);
-    invFile = Riiablo.assets.get(invFileDescriptor);
-    resize();
+    checkLoaded();
 
     invColormap     = Riiablo.colormaps.get(base.InvTrans);
     String invColor = getInvColor();
@@ -397,6 +395,16 @@ public class Item extends Actor implements Disposable {
     charColorIndex  = charColor != null ? Riiablo.files.colors.index(charColor) + 1 : 0;
 
     // TODO: load the images of socketed items
+  }
+
+  public boolean checkLoaded() {
+    boolean b = Riiablo.assets.isLoaded(invFileDescriptor);
+    if (b && invFile == null) {
+      invFile = Riiablo.assets.get(invFileDescriptor);
+      resize();
+    }
+
+    return b;
   }
 
   @Override
@@ -806,6 +814,7 @@ public class Item extends Actor implements Disposable {
 
   @Override
   public void draw(Batch batch, float a) {
+    if (invFile == null && !checkLoaded()) return;
     PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
     boolean ethereal = (flags & ETHEREAL) == ETHEREAL;
     if (ethereal) b.setAlpha(ETHEREAL_ALPHA);
