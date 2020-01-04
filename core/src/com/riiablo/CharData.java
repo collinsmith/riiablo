@@ -338,11 +338,11 @@ public class CharData {
     }
   }
 
-  public int getSkill(int button) {
-    return getSkill(d2s.header.alternate, button);
+  public int getAction(int button) {
+    return getAction(d2s.header.alternate, button);
   }
 
-  public int getSkill(int alternate, int button) {
+  public int getAction(int alternate, int button) {
     return d2s.header.actions[alternate][button];
   }
 

@@ -115,7 +115,7 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
     manaWidget = new ManaWidget(ctrlpnl.getTexture(numFrames - 2));
 
     if (!DEBUG_MOBILE && Gdx.app.getType() == Application.ApplicationType.Desktop) {
-      int leftSkillId = Riiablo.charData.getSkill(Input.Buttons.LEFT);
+      int leftSkillId = Riiablo.charData.getAction(Input.Buttons.LEFT);
       if (leftSkillId > 0) {
         final Skills.Entry skill = Riiablo.files.skills.get(leftSkillId);
         final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
@@ -143,7 +143,7 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
         }
       });
 
-      int rightSkillId = Riiablo.charData.getSkill(Input.Buttons.RIGHT);
+      int rightSkillId = Riiablo.charData.getAction(Input.Buttons.RIGHT);
       if (rightSkillId > 0) {
         final Skills.Entry skill = Riiablo.files.skills.get(rightSkillId);
         final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
