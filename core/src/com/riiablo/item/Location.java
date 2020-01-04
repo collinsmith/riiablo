@@ -21,7 +21,7 @@ public enum Location {
       case 5: return UNK5;
       case 6: return SOCKET;
       default:
-        Gdx.app.error("LowQuality", "Unknown location: " + i);
+        Gdx.app.error("Location", "Unknown location: " + i);
         return null;
     }
   }
