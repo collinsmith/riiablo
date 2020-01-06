@@ -25,7 +25,7 @@ import static com.riiablo.item.StoreLoc.INVENTORY;
 
 public class CharData {
   private D2S d2s;
-  private CharacterClass charClass;
+  private CharacterClass classId;
   private Item cursor;
   private final EnumMap<StoreLoc, Array<Item>> store = new EnumMap<>(StoreLoc.class);
   private final EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
@@ -71,7 +71,7 @@ public class CharData {
   public CharData setD2S(D2S d2s) {
     if (this.d2s != d2s) {
       this.d2s = d2s;
-      charClass = CharacterClass.get(d2s.header.charClass);
+      classId = CharacterClass.get(d2s.header.charClass);
     }
 
     return this;
@@ -181,14 +181,14 @@ public class CharData {
     skills.clear();
     chargedSkills.clear();
     skills.putAll(defaultSkills);
-    for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
+    for (int spellId = classId.firstSpell, i = 0; spellId < classId.lastSpell; spellId++, i++) {
       skills.put(spellId, d2s.skills.data[i]);
     }
     notifySkillsChanged(skills, chargedSkills);
   }
 
   public CharacterClass getCharacterClass() {
-    return charClass;
+    return classId;
   }
 
   public void loadItems() {
@@ -244,7 +244,7 @@ public class CharData {
     if ((LARM != null && LARM.typeEntry.Throwable)
      || (RARM != null && RARM.typeEntry.Throwable)) {
       skills.put(throw_, 1);
-      if (charClass == CharacterClass.BARBARIAN) {
+      if (classId == CharacterClass.BARBARIAN) {
         skills.put(left_hand_throw, 1);
       }
     }
@@ -263,7 +263,7 @@ public class CharData {
       }
     }
 
-    for (int spellId = charClass.firstSpell, i = 0; spellId < charClass.lastSpell; spellId++, i++) {
+    for (int spellId = classId.firstSpell, i = 0; spellId < classId.lastSpell; spellId++, i++) {
       skills.put(spellId, d2s.skills.data[i]);
     }
 
