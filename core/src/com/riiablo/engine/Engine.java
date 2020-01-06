@@ -116,6 +116,8 @@ public class Engine {
     //public static final byte MODE_GH = 19;
   }
 
+  public static final int MAX_DIFFS = 3;
+  public static final int MAX_ACTS = 5;
   public static final int MAX_PLAYERS = 8;
   public static final int MAX_NAME_LENGTH = 15;
 }
