@@ -13,7 +13,7 @@ import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.riiablo.CharData;
 import com.riiablo.Riiablo;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.engine.Dirty;

@@ -3,7 +3,7 @@ package com.riiablo.entity;
 import com.badlogic.gdx.Gdx;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.engine.Direction;
 import com.riiablo.engine.Engine.Player;

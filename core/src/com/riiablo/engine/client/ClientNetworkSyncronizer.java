@@ -11,7 +11,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.riiablo.Riiablo;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;

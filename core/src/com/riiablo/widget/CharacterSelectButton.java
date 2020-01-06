@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.entity.CharacterPreview;
 import com.riiablo.loader.DC6Loader;

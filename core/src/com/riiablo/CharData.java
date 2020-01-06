@@ -3,7 +3,7 @@ package com.riiablo;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.DifficultyLevels;
 import com.riiablo.codec.excel.SetItems;

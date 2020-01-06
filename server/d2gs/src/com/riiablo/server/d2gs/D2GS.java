@@ -28,7 +28,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.audio.ServerAudio;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.D2;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;

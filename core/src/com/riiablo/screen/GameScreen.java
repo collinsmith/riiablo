@@ -35,7 +35,7 @@ import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.Sounds;

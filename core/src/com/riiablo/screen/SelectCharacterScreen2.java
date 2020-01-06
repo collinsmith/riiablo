@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.riiablo.Riiablo;
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.StringTBL;
 import com.riiablo.graphics.PaletteIndexedBatch;

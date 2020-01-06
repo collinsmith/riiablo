@@ -1,4 +1,4 @@
-package com.riiablo.codec;
+package com.riiablo.save;
 
 import com.google.common.primitives.Ints;
 
@@ -7,6 +7,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.COF;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;

@@ -2,7 +2,7 @@ package com.riiablo.engine.server.component.serializer;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 
-import com.riiablo.codec.D2S;
+import com.riiablo.save.D2S;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.engine.server.component.Item;
 import com.riiablo.net.packet.d2gs.ComponentP;
