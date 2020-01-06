@@ -90,7 +90,7 @@ public class D2GS extends ApplicationAdapter {
   private static final String TAG = "D2GS";
 
   private static final int PORT = 6114;
-  private static final int MAX_CLIENTS = Engine.MAX_PLAYERS;
+  private static final int MAX_CLIENTS = Riiablo.MAX_PLAYERS;
 
   public static void main(String[] args) {
     Options options = new Options()

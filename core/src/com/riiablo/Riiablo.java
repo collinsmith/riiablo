@@ -21,6 +21,11 @@ import com.riiablo.screen.GameScreen;
 public class Riiablo {
   private Riiablo() {}
 
+  public static final int MAX_DIFFS = 3;
+  public static final int MAX_ACTS = 5;
+  public static final int MAX_PLAYERS = 8;
+  public static final int MAX_NAME_LENGTH = 15;
+
   public static final int DESKTOP_VIEWPORT_HEIGHT = 480;
   public static final int MOBILE_VIEWPORT_HEIGHT  = 360;
   public static final int DESKTOP_VIEWPORT_MIN_WIDTH = 640;

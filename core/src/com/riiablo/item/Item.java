@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
-import com.riiablo.engine.Engine;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.StringTBL;
@@ -192,7 +191,7 @@ public class Item extends Actor implements Disposable {
       socketsFilled = 0;
       qualityId     = bitStream.readUnsigned7OrLess(3); // class
       qualityData   = bitStream.readUnsigned7OrLess(7); // level
-      inscription   = bitStream.readString2(Engine.MAX_NAME_LENGTH + 1, 7); // name
+      inscription   = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7); // name
     } else {
       typeCode      = bitStream.readString(4).trim();
       socketsFilled = bitStream.readUnsigned7OrLess(3);
@@ -295,7 +294,7 @@ public class Item extends Actor implements Disposable {
       }
 
       if ((flags & INSCRIBED) == INSCRIBED) {
-        inscription = bitStream.readString2(Engine.MAX_NAME_LENGTH + 1, 7);
+        inscription = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7);
       }
 
       bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
