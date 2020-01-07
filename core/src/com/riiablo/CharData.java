@@ -192,6 +192,8 @@ public class CharData {
   }
 
   public void loadItems() {
+    equippedSets.clear();
+    setItemsOwned.clear();
     for (Array<Item> array : store.values()) array.clear();
     equipped.clear();
     belt.clear();
