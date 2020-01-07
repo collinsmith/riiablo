@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
@@ -346,7 +347,7 @@ public class Item extends Actor implements Disposable {
     return this;
   }
 
-  public void update() {
+  public void update(CharData charData) {
     if ((flags & COMPACT) == COMPACT) return;
     props.reset();
     if (stats[MAGIC_PROPS] != null) props.add(stats[MAGIC_PROPS]);
@@ -368,12 +369,12 @@ public class Item extends Actor implements Disposable {
         }
       }
     }
-    props.update(Riiablo.charData);
+    props.update(charData);
   }
 
   public Details details() {
     if (details == null) {
-      update();
+      update(Riiablo.charData);
       details = new Details();
     }
     return details;
