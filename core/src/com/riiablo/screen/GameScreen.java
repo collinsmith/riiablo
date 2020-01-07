@@ -243,7 +243,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     this.charData = charData;
     this.socket = socket;
     charData.getD2S().loadRemaining();
-    charData.updateD2S(2);
+    charData.updateD2S(Riiablo.HELL);
     charData.loadItems();
     D2S.ItemData items = charData.getD2S().header.merc.items.items;
     if (items != null) for (Item item : items.items) item.load();

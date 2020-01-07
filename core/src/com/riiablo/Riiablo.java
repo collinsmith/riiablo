@@ -21,6 +21,10 @@ import com.riiablo.screen.GameScreen;
 public class Riiablo {
   private Riiablo() {}
 
+  public static final int NORMAL    = 0;
+  public static final int NIGHTMARE = 1;
+  public static final int HELL      = 2;
+
   public static final int MAX_DIFFS = 3;
   public static final int MAX_ACTS = 5;
   public static final int MAX_PLAYERS = 8;
