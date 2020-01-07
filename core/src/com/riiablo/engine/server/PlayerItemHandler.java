@@ -60,7 +60,7 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
 
   private void updateWeaponClass(int entityId, CharData charData, CofReference reference) {
     Item RH = null, LH = null, SH = null;
-    Item rArm = charData.getEquipped2(BodyLoc.RARM);
+    Item rArm = charData.getEquipped(BodyLoc.RARM);
     if (rArm != null) {
       if (rArm.type.is(com.riiablo.item.Type.WEAP)) {
         RH = rArm;
@@ -69,7 +69,7 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
       }
     }
 
-    Item lArm = charData.getEquipped2(BodyLoc.LARM);
+    Item lArm = charData.getEquipped(BodyLoc.LARM);
     if (lArm != null) {
       if (lArm.type.is(com.riiablo.item.Type.WEAP)) {
         LH = lArm;
@@ -135,11 +135,11 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
 
   private void updateArmorClass(int entityId, CharData charData) {
     int transformFlags = 0;
-    Item head = charData.getEquipped(BodyLoc.HEAD);
+    Item head = charData.getSlot(BodyLoc.HEAD);
     cofs.setComponent(entityId, COF.Component.HD, head != null ? Class.Type.PLR.getComponent(head.base.alternateGfx) : CofComponents.COMPONENT_LIT);
     transformFlags |= cofs.setTransform(entityId, COF.Component.HD, head != null ? (byte) ((head.base.Transform << 5) | (head.charColorIndex & 0x1F)) : CofTransforms.TRANSFORM_NULL);
 
-    Item body = charData.getEquipped(BodyLoc.TORS);
+    Item body = charData.getSlot(BodyLoc.TORS);
     if (body != null) {
       Armor.Entry armor = body.getBase();
       cofs.setComponent(entityId, COF.Component.TR, (armor.Torso + 1));

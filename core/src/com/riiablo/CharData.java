@@ -239,8 +239,8 @@ public class CharData {
 
     skills.clear();
     skills.putAll(defaultSkills);
-    Item LARM = getEquipped(BodyLoc.getAlternate(BodyLoc.LARM, alternate));
-    Item RARM = getEquipped(BodyLoc.getAlternate(BodyLoc.RARM, alternate));
+    Item LARM = getEquipped(BodyLoc.LARM);
+    Item RARM = getEquipped(BodyLoc.RARM);
     if ((LARM != null && LARM.typeEntry.Throwable)
      || (RARM != null && RARM.typeEntry.Throwable)) {
       skills.put(throw_, 1);
@@ -366,12 +366,12 @@ public class CharData {
     return store.get(storeLoc);
   }
 
-  public Item getEquipped(BodyLoc bodyLoc) {
+  public Item getSlot(BodyLoc bodyLoc) {
     return equipped.get(bodyLoc);
   }
 
-  public Item getEquipped2(BodyLoc bodyLoc) {
-    return getEquipped(BodyLoc.getAlternate(bodyLoc, d2s.header.alternate));
+  public Item getEquipped(BodyLoc bodyLoc) {
+    return getSlot(BodyLoc.getAlternate(bodyLoc, d2s.header.alternate));
   }
 
   public Item setEquipped(BodyLoc bodyLoc, Item item) {
@@ -394,8 +394,8 @@ public class CharData {
   public void setAlternate(int alternate) {
     if (d2s.header.alternate != alternate) {
       d2s.header.alternate = alternate;
-      Item LH = getEquipped(alternate > 0 ? BodyLoc.LARM2 : BodyLoc.LARM);
-      Item RH = getEquipped(alternate > 0 ? BodyLoc.RARM2 : BodyLoc.RARM);
+      Item LH = getEquipped(BodyLoc.LARM);
+      Item RH = getEquipped(BodyLoc.RARM);
       updateStats();
       notifyEquippedAlternated(alternate, LH, RH);
     }
