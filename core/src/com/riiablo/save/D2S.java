@@ -62,7 +62,7 @@ public class D2S {
   public static final int NUM_ACTIONS = NUM_ALTS;
   public static final int NUM_BUTTONS = 2;
   public static final int NUM_HOTKEYS = 16;
-  public static final int NUM_DIFFS   = 3;  // TODO: Point at Diablo.MAX_DIFFICULTIES or something
+  public static final int NUM_DIFFS   = Riiablo.MAX_DIFFS;
 
   static final int DIFF_ACT_MASK    = 0x7;
   static final int DIFF_FLAG_ACTIVE = 1 << 7;
