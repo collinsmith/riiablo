@@ -6,11 +6,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
+import com.riiablo.item.PropertyList;
+import com.riiablo.item.Stat;
 import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
 
@@ -141,6 +144,78 @@ public class D2S {
       d2s.loadRemaining(buffer);
     }
     return d2s;
+  }
+
+  CharData copyTo(CharData data) {
+    data.softReset();
+    data.name      = header.name;
+    data.charClass = header.charClass;
+    data.classId   = CharacterClass.get(header.charClass);
+    data.alternate = header.alternate;
+    data.flags     = header.flags;
+    data.level     = header.level;
+    System.arraycopy(header.hotkeys, 0, data.hotkeys, 0, D2S.NUM_HOTKEYS);
+    for (int i = 0, s = D2S.NUM_ACTIONS; i < s; i++) System.arraycopy(header.actions[i], 0, data.actions[i], 0, D2S.NUM_BUTTONS);
+    System.arraycopy(header.towns, 0, data.towns, 0, D2S.NUM_DIFFS);
+    data.mapSeed   = header.mapSeed;
+    System.arraycopy(header.realmData, 0, data.realmData, 0, header.realmData.length);
+
+    data.mercData.flags = header.merc.flags;
+    data.mercData.seed  = header.merc.seed;
+    data.mercData.name  = header.merc.name;
+    data.mercData.type  = header.merc.type;
+    data.mercData.xp    = header.merc.xp;
+    data.mercData.itemData.clear();
+    if (header.merc.seed != 0) data.mercData.itemData.addAll(header.merc.items.items.items);
+
+    BitStream bitStream;
+    for (int i = 0, i0 = Riiablo.MAX_DIFFS; i < i0; i++) {
+      bitStream = new BitStream(quests.data[i]);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][0][q] = (short) bitStream.readUnsigned31OrLess(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][1][q] = (short) bitStream.readUnsigned31OrLess(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][2][q] = (short) bitStream.readUnsigned31OrLess(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][3][q] = (short) bitStream.readUnsigned31OrLess(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][4][q] = (short) bitStream.readUnsigned31OrLess(16);
+
+      bitStream = new BitStream(waypoints.diff[i].data);
+      data.waypointData[i][0] = bitStream.readUnsigned31OrLess(9);
+      data.waypointData[i][1] = bitStream.readUnsigned31OrLess(9);
+      data.waypointData[i][2] = bitStream.readUnsigned31OrLess(9);
+      data.waypointData[i][3] = bitStream.readUnsigned31OrLess(3);
+      data.waypointData[i][4] = bitStream.readUnsigned31OrLess(9);
+
+      bitStream = new BitStream(npcs.data[NPCData.GREETING_INTRO][i]);
+      data.npcIntroData[i]  = bitStream.readUnsigned(64);
+      bitStream = new BitStream(npcs.data[NPCData.GREETING_RETURN][i]);
+      data.npcReturnData[i] = bitStream.readUnsigned(64);
+    }
+
+    PropertyList base = data.statData.base();
+    base.put(Stat.strength, stats.strength);
+    base.put(Stat.energy, stats.energy);
+    base.put(Stat.dexterity, stats.dexterity);
+    base.put(Stat.vitality, stats.vitality);
+    base.put(Stat.statpts, stats.statpts);
+    base.put(Stat.newskills, stats.newskills);
+    base.put(Stat.hitpoints, stats.hitpoints);
+    base.put(Stat.maxhp, stats.maxhp);
+    base.put(Stat.mana, stats.mana);
+    base.put(Stat.maxmana, stats.maxmana);
+    base.put(Stat.stamina, stats.stamina);
+    base.put(Stat.maxstamina, stats.maxstamina);
+    base.put(Stat.level, stats.level);
+    base.put(Stat.experience, (int) stats.experience);
+    base.put(Stat.gold, stats.gold);
+    base.put(Stat.goldbank, stats.goldbank);
+
+    for (int spellId = data.classId.firstSpell, s = data.classId.lastSpell, i = 0; spellId < s; spellId++, i++) {
+      data.skillData.put(spellId, skills.data[i]);
+    }
+
+    data.itemData.clear();
+    data.itemData.addAll(items.items);
+    data.golemItemData = golem.item;
+    return data;
   }
 
   public static class Header {
