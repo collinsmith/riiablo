@@ -10,7 +10,9 @@ import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
 import com.riiablo.item.Quality;
+import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
+import com.riiablo.item.Type;
 import com.riiablo.util.EnumIntMap;
 
 public class ItemData {
@@ -20,7 +22,8 @@ public class ItemData {
 
   final Array<Item> itemData = new Array<>(Item.class);
 
-  int cursor;
+  int cursor = INVALID_ITEM;
+  int alternate = D2S.PRIMARY;
 
   final EnumIntMap<BodyLoc>  equipped = new EnumIntMap<>(BodyLoc.class, INVALID_ITEM);
   final Array<EquipListener> equipListeners = new Array<>(false, 16);
@@ -34,6 +37,7 @@ public class ItemData {
 
   public void clear() {
     cursor = INVALID_ITEM;
+    alternate = D2S.PRIMARY;
     itemData.clear();
     equipped.clear();
     equipListeners.clear();
@@ -81,8 +85,17 @@ public class ItemData {
     return i == ItemData.INVALID_ITEM ? null : getItem(i);
   }
 
+  public Item getEquipped(BodyLoc bodyLoc) {
+    return getEquipped(bodyLoc, alternate);
+  }
+
   public Item getEquipped(BodyLoc bodyLoc, int alternate) {
     return getSlot(BodyLoc.getAlternate(bodyLoc, alternate));
+  }
+
+  public boolean isActive(Item item) {
+    if (item == null) return false;
+    return item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, alternate);
   }
 
   public int add(Item item) {
@@ -159,7 +172,35 @@ public class ItemData {
   void update(int i) {
     Item item = itemData.get(i);
 //    if (item != null) item.update(this);
-//    updateStats();
+  }
+
+  private void updateStats() {
+    Stat stat;
+    stats.reset();
+    int[] cache = equipped.values();
+    for (int i = 0, s = cache.length, j; i < s; i++) {
+      j = cache[i];
+      if (j == ItemData.INVALID_ITEM) continue;
+      Item item = itemData.get(j);
+      if (isActive(item)) {
+        stats.add(item.props.remaining());
+        if ((stat = item.props.get(Stat.armorclass)) != null) {
+          stats.aggregate().addCopy(stat);
+        }
+      }
+    }
+
+    IntArray inventoryItems = getStore(StoreLoc.INVENTORY);
+    cache = inventoryItems.items;
+    for (int i = 0, s = cache.length, j; i < s; i++) {
+      j = cache[i];
+      if (j == ItemData.INVALID_ITEM) continue;
+      Item item = itemData.get(j);
+      if (item.type.is(Type.CHAR)) {
+        stats.add(item.props.remaining());
+      }
+    }
+//    stats.update(this); // TODO: uncomment
   }
 
   private void updateSet(Item item, int add) {

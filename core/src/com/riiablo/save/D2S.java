@@ -151,7 +151,6 @@ public class D2S {
     data.name      = header.name;
     data.charClass = header.charClass;
     data.classId   = CharacterClass.get(header.charClass);
-    data.alternate = header.alternate;
     data.flags     = header.flags;
     data.level     = header.level;
     System.arraycopy(header.hotkeys, 0, data.hotkeys, 0, D2S.NUM_HOTKEYS);
@@ -214,6 +213,7 @@ public class D2S {
 
     data.itemData.clear();
     data.itemData.addAll(items.items);
+    data.itemData.alternate = header.alternate;
     data.golemItemData = golem.item;
     return data;
   }

@@ -46,7 +46,6 @@ public class CharData {
 
   public       String name;
   public       byte   charClass;
-  public       int    alternate;
   public       int    flags;
   public       byte   level;
   public final int    hotkeys[] = new int[D2S.NUM_HOTKEYS];
@@ -102,7 +101,6 @@ public class CharData {
     this.name = name;
     this.charClass = charClass;
     classId   = CharacterClass.get(charClass);
-    alternate = D2S.PRIMARY;
     flags     = D2S.FLAG_EXPANSION;
     level     = 1;
     Arrays.fill(hotkeys, D2S.HOTKEY_UNASSIGNED);
@@ -127,7 +125,6 @@ public class CharData {
     name      = null;
     charClass = -1;
     classId   = null;
-    alternate = 0;
     flags     = 0;
     level     = 0;
     Arrays.fill(hotkeys, D2S.HOTKEY_UNASSIGNED);
@@ -165,6 +162,20 @@ public class CharData {
     skills.clear();
     chargedSkills.clear();
     skillListeners.clear();
+
+    DifficultyLevels.Entry diff = Riiablo.files.DifficultyLevels.get(this.diff);
+    PropertyList base = statData.base();
+    base.put(Stat.armorclass,      0);
+    base.put(Stat.damageresist,    0);
+    base.put(Stat.magicresist,     0);
+    base.put(Stat.fireresist,      diff.ResistPenalty);
+    base.put(Stat.lightresist,     diff.ResistPenalty);
+    base.put(Stat.coldresist,      diff.ResistPenalty);
+    base.put(Stat.poisonresist,    diff.ResistPenalty);
+    base.put(Stat.maxfireresist,   75);
+    base.put(Stat.maxlightresist,  75);
+    base.put(Stat.maxcoldresist,   75);
+    base.put(Stat.maxpoisonresist, 75);
   }
 
   public boolean isManaged() {
@@ -185,7 +196,7 @@ public class CharData {
   }
 
   public int getAction(int button) {
-    return getAction(alternate, button);
+    return getAction(itemData.alternate, button);
   }
 
   public int getAction(int alternate, int button) {
@@ -233,45 +244,31 @@ public class CharData {
   }
 
   public void updateStats() {
-    DifficultyLevels.Entry diff = Riiablo.files.DifficultyLevels.get(this.diff);
-    PropertyList base = statData.base();
-    base.put(Stat.armorclass,      0);
-    base.put(Stat.damageresist,    0);
-    base.put(Stat.magicresist,     0);
-    base.put(Stat.fireresist,      diff.ResistPenalty);
-    base.put(Stat.lightresist,     diff.ResistPenalty);
-    base.put(Stat.coldresist,      diff.ResistPenalty);
-    base.put(Stat.poisonresist,    diff.ResistPenalty);
-    base.put(Stat.maxfireresist,   75);
-    base.put(Stat.maxlightresist,  75);
-    base.put(Stat.maxcoldresist,   75);
-    base.put(Stat.maxpoisonresist, 75);
-
-    statData.reset();
-    int[] equippedItems = itemData.equipped.values();
-    for (int i = 0, s = equippedItems.length, j; i < s; i++) {
-      j = equippedItems[i];
-      if (j == ItemData.INVALID_ITEM) continue;
-      Item item = itemData.getItem(j);
-      if (isActive(item)) {
-        statData.add(item.props.remaining());
-        Stat stat;
-        if ((stat = item.props.get(Stat.armorclass)) != null) {
-          statData.aggregate().addCopy(stat);
-        }
-      }
-    }
+//    statData.reset();
+//    int[] equippedItems = itemData.equipped.values();
+//    for (int i = 0, s = equippedItems.length, j; i < s; i++) {
+//      j = equippedItems[i];
+//      if (j == ItemData.INVALID_ITEM) continue;
+//      Item item = itemData.getItem(j);
+//      if (isActive(item)) {
+//        statData.add(item.props.remaining());
+//        Stat stat;
+//        if ((stat = item.props.get(Stat.armorclass)) != null) {
+//          statData.aggregate().addCopy(stat);
+//        }
+//      }
+//    }
     IntArray inventoryItems = itemData.getStore(StoreLoc.INVENTORY);
     int[] inventoryItemsCache = inventoryItems.items;
-    for (int i = 0, s = inventoryItems.size, j; i < s; i++) {
-      j = inventoryItemsCache[i];
-      if (j == ItemData.INVALID_ITEM) continue;
-      Item item = itemData.getItem(j);
-      if (item.type.is(Type.CHAR)) {
-        statData.add(item.props.remaining());
-      }
-    }
-//    statData.update(this); // TODO: uncomment
+//    for (int i = 0, s = inventoryItems.size, j; i < s; i++) {
+//      j = inventoryItemsCache[i];
+//      if (j == ItemData.INVALID_ITEM) continue;
+//      Item item = itemData.getItem(j);
+//      if (item.type.is(Type.CHAR)) {
+//        statData.add(item.props.remaining());
+//      }
+//    }
+////    statData.update(this); // TODO: uncomment
 
     // FIXME: This corrects a mismatch between max and current, algorithm should be tested later for correctness in other cases
     statData.get(Stat.maxstamina).set(statData.get(Stat.stamina));
@@ -287,8 +284,8 @@ public class CharData {
     skills.clear();
     skills.putAll(skillData);
     skills.putAll(defaultSkills);
-    Item LARM = getEquipped(BodyLoc.LARM);
-    Item RARM = getEquipped(BodyLoc.RARM);
+    Item LARM = itemData.getEquipped(BodyLoc.LARM);
+    Item RARM = itemData.getEquipped(BodyLoc.RARM);
     if ((LARM != null && LARM.typeEntry.Throwable)
      || (RARM != null && RARM.typeEntry.Throwable)) {
       skills.put(throw_, 1);
@@ -296,8 +293,9 @@ public class CharData {
         skills.put(left_hand_throw, 1);
       }
     }
-    for (int i = 0, s = inventoryItems.size; i < s; i++) {
-      Item item = itemData.getItem(inventoryItemsCache[i]);
+    for (int i = 0, s = inventoryItems.size, j; i < s; i++) {
+      j = inventoryItemsCache[i];
+      Item item = itemData.getItem(j);
       if (item.type.is(Type.BOOK) || item.type.is(Type.SCRO)) {
         if (item.base.code.equalsIgnoreCase("ibk")) {
           skills.getAndIncrement(book_of_identify, 0, item.props.get(Stat.quantity).value());
@@ -332,31 +330,6 @@ public class CharData {
 
   public ItemData getItems() {
     return itemData;
-  }
-
-  public Item getItem(int i) {
-    return itemData.getItem(i);
-  }
-
-  public Item getCursor() {
-    return itemData.getCursor();
-  }
-
-  public Item getSlot(BodyLoc bodyLoc) {
-    return itemData.getSlot(bodyLoc);
-  }
-
-  public Item getEquipped(BodyLoc bodyLoc) {
-    return getEquipped(bodyLoc, alternate);
-  }
-
-  public Item getEquipped(BodyLoc bodyLoc, int alternate) {
-    return itemData.getEquipped(bodyLoc, alternate);
-  }
-
-  public boolean isActive(Item item) {
-    if (item == null) return false;
-    return item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, alternate);
   }
 
   public void itemToCursor(int i) {
@@ -459,14 +432,14 @@ public class CharData {
   }
 
   public int getAlternate() {
-    return alternate;
+    return itemData.alternate;
   }
 
   public void setAlternate(int alternate) {
-    if (this.alternate != alternate) {
-      this.alternate = alternate;
-      Item LH = getEquipped(BodyLoc.LARM);
-      Item RH = getEquipped(BodyLoc.RARM);
+    if (itemData.alternate != alternate) {
+      itemData.alternate = alternate;
+      Item LH = itemData.getEquipped(BodyLoc.LARM);
+      Item RH = itemData.getEquipped(BodyLoc.RARM);
       updateStats();
       notifyAlternated(alternate, LH, RH);
     }
