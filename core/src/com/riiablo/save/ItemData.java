@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.SetItems;
+import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
@@ -15,6 +16,8 @@ import com.riiablo.util.EnumIntMap;
 public class ItemData {
   public static final int INVALID_ITEM = -1;
 
+  final Attributes stats;
+
   final Array<Item> itemData = new Array<>(Item.class);
 
   int cursor;
@@ -24,6 +27,10 @@ public class ItemData {
 
   final IntIntMap equippedSets = new IntIntMap(); // Indexed using set id
   final IntIntMap setItemsOwned = new IntIntMap(); // Indexed using set item id
+
+  ItemData(Attributes stats) {
+    this.stats = stats;
+  }
 
   public void clear() {
     cursor = INVALID_ITEM;
@@ -119,25 +126,47 @@ public class ItemData {
     return getLocation(Location.STORED, storeLoc);
   }
 
-//  public Item equip(BodyLoc bodyLoc, Item item) {
-//    Item oldItem = equipped.put(bodyLoc, item);
-////    if (item != null) item.update(this);
-//    updateSets(oldItem, item);
-//    updateStats();
-//    notifyEquipmentChanged(bodyLoc, oldItem, item);
-//    return oldItem;
-//  }
+  void equip(BodyLoc bodyLoc, Item item) {
+    assert !itemData.contains(item, true);
+    equip(bodyLoc, add(item));
+  }
 
-  private void updateSets(Item oldItem, Item item) {
-    if (oldItem != null && oldItem.quality == Quality.SET) {
-      SetItems.Entry setItem = (SetItems.Entry) oldItem.qualityData;
-      int id = Riiablo.files.Sets.index(setItem.set);
-      equippedSets.getAndIncrement(id, 0, -1);
-    }
+  void equip(BodyLoc bodyLoc, int i) {
+    Item item = itemData.get(i);
+    item.location = Location.EQUIPPED;
+    item.bodyLoc = bodyLoc;
+    int j = equipped.put(bodyLoc, i);
+    assert j == INVALID_ITEM : "Item " + j + " should have been unequipped by this point.";
+    update(bodyLoc);
+    updateSet(item, 1);
+    notifyEquip(bodyLoc, item);
+  }
+
+  int unequip(BodyLoc bodyLoc) {
+    int i = equipped.remove(bodyLoc);
+    Item item = itemData.get(i);
+//    update(bodyLoc);
+    updateSet(item, -1);
+    notifyUnequip(bodyLoc, item);
+    return i;
+  }
+
+  void update(BodyLoc bodyLoc) {
+    int i = equipped.get(bodyLoc);
+    update(i);
+  }
+
+  void update(int i) {
+    Item item = itemData.get(i);
+//    if (item != null) item.update(this);
+//    updateStats();
+  }
+
+  private void updateSet(Item item, int add) {
     if (item != null && item.quality == Quality.SET) {
       SetItems.Entry setItem = (SetItems.Entry) item.qualityData;
       int id = Riiablo.files.Sets.index(setItem.set);
-      equippedSets.getAndIncrement(id, 0, 1);
+      equippedSets.getAndIncrement(id, 0, add);
     }
   }
 
@@ -146,11 +175,16 @@ public class ItemData {
     return true;
   }
 
-  private void notifyEquipmentChanged(BodyLoc bodyLoc, Item oldItem, Item item) {
-    for (EquipListener l : equipListeners) l.onChanged(this, bodyLoc, oldItem, item);
+  private void notifyEquip(BodyLoc bodyLoc, Item item) {
+    for (EquipListener l : equipListeners) l.onEquip(this, bodyLoc, item);
+  }
+
+  private void notifyUnequip(BodyLoc bodyLoc, Item item) {
+    for (EquipListener l : equipListeners) l.onUnequip(this, bodyLoc, item);
   }
 
   public interface EquipListener {
-    void onChanged(ItemData items, BodyLoc bodyLoc, Item oldItem, Item item);
+    void onEquip(ItemData items, BodyLoc bodyLoc, Item item);
+    void onUnequip(ItemData items, BodyLoc bodyLoc, Item item);
   }
 }

@@ -62,7 +62,7 @@ public class CharData {
   final long       npcReturnData[] = new long[Riiablo.MAX_DIFFS];
   final Attributes statData = new Attributes();
   final IntIntMap  skillData = new IntIntMap();
-  final ItemData   itemData = new ItemData();
+  final ItemData   itemData = new ItemData(statData);
         Item       golemItemData;
 
   public int diff;
@@ -155,6 +155,8 @@ public class CharData {
     statData.reset();
     skillData.clear();
     itemData.clear();
+    mercData.statData.base().clear();
+    mercData.statData.reset();
     mercData.itemData.clear();
     golemItemData = null;
 
@@ -399,28 +401,23 @@ public class CharData {
     assert itemData.cursor == ItemData.INVALID_ITEM;
     Item item;
     if (merc) {
-      int i = mercData.itemData.equipped.get(bodyLoc);
+      int i = mercData.itemData.unequip(bodyLoc);
       itemData.cursor = itemData.add(item = mercData.itemData.remove(i));
-      mercData.itemData.equipped.remove(item.bodyLoc);
     } else {
-      itemData.cursor = itemData.equipped.get(bodyLoc);
+      itemData.cursor = itemData.unequip(bodyLoc);
       item = itemData.getItem(itemData.cursor);
-      itemData.equipped.put(item.bodyLoc, ItemData.INVALID_ITEM);
     }
     item.location = Location.CURSOR;
   }
 
   public void cursorToBody(BodyLoc bodyLoc, boolean merc) {
     assert itemData.cursor != ItemData.INVALID_ITEM;
-    Item item = itemData.getItem(itemData.cursor);
-    item.location = Location.EQUIPPED;
-    item.bodyLoc = bodyLoc;
     if (merc) {
+      Item item = itemData.getItem(itemData.cursor);
       itemData.remove(itemData.cursor);
-      int i = mercData.itemData.add(item);
-      mercData.itemData.equipped.put(bodyLoc, i);
+      mercData.itemData.equip(bodyLoc, item);
     } else {
-      itemData.equipped.put(bodyLoc, itemData.cursor);
+      itemData.equip(bodyLoc, itemData.cursor);
     }
     itemData.cursor = ItemData.INVALID_ITEM;
   }
@@ -488,7 +485,16 @@ public class CharData {
     public short type;
     public int   xp;
 
-    public final ItemData itemData = new ItemData();
+    final Attributes statData = new Attributes();
+    final ItemData   itemData = new ItemData(statData);
+
+    public Attributes getStats() {
+      return statData;
+    }
+
+    public ItemData getItems() {
+      return itemData;
+    }
 
     public String getName() {
       return String.format("0x%04X", name);
