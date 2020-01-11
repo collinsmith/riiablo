@@ -146,16 +146,11 @@ public class ItemData {
     return true;
   }
 
-  void notifyEquipmentChanged(BodyLoc bodyLoc, Item oldItem, Item item) {
+  private void notifyEquipmentChanged(BodyLoc bodyLoc, Item oldItem, Item item) {
     for (EquipListener l : equipListeners) l.onChanged(this, bodyLoc, oldItem, item);
-  }
-
-  void notifyEquipmentAlternated(int alternate, Item LH, Item RH) {
-    for (EquipListener l : equipListeners) l.onAlternated(this, alternate, LH, RH);
   }
 
   public interface EquipListener {
     void onChanged(ItemData items, BodyLoc bodyLoc, Item oldItem, Item item);
-    void onAlternated(ItemData items, int alternate, Item LH, Item RH);
   }
 }

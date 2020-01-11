@@ -71,6 +71,8 @@ public class CharData {
 
   private byte[] data; // TODO: replace this reference with D2S.serialize(CharData)
 
+  final Array<AlternateListener> alternateListeners = new Array<>(false, 16);
+
   final IntIntMap            skills = new IntIntMap();
   final Array<Stat>          chargedSkills = new Array<>(false, 16);
   final Array<SkillListener> skillListeners = new Array<>(false, 16);
@@ -155,6 +157,8 @@ public class CharData {
     itemData.clear();
     mercData.itemData.clear();
     golemItemData = null;
+
+    alternateListeners.clear();
 
     skills.clear();
     chargedSkills.clear();
@@ -467,7 +471,7 @@ public class CharData {
       Item LH = getEquipped(BodyLoc.LARM);
       Item RH = getEquipped(BodyLoc.RARM);
       updateStats();
-      itemData.notifyEquipmentAlternated(alternate, LH, RH);
+      notifyAlternated(alternate, LH, RH);
     }
   }
 
@@ -494,6 +498,7 @@ public class CharData {
   public void clearListeners() {
     itemData.equipListeners.clear();
     mercData.itemData.equipListeners.clear();
+    alternateListeners.clear();
     skillListeners.clear();
   }
 
@@ -508,5 +513,18 @@ public class CharData {
 
   public interface SkillListener {
     void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills);
+  }
+
+  public boolean addAlternateListener(AlternateListener l) {
+    alternateListeners.add(l);
+    return true;
+  }
+
+  private void notifyAlternated(int alternate, Item LH, Item RH) {
+    for (AlternateListener l : alternateListeners) l.onAlternated(this, alternate, LH, RH);
+  }
+
+  public interface AlternateListener {
+    void onAlternated(CharData charData, int alternate, Item LH, Item RH);
   }
 }
