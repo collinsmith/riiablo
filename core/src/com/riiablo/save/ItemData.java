@@ -23,7 +23,9 @@ public class ItemData {
   final Array<Item> itemData = new Array<>(Item.class);
 
   int cursor = INVALID_ITEM;
+
   int alternate = D2S.PRIMARY;
+  final Array<AlternateListener> alternateListeners = new Array<>(false, 16);
 
   final EnumIntMap<BodyLoc>  equipped = new EnumIntMap<>(BodyLoc.class, INVALID_ITEM);
   final Array<EquipListener> equipListeners = new Array<>(false, 16);
@@ -38,6 +40,7 @@ public class ItemData {
   public void clear() {
     cursor = INVALID_ITEM;
     alternate = D2S.PRIMARY;
+    alternateListeners.clear();
     itemData.clear();
     equipped.clear();
     equipListeners.clear();
@@ -96,6 +99,26 @@ public class ItemData {
   public boolean isActive(Item item) {
     if (item == null) return false;
     return item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, alternate);
+  }
+
+  public int getAlternate() {
+    return alternate;
+  }
+
+  public void setAlternate(int alternate) {
+    if (this.alternate != alternate) {
+      this.alternate = alternate;
+      Item LH = getEquipped(BodyLoc.LARM);
+      Item RH = getEquipped(BodyLoc.RARM);
+      updateStats();
+      notifyAlternated(alternate, LH, RH);
+    }
+  }
+
+  public int alternate() {
+    int alt = alternate > D2S.PRIMARY ? D2S.PRIMARY : D2S.SECONDARY;
+    setAlternate(alt);
+    return alt;
   }
 
   public int add(Item item) {
@@ -227,5 +250,18 @@ public class ItemData {
   public interface EquipListener {
     void onEquip(ItemData items, BodyLoc bodyLoc, Item item);
     void onUnequip(ItemData items, BodyLoc bodyLoc, Item item);
+  }
+
+  public boolean addAlternateListener(AlternateListener l) {
+    alternateListeners.add(l);
+    return true;
+  }
+
+  private void notifyAlternated(int alternate, Item LH, Item RH) {
+    for (AlternateListener l : alternateListeners) l.onAlternated(this, alternate, LH, RH);
+  }
+
+  public interface AlternateListener {
+    void onAlternated(ItemData items, int alternate, Item LH, Item RH);
   }
 }
