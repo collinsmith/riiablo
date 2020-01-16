@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.Pool;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.DifficultyLevels;
@@ -22,7 +23,8 @@ import org.apache.commons.lang3.Validate;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-public class CharData {
+// TODO: support pooling CharData for multiplayer
+public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   private static final int attack               = 0;
   private static final int kick                 = 1;
   private static final int throw_               = 2;
@@ -74,42 +76,57 @@ public class CharData {
   final Array<Stat>          chargedSkills = new Array<>(false, 16);
   final Array<SkillListener> skillListeners = new Array<>(false, 16);
 
+  /** Constructs a managed instance. Used for local players with complete save data */
   public static CharData loadFromD2S(int diff, D2S d2s) {
-    CharData charData = new CharData(diff, true).load(d2s);
+    CharData charData = new CharData().set(diff, true).load(d2s);
     if (d2s.file != null) charData.data = d2s.file.readBytes();
     return charData;
   }
 
+  /** Constructs an unmanaged instance. Used for remote players with complete save data. */
   public static CharData loadFromBuffer(int diff, ByteBuffer buffer) {
     D2S d2s = D2S.loadFromBuffer(buffer, true);
-    return new CharData(diff, false).load(d2s);
+    return new CharData().set(diff, false).load(d2s);
   }
 
   /**
    * @param managed whether or not this data is backed by a file
    */
-  private CharData(int diff, boolean managed) {
-    this.diff = diff;
-    this.managed = managed;
+  public static CharData obtain(int diff, boolean managed, String name, byte charClass) {
+    return new CharData().set(diff, managed, name, charClass);
   }
 
-  // created via new character or external player
-  public CharData(int diff, boolean managed, String name, byte charClass) {
-    this(diff, managed);
-    this.name = name;
+  /** Constructs an unmanaged instance. Used for remote players with only partial save data. */
+  public static CharData createRemote(String name, byte charClass) {
+    return new CharData().set(Riiablo.NORMAL, false, name, charClass);
+  }
+
+  public CharData set(int diff, boolean managed) {
+    this.diff    = diff;
+    this.managed = managed;
+    return this;
+  }
+
+  public CharData set(int diff, boolean managed, String name, byte charClass) {
+    set(diff, managed);
+    this.name      = name;
     this.charClass = charClass;
-    classId   = CharacterClass.get(charClass);
-    flags     = D2S.FLAG_EXPANSION;
-    level     = 1;
+    classId = CharacterClass.get(charClass);
+    flags   = D2S.FLAG_EXPANSION;
+    level   = 1;
     Arrays.fill(hotkeys, D2S.HOTKEY_UNASSIGNED);
     for (int[] actions : actions) Arrays.fill(actions, 0);
     // TODO: check and set town against saved town
     mapSeed   = 0;
+    return this;
   }
+
+  CharData() {}
 
   public CharData load(D2S d2s) {
     d2s.copyTo(this);
     preprocessItems();
+    itemData.addUpdateListener(this);
     return this;
   }
 
@@ -118,6 +135,7 @@ public class CharData {
     mercData.itemData.preprocessItems();
   }
 
+  @Override
   public void reset() {
     softReset();
     name      = null;
@@ -239,32 +257,9 @@ public class CharData {
     return statData;
   }
 
-  public void updateStats() {
-//    statData.reset();
-//    int[] equippedItems = itemData.equipped.values();
-//    for (int i = 0, s = equippedItems.length, j; i < s; i++) {
-//      j = equippedItems[i];
-//      if (j == ItemData.INVALID_ITEM) continue;
-//      Item item = itemData.getItem(j);
-//      if (isActive(item)) {
-//        statData.add(item.props.remaining());
-//        Stat stat;
-//        if ((stat = item.props.get(Stat.armorclass)) != null) {
-//          statData.aggregate().addCopy(stat);
-//        }
-//      }
-//    }
-    IntArray inventoryItems = itemData.getStore(StoreLoc.INVENTORY);
-    int[] inventoryItemsCache = inventoryItems.items;
-//    for (int i = 0, s = inventoryItems.size, j; i < s; i++) {
-//      j = inventoryItemsCache[i];
-//      if (j == ItemData.INVALID_ITEM) continue;
-//      Item item = itemData.getItem(j);
-//      if (item.type.is(Type.CHAR)) {
-//        statData.add(item.props.remaining());
-//      }
-//    }
-////    statData.update(this); // TODO: uncomment
+  @Override
+  public void onUpdated(ItemData itemData) {
+    assert itemData.stats == statData;
 
     // FIXME: This corrects a mismatch between max and current, algorithm should be tested later for correctness in other cases
     statData.get(Stat.maxstamina).set(statData.get(Stat.stamina));
@@ -289,8 +284,10 @@ public class CharData {
         skills.put(left_hand_throw, 1);
       }
     }
+    IntArray inventoryItems = itemData.getStore(StoreLoc.INVENTORY);
+    int[] cache = inventoryItems.items;
     for (int i = 0, s = inventoryItems.size, j; i < s; i++) {
-      j = inventoryItemsCache[i];
+      j = cache[i];
       Item item = itemData.getItem(j);
       if (item.type.is(Type.BOOK) || item.type.is(Type.SCRO)) {
         if (item.base.code.equalsIgnoreCase("ibk")) {

@@ -33,6 +33,8 @@ public class ItemData {
   final IntIntMap equippedSets = new IntIntMap(); // Indexed using set id
   final IntIntMap setItemsOwned = new IntIntMap(); // Indexed using set item id
 
+  final Array<UpdateListener> updateListeners = new Array<>(false, 16);
+
   ItemData(Attributes stats) {
     this.stats = stats;
   }
@@ -46,6 +48,7 @@ public class ItemData {
     equipListeners.clear();
     equippedSets.clear();
     setItemsOwned.clear();
+    updateListeners.clear();
   }
 
   void preprocessItems() {
@@ -194,7 +197,8 @@ public class ItemData {
 
   void update(int i) {
     Item item = itemData.get(i);
-//    if (item != null) item.update(this);
+//    item.update(this);
+    updateStats();
   }
 
   private void updateStats() {
@@ -224,6 +228,7 @@ public class ItemData {
       }
     }
 //    stats.update(this); // TODO: uncomment
+    notifyUpdated();
   }
 
   private void updateSet(Item item, int add) {
@@ -263,5 +268,18 @@ public class ItemData {
 
   public interface AlternateListener {
     void onAlternated(ItemData items, int alternate, Item LH, Item RH);
+  }
+
+  public boolean addUpdateListener(UpdateListener l) {
+    updateListeners.add(l);
+    return true;
+  }
+
+  private void notifyUpdated() {
+    for (UpdateListener l : updateListeners) l.onUpdated(this);
+  }
+
+  public interface UpdateListener {
+    void onUpdated(ItemData itemData);
   }
 }
