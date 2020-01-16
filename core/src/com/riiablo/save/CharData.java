@@ -332,11 +332,11 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     item.location = Location.CURSOR;
   }
 
-  public void locationToCursor(int i) {
+  public void storeToCursor(int i) {
     itemToCursor(i);
   }
 
-  public void cursorToLocation(StoreLoc storeLoc, int x, int y) {
+  public void cursorToStore(StoreLoc storeLoc, int x, int y) {
     assert itemData.cursor != ItemData.INVALID_ITEM;
     Item item = itemData.getItem(itemData.cursor);
     item.location = Location.STORED;
@@ -346,9 +346,9 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     itemData.cursor = ItemData.INVALID_ITEM;
   }
 
-  public void swapLocationItem(int i, StoreLoc storeLoc, int x, int y) {
-    cursorToLocation(storeLoc, x, y);
-    locationToCursor(i);
+  public void swapStoreItem(int i, StoreLoc storeLoc, int x, int y) {
+    cursorToStore(storeLoc, x, y);
+    storeToCursor(i);
   }
 
   public void bodyToCursor(BodyLoc bodyLoc) {
