@@ -364,7 +364,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
       itemData.cursor = itemData.unequip(bodyLoc);
       item = itemData.getItem(itemData.cursor);
     }
-    item.location = Location.CURSOR;
+    itemData.setLocation(item, Location.CURSOR);
   }
 
   public void cursorToBody(BodyLoc bodyLoc, boolean merc) {
@@ -396,11 +396,12 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
 
   public void cursorToBelt(int x, int y) {
     assert itemData.cursor != ItemData.INVALID_ITEM;
-    Item item = itemData.getItem(itemData.cursor);
-    item.location = Location.BELT;
+    int i = itemData.cursor;
+    itemData.cursor = ItemData.INVALID_ITEM;
+    Item item = itemData.getItem(i);
     item.gridX = (byte) x;
     item.gridY = (byte) y;
-    itemData.cursor = ItemData.INVALID_ITEM;
+    itemData.setLocation(item, Location.BELT);
   }
 
   public void swapBeltItem(int i) {

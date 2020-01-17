@@ -28,6 +28,7 @@ public class ItemData {
   final Array<AlternateListener> alternateListeners = new Array<>(false, 16);
 
   final Array<StoreListener> storeListeners = new Array<>(false, 16);
+  final Array<LocationListener> locationListeners = new Array<>(false, 16);
 
   final EnumIntMap<BodyLoc>  equipped = new EnumIntMap<>(BodyLoc.class, INVALID_ITEM);
   final Array<EquipListener> equipListeners = new Array<>(false, 16);
@@ -172,7 +173,7 @@ public class ItemData {
     Item item = itemData.get(i);
     if (item.location == Location.STORED) notifyStoreRemoved(item);
     cursor = i;
-    item.location = Location.CURSOR;
+    setLocation(item, Location.CURSOR);
   }
 
   void storeCursor(StoreLoc storeLoc, int x, int y) {
@@ -183,7 +184,7 @@ public class ItemData {
 
   void store(StoreLoc storeLoc, int i, int x, int y) {
     Item item = itemData.get(i);
-    item.location = Location.STORED;
+    setLocation(item, Location.STORED);
     item.storeLoc = storeLoc;
     item.gridX = (byte) x;
     item.gridY = (byte) y;
@@ -197,7 +198,7 @@ public class ItemData {
 
   void equip(BodyLoc bodyLoc, int i) {
     Item item = itemData.get(i);
-    item.location = Location.EQUIPPED;
+    setLocation(item, Location.EQUIPPED);
     item.bodyLoc = bodyLoc;
     int j = equipped.put(bodyLoc, i);
     assert j == INVALID_ITEM : "Item " + j + " should have been unequipped by this point.";
@@ -324,5 +325,26 @@ public class ItemData {
   public interface StoreListener {
     void onAdded(ItemData items, StoreLoc storeLoc, Item item);
     void onRemoved(ItemData items, StoreLoc storeLoc, Item item);
+  }
+
+  void setLocation(Item item, Location location) {
+    if (item.location != location) {
+      Location oldLocation = item.location;
+      item.location = location;
+      notifyLocationChanged(item, oldLocation);
+    }
+  }
+
+  public boolean addLocationListener(LocationListener l) {
+    locationListeners.add(l);
+    return true;
+  }
+
+  private void notifyLocationChanged(Item item, Location oldLocation) {
+    for (LocationListener l : locationListeners) l.onChanged(this, oldLocation, item.location, item);
+  }
+
+  public interface LocationListener {
+    void onChanged(ItemData items, Location oldLocation, Location location, Item item);
   }
 }
