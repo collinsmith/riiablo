@@ -326,10 +326,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public void itemToCursor(int i) {
-    assert itemData.cursor == ItemData.INVALID_ITEM;
-    itemData.cursor = i;
-    Item item = itemData.getItem(i);
-    item.location = Location.CURSOR;
+    itemData.pickup(i);
   }
 
   public void storeToCursor(int i) {
@@ -337,13 +334,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public void cursorToStore(StoreLoc storeLoc, int x, int y) {
-    assert itemData.cursor != ItemData.INVALID_ITEM;
-    Item item = itemData.getItem(itemData.cursor);
-    item.location = Location.STORED;
-    item.storeLoc = storeLoc;
-    item.gridX = (byte) x;
-    item.gridY = (byte) y;
-    itemData.cursor = ItemData.INVALID_ITEM;
+    itemData.storeCursor(storeLoc, x, y);
   }
 
   public void swapStoreItem(int i, StoreLoc storeLoc, int x, int y) {

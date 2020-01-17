@@ -27,6 +27,8 @@ public class ItemData {
   int alternate = D2S.PRIMARY;
   final Array<AlternateListener> alternateListeners = new Array<>(false, 16);
 
+  final Array<StoreListener> storeListeners = new Array<>(false, 16);
+
   final EnumIntMap<BodyLoc>  equipped = new EnumIntMap<>(BodyLoc.class, INVALID_ITEM);
   final Array<EquipListener> equipListeners = new Array<>(false, 16);
 
@@ -165,6 +167,29 @@ public class ItemData {
     return getLocation(Location.STORED, storeLoc);
   }
 
+  void pickup(int i) {
+    assert cursor == INVALID_ITEM;
+    Item item = itemData.get(i);
+    if (item.location == Location.STORED) notifyStoreRemoved(item);
+    cursor = i;
+    item.location = Location.CURSOR;
+  }
+
+  void storeCursor(StoreLoc storeLoc, int x, int y) {
+    assert cursor != ItemData.INVALID_ITEM;
+    store(storeLoc, cursor, x, y);
+    cursor = INVALID_ITEM;
+  }
+
+  void store(StoreLoc storeLoc, int i, int x, int y) {
+    Item item = itemData.get(i);
+    item.location = Location.STORED;
+    item.storeLoc = storeLoc;
+    item.gridX = (byte) x;
+    item.gridY = (byte) y;
+    notifyStoreAdded(item);
+  }
+
   void equip(BodyLoc bodyLoc, Item item) {
     assert !itemData.contains(item, true);
     equip(bodyLoc, add(item));
@@ -281,5 +306,23 @@ public class ItemData {
 
   public interface UpdateListener {
     void onUpdated(ItemData itemData);
+  }
+
+  public boolean addStoreListener(StoreListener l) {
+    storeListeners.add(l);
+    return true;
+  }
+
+  private void notifyStoreAdded(Item item) {
+    for (StoreListener l : storeListeners) l.onAdded(this, item.storeLoc, item);
+  }
+
+  private void notifyStoreRemoved(Item item) {
+    for (StoreListener l : storeListeners) l.onRemoved(this, item.storeLoc, item);
+  }
+
+  public interface StoreListener {
+    void onAdded(ItemData items, StoreLoc storeLoc, Item item);
+    void onRemoved(ItemData items, StoreLoc storeLoc, Item item);
   }
 }
