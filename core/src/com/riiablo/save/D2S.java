@@ -207,12 +207,14 @@ public class D2S {
     base.put(Stat.gold, stats.gold);
     base.put(Stat.goldbank, stats.goldbank);
 
-    for (int spellId = data.classId.firstSpell, s = data.classId.lastSpell, i = 0; spellId < s; spellId++, i++) {
+    CharacterClass classId = data.classId;
+    for (int spellId = classId.firstSpell, s = classId.lastSpell, i = 0; spellId < s; spellId++, i++) {
       data.skillData.put(spellId, skills.data[i]);
     }
 
     data.itemData.clear();
     data.itemData.addAll(items.items);
+    data.itemData.charStats = classId.entry();
     data.itemData.alternate = header.alternate;
     data.golemItemData = golem.item;
     return data;

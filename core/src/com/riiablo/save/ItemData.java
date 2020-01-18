@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
@@ -19,6 +20,7 @@ public class ItemData {
   public static final int INVALID_ITEM = -1;
 
   final Attributes stats;
+  CharStats.Entry charStats;
 
   final Array<Item> itemData = new Array<>(Item.class);
 
@@ -38,12 +40,14 @@ public class ItemData {
 
   final Array<UpdateListener> updateListeners = new Array<>(false, 16);
 
-  ItemData(Attributes stats) {
+  ItemData(Attributes stats, CharStats.Entry charStats) {
     this.stats = stats;
+    this.charStats = charStats;
   }
 
   public void clear() {
     cursor = INVALID_ITEM;
+    charStats = null;
     alternate = D2S.PRIMARY;
     alternateListeners.clear();
     itemData.clear();
@@ -59,6 +63,12 @@ public class ItemData {
     Item[] items = itemData.items;
     for (int i = 0, s = itemData.size; i < s; i++) {
       Item item = items[i];
+      if (item.quality == Quality.SET) {
+        setItemsOwned.getAndIncrement(item.qualityId, 0, 1);
+        if (item.location == Location.EQUIPPED && isActive(item)) {
+          updateSet(item, 1);
+        }
+      }
       switch (item.location) {
         case EQUIPPED:
           equipped.put(item.bodyLoc, i);
@@ -77,8 +87,9 @@ public class ItemData {
         case SOCKET:
         default:
       }
-      if (item.quality == Quality.SET) setItemsOwned.getAndIncrement(item.qualityId, 0, 1);
     }
+
+    updateStats();
   }
 
   public Item getItem(int i) {
@@ -202,7 +213,7 @@ public class ItemData {
     item.bodyLoc = bodyLoc;
     int j = equipped.put(bodyLoc, i);
     assert j == INVALID_ITEM : "Item " + j + " should have been unequipped by this point.";
-    update(bodyLoc);
+    updateStats(); // TODO: add support for appending to existing stats if this is an additional item
     updateSet(item, 1);
     notifyEquip(bodyLoc, item);
   }
@@ -210,24 +221,13 @@ public class ItemData {
   int unequip(BodyLoc bodyLoc) {
     int i = equipped.remove(bodyLoc);
     Item item = itemData.get(i);
-//    update(bodyLoc);
+    updateStats();
     updateSet(item, -1);
     notifyUnequip(bodyLoc, item);
     return i;
   }
 
-  void update(BodyLoc bodyLoc) {
-    int i = equipped.get(bodyLoc);
-    update(i);
-  }
-
-  void update(int i) {
-    Item item = itemData.get(i);
-//    item.update(this);
-    updateStats();
-  }
-
-  private void updateStats() {
+  void updateStats() {
     Stat stat;
     stats.reset();
     int[] cache = equipped.values();
@@ -236,6 +236,7 @@ public class ItemData {
       if (j == ItemData.INVALID_ITEM) continue;
       Item item = itemData.get(j);
       if (isActive(item)) {
+        item.update(stats, charStats, equippedSets);
         stats.add(item.props.remaining());
         if ((stat = item.props.get(Stat.armorclass)) != null) {
           stats.aggregate().addCopy(stat);
@@ -250,10 +251,13 @@ public class ItemData {
       if (j == ItemData.INVALID_ITEM) continue;
       Item item = itemData.get(j);
       if (item.type.is(Type.CHAR)) {
+        item.update(stats, charStats, equippedSets);
         stats.add(item.props.remaining());
+      } else if (item.type.is(Type.BOOK)) { // TODO: may not be needed since not stat -- calculate elsewhere?
+        item.update(stats, charStats, equippedSets);
       }
     }
-//    stats.update(this); // TODO: uncomment
+    stats.update(stats, charStats);
     notifyUpdated();
   }
 

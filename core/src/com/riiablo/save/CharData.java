@@ -63,7 +63,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   final long       npcReturnData[] = new long[Riiablo.MAX_DIFFS];
   final Attributes statData = new Attributes();
   final IntIntMap  skillData = new IntIntMap();
-  final ItemData   itemData = new ItemData(statData);
+  final ItemData   itemData = new ItemData(statData, null);
         Item       golemItemData;
 
   public int diff;
@@ -123,6 +123,11 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
 
   CharData() {}
 
+  public CharData clear() {
+    reset();
+    return this;
+  }
+
   public CharData load(D2S d2s) {
     d2s.copyTo(this);
     preprocessItems();
@@ -179,6 +184,36 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
 
     DifficultyLevels.Entry diff = Riiablo.files.DifficultyLevels.get(this.diff);
     PropertyList base = statData.base();
+    base.put(Stat.armorclass,      0);
+    base.put(Stat.damageresist,    0);
+    base.put(Stat.magicresist,     0);
+    base.put(Stat.fireresist,      diff.ResistPenalty);
+    base.put(Stat.lightresist,     diff.ResistPenalty);
+    base.put(Stat.coldresist,      diff.ResistPenalty);
+    base.put(Stat.poisonresist,    diff.ResistPenalty);
+    base.put(Stat.maxfireresist,   75);
+    base.put(Stat.maxlightresist,  75);
+    base.put(Stat.maxcoldresist,   75);
+    base.put(Stat.maxpoisonresist, 75);
+
+    // TODO: set base merc stats based on hireling tables and level
+    base = mercData.statData.base();
+    base.put(Stat.strength, 0);
+    base.put(Stat.energy, 0);
+    base.put(Stat.dexterity, 0);
+    base.put(Stat.vitality, 0);
+    base.put(Stat.statpts, 0);
+    base.put(Stat.newskills, 0);
+    base.put(Stat.hitpoints, 0);
+    base.put(Stat.maxhp, 0);
+    base.put(Stat.mana, 0);
+    base.put(Stat.maxmana, 0);
+    base.put(Stat.stamina, 0);
+    base.put(Stat.maxstamina, 0);
+    base.put(Stat.level, 0);
+    base.put(Stat.experience, 0);
+    base.put(Stat.gold, 0);
+    base.put(Stat.goldbank, 0);
     base.put(Stat.armorclass,      0);
     base.put(Stat.damageresist,    0);
     base.put(Stat.magicresist,     0);
@@ -424,7 +459,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     public int   xp;
 
     final Attributes statData = new Attributes();
-    final ItemData   itemData = new ItemData(statData);
+    final ItemData   itemData = new ItemData(statData, null);
 
     public Attributes getStats() {
       return statData;
