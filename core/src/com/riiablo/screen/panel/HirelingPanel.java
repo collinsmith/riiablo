@@ -367,7 +367,7 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
       }
 
       // FIXME: Alt images on weapons are slightly off by maybe a pixel or so (rounding?) -- backgrounds fine
-      if (item != null) {
+      if (item != null && item.checkLoaded()) {
         BBox box = item.invFile.getBox();
         item.setPosition(
             getX() + getWidth()  / 2 - box.width  / 2f + x,
