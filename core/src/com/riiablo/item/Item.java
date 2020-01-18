@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -347,7 +348,7 @@ public class Item extends Actor implements Disposable {
     return this;
   }
 
-  public void update(Attributes attrs, CharStats.Entry charStats) {
+  public void update(Attributes attrs, CharStats.Entry charStats, IntIntMap equippedSets) {
     if ((flags & COMPACT) == COMPACT) return;
     props.reset();
     if (stats[MAGIC_PROPS] != null) props.add(stats[MAGIC_PROPS]);
@@ -362,7 +363,7 @@ public class Item extends Actor implements Disposable {
     if (quality == SET && location == EQUIPPED) {
       SetItems.Entry setItem = (SetItems.Entry) qualityData;
       int setId = Riiablo.files.Sets.index(setItem.set);
-      int numEquipped = Riiablo.charData.getSets().get(setId, 0);
+      int numEquipped = equippedSets.get(setId, 0);
       if (numEquipped >= 2) {
         for (int i = 0; i < numEquipped; i++) {
           props.add(stats[SET_PROPS + i]);
@@ -374,7 +375,7 @@ public class Item extends Actor implements Disposable {
 
   public Details details() {
     if (details == null) {
-      update(Riiablo.charData.getStats(), Riiablo.charData.getCharacterClass().entry());
+      update(Riiablo.charData.getStats(), Riiablo.charData.getCharacterClass().entry(), Riiablo.charData.getSets());
       details = new Details();
     }
     return details;

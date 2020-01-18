@@ -212,7 +212,7 @@ public class CharData {
     final int alternate = getAlternate();
     for (Item item : equipped.values()) {
       if (item == null) continue;
-      item.update(stats, classId.entry());
+      item.update(stats, classId.entry(), getSets());
       if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, alternate)) {
         stats.add(item.props.remaining());
         Stat stat;
@@ -298,7 +298,7 @@ public class CharData {
         break;
       case EQUIPPED:
         setEquipped(item.bodyLoc, item);
-        item.update(stats, classId.entry());
+        item.update(stats, classId.entry(), getSets());
         if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, getAlternate())) {
           stats.add(item.props.remaining());
           Stat stat;
@@ -309,7 +309,7 @@ public class CharData {
         break;
       case STORED:
         store.get(item.storeLoc).add(item);
-        item.update(stats, classId.entry());
+        item.update(stats, classId.entry(), getSets());
         if (item.storeLoc == INVENTORY && item.type.is(Type.CHAR)) {
           stats.add(item.props.remaining());
         }
@@ -378,7 +378,7 @@ public class CharData {
 
   public Item setEquipped(BodyLoc bodyLoc, Item item) {
     Item oldItem = equipped.put(bodyLoc, item);
-    if (item != null) item.update(stats, classId.entry());
+    if (item != null) item.update(stats, classId.entry(), getSets());
     updateSets(oldItem, item);
     updateStats();
     notifyEquippedChanged(bodyLoc, oldItem, item);

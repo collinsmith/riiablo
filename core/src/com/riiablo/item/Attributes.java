@@ -101,10 +101,12 @@ public class Attributes {
       case 6:  return 0; // by-time
       case 7:  return 0; // by-time percent
       case 8:
+        if (charStats == null) return 0;
         agg.addCopy(stat);
         //mod.set(stat.id);
         return stat.val * charStats.ManaPerMagic; // max mana
       case 9:
+        if (charStats == null) return 0;
         if (opstat.id == Stat.maxhp) { // only increment vit on maxhp op
           agg.addCopy(stat);
           //mod.set(stat.id);
