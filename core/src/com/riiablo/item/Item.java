@@ -10,13 +10,13 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.riiablo.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.StringTBL;
 import com.riiablo.codec.excel.Armor;
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
@@ -347,7 +347,7 @@ public class Item extends Actor implements Disposable {
     return this;
   }
 
-  public void update(CharData charData) {
+  public void update(Attributes attrs, CharStats.Entry charStats) {
     if ((flags & COMPACT) == COMPACT) return;
     props.reset();
     if (stats[MAGIC_PROPS] != null) props.add(stats[MAGIC_PROPS]);
@@ -369,12 +369,12 @@ public class Item extends Actor implements Disposable {
         }
       }
     }
-    props.update(charData);
+    props.update(attrs, charStats);
   }
 
   public Details details() {
     if (details == null) {
-      update(Riiablo.charData);
+      update(Riiablo.charData.getStats(), Riiablo.charData.getCharacterClass().entry());
       details = new Details();
     }
     return details;

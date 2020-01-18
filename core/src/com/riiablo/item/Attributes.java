@@ -1,8 +1,8 @@
 package com.riiablo.item;
 
 import com.badlogic.gdx.utils.Array;
-import com.riiablo.CharData;
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.ItemStatCost;
 
 public class Attributes {
@@ -48,16 +48,16 @@ public class Attributes {
     propertyLists.add(props);
   }
 
-  public void update(CharData charData) {
+  public void update(Attributes attrs, CharStats.Entry charStats) {
     for (PropertyList list : propertyLists) {
-      if (list != null) update(charData, list);
+      if (list != null) update(attrs, charStats, list);
     }
   }
 
-  private void update(CharData charData, PropertyList list) {
+  private void update(Attributes attrs, CharStats.Entry charStats, PropertyList list) {
     for (Stat stat : list) {
       if (stat.entry.op > 0) {
-        boolean empty = op(charData, stat, stat.entry);
+        boolean empty = op(attrs, charStats, stat, stat.entry);
         if (empty) {
           rem.addCopy(stat);
         }
@@ -70,10 +70,10 @@ public class Attributes {
     }
   }
 
-  private boolean op(CharData charData, Stat stat, ItemStatCost.Entry entry) {
+  private boolean op(Attributes attrs, CharStats.Entry charStats, Stat stat, ItemStatCost.Entry entry) {
     int op = entry.op;
     int op_base = entry.op_param > 0
-        ? charData.getStats().get(Riiablo.files.ItemStatCost.index(entry.op_base)).val
+        ? attrs.get(Riiablo.files.ItemStatCost.index(entry.op_base)).val
         : 1;
     int op_param = entry.op_param;
 
@@ -83,7 +83,7 @@ public class Attributes {
       int statId = Riiablo.files.ItemStatCost.index(op_stat);
       Stat opstat = agg.get(statId);
       if (opstat != null) {
-        opstat.add(op(charData, stat, base.get(statId), op, op_base, op_param));
+        opstat.add(op(charStats, stat, base.get(statId), op, op_base, op_param));
         //mod.set(opstat.id);
         opCount++;
       }
@@ -91,7 +91,7 @@ public class Attributes {
     return opCount == 0;
   }
 
-  private int op(CharData charData, Stat stat, Stat opstat, int op, int op_base, int op_param) {
+  private int op(CharStats.Entry charStats, Stat stat, Stat opstat, int op, int op_base, int op_param) {
     switch (op) {
       case 1:  return (stat.val * opstat.val) / 100;
       case 2:  return (stat.val * op_base) / (1 << op_param);
@@ -103,7 +103,7 @@ public class Attributes {
       case 8:
         agg.addCopy(stat);
         //mod.set(stat.id);
-        return stat.val * charData.getCharacterClass().entry().ManaPerMagic; // max mana
+        return stat.val * charStats.ManaPerMagic; // max mana
       case 9:
         if (opstat.id == Stat.maxhp) { // only increment vit on maxhp op
           agg.addCopy(stat);
@@ -111,8 +111,8 @@ public class Attributes {
         }
         return stat.val // max hitpoints
           * (opstat.id == Stat.maxhp
-          ? charData.getCharacterClass().entry().LifePerVitality
-          : charData.getCharacterClass().entry().StaminaPerVitality);
+          ? charStats.LifePerVitality
+          : charStats.StaminaPerVitality);
       case 10: return 0; // no-op
       case 11: return (stat.val * opstat.val) / 100; // TODO: modify field value? used with item_maxhp_percent and item_maxmana_percent
       case 12: return 0; // no-op

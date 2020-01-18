@@ -176,7 +176,7 @@ public class CharData {
     base.put(Stat.maxcoldresist, 75);
     base.put(Stat.maxpoisonresist, 75);
     stats.reset();
-    stats.update(this); // TODO: this need to be done whenever an item is changed
+    stats.update(stats, classId.entry()); // TODO: this need to be done whenever an item is changed
 
     skills.clear();
     chargedSkills.clear();
@@ -203,7 +203,7 @@ public class CharData {
       addItem(item); // A lot of this code is redundant
       //item.load();
     }
-    stats.update(this);
+    stats.update(stats, classId.entry());
     updateStats();
   }
 
@@ -212,7 +212,7 @@ public class CharData {
     final int alternate = getAlternate();
     for (Item item : equipped.values()) {
       if (item == null) continue;
-      item.update(this);
+      item.update(stats, classId.entry());
       if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, alternate)) {
         stats.add(item.props.remaining());
         Stat stat;
@@ -226,7 +226,7 @@ public class CharData {
         stats.add(item.props.remaining());
       }
     }
-    stats.update(this);
+    stats.update(stats, classId.entry());
 
     // FIXME: This corrects a mismatch between max and current, algorithm should be tested later for correctness in other cases
     stats.get(Stat.maxstamina).set(stats.get(Stat.stamina));
@@ -298,7 +298,7 @@ public class CharData {
         break;
       case EQUIPPED:
         setEquipped(item.bodyLoc, item);
-        item.update(this);
+        item.update(stats, classId.entry());
         if (item.bodyLoc == BodyLoc.getAlternate(item.bodyLoc, getAlternate())) {
           stats.add(item.props.remaining());
           Stat stat;
@@ -309,7 +309,7 @@ public class CharData {
         break;
       case STORED:
         store.get(item.storeLoc).add(item);
-        item.update(this);
+        item.update(stats, classId.entry());
         if (item.storeLoc == INVENTORY && item.type.is(Type.CHAR)) {
           stats.add(item.props.remaining());
         }
@@ -378,7 +378,7 @@ public class CharData {
 
   public Item setEquipped(BodyLoc bodyLoc, Item item) {
     Item oldItem = equipped.put(bodyLoc, item);
-    if (item != null) item.update(this);
+    if (item != null) item.update(stats, classId.entry());
     updateSets(oldItem, item);
     updateStats();
     notifyEquippedChanged(bodyLoc, oldItem, item);
