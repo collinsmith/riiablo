@@ -350,6 +350,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
           // do nothing
       }
     }
+    notifySkillChanged(skills, chargedSkills);
   }
 
   public int getSkill(int skill) {
