@@ -125,9 +125,9 @@ public class ItemData {
   public void setAlternate(int alternate) {
     if (this.alternate != alternate) {
       this.alternate = alternate;
+      updateStats();
       Item LH = getEquipped(BodyLoc.LARM);
       Item RH = getEquipped(BodyLoc.RARM);
-      updateStats();
       notifyAlternated(alternate, LH, RH);
     }
   }
