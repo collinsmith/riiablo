@@ -147,6 +147,7 @@ public class D2S {
   }
 
   CharData copyTo(CharData data) {
+    loadRemaining();
     data.softReset();
     data.name      = header.name;
     data.charClass = header.charClass;

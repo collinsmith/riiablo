@@ -93,7 +93,12 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
    * @param managed whether or not this data is backed by a file
    */
   public static CharData obtain(int diff, boolean managed, String name, byte charClass) {
-    return new CharData().set(diff, managed, name, charClass);
+    return obtain().set(diff, managed, name, charClass);
+  }
+
+  /** Constructs an uninitialized CharData -- must be initialized via #set */
+  public static CharData obtain() {
+    return new CharData();
   }
 
   /** Constructs an unmanaged instance. Used for remote players with only partial save data. */
@@ -129,6 +134,8 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public CharData load(D2S d2s) {
+    managed = true;
+    data = d2s.file.readBytes();
     d2s.copyTo(this);
     preprocessItems();
     itemData.addUpdateListener(this);
@@ -225,6 +232,11 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     base.put(Stat.maxlightresist,  75);
     base.put(Stat.maxcoldresist,   75);
     base.put(Stat.maxpoisonresist, 75);
+  }
+
+  public void preloadItems() {
+    itemData.load();
+    mercData.itemData.load();
   }
 
   public boolean isManaged() {

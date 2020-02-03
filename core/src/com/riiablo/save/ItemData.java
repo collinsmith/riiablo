@@ -58,6 +58,13 @@ public class ItemData {
     updateListeners.clear();
   }
 
+  public void load() {
+    Item[] items = itemData.items;
+    for (int i = 0, s = itemData.size; i < s; i++) {
+      items[i].load();
+    }
+  }
+
   void preprocessItems() {
     cursor = ItemData.INVALID_ITEM;
     Item[] items = itemData.items;
@@ -90,6 +97,14 @@ public class ItemData {
     }
 
     updateStats();
+  }
+
+  public Array<Item> getItems() {
+    return itemData;
+  }
+
+  public int indexOf(Item item) {
+    return itemData.indexOf(item, true);
   }
 
   public Item getItem(int i) {
@@ -177,6 +192,16 @@ public class ItemData {
 
   public IntArray getStore(StoreLoc storeLoc) {
     return getLocation(Location.STORED, storeLoc);
+  }
+
+  public Array<Item> toItemArray(IntArray items) {
+    Array<Item> copy = new Array<>(false, items.size, Item.class);
+    int[] cache = items.items;
+    for (int i = 0, s = items.size, j; i < s; i++) {
+      j = cache[i];
+      copy.add(itemData.get(j));
+    }
+    return copy;
   }
 
   void pickup(int i) {
@@ -269,7 +294,15 @@ public class ItemData {
     }
   }
 
-  public boolean addEquipmentListener(EquipListener l) {
+  public IntIntMap getEquippedSets() {
+    return equippedSets;
+  }
+
+  public int getOwnedSetCount(int setId) {
+    return setItemsOwned.get(setId, 0);
+  }
+
+  public boolean addEquipListener(EquipListener l) {
     equipListeners.add(l);
     return true;
   }
