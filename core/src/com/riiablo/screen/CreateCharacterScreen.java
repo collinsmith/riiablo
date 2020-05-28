@@ -188,7 +188,7 @@ public class CreateCharacterScreen extends ScreenAdapter {
           Riiablo.client.popScreen();
         } else if (actor == btnOK) {
           if (selected == null) return;
-          Riiablo.client.clearAndSet(new GameScreen(Riiablo.charData.createD2S(tfCharName.getText(), selected.charClass)));
+          Riiablo.client.clearAndSet(new GameScreen(Riiablo.charData.clear().set(Riiablo.NORMAL, true, tfCharName.getText(), (byte) selected.charClass.id)));
         }
       }
     };

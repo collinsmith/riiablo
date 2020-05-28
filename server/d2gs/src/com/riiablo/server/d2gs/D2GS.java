@@ -22,13 +22,11 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.riiablo.COFs;
-import com.riiablo.CharData;
 import com.riiablo.Files;
 import com.riiablo.Riiablo;
 import com.riiablo.audio.ServerAudio;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.D2;
-import com.riiablo.save.D2S;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
@@ -60,6 +58,7 @@ import com.riiablo.net.packet.d2gs.Connection;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.net.packet.d2gs.DropItem;
+import com.riiablo.save.CharData;
 import com.riiablo.util.DebugUtils;
 
 import net.mostlyoriginal.api.event.common.EventSystem;
@@ -404,9 +403,8 @@ public class D2GS extends ApplicationAdapter {
     Gdx.app.log(TAG, "  " + DebugUtils.toByteArray(cofTransforms));
 
     ByteBuffer d2sData = connection.d2sAsByteBuffer();
-    D2S d2s = D2S.loadFromBuffer(d2sData, true);
-    CharData charData = new CharData().setD2S(d2s);
-    Gdx.app.log(TAG, "  " + d2s.header);
+    CharData charData = CharData.loadFromBuffer(diff, d2sData);
+    Gdx.app.log(TAG, "  " + charData);
 
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
@@ -435,7 +433,7 @@ public class D2GS extends ApplicationAdapter {
 
   private void BroadcastConnect(int id, Connection connection, CharData charData, int entityId) {
     FlatBufferBuilder builder = new FlatBufferBuilder();
-    int charNameOffset = builder.createString(charData.getD2S().header.name);
+    int charNameOffset = builder.createString(charData.name);
 
     byte[] components = new byte[16];
     connection.cofComponentsAsByteBuffer().get(components);
@@ -451,7 +449,7 @@ public class D2GS extends ApplicationAdapter {
 
     Connection.startConnection(builder);
     Connection.addEntityId(builder, entityId);
-    Connection.addCharClass(builder, charData.getD2S().header.charClass);
+    Connection.addCharClass(builder, charData.charClass);
     Connection.addCharName(builder, charNameOffset);
     Connection.addCofComponents(builder, componentsOffset);
     Connection.addCofAlphas(builder, alphasOffset);
@@ -497,16 +495,9 @@ public class D2GS extends ApplicationAdapter {
     DropItem dropItem = (DropItem) packet.data.data(new DropItem());
     int itemId = dropItem.itemId();
 
-    Item item = null;
     Player player = world.getMapper(Player.class).get(entityId);
     CharData charData = player.data;
-    D2S d2s = charData.getD2S();
-    for (Item i : d2s.items.items) {
-      if ((int) i.id == itemId) {
-        item = i;
-        break;
-      }
-    }
+    Item item = charData.getItems().remove(itemId);
 
     assert item != null;
     Vector2 position = world.getMapper(Position.class).get(entityId).position;

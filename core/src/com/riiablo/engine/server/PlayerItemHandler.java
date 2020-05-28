@@ -4,9 +4,7 @@ import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.riiablo.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.excel.Armor;
@@ -20,11 +18,13 @@ import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
+import com.riiablo.save.CharData;
+import com.riiablo.save.ItemData;
 
 import org.apache.commons.lang3.ObjectUtils;
 
 @All({Player.class, CofReference.class})
-public class PlayerItemHandler extends BaseEntitySystem implements CharData.EquippedListener {
+public class PlayerItemHandler extends BaseEntitySystem implements ItemData.EquipListener, ItemData.AlternateListener {
   private static final String TAG = "PlayerItemHandler";
   private static final boolean DEBUG        = !true;
   private static final boolean DEBUG_WCLASS = DEBUG && true;
@@ -34,7 +34,7 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
 
   protected CofManager cofs;
 
-  private final ObjectIntMap<CharData> charDatas = new ObjectIntMap<>();
+  private final ObjectIntMap<ItemData> itemDatas = new ObjectIntMap<>();
 
   @Override
   protected void processSystem() {}
@@ -43,24 +43,19 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
   protected void inserted(int entityId) {
     if (Riiablo.game.player != entityId) return; // FIXME: workaround for remote heros
     CharData data = mPlayer.get(entityId).data;
-    loadItems(data.getD2S().items.items);
+    data.preloadItems();
+    ItemData itemData = data.getItems();
     CofReference reference = mCofReference.get(entityId);
-    updateWeaponClass(entityId, data, reference);
-    updateArmorClass(entityId, data);
-    charDatas.put(data, entityId);
-    data.addEquippedListener(this);
+    updateWeaponClass(entityId, itemData, reference);
+    updateArmorClass(entityId, itemData);
+    itemDatas.put(itemData, entityId);
+    data.getItems().addEquipListener(this);
+    data.getItems().addAlternateListener(this);
   }
 
-  private void loadItems(Array<Item> items) {
-    for (Item item : items) {
-      //item.setOwner(this);
-      item.load();
-    }
-  }
-
-  private void updateWeaponClass(int entityId, CharData charData, CofReference reference) {
+  private void updateWeaponClass(int entityId, ItemData itemData, CofReference reference) {
     Item RH = null, LH = null, SH = null;
-    Item rArm = charData.getEquipped(BodyLoc.RARM);
+    Item rArm = itemData.getEquipped(BodyLoc.RARM);
     if (rArm != null) {
       if (rArm.type.is(com.riiablo.item.Type.WEAP)) {
         RH = rArm;
@@ -69,7 +64,7 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
       }
     }
 
-    Item lArm = charData.getEquipped(BodyLoc.LARM);
+    Item lArm = itemData.getEquipped(BodyLoc.LARM);
     if (lArm != null) {
       if (lArm.type.is(com.riiablo.item.Type.WEAP)) {
         LH = lArm;
@@ -133,13 +128,13 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
     cofs.updateAlpha(entityId, alphaFlags);
   }
 
-  private void updateArmorClass(int entityId, CharData charData) {
+  private void updateArmorClass(int entityId, ItemData itemData) {
     int transformFlags = 0;
-    Item head = charData.getSlot(BodyLoc.HEAD);
+    Item head = itemData.getSlot(BodyLoc.HEAD);
     cofs.setComponent(entityId, COF.Component.HD, head != null ? Class.Type.PLR.getComponent(head.base.alternateGfx) : CofComponents.COMPONENT_LIT);
     transformFlags |= cofs.setTransform(entityId, COF.Component.HD, head != null ? (byte) ((head.base.Transform << 5) | (head.charColorIndex & 0x1F)) : CofTransforms.TRANSFORM_NULL);
 
-    Item body = charData.getSlot(BodyLoc.TORS);
+    Item body = itemData.getSlot(BodyLoc.TORS);
     if (body != null) {
       Armor.Entry armor = body.getBase();
       cofs.setComponent(entityId, COF.Component.TR, (armor.Torso + 1));
@@ -176,19 +171,28 @@ public class PlayerItemHandler extends BaseEntitySystem implements CharData.Equi
   }
 
   @Override
-  public void onChanged(CharData client, BodyLoc bodyLoc, Item oldItem, Item item) {
-    int id = charDatas.get(client, Engine.INVALID_ENTITY);
-    CofReference reference = mCofReference.get(id);
-    //cofComponent.dirty |= bodyLoc.components();
-    updateWeaponClass(id, client, reference);
-    updateArmorClass(id, client);
+  public void onUnequip(ItemData items, BodyLoc bodyLoc, Item item) {
+    onChanged(items, bodyLoc);
   }
 
   @Override
-  public void onAlternated(CharData client, int alternate, Item LH, Item RH) {
-    int id = charDatas.get(client, Engine.INVALID_ENTITY);
+  public void onEquip(ItemData items, BodyLoc bodyLoc, Item item) {
+    onChanged(items, bodyLoc);
+  }
+
+  public void onChanged(ItemData items, BodyLoc bodyLoc) {
+    int id = itemDatas.get(items, Engine.INVALID_ENTITY);
     CofReference reference = mCofReference.get(id);
-    updateWeaponClass(id, client, reference);
-    updateArmorClass(id, client);
+    //cofComponent.dirty |= bodyLoc.components();
+    updateWeaponClass(id, items, reference);
+    updateArmorClass(id, items);
+  }
+
+  @Override
+  public void onAlternated(ItemData items, int alternate, Item LH, Item RH) {
+    int id = itemDatas.get(items, Engine.INVALID_ENTITY);
+    CofReference reference = mCofReference.get(id);
+    updateWeaponClass(id, items, reference);
+    updateArmorClass(id, items);
   }
 }

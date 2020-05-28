@@ -29,8 +29,8 @@ public class BeltGrid extends ItemGrid {
   boolean hidden;
   int rows;
 
-  public BeltGrid(int width, int height, int boxWidth, int boxHeight) {
-    super(width, height, boxWidth, boxHeight);
+  public BeltGrid(int width, int height, int boxWidth, int boxHeight, GridListener gridListener) {
+    super(width, height, boxWidth, boxHeight, gridListener);
     visibleArea.set(0, 0, width * boxWidth, boxHeight - 1);
     setRows(1);
     setHidden(true);

@@ -3,7 +3,7 @@ package com.riiablo.item;
 import com.google.common.primitives.UnsignedInts;
 
 import com.badlogic.gdx.Gdx;
-import com.riiablo.CharData;
+import com.riiablo.save.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.CharStats;

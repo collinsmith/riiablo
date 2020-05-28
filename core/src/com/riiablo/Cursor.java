@@ -10,6 +10,8 @@ import com.riiablo.codec.Index;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.Item;
+import com.riiablo.item.Location;
+import com.riiablo.save.ItemData;
 
 /**
  * FIXME: Drawing cursor is proving troublesome. Either draw over in-game cursor or set hardware
@@ -24,10 +26,11 @@ import com.riiablo.item.Item;
  *        I think I'll stick with the other in the meantime because of its simplicity to implement,
  *        and because it will rely on existing code for changing item colors, etc.
  */
-public class Cursor {
+public class Cursor implements ItemData.LocationListener {
   private static final String TAG = "Cursor";
   private static final boolean DEBUG             = true;
   private static final boolean DEBUG_ITEM_BOUNDS = DEBUG && !true;
+  private static final boolean DEBUG_LISTENER    = DEBUG && !true;
 
   private com.badlogic.gdx.graphics.Cursor cursor;
   private Item item;
@@ -74,7 +77,7 @@ public class Cursor {
   }
 
   public Item getItem() {
-    return item;
+    return Riiablo.charData.getItems().getCursor();
   }
 
   public void setItem(Item item) {
@@ -129,5 +132,15 @@ public class Cursor {
 
   public Vector2 getCoords() {
     return coords.set(getX(), getY());
+  }
+
+  @Override
+  public void onChanged(ItemData items, Location oldLocation, Location location, Item item) {
+    if (DEBUG_LISTENER) Gdx.app.log(TAG, "onChange " + oldLocation + "->" + location + " " + item);
+    if (oldLocation == Location.CURSOR && location != Location.CURSOR) {
+      setItem(null);
+    } else if (location == Location.CURSOR) {
+      setItem(item);
+    }
   }
 }

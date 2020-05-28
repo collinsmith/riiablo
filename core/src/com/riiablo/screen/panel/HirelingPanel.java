@@ -16,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.Riiablo;
-import com.riiablo.save.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
 import com.riiablo.codec.excel.Inventory;
@@ -26,12 +25,12 @@ import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.CharData;
+import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
-
-import java.util.EnumMap;
 
 public class HirelingPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "HirelingPanel";
@@ -135,17 +134,12 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
     head.yOffs = 1;
     addActor(head);
 
-    EnumMap<BodyLoc, Item> equipped = new EnumMap<>(BodyLoc.class);
-    D2S.MercData mercData = Riiablo.charData.getD2S().header.merc;
-    if (mercData.items.items != null) {
-      for (Item item : mercData.items.items.items) {
-        equipped.put(item.bodyLoc, item);
-      }
-    }
+    CharData.MercData mercData = Riiablo.charData.getMerc();
+    final ItemData itemData = mercData.getItems();
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
       if (bodyParts[i] == null) continue;
       bodyParts[i].slot = i;
-      bodyParts[i].item = equipped.get(BodyLoc.valueOf(i));
+      bodyParts[i].item = itemData.getSlot(BodyLoc.valueOf(i));
       bodyParts[i].setBodyPart(Riiablo.files.bodylocs.get(i).Code);
     }
 
@@ -308,7 +302,7 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
     int xOffs, yOffs;
     int xOffsAlt, yOffsAlt;
 
-    BodyPart(BodyLoc bodyLoc, TextureRegion background) {
+    BodyPart(final BodyLoc bodyLoc, TextureRegion background) {
       this.bodyLoc = bodyLoc;
       this.background = background;
       addListener(clickListener = new ClickListener() {
@@ -322,13 +316,15 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
             }
 
             Riiablo.audio.play(cursor.getDropSound(), true);
-            Riiablo.cursor.setItem(item);
+            if (item != null) {
+              Riiablo.charData.swapBodyItem(BodyPart.this.bodyLoc, true);
+            } else {
+              Riiablo.charData.cursorToBody(BodyPart.this.bodyLoc, true);
+            }
             item = cursor;
-            //gameScreen.player.setSlot(HirelingPanel.BodyPart.this.bodyLoc, item);
           } else {
-            Riiablo.cursor.setItem(item);
             item = null;
-            //gameScreen.player.setSlot(HirelingPanel.BodyPart.this.bodyLoc, null);
+            Riiablo.charData.bodyToCursor(BodyPart.this.bodyLoc, true);
           }
         }
       });

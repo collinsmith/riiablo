@@ -13,8 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.riiablo.CharData;
+import com.badlogic.gdx.utils.IntArray;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
@@ -27,12 +28,13 @@ import com.riiablo.item.Item;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class InventoryPanel extends WidgetGroup implements Disposable {
+public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.GridListener {
   private static final String TAG = "InventoryPanel";
 
   final AssetDescriptor<DC6> invcharDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\invchar6.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
@@ -99,7 +101,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     });
     addActor(btnExit);
 
-    inventory = Riiablo.files.inventory.getClass(Riiablo.charData.getCharacterClass().id);
+    inventory = Riiablo.files.inventory.getClass(Riiablo.charData.charClass);
 
     Riiablo.assets.load(inv_armorDescriptor);
     Riiablo.assets.load(inv_beltDescriptor);
@@ -212,10 +214,11 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     gloves.yOffs = 2;
     addActor(gloves);
 
+    final ItemData itemData = Riiablo.charData.getItems();
     for (int i = BodyLocs.HEAD; i < BodyLocs.NUM_LOCS; i++) {
       if (bodyParts[i] == null) continue;
       bodyParts[i].slot = i;
-      bodyParts[i].item = Riiablo.charData.getSlot(BodyLoc.valueOf(i));
+      bodyParts[i].item = itemData.getSlot(BodyLoc.valueOf(i));
       bodyParts[i].setBodyPart(Riiablo.files.bodylocs.get(i).Code);
     }
 
@@ -236,22 +239,22 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     EventListener swapListener = new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-        Riiablo.charData.alternate();
+        itemData.alternate();
       }
     };
     alternateWeaponsL.addListener(swapListener);
     alternateWeaponsR.addListener(swapListener);
 
-    Riiablo.charData.addEquippedListener(new CharData.EquippedAdapter() {
-      @Override
-      public void onChanged(CharData client, BodyLoc bodyLoc, Item oldItem, Item item) {
-        //System.out.println("slot = " + slot);
-        //bodyParts[bodyLoc.ordinal()].item = item;
-        //if (item != null) Riiablo.audio.play(item.base.dropsound, true);
-      }
+    itemData.addAlternateListener(new ItemData.AlternateListener() {
+//      @Override
+//      public void onChanged(CharData client, BodyLoc bodyLoc, Item oldItem, Item item) {
+//        System.out.println("slot = " + slot);
+//        bodyParts[bodyLoc.ordinal()].item = item;
+//        if (item != null) Riiablo.audio.play(item.base.dropsound, true);
+//      }
 
       @Override
-      public void onAlternated(CharData client, int alternate, Item LH, Item RH) {
+      public void onAlternated(ItemData items, int alternate, Item LH, Item RH) {
         bodyParts[BodyLocs.RARM].bodyLoc = BodyLoc.getAlternate(BodyLoc.RARM, alternate);
         bodyParts[BodyLocs.LARM].bodyLoc = BodyLoc.getAlternate(BodyLoc.LARM, alternate);
         bodyParts[BodyLocs.RARM].item = RH;
@@ -259,8 +262,10 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
       }
     });
 
-    ItemGrid grid = new ItemGrid(inventory);
-    grid.populate(Riiablo.charData.getStore(StoreLoc.INVENTORY));
+    ItemGrid grid = new ItemGrid(inventory, this);
+    IntArray inventoryItems = itemData.getStore(StoreLoc.INVENTORY);
+    Array<Item> items = itemData.toItemArray(inventoryItems);
+    grid.populate(items);
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());
@@ -301,7 +306,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
   @Override
   public void draw(Batch batch, float a) {
     batch.draw(invchar, getX(), getY());
-    if (Riiablo.charData.getAlternate() > 0) {
+    if (Riiablo.charData.getItems().getAlternate() > 0) {
       batch.draw(invcharTabR,
           getX() + inventory.rArmLeft - inventory.invLeft - 5,
           getY() + getHeight() - inventory.rArmBottom - 4);
@@ -310,6 +315,21 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
           getY() + getHeight() - inventory.lArmBottom - 4);
     }
     super.draw(batch, a);
+  }
+
+  @Override
+  public void onDrop(int x, int y) {
+    Riiablo.charData.cursorToStore(StoreLoc.INVENTORY, x, y);
+  }
+
+  @Override
+  public void onPickup(int i) {
+    Riiablo.charData.storeToCursor(i);
+  }
+
+  @Override
+  public void onSwap(int i, int x, int y) {
+    Riiablo.charData.swapStoreItem(i, StoreLoc.INVENTORY, x, y);
   }
 
   private class BodyPart extends Actor {
@@ -331,18 +351,20 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
           Item cursor = Riiablo.cursor.getItem();
           if (cursor != null) {
             if (!ArrayUtils.contains(cursor.typeEntry.BodyLoc, bodyPart)) {
-              Riiablo.audio.play(Riiablo.charData.getCharacterClass().name().toLowerCase() + "_impossible_1", false);
+              Riiablo.audio.play(Riiablo.charData.classId.name().toLowerCase() + "_impossible_1", false);
               return;
             }
 
             Riiablo.audio.play(cursor.getDropSound(), true);
-            Riiablo.cursor.setItem(item);
+            if (item != null) {
+              Riiablo.charData.swapBodyItem(BodyPart.this.bodyLoc);
+            } else {
+              Riiablo.charData.cursorToBody(BodyPart.this.bodyLoc);
+            }
             item = cursor;
-            Riiablo.charData.setEquipped(InventoryPanel.BodyPart.this.bodyLoc, item);
           } else {
-            Riiablo.cursor.setItem(item);
             item = null;
-            Riiablo.charData.setEquipped(InventoryPanel.BodyPart.this.bodyLoc, null);
+            Riiablo.charData.bodyToCursor(BodyPart.this.bodyLoc);
           }
         }
       });
@@ -358,7 +380,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable {
     @Override
     public void draw(Batch batch, float a) {
       int x, y;
-      if (Riiablo.charData.getAlternate() > 0) {
+      if (Riiablo.charData.getItems().getAlternate() > 0) {
         x = xOffsAlt == Integer.MIN_VALUE ? xOffs : xOffsAlt;
         y = yOffsAlt == Integer.MIN_VALUE ? yOffs : yOffsAlt;
       } else {

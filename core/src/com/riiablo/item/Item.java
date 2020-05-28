@@ -375,7 +375,8 @@ public class Item extends Actor implements Disposable {
 
   public Details details() {
     if (details == null) {
-      update(Riiablo.charData.getStats(), Riiablo.charData.getCharacterClass().entry(), Riiablo.charData.getSets());
+      // TODO: use item parent itemdata for equipped set counter
+      update(Riiablo.charData.getStats(), Riiablo.charData.classId.entry(), Riiablo.charData.getItems().getEquippedSets());
       details = new Details();
     }
     return details;
@@ -989,7 +990,7 @@ public class Item extends Actor implements Disposable {
         if (Item.this.type.is(Type.WEAP)) {
           Weapons.Entry weapon = getBase();
           int i;
-          if (weapon._1or2handed && Riiablo.charData.getCharacterClass() == CharacterClass.BARBARIAN) {
+          if (weapon._1or2handed && Riiablo.charData.classId == CharacterClass.BARBARIAN) {
             i = 3;
           } else if (weapon._2handed) {
             i = 2;
@@ -1026,7 +1027,7 @@ public class Item extends Actor implements Disposable {
             table.pack();
             add(table).space(SPACING).row();
           }
-          if (Riiablo.charData.getCharacterClass() == CharacterClass.PALADIN && (prop = props.agg.get(Stat.maxdamage)) != null && prop.val > 0)
+          if (Riiablo.charData.classId == CharacterClass.PALADIN && (prop = props.agg.get(Stat.maxdamage)) != null && prop.val > 0)
             add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.agg.get(Stat.mindamage).val + " to " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
         }
         if (!Item.this.base.nodurability && (prop = props.agg.get(Stat.durability)) != null)
@@ -1096,7 +1097,7 @@ public class Item extends Actor implements Disposable {
       if (quality == SET && location == EQUIPPED) {
         SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
         int setId = Riiablo.files.Sets.index(setItem.set);
-        int numEquipped = Riiablo.charData.getSets().get(setId, 0);
+        int numEquipped = Riiablo.charData.getItems().getEquippedSets().get(setId, 0); // TODO: use parent itemdata instead
         if (numEquipped >= 2) {
           PropertyList setPropsAggregate = null;
           for (int i = 0; i < numEquipped; i++) {
@@ -1159,7 +1160,7 @@ public class Item extends Actor implements Disposable {
         Sets.Entry set = Riiablo.files.SetItems.get(qualityId).getSet();
         add(new Label(Riiablo.string.lookup(set.name), font, Riiablo.colors.gold)).space(SPACING).row();
         for (SetItems.Entry item : set.getItems()) {
-          int numOwned = Riiablo.charData.getSetItems().get(Riiablo.files.SetItems.index(item.index), 0);
+          int numOwned = Riiablo.charData.getItems().getOwnedSetCount(Riiablo.files.SetItems.index(item.index));
           Label label = new Label(Riiablo.string.lookup(item.index), font,
               numOwned > 0 ? Riiablo.colors.green : Riiablo.colors.red);
           add(label).space(SPACING).row();

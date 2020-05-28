@@ -16,6 +16,7 @@ import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.save.CharData;
 import com.riiablo.screen.GameScreen;
 
 public class Riiablo {

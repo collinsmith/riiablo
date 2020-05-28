@@ -22,6 +22,7 @@ import com.riiablo.codec.excel.Misc;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.Item;
+import com.riiablo.save.ItemData;
 
 public class ItemGrid extends Group {
   private static final String TAG = "ItemGrid";
@@ -40,6 +41,9 @@ public class ItemGrid extends Group {
 
   final ObjectSet<Actor> hits = new ObjectSet<>(8, 1);
 
+  final ItemData itemData = Riiablo.charData.getItems();
+  final GridListener gridListener;
+
   boolean blocked = true;
   StoredItem swap = null;
   Vector2 coords = new Vector2();
@@ -47,14 +51,23 @@ public class ItemGrid extends Group {
   Vector2 itemSize = new Vector2();
 
   public ItemGrid(Inventory.Entry inv) {
-    this(inv.gridX, inv.gridY, inv.gridBoxWidth, inv.gridBoxHeight);
+    this(inv, null);
+  }
+
+  public ItemGrid(Inventory.Entry inv, GridListener gridListener) {
+    this(inv.gridX, inv.gridY, inv.gridBoxWidth, inv.gridBoxHeight, gridListener);
   }
 
   public ItemGrid(int width, int height, int boxWidth, int boxHeight) {
+    this(width, height, boxWidth, boxHeight, null);
+  }
+
+  public ItemGrid(int width, int height, int boxWidth, int boxHeight, GridListener gridListener) {
     this.width = width;
     this.height = height;
     this.boxWidth = boxWidth;
     this.boxHeight = boxHeight;
+    this.gridListener = gridListener;
 
     Pixmap solidColorPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
     solidColorPixmap.setColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -74,7 +87,7 @@ public class ItemGrid extends Group {
       public void clicked(InputEvent event, float x, float y) {
         if (event.isHandled()) return;
         ItemGrid.this.mouseMoved();
-        Item cursor = Riiablo.cursor.getItem();
+        Item cursor = itemData.getCursor();
         if (blocked) {
           if (cursor != null) Riiablo.audio.play("sorceress_impossible_1", false);
           event.handle();
@@ -84,15 +97,15 @@ public class ItemGrid extends Group {
         if (cursor != null) {
           Riiablo.audio.play(cursor.getDropSound(), true);
           if (swap != null) {
-            Riiablo.cursor.setItem(swap.item);
+            onSwap(swap.item, (int) grid.x, (int) grid.y);
             removeActor(swap);
             swap = null;
           } else {
-            Riiablo.cursor.setItem(null);
+            onDrop((int) grid.x, (int) grid.y);
           }
 
-          cursor.gridX = (byte) grid.x;
-          cursor.gridY = (byte) grid.y;
+          cursor.gridX = (byte) grid.x; // TODO: delete ? why was this note added
+          cursor.gridY = (byte) grid.y; // TODO: delete ? why was this note added
           swap = addItem(cursor);
           event.handle();
         }
@@ -117,11 +130,28 @@ public class ItemGrid extends Group {
     return true;
   }
 
+  void onDrop(int x, int y) {
+    if (gridListener == null) return;
+    gridListener.onDrop(x, y);
+  }
+
+  void onPickup(Item item) {
+    if (gridListener == null) return;
+    int i = itemData.indexOf(item);
+    gridListener.onPickup(i);
+  }
+
+  void onSwap(Item item, int x, int y) {
+    if (gridListener == null) return;
+    int i = itemData.indexOf(item);
+    gridListener.onSwap(i, x, y);
+  }
+
   private void mouseMoved() {
     swap = null;
     blocked = true;
     hits.clear();
-    Item cursor = Riiablo.cursor.getItem();
+    Item cursor = itemData.getCursor();
     if (cursor != null && clickListener.isOver()) {
       coords = Riiablo.cursor.getCoords();
       screenToLocalCoordinates(coords);
@@ -204,7 +234,7 @@ public class ItemGrid extends Group {
   protected void drawChildren(Batch batch, float parentAlpha) {
     super.drawChildren(batch, parentAlpha);
     mouseMoved();
-    Item cursor = Riiablo.cursor.getItem();
+    Item cursor = itemData.getCursor();
     if (cursor != null && clickListener.isOver()) {
       PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
       if (!accept(cursor)) {
@@ -237,6 +267,12 @@ public class ItemGrid extends Group {
     }
   }
 
+  public interface GridListener {
+    void onDrop(int x, int y);
+    void onPickup(int i);
+    void onSwap(int i, int x, int y);
+  }
+
   class StoredItem extends Actor {
     final Item item;
     final ClickListener clickListener;
@@ -249,8 +285,8 @@ public class ItemGrid extends Group {
       addListener(clickListener = new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          if (Riiablo.cursor.getItem() == null) {
-            Riiablo.cursor.setItem(StoredItem.this.item);
+          if (itemData.getCursor() == null) {
+            onPickup(StoredItem.this.item);
             removeActor(StoredItem.this);
             event.handle();
           } else {
@@ -304,11 +340,11 @@ public class ItemGrid extends Group {
     @Override
     public void draw(Batch batch, float parentAlpha) {
       PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
-      b.setBlendMode(BlendMode.SOLID, clickListener.isOver() && Riiablo.cursor.getItem() == null ? backgroundColorG : backgroundColorB);
+      b.setBlendMode(BlendMode.SOLID, clickListener.isOver() && itemData.getCursor() == null ? backgroundColorG : backgroundColorB);
       b.draw(fill, getX(), getY(), getWidth(), getHeight());
       b.resetBlendMode();
       item.draw(b, 1);
-      if (clickListener.isOver() && Riiablo.cursor.getItem() == null) {
+      if (clickListener.isOver() && itemData.getCursor() == null) {
         Riiablo.game.setDetails(item.details(), item, ItemGrid.this, item);
       }
     }

@@ -11,7 +11,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.riiablo.CharData;
+import com.riiablo.save.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.save.D2S;
 import com.riiablo.codec.excel.MonStats;
@@ -192,7 +192,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
     CharData data = mPlayer.get(entityId).data;
 
-    output.appendText(Riiablo.string.format(3642, data.getD2S().header.name));
+    output.appendText(Riiablo.string.format(3642, data.name));
     output.appendText("\n");
 
     world.delete(entityId);

@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.riiablo.CharData;
+import com.riiablo.save.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
@@ -30,7 +30,7 @@ import com.riiablo.widget.HotkeyButton;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class SpellsQuickPanel extends Table implements Disposable, CharData.SkillsListener {
+public class SpellsQuickPanel extends Table implements Disposable, CharData.SkillListener {
   private static final String SPELLS_PATH = "data\\global\\ui\\SPELLS\\";
 
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
@@ -110,7 +110,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
       }
     };
     for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
-    Riiablo.charData.addSkillsListener(this);
+    Riiablo.charData.addSkillListener(this);
   }
 
   @Override

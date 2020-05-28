@@ -43,7 +43,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
 
   public SpellsPanel() {
-    CharacterClass charClass = Riiablo.charData.getCharacterClass();
+    CharacterClass charClass = Riiablo.charData.classId;
     skltreeDescriptor = new AssetDescriptor<>(SPELLS_PATH + charClass.spellsBackground + ".dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
     Riiablo.assets.load(skltreeDescriptor);
     Riiablo.assets.finishLoadingAsset(skltreeDescriptor);
@@ -136,7 +136,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
-      final int sLvl = Riiablo.charData.getSkills().get(i, 0);
+      final int sLvl = Riiablo.charData.getSkill(i);
       final Skills.Entry skill = Riiablo.files.skills.get(i);
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
       final Table details = new Table() {{

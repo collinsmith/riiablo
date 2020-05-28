@@ -29,7 +29,7 @@ import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.riiablo.CharData;
+import com.riiablo.save.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.graphics.PaletteIndexedBatch;

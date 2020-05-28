@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
-import com.riiablo.CharData;
+import com.riiablo.save.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
 import com.riiablo.ai.Npc;

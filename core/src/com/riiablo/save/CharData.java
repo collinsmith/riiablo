@@ -1,5 +1,6 @@
 package com.riiablo.save;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
@@ -25,6 +26,10 @@ import java.util.Arrays;
 
 // TODO: support pooling CharData for multiplayer
 public class CharData implements ItemData.UpdateListener, Pool.Poolable {
+  private static final String TAG = "CharData";
+  private static final boolean DEBUG       = true;
+  private static final boolean DEBUG_ITEMS = DEBUG && !true;
+
   private static final int attack               = 0;
   private static final int kick                 = 1;
   private static final int throw_               = 2;
@@ -135,7 +140,9 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
 
   public CharData load(D2S d2s) {
     managed = true;
+    if (d2s.file != null) { // FIXME: workaround for D2GS networked D2S data until loaded directly
     data = d2s.file.readBytes();
+    }
     d2s.copyTo(this);
     preprocessItems();
     itemData.addUpdateListener(this);
@@ -378,14 +385,17 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public void storeToCursor(int i) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "storeToCursor " + i);
     itemToCursor(i);
   }
 
   public void cursorToStore(StoreLoc storeLoc, int x, int y) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToStore " + storeLoc + "," + x + "," + y);
     itemData.storeCursor(storeLoc, x, y);
   }
 
   public void swapStoreItem(int i, StoreLoc storeLoc, int x, int y) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "swapStoreItem " + i + "," + storeLoc + "," + x + "," + y);
     cursorToStore(storeLoc, x, y);
     storeToCursor(i);
   }
@@ -403,6 +413,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public void bodyToCursor(BodyLoc bodyLoc, boolean merc) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "bodyToCursor " + bodyLoc + "," + (merc ? "merc" : "player"));
     assert itemData.cursor == ItemData.INVALID_ITEM;
     Item item;
     if (merc) {
@@ -416,6 +427,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public void cursorToBody(BodyLoc bodyLoc, boolean merc) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToBody " + bodyLoc + "," + (merc ? "merc" : "player"));
     assert itemData.cursor != ItemData.INVALID_ITEM;
     if (merc) {
       Item item = itemData.getItem(itemData.cursor);
@@ -427,22 +439,48 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     itemData.cursor = ItemData.INVALID_ITEM;
   }
 
+  /**
+   * FIXME: originally worked as an aggregate call on {@link #cursorToBody(BodyLoc, boolean)} and
+   *        {@link #bodyToCursor(BodyLoc, boolean)}, and while that worked fine programically to
+   *        pass the assertions within {@link ItemData}, {@link ItemData.LocationListener#onChanged}
+   *        was being called out of order for setting the cursor, causing the cursor to be unset
+   *        within the UI immediately after being changed.
+   */
   public void swapBodyItem(BodyLoc bodyLoc, boolean merc) {
-    assert itemData.cursor != ItemData.INVALID_ITEM;
-    int oldCursor = itemData.cursor;
-    itemData.cursor = ItemData.INVALID_ITEM;
-    bodyToCursor(bodyLoc, merc);
-    int newCursor = itemData.cursor;
-    itemData.cursor = oldCursor;
-    cursorToBody(bodyLoc, merc);
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "swapBodyItem " + bodyLoc + "," + (merc ? "merc" : "player"));
+
+    // #bodyToCursor(BodyLoc,boolean)
+    Item newCursorItem;
+    int newCursor;
+    if (merc) {
+      int i = mercData.itemData.unequip(bodyLoc);
+      newCursor = itemData.add(newCursorItem = mercData.itemData.remove(i));
+    } else {
+      newCursor = itemData.unequip(bodyLoc);
+      newCursorItem = itemData.getItem(newCursor);
+    }
+
+    // #cursorToBody(BodyLoc,boolean)
+    if (merc) {
+      Item item = itemData.getItem(itemData.cursor);
+      itemData.remove(itemData.cursor);
+      mercData.itemData.equip(bodyLoc, item);
+      if (newCursor >= itemData.cursor) newCursor--; // removing item invalidated the index
+    } else {
+      itemData.equip(bodyLoc, itemData.cursor);
+    }
+
     itemData.cursor = newCursor;
+    itemData.setLocation(newCursorItem, Location.CURSOR);
   }
 
   public void beltToCursor(int i) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "beltToCursor");
     itemToCursor(i);
   }
 
   public void cursorToBelt(int x, int y) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToBelt");
     assert itemData.cursor != ItemData.INVALID_ITEM;
     int i = itemData.cursor;
     itemData.cursor = ItemData.INVALID_ITEM;
@@ -452,16 +490,27 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     itemData.setLocation(item, Location.BELT);
   }
 
+  /**
+   * FIXME: originally worked as an aggregate call on {@link #cursorToBelt(int, int)} and
+   *        {@link #beltToCursor(int)}, and while that worked fine programically to pass the
+   *        assertions within {@link ItemData}, {@link ItemData.LocationListener#onChanged}
+   *        was being called out of order for setting the cursor, causing the cursor to be unset
+   *        within the UI immediately after being changed.
+   */
   public void swapBeltItem(int i) {
-    assert itemData.cursor != ItemData.INVALID_ITEM;
-    int oldCursor = itemData.cursor;
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "swapBeltItem");
+
+    // #beltToCursor(int)
+    Item newCursorItem = itemData.getItem(i);
+
+    // #cursorToBelt(int,int)
+    Item item = itemData.getItem(itemData.cursor);
+    item.gridX = newCursorItem.gridX;
+    item.gridY = newCursorItem.gridY;
+    itemData.setLocation(item, Location.BELT);
     itemData.cursor = ItemData.INVALID_ITEM;
-    beltToCursor(i);
-    int newCursor = itemData.cursor;
-    itemData.cursor = oldCursor;
-    Item oldItem = itemData.getItem(oldCursor);
-    cursorToBelt(oldItem.gridX, oldItem.gridY);
-    itemData.cursor = newCursor;
+
+    itemData.pickup(i);
   }
 
   public static class MercData {

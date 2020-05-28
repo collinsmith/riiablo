@@ -4,8 +4,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import com.riiablo.CharData;
-import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonStats;
@@ -17,6 +15,7 @@ import com.riiablo.engine.server.component.PathWrapper;
 import com.riiablo.item.Item;
 import com.riiablo.map.DS1;
 import com.riiablo.map.Map;
+import com.riiablo.save.CharData;
 
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
@@ -42,7 +41,7 @@ public abstract class EntityFactory extends PassiveSystem {
   }
 
   public final int createPlayer(String name, int classId, float x, float y) {
-    CharData charData = new CharData().createD2S(name, CharacterClass.get(classId));
+    CharData charData = CharData.createRemote(name, (byte) classId);
     return createPlayer(charData, tmpVec2.set(x, y));
   }
 

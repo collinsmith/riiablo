@@ -61,7 +61,7 @@ public class SelectCharacterScreen2 extends ScreenAdapter {
           Riiablo.client.popScreen();
         } else if (actor == btnOK) {
           assert selected != null;
-          Riiablo.client.pushScreen(new LobbyScreen(SelectCharacterScreen2.this.account, Riiablo.charData.setD2S(selected.getD2S())));
+          Riiablo.client.pushScreen(new LobbyScreen(SelectCharacterScreen2.this.account, Riiablo.charData.clear().load(selected.getD2S())));
         } else if (actor == btnCreateNewCharacter) {
           //Riiablo.client.pushScreen(new CreateCharacterScreen());
         }

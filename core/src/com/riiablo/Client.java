@@ -58,6 +58,7 @@ import com.riiablo.map.DS1Loader;
 import com.riiablo.map.DT1;
 import com.riiablo.map.DT1Loader;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.save.CharData;
 import com.riiablo.screen.AudioUnpackerScreen;
 import com.riiablo.screen.SplashScreen;
 
@@ -269,7 +270,7 @@ public class Client extends Game {
     Riiablo.bundle = bundle = I18NBundle.createBundle(Gdx.files.internal("lang/Client"));
     Riiablo.textures = textures = new Textures();
     Riiablo.cursor = cursor = new Cursor();
-    Riiablo.charData = charData = new CharData();
+    Riiablo.charData = charData = CharData.obtain();
     Riiablo.anim = anim = D2.loadFromFile(mpqs.resolve("data\\global\\eanimdata.d2"));
 
     Collection<Throwable> throwables;

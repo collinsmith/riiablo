@@ -3,7 +3,7 @@ package com.riiablo.engine.server;
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.riiablo.CharData;
+import com.riiablo.save.CharData;
 import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
 import com.riiablo.codec.excel.Levels;
@@ -82,7 +82,7 @@ public class ServerEntityFactory extends EntityFactory {
     mVelocity.create(id).set(Engine.Player.SPEED_WALK, Engine.Player.SPEED_RUN);
     mAngle.create(id);
 
-    mCofReference.create(id).set(Engine.Player.getToken(charData.getD2S().header.charClass), Class.Type.PLR.DEFAULT_MODE);
+    mCofReference.create(id).set(Engine.Player.getToken(charData.charClass), Class.Type.PLR.DEFAULT_MODE);
     mCofComponents.create(id);
     mCofAlphas.create(id);
     mCofTransforms.create(id);

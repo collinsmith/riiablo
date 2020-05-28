@@ -8,17 +8,21 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntArray;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Inventory;
+import com.riiablo.item.Item;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 
-public class StashPanel extends WidgetGroup implements Disposable {
+public class StashPanel extends WidgetGroup implements Disposable, ItemGrid.GridListener {
   private static final String TAG = "StashPanel";
 
   final AssetDescriptor<DC6> TradeStashDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\TradeStash.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
@@ -56,9 +60,12 @@ public class StashPanel extends WidgetGroup implements Disposable {
     addActor(btnExit);
 
     inventory = Riiablo.files.inventory.get("Big Bank Page 1");
+    final ItemData itemData = Riiablo.charData.getItems();
 
-    ItemGrid grid = new ItemGrid(inventory);
-    grid.populate(Riiablo.charData.getStore(StoreLoc.STASH));
+    ItemGrid grid = new ItemGrid(inventory, this);
+    IntArray stashItems = itemData.getStore(StoreLoc.STASH);
+    Array<Item> items = itemData.toItemArray(stashItems);
+    grid.populate(items);
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());
@@ -94,6 +101,21 @@ public class StashPanel extends WidgetGroup implements Disposable {
   public void draw(Batch batch, float a) {
     batch.draw(TradeStash, getX(), getY());
     super.draw(batch, a);
+  }
+
+  @Override
+  public void onDrop(int x, int y) {
+    Riiablo.charData.cursorToStore(StoreLoc.STASH, x, y);
+  }
+
+  @Override
+  public void onPickup(int i) {
+    Riiablo.charData.storeToCursor(i);
+  }
+
+  @Override
+  public void onSwap(int i, int x, int y) {
+    Riiablo.charData.swapStoreItem(i, StoreLoc.STASH, x, y);
   }
 
   @Override

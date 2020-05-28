@@ -17,7 +17,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntArray;
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
@@ -26,9 +28,12 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.BlendMode;
+import com.riiablo.item.Item;
+import com.riiablo.item.Location;
 import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
 import com.riiablo.widget.Label;
@@ -301,7 +306,7 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
       }
     }
   }
-  private class ControlWidget extends WidgetGroup implements Disposable {
+  private class ControlWidget extends WidgetGroup implements Disposable, ItemGrid.GridListener {
     final AssetDescriptor<DC6> menubuttonDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\menubutton.DC6", DC6.class);
     Button btnMenu;
     Button.ButtonStyle menuHidden, menuShown;
@@ -310,6 +315,7 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
     MinipanelWidget minipanelWidget;
 
     Texture background;
+
     ControlWidget(Texture background) {
       this.background = background;
       setSize(background.getWidth(), background.getHeight() - 7);
@@ -342,11 +348,15 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
       });
       addActor(btnMenu);
 
-      final BeltGrid belt = new BeltGrid(4, 4, 31, 31);
+      final ItemData itemData = Riiablo.charData.getItems();
+      IntArray beltItems = itemData.getLocation(Location.BELT);
+      Array<Item> items = itemData.toItemArray(beltItems);
+
+      final BeltGrid belt = new BeltGrid(4, 4, 31, 31, this);
       belt.setRows(4);
       belt.setBackground(popbelt);
       belt.setPosition(177, 8);
-      belt.populate(Riiablo.charData.getBelt());
+      belt.populate(items);
       belt.setHidden(true);
       addActor(belt);
       //setDebug(true, true);
@@ -370,6 +380,21 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
     public void draw(Batch batch, float a) {
       batch.draw(background, getX(), getY());
       super.draw(batch, a);
+    }
+
+    @Override
+    public void onDrop(int x, int y) {
+      Riiablo.charData.cursorToBelt(x, y);
+    }
+
+    @Override
+    public void onPickup(int i) {
+      Riiablo.charData.beltToCursor(i);
+    }
+
+    @Override
+    public void onSwap(int i, int x, int y) {
+      Riiablo.charData.swapBeltItem(i);
     }
 
     private class MinipanelWidget extends WidgetGroup implements Disposable {

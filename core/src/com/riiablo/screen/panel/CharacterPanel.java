@@ -56,7 +56,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     });
     addActor(btnExit);
 
-    Label name = new Label(Riiablo.charData.getD2S().header.name, Riiablo.fonts.font16);
+    Label name = new Label(Riiablo.charData.name, Riiablo.fonts.font16);
     name.setPosition(12, getHeight() - 24);
     name.setSize(168, 13);
     name.setAlignment(Align.center);
@@ -76,7 +76,7 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     exp.add(new Label(NumberFormat.getInstance(Cvars.Client.Locale.get()).format(Riiablo.charData.getStats().get(Stat.experience).toLong()), Riiablo.fonts.font16)).growY().row();
     addActor(exp);
 
-    Label clazz = new Label(Riiablo.charData.getCharacterClass().name, Riiablo.fonts.font16);
+    Label clazz = new Label(Riiablo.charData.classId.name, Riiablo.fonts.font16);
     clazz.setPosition(194, getHeight() - 24);
     clazz.setSize(114, 13);
     clazz.setAlignment(Align.center);

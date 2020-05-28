@@ -29,13 +29,11 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.riiablo.CharData;
 import com.riiablo.Client;
 import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
-import com.riiablo.save.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.Sounds;
@@ -79,8 +77,8 @@ import com.riiablo.engine.server.AngularVelocity;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.AnimStepper;
 import com.riiablo.engine.server.Box2DDisposer;
-import com.riiablo.engine.server.Box2DSynchronizerPre;
 import com.riiablo.engine.server.Box2DSynchronizerPost;
+import com.riiablo.engine.server.Box2DSynchronizerPre;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ItemInteractor;
 import com.riiablo.engine.server.ObjectCollisionUpdater;
@@ -105,6 +103,7 @@ import com.riiablo.map.Box2DPhysics;
 import com.riiablo.map.Map;
 import com.riiablo.map.MapManager;
 import com.riiablo.map.RenderSystem;
+import com.riiablo.save.CharData;
 import com.riiablo.screen.panel.CharacterPanel;
 import com.riiablo.screen.panel.ControlPanel;
 import com.riiablo.screen.panel.CubePanel;
@@ -242,11 +241,6 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   public GameScreen(CharData charData, Socket socket) {
     this.charData = charData;
     this.socket = socket;
-    charData.getD2S().loadRemaining();
-    charData.updateD2S(Riiablo.HELL);
-    charData.loadItems();
-    D2S.ItemData items = charData.getD2S().header.merc.items.items;
-    if (items != null) for (Item item : items.items) item.load();
 
     Riiablo.viewport = viewport = Riiablo.extendViewport;
     stage = new Stage(viewport, Riiablo.batch);
@@ -416,7 +410,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         } else if (key == Keys.Quests) {
           setLeftPanel(questsPanel.isVisible() ? null : questsPanel);
         } else if (key == Keys.SwapWeapons) {
-          Riiablo.charData.alternate();
+          Riiablo.charData.getItems().alternate();
         }
       }
     };
@@ -510,6 +504,10 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     engine.inject(Act1MapBuilder.INSTANCE);
 
     if (mobileControls != null) engine.inject(mobileControls);
+
+    // TODO: better place to put this?
+    charData.getItems().addLocationListener(Riiablo.cursor);
+    charData.getMerc().getItems().addLocationListener(Riiablo.cursor);
 
     loadingScreen = new GameLoadingScreen(map, getDependencies());
   }

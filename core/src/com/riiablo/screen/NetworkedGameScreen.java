@@ -2,7 +2,7 @@ package com.riiablo.screen;
 
 import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.net.Socket;
-import com.riiablo.CharData;
+import com.riiablo.save.CharData;
 import com.riiablo.engine.client.ClientNetworkReceiver;
 import com.riiablo.engine.client.ClientNetworkSyncronizer;
 

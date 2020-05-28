@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.BufferUtils;
-import com.riiablo.engine.Engine;
+import com.riiablo.Riiablo;
 import com.riiablo.net.GameSession;
 import com.riiablo.net.packet.bnls.ConnectionAccepted;
 import com.riiablo.net.packet.bnls.ConnectionClosed;
@@ -305,7 +305,7 @@ public class MCP extends ApplicationAdapter {
     JoinGame.startJoinGame(builder);
     if (session == null) {
       JoinGame.addResult(builder, Result.GAME_DOES_NOT_EXIST);
-    } else if (session.numPlayers >= Engine.MAX_PLAYERS) {
+    } else if (session.numPlayers >= Riiablo.MAX_PLAYERS) {
       JoinGame.addResult(builder, Result.GAME_IS_FULL);
     } else {
       JoinGame.addResult(builder, Result.SUCCESS);
