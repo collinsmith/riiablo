@@ -57,7 +57,7 @@ import com.riiablo.engine.client.DialogManager;
 import com.riiablo.engine.client.DirectionResolver;
 import com.riiablo.engine.client.HoveredManager;
 import com.riiablo.engine.client.ItemLoader;
-import com.riiablo.engine.client.ItemManager;
+import com.riiablo.engine.client.ItemEffectManager;
 import com.riiablo.engine.client.LabelManager;
 import com.riiablo.engine.client.MenuManager;
 import com.riiablo.engine.client.MissileLoader;
@@ -583,7 +583,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new LabelManager())
         .with(new MonsterLabelManager())
 
-        .with(new ItemManager())
+        .with(new ItemEffectManager())
 
         .with(new PathDebugger())
         .with(new Box2DDebugger())

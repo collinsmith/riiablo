@@ -9,7 +9,7 @@ import com.riiablo.engine.client.component.AnimationWrapper;
 import com.riiablo.engine.server.component.Item;
 
 @All({Item.class, AnimationWrapper.class})
-public class ItemManager extends BaseEntitySystem {
+public class ItemEffectManager extends BaseEntitySystem {
   protected ComponentMapper<Item> mItem;
   protected ComponentMapper<AnimationWrapper> mAnimationWrapper;
 
