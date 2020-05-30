@@ -380,6 +380,10 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     return itemData;
   }
 
+  public void dropCursor() {
+    itemData.drop();
+  }
+
   public void itemToCursor(int i) {
     itemData.pickup(i);
   }

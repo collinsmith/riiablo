@@ -102,7 +102,7 @@ public class CursorMovementSystem extends BaseSystem {
         Vector2 position = mPosition.get(src).position;
         iso.toTile(tmpVec2.set(position));
 
-        Riiablo.cursor.setItem(null);
+        Riiablo.charData.dropCursor();
         if (socket == null) {
           factory.createItem(cursor, tmpVec2);
         } else {
