@@ -14,6 +14,10 @@ public class ItemManager extends PassiveSystem {
 
   protected ComponentMapper<Player> mPlayer;
 
+  public void dropCursor(int entityId) {
+    mPlayer.get(entityId).data.dropCursor();
+  }
+
   public void storeToCursor(int entityId, int i) {
     mPlayer.get(entityId).data.storeToCursor(i);
   }

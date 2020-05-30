@@ -204,20 +204,20 @@ public class ItemData {
     return copy;
   }
 
-  void pickup(int i) {
-    assert cursor == INVALID_ITEM;
-    Item item = itemData.get(i);
-    if (item.location == Location.STORED) notifyStoreRemoved(item);
-    cursor = i;
-    setLocation(item, Location.CURSOR);
-  }
-
   // TODO: should item location change if the item is dropped? is this what UNK3 and UNK5 represent?
   void drop() {
     assert cursor != INVALID_ITEM;
     Item item = itemData.get(cursor);
     cursor = INVALID_ITEM;
     setLocation(item, null);
+  }
+
+  void pickup(int i) {
+    assert cursor == INVALID_ITEM;
+    Item item = itemData.get(i);
+    if (item.location == Location.STORED) notifyStoreRemoved(item);
+    cursor = i;
+    setLocation(item, Location.CURSOR);
   }
 
   void storeCursor(StoreLoc storeLoc, int x, int y) {
