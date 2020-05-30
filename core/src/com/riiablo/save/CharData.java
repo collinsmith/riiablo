@@ -380,11 +380,11 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     return itemData;
   }
 
-  public void pickupToCursor(Item item) {
+  public void groundToCursor(Item item) {
     itemData.pickup(item);
   }
 
-  public void dropCursor() {
+  public void cursorToGround() {
     itemData.drop();
   }
 

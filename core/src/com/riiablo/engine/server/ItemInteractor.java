@@ -11,7 +11,7 @@ public class ItemInteractor extends PassiveSystem implements Interactable.Intera
 
   @Override
   public void interact(int src, int entity) {
-    items.pickupToCursor(src, entity);
+    items.groundToCursor(src, entity);
     world.delete(entity);
   }
 }

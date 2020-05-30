@@ -16,13 +16,13 @@ public class ItemManager extends PassiveSystem {
   protected ComponentMapper<Player> mPlayer;
   protected ComponentMapper<Item> mItem;
 
-  public void pickupToCursor(int entityId, int dst) {
+  public void groundToCursor(int entityId, int dst) {
     com.riiablo.item.Item item = mItem.get(dst).item;
-    mPlayer.get(entityId).data.pickupToCursor(item);
+    mPlayer.get(entityId).data.groundToCursor(item);
   }
 
-  public void dropCursor(int entityId) {
-    mPlayer.get(entityId).data.dropCursor();
+  public void cursorToGround(int entityId) {
+    mPlayer.get(entityId).data.cursorToGround();
   }
 
   public void storeToCursor(int entityId, int i) {
