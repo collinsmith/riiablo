@@ -204,6 +204,12 @@ public class ItemData {
     return copy;
   }
 
+  void pickup(Item item) {
+    assert cursor == INVALID_ITEM;
+    cursor = add(item);
+    setLocation(item, Location.CURSOR);
+  }
+
   // TODO: should item location change if the item is dropped? is this what UNK3 and UNK5 represent?
   void drop() {
     assert cursor != INVALID_ITEM;

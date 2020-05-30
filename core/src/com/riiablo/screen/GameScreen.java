@@ -81,6 +81,7 @@ import com.riiablo.engine.server.Box2DSynchronizerPost;
 import com.riiablo.engine.server.Box2DSynchronizerPre;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ItemInteractor;
+import com.riiablo.engine.server.ItemManager;
 import com.riiablo.engine.server.ObjectCollisionUpdater;
 import com.riiablo.engine.server.ObjectInitializer;
 import com.riiablo.engine.server.ObjectInteractor;
@@ -522,6 +523,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new EventSystem())
         .with(new TagManager())
         .with(mapManager)
+        .with(new ItemManager())
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
