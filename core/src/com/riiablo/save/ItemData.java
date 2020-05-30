@@ -66,7 +66,7 @@ public class ItemData {
   }
 
   void preprocessItems() {
-    cursor = ItemData.INVALID_ITEM;
+    cursor = INVALID_ITEM;
     Item[] items = itemData.items;
     for (int i = 0, s = itemData.size; i < s; i++) {
       Item item = items[i];
@@ -117,7 +117,7 @@ public class ItemData {
 
   public Item getSlot(BodyLoc bodyLoc) {
     int i = equipped.get(bodyLoc);
-    return i == ItemData.INVALID_ITEM ? null : getItem(i);
+    return i == INVALID_ITEM ? null : getItem(i);
   }
 
   public Item getEquipped(BodyLoc bodyLoc) {
@@ -213,7 +213,7 @@ public class ItemData {
   }
 
   void storeCursor(StoreLoc storeLoc, int x, int y) {
-    assert cursor != ItemData.INVALID_ITEM;
+    assert cursor != INVALID_ITEM;
     store(storeLoc, cursor, x, y);
     cursor = INVALID_ITEM;
   }
@@ -258,7 +258,7 @@ public class ItemData {
     int[] cache = equipped.values();
     for (int i = 0, s = cache.length, j; i < s; i++) {
       j = cache[i];
-      if (j == ItemData.INVALID_ITEM) continue;
+      if (j == INVALID_ITEM) continue;
       Item item = itemData.get(j);
       if (isActive(item)) {
         item.update(stats, charStats, equippedSets);
@@ -273,7 +273,7 @@ public class ItemData {
     cache = inventoryItems.items;
     for (int i = 0, s = cache.length, j; i < s; i++) {
       j = cache[i];
-      if (j == ItemData.INVALID_ITEM) continue;
+      if (j == INVALID_ITEM) continue;
       Item item = itemData.get(j);
       if (item.type.is(Type.CHAR)) {
         item.update(stats, charStats, equippedSets);
