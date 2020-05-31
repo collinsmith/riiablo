@@ -213,7 +213,7 @@ public class ItemData {
   // TODO: should item location change if the item is dropped? is this what UNK3 and UNK5 represent?
   void drop() {
     assert cursor != INVALID_ITEM;
-    Item item = itemData.get(cursor);
+    Item item = remove(cursor);
     cursor = INVALID_ITEM;
     setLocation(item, null);
   }
