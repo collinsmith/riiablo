@@ -1,5 +1,6 @@
 package com.riiablo.screen.panel;
 
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -28,6 +29,7 @@ import com.riiablo.item.Item;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.ItemController;
 import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
@@ -63,6 +65,9 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
   final Texture fill;
   final Color backgroundColorG;
   final Color backgroundColorR;
+
+  @Wire(name = "itemController")
+  protected ItemController itemController;
 
   public InventoryPanel() {
     Riiablo.assets.load(invcharDescriptor);
@@ -319,17 +324,17 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
 
   @Override
   public void onDrop(int x, int y) {
-    Riiablo.charData.cursorToStore(StoreLoc.INVENTORY, x, y);
+    itemController.cursorToStore(StoreLoc.INVENTORY, x, y);
   }
 
   @Override
   public void onPickup(int i) {
-    Riiablo.charData.storeToCursor(i);
+    itemController.storeToCursor(i);
   }
 
   @Override
   public void onSwap(int i, int x, int y) {
-    Riiablo.charData.swapStoreItem(i, StoreLoc.INVENTORY, x, y);
+    itemController.swapStoreItem(i, StoreLoc.INVENTORY, x, y);
   }
 
   private class BodyPart extends Actor {
@@ -357,14 +362,14 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
 
             Riiablo.audio.play(cursor.getDropSound(), true);
             if (item != null) {
-              Riiablo.charData.swapBodyItem(BodyPart.this.bodyLoc);
+              itemController.swapBodyItem(BodyPart.this.bodyLoc, false);
             } else {
-              Riiablo.charData.cursorToBody(BodyPart.this.bodyLoc);
+              itemController.cursorToBody(BodyPart.this.bodyLoc, false);
             }
             item = cursor;
           } else {
             item = null;
-            Riiablo.charData.bodyToCursor(BodyPart.this.bodyLoc);
+            itemController.bodyToCursor(BodyPart.this.bodyLoc, false);
           }
         }
       });

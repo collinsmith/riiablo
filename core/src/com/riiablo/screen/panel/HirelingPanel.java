@@ -1,5 +1,6 @@
 package com.riiablo.screen.panel;
 
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -26,6 +27,7 @@ import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.CharData;
+import com.riiablo.save.ItemController;
 import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
@@ -51,6 +53,9 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
   final Texture fill;
   final Color backgroundColorG;
   final Color backgroundColorR;
+
+  @Wire(name = "itemController")
+  protected ItemController itemController;
 
   public HirelingPanel() {
     Riiablo.assets.load(NpcInvDescriptor);
@@ -317,14 +322,14 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
 
             Riiablo.audio.play(cursor.getDropSound(), true);
             if (item != null) {
-              Riiablo.charData.swapBodyItem(BodyPart.this.bodyLoc, true);
+              itemController.swapBodyItem(BodyPart.this.bodyLoc, true);
             } else {
-              Riiablo.charData.cursorToBody(BodyPart.this.bodyLoc, true);
+              itemController.cursorToBody(BodyPart.this.bodyLoc, true);
             }
             item = cursor;
           } else {
             item = null;
-            Riiablo.charData.bodyToCursor(BodyPart.this.bodyLoc, true);
+            itemController.bodyToCursor(BodyPart.this.bodyLoc, true);
           }
         }
       });

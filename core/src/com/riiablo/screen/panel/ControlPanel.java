@@ -1,5 +1,6 @@
 package com.riiablo.screen.panel;
 
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -33,6 +34,7 @@ import com.riiablo.item.Location;
 import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.ItemController;
 import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
@@ -63,6 +65,9 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
 
   final AssetDescriptor<DC6> CharSkilliconDescriptor[];
   DC6 CharSkillicon[];
+
+  @Wire(name = "itemController")
+  protected ItemController itemController;
 
   private static int getClassId(String charClass) {
     if (charClass.isEmpty()) return -1;
@@ -384,17 +389,17 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
 
     @Override
     public void onDrop(int x, int y) {
-      Riiablo.charData.cursorToBelt(x, y);
+      itemController.cursorToBelt(x, y);
     }
 
     @Override
     public void onPickup(int i) {
-      Riiablo.charData.beltToCursor(i);
+      itemController.beltToCursor(i);
     }
 
     @Override
     public void onSwap(int i, int x, int y) {
-      Riiablo.charData.swapBeltItem(i);
+      itemController.swapBeltItem(i);
     }
 
     private class MinipanelWidget extends WidgetGroup implements Disposable {

@@ -1,5 +1,6 @@
 package com.riiablo.screen.panel;
 
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,6 +18,7 @@ import com.riiablo.codec.excel.Inventory;
 import com.riiablo.item.Item;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.ItemController;
 import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 
@@ -33,6 +35,9 @@ public class CubePanel extends WidgetGroup implements Disposable, ItemGrid.GridL
   Button btnExit;
 
   final Inventory.Entry inventory;
+
+  @Wire(name = "itemController")
+  protected ItemController itemController;
 
   public CubePanel() {
     Riiablo.assets.load(supertransmogrifierDescriptor);
@@ -103,16 +108,16 @@ public class CubePanel extends WidgetGroup implements Disposable, ItemGrid.GridL
 
   @Override
   public void onDrop(int x, int y) {
-    Riiablo.charData.cursorToStore(StoreLoc.CUBE, x, y);
+    itemController.cursorToStore(StoreLoc.CUBE, x, y);
   }
 
   @Override
   public void onPickup(int i) {
-    Riiablo.charData.storeToCursor(i);
+    itemController.storeToCursor(i);
   }
 
   @Override
   public void onSwap(int i, int x, int y) {
-    Riiablo.charData.swapStoreItem(i, StoreLoc.CUBE, x, y);
+    itemController.swapStoreItem(i, StoreLoc.CUBE, x, y);
   }
 }

@@ -1,5 +1,6 @@
 package com.riiablo.screen.panel;
 
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,6 +19,7 @@ import com.riiablo.item.Item;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.ItemController;
 import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
@@ -35,6 +37,9 @@ public class StashPanel extends WidgetGroup implements Disposable, ItemGrid.Grid
   Button btnExit;
 
   final Inventory.Entry inventory;
+
+  @Wire(name = "itemController")
+  protected ItemController itemController;
 
   public StashPanel() {
     Riiablo.assets.load(TradeStashDescriptor);
@@ -105,17 +110,17 @@ public class StashPanel extends WidgetGroup implements Disposable, ItemGrid.Grid
 
   @Override
   public void onDrop(int x, int y) {
-    Riiablo.charData.cursorToStore(StoreLoc.STASH, x, y);
+    itemController.cursorToStore(StoreLoc.STASH, x, y);
   }
 
   @Override
   public void onPickup(int i) {
-    Riiablo.charData.storeToCursor(i);
+    itemController.storeToCursor(i);
   }
 
   @Override
   public void onSwap(int i, int x, int y) {
-    Riiablo.charData.swapStoreItem(i, StoreLoc.STASH, x, y);
+    itemController.swapStoreItem(i, StoreLoc.STASH, x, y);
   }
 
   @Override

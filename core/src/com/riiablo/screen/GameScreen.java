@@ -44,6 +44,7 @@ import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.client.AnimationStepper;
 import com.riiablo.engine.client.AutoInteracter;
 import com.riiablo.engine.client.ClientEntityFactory;
+import com.riiablo.engine.client.ClientItemManager;
 import com.riiablo.engine.client.CofAlphaHandler;
 import com.riiablo.engine.client.CofLayerCacher;
 import com.riiablo.engine.client.CofLayerLoader;
@@ -56,8 +57,8 @@ import com.riiablo.engine.client.CursorMovementSystem;
 import com.riiablo.engine.client.DialogManager;
 import com.riiablo.engine.client.DirectionResolver;
 import com.riiablo.engine.client.HoveredManager;
-import com.riiablo.engine.client.ItemLoader;
 import com.riiablo.engine.client.ItemEffectManager;
+import com.riiablo.engine.client.ItemLoader;
 import com.riiablo.engine.client.LabelManager;
 import com.riiablo.engine.client.MenuManager;
 import com.riiablo.engine.client.MissileLoader;
@@ -197,6 +198,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   MapManager mapManager;
   IsometricCamera iso;
   InputProcessor testingInputProcessor;
+
+  ClientItemManager itemController;
 
   public EscapePanel escapePanel;
   public ControlPanel controlPanel;
@@ -484,12 +487,14 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     iso = renderer.iso();
     scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
     factory = new ClientEntityFactory();
+    itemController = new ClientItemManager();
 
     WorldConfiguration config = getWorldConfiguration();
     config
         .register("iso", iso)
         .register("map", map)
         .register("factory", factory)
+        .register("itemController", itemController)
         .register("batch", Riiablo.batch)
         .register("shapes", Riiablo.shapes)
         .register("stage", stage)
@@ -506,11 +511,25 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
 
     if (mobileControls != null) engine.inject(mobileControls);
 
+    injectPanels();
+
     // TODO: better place to put this?
     charData.getItems().addLocationListener(Riiablo.cursor);
     charData.getMerc().getItems().addLocationListener(Riiablo.cursor);
 
     loadingScreen = new GameLoadingScreen(map, getDependencies());
+  }
+
+  private void injectPanels() {
+    engine.inject(inventoryPanel);
+    engine.inject(hirelingPanel);
+    engine.inject(controlPanel);
+    engine.inject(cubePanel);
+    engine.inject(stashPanel);
+// TODO: maybe it would be better to do more like?:
+//    for (Actor actor : stage.getActors()) {
+//      engine.inject(actor);
+//    }
   }
 
   protected WorldConfiguration getWorldConfiguration() {
@@ -523,7 +542,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new EventSystem())
         .with(new TagManager())
         .with(mapManager)
-        .with(new ItemManager())
+        .with(itemController, new ItemManager())
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())

@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 // TODO: support pooling CharData for multiplayer
-public class CharData implements ItemData.UpdateListener, Pool.Poolable {
+public class CharData implements ItemController, ItemData.UpdateListener, Pool.Poolable {
   private static final String TAG = "CharData";
   private static final boolean DEBUG       = true;
   private static final boolean DEBUG_ITEMS = DEBUG && !true;
@@ -380,11 +380,13 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     return itemData;
   }
 
+  @Override
   public void groundToCursor(Item item) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "groundToCursor " + item);
     itemData.pickup(item);
   }
 
+  @Override
   public void cursorToGround() {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToGround");
     itemData.drop();
@@ -395,16 +397,19 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     itemData.pickup(i);
   }
 
+  @Override
   public void storeToCursor(int i) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "storeToCursor " + i);
     itemToCursor(i);
   }
 
+  @Override
   public void cursorToStore(StoreLoc storeLoc, int x, int y) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToStore " + storeLoc + "," + x + "," + y);
     itemData.storeCursor(storeLoc, x, y);
   }
 
+  @Override
   public void swapStoreItem(int i, StoreLoc storeLoc, int x, int y) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "swapStoreItem " + i + "," + storeLoc + "," + x + "," + y);
     cursorToStore(storeLoc, x, y);
@@ -423,6 +428,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     swapBodyItem(bodyLoc, false);
   }
 
+  @Override
   public void bodyToCursor(BodyLoc bodyLoc, boolean merc) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "bodyToCursor " + bodyLoc + "," + (merc ? "merc" : "player"));
     assert itemData.cursor == ItemData.INVALID_ITEM;
@@ -437,6 +443,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     itemData.setLocation(item, Location.CURSOR);
   }
 
+  @Override
   public void cursorToBody(BodyLoc bodyLoc, boolean merc) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToBody " + bodyLoc + "," + (merc ? "merc" : "player"));
     assert itemData.cursor != ItemData.INVALID_ITEM;
@@ -457,6 +464,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
    *        was being called out of order for setting the cursor, causing the cursor to be unset
    *        within the UI immediately after being changed.
    */
+  @Override
   public void swapBodyItem(BodyLoc bodyLoc, boolean merc) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "swapBodyItem " + bodyLoc + "," + (merc ? "merc" : "player"));
 
@@ -485,11 +493,13 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     itemData.setLocation(newCursorItem, Location.CURSOR);
   }
 
+  @Override
   public void beltToCursor(int i) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "beltToCursor");
     itemToCursor(i);
   }
 
+  @Override
   public void cursorToBelt(int x, int y) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToBelt");
     assert itemData.cursor != ItemData.INVALID_ITEM;
@@ -508,6 +518,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
    *        was being called out of order for setting the cursor, causing the cursor to be unset
    *        within the UI immediately after being changed.
    */
+  @Override
   public void swapBeltItem(int i) {
     if (DEBUG_ITEMS) Gdx.app.log(TAG, "swapBeltItem");
 
