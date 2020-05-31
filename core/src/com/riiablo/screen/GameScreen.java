@@ -487,7 +487,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     iso = renderer.iso();
     scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
     factory = new ClientEntityFactory();
-    itemController = new ClientItemManager();
+    itemController = new ClientItemManager(Riiablo.charData);
 
     WorldConfiguration config = getWorldConfiguration();
     config
