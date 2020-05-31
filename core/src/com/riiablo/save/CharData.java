@@ -381,14 +381,17 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public void groundToCursor(Item item) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "groundToCursor " + item);
     itemData.pickup(item);
   }
 
   public void cursorToGround() {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "cursorToGround");
     itemData.drop();
   }
 
   public void itemToCursor(int i) {
+    if (DEBUG_ITEMS) Gdx.app.log(TAG, "itemToCursor " + i);
     itemData.pickup(i);
   }
 
