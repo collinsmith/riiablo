@@ -7,6 +7,7 @@ include "Disconnect.fbs";
 include "Sync.fbs";
 include "DropItem.fbs";
 include "PickupItem.fbs";
+include "ItemManagement.fbs";
 
 namespace com.riiablo.net.packet.d2gs;
 
@@ -20,6 +21,17 @@ union D2GSData {
   Disconnect,
   DropItem,
   PickupItem,
+  GroundToCursor,
+  CursorToGround,
+  StoreToCursor,
+  CursorToStore,
+  SwapStoreItem,
+  BodyToCursor,
+  CursorToBody,
+  SwapBodyItem,
+  BeltToCursor,
+  CursorToBelt,
+  SwapBeltItem,
 }
 
 table D2GS {

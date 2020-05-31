@@ -1,0 +1,86 @@
+namespace com.riiablo.net.packet.d2gs;
+
+table GroundToCursor {
+  // request
+  itemId:int32;
+
+  // response
+}
+
+table CursorToGround {
+  // request
+
+  // response
+}
+
+table StoreToCursor {
+  // request
+  itemId:int32;
+
+  // response
+}
+
+table CursorToStore {
+  // request
+  storeLoc:int32;
+  x:int32;
+  y:int32;
+
+  // response
+}
+
+table SwapStoreItem {
+  // request
+  itemId:int32;
+  storeLoc:int32;
+  x:int32;
+  y:int32;
+
+  // response
+}
+
+table BodyToCursor {
+  // request
+  bodyLoc:int32;
+  merc:bool;
+
+  // response
+}
+
+table CursorToBody {
+  // request
+  bodyLoc:int32;
+  merc:bool;
+
+  // response
+}
+
+table SwapBodyItem {
+  // request
+  bodyLoc:int32;
+  merc:bool;
+
+  // response
+}
+
+table BeltToCursor {
+  // request
+  itemId:int32;
+
+  // response
+}
+
+table CursorToBelt {
+  // request
+  x:int32;
+  y:int32;
+
+  // response
+}
+
+table SwapBeltItem {
+  // request
+  itemId:int32;
+
+  // response
+}
