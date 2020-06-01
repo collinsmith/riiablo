@@ -1,5 +1,6 @@
 package com.riiablo.engine.client;
 
+import com.riiablo.Riiablo;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.item.StoreLoc;
@@ -12,11 +13,7 @@ import net.mostlyoriginal.api.system.core.PassiveSystem;
 public class ClientItemManager extends PassiveSystem implements ItemController {
   private static final String TAG = "ClientItemManager";
 
-  final ItemController delegate;
-
-  public ClientItemManager(ItemController delegate) {
-    this.delegate = delegate;
-  }
+  final ItemController delegate = Riiablo.charData;
 
   @Override
   public void groundToCursor(Item item) {

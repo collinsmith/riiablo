@@ -64,6 +64,7 @@ import com.riiablo.engine.client.MenuManager;
 import com.riiablo.engine.client.MissileLoader;
 import com.riiablo.engine.client.MonsterLabelManager;
 import com.riiablo.engine.client.NetworkIdManager;
+import com.riiablo.engine.client.NetworkedClientItemManager;
 import com.riiablo.engine.client.SelectableManager;
 import com.riiablo.engine.client.SoundEmitterHandler;
 import com.riiablo.engine.client.WarpSubstManager;
@@ -487,7 +488,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     iso = renderer.iso();
     scaledStage = new Stage(new ScreenViewport(iso), Riiablo.batch);
     factory = new ClientEntityFactory();
-    itemController = new ClientItemManager(Riiablo.charData);
+    itemController = socket == null ? new ClientItemManager() : new NetworkedClientItemManager();
 
     WorldConfiguration config = getWorldConfiguration();
     config
