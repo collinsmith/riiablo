@@ -378,6 +378,39 @@ public class D2GS extends ApplicationAdapter {
       case D2GSData.PickupItem:
         PickupItem(packet);
         break;
+      case D2GSData.GroundToCursor:
+        GroundToCursor(packet);
+        break;
+      case D2GSData.CursorToGround:
+        CursorToGround(packet);
+        break;
+      case D2GSData.StoreToCursor:
+        StoreToCursor(packet);
+        break;
+      case D2GSData.CursorToStore:
+        CursorToStore(packet);
+        break;
+      case D2GSData.SwapStoreItem:
+        SwapStoreItem(packet);
+        break;
+      case D2GSData.BodyToCursor:
+        BodyToCursor(packet);
+        break;
+      case D2GSData.CursorToBody:
+        CursorToBody(packet);
+        break;
+      case D2GSData.SwapBodyItem:
+        SwapBodyItem(packet);
+        break;
+      case D2GSData.BeltToCursor:
+        BeltToCursor(packet);
+        break;
+      case D2GSData.CursorToBelt:
+        CursorToBelt(packet);
+        break;
+      case D2GSData.SwapBeltItem:
+        SwapBeltItem(packet);
+        break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.data.dataType());
     }
@@ -506,6 +539,39 @@ public class D2GS extends ApplicationAdapter {
 
   private void PickupItem(Packet packet) {
 
+  }
+
+  private void GroundToCursor(Packet packet) {
+  }
+
+  private void CursorToGround(Packet packet) {
+  }
+
+  private void StoreToCursor(Packet packet) {
+  }
+
+  private void CursorToStore(Packet packet) {
+  }
+
+  private void SwapStoreItem(Packet packet) {
+  }
+
+  private void BodyToCursor(Packet packet) {
+  }
+
+  private void CursorToBody(Packet packet) {
+  }
+
+  private void SwapBodyItem(Packet packet) {
+  }
+
+  private void BeltToCursor(Packet packet) {
+  }
+
+  private void CursorToBelt(Packet packet) {
+  }
+
+  private void SwapBeltItem(Packet packet) {
   }
 
   static String generateClientName() {
