@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.riiablo.save.CharData;
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
@@ -26,6 +25,7 @@ import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.CharData;
 import com.riiablo.widget.HotkeyButton;
 
 import org.apache.commons.lang3.ArrayUtils;

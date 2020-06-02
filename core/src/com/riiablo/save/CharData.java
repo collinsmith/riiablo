@@ -311,6 +311,10 @@ public class CharData implements ItemController, ItemData.UpdateListener, Pool.P
     return statData;
   }
 
+  public void update() {
+    onUpdated(itemData);
+  }
+
   @Override
   public void onUpdated(ItemData itemData) {
     assert itemData.stats == statData;

@@ -518,6 +518,9 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     charData.getItems().addLocationListener(Riiablo.cursor);
     charData.getMerc().getItems().addLocationListener(Riiablo.cursor);
 
+    // FIXME: #75 Initial CharData update event
+    charData.update();
+
     loadingScreen = new GameLoadingScreen(map, getDependencies());
   }
 
