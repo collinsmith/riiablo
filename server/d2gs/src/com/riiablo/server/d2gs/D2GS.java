@@ -55,10 +55,20 @@ import com.riiablo.map.DT1Loader;
 import com.riiablo.map.Map;
 import com.riiablo.map.MapManager;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.net.packet.d2gs.BeltToCursor;
+import com.riiablo.net.packet.d2gs.BodyToCursor;
 import com.riiablo.net.packet.d2gs.Connection;
+import com.riiablo.net.packet.d2gs.CursorToBelt;
+import com.riiablo.net.packet.d2gs.CursorToBody;
+import com.riiablo.net.packet.d2gs.CursorToGround;
+import com.riiablo.net.packet.d2gs.CursorToStore;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.net.packet.d2gs.DropItem;
+import com.riiablo.net.packet.d2gs.StoreToCursor;
+import com.riiablo.net.packet.d2gs.SwapBeltItem;
+import com.riiablo.net.packet.d2gs.SwapBodyItem;
+import com.riiablo.net.packet.d2gs.SwapStoreItem;
 import com.riiablo.save.CharData;
 import com.riiablo.util.DebugUtils;
 
@@ -168,6 +178,7 @@ public class D2GS extends ApplicationAdapter {
   Map map;
 
   EntityFactory factory;
+  ItemManager itemManager;
   MapManager mapManager;
   NetworkSynchronizer sync;
 
@@ -232,6 +243,7 @@ public class D2GS extends ApplicationAdapter {
     map.finishLoading();
 
     factory = new ServerEntityFactory();
+    itemManager = new ItemManager();
     mapManager = new MapManager();
     sync = new NetworkSynchronizer();
     WorldConfigurationBuilder builder = new WorldConfigurationBuilder()
@@ -239,7 +251,7 @@ public class D2GS extends ApplicationAdapter {
         .with(new ServerNetworkIdManager())
         .with(new SerializationManager())
         .with(mapManager)
-        .with(new ItemManager())
+        .with(itemManager)
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
@@ -543,37 +555,104 @@ public class D2GS extends ApplicationAdapter {
 
   }
 
+  private int getPlayerEntityId(Packet packet) {
+    int entityId = player.get(packet.id, Engine.INVALID_ENTITY);
+    assert entityId != Engine.INVALID_ENTITY;
+    return entityId;
+  }
+
   private void GroundToCursor(Packet packet) {
+// TODO: implement
   }
 
   private void CursorToGround(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    CursorToGround cursorToGround = (CursorToGround) packet.data.data(new CursorToGround());
+    itemManager.cursorToGround(entityId);
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void StoreToCursor(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    StoreToCursor storeToCursor = (StoreToCursor) packet.data.data(new StoreToCursor());
+    itemManager.storeToCursor(entityId, storeToCursor.itemId());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void CursorToStore(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    CursorToStore cursorToStore = (CursorToStore) packet.data.data(new CursorToStore());
+    itemManager.cursorToStore(entityId, cursorToStore.storeLoc(), cursorToStore.x(), cursorToStore.y());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void SwapStoreItem(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    SwapStoreItem swapStoreItem = (SwapStoreItem) packet.data.data(new SwapStoreItem());
+    itemManager.swapStoreItem(entityId, swapStoreItem.itemId(), swapStoreItem.storeLoc(), swapStoreItem.x(), swapStoreItem.y());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void BodyToCursor(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    BodyToCursor bodyToCursor = (BodyToCursor) packet.data.data(new BodyToCursor());
+    itemManager.bodyToCursor(entityId, bodyToCursor.bodyLoc(), bodyToCursor.merc());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void CursorToBody(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    CursorToBody cursorToBody = (CursorToBody) packet.data.data(new CursorToBody());
+    itemManager.cursorToBody(entityId, cursorToBody.bodyLoc(), cursorToBody.merc());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void SwapBodyItem(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    SwapBodyItem swapBodyItem = (SwapBodyItem) packet.data.data(new SwapBodyItem());
+    itemManager.swapBodyItem(entityId, swapBodyItem.bodyLoc(), swapBodyItem.merc());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void BeltToCursor(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    BeltToCursor beltToCursor = (BeltToCursor) packet.data.data(new BeltToCursor());
+    itemManager.beltToCursor(entityId, beltToCursor.itemId());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void CursorToBelt(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    CursorToBelt cursorToBelt = (CursorToBelt) packet.data.data(new CursorToBelt());
+    itemManager.cursorToBelt(entityId, cursorToBelt.x(), cursorToBelt.y());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void SwapBeltItem(Packet packet) {
+    int entityId = getPlayerEntityId(packet);
+    SwapBeltItem swapBeltItem = (SwapBeltItem) packet.data.data(new SwapBeltItem());
+    itemManager.swapBeltItem(entityId, swapBeltItem.itemId());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   static String generateClientName() {

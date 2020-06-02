@@ -11,15 +11,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.riiablo.save.CharData;
 import com.riiablo.Riiablo;
-import com.riiablo.save.D2S;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.CofManager;
+import com.riiablo.engine.server.ItemManager;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.Class;
@@ -34,23 +33,36 @@ import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.item.Item;
 import com.riiablo.map.Map;
 import com.riiablo.net.packet.d2gs.AngleP;
+import com.riiablo.net.packet.d2gs.BeltToCursor;
+import com.riiablo.net.packet.d2gs.BodyToCursor;
 import com.riiablo.net.packet.d2gs.ClassP;
 import com.riiablo.net.packet.d2gs.CofAlphasP;
 import com.riiablo.net.packet.d2gs.CofComponentsP;
 import com.riiablo.net.packet.d2gs.CofTransformsP;
 import com.riiablo.net.packet.d2gs.ComponentP;
 import com.riiablo.net.packet.d2gs.Connection;
+import com.riiablo.net.packet.d2gs.CursorToBelt;
+import com.riiablo.net.packet.d2gs.CursorToBody;
+import com.riiablo.net.packet.d2gs.CursorToGround;
+import com.riiablo.net.packet.d2gs.CursorToStore;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.DS1ObjectWrapperP;
 import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.net.packet.d2gs.EntitySync;
+import com.riiablo.net.packet.d2gs.GroundToCursor;
 import com.riiablo.net.packet.d2gs.ItemP;
 import com.riiablo.net.packet.d2gs.MonsterP;
 import com.riiablo.net.packet.d2gs.PlayerP;
 import com.riiablo.net.packet.d2gs.PositionP;
+import com.riiablo.net.packet.d2gs.StoreToCursor;
+import com.riiablo.net.packet.d2gs.SwapBeltItem;
+import com.riiablo.net.packet.d2gs.SwapBodyItem;
+import com.riiablo.net.packet.d2gs.SwapStoreItem;
 import com.riiablo.net.packet.d2gs.VelocityP;
 import com.riiablo.net.packet.d2gs.WarpP;
+import com.riiablo.save.CharData;
+import com.riiablo.save.D2S;
 import com.riiablo.util.ArrayUtils;
 import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
@@ -84,6 +96,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
   protected CofManager cofs;
   protected NetworkIdManager syncIds;
+  protected ItemManager items;
 
   @Wire(name="client.socket")
   protected Socket socket;
@@ -139,6 +152,39 @@ public class ClientNetworkReceiver extends IntervalSystem {
         break;
       case D2GSData.EntitySync:
         Synchronize(packet);
+        break;
+      case D2GSData.GroundToCursor:
+        GroundToCursor(packet);
+        break;
+      case D2GSData.CursorToGround:
+        CursorToGround(packet);
+        break;
+      case D2GSData.StoreToCursor:
+        StoreToCursor(packet);
+        break;
+      case D2GSData.CursorToStore:
+        CursorToStore(packet);
+        break;
+      case D2GSData.SwapStoreItem:
+        SwapStoreItem(packet);
+        break;
+      case D2GSData.BodyToCursor:
+        BodyToCursor(packet);
+        break;
+      case D2GSData.CursorToBody:
+        CursorToBody(packet);
+        break;
+      case D2GSData.SwapBodyItem:
+        SwapBodyItem(packet);
+        break;
+      case D2GSData.BeltToCursor:
+        BeltToCursor(packet);
+        break;
+      case D2GSData.CursorToBelt:
+        CursorToBelt(packet);
+        break;
+      case D2GSData.SwapBeltItem:
+        SwapBeltItem(packet);
         break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.dataType());
@@ -363,5 +409,60 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
     cofs.updateTransform(entityId, tFlags);
     cofs.updateAlpha(entityId, aFlags);
+  }
+
+  private void GroundToCursor(D2GS packet) {
+    GroundToCursor groundToCursor = (GroundToCursor) packet.data(new GroundToCursor());
+    items.groundToCursor(Riiablo.game.player, groundToCursor.itemId());
+  }
+
+  private void CursorToGround(D2GS packet) {
+    CursorToGround cursorToGround = (CursorToGround) packet.data(new CursorToGround());
+    items.cursorToGround(Riiablo.game.player);
+  }
+
+  private void StoreToCursor(D2GS packet) {
+    StoreToCursor storeToCursor = (StoreToCursor) packet.data(new StoreToCursor());
+    items.storeToCursor(Riiablo.game.player, storeToCursor.itemId());
+  }
+
+  private void CursorToStore(D2GS packet) {
+    CursorToStore cursorToStore = (CursorToStore) packet.data(new CursorToStore());
+    items.cursorToStore(Riiablo.game.player, cursorToStore.storeLoc(), cursorToStore.x(), cursorToStore.y());
+  }
+
+  private void SwapStoreItem(D2GS packet) {
+    SwapStoreItem swapStoreItem = (SwapStoreItem) packet.data(new SwapStoreItem());
+    items.swapStoreItem(Riiablo.game.player, swapStoreItem.itemId(), swapStoreItem.storeLoc(), swapStoreItem.x(), swapStoreItem.y());
+  }
+
+  private void BodyToCursor(D2GS packet) {
+    BodyToCursor bodyToCursor = (BodyToCursor) packet.data(new BodyToCursor());
+    items.bodyToCursor(Riiablo.game.player, bodyToCursor.bodyLoc(), bodyToCursor.merc());
+  }
+
+  private void CursorToBody(D2GS packet) {
+    CursorToBody cursorToBody = (CursorToBody) packet.data(new CursorToBody());
+    items.cursorToBody(Riiablo.game.player, cursorToBody.bodyLoc(), cursorToBody.merc());
+  }
+
+  private void SwapBodyItem(D2GS packet) {
+    SwapBodyItem swapBodyItem = (SwapBodyItem) packet.data(new SwapBodyItem());
+    items.swapBodyItem(Riiablo.game.player, swapBodyItem.bodyLoc(), swapBodyItem.merc());
+  }
+
+  private void BeltToCursor(D2GS packet) {
+    BeltToCursor beltToCursor = (BeltToCursor) packet.data(new BeltToCursor());
+    items.beltToCursor(Riiablo.game.player, beltToCursor.itemId());
+  }
+
+  private void CursorToBelt(D2GS packet) {
+    CursorToBelt cursorToBelt = (CursorToBelt) packet.data(new CursorToBelt());
+    items.cursorToBelt(Riiablo.game.player, cursorToBelt.x(), cursorToBelt.y());
+  }
+
+  private void SwapBeltItem(D2GS packet) {
+    SwapBeltItem swapBeltItem = (SwapBeltItem) packet.data(new SwapBeltItem());
+    items.swapBeltItem(Riiablo.game.player, swapBeltItem.itemId());
   }
 }

@@ -8,8 +8,6 @@ import com.riiablo.save.ItemController;
 
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
-// sends item events
-// receives item events and applies changes
 public class ClientItemManager extends PassiveSystem implements ItemController {
   private static final String TAG = "ClientItemManager";
 
