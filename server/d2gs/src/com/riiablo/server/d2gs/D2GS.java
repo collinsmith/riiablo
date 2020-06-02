@@ -34,6 +34,7 @@ import com.riiablo.engine.server.AIStepper;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ItemInteractor;
+import com.riiablo.engine.server.ItemManager;
 import com.riiablo.engine.server.ObjectInitializer;
 import com.riiablo.engine.server.ObjectInteractor;
 import com.riiablo.engine.server.Pathfinder;
@@ -238,6 +239,7 @@ public class D2GS extends ApplicationAdapter {
         .with(new ServerNetworkIdManager())
         .with(new SerializationManager())
         .with(mapManager)
+        .with(new ItemManager())
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
