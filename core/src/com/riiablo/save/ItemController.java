@@ -1,11 +1,10 @@
 package com.riiablo.save;
 
 import com.riiablo.item.BodyLoc;
-import com.riiablo.item.Item;
 import com.riiablo.item.StoreLoc;
 
 public interface ItemController {
-  void groundToCursor(Item item);
+  void groundToCursor(int entityId);
   void cursorToGround();
   void storeToCursor(int i);
   void cursorToStore(StoreLoc storeLoc, int x, int y);

@@ -65,6 +65,7 @@ import com.riiablo.net.packet.d2gs.CursorToStore;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.net.packet.d2gs.DropItem;
+import com.riiablo.net.packet.d2gs.GroundToCursor;
 import com.riiablo.net.packet.d2gs.StoreToCursor;
 import com.riiablo.net.packet.d2gs.SwapBeltItem;
 import com.riiablo.net.packet.d2gs.SwapBodyItem;
@@ -387,10 +388,10 @@ public class D2GS extends ApplicationAdapter {
         Synchronize(packet);
         break;
       case D2GSData.DropItem:
-        DropItem(packet);
+//        DropItem(packet);
         break;
       case D2GSData.PickupItem:
-        PickupItem(packet);
+//        PickupItem(packet);
         break;
       case D2GSData.GroundToCursor:
         GroundToCursor(packet);
@@ -535,6 +536,7 @@ public class D2GS extends ApplicationAdapter {
     sync.sync(entityId, packet.data);
   }
 
+  @Deprecated
   private void DropItem(Packet packet) {
     int entityId = player.get(packet.id, Engine.INVALID_ENTITY);
     assert entityId != Engine.INVALID_ENTITY;
@@ -551,6 +553,7 @@ public class D2GS extends ApplicationAdapter {
     factory.createItem(item, position);
   }
 
+  @Deprecated
   private void PickupItem(Packet packet) {
 
   }
@@ -562,7 +565,12 @@ public class D2GS extends ApplicationAdapter {
   }
 
   private void GroundToCursor(Packet packet) {
-// TODO: implement
+    int entityId = getPlayerEntityId(packet);
+    GroundToCursor groundToCursor = (GroundToCursor) packet.data.data(new GroundToCursor());
+    itemManager.groundToCursor(entityId, groundToCursor.itemId());
+
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void CursorToGround(Packet packet) {

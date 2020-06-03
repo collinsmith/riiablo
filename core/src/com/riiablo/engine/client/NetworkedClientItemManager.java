@@ -6,7 +6,6 @@ import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.net.Socket;
 import com.riiablo.item.BodyLoc;
-import com.riiablo.item.Item;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.net.packet.d2gs.BeltToCursor;
 import com.riiablo.net.packet.d2gs.BodyToCursor;
@@ -16,6 +15,7 @@ import com.riiablo.net.packet.d2gs.CursorToGround;
 import com.riiablo.net.packet.d2gs.CursorToStore;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
+import com.riiablo.net.packet.d2gs.GroundToCursor;
 import com.riiablo.net.packet.d2gs.StoreToCursor;
 import com.riiablo.net.packet.d2gs.SwapBeltItem;
 import com.riiablo.net.packet.d2gs.SwapBodyItem;
@@ -49,11 +49,10 @@ public class NetworkedClientItemManager extends ClientItemManager {
   }
 
   @Override
-  public void groundToCursor(Item item) {
-// TODO: implement
-//    FlatBufferBuilder builder = obtainBuilder();
-//    int dataOffset = GroundToCursor.createGroundToCursor(builder, 0);
-//    wrapAndSend(builder, D2GSData.GroundToCursor, dataOffset);
+  public void groundToCursor(int entityId) {
+    FlatBufferBuilder builder = obtainBuilder();
+    int dataOffset = GroundToCursor.createGroundToCursor(builder, entityId);
+    wrapAndSend(builder, D2GSData.GroundToCursor, dataOffset);
   }
 
   @Override

@@ -1,6 +1,8 @@
 package com.riiablo.engine.server;
 
+import com.artemis.annotations.Wire;
 import com.riiablo.engine.server.component.Interactable;
+import com.riiablo.save.ItemController;
 
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
@@ -9,9 +11,13 @@ public class ItemInteractor extends PassiveSystem implements Interactable.Intera
 
   protected ItemManager items;
 
+  @Wire(name = "itemController", failOnNull = false)
+  protected ItemController itemController;
+
   @Override
   public void interact(int src, int entity) {
-    items.groundToCursor(src, entity);
-    world.delete(entity);
+    if (itemController != null) {
+      itemController.groundToCursor(entity);
+    }
   }
 }

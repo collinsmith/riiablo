@@ -1,7 +1,5 @@
 package com.riiablo.engine.client;
 
-import com.google.flatbuffers.FlatBufferBuilder;
-
 import com.artemis.Aspect;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
@@ -11,14 +9,12 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.Engine;
-import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.client.component.Hovered;
 import com.riiablo.engine.server.Pathfinder;
 import com.riiablo.engine.server.component.Interactable;
@@ -27,13 +23,7 @@ import com.riiablo.engine.server.component.Target;
 import com.riiablo.item.Item;
 import com.riiablo.map.Map;
 import com.riiablo.map.RenderSystem;
-import com.riiablo.net.packet.d2gs.D2GS;
-import com.riiablo.net.packet.d2gs.D2GSData;
-import com.riiablo.net.packet.d2gs.DropItem;
-
-import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
+import com.riiablo.save.ItemController;
 
 public class CursorMovementSystem extends BaseSystem {
   private static final String TAG = "CursorMovementSystem";
@@ -47,9 +37,6 @@ public class CursorMovementSystem extends BaseSystem {
   protected MenuManager menuManager;
   protected DialogManager dialogManager;
 
-  @Wire(name = "factory")
-  protected EntityFactory factory;
-
   @Wire(name = "iso")
   protected IsometricCamera iso;
 
@@ -62,8 +49,8 @@ public class CursorMovementSystem extends BaseSystem {
   @Wire(name = "scaledStage")
   protected Stage scaledStage;
 
-  @Wire(name = "client.socket", failOnNull = false)
-  protected Socket socket;
+  @Wire(name = "itemController")
+  protected ItemController itemController;
 
   EntitySubscription hoveredSubscriber;
   boolean requireRelease;
@@ -99,27 +86,7 @@ public class CursorMovementSystem extends BaseSystem {
     if (pressed && !requireRelease) {
       Item cursor = Riiablo.cursor.getItem();
       if (cursor != null) {
-        Vector2 position = mPosition.get(src).position;
-        iso.toTile(tmpVec2.set(position));
-
-        Riiablo.charData.cursorToGround();
-        if (socket == null) {
-          factory.createItem(cursor, tmpVec2);
-        } else {
-          FlatBufferBuilder builder = new FlatBufferBuilder(0);
-
-          int dataOffset = DropItem.createDropItem(builder, (int) cursor.id);
-          int root = D2GS.createD2GS(builder, D2GSData.DropItem, dataOffset);
-          D2GS.finishSizePrefixedD2GSBuffer(builder, root);
-
-          try {
-            OutputStream out = socket.getOutputStream();
-            WritableByteChannel channelOut = Channels.newChannel(out);
-            channelOut.write(builder.dataBuffer());
-          } catch (Throwable t) {
-            Gdx.app.error(TAG, t.getMessage(), t);
-          }
-        }
+        itemController.cursorToGround();
         requireRelease = true;
         return;
       }
