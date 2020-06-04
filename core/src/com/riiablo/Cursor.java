@@ -54,7 +54,6 @@ public class Cursor implements ItemData.LocationListener {
   }
 
   public void setCursor(DC dc, Index colormap, int id) {
-    Gdx.app.log(TAG, "setCursor " + dc);
     if (cursor == null) {
       Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
       cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
