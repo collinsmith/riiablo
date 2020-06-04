@@ -337,6 +337,14 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
   private void Synchronize(EntitySync entityData) {
     int entityId = syncIds.get(entityData.entityId());
+    if (entityData.delete()) {
+      if (entityId != Engine.INVALID_ENTITY) {
+        world.delete(entityId);
+      }
+
+      return;
+    }
+
     if (entityId == Engine.INVALID_ENTITY) {
       syncIds.put(entityData.entityId(), entityId = createEntity(entityData));
     }

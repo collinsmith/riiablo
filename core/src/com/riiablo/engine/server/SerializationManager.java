@@ -15,6 +15,7 @@ import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
 import com.riiablo.engine.server.component.CofTransforms;
 import com.riiablo.engine.server.component.DS1ObjectWrapper;
+import com.riiablo.engine.server.component.Deleted;
 import com.riiablo.engine.server.component.Item;
 import com.riiablo.engine.server.component.Monster;
 import com.riiablo.engine.server.component.Player;
@@ -42,6 +43,8 @@ import com.riiablo.net.packet.d2gs.EntitySync;
 
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 public class SerializationManager extends PassiveSystem {
   private static final String TAG = "SerializationManager";
   private static final boolean DEBUG             = true;
@@ -55,6 +58,8 @@ public class SerializationManager extends PassiveSystem {
   private ObjectMap<Class<? extends Component>, FlatBuffersSerializer> serializers;
   private Class<? extends Component>[] deserializers;
   private final EntitySync sync = new EntitySync();
+
+  protected ComponentMapper<Deleted> mDeleted;
 
   protected ComponentMapper<com.riiablo.engine.server.component.Class> mClass;
   protected ComponentMapper<CofComponents> mCofComponents;
@@ -122,6 +127,14 @@ public class SerializationManager extends PassiveSystem {
     components.clear();
 
     int type = mClass.get(entityId).type.ordinal();
+
+    boolean deleted = mDeleted.has(entityId);
+    if (deleted) {
+      int dataTypeOffset = EntitySync.createComponentTypeVector(builder, ArrayUtils.EMPTY_BYTE_ARRAY);
+      int dataOffset = EntitySync.createComponentVector(builder, ArrayUtils.EMPTY_INT_ARRAY);
+      return EntitySync.createEntitySync(builder, entityId, type, deleted, dataTypeOffset, dataOffset);
+    }
+
     componentManager.getComponentsFor(entityId, components);
     for (Component c : components) {
       FlatBuffersSerializer serializer = serializers.get(c.getClass());
@@ -144,7 +157,7 @@ public class SerializationManager extends PassiveSystem {
     for (int i = 0; i < dataSize; i++) builder.addOffset(data[i]);
     int dataOffset = builder.endVector();
 
-    return EntitySync.createEntitySync(builder, entityId, type, dataTypeOffset, dataOffset);
+    return EntitySync.createEntitySync(builder, entityId, type, deleted, dataTypeOffset, dataOffset);
   }
 
   public void deserialize(int entityId, D2GS packet) {

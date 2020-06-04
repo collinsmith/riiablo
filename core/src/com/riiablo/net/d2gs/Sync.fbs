@@ -18,6 +18,7 @@ union ComponentP {
 table EntitySync {
   entityId:int32;
   type:uint8;
+  delete:bool = false;
   component:[ComponentP];
 }
 

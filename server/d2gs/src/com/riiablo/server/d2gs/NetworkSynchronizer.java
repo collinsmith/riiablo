@@ -3,12 +3,15 @@ package com.riiablo.server.d2gs;
 import com.google.flatbuffers.FlatBufferBuilder;
 
 import com.artemis.BaseEntitySystem;
+import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.engine.server.SerializationManager;
+import com.riiablo.engine.server.component.Class;
+import com.riiablo.engine.server.component.Deleted;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
@@ -27,9 +30,26 @@ public class NetworkSynchronizer extends BaseEntitySystem {
   @Wire(name = "player")
   protected IntIntMap players;
 
+  protected ComponentMapper<Class> mClass;
+  protected ComponentMapper<Deleted> mDeleted;
+
   @Override
   protected boolean checkProcessing() {
     return players.size > 0;
+  }
+
+  // FIXME: this assumes that removing Networked component implies deletion -- may not always be case
+  @Override
+  protected void removed(int entityId) {
+    Class.Type type = mClass.get(entityId).type;
+    switch (type) {
+      case PLR:
+        // TODO: handled by disconnection packet, need to handle here also
+        break;
+      default:
+        mDeleted.create(entityId);
+        process(entityId);
+    }
   }
 
   @Override
