@@ -193,6 +193,7 @@ public class ClientEntityFactory extends ServerEntityFactory {
      *        animations finish -- is this expected? or some issue with offsets? It's happening with
      *        runes -- but keys are placed correctly and other items I've tried look fine.
      */
+    itemWrapper.item.load();
     return id;
   }
 
