@@ -2,9 +2,11 @@ package com.riiablo.engine.client;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 
+import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.net.Socket;
+import com.riiablo.engine.server.component.Networked;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.net.packet.d2gs.BeltToCursor;
@@ -28,6 +30,8 @@ import java.nio.channels.WritableByteChannel;
 public class NetworkedClientItemManager extends ClientItemManager {
   private static final String TAG = "NetworkedClientItemManager";
 
+  protected ComponentMapper<Networked> mNetworked;
+
   @Wire(name = "client.socket")
   protected Socket socket;
 
@@ -50,8 +54,9 @@ public class NetworkedClientItemManager extends ClientItemManager {
 
   @Override
   public void groundToCursor(int entityId) {
+    int serverId = mNetworked.get(entityId).serverId;
     FlatBufferBuilder builder = obtainBuilder();
-    int dataOffset = GroundToCursor.createGroundToCursor(builder, entityId);
+    int dataOffset = GroundToCursor.createGroundToCursor(builder, serverId);
     wrapAndSend(builder, D2GSData.GroundToCursor, dataOffset);
   }
 

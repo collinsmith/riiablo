@@ -83,7 +83,6 @@ public class ClientNetworkReceiver extends IntervalSystem {
   private static final boolean DEBUG_PACKET  = DEBUG && !true;
   private static final boolean DEBUG_SYNC    = DEBUG && !true;
 
-//  protected ComponentMapper<Networked> mNetworked;
   protected ComponentMapper<CofReference> mCofReference;
   protected ComponentMapper<CofComponents> mCofComponents;
   protected ComponentMapper<CofTransforms> mCofTransforms;
@@ -422,7 +421,8 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
   private void GroundToCursor(D2GS packet) {
     GroundToCursor groundToCursor = (GroundToCursor) packet.data(new GroundToCursor());
-    items.groundToCursor(Riiablo.game.player, groundToCursor.itemId());
+    int entityId = syncIds.get(groundToCursor.itemId());
+    items.groundToCursor(Riiablo.game.player, entityId);
   }
 
   private void CursorToGround(D2GS packet) {
