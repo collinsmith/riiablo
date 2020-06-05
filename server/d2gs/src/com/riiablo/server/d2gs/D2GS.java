@@ -41,6 +41,7 @@ import com.riiablo.engine.server.ObjectInteractor;
 import com.riiablo.engine.server.Pathfinder;
 import com.riiablo.engine.server.SerializationManager;
 import com.riiablo.engine.server.ServerEntityFactory;
+import com.riiablo.engine.server.ServerItemManager;
 import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.VelocityAdder;
 import com.riiablo.engine.server.WarpInteractor;
@@ -250,7 +251,7 @@ public class D2GS extends ApplicationAdapter {
     map.finishLoading();
 
     factory = new ServerEntityFactory();
-    itemManager = new ItemManager();
+    itemManager = new ServerItemManager();
     mapManager = new MapManager();
     sync = new NetworkSynchronizer();
     WorldConfigurationBuilder builder = new WorldConfigurationBuilder()
