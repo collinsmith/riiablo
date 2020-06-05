@@ -693,6 +693,7 @@ public class D2GS extends ApplicationAdapter {
     }
 
     public void send(Packet packet) throws IOException {
+      if (!socket.isConnected()) return;
       WritableByteChannel out = Channels.newChannel(socket.getOutputStream());
       packet.buffer.mark();
       out.write(packet.buffer);
