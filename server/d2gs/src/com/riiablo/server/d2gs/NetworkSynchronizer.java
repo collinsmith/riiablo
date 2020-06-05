@@ -22,6 +22,9 @@ import java.util.concurrent.BlockingQueue;
 public class NetworkSynchronizer extends BaseEntitySystem {
   private static final String TAG = "NetworkSynchronizer";
 
+  private static final boolean DEBUG      = true;
+  private static final boolean DEBUG_SYNC = DEBUG && !true;
+
   protected SerializationManager serializer;
 
   @Wire(name = "outPackets")
@@ -77,7 +80,7 @@ public class NetworkSynchronizer extends BaseEntitySystem {
   }
 
   public void sync(int entityId, D2GS packet) {
-    Gdx.app.log(TAG, "syncing " + entityId);
+    if (DEBUG_SYNC) Gdx.app.log(TAG, "syncing " + entityId);
     serializer.deserialize(entityId, packet);
   }
 }

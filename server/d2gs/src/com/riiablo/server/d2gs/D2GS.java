@@ -6,6 +6,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
+import com.artemis.utils.BitVector;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -100,6 +101,11 @@ import java.util.concurrent.TimeUnit;
 public class D2GS extends ApplicationAdapter {
   private static final String TAG = "D2GS";
 
+  private static final boolean DEBUG                  = true;
+  private static final boolean DEBUG_RECEIVED_CACHE   = DEBUG && !true;
+  private static final boolean DEBUG_RECEIVED_PACKETS = DEBUG && true;
+  private static final boolean DEBUG_SENT_PACKETS     = DEBUG && true;
+
   private static final int PORT = 6114;
   private static final int MAX_CLIENTS = Riiablo.MAX_PLAYERS;
 
@@ -170,6 +176,10 @@ public class D2GS extends ApplicationAdapter {
   final Collection<Packet> cache = new ArrayList<>(1024);
   final BlockingQueue<Packet> outPackets = new ArrayBlockingQueue<>(1024);
   final IntIntMap player = new IntIntMap();
+
+  static final BitVector ignoredPackets = new BitVector(D2GSData.names.length); {
+    ignoredPackets.set(D2GSData.EntitySync);
+  }
 
   FileHandle home;
   int seed;
@@ -352,9 +362,9 @@ public class D2GS extends ApplicationAdapter {
   public void render() {
     cache.clear();
     int cached = packets.drainTo(cache);
-    if (cached > 0) Gdx.app.log(TAG, "processing " + cached + " packets");
+    if (DEBUG_RECEIVED_CACHE && cached > 0) Gdx.app.log(TAG, "processing " + cached + " packets");
     for (Packet packet : cache) {
-      Gdx.app.log(TAG, "processing packet from " + packet.id);
+      if (DEBUG_RECEIVED_PACKETS && !ignoredPackets.get(packet.data.dataType())) Gdx.app.log(TAG, "processing " + D2GSData.name(packet.data.dataType()) + " packet from " + packet.id);
       process(packet);
     }
 
@@ -363,13 +373,13 @@ public class D2GS extends ApplicationAdapter {
     cache.clear();
     outPackets.drainTo(cache);
     for (Packet packet : cache) {
-      Gdx.app.log(TAG, "dispatching " + D2GSData.name(packet.data.dataType()) + " packet to " + String.format("0x%08X", packet.id));
+      if (DEBUG_SENT_PACKETS && !ignoredPackets.get(packet.data.dataType())) Gdx.app.log(TAG, "dispatching " + D2GSData.name(packet.data.dataType()) + " packet to " + String.format("0x%08X", packet.id));
       for (int i = 0, flag = 1; i < MAX_CLIENTS; i++, flag <<= 1) {
         if ((packet.id & flag) == flag && ((connected & flag) == flag || packet.data.dataType() == D2GSData.Connection)) {
           Client client = clients[i];
           if (client == null) continue;
           try {
-            System.out.println("  dispatching packet to " + i);
+            if (DEBUG_SENT_PACKETS && !ignoredPackets.get(packet.data.dataType())) Gdx.app.log(TAG, "  dispatching packet to " + i);
             client.send(packet);
           } catch (Throwable t) {
             Gdx.app.error(TAG, t.getMessage(), t);
@@ -708,7 +718,7 @@ public class D2GS extends ApplicationAdapter {
 
           ByteBuffer copy = (ByteBuffer) ByteBuffer.wrap(new byte[buffer.limit()]).put(buffer).rewind();
           Packet packet = Packet.obtain(id, copy);
-          Gdx.app.log(TAG, "received " + D2GSData.name(packet.data.dataType()) + " packet from " + socket.getRemoteAddress());
+          if (DEBUG_RECEIVED_PACKETS && !ignoredPackets.get(packet.data.dataType())) Gdx.app.log(TAG, "received " + D2GSData.name(packet.data.dataType()) + " packet from " + socket.getRemoteAddress());
           boolean success = packets.offer(packet, 5, TimeUnit.MILLISECONDS);
           if (!success) {
             Gdx.app.log(TAG, "failed to add to queue -- closing " + socket.getRemoteAddress());
