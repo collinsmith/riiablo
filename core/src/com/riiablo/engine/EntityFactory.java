@@ -11,6 +11,7 @@ import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.Classname;
 import com.riiablo.engine.server.component.CofReference;
 import com.riiablo.engine.server.component.DS1ObjectWrapper;
+import com.riiablo.engine.server.component.Flags;
 import com.riiablo.engine.server.component.PathWrapper;
 import com.riiablo.item.Item;
 import com.riiablo.map.DS1;
@@ -24,6 +25,7 @@ public abstract class EntityFactory extends PassiveSystem {
 
   protected ComponentMapper<Class> mClass;
   protected ComponentMapper<Classname> mClassname;
+  protected ComponentMapper<Flags> mFlags;
   protected ComponentMapper<CofReference> mCofReference;
   protected ComponentMapper<DS1ObjectWrapper> mDS1ObjectWrapper;
   protected ComponentMapper<PathWrapper> mPathWrapper;
@@ -37,6 +39,7 @@ public abstract class EntityFactory extends PassiveSystem {
     int id = world.create();
     mClass.create(id).type = type;
     mClassname.create(id).classname = classname;
+    mFlags.create(id).flags = 0;
     return id;
   }
 

@@ -49,6 +49,7 @@ import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.DS1ObjectWrapperP;
 import com.riiablo.net.packet.d2gs.Disconnect;
+import com.riiablo.net.packet.d2gs.EntityFlags;
 import com.riiablo.net.packet.d2gs.EntitySync;
 import com.riiablo.net.packet.d2gs.GroundToCursor;
 import com.riiablo.net.packet.d2gs.ItemP;
@@ -337,7 +338,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
   private void Synchronize(EntitySync entityData) {
     int entityId = syncIds.get(entityData.entityId());
-    if (entityData.delete()) {
+    if ((entityData.flags() & EntityFlags.deleted) == EntityFlags.deleted) {
       if (entityId != Engine.INVALID_ENTITY) {
         world.delete(entityId);
       }

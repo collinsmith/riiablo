@@ -11,10 +11,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.riiablo.engine.server.SerializationManager;
 import com.riiablo.engine.server.component.Class;
-import com.riiablo.engine.server.component.Deleted;
+import com.riiablo.engine.server.component.Flags;
 import com.riiablo.engine.server.component.Networked;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
+import com.riiablo.net.packet.d2gs.EntityFlags;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -34,7 +35,7 @@ public class NetworkSynchronizer extends BaseEntitySystem {
   protected IntIntMap players;
 
   protected ComponentMapper<Class> mClass;
-  protected ComponentMapper<Deleted> mDeleted;
+  protected ComponentMapper<Flags> mFlags;
 
   @Override
   protected boolean checkProcessing() {
@@ -50,7 +51,7 @@ public class NetworkSynchronizer extends BaseEntitySystem {
         // TODO: handled by disconnection packet, need to handle here also
         break;
       default:
-        mDeleted.create(entityId);
+        mFlags.get(entityId).flags |= EntityFlags.deleted;
         process(entityId);
     }
   }

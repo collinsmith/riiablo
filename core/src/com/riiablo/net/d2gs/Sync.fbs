@@ -15,10 +15,14 @@ union ComponentP {
   ItemP,
 }
 
+enum EntityFlags:uint8 (bit_flags) {
+  deleted,
+}
+
 table EntitySync {
   entityId:int32;
   type:uint8;
-  delete:bool = false;
+  flags:EntityFlags;
   component:[ComponentP];
 }
 

@@ -17,7 +17,7 @@ public final class EntitySync extends Table {
 
   public int entityId() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int type() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
-  public boolean delete() { int o = __offset(8); return o != 0 ? 0!=bb.get(o + bb_pos) : false; }
+  public int flags() { int o = __offset(8); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
   public byte componentType(int j) { int o = __offset(10); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
   public int componentTypeLength() { int o = __offset(10); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer componentTypeAsByteBuffer() { return __vector_as_bytebuffer(10, 1); }
@@ -28,14 +28,14 @@ public final class EntitySync extends Table {
   public static int createEntitySync(FlatBufferBuilder builder,
       int entityId,
       int type,
-      boolean delete,
+      int flags,
       int component_typeOffset,
       int componentOffset) {
     builder.startObject(5);
     EntitySync.addComponent(builder, componentOffset);
     EntitySync.addComponentType(builder, component_typeOffset);
     EntitySync.addEntityId(builder, entityId);
-    EntitySync.addDelete(builder, delete);
+    EntitySync.addFlags(builder, flags);
     EntitySync.addType(builder, type);
     return EntitySync.endEntitySync(builder);
   }
@@ -43,7 +43,7 @@ public final class EntitySync extends Table {
   public static void startEntitySync(FlatBufferBuilder builder) { builder.startObject(5); }
   public static void addEntityId(FlatBufferBuilder builder, int entityId) { builder.addInt(0, entityId, 0); }
   public static void addType(FlatBufferBuilder builder, int type) { builder.addByte(1, (byte)type, (byte)0); }
-  public static void addDelete(FlatBufferBuilder builder, boolean delete) { builder.addBoolean(2, delete, false); }
+  public static void addFlags(FlatBufferBuilder builder, int flags) { builder.addByte(2, (byte)flags, (byte)0); }
   public static void addComponentType(FlatBufferBuilder builder, int componentTypeOffset) { builder.addOffset(3, componentTypeOffset, 0); }
   public static int createComponentTypeVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
   public static void startComponentTypeVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
