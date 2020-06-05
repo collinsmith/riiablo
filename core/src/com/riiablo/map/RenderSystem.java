@@ -35,6 +35,7 @@ import com.riiablo.engine.server.component.AnimData;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.Classname;
 import com.riiablo.engine.server.component.CofReference;
+import com.riiablo.engine.server.component.Networked;
 import com.riiablo.engine.server.component.Object;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.graphics.BlendMode;
@@ -106,6 +107,7 @@ public class RenderSystem extends BaseEntitySystem {
 //  // DEBUG
   protected ComponentMapper<Classname> mClassname;
   protected ComponentMapper<Class> mClass;
+  protected ComponentMapper<Networked> mNetworked;
   protected ComponentMapper<BBoxWrapper> mBBoxWrapper;
   protected ComponentMapper<Angle> mAngle;
   protected ComponentMapper<Selectable> mSelectable;
@@ -1357,6 +1359,18 @@ public class RenderSystem extends BaseEntitySystem {
           if ((stx <= position.x && position.x < stx + Tile.SUBTILE_SIZE)
            && (sty <= position.y && position.y < sty + Tile.SUBTILE_SIZE)) {
             builder.setLength(0);
+
+            builder.append(id);
+            Networked networked = mNetworked.get(id);
+            if (networked != null) {
+              builder
+                  .append(' ')
+                  .append('(')
+                  .append(networked.serverId)
+                  .append(')');
+            }
+            builder.append('\n');
+
             builder.append(mClassname.get(id).classname).append('\n');
 
             Class.Type type = mClass.get(id).type;
