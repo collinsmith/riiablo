@@ -1,8 +1,0 @@
-namespace com.riiablo.net.packet.d2gs;
-
-table PickupItem {
-  // request
-  itemId:int32;
-
-  // response
-}

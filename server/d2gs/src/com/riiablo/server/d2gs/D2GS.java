@@ -45,9 +45,6 @@ import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.VelocityAdder;
 import com.riiablo.engine.server.WarpInteractor;
 import com.riiablo.engine.server.component.Networked;
-import com.riiablo.engine.server.component.Player;
-import com.riiablo.engine.server.component.Position;
-import com.riiablo.item.Item;
 import com.riiablo.map.Act1MapBuilder;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
@@ -65,7 +62,6 @@ import com.riiablo.net.packet.d2gs.CursorToGround;
 import com.riiablo.net.packet.d2gs.CursorToStore;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
-import com.riiablo.net.packet.d2gs.DropItem;
 import com.riiablo.net.packet.d2gs.GroundToCursor;
 import com.riiablo.net.packet.d2gs.StoreToCursor;
 import com.riiablo.net.packet.d2gs.SwapBeltItem;
@@ -397,12 +393,6 @@ public class D2GS extends ApplicationAdapter {
       case D2GSData.EntitySync:
         Synchronize(packet);
         break;
-      case D2GSData.DropItem:
-//        DropItem(packet);
-        break;
-      case D2GSData.PickupItem:
-//        PickupItem(packet);
-        break;
       case D2GSData.GroundToCursor:
         GroundToCursor(packet);
         break;
@@ -544,28 +534,6 @@ public class D2GS extends ApplicationAdapter {
     int entityId = player.get(packet.id, Engine.INVALID_ENTITY);
     assert entityId != Engine.INVALID_ENTITY;
     sync.sync(entityId, packet.data);
-  }
-
-  @Deprecated
-  private void DropItem(Packet packet) {
-    int entityId = player.get(packet.id, Engine.INVALID_ENTITY);
-    assert entityId != Engine.INVALID_ENTITY;
-
-    DropItem dropItem = (DropItem) packet.data.data(new DropItem());
-    int itemId = dropItem.itemId();
-
-    Player player = world.getMapper(Player.class).get(entityId);
-    CharData charData = player.data;
-    Item item = charData.getItems().remove(itemId);
-
-    assert item != null;
-    Vector2 position = world.getMapper(Position.class).get(entityId).position;
-    factory.createItem(item, position);
-  }
-
-  @Deprecated
-  private void PickupItem(Packet packet) {
-
   }
 
   private int getPlayerEntityId(Packet packet) {
