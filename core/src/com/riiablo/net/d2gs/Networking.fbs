@@ -23,7 +23,8 @@ table Disconnect {
 table Ping {
   // request
   tickCount:int32;
-  time:int64;
+  sendTime:int64;
+  processTime:int64;
 
   // response
 }

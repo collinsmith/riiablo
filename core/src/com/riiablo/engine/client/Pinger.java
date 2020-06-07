@@ -1,21 +1,22 @@
 package com.riiablo.engine.client;
 
 import com.google.flatbuffers.FlatBufferBuilder;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.TimeUtils;
+
 import com.riiablo.Riiablo;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Ping;
-
-import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 
 @All
 public class Pinger extends IntervalSystem {
@@ -40,7 +41,7 @@ public class Pinger extends IntervalSystem {
   @Override
   protected void processSystem() {
     FlatBufferBuilder builder = new FlatBufferBuilder(0);
-    int dataOffset = Ping.createPing(builder, tick++, TimeUtils.millis());
+    int dataOffset = Ping.createPing(builder, tick++, TimeUtils.millis(), 0);
     int root = D2GS.createD2GS(builder, D2GSData.Ping, dataOffset);
     D2GS.finishSizePrefixedD2GSBuffer(builder, root);
 
@@ -54,6 +55,6 @@ public class Pinger extends IntervalSystem {
   }
 
   public void Ping(Ping packet) {
-    Riiablo.ping = TimeUtils.timeSinceMillis(packet.time());
+    Riiablo.ping = TimeUtils.millis() - packet.sendTime() - packet.processTime();
   }
 }

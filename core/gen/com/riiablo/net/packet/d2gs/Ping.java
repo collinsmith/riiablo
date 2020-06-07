@@ -15,20 +15,24 @@ public final class Ping extends Table {
   public Ping __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int tickCount() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public long time() { int o = __offset(6); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
+  public long sendTime() { int o = __offset(6); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
+  public long processTime() { int o = __offset(8); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
 
   public static int createPing(FlatBufferBuilder builder,
       int tickCount,
-      long time) {
-    builder.startObject(2);
-    Ping.addTime(builder, time);
+      long sendTime,
+      long processTime) {
+    builder.startObject(3);
+    Ping.addProcessTime(builder, processTime);
+    Ping.addSendTime(builder, sendTime);
     Ping.addTickCount(builder, tickCount);
     return Ping.endPing(builder);
   }
 
-  public static void startPing(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startPing(FlatBufferBuilder builder) { builder.startObject(3); }
   public static void addTickCount(FlatBufferBuilder builder, int tickCount) { builder.addInt(0, tickCount, 0); }
-  public static void addTime(FlatBufferBuilder builder, long time) { builder.addLong(1, time, 0L); }
+  public static void addSendTime(FlatBufferBuilder builder, long sendTime) { builder.addLong(1, sendTime, 0L); }
+  public static void addProcessTime(FlatBufferBuilder builder, long processTime) { builder.addLong(2, processTime, 0L); }
   public static int endPing(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

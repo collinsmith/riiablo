@@ -1,12 +1,34 @@
 package com.riiablo.server.d2gs;
 
 import com.google.flatbuffers.FlatBufferBuilder;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
 import com.artemis.utils.BitVector;
+import net.mostlyoriginal.api.event.common.EventSystem;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -22,6 +44,7 @@ import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.TimeUtils;
+
 import com.riiablo.COFs;
 import com.riiablo.Files;
 import com.riiablo.Riiablo;
@@ -64,36 +87,13 @@ import com.riiablo.net.packet.d2gs.CursorToStore;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Disconnect;
 import com.riiablo.net.packet.d2gs.GroundToCursor;
+import com.riiablo.net.packet.d2gs.Ping;
 import com.riiablo.net.packet.d2gs.StoreToCursor;
 import com.riiablo.net.packet.d2gs.SwapBeltItem;
 import com.riiablo.net.packet.d2gs.SwapBodyItem;
 import com.riiablo.net.packet.d2gs.SwapStoreItem;
 import com.riiablo.save.CharData;
 import com.riiablo.util.DebugUtils;
-
-import net.mostlyoriginal.api.event.common.EventSystem;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class D2GS extends ApplicationAdapter {
   private static final String TAG = "D2GS";
@@ -535,9 +535,13 @@ public class D2GS extends ApplicationAdapter {
   }
 
   private void Ping(Packet packet) {
-//    Ping ping = (Ping) packet.data.data(new Ping());
-    packet.id = (1 << packet.id);
-    outPackets.offer(packet);
+    Ping ping = (Ping) packet.data.data(new Ping());
+    FlatBufferBuilder builder = new FlatBufferBuilder(0);
+    int dataOffset = Ping.createPing(builder, ping.tickCount(), ping.sendTime(), TimeUtils.millis() - packet.time);
+    int root = com.riiablo.net.packet.d2gs.D2GS.createD2GS(builder, D2GSData.Ping, dataOffset);
+    com.riiablo.net.packet.d2gs.D2GS.finishSizePrefixedD2GSBuffer(builder, root);
+    Packet response = Packet.obtain(1 << packet.id, builder.dataBuffer());
+    outPackets.offer(response);
   }
 
   private void Synchronize(Packet packet) {
