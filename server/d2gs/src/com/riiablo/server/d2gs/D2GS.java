@@ -427,6 +427,9 @@ public class D2GS extends ApplicationAdapter {
       case D2GSData.SwapBeltItem:
         SwapBeltItem(packet);
         break;
+      case D2GSData.Ping:
+        Ping(packet);
+        break;
       default:
         Gdx.app.error(TAG, "Unknown packet type: " + packet.data.dataType());
     }
@@ -529,6 +532,12 @@ public class D2GS extends ApplicationAdapter {
       numClients--;
       connected &= ~(1 << id);
     }
+  }
+
+  private void Ping(Packet packet) {
+//    Ping ping = (Ping) packet.data.data(new Ping());
+    packet.id = (1 << packet.id);
+    outPackets.offer(packet);
   }
 
   private void Synchronize(Packet packet) {

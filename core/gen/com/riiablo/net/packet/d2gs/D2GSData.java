@@ -11,20 +11,21 @@ public final class D2GSData {
   public static final byte RunToEntity = 4;
   public static final byte Connection = 5;
   public static final byte Disconnect = 6;
-  public static final byte EntitySync = 7;
-  public static final byte GroundToCursor = 8;
-  public static final byte CursorToGround = 9;
-  public static final byte StoreToCursor = 10;
-  public static final byte CursorToStore = 11;
-  public static final byte SwapStoreItem = 12;
-  public static final byte BodyToCursor = 13;
-  public static final byte CursorToBody = 14;
-  public static final byte SwapBodyItem = 15;
-  public static final byte BeltToCursor = 16;
-  public static final byte CursorToBelt = 17;
-  public static final byte SwapBeltItem = 18;
+  public static final byte Ping = 7;
+  public static final byte EntitySync = 8;
+  public static final byte GroundToCursor = 9;
+  public static final byte CursorToGround = 10;
+  public static final byte StoreToCursor = 11;
+  public static final byte CursorToStore = 12;
+  public static final byte SwapStoreItem = 13;
+  public static final byte BodyToCursor = 14;
+  public static final byte CursorToBody = 15;
+  public static final byte SwapBodyItem = 16;
+  public static final byte BeltToCursor = 17;
+  public static final byte CursorToBelt = 18;
+  public static final byte SwapBeltItem = 19;
 
-  public static final String[] names = { "NONE", "WalkToLocation", "WalkToEntity", "RunToLocation", "RunToEntity", "Connection", "Disconnect", "EntitySync", "GroundToCursor", "CursorToGround", "StoreToCursor", "CursorToStore", "SwapStoreItem", "BodyToCursor", "CursorToBody", "SwapBodyItem", "BeltToCursor", "CursorToBelt", "SwapBeltItem", };
+  public static final String[] names = { "NONE", "WalkToLocation", "WalkToEntity", "RunToLocation", "RunToEntity", "Connection", "Disconnect", "Ping", "EntitySync", "GroundToCursor", "CursorToGround", "StoreToCursor", "CursorToStore", "SwapStoreItem", "BodyToCursor", "CursorToBody", "SwapBodyItem", "BeltToCursor", "CursorToBelt", "SwapBeltItem", };
 
   public static String name(int e) { return names[e]; }
 }

@@ -19,3 +19,11 @@ table Disconnect {
 
   // response
 }
+
+table Ping {
+  // request
+  tickCount:int32;
+  time:int64;
+
+  // response
+}

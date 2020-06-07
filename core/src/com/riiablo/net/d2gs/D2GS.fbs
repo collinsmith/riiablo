@@ -12,6 +12,7 @@ union D2GSData {
   RunToEntity,
   Connection,
   Disconnect,
+  Ping,
   EntitySync,
   GroundToCursor,
   CursorToGround,

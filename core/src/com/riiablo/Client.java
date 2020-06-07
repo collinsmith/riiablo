@@ -441,7 +441,12 @@ public class Client extends Game {
     BitmapFont font = console.getFont();
     if (font == null) return;
 
-    fps.setText(font, Integer.toString(Gdx.graphics.getFramesPerSecond()));
+    StringBuilder builder = new StringBuilder(64);
+    builder
+        .append(Gdx.graphics.getFramesPerSecond())
+        .append('\n').append(Riiablo.ping).append(" ms")
+        ;
+    fps.setText(font, builder.toString());
     int drawFpsMethod = this.drawFpsMethod;
     if (forceDrawFps && drawFpsMethod == FPS_NONE) {
       drawFpsMethod = FPS_TOPLEFT;

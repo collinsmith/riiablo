@@ -54,6 +54,7 @@ import com.riiablo.net.packet.d2gs.EntitySync;
 import com.riiablo.net.packet.d2gs.GroundToCursor;
 import com.riiablo.net.packet.d2gs.ItemP;
 import com.riiablo.net.packet.d2gs.MonsterP;
+import com.riiablo.net.packet.d2gs.Ping;
 import com.riiablo.net.packet.d2gs.PlayerP;
 import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.StoreToCursor;
@@ -97,6 +98,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
   protected CofManager cofs;
   protected NetworkIdManager syncIds;
   protected ItemManager items;
+  protected Pinger pinger;
 
   @Wire(name="client.socket")
   protected Socket socket;
@@ -149,6 +151,9 @@ public class ClientNetworkReceiver extends IntervalSystem {
         break;
       case D2GSData.Disconnect:
         Disconnect(packet);
+        break;
+      case D2GSData.Ping:
+        pinger.Ping((Ping) packet.data(new Ping()));
         break;
       case D2GSData.EntitySync:
         Synchronize(packet);
