@@ -14,21 +14,21 @@ public final class WalkToEntity extends Table {
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public WalkToEntity __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public int type() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int id() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
+  public int entityId() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createWalkToEntity(FlatBufferBuilder builder,
       int type,
-      int id) {
+      int entityId) {
     builder.startObject(2);
-    WalkToEntity.addId(builder, id);
+    WalkToEntity.addEntityId(builder, entityId);
     WalkToEntity.addType(builder, type);
     return WalkToEntity.endWalkToEntity(builder);
   }
 
   public static void startWalkToEntity(FlatBufferBuilder builder) { builder.startObject(2); }
-  public static void addType(FlatBufferBuilder builder, int type) { builder.addInt(0, type, 0); }
-  public static void addId(FlatBufferBuilder builder, int id) { builder.addInt(1, id, 0); }
+  public static void addType(FlatBufferBuilder builder, int type) { builder.addByte(0, (byte)type, (byte)0); }
+  public static void addEntityId(FlatBufferBuilder builder, int entityId) { builder.addInt(1, entityId, 0); }
   public static int endWalkToEntity(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

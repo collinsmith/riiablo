@@ -1,6 +1,0 @@
-namespace com.riiablo.net.packet.d2gs;
-
-table RunToLocation {
-  x:int16;
-  y:int16;
-}

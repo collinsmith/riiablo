@@ -1,9 +1,6 @@
-include "WalkToLocation.fbs";
-include "WalkToEntity.fbs";
-include "RunToLocation.fbs";
-include "RunToEntity.fbs";
 include "Connection.fbs";
 include "Disconnect.fbs";
+include "PlayerController.fbs";
 include "Sync.fbs";
 include "ItemManagement.fbs";
 

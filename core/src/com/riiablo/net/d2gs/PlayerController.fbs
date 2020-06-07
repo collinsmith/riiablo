@@ -1,0 +1,33 @@
+namespace com.riiablo.net.packet.d2gs;
+
+table WalkToLocation {
+  // request
+  x:int16;
+  y:int16;
+
+  // response
+}
+
+table WalkToEntity {
+  // request
+  type:uint8;
+  entityId:int32;
+
+  // response
+}
+
+table RunToLocation {
+  // request
+  x:int16;
+  y:int16;
+
+  // response
+}
+
+table RunToEntity {
+  // request
+  type:uint8;
+  entityId:int32;
+
+  // response
+}
