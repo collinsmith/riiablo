@@ -10,8 +10,8 @@ public final class D2GSData {
   public static final byte RunToLocation = 3;
   public static final byte RunToEntity = 4;
   public static final byte Connection = 5;
-  public static final byte EntitySync = 6;
-  public static final byte Disconnect = 7;
+  public static final byte Disconnect = 6;
+  public static final byte EntitySync = 7;
   public static final byte GroundToCursor = 8;
   public static final byte CursorToGround = 9;
   public static final byte StoreToCursor = 10;
@@ -24,7 +24,7 @@ public final class D2GSData {
   public static final byte CursorToBelt = 17;
   public static final byte SwapBeltItem = 18;
 
-  public static final String[] names = { "NONE", "WalkToLocation", "WalkToEntity", "RunToLocation", "RunToEntity", "Connection", "EntitySync", "Disconnect", "GroundToCursor", "CursorToGround", "StoreToCursor", "CursorToStore", "SwapStoreItem", "BodyToCursor", "CursorToBody", "SwapBodyItem", "BeltToCursor", "CursorToBelt", "SwapBeltItem", };
+  public static final String[] names = { "NONE", "WalkToLocation", "WalkToEntity", "RunToLocation", "RunToEntity", "Connection", "Disconnect", "EntitySync", "GroundToCursor", "CursorToGround", "StoreToCursor", "CursorToStore", "SwapStoreItem", "BodyToCursor", "CursorToBody", "SwapBodyItem", "BeltToCursor", "CursorToBelt", "SwapBeltItem", };
 
   public static String name(int e) { return names[e]; }
 }

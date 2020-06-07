@@ -12,3 +12,10 @@ table Connection {
   // response
   entityId:int32;
 }
+
+table Disconnect {
+  // request
+  entityId:int32;
+
+  // response
+}

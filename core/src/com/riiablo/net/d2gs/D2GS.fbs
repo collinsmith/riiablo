@@ -1,5 +1,4 @@
-include "Connection.fbs";
-include "Disconnect.fbs";
+include "Networking.fbs";
 include "PlayerController.fbs";
 include "Sync.fbs";
 include "ItemManagement.fbs";
@@ -12,8 +11,8 @@ union D2GSData {
   RunToLocation,
   RunToEntity,
   Connection,
-  EntitySync,
   Disconnect,
+  EntitySync,
   GroundToCursor,
   CursorToGround,
   StoreToCursor,

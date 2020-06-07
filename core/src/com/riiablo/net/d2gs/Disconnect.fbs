@@ -1,8 +1,0 @@
-namespace com.riiablo.net.packet.d2gs;
-
-table Disconnect {
-  // request
-  entityId:int32;
-
-  // response
-}
