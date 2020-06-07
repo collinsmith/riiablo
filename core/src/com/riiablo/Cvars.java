@@ -17,6 +17,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
+import static com.riiablo.Client.FPS_BOTTOMLEFT;
+import static com.riiablo.Client.FPS_BOTTOMRIGHT;
+import static com.riiablo.Client.FPS_MAX;
+import static com.riiablo.Client.FPS_NONE;
+import static com.riiablo.Client.FPS_TOPLEFT;
+import static com.riiablo.Client.FPS_TOPRIGHT;
+
 public class Cvars {
   public static Collection<Throwable> addTo(CvarManager cvarManager) {
     return addTo(cvarManager, Cvars.class, new ArrayList<Throwable>());
@@ -128,9 +135,10 @@ public class Cvars {
           .alias("Client.Display.ShowFPS")
           .description(
               "Whether or not to draw the current FPS. " +
-              "0=Off, 1=Top Left, 2=Top Right, 3=Bottom Left, 4=Bottom Right")
-          .defaultValue((byte) 0)
-          .validator(NumberRangeValidator.of(Byte.class, (byte) 0, (byte) 4))
+              String.format("%d=Off, %d=Top Left, %d=Top Right, %d=Bottom Left, %d=Bottom Right",
+                  FPS_NONE, FPS_TOPLEFT, FPS_TOPRIGHT, FPS_BOTTOMLEFT, FPS_BOTTOMRIGHT))
+          .defaultValue(FPS_NONE)
+          .validator(NumberRangeValidator.of(Byte.class, FPS_NONE, FPS_MAX))
           .build();
 
       Cvar<Boolean> StatusBar = Cvar.builder(Boolean.class)

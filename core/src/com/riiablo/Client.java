@@ -114,6 +114,12 @@ public class Client extends Game {
   private boolean forceWindowed;
   private boolean forceDrawFps;
   private byte    drawFpsMethod;
+  public static final byte FPS_NONE        = 0;
+  public static final byte FPS_TOPLEFT     = 1;
+  public static final byte FPS_TOPRIGHT    = 2;
+  public static final byte FPS_BOTTOMLEFT  = 3;
+  public static final byte FPS_BOTTOMRIGHT = 4;
+  public static final byte FPS_MAX         = FPS_BOTTOMRIGHT;
 
   private final GlyphLayout fps = new GlyphLayout();
 
@@ -437,25 +443,25 @@ public class Client extends Game {
 
     fps.setText(font, Integer.toString(Gdx.graphics.getFramesPerSecond()));
     int drawFpsMethod = this.drawFpsMethod;
-    if (forceDrawFps && drawFpsMethod == 0) {
-      drawFpsMethod = 1;
+    if (forceDrawFps && drawFpsMethod == FPS_NONE) {
+      drawFpsMethod = FPS_TOPLEFT;
     }
 
     float x, y;
     switch (drawFpsMethod) {
-      case 1:
+      case FPS_TOPLEFT:
         x = 2;
         y = Riiablo.viewport.getScreenHeight() - 2;
         break;
-      case 2:
+      case FPS_TOPRIGHT:
         x = Riiablo.viewport.getScreenWidth() - fps.width;
         y = viewportHeight - 2;
         break;
-      case 3:
+      case FPS_BOTTOMLEFT:
         x = 2;
         y = fps.height;
         break;
-      case 4:
+      case FPS_BOTTOMRIGHT:
         x = Riiablo.viewport.getScreenWidth() - fps.width;
         y = fps.height;
         break;
