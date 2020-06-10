@@ -111,6 +111,7 @@ public class Client extends Game {
   private Cursor                cursor;
   private CharData              charData;
   private D2                    anim;
+  private Metrics metrics;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
@@ -279,6 +280,7 @@ public class Client extends Game {
     Riiablo.cursor = cursor = new Cursor();
     Riiablo.charData = charData = CharData.obtain();
     Riiablo.anim = anim = D2.loadFromFile(mpqs.resolve("data\\global\\eanimdata.d2"));
+    Riiablo.metrics = metrics = new Metrics();
 
     Collection<Throwable> throwables;
     Riiablo.commands = commands = new GdxCommandManager();
@@ -445,8 +447,8 @@ public class Client extends Game {
     StringBuilder builder = new StringBuilder(64);
     builder
         .append(Gdx.graphics.getFramesPerSecond())
-        .append('\n').append("Ping: ").append(Riiablo.ping).append(" ms")
-        .append('\n').append("RTT: ").append(Riiablo.rtt).append(" ms")
+        .append('\n').append("Ping: ").append(Riiablo.metrics.ping).append(" ms")
+        .append('\n').append("RTT: ").append(Riiablo.metrics.rtt).append(" ms")
         ;
     fps.setText(font, builder.toString());
     int drawFpsMethod = this.drawFpsMethod;
@@ -517,6 +519,7 @@ public class Client extends Game {
     Riiablo.cursor = cursor;
     Riiablo.charData = charData;
     Riiablo.anim = anim;
+    Riiablo.metrics = metrics;
     super.resume();
   }
 

@@ -55,7 +55,7 @@ public class Pinger extends IntervalSystem {
   }
 
   public void Ping(Ping packet) {
-    Riiablo.ping = TimeUtils.millis() - packet.sendTime() - packet.processTime();
-    Riiablo.rtt = TimeUtils.millis() - packet.sendTime();
+    Riiablo.metrics.ping = TimeUtils.millis() - packet.sendTime() - packet.processTime();
+    Riiablo.metrics.rtt = TimeUtils.millis() - packet.sendTime();
   }
 }

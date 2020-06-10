@@ -69,6 +69,5 @@ public class Riiablo {
   public static World                 engine;
   public static GameScreen            game;
   public static D2                    anim;
-  public static long                  ping;
-  public static long                  rtt;
+  public static Metrics metrics;
 }
