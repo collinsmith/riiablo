@@ -1,5 +1,10 @@
 package com.riiablo;
 
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Collection;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -29,6 +34,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
 import com.riiablo.audio.Audio;
 import com.riiablo.audio.MusicController;
 import com.riiablo.audio.MusicVolumeController;
@@ -61,11 +67,6 @@ import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.save.CharData;
 import com.riiablo.screen.AudioUnpackerScreen;
 import com.riiablo.screen.SplashScreen;
-
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Collection;
 
 public class Client extends Game {
   private static final String TAG = "Client";
@@ -444,7 +445,8 @@ public class Client extends Game {
     StringBuilder builder = new StringBuilder(64);
     builder
         .append(Gdx.graphics.getFramesPerSecond())
-        .append('\n').append(Riiablo.ping).append(" ms")
+        .append('\n').append("Ping: ").append(Riiablo.ping).append(" ms")
+        .append('\n').append("RTT: ").append(Riiablo.rtt).append(" ms")
         ;
     fps.setText(font, builder.toString());
     int drawFpsMethod = this.drawFpsMethod;
