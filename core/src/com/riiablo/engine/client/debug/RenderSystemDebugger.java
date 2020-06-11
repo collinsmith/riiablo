@@ -2,10 +2,14 @@ package com.riiablo.engine.client.debug;
 
 import com.artemis.BaseSystem;
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.map.RenderSystem;
+import com.riiablo.profiler.GpuSystem;
 
+@GpuSystem
 public class RenderSystemDebugger extends BaseSystem {
   protected RenderSystem renderer;
 

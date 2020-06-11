@@ -2,13 +2,17 @@ package com.riiablo.engine.client.debug;
 
 import com.artemis.BaseSystem;
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.map.Box2DPhysics;
 import com.riiablo.map.RenderSystem;
+import com.riiablo.profiler.GpuSystem;
 
+@GpuSystem
 public class Box2DDebugger extends BaseSystem {
   private static final float BOX2D_ZOOM_FACTOR = 0.04419419f;
 

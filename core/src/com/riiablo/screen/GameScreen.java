@@ -6,6 +6,8 @@ import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
+import net.mostlyoriginal.api.event.common.EventSystem;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -29,6 +31,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
 import com.riiablo.Client;
 import com.riiablo.Cvars;
 import com.riiablo.Keys;
@@ -106,6 +109,7 @@ import com.riiablo.map.Box2DPhysics;
 import com.riiablo.map.Map;
 import com.riiablo.map.MapManager;
 import com.riiablo.map.RenderSystem;
+import com.riiablo.profiler.ProfilerPlugin;
 import com.riiablo.save.CharData;
 import com.riiablo.screen.panel.CharacterPanel;
 import com.riiablo.screen.panel.ControlPanel;
@@ -122,9 +126,6 @@ import com.riiablo.screen.panel.SpellsQuickPanel;
 import com.riiablo.screen.panel.StashPanel;
 import com.riiablo.screen.panel.WaygatePanel;
 import com.riiablo.widget.TextArea;
-
-import net.mostlyoriginal.api.event.common.EventSystem;
-import net.mostlyoriginal.plugin.ProfilerPlugin;
 
 public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loadable {
   private static final String TAG = "GameScreen";

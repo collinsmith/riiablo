@@ -4,18 +4,22 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
+
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.client.component.Hovered;
 import com.riiablo.engine.client.component.Label;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.map.RenderSystem;
+import com.riiablo.profiler.GpuSystem;
 
+@GpuSystem
 @All({Hovered.class, Label.class, Position.class})
 public class LabelManager extends IteratingSystem {
   protected ComponentMapper<Label> mLabel;

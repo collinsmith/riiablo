@@ -1,11 +1,16 @@
 package com.riiablo.map;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import org.apache.commons.lang3.StringUtils;
+
 import com.artemis.Aspect;
 import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
 import com.artemis.EntitySubscription;
 import com.artemis.annotations.All;
 import com.artemis.utils.IntBag;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -20,6 +25,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pools;
+
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
@@ -41,13 +47,10 @@ import com.riiablo.engine.server.component.Position;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1.Tile;
+import com.riiablo.profiler.GpuSystem;
 import com.riiablo.util.DebugUtils;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.Comparator;
-
+@GpuSystem
 @All(AnimationWrapper.class)
 public class RenderSystem extends BaseEntitySystem {
   private static final String TAG = "RenderSystem";

@@ -4,10 +4,12 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
+
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.server.component.Pathfind;
@@ -16,7 +18,9 @@ import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.RenderSystem;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.map.pfa.Point2;
+import com.riiablo.profiler.GpuSystem;
 
+@GpuSystem
 @All({Pathfind.class, Position.class})
 public class PathfindDebugger extends IteratingSystem {
   private final float BOX_SIZE = 8;

@@ -6,10 +6,12 @@ import com.artemis.annotations.All;
 import com.artemis.annotations.Exclude;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.excel.MonStats;
@@ -18,8 +20,10 @@ import com.riiablo.engine.server.component.Monster;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
+import com.riiablo.profiler.GpuSystem;
 import com.riiablo.widget.Label;
 
+@GpuSystem
 @All({Monster.class, Hovered.class, Position.class})
 @Exclude(com.riiablo.engine.client.component.Label.class)
 public class MonsterLabelManager extends BaseEntitySystem {
