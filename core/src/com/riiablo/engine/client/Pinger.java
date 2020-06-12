@@ -5,23 +5,23 @@ import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
-import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
-import com.artemis.systems.IntervalSystem;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.net.Socket;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
-import com.riiablo.Riiablo;
+import com.riiablo.engine.IntervalBaseSystem;
 import com.riiablo.net.packet.d2gs.D2GS;
 import com.riiablo.net.packet.d2gs.D2GSData;
 import com.riiablo.net.packet.d2gs.Ping;
 
-@All
-public class Pinger extends IntervalSystem {
+public class Pinger extends IntervalBaseSystem {
   private static final String TAG = "Pinger";
   private static final boolean DEBUG = !true;
+
+  final Array<PacketListener> packetListeners = new Array<>(false, 16);
 
   @Wire(name = "client.socket")
   protected Socket socket;
@@ -30,12 +30,14 @@ public class Pinger extends IntervalSystem {
   //       it may be possible to use Gdx.graphics.getFrameId() -- but that isn't related to engine tick
   private int tick;
 
+  public long ping;
+  public long rtt;
 // TODO: provide a running average of past N RTTs
 //  private final double deltas[] = new double[5];
 //  private int deltaCount;
 
   public Pinger() {
-    super(null, 1.0f);
+    super(1.0f);
   }
 
   @Override
@@ -55,7 +57,21 @@ public class Pinger extends IntervalSystem {
   }
 
   public void Ping(Ping packet) {
-    Riiablo.metrics.ping = TimeUtils.millis() - packet.sendTime() - packet.processTime();
-    Riiablo.metrics.rtt = TimeUtils.millis() - packet.sendTime();
+    ping = TimeUtils.millis() - packet.sendTime() - packet.processTime();
+    rtt  = TimeUtils.millis() - packet.sendTime();
+    notifyPing(packet, ping, rtt);
+  }
+
+  public boolean addPacketListener(PacketListener l) {
+    packetListeners.add(l);
+    return true;
+  }
+
+  private void notifyPing(Ping packet, long ping, long rtt) {
+    for (PacketListener l : packetListeners) l.onPingResponse(this, packet, ping, rtt);
+  }
+
+  public interface PacketListener {
+    void onPingResponse(Pinger pinger, Ping packet, long ping, long rtt);
   }
 }

@@ -1,9 +1,12 @@
 package com.riiablo.screen;
 
 import com.artemis.WorldConfigurationBuilder;
+
 import com.badlogic.gdx.net.Socket;
+
 import com.riiablo.engine.client.ClientNetworkReceiver;
 import com.riiablo.engine.client.ClientNetworkSyncronizer;
+import com.riiablo.engine.client.NetworkProfiler;
 import com.riiablo.engine.client.Pinger;
 import com.riiablo.save.CharData;
 
@@ -24,6 +27,7 @@ public class NetworkedGameScreen extends GameScreen {
     builder.with(WorldConfigurationBuilder.Priority.HIGH, new ClientNetworkReceiver());
     builder.with(new ClientNetworkSyncronizer());
     builder.with(new Pinger());
+    builder.with(new NetworkProfiler());
     return builder;
   }
 
