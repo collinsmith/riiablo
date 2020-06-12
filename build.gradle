@@ -233,7 +233,7 @@ project(":core") {
         //compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
         compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
         //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
-        compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
+        //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
 //        compile "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$artemisContribVersion" // TODO: when added
     }
 

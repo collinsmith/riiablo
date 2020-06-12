@@ -41,7 +41,7 @@ public class ProfilerSystem extends BaseSystem {
     renderer = new ShapeRenderer();
     stage = new Stage();
     stage.getBatch().setProjectionMatrix(camera.combined);
-    skin = new Skin(Gdx.files.classpath("net/mostlyoriginal/plugin/profiler/skin/uiskin.json"));
+    skin = new Skin(Gdx.files.internal("profiler/uiskin.json"));
 
     // setup some static config like colors etc
     SystemProfilerGUI.GRAPH_H_LINE.set(Color.ORANGE);
