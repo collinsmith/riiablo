@@ -32,9 +32,6 @@ public class Pinger extends IntervalBaseSystem {
 
   public long ping;
   public long rtt;
-// TODO: provide a running average of past N RTTs
-//  private final double deltas[] = new double[5];
-//  private int deltaCount;
 
   public Pinger() {
     super(1.0f);
