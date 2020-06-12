@@ -5,6 +5,8 @@ import com.artemis.SystemInvocationStrategy;
 import com.artemis.utils.Bag;
 import com.artemis.utils.ImmutableBag;
 
+import com.riiablo.Riiablo;
+
 /**
  * {@link SystemInvocationStrategy} that will create a profiler for all systems that don't already
  * have one Can be used in addition to or instead of {@link com.artemis.annotations.Profile}
@@ -20,11 +22,12 @@ public class ProfilerInvocationStrategy extends SystemInvocationStrategy {
   private boolean initialized = false;
 
   protected SystemProfiler frameProfiler;
+  protected SystemProfiler cpuProfiler;
+  protected SystemProfiler gpuProfiler;
   protected SystemProfiler[] profilers;
 
   @Override
   protected void process() {
-
     if (!initialized) {
       initialize();
       initialized = true;
@@ -33,6 +36,21 @@ public class ProfilerInvocationStrategy extends SystemInvocationStrategy {
     frameProfiler.start();
     processProfileSystems(systems);
     frameProfiler.stop();
+
+    cpuProfiler.sample = gpuProfiler.sample = 0;
+    for (int i = 0, s = systems.size(); s > i; i++) {
+      if (disabled.get(i)) continue;
+      SystemProfiler profiler = profilers[i];
+      if (profiler == null) continue;
+      SystemProfiler active = profiler.gpu ? gpuProfiler : cpuProfiler;
+      active.sample += profiler.sample;
+    }
+
+    cpuProfiler.sample(cpuProfiler.sample);
+    gpuProfiler.sample(gpuProfiler.sample);
+
+    Riiablo.metrics.cpu = cpuProfiler.getMovingAvg();
+    Riiablo.metrics.gpu = gpuProfiler.getMovingAvg();
   }
 
   private void processProfileSystems(Bag<BaseSystem> systems) {
@@ -57,6 +75,8 @@ public class ProfilerInvocationStrategy extends SystemInvocationStrategy {
   @Override
   protected void initialize() {
     createFrameProfiler();
+    createCpuProfiler();
+    createGpuProfiler();
     createSystemProfilers();
   }
 
@@ -79,5 +99,15 @@ public class ProfilerInvocationStrategy extends SystemInvocationStrategy {
   private void createFrameProfiler() {
     frameProfiler = SystemProfiler.create("Frame");
     frameProfiler.setColor(1, 1, 1, 1);
+  }
+
+  private void createCpuProfiler() {
+    cpuProfiler = SystemProfiler.create("CPU");
+    cpuProfiler.setColor(0, 0, 1, 1);
+  }
+
+  private void createGpuProfiler() {
+    gpuProfiler = SystemProfiler.create("GPU");
+    gpuProfiler.setColor(0, 1, 0, 1);
   }
 }

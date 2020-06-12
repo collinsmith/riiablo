@@ -11,8 +11,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import com.riiablo.Riiablo;
-
 /**
  * Example profiling system.
  *
@@ -55,21 +53,8 @@ public class ProfilerSystem extends BaseSystem {
 
   @Override
   protected void processSystem() {
-    Riiablo.metrics.cpu = 0;
-    Riiablo.metrics.gpu = 0;
     if (!isEnabled() || !isConfigured()) {
       return;
-    }
-
-    final SystemProfiler[] profilers = SystemProfiler.get().items;
-    for (int i = 0, s = SystemProfiler.size(); i < s; i++) {
-      SystemProfiler profiler = profilers[i];
-      if (profiler.system == null || !profiler.system.isEnabled()) continue;
-      if (profiler.gpu) {
-        Riiablo.metrics.gpu += profiler.getMovingAvg();
-      } else {
-        Riiablo.metrics.cpu += profiler.getMovingAvg();
-      }
     }
 
     checkActivationButton();

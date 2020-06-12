@@ -155,6 +155,7 @@ public class SystemProfiler implements ArtemisProfiler {
   protected int samples;
 
   protected long total;
+  protected long sample;
 
   protected Color color;
   protected String name;
@@ -243,6 +244,7 @@ public class SystemProfiler implements ArtemisProfiler {
    * @param time in nanoseconds
    */
   public void sample(long time) {
+    sample = time;
     lastMaxCounter++;
     if (time > max || lastMaxCounter > 2000) {
       max = time;
