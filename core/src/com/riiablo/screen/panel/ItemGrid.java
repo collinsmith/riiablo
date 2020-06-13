@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
@@ -39,7 +40,7 @@ public class ItemGrid extends Group {
 
   final ClickListener clickListener;
 
-  final ObjectSet<Actor> hits = new ObjectSet<>(8, 1);
+  final ObjectSet<Actor> hits = new ObjectSet<>(16, 0.99f); // 8, 1.0f no longer supported
 
   final ItemData itemData = Riiablo.charData.getItems();
   final GridListener gridListener;
