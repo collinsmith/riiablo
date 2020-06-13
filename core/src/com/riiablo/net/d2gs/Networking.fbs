@@ -27,4 +27,5 @@ table Ping {
   processTime:int64;
 
   // response
+  ack:bool;
 }

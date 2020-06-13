@@ -30,8 +30,8 @@ public class Pinger extends IntervalBaseSystem {
   //       it may be possible to use Gdx.graphics.getFrameId() -- but that isn't related to engine tick
   private int tick;
 
-  public long ping;
-  public long rtt;
+  private long ping;
+  private long rtt;
 
   public Pinger() {
     super(1.0f);
@@ -40,7 +40,7 @@ public class Pinger extends IntervalBaseSystem {
   @Override
   protected void processSystem() {
     FlatBufferBuilder builder = new FlatBufferBuilder(0);
-    int dataOffset = Ping.createPing(builder, tick++, TimeUtils.millis(), 0);
+    int dataOffset = Ping.createPing(builder, tick++, TimeUtils.millis(), 0, false);
     int root = D2GS.createD2GS(builder, D2GSData.Ping, dataOffset);
     D2GS.finishSizePrefixedD2GSBuffer(builder, root);
 
@@ -65,10 +65,11 @@ public class Pinger extends IntervalBaseSystem {
   }
 
   private void notifyPing(Ping packet, long ping, long rtt) {
-    for (PacketListener l : packetListeners) l.onPingResponse(this, packet, ping, rtt);
+    boolean ack = packet.ack();
+    for (PacketListener l : packetListeners) l.onPingResponse(this, packet, ping, rtt, ack);
   }
 
   public interface PacketListener {
-    void onPingResponse(Pinger pinger, Ping packet, long ping, long rtt);
+    void onPingResponse(Pinger pinger, Ping packet, long ping, long rtt, boolean ack);
   }
 }

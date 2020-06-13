@@ -49,8 +49,11 @@ public class NetworkProfiler extends IntervalBaseSystem implements Pinger.Packet
   }
 
   @Override
-  public void onPingResponse(Pinger pinger, Ping packet, long ping, long rtt) {
-    this.ping = ping;
-    this.rtt = rtt;
+  public void onPingResponse(Pinger pinger, Ping packet, long ping, long rtt, boolean ack) {
+    if (ack){
+      this.ping = ping;
+    } else {
+      this.rtt = rtt;
+    }
   }
 }

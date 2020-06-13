@@ -537,7 +537,7 @@ public class D2GS extends ApplicationAdapter {
   private void Ping(Packet packet) {
     Ping ping = (Ping) packet.data.data(new Ping());
     FlatBufferBuilder builder = new FlatBufferBuilder(0);
-    int dataOffset = Ping.createPing(builder, ping.tickCount(), ping.sendTime(), TimeUtils.millis() - packet.time);
+    int dataOffset = Ping.createPing(builder, ping.tickCount(), ping.sendTime(), TimeUtils.millis() - packet.time, false);
     int root = com.riiablo.net.packet.d2gs.D2GS.createD2GS(builder, D2GSData.Ping, dataOffset);
     com.riiablo.net.packet.d2gs.D2GS.finishSizePrefixedD2GSBuffer(builder, root);
     Packet response = Packet.obtain(1 << packet.id, builder.dataBuffer());
@@ -706,6 +706,19 @@ public class D2GS extends ApplicationAdapter {
           if (!success) {
             Gdx.app.log(TAG, "failed to add to queue -- closing " + socket.getRemoteAddress());
             kill = true;
+          } else if (packet.data.dataType() == D2GSData.Ping) {
+            try {
+              Ping ping = (Ping) packet.data.data(new Ping());
+              FlatBufferBuilder builder = new FlatBufferBuilder(0);
+              int dataOffset = Ping.createPing(builder, ping.tickCount(), ping.sendTime(), 0, true);
+              int root = com.riiablo.net.packet.d2gs.D2GS.createD2GS(builder, D2GSData.Ping, dataOffset);
+              com.riiablo.net.packet.d2gs.D2GS.finishSizePrefixedD2GSBuffer(builder, root);
+              Packet response = Packet.obtain(1 << packet.id, builder.dataBuffer());
+              if (DEBUG_SENT_PACKETS && !ignoredPackets.get(packet.data.dataType())) Gdx.app.log(TAG, "dispatching " + D2GSData.name(packet.data.dataType()) + " ACK packet to " + String.format("0x%08X", packet.id));
+              send(response);
+            } catch (Throwable t) {
+              Gdx.app.log(TAG, t.getMessage(), t);
+            }
           }
         } catch (Throwable t) {
           Gdx.app.log(TAG, t.getMessage(), t);
