@@ -446,11 +446,11 @@ public class Client extends Game {
 
     StringBuilder builder = new StringBuilder(64);
     builder
-        .append(Gdx.graphics.getFramesPerSecond())
-        .append('\n').append("Ping: ").append(Riiablo.metrics.ping).append(" ms")
-        .append('\n').append("RTT: ").append(Riiablo.metrics.rtt).append(" ms")
-        .append('\n').append(String.format("CPU: %.1f ms", Riiablo.metrics.cpu))
-        .append('\n').append(String.format("GPU: %.1f ms", Riiablo.metrics.gpu))
+                     .append(String.format("%d FPS", Gdx.graphics.getFramesPerSecond()))
+        .append('\n').append(String.format("Ping: %3d ms", Riiablo.metrics.ping))
+        .append('\n').append(String.format("RTT:  %3d ms", Riiablo.metrics.rtt))
+        .append('\n').append(String.format("CPU:  %2.1f ms", Riiablo.metrics.cpu))
+        .append('\n').append(String.format("GPU:  %2.1f ms", Riiablo.metrics.gpu))
         ;
     fps.setText(font, builder.toString());
     int drawFpsMethod = this.drawFpsMethod;
