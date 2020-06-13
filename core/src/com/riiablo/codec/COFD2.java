@@ -1,23 +1,21 @@
 package com.riiablo.codec;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.StreamUtils;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.StreamUtils;
 
-import com.riiablo.codec.COF;
 import com.riiablo.util.BufferUtils;
 
 public class COFD2 {
@@ -25,8 +23,8 @@ public class COFD2 {
   private static final boolean DEBUG         = true;
   private static final boolean DEBUG_ENTRIES = DEBUG && false;
 
-  Array<Entry>                       entries;
-  Trie<String, com.riiablo.codec.COF> trie;
+  Array<Entry>      entries;
+  Trie<String, COF> trie;
 
   private COFD2(Array<Entry> entries) {
     this.entries = entries;
@@ -41,7 +39,7 @@ public class COFD2 {
     return entries.size;
   }
 
-  public com.riiablo.codec.COF lookup(String cof) {
+  public COF lookup(String cof) {
     return trie.get(cof.toLowerCase());
   }
 
