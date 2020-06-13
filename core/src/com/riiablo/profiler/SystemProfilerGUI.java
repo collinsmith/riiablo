@@ -67,6 +67,8 @@ public class SystemProfilerGUI extends Window {
   protected Table profilersTable;
   protected Array<ProfilerRow> rows = new Array<>();
 
+  protected ProfilerManager profilers;
+
   public SystemProfilerGUI(Skin skin, String style) {
     super("Profiler", skin, style);
     this.skin = skin;
@@ -82,7 +84,9 @@ public class SystemProfilerGUI extends Window {
         hide();
       }
     });
+  }
 
+  public void initialize() {
     Table graphTable = new Table();
     Table graphLabels = new Table();
     for (int i = 32; i >= 0; i /= 2) {
@@ -99,7 +103,7 @@ public class SystemProfilerGUI extends Window {
     profilerLabels.add(label("lmax", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
     profilerLabels.add(label("avg", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
 
-    for (SystemProfiler profiler : SystemProfiler.get()) {
+    for (SystemProfiler profiler : profilers.get()) {
       rows.add(new ProfilerRow(profiler, skin));
     }
     profilersTable = new Table();
@@ -151,7 +155,7 @@ public class SystemProfilerGUI extends Window {
     if (refreshTimer < REFRESH_RATE) return;
     refreshTimer -= REFRESH_RATE;
 
-    if (rows.size != SystemProfiler.size()) {
+    if (rows.size != profilers.size()) {
       rebuildRows();
     }
 
@@ -169,7 +173,7 @@ public class SystemProfilerGUI extends Window {
   }
 
   private void rebuildRows() {
-    int target = SystemProfiler.size();
+    int target = profilers.size();
     if (target > rows.size) {
       for (int i = rows.size; i < target; i++) {
         rows.add(new ProfilerRow(skin));
@@ -178,7 +182,7 @@ public class SystemProfilerGUI extends Window {
       rows.removeRange(rows.size - target + 1, rows.size - 1);
     }
     for (int i = 0; i < target; i++) {
-      SystemProfiler profiler = SystemProfiler.get(i);
+      SystemProfiler profiler = profilers.get(i);
       rows.get(i).init(profiler);
     }
   }
@@ -201,7 +205,7 @@ public class SystemProfilerGUI extends Window {
    *
    * @param renderer {@link ShapeRenderer} to use, must be ready and set to Line type
    */
-  public static void drawGraph(ShapeRenderer renderer, float x, float y, float width, float height, float alpha) {
+  public void drawGraph(ShapeRenderer renderer, float x, float y, float width, float height, float alpha) {
     Gdx.gl.glEnable(GL20.GL_BLEND);
     // we do this so the logical 0 and top are in the middle of the labels
     drawGraphAxis(renderer, x, y, width, height, alpha);
@@ -211,7 +215,7 @@ public class SystemProfilerGUI extends Window {
     graphProfileTimes(renderer, x, y, width, height, alpha);
   }
 
-  private static void drawGraphAxis(ShapeRenderer renderer, float x, float y, float width, float height, float alpha) {
+  private void drawGraphAxis(ShapeRenderer renderer, float x, float y, float width, float height, float alpha) {
     float sep = height / 7;
     y += sep / 2;
     renderer.setColor(GRAPH_V_LINE.r, GRAPH_V_LINE.g, GRAPH_V_LINE.b, alpha);
@@ -233,10 +237,10 @@ public class SystemProfilerGUI extends Window {
     }
   };
 
-  private static void graphProfileTimes(ShapeRenderer renderer, float x, float y, float width, float height, float alpha) {
-    Sort.instance().sort(SystemProfiler.get(), byLocalMax);
+  private void graphProfileTimes(ShapeRenderer renderer, float x, float y, float width, float height, float alpha) {
+    Sort.instance().sort(profilers.get(), byLocalMax);
     int drawn = 0;
-    for (SystemProfiler profiler : SystemProfiler.get()) {
+    for (SystemProfiler profiler : profilers.get()) {
       if (!profiler.getDrawGraph())
         continue;
       if (drawn++ > DRAW_MAX_COUNT)

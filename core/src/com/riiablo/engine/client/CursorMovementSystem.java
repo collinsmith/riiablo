@@ -6,12 +6,14 @@ import com.artemis.ComponentMapper;
 import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
+
 import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.Engine;
@@ -23,6 +25,7 @@ import com.riiablo.engine.server.component.Target;
 import com.riiablo.item.Item;
 import com.riiablo.map.Map;
 import com.riiablo.map.RenderSystem;
+import com.riiablo.profiler.ProfilerSystem;
 import com.riiablo.save.ItemController;
 
 public class CursorMovementSystem extends BaseSystem {
@@ -36,6 +39,7 @@ public class CursorMovementSystem extends BaseSystem {
   protected Pathfinder pathfinder;
   protected MenuManager menuManager;
   protected DialogManager dialogManager;
+  protected ProfilerSystem profiler;
 
   @Wire(name = "iso")
   protected IsometricCamera iso;
@@ -64,6 +68,7 @@ public class CursorMovementSystem extends BaseSystem {
 
   @Override
   protected void processSystem() {
+    if (profiler != null && profiler.hit()) return;
     stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
     Actor hit1 = stage.hit(tmpVec2.x, tmpVec2.y, true);
     scaledStage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));

@@ -19,6 +19,8 @@ import com.riiablo.Riiablo;
  * @author Daan van Yperen
  */
 public class ProfilerInvocationStrategy extends SystemInvocationStrategy {
+  protected ProfilerManager profilerManager;
+
   private boolean initialized = false;
 
   protected SystemProfiler frameProfiler;
@@ -74,6 +76,7 @@ public class ProfilerInvocationStrategy extends SystemInvocationStrategy {
 
   @Override
   protected void initialize() {
+    world.inject(this);
     createFrameProfiler();
     createCpuProfiler();
     createGpuProfiler();
@@ -89,25 +92,25 @@ public class ProfilerInvocationStrategy extends SystemInvocationStrategy {
   }
 
   private SystemProfiler createSystemProfiler(BaseSystem system) {
-    SystemProfiler old = SystemProfiler.getFor(system);
+    SystemProfiler old = profilerManager.getFor(system);
     if (old == null) {
-      old = SystemProfiler.createFor(system, world);
+      old = profilerManager.createFor(system, world);
     }
     return old;
   }
 
   private void createFrameProfiler() {
-    frameProfiler = SystemProfiler.create("Frame");
+    frameProfiler = profilerManager.create("Frame");
     frameProfiler.setColor(1, 1, 1, 1);
   }
 
   private void createCpuProfiler() {
-    cpuProfiler = SystemProfiler.create("CPU");
+    cpuProfiler = profilerManager.create("CPU");
     cpuProfiler.setColor(0, 0, 1, 1);
   }
 
   private void createGpuProfiler() {
-    gpuProfiler = SystemProfiler.create("GPU");
+    gpuProfiler = profilerManager.create("GPU");
     gpuProfiler.setColor(0, 1, 0, 1);
   }
 }

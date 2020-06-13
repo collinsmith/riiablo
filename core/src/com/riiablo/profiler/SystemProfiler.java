@@ -5,15 +5,12 @@ import com.artemis.World;
 import com.artemis.utils.ArtemisProfiler;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import com.riiablo.util.ClassUtils;
 
 /**
- * {@link ArtemisProfiler} implementation, {@link SystemProfiler#dispose()} should be called to
- * clean static references as needed
+ * {@link ArtemisProfiler} implementation
  *
  * @author piotr-j
  */
@@ -22,129 +19,9 @@ public class SystemProfiler implements ArtemisProfiler {
    * Samples to store per system, only changes before initialization have effect
    */
   public static int SAMPLES = 60 * 5;
-  private static boolean RUNNING = true;
+  private boolean RUNNING = true;
 
-  private static Array<SystemProfiler> profilers = new Array<>(SystemProfiler.class);
-  private static ObjectMap<String, SystemProfiler> profilerByName = new ObjectMap<>();
-
-  /**
-   * Add manually created profiler
-   *
-   * @param profiler to add
-   *
-   * @return added profiler
-   */
-  public static SystemProfiler add(SystemProfiler profiler) {
-    if (profiler.added) return profiler;
-    profiler.added = true;
-    profilers.add(profiler);
-    profilerByName.put(profiler.getName(), profiler);
-    return profiler;
-  }
-
-  /**
-   * @param name of the profiler
-   *
-   * @return profiler registered with given name or null
-   */
-  public static SystemProfiler get(String name) {
-    return profilerByName.get(name, null);
-  }
-
-  /**
-   * @param index of profiler to get, no bounds check!
-   *
-   * @return profiler with given index
-   */
-  public static SystemProfiler get(int index) {
-    return profilers.get(index);
-  }
-
-  /**
-   * Get profiler for given system
-   *
-   * @return profiler or null
-   */
-  public static SystemProfiler getFor(BaseSystem system) {
-    Object[] items = profilers.items;
-    for (int i = 0; i < profilers.size; i++) {
-      SystemProfiler profiler = (SystemProfiler) items[i];
-      if (profiler.system == system) {
-        return profiler;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Create a profiler with given name
-   *
-   * @param name of the profiler
-   */
-  public static SystemProfiler create(String name) {
-    return SystemProfiler.add(new SystemProfiler(name));
-  }
-
-  /**
-   * Create a profiler for given system
-   *
-   * @param system to profiler
-   * @param world  to init profiler with
-   *
-   * @return created profiler
-   */
-  public static SystemProfiler createFor(BaseSystem system, World world) {
-    return SystemProfiler.add(new SystemProfiler(system, world));
-  }
-
-  /**
-   * @return {@link Array} with all registered profilers
-   */
-  public static Array<SystemProfiler> get() {
-    return profilers;
-  }
-
-  /**
-   * @return number of registered profilers
-   */
-  public static int size() {
-    return profilers.size;
-  }
-
-
-  /**
-   * Pause all profilers
-   */
-  public static void pause() {
-    RUNNING = false;
-  }
-
-  /**
-   * Resume all profilers
-   */
-  public static void resume() {
-    RUNNING = true;
-  }
-
-  /**
-   * @return if profilers are running
-   */
-  public static boolean isRunning() {
-    return RUNNING;
-  }
-
-  /**
-   * Clear registered profilers, should be called when {@link World} is disposed
-   */
-  public static void dispose() {
-    profilers.clear();
-    profilerByName.clear();
-  }
-
-  /*
-      If this profiler was already added via SystemProfiler.add()
-   */
-  private boolean added;
+  boolean added; // If this profiler was already added via SystemProfiler.add()
 
   protected long[] times = new long[SAMPLES];
   protected int index;
@@ -162,7 +39,7 @@ public class SystemProfiler implements ArtemisProfiler {
   protected BaseSystem system;
   protected boolean gpu;
 
-  public SystemProfiler() {}
+  SystemProfiler() {}
 
   /**
    * Create not initialized profiler, must be initialized with {@link
@@ -170,7 +47,7 @@ public class SystemProfiler implements ArtemisProfiler {
    *
    * @param name of the profiler
    */
-  public SystemProfiler(String name) {
+  SystemProfiler(String name) {
     this.name = name;
   }
 
@@ -180,7 +57,7 @@ public class SystemProfiler implements ArtemisProfiler {
    * @param system to profiler
    * @param world  to init with
    */
-  public SystemProfiler(BaseSystem system, World world) {
+  SystemProfiler(BaseSystem system, World world) {
     this(null, system, world);
   }
 
@@ -191,7 +68,7 @@ public class SystemProfiler implements ArtemisProfiler {
    * @param system to profiler
    * @param world  to init with
    */
-  public SystemProfiler(String name, BaseSystem system, World world) {
+  SystemProfiler(String name, BaseSystem system, World world) {
     this.name = name;
     initialize(system, world);
   }
@@ -206,7 +83,6 @@ public class SystemProfiler implements ArtemisProfiler {
     if (color == null) {
       calculateColor(toString().hashCode(), color = new Color());
     }
-    SystemProfiler.add(this);
   }
 
   private long startTime;

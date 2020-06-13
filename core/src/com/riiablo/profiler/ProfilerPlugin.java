@@ -17,10 +17,9 @@ import com.artemis.WorldConfigurationBuilder;
  * @author Daan van Yperen (Integration)
  */
 public class ProfilerPlugin implements ArtemisPlugin {
-
   @Override
   public void setup(WorldConfigurationBuilder b) {
     b.register(new ProfilerInvocationStrategy());
-    b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000, ProfilerSystem.class);
+    b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000, ProfilerManager.class, ProfilerSystem.class);
   }
 }

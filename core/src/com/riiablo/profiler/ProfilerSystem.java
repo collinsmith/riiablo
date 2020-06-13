@@ -8,8 +8,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.Align;
 
 /**
  * Example profiling system.
@@ -30,8 +32,17 @@ public class ProfilerSystem extends BaseSystem {
 
   private int key = DEFAULT_PROFILER_KEY;
 
+  ProfilerManager profilers;
   SystemProfilerGUI gui;
   private boolean f3ButtonDown;
+  private boolean initialized;
+  private final Vector2 tmpVec2 = new Vector2();
+
+  public boolean hit() {
+    if (!gui.isVisible()) return false;
+    stage.screenToStageCoordinates(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY()));
+    return stage.hit(tmpVec2.x, tmpVec2.y, true) != null;
+  }
 
   @Override
   protected void initialize() {
@@ -48,7 +59,8 @@ public class ProfilerSystem extends BaseSystem {
     gui = new SystemProfilerGUI(skin, "default");
     gui.setResizeBorder(8);
     gui.show(stage);
-    gui.setWidth(Gdx.graphics.getWidth());
+    world.inject(gui, true);
+    gui.initialize();
   }
 
   @Override
@@ -74,6 +86,10 @@ public class ProfilerSystem extends BaseSystem {
     stage.draw();
     renderer.setProjectionMatrix(camera.combined);
     renderer.begin(ShapeRenderer.ShapeType.Line);
+    if (!initialized) {
+      gui.setWidth(stage.getWidth()); // initial width not applying properly otherwise
+      initialized = true;
+    }
     gui.updateAndRender(world.delta, renderer);
     renderer.end();
   }
@@ -82,14 +98,15 @@ public class ProfilerSystem extends BaseSystem {
     if (Gdx.input.isKeyPressed(key)) {
       if (!f3ButtonDown) {
         if (!gui.isVisible()) {
-          gui.setHeight(Gdx.graphics.getHeight() / 2);
+          gui.setHeight(stage.getHeight() / 2);
+          gui.setY(stage.getHeight(), Align.topLeft);
           gui.setVisible(true);
-          SystemProfiler.getFor(this).gpu = true;
-        } else if (gui.getHeight() != Gdx.graphics.getHeight()) {
-          gui.setHeight(Gdx.graphics.getHeight());
+          profilers.getFor(this).gpu = true;
+        } else if (gui.getHeight() != stage.getHeight()) {
+          gui.setHeight(stage.getHeight());
         } else {
           gui.setVisible(false);
-          SystemProfiler.getFor(this).gpu = false;
+          profilers.getFor(this).gpu = false;
         }
       }
       f3ButtonDown = true;
@@ -113,11 +130,6 @@ public class ProfilerSystem extends BaseSystem {
       leftMouseDown = false;
       stage.touchUp(Gdx.input.getX(), Gdx.input.getY(), 0, Input.Buttons.LEFT);
     }
-  }
-
-  @Override
-  protected void dispose() {
-    SystemProfiler.dispose();
   }
 
   public int getKey() {

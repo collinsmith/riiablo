@@ -3,6 +3,7 @@ package com.riiablo.engine.client;
 import com.riiablo.Riiablo;
 import com.riiablo.engine.IntervalBaseSystem;
 import com.riiablo.net.packet.d2gs.Ping;
+import com.riiablo.profiler.ProfilerManager;
 import com.riiablo.profiler.SystemProfiler;
 
 public class NetworkProfiler extends IntervalBaseSystem implements Pinger.PacketListener {
@@ -14,6 +15,7 @@ public class NetworkProfiler extends IntervalBaseSystem implements Pinger.Packet
    */
   private static final float SAMPLES_DURATION = 30;
 
+  protected ProfilerManager profilers;
   protected Pinger pinger;
 
   protected SystemProfiler pingProfiler;
@@ -30,10 +32,10 @@ public class NetworkProfiler extends IntervalBaseSystem implements Pinger.Packet
   protected void initialize() {
     pinger.addPacketListener(this);
 
-    pingProfiler = SystemProfiler.create("Ping");
+    pingProfiler = profilers.create("Ping");
     pingProfiler.setColor(0, 1, 1, 1);
 
-    rttProfiler = SystemProfiler.create("RTT");
+    rttProfiler = profilers.create("RTT");
     rttProfiler.setColor(1, 0, 1, 1);
   }
 
