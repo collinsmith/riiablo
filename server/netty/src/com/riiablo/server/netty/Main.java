@@ -1,22 +1,23 @@
 package com.riiablo.server.netty;
 
-import io.netty.bootstrap.ServerBootstrap;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.CharsetUtil;
-import java.net.InetSocketAddress;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -61,15 +62,15 @@ public class Main extends ApplicationAdapter {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
     EventLoopGroup bossGroup = new NioEventLoopGroup();
-    EventLoopGroup workerGroup = new NioEventLoopGroup();
+//    EventLoopGroup workerGroup = new NioEventLoopGroup();
     try {
-      ServerBootstrap b = new ServerBootstrap()
-          .group(bossGroup, workerGroup)
-          .channel(NioServerSocketChannel.class)
-          .option(ChannelOption.SO_BACKLOG, 128)
-          .childHandler(new ChannelInitializer<SocketChannel>() {
+      Bootstrap b = new Bootstrap()
+          .group(bossGroup)
+          .channel(NioDatagramChannel.class)
+          .option(ChannelOption.SO_BROADCAST, true)
+          .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(SocketChannel ch) {
+            protected void initChannel(DatagramChannel ch) {
               ch.pipeline().addLast(new EchoServerHandler());
             }
           })
@@ -80,34 +81,36 @@ public class Main extends ApplicationAdapter {
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
     } finally {
-      workerGroup.shutdownGracefully();
+//      workerGroup.shutdownGracefully();
       bossGroup.shutdownGracefully();
     }
   }
 
-  public static class EchoServerHandler extends ChannelInboundHandlerAdapter {
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-      InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-      Gdx.app.log(TAG, "Connection from " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
+  public static class EchoServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    EchoServerHandler() {
+      super(false);
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-//      Gdx.app.debug(TAG, msg.toString());
-//      ctx.write(msg);
-      ByteBuf buf = (ByteBuf) msg;
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+      System.out.println("Channel active.");
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
+      Gdx.app.log(TAG, "Packet from " + msg.sender().getHostName() + ":" + msg.sender().getPort());
+      ByteBuf in = msg.content();
       try {
-        System.out.print(buf.toString(CharsetUtil.US_ASCII));
+        System.out.print(StringEscapeUtils.escapeJava(in.toString(CharsetUtil.US_ASCII)));
       } finally {
-        buf.release();
+        in.release();
       }
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-//      ctx.flush();
-      System.out.flush();
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+      System.out.println();
+      System.out.println("Read complete.");
     }
 
     @Override

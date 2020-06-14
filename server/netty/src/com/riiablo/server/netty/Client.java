@@ -5,13 +5,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.InetSocketAddress;
 
 import com.badlogic.gdx.Application;
@@ -40,11 +40,10 @@ public class Client extends ApplicationAdapter {
     try {
       Bootstrap b = new Bootstrap()
           .group(group)
-          .channel(NioSocketChannel.class)
-          .option(ChannelOption.TCP_NODELAY, true)
-          .handler(new ChannelInitializer<SocketChannel>() {
+          .channel(NioDatagramChannel.class)
+          .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(SocketChannel ch) {
+            protected void initChannel(DatagramChannel ch) {
               ch.pipeline().addLast(new EchoClientHandler());
             }
           });
@@ -58,10 +57,11 @@ public class Client extends ApplicationAdapter {
     }
   }
 
-  public static class EchoClientHandler extends ChannelInboundHandlerAdapter {
+  public static class EchoClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     private final ByteBuf buf;
 
-    public EchoClientHandler() {
+    EchoClientHandler() {
+      super(false);
       buf = Unpooled.buffer(256);
       for (int i = 0; i < buf.capacity(); i++) {
         buf.writeByte((byte) i);
@@ -76,18 +76,17 @@ public class Client extends ApplicationAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//      Gdx.app.debug(TAG, msg.toString());
-      ctx.write(msg);
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
+      ctx.writeAndFlush(msg);
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-      ctx.flush();
+      System.out.println("Read complete.");
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
       Gdx.app.error(TAG, cause.getMessage(), cause);
       ctx.close();
     }
