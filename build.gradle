@@ -33,6 +33,7 @@ allprojects {
         aiVersion = '1.8.0'
         artemisVersion = '2.3.0'
         artemisContribVersion = '2.4.0'
+        nettyVersion = '4.1.50.Final'
     }
 
     ext {
@@ -309,6 +310,28 @@ project(":server:d2gs") {
 
     dependencies {
         compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+    }
+
+    dependencies {
+        testCompile 'junit:junit:4.12'
+    }
+}
+
+project(":server:netty") {
+    apply plugin: "java"
+
+    dependencies {
+        compile project(":core")
+        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+
+    dependencies {
+        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+    }
+
+    dependencies {
+        compile group: 'io.netty', name: 'netty-all', version: nettyVersion
     }
 
     dependencies {
