@@ -1,0 +1,19 @@
+namespace com.riiablo.net.packet.netty;
+
+table Connection {
+  // request
+
+  // response
+}
+
+table Disconnect {
+  // request
+
+  // response
+}
+
+table Ping {
+  // request
+
+  // response
+}

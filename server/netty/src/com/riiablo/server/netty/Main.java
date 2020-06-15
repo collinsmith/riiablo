@@ -12,12 +12,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.CharsetUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.apache.commons.text.StringEscapeUtils;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -27,6 +25,7 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
+import com.riiablo.net.packet.netty.NettyData;
 
 public class Main extends ApplicationAdapter {
   private static final String TAG = "Server";
@@ -101,15 +100,15 @@ public class Main extends ApplicationAdapter {
       Gdx.app.log(TAG, "Packet from " + msg.sender().getHostName() + ":" + msg.sender().getPort());
       ByteBuf in = msg.content();
       try {
-        System.out.print(StringEscapeUtils.escapeJava(in.toString(CharsetUtil.US_ASCII)));
+        Packet packet = Packet.obtain(0, in.nioBuffer());
+        Gdx.app.log(TAG, "  " + NettyData.name(packet.data.dataType()));
       } finally {
-        in.release();
+        in.release(); // TODO: release after packet is processed by server
       }
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-      System.out.println();
       System.out.println("Read complete.");
     }
 

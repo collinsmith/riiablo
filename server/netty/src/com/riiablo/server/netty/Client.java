@@ -1,5 +1,6 @@
 package com.riiablo.server.netty;
 
+import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,6 +22,9 @@ import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
+import com.riiablo.net.packet.netty.Connection;
+import com.riiablo.net.packet.netty.Netty;
+import com.riiablo.net.packet.netty.NettyData;
 
 public class Client extends ApplicationAdapter {
   private static final String TAG = "Client";
@@ -58,31 +62,34 @@ public class Client extends ApplicationAdapter {
   }
 
   public static class EchoClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
-    private final ByteBuf buf;
-
     EchoClientHandler() {
       super(false);
-      buf = Unpooled.buffer(256);
-      for (int i = 0; i < buf.capacity(); i++) {
-        buf.writeByte((byte) i);
-      }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
       InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
       Gdx.app.log(TAG, "Connecting to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
-      ctx.writeAndFlush(buf);
+
+      FlatBufferBuilder builder = new FlatBufferBuilder(0);
+      Connection.startConnection(builder);
+      int dataOffset = Connection.endConnection(builder);
+      int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
+      Netty.finishSizePrefixedNettyBuffer(builder, offset);
+
+      ByteBuf byteBuf = Unpooled.wrappedBuffer(builder.dataBuffer());
+      ctx.writeAndFlush(byteBuf);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
-      ctx.writeAndFlush(msg);
+//      ctx.writeAndFlush(msg);
+      msg.release();
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-      System.out.println("Read complete.");
+//      System.out.println("Read complete.");
     }
 
     @Override

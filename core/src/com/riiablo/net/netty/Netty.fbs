@@ -1,0 +1,15 @@
+include "Packets.fbs";
+
+namespace com.riiablo.net.packet.netty;
+
+union NettyData {
+  Connection,
+  Disconnect,
+  Ping,
+}
+
+table Netty {
+  data:NettyData;
+}
+
+root_type Netty;
