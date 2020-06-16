@@ -1,5 +1,6 @@
 package com.riiablo.server.netty;
 
+import com.google.flatbuffers.ByteBufferUtil;
 import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -14,6 +15,7 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -23,6 +25,7 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
 import com.riiablo.net.packet.netty.Connection;
+import com.riiablo.net.packet.netty.Header;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
 
@@ -71,14 +74,25 @@ public class Client extends ApplicationAdapter {
       InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
       Gdx.app.log(TAG, "Connecting to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
 
-      FlatBufferBuilder builder = new FlatBufferBuilder(0);
+      FlatBufferBuilder builder = new FlatBufferBuilder();
+      int headerOffset = Header.createHeader(builder, 0, 0, 0);
       Connection.startConnection(builder);
       int dataOffset = Connection.endConnection(builder);
-      int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
+      int offset = Netty.createNetty(builder, headerOffset, NettyData.Connection, dataOffset);
       Netty.finishSizePrefixedNettyBuffer(builder, offset);
+
+//      sanity(builder.dataBuffer());
 
       ByteBuf byteBuf = Unpooled.wrappedBuffer(builder.dataBuffer());
       ctx.writeAndFlush(byteBuf);
+    }
+
+    private void sanity(ByteBuffer buffer) {
+      ByteBuffer tmp = ByteBufferUtil.removeSizePrefix(buffer);
+      Netty netty = Netty.getRootAsNetty(tmp);
+      Gdx.app.log(TAG, "  " + NettyData.name(netty.dataType()));
+      Header header = netty.header(new Header());
+      Gdx.app.log(TAG, "  " + String.format("SEQ:%d ACK:%d ACK_BITS:%08x", header.sequence(), header.ack(), header.ackBits()));
     }
 
     @Override

@@ -12,6 +12,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import java.nio.ByteBuffer;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -25,6 +26,7 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
+import com.riiablo.net.packet.netty.Header;
 import com.riiablo.net.packet.netty.NettyData;
 
 public class Main extends ApplicationAdapter {
@@ -100,8 +102,11 @@ public class Main extends ApplicationAdapter {
       Gdx.app.log(TAG, "Packet from " + msg.sender().getHostName() + ":" + msg.sender().getPort());
       ByteBuf in = msg.content();
       try {
-        Packet packet = Packet.obtain(0, in.nioBuffer());
+        ByteBuffer buffer = in.nioBuffer();
+        Packet packet = Packet.obtain(0, buffer);
         Gdx.app.log(TAG, "  " + NettyData.name(packet.data.dataType()));
+        Header header = packet.data.header(new Header());
+        Gdx.app.log(TAG, "  " + String.format("SEQ:%d ACK:%d ACK_BITS:%08x", header.sequence(), header.ack(), header.ackBits()));
       } finally {
         in.release(); // TODO: release after packet is processed by server
       }
