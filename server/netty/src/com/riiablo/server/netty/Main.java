@@ -72,9 +72,7 @@ public class Main extends ApplicationAdapter {
             @Override
             protected void initChannel(DatagramChannel ch) {
               ch.pipeline()
-                  .addLast(new ReliableInboundHandler())
                   .addLast(new ServerHandler())
-                  .addLast(new ReliableOutboundHandler())
                   ;
             }
           })
@@ -90,7 +88,7 @@ public class Main extends ApplicationAdapter {
     }
   }
 
-  public static class ServerHandler extends PacketHandler {
+  public static class ServerHandler extends ReliableChannelHandler {
     private static final String TAG = "ServerHandler";
 
     @Override
@@ -120,6 +118,12 @@ public class Main extends ApplicationAdapter {
             Gdx.app.error(TAG, "Ignoring packet /w data type " + dataType);
           }
       }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+      Gdx.app.error(TAG, cause.getMessage(), cause);
+      ctx.close();
     }
   }
 }

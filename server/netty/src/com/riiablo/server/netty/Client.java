@@ -10,7 +10,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
@@ -52,13 +51,9 @@ public class Client extends ApplicationAdapter {
           .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-              ReliableInboundHandler in = new ReliableInboundHandler();
-              ReliableOutboundHandler out = new ReliableOutboundHandler();
               final ClientHandler client = new ClientHandler();
               ch.pipeline()
-                  .addLast(in)
                   .addLast(client)
-                  .addLast(out)
                   .addLast(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -79,9 +74,8 @@ public class Client extends ApplicationAdapter {
     }
   }
 
-  public static class ClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+  public static class ClientHandler extends ReliableChannelHandler {
     ClientHandler() {
-      super(false);
     }
 
     void init(ChannelHandlerContext ctx) {
@@ -118,7 +112,6 @@ public class Client extends ApplicationAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
       Gdx.app.error(TAG, cause.getMessage(), cause);
       ctx.close();
-      ctx.fireExceptionCaught(cause);
     }
   }
 }
