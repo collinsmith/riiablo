@@ -77,6 +77,7 @@ public class Main extends ApplicationAdapter {
             @Override
             protected void initChannel(DatagramChannel ch) {
               ch.pipeline()
+                  .addLast(new ReliableInboundHandler())
                   .addLast(new PacketHandler() {
                     final String TAG = "PacketHandler$1";
 
@@ -109,6 +110,7 @@ public class Main extends ApplicationAdapter {
                       }
                     }
                   })
+                  .addLast(new ReliableOutboundHandler())
                   ;
             }
           })
