@@ -5,7 +5,6 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -55,15 +54,15 @@ public class Client extends ApplicationAdapter {
             protected void initChannel(DatagramChannel ch) {
               ReliableInboundHandler in = new ReliableInboundHandler();
               ReliableOutboundHandler out = new ReliableOutboundHandler();
-              final EchoClientHandler echo = new EchoClientHandler();
+              final ClientHandler client = new ClientHandler();
               ch.pipeline()
                   .addLast(in)
-                  .addLast(echo)
+                  .addLast(client)
                   .addLast(out)
                   .addLast(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                      echo.init(ctx.channel());
+                      client.init(ctx);
                       ctx.pipeline().remove(this);
                     }
                   })
@@ -80,13 +79,13 @@ public class Client extends ApplicationAdapter {
     }
   }
 
-  public static class EchoClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
-    EchoClientHandler() {
+  public static class ClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    ClientHandler() {
       super(false);
     }
 
-    void init(Channel ch) {
-      InetSocketAddress remoteAddress = (InetSocketAddress) ch.remoteAddress();
+    void init(ChannelHandlerContext ctx) {
+      InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
       Gdx.app.log(TAG, "Connecting to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
 
       FlatBufferBuilder builder = new FlatBufferBuilder();
@@ -99,7 +98,7 @@ public class Client extends ApplicationAdapter {
       sanity(builder.dataBuffer());
 
       ByteBuf byteBuf = Unpooled.wrappedBuffer(builder.dataBuffer());
-      ch.writeAndFlush(byteBuf);
+      ctx.writeAndFlush(byteBuf);
     }
 
     @Override
