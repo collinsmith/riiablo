@@ -27,6 +27,7 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.net.packet.netty.Header;
+import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
 
 public class Main extends ApplicationAdapter {
@@ -72,7 +73,16 @@ public class Main extends ApplicationAdapter {
           .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-              ch.pipeline().addLast(new EchoServerHandler());
+              ch.pipeline()
+                  .addLast(new PacketHandler() {
+                    final String TAG = "abstract PacketHandler";
+
+                    @Override
+                    protected void processPacket(ChannelHandlerContext ctx, Netty netty) {
+                      Gdx.app.debug(TAG, "Processing packet...");
+                    }
+                  })
+                  ;
             }
           })
           ;
@@ -87,8 +97,8 @@ public class Main extends ApplicationAdapter {
     }
   }
 
-  public static class EchoServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
-    EchoServerHandler() {
+  public static class ServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    ServerHandler() {
       super(false);
     }
 
