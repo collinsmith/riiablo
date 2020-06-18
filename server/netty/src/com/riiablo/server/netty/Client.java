@@ -5,8 +5,10 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -51,7 +53,21 @@ public class Client extends ApplicationAdapter {
           .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-              ch.pipeline().addLast(new EchoClientHandler());
+              ReliableInboundHandler in = new ReliableInboundHandler();
+              ReliableOutboundHandler out = new ReliableOutboundHandler();
+              final EchoClientHandler echo = new EchoClientHandler();
+              ch.pipeline()
+                  .addLast(in)
+                  .addLast(echo)
+                  .addLast(out)
+                  .addLast(new ChannelInboundHandlerAdapter() {
+                    @Override
+                    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                      echo.init(ctx.channel());
+                      ctx.pipeline().remove(this);
+                    }
+                  })
+                  ;
             }
           });
 
@@ -69,22 +85,26 @@ public class Client extends ApplicationAdapter {
       super(false);
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-      InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+    void init(Channel ch) {
+      InetSocketAddress remoteAddress = (InetSocketAddress) ch.remoteAddress();
       Gdx.app.log(TAG, "Connecting to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
 
       FlatBufferBuilder builder = new FlatBufferBuilder();
-      int headerOffset = Header.createHeader(builder, 0, 0, 0);
+      int headerOffset = Header.createHeader(builder, -1, -1, 0);
       Connection.startConnection(builder);
       int dataOffset = Connection.endConnection(builder);
       int offset = Netty.createNetty(builder, headerOffset, NettyData.Connection, dataOffset);
       Netty.finishSizePrefixedNettyBuffer(builder, offset);
 
-//      sanity(builder.dataBuffer());
+      sanity(builder.dataBuffer());
 
       ByteBuf byteBuf = Unpooled.wrappedBuffer(builder.dataBuffer());
-      ctx.writeAndFlush(byteBuf);
+      ch.writeAndFlush(byteBuf);
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
+      ctx.fireChannelRead(msg);
     }
 
     private void sanity(ByteBuffer buffer) {
@@ -96,20 +116,10 @@ public class Client extends ApplicationAdapter {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
-//      ctx.writeAndFlush(msg);
-      msg.release();
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-//      System.out.println("Read complete.");
-    }
-
-    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
       Gdx.app.error(TAG, cause.getMessage(), cause);
       ctx.close();
+      ctx.fireExceptionCaught(cause);
     }
   }
 }
