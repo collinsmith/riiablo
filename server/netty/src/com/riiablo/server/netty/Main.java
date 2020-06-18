@@ -26,9 +26,12 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
+import com.riiablo.net.packet.netty.Connection;
+import com.riiablo.net.packet.netty.Disconnect;
 import com.riiablo.net.packet.netty.Header;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
+import com.riiablo.net.packet.netty.Ping;
 
 public class Main extends ApplicationAdapter {
   private static final String TAG = "Server";
@@ -75,11 +78,35 @@ public class Main extends ApplicationAdapter {
             protected void initChannel(DatagramChannel ch) {
               ch.pipeline()
                   .addLast(new PacketHandler() {
-                    final String TAG = "abstract PacketHandler";
+                    final String TAG = "PacketHandler$1";
 
                     @Override
                     protected void processPacket(ChannelHandlerContext ctx, Netty netty) {
                       Gdx.app.debug(TAG, "Processing packet...");
+                      byte dataType = netty.dataType();
+                      if (0 <= dataType && dataType < NettyData.names.length) {
+                        Gdx.app.debug(TAG, "dataType=" + NettyData.name(dataType));
+                      }
+                      switch (dataType) {
+                        case NettyData.Connection: {
+                          Connection packet = (Connection) netty.data(new Connection());
+                          break;
+                        }
+                        case NettyData.Disconnect: {
+                          Disconnect packet = (Disconnect) netty.data(new Disconnect());
+                          break;
+                        }
+                        case NettyData.Ping: {
+                          Ping ping = (Ping) netty.data(new Ping());
+                          break;
+                        }
+                        default:
+                          if (0 <= dataType && dataType < NettyData.names.length) {
+                            Gdx.app.error(TAG, "Ignoring packet /w data type " + dataType + " (" + NettyData.name(dataType) + ")");
+                          } else {
+                            Gdx.app.error(TAG, "Ignoring packet /w data type " + dataType);
+                          }
+                      }
                     }
                   })
                   ;

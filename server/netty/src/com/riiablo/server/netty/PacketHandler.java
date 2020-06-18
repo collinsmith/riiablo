@@ -13,7 +13,6 @@ import com.badlogic.gdx.Gdx;
 
 import com.riiablo.net.packet.netty.Header;
 import com.riiablo.net.packet.netty.Netty;
-import com.riiablo.net.packet.netty.NettyData;
 
 public abstract class PacketHandler implements ChannelInboundHandler {
   private static final String TAG = "PacketHandler";
@@ -35,7 +34,6 @@ public abstract class PacketHandler implements ChannelInboundHandler {
     try {
       ByteBuffer buffer = in.nioBuffer();
       Packet packet = Packet.obtain(0, buffer);
-      Gdx.app.log(TAG, "  " + NettyData.name(packet.data.dataType()));
       processHeader(ctx, packet.data.header());
       processPacket(ctx, packet.data);
     } finally {
