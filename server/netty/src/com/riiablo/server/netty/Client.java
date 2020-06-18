@@ -1,6 +1,5 @@
 package com.riiablo.server.netty;
 
-import com.google.flatbuffers.ByteBufferUtil;
 import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -15,7 +14,6 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -89,8 +87,6 @@ public class Client extends ApplicationAdapter {
       int offset = Netty.createNetty(builder, headerOffset, NettyData.Connection, dataOffset);
       Netty.finishSizePrefixedNettyBuffer(builder, offset);
 
-      sanity(builder.dataBuffer());
-
       ByteBuf byteBuf = Unpooled.wrappedBuffer(builder.dataBuffer());
       ctx.writeAndFlush(byteBuf);
     }
@@ -98,14 +94,6 @@ public class Client extends ApplicationAdapter {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
       ctx.fireChannelRead(msg);
-    }
-
-    private void sanity(ByteBuffer buffer) {
-      ByteBuffer tmp = ByteBufferUtil.removeSizePrefix(buffer);
-      Netty netty = Netty.getRootAsNetty(tmp);
-      Gdx.app.log(TAG, "  " + NettyData.name(netty.dataType()));
-      Header header = netty.header(new Header());
-      Gdx.app.log(TAG, "  " + String.format("SEQ:%d ACK:%d ACK_BITS:%08x", header.sequence(), header.ack(), header.ackBits()));
     }
 
     @Override
