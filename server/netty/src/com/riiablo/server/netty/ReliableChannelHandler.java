@@ -1,6 +1,7 @@
 package com.riiablo.server.netty;
 
 import com.google.flatbuffers.ByteBufferUtil;
+import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;
@@ -24,6 +25,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
   private static final String TAG = "ReliableChannelHandler";
 
   private static final boolean DEBUG          = true;
+  private static final boolean DEBUG_SEQ      = DEBUG && true;
   private static final boolean DEBUG_OUTBOUND = DEBUG && true;
 
   private final TypeParameterMatcher matcher;
@@ -57,16 +59,59 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
   }
 
   protected void processHeader(ChannelHandlerContext ctx, Header header) throws Exception {
-    Gdx.app.log(TAG, "  " + String.format("SEQ:%d ACK:%d ACK_BITS:%08x", header.sequence(), header.ack(), header.ackBits()));
+    Gdx.app.log(TAG, "  incoming " + String.format("SEQ:%d ACK:%d ACK_BITS:%08x", header.sequence(), header.ack(), header.ackBits()));
+    int remoteSeq = header.sequence();
+    if (ack < 0) {
+      ack = remoteSeq;
+      Gdx.app.log(TAG, "  init ack=" + ack);
+    } else if (sequenceGreater(remoteSeq, ack)) {
+      int shift = difference(remoteSeq, ack);
+      Gdx.app.log(TAG, "  remoteSeq=" + remoteSeq + "; ack=" + ack + "; shift=" + shift);
+      ack_bits <<= shift;
+      ack_bits |= (1 << (shift - 1));
+      ack = remoteSeq;
+    } else {
+      int diff = difference(ack, remoteSeq);
+      Gdx.app.log(TAG, "  diff=" + diff);
+      if (diff <= Integer.SIZE) {
+        ack_bits |= (1 << (diff - 1));
+      }
+    }
+
+    Gdx.app.log(TAG, "  " + String.format("ACK:%d ACK_BITS:%08x", ack, ack_bits));
+  }
+
+  protected static boolean sequenceGreater(int a, int b) {
+    return ((a > b) && (a - b <= Short.MAX_VALUE))
+        || ((a < b) && (b - a >  Short.MAX_VALUE));
+  }
+
+  protected static int difference(int a, int b) {
+    assert sequenceGreater(a, b) : a + "<" +  b;
+    if ((a > b) && (a - b <= Short.MAX_VALUE)) {
+      return a - b;
+    } else {
+      return a + 0xFFFF - b + 1;
+    }
   }
 
   protected void processPacket(ChannelHandlerContext ctx, Netty netty) throws Exception {
 
   }
 
+  protected void createNetty(FlatBufferBuilder builder, byte data_type, int dataOffset) {
+    int headerOffset = createHeader(builder);
+    int offset = Netty.createNetty(builder, headerOffset, data_type, dataOffset);
+    Netty.finishSizePrefixedNettyBuffer(builder, offset);
+  }
+
+  protected int createHeader(FlatBufferBuilder builder) {
+    return Header.createHeader(builder, seq = (seq + 1) & 0xFFFF, ack, ack_bits);
+  }
+
   protected void channelWrite0(ChannelHandlerContext ctx, Object msg) throws Exception {
     InetSocketAddress receiver = (InetSocketAddress) ctx.channel().remoteAddress();
-    Gdx.app.log(TAG, "channelRead0 Packet to " + receiver.getHostName() + ":" + receiver.getPort());
+    Gdx.app.log(TAG, "channelWrite0 Packet to " + receiver.getHostName() + ":" + receiver.getPort());
     ByteBuf out = (ByteBuf) msg;
     try {
       Gdx.app.debug(TAG, "out.nioBufferCount()=" + out.nioBufferCount());
