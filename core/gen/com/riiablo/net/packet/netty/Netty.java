@@ -14,26 +14,37 @@ public final class Netty extends Table {
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public Netty __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public Header header() { return header(new Header()); }
-  public Header header(Header obj) { int o = __offset(4); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
-  public byte dataType() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public Table data(Table obj) { int o = __offset(8); return o != 0 ? __union(obj, o) : null; }
+  public int protocol() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
+  public int sequence() { int o = __offset(6); return o != 0 ? bb.getShort(o + bb_pos) & 0xFFFF : 0; }
+  public int ack() { int o = __offset(8); return o != 0 ? bb.getShort(o + bb_pos) & 0xFFFF : 0; }
+  public int ackBits() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public byte dataType() { int o = __offset(12); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public Table data(Table obj) { int o = __offset(14); return o != 0 ? __union(obj, o) : null; }
 
   public static int createNetty(FlatBufferBuilder builder,
-      int headerOffset,
+      int protocol,
+      int sequence,
+      int ack,
+      int ack_bits,
       byte data_type,
       int dataOffset) {
-    builder.startObject(3);
+    builder.startObject(6);
     Netty.addData(builder, dataOffset);
-    Netty.addHeader(builder, headerOffset);
+    Netty.addAckBits(builder, ack_bits);
+    Netty.addAck(builder, ack);
+    Netty.addSequence(builder, sequence);
     Netty.addDataType(builder, data_type);
+    Netty.addProtocol(builder, protocol);
     return Netty.endNetty(builder);
   }
 
-  public static void startNetty(FlatBufferBuilder builder) { builder.startObject(3); }
-  public static void addHeader(FlatBufferBuilder builder, int headerOffset) { builder.addOffset(0, headerOffset, 0); }
-  public static void addDataType(FlatBufferBuilder builder, byte dataType) { builder.addByte(1, dataType, 0); }
-  public static void addData(FlatBufferBuilder builder, int dataOffset) { builder.addOffset(2, dataOffset, 0); }
+  public static void startNetty(FlatBufferBuilder builder) { builder.startObject(6); }
+  public static void addProtocol(FlatBufferBuilder builder, int protocol) { builder.addByte(0, (byte)protocol, (byte)0); }
+  public static void addSequence(FlatBufferBuilder builder, int sequence) { builder.addShort(1, (short)sequence, (short)0); }
+  public static void addAck(FlatBufferBuilder builder, int ack) { builder.addShort(2, (short)ack, (short)0); }
+  public static void addAckBits(FlatBufferBuilder builder, int ackBits) { builder.addInt(3, ackBits, 0); }
+  public static void addDataType(FlatBufferBuilder builder, byte dataType) { builder.addByte(4, dataType, 0); }
+  public static void addData(FlatBufferBuilder builder, int dataOffset) { builder.addOffset(5, dataOffset, 0); }
   public static int endNetty(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

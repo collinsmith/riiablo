@@ -2,13 +2,6 @@ include "Packets.fbs";
 
 namespace com.riiablo.net.packet.netty;
 
-table Header {
-  protocol:uint8;
-  sequence:uint16;
-  ack:uint16;
-  ack_bits:int32;
-}
-
 union NettyData {
   Connection,
   Disconnect,
@@ -16,7 +9,13 @@ union NettyData {
 }
 
 table Netty {
-  header:Header;
+  // Header
+  protocol:uint8;
+  sequence:uint16;
+  ack:uint16;
+  ack_bits:int32;
+
+  // Content
   data:NettyData;
 }
 
