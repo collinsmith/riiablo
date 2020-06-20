@@ -1,8 +1,8 @@
 package com.riiablo.server.netty;
 
-import com.google.flatbuffers.ByteBufferUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -25,6 +25,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
   private static final boolean DEBUG          = true;
   private static final boolean DEBUG_SEQ      = DEBUG && true;
   private static final boolean DEBUG_OUTBOUND = DEBUG && true;
+  private static final boolean DEBUG_INBOUND  = DEBUG && true;
 
   private final TypeParameterMatcher matcher;
 
@@ -46,9 +47,13 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     InetSocketAddress sender = msg.sender();
     Gdx.app.log(TAG, "channelRead0 Packet from " + sender.getHostName() + ":" + sender.getPort());
     ByteBuf in = msg.content();
+    if (DEBUG_INBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(in));
     try {
       boolean valid = processHeader(ctx, in);
-      ByteBuffer buffer = in.nioBuffer();
+      if (!valid) return;
+      ByteBuf content = ReliableUtil.getContent(in);
+      if (DEBUG_INBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(content));
+      ByteBuffer buffer = content.nioBuffer();
       Packet packet = Packet.obtain(0, buffer);
       processPacket(ctx, packet.data);
     } finally {
@@ -57,6 +62,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
   }
 
   protected boolean processHeader(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+    if (DEBUG_INBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(ReliableUtil.getHeader(in)));
     int remoteProtocol = ReliableUtil.getProtocol(in);
     if (remoteProtocol != PROTOCOL) {
       Gdx.app.log(TAG, String.format("  rejected incoming PROTO:%d", remoteProtocol));
@@ -66,8 +72,9 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     int remoteSeq = ReliableUtil.getSEQ(in);
     int remoteAck = ReliableUtil.getACK(in);
     int remoteAckBits = ReliableUtil.getACK_BITS(in);
+    int csize = ReliableUtil.getContentSize(in);
 
-    Gdx.app.log(TAG, "  accepted incoming " + String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x", remoteProtocol, remoteSeq, remoteAck, remoteAckBits));
+    Gdx.app.log(TAG, "  accepted incoming " + ReliableUtil.toString(in));
     if (ack < 0) {
       ack = remoteSeq;
       Gdx.app.log(TAG, "  init ack=" + ack);
@@ -111,20 +118,26 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     return seq = (seq + 1) & 0xFFFF;
   }
 
-  protected void channelWrite0(ChannelHandlerContext ctx, Object msg) throws Exception {
+  protected Object channelWrite0(ChannelHandlerContext ctx, Object msg) throws Exception {
     InetSocketAddress receiver = (InetSocketAddress) ctx.channel().remoteAddress();
     Gdx.app.log(TAG, "channelWrite0 Packet to " + receiver.getHostName() + ":" + receiver.getPort());
-    ByteBuf out = (ByteBuf) msg;
-    try {
-      Gdx.app.debug(TAG, "out.nioBufferCount()=" + out.nioBufferCount());
-      ByteBuffer nioBuffer = out.nioBufferCount() > 0
-          ? out.nioBuffer()
-          : ByteBuffer.wrap(ByteBufUtil.getBytes(out));
-      Gdx.app.debug(TAG, "nioBuffer=" + nioBuffer);
-      nioBuffer = ByteBufferUtil.removeSizePrefix(nioBuffer);
-      Gdx.app.log(TAG, "  " + String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x", 0, 0, 0, 0));
-    } finally {
-    }
+
+    ByteBuf header = ctx.alloc().buffer(); // TODO: worth sizing this correctly?
+    ReliableUtil.createHeader(header, PROTOCOL, nextSequence(), ack, ack_bits);
+    if (DEBUG_SEQ) Gdx.app.log(TAG, "  " + ReliableUtil.toString(header));
+    if (DEBUG_OUTBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(header));
+
+    ByteBuf content = (ByteBuf) msg;
+    ReliableUtil.setContentSize(header, content.readableBytes());
+
+    CompositeByteBuf composite = ctx.alloc().compositeBuffer(2)
+        .addComponent(true, header)
+        .addComponent(true, content);
+
+    if (DEBUG_OUTBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(content));
+    if (DEBUG_OUTBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(composite));
+
+    return composite;
   }
 
   @Override
@@ -225,7 +238,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
     Gdx.app.debug(TAG, "write");
-    if (DEBUG_OUTBOUND) channelWrite0(ctx, msg);
+    msg = channelWrite0(ctx, msg);
     ctx.write(msg, promise);
   }
 

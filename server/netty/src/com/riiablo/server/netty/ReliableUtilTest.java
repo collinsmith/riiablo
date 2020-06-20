@@ -6,11 +6,13 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
+import java.nio.ByteBuffer;
 import org.apache.commons.lang3.StringUtils;
 
 import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
+import com.riiablo.util.BufferUtils;
 
 public class ReliableUtilTest {
   public static void main(String[] args) {
@@ -72,13 +74,7 @@ public class ReliableUtilTest {
     final int ACK_BITS = 0xFF0000FF;
 
     ByteBuf bbHeader = bb.alloc().buffer();
-
-    ReliableUtil.setProtocol(bbHeader, PROTOCOL);
-    ReliableUtil.setSEQ(bbHeader, SEQ);
-    ReliableUtil.setACK(bbHeader, ACK);
-    ReliableUtil.setACK_BITS(bbHeader, ACK_BITS);
-
-    bbHeader.writerIndex(ReliableUtil.CONTENT_OFFSET); // hack to force writer position passed header
+    ReliableUtil.createHeader(bbHeader, PROTOCOL, SEQ, ACK, ACK_BITS);
     System.out.println("HEADER:  " + ByteBufUtil.hexDump(bbHeader)); // note: hexDump requires writerIndex
 
     FlatBufferBuilder builder = new FlatBufferBuilder();
@@ -88,14 +84,16 @@ public class ReliableUtilTest {
     Netty.finishNettyBuffer(builder, offset);
 
     ByteBuf bbContent = bb.alloc().buffer();
+    ByteBuffer dataBuffer = builder.dataBuffer();
+    dataBuffer.mark();
     bbContent.writeBytes(builder.dataBuffer());
+    dataBuffer.reset();
 
     System.out.println("CONTENT: " + ByteBufUtil.hexDump(bbContent)); // note: hexDump requires writerIndex
 
-    bb.addComponents(bbHeader, bbContent);
+    bb.addComponents(true, bbHeader, bbContent);
 
     ReliableUtil.setContentSize(bb, bbContent.readableBytes());
-    bb.writerIndex(ReliableUtil.CONTENT_OFFSET + ReliableUtil.getContentSize(bb)); // hack to force writer position passed content
     System.out.println(ByteBufUtil.hexDump(bb)); // note: hexDump requires writerIndex
 
     System.out.printf("%-8s %-5s %02x%n", "PROTOCOL", PROTOCOL == ReliableUtil.getProtocol(bb), ReliableUtil.getProtocol(bb));
@@ -104,5 +102,9 @@ public class ReliableUtilTest {
     System.out.printf("%-8s %-5s %08x%n", "ACK_BITS", ACK_BITS == ReliableUtil.getACK_BITS(bb), ReliableUtil.getACK_BITS(bb));
     System.out.printf("%-8s %-5s %04x%n", "CSIZE", builder.dataBuffer().remaining() == ReliableUtil.getContentSize(bb), ReliableUtil.getContentSize(bb));
     System.out.printf("%-8s %-5s %s%n",   "CONTENT", StringUtils.equals(ByteBufUtil.hexDump(builder.sizedByteArray()), ByteBufUtil.hexDump(ReliableUtil.getContent(bb))), ByteBufUtil.hexDump(ReliableUtil.getContent(bb)));
+
+    ByteBuf content = ReliableUtil.getContent(bb);
+    ByteBuffer nioContent = content.nioBuffer();
+    System.out.println(ByteBufUtil.hexDump(BufferUtils.readRemaining(nioContent)));
   }
 }

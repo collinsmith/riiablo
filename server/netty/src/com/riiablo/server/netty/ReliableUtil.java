@@ -44,6 +44,10 @@ public class ReliableUtil {
     return bb.getUnsignedShort(CONTENT_SIZE_OFFSET);
   }
 
+  public static ByteBuf getHeader(ByteBuf bb) {
+    return bb.slice(0, CONTENT_OFFSET);
+  }
+
   public static ByteBuf getContent(ByteBuf bb) {
     return bb.slice(CONTENT_OFFSET, getContentSize(bb));
   }
@@ -74,5 +78,18 @@ public class ReliableUtil {
     src.mark();
     bb.setBytes(CONTENT_OFFSET, src);
     src.reset();
+  }
+
+  static void createHeader(ByteBuf bb, int protocol, int seq, int ack, int ack_bits) {
+    bb.writerIndex(CONTENT_OFFSET);
+    setProtocol(bb, protocol);
+    setSEQ(bb, seq);
+    setACK(bb, ack);
+    setACK_BITS(bb, ack_bits);
+  }
+
+  static String toString(ByteBuf bb) {
+    return String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x CSIZE:%d",
+        getProtocol(bb), getSEQ(bb), getACK(bb), getACK_BITS(bb), getContentSize(bb));
   }
 }
