@@ -2,15 +2,23 @@ package com.riiablo.engine.client;
 
 import com.google.flatbuffers.ByteBufferUtil;
 import com.google.flatbuffers.Table;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.util.Arrays;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.physics.box2d.Body;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.codec.util.BitStream;
@@ -69,13 +77,6 @@ import com.riiablo.util.ArrayUtils;
 import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.widget.TextArea;
-
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.util.Arrays;
 
 @All
 public class ClientNetworkReceiver extends IntervalSystem {
@@ -136,7 +137,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
           if (DEBUG_PACKET) Gdx.app.debug(TAG, p++ + " packet type " + D2GSData.name(d2gs.dataType()) + ":" + size + "B");
           process(d2gs);
 //          System.out.println(buffer.position() + "->" + (buffer.position() + size + 4));
-          buffer.position(buffer.position() + size + 4);
+          buffer.position(buffer.position() + size + 4); // advance position passed current packet + size prefix of next packet
         }
       }
     } catch (Throwable t) {

@@ -2,14 +2,22 @@ package com.riiablo.engine.client;
 
 import com.google.flatbuffers.ByteBufferUtil;
 import com.google.flatbuffers.FlatBufferBuilder;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.net.Socket;
+
 import com.riiablo.Riiablo;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.CofAlphas;
@@ -31,13 +39,6 @@ import com.riiablo.net.packet.d2gs.PositionP;
 import com.riiablo.net.packet.d2gs.VelocityP;
 import com.riiablo.save.CharData;
 import com.riiablo.util.ArrayUtils;
-
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 
 @All
 public class ClientNetworkSyncronizer extends IntervalSystem {
@@ -110,6 +111,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
       WritableByteChannel channelOut = Channels.newChannel(out);
       channelOut.write(builder.dataBuffer());
 
+      // Before we can connect, we need to wait for our connection ack to be received
       boolean connected = false;
       ByteBuffer buffer = ByteBuffer.allocate(1 << 20).order(ByteOrder.LITTLE_ENDIAN);
       while (!connected) {
@@ -127,7 +129,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
             if (!connected) {
               if (DEBUG_CONNECT) Gdx.app.debug(TAG, "dropping... ");
 //              System.out.println(buffer.position() + "->" + (buffer.position() + size + 4));
-              buffer.position(buffer.position() + size + 4);
+              buffer.position(buffer.position() + size + 4); // advance position passed current packet + size prefix of next packet
               continue;
             }
             Connection connection = (Connection) d2gs.data(new Connection());
@@ -135,7 +137,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
             if (!connected) {
               if (DEBUG_CONNECT) Gdx.app.debug(TAG, "dropping... ");
 //              System.out.println(buffer.position() + "->" + (buffer.position() + size + 4));
-              buffer.position(buffer.position() + size + 4);
+              buffer.position(buffer.position() + size + 4); // advance position passed current packet + size prefix of next packet
               continue;
             }
 
