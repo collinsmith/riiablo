@@ -64,10 +64,14 @@ public class ReliableUtil {
     bb.setInt(ACK_BITS_OFFSET, value);
   }
 
+  static void setContentSize(ByteBuf bb, int value) {
+    Validate.isTrue(value <= 0xFFFF, "cannot encode content size as ushort, src.remaining()=" + value);
+    bb.setShort(CONTENT_SIZE_OFFSET, value);
+  }
+
   static void setContent(ByteBuf bb, ByteBuffer src) {
-    Validate.isTrue(src.remaining() <= 0xFFFF, "cannot encode content size as ushort, src.remaining()=" + src.remaining());
+    setContentSize(bb, src.remaining());
     src.mark();
-    bb.setShort(CONTENT_SIZE_OFFSET, src.remaining());
     bb.setBytes(CONTENT_OFFSET, src);
     src.reset();
   }

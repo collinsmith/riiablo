@@ -23,6 +23,7 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
 import com.riiablo.net.packet.netty.Connection;
+import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
 
 public class Client extends ApplicationAdapter {
@@ -76,12 +77,12 @@ public class Client extends ApplicationAdapter {
 
     void init(ChannelHandlerContext ctx) {
       InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-      Gdx.app.log(TAG, "Connecting to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
+      Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
 
       FlatBufferBuilder builder = new FlatBufferBuilder();
       Connection.startConnection(builder);
       int dataOffset = Connection.endConnection(builder);
-      createNetty(builder, NettyData.Connection, dataOffset);
+      int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
 
       ByteBuf byteBuf = Unpooled.wrappedBuffer(builder.dataBuffer());
       ctx.writeAndFlush(byteBuf);

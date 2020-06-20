@@ -1,7 +1,6 @@
 package com.riiablo.server.netty;
 
 import com.google.flatbuffers.ByteBufferUtil;
-import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;
@@ -48,18 +47,27 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     Gdx.app.log(TAG, "channelRead0 Packet from " + sender.getHostName() + ":" + sender.getPort());
     ByteBuf in = msg.content();
     try {
+      boolean valid = processHeader(ctx, in);
       ByteBuffer buffer = in.nioBuffer();
       Packet packet = Packet.obtain(0, buffer);
-      processHeader(ctx, packet.data);
       processPacket(ctx, packet.data);
     } finally {
 //      in.release(); // Automatically released by channelRead() right now
     }
   }
 
-  protected void processHeader(ChannelHandlerContext ctx, Netty netty) throws Exception {
-    Gdx.app.log(TAG, "  incoming " + String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x", netty.protocol(), netty.sequence(), netty.ack(), netty.ackBits()));
-    int remoteSeq = netty.sequence();
+  protected boolean processHeader(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+    int remoteProtocol = ReliableUtil.getProtocol(in);
+    if (remoteProtocol != PROTOCOL) {
+      Gdx.app.log(TAG, String.format("  rejected incoming PROTO:%d", remoteProtocol));
+      return false;
+    }
+
+    int remoteSeq = ReliableUtil.getSEQ(in);
+    int remoteAck = ReliableUtil.getACK(in);
+    int remoteAckBits = ReliableUtil.getACK_BITS(in);
+
+    Gdx.app.log(TAG, "  accepted incoming " + String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x", remoteProtocol, remoteSeq, remoteAck, remoteAckBits));
     if (ack < 0) {
       ack = remoteSeq;
       Gdx.app.log(TAG, "  init ack=" + ack);
@@ -78,6 +86,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     }
 
     Gdx.app.log(TAG, "  " + String.format("ACK:%d ACK_BITS:%08x", ack, ack_bits));
+    return true;
   }
 
   protected static boolean sequenceGreater(int a, int b) {
@@ -98,9 +107,8 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
 
   }
 
-  protected void createNetty(FlatBufferBuilder builder, byte data_type, int dataOffset) {
-    int offset = Netty.createNetty(builder, PROTOCOL, seq = (seq + 1) & 0xFFFF, ack, ack_bits, data_type, dataOffset);
-    Netty.finishSizePrefixedNettyBuffer(builder, offset);
+  protected int nextSequence() {
+    return seq = (seq + 1) & 0xFFFF;
   }
 
   protected void channelWrite0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -114,8 +122,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
           : ByteBuffer.wrap(ByteBufUtil.getBytes(out));
       Gdx.app.debug(TAG, "nioBuffer=" + nioBuffer);
       nioBuffer = ByteBufferUtil.removeSizePrefix(nioBuffer);
-      Netty netty = Netty.getRootAsNetty(nioBuffer);
-      Gdx.app.log(TAG, "  " + String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x", netty.protocol(), netty.sequence(), netty.ack(), netty.ackBits()));
+      Gdx.app.log(TAG, "  " + String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x", 0, 0, 0, 0));
     } finally {
     }
   }
