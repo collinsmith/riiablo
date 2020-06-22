@@ -1,10 +1,13 @@
 package com.riiablo.net.reliable;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.badlogic.gdx.Gdx;
+
 public abstract class Packet {
+  private static final String TAG = "Packet";
+  
   static final int MAX_PACKET_HEADER_SIZE = 10;
   static final int FRAGMENT_HEADER_SIZE = 6;
 
@@ -43,17 +46,32 @@ public abstract class Packet {
     if ((ackBits & ACK_BYTE3_MASK) != ACK_BYTE3_MASK) bb.writeByte(ackBits >> 24);
   }
 
-  public static Packet readHeader(ReliableConfig config, ByteBuf bb) {
-    Validate.isTrue(bb.readableBytes() >= 1, "buffer too small for packet header");
-    byte prefixByte = bb.readByte();
-    if (isSinglePacket(prefixByte)) {
-      return new SinglePacket().readHeader(config, bb, prefixByte);
-    } else {
-      return new FragmentedPacket().readHeader(config, bb, prefixByte);
-    }
+  static void checkFormat(boolean b, String format, Object... args) {
+    checkFormat(b, String.format(format, args));
+  }
+  
+  static boolean checkFormat(boolean b, String format) {
+    if (!b) Gdx.app.error(TAG, format);
+    return b;
   }
 
-  abstract Packet readHeader(ReliableConfig config, ByteBuf bb, final byte prefixByte);
+  // Used for debugging purposes
+  @Deprecated
+  public static Packet readHeader(ReliableConfig config, ByteBuf bb) {
+    checkFormat(bb.readableBytes() >= 1, "buffer too small for packet header");
+    byte prefixByte = bb.readByte();
+    Packet packet;
+    if (isSinglePacket(prefixByte)) {
+      packet = new SinglePacket();
+    } else {
+      packet = new FragmentedPacket();
+    }
+
+    packet.readHeader(config, bb, prefixByte);
+    return packet;
+  }
+
+  abstract int readHeader(ReliableConfig config, ByteBuf bb, final byte prefixByte);
 
   static class SinglePacket extends Packet {
     public int channelId;
@@ -75,23 +93,23 @@ public abstract class Packet {
     }
 
     @Override
-    SinglePacket readHeader(ReliableConfig config, ByteBuf bb, byte prefixByte) {
-      Validate.isTrue((prefixByte & TYPE_MASK) == SINGLE, "packet header not flagged as single packet");
+    int readHeader(ReliableConfig config, ByteBuf bb, byte prefixByte) {
+      checkFormat((prefixByte & TYPE_MASK) == SINGLE, "packet header not flagged as single packet");
 
       int startIndex = bb.readerIndex();
 
-      Validate.isTrue(bb.readableBytes() >= 3, "buffer too small for packet header (1)");
+      checkFormat(bb.readableBytes() >= 3, "buffer too small for packet header (1)");
       channelId = bb.readUnsignedByte();
 
       // ack packets don't have sequence numbers
       sequence = (prefixByte & ACK) == ACK ? 0 : bb.readUnsignedShortLE();
 
       if ((prefixByte & SEQ_DIFF) == SEQ_DIFF) {
-        Validate.isTrue(bb.readableBytes() >= 1, "buffer too small for packet header (2)");
+        checkFormat(bb.readableBytes() >= 1, "buffer too small for packet header (2)");
         int sequenceDiff = bb.readUnsignedByte();
         ack = (short)(sequence - sequenceDiff);
       } else {
-        Validate.isTrue(bb.readableBytes() >= 2, "buffer too small for packet header (3)");
+        checkFormat(bb.readableBytes() >= 2, "buffer too small for packet header (3)");
         ack = bb.readUnsignedShortLE();
       }
 
@@ -100,7 +118,7 @@ public abstract class Packet {
         if ((prefixByte & i) == i) expectedBytes++;
       }
 
-      Validate.isTrue(bb.readableBytes() >= expectedBytes, "buffer too small for packet header (4)");
+      checkFormat(bb.readableBytes() >= expectedBytes, "buffer too small for packet header (4)");
       ackBits = 0xFFFFFFFF;
       if ((prefixByte & ACK_BYTE0) == ACK_BYTE0) {
         ackBits &= ~ACK_BYTE0_MASK;
@@ -120,7 +138,7 @@ public abstract class Packet {
       }
 
       headerSize = bb.readerIndex() - startIndex + 1; // include prefixByte
-      return this;
+      return headerSize;
     }
 
     static void writeHeader(ByteBuf bb, int channelId, int sequence, int ack, int ackBits) {
@@ -166,23 +184,24 @@ public abstract class Packet {
     }
 
     @Override
-    FragmentedPacket readHeader(ReliableConfig config, ByteBuf bb, final byte prefixByte) {
-      Validate.isTrue((prefixByte & TYPE_MASK) == FRAGMENTED, "packet header not flagged as fragmented packet");
+    int readHeader(ReliableConfig config, ByteBuf bb, final byte prefixByte) {
+      checkFormat((prefixByte & TYPE_MASK) == FRAGMENTED, "packet header not flagged as fragmented packet");
 
-      Validate.isTrue(bb.readableBytes() >= FRAGMENT_HEADER_SIZE, "buffer too small for fragment header");
+      checkFormat(bb.readableBytes() >= FRAGMENT_HEADER_SIZE, "buffer too small for fragment header");
       channelId = bb.readUnsignedByte();
       sequence = bb.readUnsignedShortLE();
 
       fragmentId = bb.readUnsignedByte();
       numFragments = bb.readUnsignedByte() + 1;
 
-      Validate.isTrue(numFragments <= config.maxFragments, "num fragments %d outside of range of max fragments %d", numFragments, config.maxFragments);
-      Validate.isTrue(fragmentId < numFragments, "fragment id %d outside of range of num fragments %d", fragmentId, numFragments);
+      checkFormat(numFragments <= config.maxFragments, "num fragments %d outside of range of max fragments %d", numFragments, config.maxFragments);
+      checkFormat(fragmentId < numFragments, "fragment id %d outside of range of num fragments %d", fragmentId, numFragments);
 
       if (fragmentId == 0) {
-        Validate.isTrue(bb.readableBytes() >= 1, "buffer too small for packet header");
-        SinglePacket packetHeader = new SinglePacket().readHeader(config, bb, bb.readByte());
-        Validate.isTrue(packetHeader.sequence == sequence, "bad packet sequence in fragment. expected %d, got %d", sequence, packetHeader.sequence);
+        checkFormat(bb.readableBytes() >= 1, "buffer too small for packet header");
+        SinglePacket packetHeader = new SinglePacket();
+        packetHeader.readHeader(config, bb, bb.readByte());
+        checkFormat(packetHeader.sequence == sequence, "bad packet sequence in fragment. expected %d, got %d", sequence, packetHeader.sequence);
         ack = packetHeader.ack;
         ackBits = packetHeader.ackBits;
       } else {
@@ -193,7 +212,9 @@ public abstract class Packet {
       // TODO: validate fragmentBytes <= fragmentSize
       // TODO: validate size of fragmentId == fragmentSize
 
-      return this;
+      // TODO: implement support
+      int headerSize = 0;
+      return headerSize;
     }
   }
 
