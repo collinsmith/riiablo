@@ -178,6 +178,16 @@ public abstract class Packet {
 
       writeAckBitByteFlags(bb, ackBits);
     }
+
+    static void writeAck(ByteBuf bb, int channelId, int ack, int ackBits) {
+      int prefixByte = getAckBitByteFlags(ackBits, ACK);
+
+      bb.writeByte(prefixByte);
+      bb.writeByte(channelId);
+      bb.writeShortLE(ack);
+
+      writeAckBitByteFlags(bb, ackBits);
+    }
   }
 
   static class FragmentedPacket extends Packet {
@@ -268,18 +278,6 @@ public abstract class Packet {
 
       headerSize = bb.readerIndex() - startIndex + 1; // include prefixByte
       return headerSize;
-    }
-  }
-
-  static class AckPacket {
-    static void writeHeader(ByteBuf bb, int channelId, int ack, int ackBits) {
-      int prefixByte = getAckBitByteFlags(ackBits, ACK);
-
-      bb.writeByte(prefixByte);
-      bb.writeByte(channelId);
-      bb.writeShortLE(ack);
-
-      writeAckBitByteFlags(bb, ackBits);
     }
   }
 }
