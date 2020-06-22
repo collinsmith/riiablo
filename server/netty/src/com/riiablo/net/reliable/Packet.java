@@ -46,19 +46,22 @@ public abstract class Packet {
     if ((ackBits & ACK_BYTE3_MASK) != ACK_BYTE3_MASK) bb.writeByte(ackBits >> 24);
   }
 
-  static void checkFormat(boolean b, String format, Object... args) {
-    checkFormat(b, String.format(format, args));
+  static void logError(String format, Object... args) {
+    logError(String.format(format, args));
   }
-  
-  static boolean checkFormat(boolean b, String format) {
-    if (!b) Gdx.app.error(TAG, format);
-    return b;
+
+  static void logError(String format) {
+    Gdx.app.error(TAG, format);
   }
 
   // Used for debugging purposes
   @Deprecated
   public static Packet readHeader(ReliableConfig config, ByteBuf bb) {
-    checkFormat(bb.readableBytes() >= 1, "buffer too small for packet header");
+    if (bb.readableBytes() < 1) {
+      logError("buffer too small for packet header");
+      return null;
+    }
+
     byte prefixByte = bb.readByte();
     Packet packet;
     if (isSinglePacket(prefixByte)) {
@@ -94,22 +97,34 @@ public abstract class Packet {
 
     @Override
     int readHeader(ReliableConfig config, ByteBuf bb, byte prefixByte) {
-      checkFormat((prefixByte & TYPE_MASK) == SINGLE, "packet header not flagged as single packet");
+      if ((prefixByte & TYPE_MASK) != SINGLE) {
+        logError("packet header not flagged as single packet");
+        return -1;
+      }
 
       int startIndex = bb.readerIndex();
 
-      checkFormat(bb.readableBytes() >= 3, "buffer too small for packet header (1)");
+      if (bb.readableBytes() < 3) {
+        logError("buffer too small for packet header (1)");
+        return -1;
+      }
       channelId = bb.readUnsignedByte();
 
       // ack packets don't have sequence numbers
       sequence = (prefixByte & ACK) == ACK ? 0 : bb.readUnsignedShortLE();
 
       if ((prefixByte & SEQ_DIFF) == SEQ_DIFF) {
-        checkFormat(bb.readableBytes() >= 1, "buffer too small for packet header (2)");
+        if (bb.readableBytes() < 1) {
+          logError("buffer too small for packet header (2)");
+          return -1;
+        }
         int sequenceDiff = bb.readUnsignedByte();
-        ack = (short)(sequence - sequenceDiff);
+        ack = (short) (sequence - sequenceDiff);
       } else {
-        checkFormat(bb.readableBytes() >= 2, "buffer too small for packet header (3)");
+        if (bb.readableBytes() < 2) {
+          logError("buffer too small for packet header (3)");
+          return -1;
+        }
         ack = bb.readUnsignedShortLE();
       }
 
@@ -118,7 +133,10 @@ public abstract class Packet {
         if ((prefixByte & i) == i) expectedBytes++;
       }
 
-      checkFormat(bb.readableBytes() >= expectedBytes, "buffer too small for packet header (4)");
+      if (bb.readableBytes() < expectedBytes) {
+        logError("buffer too small for packet header (4)");
+        return -1;
+      }
       ackBits = 0xFFFFFFFF;
       if ((prefixByte & ACK_BYTE0) == ACK_BYTE0) {
         ackBits &= ~ACK_BYTE0_MASK;
@@ -185,23 +203,41 @@ public abstract class Packet {
 
     @Override
     int readHeader(ReliableConfig config, ByteBuf bb, final byte prefixByte) {
-      checkFormat((prefixByte & TYPE_MASK) == FRAGMENTED, "packet header not flagged as fragmented packet");
+      if ((prefixByte & TYPE_MASK) != FRAGMENTED) {
+        logError("packet header not flagged as fragmented packet");
+        return -1;
+      }
 
-      checkFormat(bb.readableBytes() >= FRAGMENT_HEADER_SIZE, "buffer too small for fragment header");
+      if (bb.readableBytes() < FRAGMENT_HEADER_SIZE) {
+        logError("buffer too small for fragment header");
+        return -1;
+      }
       channelId = bb.readUnsignedByte();
       sequence = bb.readUnsignedShortLE();
 
       fragmentId = bb.readUnsignedByte();
       numFragments = bb.readUnsignedByte() + 1;
 
-      checkFormat(numFragments <= config.maxFragments, "num fragments %d outside of range of max fragments %d", numFragments, config.maxFragments);
-      checkFormat(fragmentId < numFragments, "fragment id %d outside of range of num fragments %d", fragmentId, numFragments);
+      if (numFragments > config.maxFragments) {
+        logError("num fragments %d outside of range of max fragments %d", numFragments, config.maxFragments);
+        return -1;
+      }
+      if (fragmentId >= numFragments) {
+        logError("fragment id %d outside of range of num fragments %d", fragmentId, numFragments);
+        return -1;
+      }
 
       if (fragmentId == 0) {
-        checkFormat(bb.readableBytes() >= 1, "buffer too small for packet header");
+        if (bb.readableBytes() < 1) {
+          logError("buffer too small for packet header");
+          return -1;
+        }
         SinglePacket packetHeader = new SinglePacket();
         packetHeader.readHeader(config, bb, bb.readByte());
-        checkFormat(packetHeader.sequence == sequence, "bad packet sequence in fragment. expected %d, got %d", sequence, packetHeader.sequence);
+        if (packetHeader.sequence != sequence) {
+          logError("bad packet sequence in fragment. expected %d, got %d", sequence, packetHeader.sequence);
+          return -1;
+        }
         ack = packetHeader.ack;
         ackBits = packetHeader.ackBits;
       } else {
