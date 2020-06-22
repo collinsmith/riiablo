@@ -189,6 +189,9 @@ public abstract class Packet {
     public int fragmentId;
     public int numFragments;
 
+    int headerSize;
+    int fragmentSize;
+
     @Override
     public String toString() {
       return new ToStringBuilder(this)
@@ -207,6 +210,8 @@ public abstract class Packet {
         logError("packet header not flagged as fragmented packet");
         return -1;
       }
+
+      int startIndex = bb.readerIndex();
 
       if (bb.readableBytes() < FRAGMENT_HEADER_SIZE) {
         logError("buffer too small for fragment header");
@@ -244,16 +249,24 @@ public abstract class Packet {
         }
         ack = packetHeader.ack;
         ackBits = packetHeader.ackBits;
+        fragmentSize = bb.readableBytes();
       } else {
         ack = 0;
         ackBits = 0;
+        fragmentSize = bb.readableBytes();
       }
 
-      // TODO: validate fragmentBytes <= fragmentSize
-      // TODO: validate size of fragmentId == fragmentSize
+      if (fragmentSize > config.fragmentSize) {
+        logError("fragment bytes %d > fragment size %d", fragmentSize, config.fragmentSize);
+        return -1;
+      }
 
-      // TODO: implement support
-      int headerSize = 0;
+      if (fragmentId != numFragments - 1 && fragmentSize != config.fragmentSize) {
+        logError("fragment %d is %d bytes, which is not the expected fragment size %d bytes", fragmentId, fragmentSize, config.fragmentSize);
+        return -1;
+      }
+
+      headerSize = bb.readerIndex() - startIndex + 1; // include prefixByte
       return headerSize;
     }
   }
