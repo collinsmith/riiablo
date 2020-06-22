@@ -1,4 +1,7 @@
 # Riiablo
+
+[Join us on Discord!](https://discord.gg/qRbWYNM)
+
 This is my attempt at rebuilding Diablo II from scratch. There is still a long
 ways to go, but a lot of the core is there. The game itself uses 100% original
 Diablo II assets which are not (and will never be) provided, i.e., you should
