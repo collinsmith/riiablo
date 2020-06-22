@@ -233,7 +233,11 @@ public abstract class Packet {
           return -1;
         }
         SinglePacket packetHeader = new SinglePacket();
-        packetHeader.readHeader(config, bb, bb.readByte());
+        int packetHeaderSize = packetHeader.readHeader(config, bb, bb.readByte());
+        if (packetHeaderSize < 0) {
+          logError("bad packet header in fragment");
+          return -1;
+        }
         if (packetHeader.sequence != sequence) {
           logError("bad packet sequence in fragment. expected %d, got %d", sequence, packetHeader.sequence);
           return -1;
