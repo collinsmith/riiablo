@@ -119,7 +119,7 @@ public abstract class Packet {
           return -1;
         }
         int sequenceDiff = bb.readUnsignedByte();
-        ack = (short) (sequence - sequenceDiff);
+        ack = (sequence - sequenceDiff) & 0xFFFF;
       } else {
         if (bb.readableBytes() < 2) {
           logError("buffer too small for packet header (3)");
