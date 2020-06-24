@@ -10,12 +10,13 @@ import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
 import com.riiablo.net.PacketProcessor;
+import com.riiablo.net.PacketSender;
 import com.riiablo.net.reliable.channel.ReliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableOrderedMessageChannel;
 import com.riiablo.util.EnumIntMap;
 
-public class ReliableEndpoint implements MessageChannel.PacketTransceiver {
+public class ReliableEndpoint implements PacketSender<QoS>, MessageChannel.PacketTransceiver {
   private static final String TAG = "ReliableEndpoint";
 
   private static final boolean DEBUG = true;
@@ -62,6 +63,13 @@ public class ReliableEndpoint implements MessageChannel.PacketTransceiver {
     for (MessageChannel mc : channels) if (mc != null) mc.update(delta, channel);
   }
 
+  @Override
+  public void sendMessage(ByteBuffer bb) {
+    if (DEBUG_SEND) Log.debug(TAG, "sendMessage (auto)");
+    sendMessage(QoS.Reliable, bb);
+  }
+
+  @Override
   public void sendMessage(QoS qos, ByteBuffer bb) {
     if (DEBUG_SEND) Log.debug(TAG, "sendMessage");
     if (DEBUG_QOS) Log.debug(TAG, "sending message with %s QoS (0x%02x)", qos, qos.ordinal());
