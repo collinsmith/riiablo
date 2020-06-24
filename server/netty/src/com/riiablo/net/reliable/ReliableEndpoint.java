@@ -6,7 +6,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
@@ -46,10 +45,6 @@ public class ReliableEndpoint implements PacketSender<QoS>, MessageChannel.Packe
     for (QoS qos : QoS.values()) {
       defaultChannels.put(qos, qos.ordinal());
     }
-  }
-
-  public InetSocketAddress remoteAddress() {
-    return channel.remoteAddress();
   }
 
   @Override

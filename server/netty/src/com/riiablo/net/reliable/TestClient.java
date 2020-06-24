@@ -61,7 +61,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
                     }
 
                     void init() {
-                      InetSocketAddress remoteAddress = endpoint.remoteAddress();
+                      InetSocketAddress remoteAddress = (InetSocketAddress) endpoint.channel().remoteAddress();
                       Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
 
                       FlatBufferBuilder builder = new FlatBufferBuilder();
