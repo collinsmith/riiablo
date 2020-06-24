@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable;
+package com.riiablo.net.tcp;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
@@ -8,11 +8,11 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.DatagramChannel;
-import io.netty.channel.socket.DatagramPacket;
-import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 
 import com.badlogic.gdx.Application;
@@ -28,6 +28,7 @@ import com.riiablo.net.PacketProcessor;
 import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
+import com.riiablo.net.reliable.QoS;
 
 public class TestClient extends ApplicationAdapter implements PacketProcessor {
   private static final String TAG = "Client";
@@ -39,23 +40,24 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     new HeadlessApplication(new TestClient(), config);
   }
 
-  private Endpoint<DatagramPacket, QoS> endpoint;
+  private Endpoint<ByteBuf, Object> endpoint;
 
   @Override
   public void create() {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-    EventLoopGroup group = new NioEventLoopGroup();
+    EventLoopGroup workerGroup = new NioEventLoopGroup();
     try {
       Bootstrap b = new Bootstrap()
-          .group(group)
-          .channel(NioDatagramChannel.class)
-          .handler(new ChannelInitializer<DatagramChannel>() {
+          .group(workerGroup)
+          .channel(NioSocketChannel.class)
+          .option(ChannelOption.SO_KEEPALIVE, true)
+          .handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(DatagramChannel ch) {
-              endpoint = new ReliableEndpoint(ch, TestClient.this);
+            protected void initChannel(SocketChannel ch) {
+              endpoint = new TcpEndpoint(ch, TestClient.this);
               ch.pipeline()
-                  .addLast(new EndpointedChannelHandler<>(DatagramPacket.class, endpoint))
+                  .addLast(new EndpointedChannelHandler<>(ByteBuf.class, endpoint))
                   .addLast(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -80,12 +82,13 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
             }
           });
 
-      ChannelFuture f = b.connect("localhost", TestServer.PORT);
+      ChannelFuture f = b.connect("localhost", TestServer.PORT).sync();
       f.channel().closeFuture().sync();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
     } finally {
-      group.shutdownGracefully();
+      workerGroup.shutdownGracefully();
+      Gdx.app.exit();
     }
   }
 

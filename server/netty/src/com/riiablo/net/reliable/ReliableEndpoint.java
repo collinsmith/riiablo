@@ -9,14 +9,14 @@ import io.netty.channel.socket.DatagramPacket;
 import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
+import com.riiablo.net.Endpoint;
 import com.riiablo.net.PacketProcessor;
-import com.riiablo.net.PacketSender;
 import com.riiablo.net.reliable.channel.ReliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableOrderedMessageChannel;
 import com.riiablo.util.EnumIntMap;
 
-public class ReliableEndpoint implements PacketSender<QoS>, MessageChannel.PacketTransceiver {
+public class ReliableEndpoint implements Endpoint<DatagramPacket, QoS>, MessageChannel.PacketTransceiver {
   private static final String TAG = "ReliableEndpoint";
 
   private static final boolean DEBUG = true;
@@ -52,10 +52,12 @@ public class ReliableEndpoint implements PacketSender<QoS>, MessageChannel.Packe
     return channel;
   }
 
+  @Override
   public void reset() {
     for (MessageChannel mc : channels) if (mc != null) mc.reset();
   }
 
+  @Override
   public void update(float delta) {
     for (MessageChannel mc : channels) if (mc != null) mc.update(delta, channel);
   }
@@ -82,6 +84,7 @@ public class ReliableEndpoint implements PacketSender<QoS>, MessageChannel.Packe
     mc.sendMessage(channelId, channel, Unpooled.wrappedBuffer(bb)); // automatically released
   }
 
+  @Override
   public void messageReceived(ChannelHandlerContext ctx, DatagramPacket packet) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onMessageReceived");
     int channelId = Packet.getChannelId(packet.content());
