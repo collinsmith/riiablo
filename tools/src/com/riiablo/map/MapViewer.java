@@ -1,11 +1,15 @@
 package com.riiablo.map;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
 import com.artemis.managers.TagManager;
+import net.mostlyoriginal.api.event.common.EventSystem;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -24,6 +28,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 import com.riiablo.COFs;
 import com.riiablo.Colors;
 import com.riiablo.Files;
@@ -64,6 +69,7 @@ import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.AnimStepper;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ItemInteractor;
+import com.riiablo.engine.server.ItemManager;
 import com.riiablo.engine.server.ObjectInitializer;
 import com.riiablo.engine.server.ObjectInteractor;
 import com.riiablo.engine.server.Pathfinder;
@@ -82,10 +88,6 @@ import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.util.DebugUtils;
-
-import net.mostlyoriginal.api.event.common.EventSystem;
-
-import org.apache.commons.lang3.math.NumberUtils;
 
 public class MapViewer extends ApplicationAdapter {
   private static final String TAG = "MapViewer";
@@ -206,6 +208,7 @@ public class MapViewer extends ApplicationAdapter {
         .with(mapManager)
         .with(new CofManager())
         .with(new ObjectInitializer())
+        .with(new ItemManager())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
         .with(new MenuManager(), new DialogManager())
 

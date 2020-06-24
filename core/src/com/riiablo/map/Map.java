@@ -1,6 +1,10 @@
 package com.riiablo.map;
 
+import java.util.Arrays;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.artemis.ComponentMapper;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.SmoothableGraphPath;
@@ -19,6 +23,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COFD2;
 import com.riiablo.codec.excel.Levels;
@@ -29,10 +34,6 @@ import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.component.Warp;
 import com.riiablo.map.pfa.AStarPathFinder;
 import com.riiablo.map.pfa.Point2;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.util.Arrays;
 
 public class Map implements Disposable {
   private static final String TAG = "Map";
