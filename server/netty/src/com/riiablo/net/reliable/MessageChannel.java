@@ -19,7 +19,7 @@ public abstract class MessageChannel implements ReliablePacketController.PacketL
   }
 
   public abstract void reset();
-  public abstract void update(long delta, DatagramChannel ch);
+  public abstract void update(float delta, DatagramChannel ch);
   public abstract void sendMessage(int channelId, DatagramChannel ch, ByteBuf bb);
   public abstract void onMessageReceived(ChannelHandlerContext ctx, DatagramPacket packet);
 

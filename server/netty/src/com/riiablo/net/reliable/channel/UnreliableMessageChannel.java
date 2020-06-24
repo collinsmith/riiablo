@@ -36,7 +36,7 @@ public class UnreliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void update(long delta, DatagramChannel ch) {
+  public void update(float delta, DatagramChannel ch) {
     packetController.update(delta);
   }
 
