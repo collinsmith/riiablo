@@ -96,12 +96,12 @@ public class ReliableEndpoint implements MessageChannel.PacketTransceiver {
   }
 
   @Override
-  public void receivePacket(int sequence, ByteBuf bb) {
-    packetProcessor.processPacket(sequence, bb);
+  public void receivePacket(ByteBuf bb) {
+    packetProcessor.processPacket(bb);
   }
 
   public interface PacketProcessor {
-    void processPacket(int sequence, ByteBuf bb);
+    void processPacket(ByteBuf bb);
   }
 
   public static final Stats stats = new Stats();

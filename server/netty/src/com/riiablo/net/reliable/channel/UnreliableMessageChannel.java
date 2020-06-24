@@ -27,7 +27,7 @@ public class UnreliableMessageChannel extends MessageChannel {
   @Override
   public void onPacketProcessed(int sequence, ByteBuf bb) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + bb);
-    packetTransceiver.receivePacket(sequence, bb);
+    packetTransceiver.receivePacket(bb);
   }
 
   @Override
