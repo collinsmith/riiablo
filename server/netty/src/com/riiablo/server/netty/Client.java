@@ -55,6 +55,8 @@ public class Client extends ApplicationAdapter {
                     @Override
                     public void channelActive(ChannelHandlerContext ctx) throws Exception {
                       client.init(ctx);
+                      client.init(ctx);
+                      client.init(ctx);
                       ctx.pipeline().remove(this);
                     }
                   })

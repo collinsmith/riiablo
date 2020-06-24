@@ -41,12 +41,12 @@ public class ReliableUtilTest {
     final int ACK      = 0x0F0F;
     final int ACK_BITS = 0xFF0000FF;
 
-    ReliableUtil.setProtocol(bb, PROTOCOL);
-    ReliableUtil.setSEQ(bb, SEQ);
-    ReliableUtil.setACK(bb, ACK);
-    ReliableUtil.setACK_BITS(bb, ACK_BITS);
+    Packet.Single.setProtocol(bb, PROTOCOL);
+    Packet.Single.setSEQ(bb, SEQ);
+    Packet.Single.setACK(bb, ACK);
+    Packet.Single.setACK_BITS(bb, ACK_BITS);
 
-    bb.writerIndex(ReliableUtil.CONTENT_OFFSET); // hack to force writer position passed header
+    bb.writerIndex(Packet.Single.CONTENT_OFFSET); // hack to force writer position passed header
     System.out.println(ByteBufUtil.hexDump(bb)); // note: hexDump requires writerIndex
 
     FlatBufferBuilder builder = new FlatBufferBuilder();
@@ -54,17 +54,17 @@ public class ReliableUtilTest {
     int dataOffset = Connection.endConnection(builder);
     int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
     Netty.finishNettyBuffer(builder, offset);
-    ReliableUtil.setContent(bb, builder.dataBuffer());
+    Packet.Single.setContent(bb, builder.dataBuffer());
 
-    bb.writerIndex(ReliableUtil.CONTENT_OFFSET + ReliableUtil.getContentSize(bb)); // hack to force writer position passed content
+    bb.writerIndex(Packet.Single.CONTENT_OFFSET + Packet.Single.getContentSize(bb)); // hack to force writer position passed content
     System.out.println(ByteBufUtil.hexDump(bb)); // note: hexDump requires writerIndex
 
-    System.out.printf("%-8s %-5s %02x%n", "PROTOCOL", PROTOCOL == ReliableUtil.getProtocol(bb), ReliableUtil.getProtocol(bb));
-    System.out.printf("%-8s %-5s %04x%n", "SEQ", SEQ == ReliableUtil.getSEQ(bb), ReliableUtil.getSEQ(bb));
-    System.out.printf("%-8s %-5s %04x%n", "ACK", ACK == ReliableUtil.getACK(bb), ReliableUtil.getACK(bb));
-    System.out.printf("%-8s %-5s %08x%n", "ACK_BITS", ACK_BITS == ReliableUtil.getACK_BITS(bb), ReliableUtil.getACK_BITS(bb));
-    System.out.printf("%-8s %-5s %04x%n", "CSIZE", builder.dataBuffer().remaining() == ReliableUtil.getContentSize(bb), ReliableUtil.getContentSize(bb));
-    System.out.printf("%-8s %-5s %s%n",   "CONTENT", StringUtils.equals(ByteBufUtil.hexDump(builder.sizedByteArray()), ByteBufUtil.hexDump(ReliableUtil.getContent(bb))), ByteBufUtil.hexDump(ReliableUtil.getContent(bb)));
+    System.out.printf("%-8s %-5s %02x%n", "PROTOCOL", PROTOCOL == Packet.Single.getProtocol(bb), Packet.Single.getProtocol(bb));
+    System.out.printf("%-8s %-5s %04x%n", "SEQ", SEQ == Packet.Single.getSEQ(bb), Packet.Single.getSEQ(bb));
+    System.out.printf("%-8s %-5s %04x%n", "ACK", ACK == Packet.Single.getACK(bb), Packet.Single.getACK(bb));
+    System.out.printf("%-8s %-5s %08x%n", "ACK_BITS", ACK_BITS == Packet.Single.getACK_BITS(bb), Packet.Single.getACK_BITS(bb));
+    System.out.printf("%-8s %-5s %04x%n", "CSIZE", builder.dataBuffer().remaining() == Packet.Single.getContentSize(bb), Packet.Single.getContentSize(bb));
+    System.out.printf("%-8s %-5s %s%n",   "CONTENT", StringUtils.equals(ByteBufUtil.hexDump(builder.sizedByteArray()), ByteBufUtil.hexDump(Packet.Single.getContent(bb))), ByteBufUtil.hexDump(Packet.Single.getContent(bb)));
   }
 
   static void testComposite(CompositeByteBuf bb) {
@@ -74,7 +74,7 @@ public class ReliableUtilTest {
     final int ACK_BITS = 0xFF0000FF;
 
     ByteBuf bbHeader = bb.alloc().buffer();
-    ReliableUtil.createHeader(bbHeader, PROTOCOL, SEQ, ACK, ACK_BITS);
+    Packet.Single.createHeader(bbHeader, PROTOCOL, SEQ, ACK, ACK_BITS);
     System.out.println("HEADER:  " + ByteBufUtil.hexDump(bbHeader)); // note: hexDump requires writerIndex
 
     FlatBufferBuilder builder = new FlatBufferBuilder();
@@ -93,17 +93,17 @@ public class ReliableUtilTest {
 
     bb.addComponents(true, bbHeader, bbContent);
 
-    ReliableUtil.setContentSize(bb, bbContent.readableBytes());
+    Packet.Single.setContentSize(bb, bbContent.readableBytes());
     System.out.println(ByteBufUtil.hexDump(bb)); // note: hexDump requires writerIndex
 
-    System.out.printf("%-8s %-5s %02x%n", "PROTOCOL", PROTOCOL == ReliableUtil.getProtocol(bb), ReliableUtil.getProtocol(bb));
-    System.out.printf("%-8s %-5s %04x%n", "SEQ", SEQ == ReliableUtil.getSEQ(bb), ReliableUtil.getSEQ(bb));
-    System.out.printf("%-8s %-5s %04x%n", "ACK", ACK == ReliableUtil.getACK(bb), ReliableUtil.getACK(bb));
-    System.out.printf("%-8s %-5s %08x%n", "ACK_BITS", ACK_BITS == ReliableUtil.getACK_BITS(bb), ReliableUtil.getACK_BITS(bb));
-    System.out.printf("%-8s %-5s %04x%n", "CSIZE", builder.dataBuffer().remaining() == ReliableUtil.getContentSize(bb), ReliableUtil.getContentSize(bb));
-    System.out.printf("%-8s %-5s %s%n",   "CONTENT", StringUtils.equals(ByteBufUtil.hexDump(builder.sizedByteArray()), ByteBufUtil.hexDump(ReliableUtil.getContent(bb))), ByteBufUtil.hexDump(ReliableUtil.getContent(bb)));
+    System.out.printf("%-8s %-5s %02x%n", "PROTOCOL", PROTOCOL == Packet.Single.getProtocol(bb), Packet.Single.getProtocol(bb));
+    System.out.printf("%-8s %-5s %04x%n", "SEQ", SEQ == Packet.Single.getSEQ(bb), Packet.Single.getSEQ(bb));
+    System.out.printf("%-8s %-5s %04x%n", "ACK", ACK == Packet.Single.getACK(bb), Packet.Single.getACK(bb));
+    System.out.printf("%-8s %-5s %08x%n", "ACK_BITS", ACK_BITS == Packet.Single.getACK_BITS(bb), Packet.Single.getACK_BITS(bb));
+    System.out.printf("%-8s %-5s %04x%n", "CSIZE", builder.dataBuffer().remaining() == Packet.Single.getContentSize(bb), Packet.Single.getContentSize(bb));
+    System.out.printf("%-8s %-5s %s%n",   "CONTENT", StringUtils.equals(ByteBufUtil.hexDump(builder.sizedByteArray()), ByteBufUtil.hexDump(Packet.Single.getContent(bb))), ByteBufUtil.hexDump(Packet.Single.getContent(bb)));
 
-    ByteBuf content = ReliableUtil.getContent(bb);
+    ByteBuf content = Packet.Single.getContent(bb);
     ByteBuffer nioContent = content.nioBuffer();
     System.out.println(ByteBufUtil.hexDump(BufferUtils.readRemaining(nioContent)));
   }

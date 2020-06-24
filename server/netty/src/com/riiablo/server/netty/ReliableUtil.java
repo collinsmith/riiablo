@@ -1,28 +1,76 @@
 package com.riiablo.server.netty;
 
-import io.netty.buffer.ByteBuf;
-import java.nio.ByteBuffer;
-import org.apache.commons.lang3.Validate;
-
 public class ReliableUtil {
   private ReliableUtil() {}
+/*
+  static final int PACKET_SINGLE   = 0;
+  static final int PACKET_FRAGMENT = 1;
+  static final int PACKET_SLICE    = 2;
+  static final int PACKET_SLICEACK = 3;
 
-  private static final int PROTOCOL_OFFSET     = 0;
-  private static final int PROTOCOL_SIZE       = 1; // ubyte
+  private static final int PROTOCOL_OFFSET = 0;
+  private static final int PROTOCOL_SIZE   = 1; // ubyte
 
-  private static final int SEQ_OFFSET          = PROTOCOL_OFFSET + PROTOCOL_SIZE;
-  private static final int SEQ_SIZE            = 2; // ushort
+  private static final int TYPE_OFFSET     = PROTOCOL_OFFSET + PROTOCOL_SIZE;
+  private static final int TYPE_SIZE       = 1; // ubyte
 
-  private static final int ACK_OFFSET          = SEQ_OFFSET + SEQ_SIZE;
-  private static final int ACK_SIZE            = 2; // ushort
+  private static final int SEQ_OFFSET      = TYPE_OFFSET + TYPE_SIZE;
+  private static final int SEQ_SIZE        = 2; // ushort
 
-  private static final int ACK_BITS_OFFSET     = ACK_OFFSET + ACK_SIZE;
-  private static final int ACK_BITS_SIZE       = 4; // int
+  static class TYPE0 {
+    private static final int ACK_OFFSET          = SEQ_OFFSET + SEQ_SIZE;
+    private static final int ACK_SIZE            = 2; // ushort
 
-  private static final int CONTENT_SIZE_OFFSET = ACK_BITS_OFFSET + ACK_BITS_SIZE;
-  private static final int CONTENT_SIZE_SIZE   = 2; // ushort
+    private static final int ACK_BITS_OFFSET     = ACK_OFFSET + ACK_SIZE;
+    private static final int ACK_BITS_SIZE       = 4; // int
 
-  static final int CONTENT_OFFSET = CONTENT_SIZE_OFFSET + CONTENT_SIZE_SIZE;
+    private static final int CONTENT_SIZE_OFFSET = ACK_BITS_OFFSET + ACK_BITS_SIZE;
+    private static final int CONTENT_SIZE_SIZE   = 2; // ushort
+
+    static final int CONTENT_OFFSET = CONTENT_SIZE_OFFSET + CONTENT_SIZE_SIZE;
+  }
+
+  static class TYPE1 {
+    private static final int FRAGID_OFFSET       = SEQ_OFFSET + SEQ_SIZE;
+    private static final int FRAGID_SIZE         = 1; // ubyte
+
+    private static final int NUMFRAG_OFFSET      = FRAGID_OFFSET + FRAGID_SIZE;
+    private static final int NUMFRAG_SIZE        = 1; // ubyte
+
+    private static final int FRAG_SIZE_OFFSET    = NUMFRAG_OFFSET + NUMFRAG_SIZE;
+    private static final int FRAG_SIZE_SIZE      = 2; // ushort
+
+    static final int CONTENT_OFFSET = FRAG_SIZE_OFFSET + FRAG_SIZE_SIZE;
+  }
+
+  static class TYPE2 {
+    private static final int CHUNKID_OFFSET      = SEQ_OFFSET + SEQ_SIZE;
+    private static final int CHUNKID_SIZE        = 1; // ubyte
+
+    private static final int SLICEID_OFFSET      = CHUNKID_OFFSET + CHUNKID_SIZE;
+    private static final int SLICEID_SIZE        = 1; // ubyte
+
+    private static final int NUMSLICE_OFFSET     = SLICEID_OFFSET + SLICEID_SIZE;
+    private static final int NUMSLICE_SIZE       = 1; // ubyte
+
+    private static final int SLICE_SIZE_OFFSET   = NUMSLICE_OFFSET + NUMSLICE_SIZE;
+    private static final int SLICE_SIZE_SIZE     = 2; // ushort
+
+    static final int CONTENT_OFFSET = SLICE_SIZE_OFFSET + SLICE_SIZE_SIZE;
+  }
+
+  static class TYPE3 {
+    private static final int CHUNKID_OFFSET      = SEQ_OFFSET + SEQ_SIZE;
+    private static final int CHUNKID_SIZE        = 1; // ubyte
+
+    private static final int NUMSLICE_OFFSET     = CHUNKID_OFFSET + CHUNKID_SIZE;
+    private static final int NUMSLICE_SIZE       = 1; // ubyte
+
+    private static final int ACK_BITS_OFFSET     = NUMSLICE_OFFSET + NUMSLICE_SIZE;
+    private static final int ACK_BITS_SIZE       = 32; // array
+
+    static final int CONTENT_OFFSET = ACK_BITS_OFFSET + ACK_BITS_SIZE;
+  }
 
   public static int getProtocol(ByteBuf bb) {
     return bb.getUnsignedByte(PROTOCOL_OFFSET);
@@ -92,4 +140,5 @@ public class ReliableUtil {
     return String.format("PROTO:%d SEQ:%d ACK:%d ACK_BITS:%08x CSIZE:%d",
         getProtocol(bb), getSEQ(bb), getACK(bb), getACK_BITS(bb), getContentSize(bb));
   }
+  */
 }

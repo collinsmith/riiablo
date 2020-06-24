@@ -51,10 +51,10 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     try {
       boolean valid = processHeader(ctx, in);
       if (!valid) return;
-      ByteBuf content = ReliableUtil.getContent(in);
+      ByteBuf content = Packet.Single.getContent(in);
       if (DEBUG_INBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(content));
       ByteBuffer buffer = content.nioBuffer();
-      Packet packet = Packet.obtain(0, buffer);
+      PacketTuple packet = PacketTuple.obtain(0, buffer);
       processPacket(ctx, packet.data);
     } finally {
 //      in.release(); // Automatically released by channelRead() right now
@@ -62,37 +62,55 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
   }
 
   protected boolean processHeader(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-    if (DEBUG_INBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(ReliableUtil.getHeader(in)));
-    int remoteProtocol = ReliableUtil.getProtocol(in);
+    int remoteProtocol = Packet.getProtocol(in);
     if (remoteProtocol != PROTOCOL) {
-      Gdx.app.log(TAG, String.format("  rejected incoming PROTO:%d", remoteProtocol));
+      Gdx.app.log(TAG, "  rejected incoming PROTO:" + remoteProtocol);
       return false;
     }
 
-    int remoteSeq = ReliableUtil.getSEQ(in);
-    int remoteAck = ReliableUtil.getACK(in);
-    int remoteAckBits = ReliableUtil.getACK_BITS(in);
-    int csize = ReliableUtil.getContentSize(in);
-
-    Gdx.app.log(TAG, "  accepted incoming " + ReliableUtil.toString(in));
-    if (ack < 0) {
-      ack = remoteSeq;
-      Gdx.app.log(TAG, "  init ack=" + ack);
-    } else if (sequenceGreater(remoteSeq, ack)) {
-      int shift = difference(remoteSeq, ack);
-      Gdx.app.log(TAG, "  remoteSeq=" + remoteSeq + "; ack=" + ack + "; shift=" + shift);
-      ack_bits <<= shift;
-      ack_bits |= (1 << (shift - 1));
-      ack = remoteSeq;
-    } else {
-      int diff = difference(ack, remoteSeq);
-      Gdx.app.log(TAG, "  diff=" + diff);
-      if (diff <= Integer.SIZE) {
-        ack_bits |= (1 << (diff - 1));
+    int type = Packet.getType(in);
+    if (DEBUG_INBOUND) {
+      ByteBuf header = null;
+      switch (type) {
+        case Packet.SINGLE:     header = Packet.Single.getHeader(in); break;
+        case Packet.FRAGMENTED: header = Packet.Fragmented.getHeader(in); break;
+        case Packet.SLICED:     header = Packet.Sliced.getHeader(in); break;
+        case Packet.SLICEDACK:  header = Packet.SlicedAck.getHeader(in); break;
+        default:
+          Gdx.app.log(TAG, "  rejected incoming TYPE:" + type);
+          return false;
       }
+      Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(header));
     }
 
-    Gdx.app.log(TAG, "  " + String.format("ACK:%d ACK_BITS:%08x", ack, ack_bits));
+    switch (type) {
+      case Packet.SINGLE: {
+        int remoteSeq = Packet.getSEQ(in);
+
+        Gdx.app.log(TAG, "  accepted incoming " + Packet.Single.toString(in));
+        if (ack < 0) {
+          ack = remoteSeq;
+          Gdx.app.log(TAG, "  init ack=" + ack);
+        } else if (sequenceGreater(remoteSeq, ack)) {
+          int shift = difference(remoteSeq, ack);
+          Gdx.app.log(TAG, "  remoteSeq=" + remoteSeq + "; ack=" + ack + "; shift=" + shift);
+          ack_bits <<= shift;
+          ack_bits |= (1 << (shift - 1));
+          ack = remoteSeq;
+        } else {
+          int diff = difference(ack, remoteSeq);
+          Gdx.app.log(TAG, "  diff=" + diff);
+          if (diff <= Integer.SIZE) {
+            ack_bits |= (1 << (diff - 1));
+          }
+        }
+
+        Gdx.app.log(TAG, "  " + String.format("ACK:%d ACK_BITS:%08x", ack, ack_bits));
+        break;
+      }
+      default:
+        throw new AssertionError();
+    }
     return true;
   }
 
@@ -123,12 +141,12 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     Gdx.app.log(TAG, "channelWrite0 Packet to " + receiver.getHostName() + ":" + receiver.getPort());
 
     ByteBuf header = ctx.alloc().buffer(); // TODO: worth sizing this correctly?
-    ReliableUtil.createHeader(header, PROTOCOL, nextSequence(), ack, ack_bits);
-    if (DEBUG_SEQ) Gdx.app.log(TAG, "  " + ReliableUtil.toString(header));
+    Packet.Single.createHeader(header, PROTOCOL, nextSequence(), ack, ack_bits);
+    if (DEBUG_SEQ) Gdx.app.log(TAG, "  " + Packet.Single.toString(header));
     if (DEBUG_OUTBOUND) Gdx.app.log(TAG, "  " + ByteBufUtil.hexDump(header));
 
     ByteBuf content = (ByteBuf) msg;
-    ReliableUtil.setContentSize(header, content.readableBytes());
+    Packet.Single.setContentSize(header, content.readableBytes());
 
     CompositeByteBuf composite = ctx.alloc().compositeBuffer(2)
         .addComponent(true, header)
