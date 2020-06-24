@@ -66,6 +66,13 @@ public class TestServer extends ApplicationAdapter implements ReliableEndpoint.P
   }
 
   @Override
+  public void render() {
+    if (endpoint != null && endpoint.isConnected()) {
+      endpoint.update(Gdx.graphics.getDeltaTime());
+    }
+  }
+
+  @Override
   public void processPacket(ByteBuf bb) {
     Gdx.app.debug(TAG, "Processing packet...");
     Gdx.app.log(TAG, ByteBufUtil.hexDump(bb));

@@ -49,6 +49,10 @@ public class ReliableEndpoint implements MessageChannel.PacketTransceiver {
     return channel.remoteAddress();
   }
 
+  public boolean isConnected() {
+    return channel.isConnected();
+  }
+
   public void reset() {
     for (MessageChannel mc : channels) if (mc != null) mc.reset();
   }
