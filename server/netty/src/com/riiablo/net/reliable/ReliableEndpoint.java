@@ -2,6 +2,7 @@ package com.riiablo.net.reliable;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
@@ -51,8 +52,9 @@ public class ReliableEndpoint implements PacketSender<QoS>, MessageChannel.Packe
     return channel.remoteAddress();
   }
 
-  public boolean isConnected() {
-    return channel.isConnected();
+  @Override
+  public Channel channel() {
+    return channel;
   }
 
   public void reset() {

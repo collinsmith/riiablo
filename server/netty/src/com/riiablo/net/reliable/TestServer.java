@@ -68,9 +68,7 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
 
   @Override
   public void render() {
-    if (endpoint != null && endpoint.isConnected()) {
-      endpoint.update(Gdx.graphics.getDeltaTime());
-    }
+    endpoint.update(Gdx.graphics.getDeltaTime());
   }
 
   @Override
