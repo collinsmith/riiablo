@@ -5,8 +5,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -58,31 +56,12 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
               endpoint = new TcpEndpoint(ch, TestClient.this);
               ch.pipeline()
                   .addLast(new EndpointedChannelHandler<>(ByteBuf.class, endpoint))
-                  .addLast(new ChannelInboundHandlerAdapter() {
-                    @Override
-                    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                      init();
-                      ctx.pipeline().remove(this);
-                    }
-
-                    void init() {
-                      InetSocketAddress remoteAddress = (InetSocketAddress) endpoint.channel().remoteAddress();
-                      Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
-
-                      FlatBufferBuilder builder = new FlatBufferBuilder();
-                      Connection.startConnection(builder);
-                      int dataOffset = Connection.endConnection(builder);
-                      int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
-                      Netty.finishNettyBuffer(builder, offset);
-
-                      endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
-                    }
-                  })
                   ;
             }
           });
 
       ChannelFuture f = b.connect("localhost", TestServer.PORT).sync();
+      sendPacket();
       f.channel().closeFuture().sync();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
@@ -90,6 +69,19 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
       workerGroup.shutdownGracefully();
       Gdx.app.exit();
     }
+  }
+
+  private void sendPacket() {
+    InetSocketAddress remoteAddress = (InetSocketAddress) endpoint.channel().remoteAddress();
+    Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
+
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    Connection.startConnection(builder);
+    int dataOffset = Connection.endConnection(builder);
+    int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
+    Netty.finishNettyBuffer(builder, offset);
+
+    endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
   }
 
   @Override
