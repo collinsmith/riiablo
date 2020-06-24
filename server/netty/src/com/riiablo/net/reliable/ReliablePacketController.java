@@ -23,6 +23,8 @@ public class ReliablePacketController {
   private final SequenceBuffer<ReceivedPacketData> receivedPackets;
   private final SequenceBuffer<FragmentReassemblyData> fragmentReassembly;
 
+  private long time;
+
   public ReliablePacketController(ReliableConfiguration config, MessageChannel channel) {
     this.config = config;
     this.channel = channel;
@@ -45,7 +47,7 @@ public class ReliablePacketController {
   }
 
   public void update(long time) {
-
+    this.time = time;
   }
 
   public void sendAck(int channelId, DatagramChannel ch) {
@@ -70,7 +72,7 @@ public class ReliablePacketController {
     }
 
     SentPacketData sentPacketData = sentPackets.insert(sequence);
-//    sentPacketData.time = this.time;
+    sentPacketData.time = this.time;
 //    sentPacketData.packetSize =
     sentPacketData.acked = false;
 
