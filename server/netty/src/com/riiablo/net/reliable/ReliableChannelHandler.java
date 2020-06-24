@@ -36,7 +36,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
 
   protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
     InetSocketAddress sender = packet.sender();
-    Gdx.app.log(TAG, "channelRead0 received packet from " + sender.getHostName() + ":" + sender.getPort());
+    Gdx.app.log(TAG, "messageReceived received packet from " + sender.getHostName() + ":" + sender.getPort());
     ByteBuf in = packet.content();
     if (DEBUG_INBOUND) Gdx.app.debug(TAG, "  " + ByteBufUtil.hexDump(in));
     endpoint.messageReceived(ctx, packet);
@@ -44,7 +44,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
 
   protected Object writeMessage(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
     InetSocketAddress receiver = (InetSocketAddress) ctx.channel().remoteAddress();
-    Gdx.app.log(TAG, "channelWrite0 sending packet to " + receiver.getHostName() + ":" + receiver.getPort());
+    Gdx.app.log(TAG, "writeMessage sending packet to " + receiver.getHostName() + ":" + receiver.getPort());
     ByteBuf out = msg;
     if (DEBUG_OUTBOUND) Gdx.app.debug(TAG, "  " + ByteBufUtil.hexDump(out));
     return msg;
