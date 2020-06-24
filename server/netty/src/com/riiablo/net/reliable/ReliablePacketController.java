@@ -137,17 +137,46 @@ public class ReliablePacketController {
           return;
         }
 
+        final boolean isStale;
         final int sequence = headerData.sequence;
-        if (!receivedPackets.testInsert(sequence)) {
+        synchronized (receivedPackets) {
+          isStale = !receivedPackets.testInsert(sequence);
+        }
+
+        final boolean isAck = Packet.isAck(flags);
+        if (!isStale && !isAck) {
+          if (DEBUG_RECEIVE) Log.debug(TAG, "processing packet %d", sequence);
+          ByteBuf slice = bb.readSlice(bb.readableBytes());
+          channel.onPacketProcessed(sequence, slice);
+          synchronized (receivedPackets) {
+            ReceivedPacketData receivedPacketData = receivedPackets.insert(sequence);
+            receivedPacketData.time = time;
+            receivedPacketData.packetSize =  packetSize;
+          }
+        }
+
+        if (!isStale || isAck) {
+          final int ack = headerData.ack;
+          for (int i = 0, ackBits = headerData.ackBits; i < Integer.SIZE && ackBits != 0; i++, ackBits >>>= 1) {
+            if ((ackBits & 1) != 0) {
+              int ackSequence = (ack - i) & Packet.USHORT_MAX_VALUE;
+              SentPacketData sentPacketData = sentPackets.find(ackSequence);
+              if (sentPacketData != null && !sentPacketData.acked) {
+                if (DEBUG_RECEIVE) Log.debug(TAG, "acked packet %d", ackSequence);
+                ReliableEndpoint.stats.NUM_PACKETS_ACKED++;
+                sentPacketData.acked = true;
+                // ack packet callback
+                // TODO: rtt
+              }
+            }
+          }
+        }
+
+        if (isStale) {
           Log.error(TAG, "ignoring stale packet %d", sequence);
           ReliableEndpoint.stats.NUM_PACKETS_STALE++;
           return;
         }
-
-        if (DEBUG_RECEIVE) Log.debug(TAG, "processing packet %d", sequence);
-        ByteBuf slice = bb.readSlice(bb.readableBytes());
-        channel.onPacketProcessed(sequence, slice);
-        // TODO...
       } finally {
         if (headerData != null) headerData.free();
       }

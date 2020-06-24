@@ -47,6 +47,10 @@ public class Packet {
     return (flags & TYPE_MASK) == FRAGMENTED;
   }
 
+  public static boolean isAck(byte flags) {
+    return (flags & ACK) == ACK;
+  }
+
   private static int getAckBitsFlags(int ackBits, int prefixByte) {
     if ((ackBits & ACK_BYTE0_MASK) != ACK_BYTE0_MASK) prefixByte |= ACK_BYTE0;
     if ((ackBits & ACK_BYTE1_MASK) != ACK_BYTE1_MASK) prefixByte |= ACK_BYTE1;
