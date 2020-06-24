@@ -117,5 +117,8 @@ public class ReliableEndpoint implements MessageChannel.PacketTransceiver {
     public int NUM_FRAGMENTS_SENT;
     public int NUM_FRAGMENTS_RECEIVED;
     public int NUM_FRAGMENTS_INVALID;
+    public int NUM_ACKS_SENT;
+    public int NUM_ACKS_RECEIVED;
+    public int NUM_ACKS_INVALID;
   }
 }

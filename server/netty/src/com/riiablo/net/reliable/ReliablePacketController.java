@@ -51,7 +51,21 @@ public class ReliablePacketController {
   }
 
   public void sendAck(int channelId, DatagramChannel ch) {
+    int ack, ackBits;
+    synchronized (receivedPackets) {
+      ack = receivedPackets.generateAck();
+      ackBits = receivedPackets.generateAckBits(ack);
+    }
 
+    ByteBuf packet = ch.alloc().directBuffer(config.packetHeaderSize);
+    int headerSize = Packet.writeAck(packet, channelId, ack, ackBits);
+    if (headerSize < 0) {
+      Log.error(TAG, "failed to write ack");
+      ReliableEndpoint.stats.NUM_ACKS_INVALID++;
+      return;
+    }
+
+    ch.writeAndFlush(packet);
   }
 
   public int sendPacket(int channelId, DatagramChannel ch, ByteBuf bb) {
