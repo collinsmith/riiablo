@@ -21,11 +21,12 @@ import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
+import com.riiablo.net.PacketProcessor;
 import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
 
-public class TestClient extends ApplicationAdapter implements ReliableEndpoint.PacketProcessor {
+public class TestClient extends ApplicationAdapter implements PacketProcessor {
   private static final String TAG = "Client";
 
   public static void main(String[] args) throws Exception {

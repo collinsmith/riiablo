@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
+import com.riiablo.net.PacketProcessor;
 import com.riiablo.net.reliable.channel.ReliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableOrderedMessageChannel;
@@ -102,10 +103,6 @@ public class ReliableEndpoint implements MessageChannel.PacketTransceiver {
   @Override
   public void receivePacket(ByteBuf bb) {
     packetProcessor.processPacket(bb);
-  }
-
-  public interface PacketProcessor {
-    void processPacket(ByteBuf bb);
   }
 
   public static final Stats stats = new Stats();
