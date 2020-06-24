@@ -53,8 +53,8 @@ public class ReliableEndpoint implements MessageChannel.PacketTransceiver {
     for (MessageChannel mc : channels) if (mc != null) mc.reset();
   }
 
-  public void update(long time) {
-    for (MessageChannel mc : channels) if (mc != null) mc.update(time, channel);
+  public void update(long delta) {
+    for (MessageChannel mc : channels) if (mc != null) mc.update(delta, channel);
   }
 
   public void sendMessage(QoS qos, ByteBuffer bb) {

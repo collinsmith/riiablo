@@ -22,7 +22,7 @@ public class ReliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void update(long time, DatagramChannel ch) {
+  public void update(long delta, DatagramChannel ch) {
 
   }
 

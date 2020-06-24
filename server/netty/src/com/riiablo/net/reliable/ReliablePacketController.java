@@ -46,7 +46,7 @@ public class ReliablePacketController {
 
   }
 
-  public void update(long time) {
+  public void update(long delta) {
     this.time = time;
   }
 

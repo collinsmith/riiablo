@@ -36,8 +36,8 @@ public class UnreliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void update(long time, DatagramChannel ch) {
-    packetController.update(time);
+  public void update(long delta, DatagramChannel ch) {
+    packetController.update(delta);
   }
 
   @Override
