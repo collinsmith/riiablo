@@ -63,12 +63,11 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
 
       ChannelFuture f = b.connect("localhost", TestServer.PORT).sync();
       sendPacket();
-      f.channel().closeFuture().sync();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
+      Gdx.app.exit();
     } finally {
       workerGroup.shutdownGracefully();
-      Gdx.app.exit();
     }
   }
 

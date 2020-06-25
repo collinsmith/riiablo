@@ -62,10 +62,10 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
       f.channel().closeFuture().sync();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
+      Gdx.app.exit();
     } finally {
       workerGroup.shutdownGracefully();
       bossGroup.shutdownGracefully();
-      Gdx.app.exit();
     }
   }
 
