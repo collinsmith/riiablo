@@ -235,7 +235,9 @@ public class ReliableMessageChannel extends MessageChannel {
     packet.time = -1.0f;
 
     // ensure size for header
-    // Is this appending the header length?
+    // TODO: there appears to be extra code here outside of the spec that aggregates multiple
+    //       messages together and prepends messageId and messageLength fields. Maybe this was done
+    //       to group up smaller messages? Needs to be looked into more.
     // https://github.com/KillaMaaki/ReliableNetcode.NET/blob/c5a7339e2de70f52bfda2078f1bbdab2ec9a85c1/ReliableNetcode/MessageChannel.cs#L331-L393
 
     packet.bb = bb;
@@ -254,9 +256,44 @@ public class ReliableMessageChannel extends MessageChannel {
   }
 
   @Override
+  public void onAckProcessed(int sequence) {
+    if (DEBUG_RECEIVE) Log.debug(TAG, "onAckProcessed " + sequence);
+    // first, map sequence to message IDs and ack them
+    OutgoingPacketSet outgoingPacket = ackBuffer.find(sequence);
+    if (outgoingPacket == null) return;
+
+    // process messages
+    final int[] messageIds = outgoingPacket.messageIds.items;
+    for (int i = 0, s = outgoingPacket.messageIds.size; i < s; i++) {
+      // remove acked message from send buffer
+      int messageId = messageIds[i];
+      if (sendBuffer.exists(messageId)) {
+        sendBuffer.find(messageId).writeLock = true;
+        sendBuffer.remove(messageId);
+      }
+    }
+
+    // update oldest unacked message
+    boolean allAcked = true;
+    for (int seq = oldestUnacked;
+         seq == this.sequence || ReliableUtils.sequenceLessThan(seq, this.sequence);
+         seq = (seq + 1) & Packet.USHORT_MAX_VALUE) {
+      // if it's still in the send buffer, it hasn't been acked
+      if (sendBuffer.exists(seq)) {
+        oldestUnacked = seq;
+        allAcked = false;
+        break;
+      }
+    }
+
+    if (allAcked) oldestUnacked = this.sequence;
+  }
+
+  @Override
   public void onPacketProcessed(int sequence, ByteBuf bb) {
-    if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + bb);
+    if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + sequence + " " + bb);
     packetTransceiver.receivePacket(bb);
+    // TODO: this is different from original function, see above note within #sendMessage
   }
 
   public static class BufferedPacket {

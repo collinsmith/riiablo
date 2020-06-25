@@ -53,7 +53,13 @@ public class UnreliableOrderedMessageChannel extends MessageChannel {
   }
 
   @Override
+  public void onAckProcessed(int sequence) {
+    if (DEBUG_RECEIVE) Log.debug(TAG, "onAckProcessed " + sequence);
+  }
+
+  @Override
   public void onPacketProcessed(int sequence, ByteBuf bb) {
+    if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + sequence + " " + bb);
     if (sequence == nextSequence || ReliableUtils.sequenceGreaterThan(sequence, nextSequence)) {
       nextSequence = (sequence + 1) & Packet.USHORT_MAX_VALUE;
       packetTransceiver.receivePacket(bb);

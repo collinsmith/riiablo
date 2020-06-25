@@ -183,6 +183,7 @@ public class ReliablePacketController {
       return;
     }
 
+    channel.onPacketTransmitted(packet);
     ch.writeAndFlush(packet);
   }
 
@@ -218,6 +219,7 @@ public class ReliablePacketController {
           .addComponent(true, header)
           .addComponent(true, bb);
 
+      channel.onPacketTransmitted(composite);
       ch.writeAndFlush(composite);
       return headerSize;
     } else {
@@ -283,8 +285,7 @@ public class ReliablePacketController {
                 if (DEBUG_RECEIVE) Log.debug(TAG, "acked packet %d", ackSequence);
                 ReliableEndpoint.stats.NUM_PACKETS_ACKED++;
                 sentPacketData.acked = true;
-
-                // ack packet callback
+                channel.onAckProcessed(ackSequence);
 
                 float rtt = (time - sentPacketData.time) * 1000f;
                 if ((this.rtt == 0.0f && rtt > 0.0f) || MathUtils.isEqual(this.rtt, rtt, TOLERANCE)) {
@@ -314,6 +315,7 @@ public class ReliablePacketController {
 
   public interface PacketListener {
     void onPacketTransmitted(ByteBuf bb);
+    void onAckProcessed(int sequence);
     void onPacketProcessed(int sequence, ByteBuf bb);
   }
 }
