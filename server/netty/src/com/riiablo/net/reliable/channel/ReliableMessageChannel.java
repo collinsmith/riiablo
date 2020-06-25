@@ -218,11 +218,34 @@ public class ReliableMessageChannel extends MessageChannel {
   @Override
   public void sendMessage(int channelId, DatagramChannel ch, ByteBuf bb) {
     if (DEBUG_SEND) Log.debug(TAG, "sendMessage " + bb);
+
+    int sendBufferSize = 0;
+    for (int seq = oldestUnacked; ReliableUtils.sequenceLessThan(seq, sequence); seq = (seq + 1) & Packet.USHORT_MAX_VALUE) {
+      if (sendBuffer.exists(seq)) sendBufferSize++;
+    }
+
+    // TODO: make sure this doesn't leak
+    if (sendBufferSize == sendBuffer.numEntries) {
+      messageQueue.addLast(bb);
+      return;
+    }
+
+    final int sequence = incSequence();
+    BufferedPacket packet = sendBuffer.insert(sequence);
+    packet.time = -1.0f;
+
+    // ensure size for header
+    // Is this appending the header length?
+    // https://github.com/KillaMaaki/ReliableNetcode.NET/blob/c5a7339e2de70f52bfda2078f1bbdab2ec9a85c1/ReliableNetcode/MessageChannel.cs#L331-L393
+
+    packet.bb = bb;
+    packet.writeLock = false;
   }
 
   @Override
   public void onMessageReceived(ChannelHandlerContext ctx, DatagramPacket packet) {
     if (DEBUG_SEND) Log.debug(TAG, "onMessageReceived " + packet);
+    packetController.onPacketReceived(ctx, packet);
   }
 
   @Override
@@ -232,7 +255,8 @@ public class ReliableMessageChannel extends MessageChannel {
 
   @Override
   public void onPacketProcessed(int sequence, ByteBuf bb) {
-
+    if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + bb);
+    packetTransceiver.receivePacket(bb);
   }
 
   public static class BufferedPacket {
