@@ -54,12 +54,18 @@ public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChanne
 
   @Override
   public void reset() {
-    for (MessageChannel mc : channels) if (mc != null) mc.reset();
+    final MessageChannel[] channels = this.channels;
+    for (int i = 0, s = channels.length; i < s; i++) {
+      channels[i].reset();
+    }
   }
 
   @Override
   public void update(float delta) {
-    for (MessageChannel mc : channels) if (mc != null) mc.update(delta, channel);
+    final MessageChannel[] channels = this.channels;
+    for (int i = 0, s = channels.length; i < s; i++) {
+      channels[i].update(delta, i, channel);
+    }
   }
 
   @Override

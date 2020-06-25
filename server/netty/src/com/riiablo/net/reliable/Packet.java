@@ -11,8 +11,8 @@ public class Packet {
 
   public static final int USHORT_MAX_VALUE = 0xFFFF;
 
-  static final int MAX_PACKET_HEADER_SIZE = 10;
-  static final int FRAGMENT_HEADER_SIZE = 6;
+  public static final int MAX_PACKET_HEADER_SIZE = 10;
+  public static final int FRAGMENT_HEADER_SIZE = 6;
 
   static final int SINGLE     = 0;
   static final int FRAGMENTED = 1 << 0;

@@ -31,7 +31,7 @@ public class UnreliableOrderedMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void update(float delta, DatagramChannel ch) {
+  public void update(float delta, int channelId, DatagramChannel ch) {
     packetController.update(delta);
   }
 

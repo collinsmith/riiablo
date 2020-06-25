@@ -8,7 +8,7 @@ public class SequenceBuffer<T> {
   
   private int sequence;
 
-  private final int    numEntries;
+  public  final int    numEntries;
   private final int    entrySequence[];
   private final Object entryData[];
 
@@ -24,6 +24,10 @@ public class SequenceBuffer<T> {
     }
 
     sequence = 0;
+  }
+
+  public int getSequence() {
+    return sequence;
   }
 
   public void reset() {

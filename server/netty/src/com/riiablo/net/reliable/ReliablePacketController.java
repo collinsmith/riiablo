@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 
+import com.badlogic.gdx.math.MathUtils;
+
 import com.riiablo.net.reliable.data.FragmentReassemblyData;
 import com.riiablo.net.reliable.data.ReceivedPacketData;
 import com.riiablo.net.reliable.data.SentPacketData;
@@ -16,6 +18,8 @@ public class ReliablePacketController {
   private static final boolean DEBUG_SEND = DEBUG && true;
   private static final boolean DEBUG_RECEIVE = DEBUG && true;
 
+  private static final float TOLERANCE = 0.00001f;
+
   private final ReliableConfiguration config;
   private final MessageChannel channel;
 
@@ -23,7 +27,12 @@ public class ReliablePacketController {
   private final SequenceBuffer<ReceivedPacketData> receivedPackets;
   private final SequenceBuffer<FragmentReassemblyData> fragmentReassembly;
 
-  private long time;
+  private float time;
+  private float rtt;
+  private float packetLoss;
+  private float sentBandwidth;
+  private float receivedBandwidth;
+  private float ackedBandwidth;
 
   public ReliablePacketController(ReliableConfiguration config, MessageChannel channel) {
     this.config = config;
@@ -42,15 +51,132 @@ public class ReliablePacketController {
     return channel.sequence = (channel.sequence + 1) & Packet.USHORT_MAX_VALUE;
   }
 
-  public void reset() {
+  public float rtt() {
+    return rtt;
+  }
 
+  public void reset() {
+    channel.sequence = 0;
+    for (int i = 0, s = config.fragmentReassemblyBufferSize; i < s; i++) {
+      FragmentReassemblyData reassemblyData = fragmentReassembly.atIndex(i);
+      if (reassemblyData != null) reassemblyData.dataBuffer.clear();
+    }
+
+    sentPackets.reset();
+    receivedPackets.reset();
+    fragmentReassembly.reset();
   }
 
   public void update(float delta) {
-    this.time = time;
+    time += delta;
+    updatePacketLoss();
+    updateSentBandwidth();
+    updateReceivedBandwidth();
+    updateAckedBandwidth();
+  }
+
+  private void updatePacketLoss() {
+    int baseSequence = (sentPackets.getSequence() - config.sentPacketBufferSize + 1 + Packet.USHORT_MAX_VALUE) & Packet.USHORT_MAX_VALUE;
+
+    int numDropped = 0;
+    int numSamples = config.sentPacketBufferSize / 2;
+    for (int i = 0; i < numSamples; i++) {
+      int sequence = (baseSequence + i) & Packet.USHORT_MAX_VALUE;
+      SentPacketData sentPacketData = sentPackets.find(sequence);
+      if (sentPacketData != null && !sentPacketData.acked) numDropped++;
+    }
+
+    float packetLoss = numDropped / (float) numSamples;
+    if (MathUtils.isEqual(this.packetLoss, packetLoss, TOLERANCE)) {
+      this.packetLoss += (packetLoss - this.packetLoss) * config.packetLossSmoothingFactor;
+    } else {
+      this.packetLoss = packetLoss;
+    }
+  }
+
+  private void updateSentBandwidth() {
+    int baseSequence = (sentPackets.getSequence() - config.sentPacketBufferSize + 1 + Packet.USHORT_MAX_VALUE) & Packet.USHORT_MAX_VALUE;
+
+    int bytesSent = 0;
+    float startTime = Float.MAX_VALUE;
+    float finishTime = 0f;
+    int numSamples = config.sentPacketBufferSize / 2;
+    for (int i = 0; i < numSamples; i++) {
+      int sequence = (baseSequence + i) & Packet.USHORT_MAX_VALUE;
+      SentPacketData sentPacketData = sentPackets.find(sequence);
+      if (sentPacketData == null) continue;
+      bytesSent += sentPacketData.packetSize;
+      startTime = Math.min(startTime, sentPacketData.time);
+      finishTime = Math.max(finishTime, sentPacketData.time);
+    }
+
+    if (startTime != Float.MAX_VALUE && finishTime != 0f) {
+      float sentBandwidth = bytesSent / (finishTime - startTime) * 8f / 1000f;
+      if (MathUtils.isEqual(this.sentBandwidth, sentBandwidth, TOLERANCE)) {
+        this.sentBandwidth += (sentBandwidth - this.sentBandwidth) * config.bandwidthSmoothingFactor;
+      } else {
+        this.sentBandwidth = sentBandwidth;
+      }
+    }
+  }
+
+  private void updateReceivedBandwidth() {
+    synchronized (receivedPackets) {
+      int baseSequence = (receivedPackets.getSequence() - config.receivedPacketBufferSize + 1 + Packet.USHORT_MAX_VALUE) & Packet.USHORT_MAX_VALUE;
+
+      int bytesReceived = 0;
+      float startTime = Float.MAX_VALUE;
+      float finishTime = 0f;
+      int numSamples = config.receivedPacketBufferSize / 2;
+      for (int i = 0; i < numSamples; i++) {
+        int sequence = (baseSequence + i) & Packet.USHORT_MAX_VALUE;
+        ReceivedPacketData receivedPacketData = receivedPackets.find(sequence);
+        if (receivedPacketData == null) continue;
+        bytesReceived += receivedPacketData.packetSize;
+        startTime = Math.min(startTime, receivedPacketData.time);
+        finishTime = Math.max(finishTime, receivedPacketData.time);
+      }
+
+      if (startTime != Float.MAX_VALUE && finishTime != 0f) {
+        float receivedBandwidth = bytesReceived / (finishTime - startTime) * 8f / 1000f;
+        if (MathUtils.isEqual(this.receivedBandwidth, receivedBandwidth, TOLERANCE)) {
+          this.receivedBandwidth += (receivedBandwidth - this.receivedBandwidth) * config.bandwidthSmoothingFactor;
+        } else {
+          this.receivedBandwidth = receivedBandwidth;
+        }
+      }
+    }
+  }
+
+  private void updateAckedBandwidth() {
+    int baseSequence = (sentPackets.getSequence() - config.sentPacketBufferSize + 1 + Packet.USHORT_MAX_VALUE) & Packet.USHORT_MAX_VALUE;
+
+    int bytesSent = 0;
+    float startTime = Float.MAX_VALUE;
+    float finishTime = 0f;
+    int numSamples = config.sentPacketBufferSize / 2;
+    for (int i = 0; i < numSamples; i++) {
+      int sequence = (baseSequence + i) & Packet.USHORT_MAX_VALUE;
+      SentPacketData sentPacketData = sentPackets.find(sequence);
+      if (sentPacketData == null || !sentPacketData.acked) continue;
+      bytesSent += sentPacketData.packetSize;
+      startTime = Math.min(startTime, sentPacketData.time);
+      finishTime = Math.max(finishTime, sentPacketData.time);
+    }
+
+    if (startTime != Float.MAX_VALUE && finishTime != 0f) {
+      float ackedBandwidth = bytesSent / (finishTime - startTime) * 8f / 1000f;
+      if (MathUtils.isEqual(this.ackedBandwidth, ackedBandwidth, TOLERANCE)) {
+        this.ackedBandwidth += (ackedBandwidth - this.ackedBandwidth) * config.bandwidthSmoothingFactor;
+      } else {
+        this.ackedBandwidth = ackedBandwidth;
+      }
+    }
   }
 
   public void sendAck(int channelId, DatagramChannel ch) {
+    if (DEBUG_SEND) Log.debug(TAG, "sendAck");
+
     int ack, ackBits;
     synchronized (receivedPackets) {
       ack = receivedPackets.generateAck();
@@ -87,7 +213,7 @@ public class ReliablePacketController {
 
     SentPacketData sentPacketData = sentPackets.insert(sequence);
     sentPacketData.time = this.time;
-//    sentPacketData.packetSize =
+    sentPacketData.packetSize = packetSize;
     sentPacketData.acked = false;
 
     if (packetSize <= config.fragmentThreshold) {
@@ -165,8 +291,15 @@ public class ReliablePacketController {
                 if (DEBUG_RECEIVE) Log.debug(TAG, "acked packet %d", ackSequence);
                 ReliableEndpoint.stats.NUM_PACKETS_ACKED++;
                 sentPacketData.acked = true;
+
                 // ack packet callback
-                // TODO: rtt
+
+                float rtt = (time - sentPacketData.time) * 1000f;
+                if ((this.rtt == 0.0f && rtt > 0.0f) || MathUtils.isEqual(this.rtt, rtt, TOLERANCE)) {
+                  this.rtt = rtt;
+                } else {
+                  this.rtt += (rtt - this.rtt) * config.rttSmoothingFactor;
+                }
               }
             }
           }
