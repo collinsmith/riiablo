@@ -37,7 +37,7 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
     new HeadlessApplication(new TestServer(), config);
   }
 
-  private Endpoint<DatagramPacket, QoS> endpoint;
+  private Endpoint<?> endpoint;
 
   @Override
   public void create() {
@@ -52,7 +52,8 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
           .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-              endpoint = new ReliableEndpoint(ch, TestServer.this);
+              ReliableEndpoint endpoint = new ReliableEndpoint(ch, TestServer.this);
+              TestServer.this.endpoint = endpoint;
               ch.pipeline()
                   .addLast(new EndpointedChannelHandler<>(DatagramPacket.class, endpoint))
                   ;
@@ -66,6 +67,7 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
       Gdx.app.error(TAG, t.getMessage(), t);
     } finally {
       group.shutdownGracefully();
+      Gdx.app.exit();
     }
   }
 

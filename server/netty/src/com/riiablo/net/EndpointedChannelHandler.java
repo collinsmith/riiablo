@@ -15,7 +15,7 @@ import java.net.SocketAddress;
 
 import com.badlogic.gdx.Gdx;
 
-public class EndpointedChannelHandler<T, Q> implements ChannelHandler, ChannelInboundHandler, ChannelOutboundHandler {
+public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInboundHandler, ChannelOutboundHandler {
   private static final String TAG = "EndpointedChannelHandler";
 
   private static final boolean DEBUG          = true;
@@ -24,9 +24,9 @@ public class EndpointedChannelHandler<T, Q> implements ChannelHandler, ChannelIn
   private static final boolean DEBUG_OUTBOUND = DEBUG && true;
 
   private final TypeParameterMatcher matcher;
-  private final Endpoint<T, Q> endpoint;
+  private final Endpoint<T> endpoint;
 
-  public EndpointedChannelHandler(Class<T> packetType, Endpoint<T, Q> endpoint) {
+  public EndpointedChannelHandler(Class<T> packetType, Endpoint<T> endpoint) {
     this.endpoint = endpoint;
     matcher = TypeParameterMatcher.get(packetType);
   }

@@ -38,7 +38,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     new HeadlessApplication(new TestClient(), config);
   }
 
-  private Endpoint<ByteBuf, Object> endpoint;
+  private Endpoint<?> endpoint;
 
   @Override
   public void create() {
@@ -53,7 +53,8 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
           .handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) {
-              endpoint = new TcpEndpoint(ch, TestClient.this);
+              Endpoint<ByteBuf> endpoint = new TcpEndpoint(ch, TestClient.this);
+              TestClient.this.endpoint = endpoint;
               ch.pipeline()
                   .addLast(new EndpointedChannelHandler<>(ByteBuf.class, endpoint))
                   ;

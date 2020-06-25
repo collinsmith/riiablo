@@ -11,7 +11,7 @@ import com.badlogic.gdx.Gdx;
 import com.riiablo.net.Endpoint;
 import com.riiablo.net.PacketProcessor;
 
-public class TcpEndpoint implements Endpoint<ByteBuf, Object> {
+public class TcpEndpoint implements Endpoint<ByteBuf> {
   private static final String TAG = "TcpEndpoint";
 
   private static final boolean DEBUG = true;

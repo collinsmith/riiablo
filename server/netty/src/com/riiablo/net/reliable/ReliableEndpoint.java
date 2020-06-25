@@ -16,7 +16,7 @@ import com.riiablo.net.reliable.channel.UnreliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableOrderedMessageChannel;
 import com.riiablo.util.EnumIntMap;
 
-public class ReliableEndpoint implements Endpoint<DatagramPacket, QoS>, MessageChannel.PacketTransceiver {
+public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChannel.PacketTransceiver {
   private static final String TAG = "ReliableEndpoint";
 
   private static final boolean DEBUG = true;
@@ -69,10 +69,11 @@ public class ReliableEndpoint implements Endpoint<DatagramPacket, QoS>, MessageC
   }
 
   @Override
-  public void sendMessage(QoS qos, ByteBuffer bb) {
+  public void sendMessage(Object qos, ByteBuffer bb) {
     if (DEBUG_SEND) Log.debug(TAG, "sendMessage");
-    if (DEBUG_QOS) Log.debug(TAG, "sending message with %s QoS (0x%02x)", qos, qos.ordinal());
-    int channelId = defaultChannels.get(qos);
+    assert qos instanceof QoS;
+    if (DEBUG_QOS) Log.debug(TAG, "sending message with %s QoS (0x%02x)", qos, ((QoS) qos).ordinal());
+    int channelId = defaultChannels.get((QoS) qos);
     sendMessage(channelId, bb);
   }
 
