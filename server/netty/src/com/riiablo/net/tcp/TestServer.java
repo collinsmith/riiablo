@@ -34,13 +34,15 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
   }
 
   private Endpoint<?> endpoint;
+  private EventLoopGroup bossGroup;
+  private EventLoopGroup workerGroup;
 
   @Override
   public void create() {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-    EventLoopGroup bossGroup = new NioEventLoopGroup();
-    EventLoopGroup workerGroup = new NioEventLoopGroup();
+    bossGroup = new NioEventLoopGroup();
+    workerGroup = new NioEventLoopGroup();
     try {
       ServerBootstrap b = new ServerBootstrap()
           .group(bossGroup, workerGroup)
@@ -63,15 +65,18 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
       Gdx.app.exit();
-    } finally {
-      workerGroup.shutdownGracefully();
-      bossGroup.shutdownGracefully();
     }
   }
 
   @Override
   public void render() {
     endpoint.update(Gdx.graphics.getDeltaTime());
+  }
+
+  @Override
+  public void dispose() {
+    if (!workerGroup.isShuttingDown()) workerGroup.shutdownGracefully();
+    if (!bossGroup.isShuttingDown()) bossGroup.shutdownGracefully();
   }
 
   @Override

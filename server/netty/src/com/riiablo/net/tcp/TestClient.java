@@ -39,15 +39,16 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
   }
 
   private Endpoint<?> endpoint;
+  private EventLoopGroup group;
 
   @Override
   public void create() {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-    EventLoopGroup workerGroup = new NioEventLoopGroup();
+    group = new NioEventLoopGroup();
     try {
       Bootstrap b = new Bootstrap()
-          .group(workerGroup)
+          .group(group)
           .channel(NioSocketChannel.class)
           .option(ChannelOption.SO_KEEPALIVE, true)
           .handler(new ChannelInitializer<SocketChannel>() {
@@ -66,8 +67,6 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
       Gdx.app.exit();
-    } finally {
-      workerGroup.shutdownGracefully();
     }
   }
 
@@ -87,6 +86,11 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
   @Override
   public void render() {
     endpoint.update(Gdx.graphics.getDeltaTime());
+  }
+
+  @Override
+  public void dispose() {
+    if (!group.isShuttingDown()) group.shutdownGracefully();
   }
 
   @Override
