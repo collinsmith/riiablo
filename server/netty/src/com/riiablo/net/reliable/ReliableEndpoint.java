@@ -52,6 +52,10 @@ public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChanne
     return channel;
   }
 
+  public MessageChannel channel(int channelId) {
+    return channels[channelId];
+  }
+
   @Override
   public void reset() {
     final MessageChannel[] channels = this.channels;
