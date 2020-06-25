@@ -42,6 +42,13 @@ public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInbou
           : (InetSocketAddress) ctx.channel().remoteAddress();
       Gdx.app.log(TAG, "messageReceived received packet from " + sender.getHostName() + ":" + sender.getPort());
     }
+    if (DEBUG_INBOUND) {
+      if (msg instanceof ByteBuf) {
+        Gdx.app.debug(TAG, "  " + ByteBufUtil.hexDump((ByteBuf) msg));
+      } else {
+        Gdx.app.debug(TAG, "  " + msg);
+      }
+    }
     endpoint.messageReceived(ctx, msg);
   }
 
