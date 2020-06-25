@@ -68,7 +68,8 @@ public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInbou
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     if (DEBUG_CALLS) Gdx.app.debug(TAG, "exceptionCaught");
-    ctx.fireExceptionCaught(cause);
+    Gdx.app.error(TAG, cause.getMessage(), cause);
+    ctx.close();
   }
 
   @Override
