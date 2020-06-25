@@ -240,6 +240,10 @@ project(":core") {
     }
 
     dependencies {
+        compile group: 'io.netty', name: 'netty-all', version: nettyVersion
+    }
+
+    dependencies {
         testCompile 'junit:junit:4.12'
         testCompile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
@@ -329,10 +333,6 @@ project(":server:netty") {
 
     dependencies {
         compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
-    }
-
-    dependencies {
-        compile group: 'io.netty', name: 'netty-all', version: nettyVersion
     }
 
     dependencies {
