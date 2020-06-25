@@ -447,6 +447,7 @@ public class Client extends Game {
     StringBuilder builder = new StringBuilder(64);
     builder
                      .append(String.format("%d FPS", Gdx.graphics.getFramesPerSecond()))
+        .append('\n').append(String.format("MEM:  %d MB", Gdx.app.getJavaHeap() / (1 << 20)))
         .append('\n').append(String.format("Ping: %3d ms", Riiablo.metrics.ping))
         .append('\n').append(String.format("RTT:  %3d ms", Riiablo.metrics.rtt))
         .append('\n').append(String.format("CPU:  %2.1f ms", Riiablo.metrics.cpu))
