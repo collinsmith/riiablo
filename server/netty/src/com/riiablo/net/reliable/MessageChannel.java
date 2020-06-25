@@ -18,6 +18,14 @@ public abstract class MessageChannel implements ReliablePacketController.PacketL
     this.packetController = new ReliablePacketController(config, this);
   }
 
+  public int nextSequence() {
+    return sequence;
+  }
+
+  protected int incSequence() {
+    return sequence = (sequence + 1) & Packet.USHORT_MAX_VALUE;
+  }
+
   public abstract void reset();
   public abstract void update(float delta, int channelId, DatagramChannel ch);
   public abstract void sendMessage(int channelId, DatagramChannel ch, ByteBuf bb);

@@ -43,14 +43,6 @@ public class ReliablePacketController {
     this.fragmentReassembly = new SequenceBuffer<>(FragmentReassemblyData.class, config.fragmentReassemblyBufferSize);
   }
 
-  public int nextSequence() {
-    return channel.sequence;
-  }
-
-  private int incSequence() {
-    return channel.sequence = (channel.sequence + 1) & Packet.USHORT_MAX_VALUE;
-  }
-
   public float rtt() {
     return rtt;
   }
@@ -204,7 +196,7 @@ public class ReliablePacketController {
       return -1;
     }
 
-    final int sequence = incSequence();
+    final int sequence = channel.incSequence();
     int ack, ackBits;
     synchronized (receivedPackets) {
       ack = receivedPackets.generateAck();
