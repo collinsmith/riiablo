@@ -121,7 +121,7 @@ public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChanne
 
   @Override
   public void receivePacket(ByteBuf bb) {
-    packetProcessor.processPacket(bb);
+    packetProcessor.processPacket(channel, bb);
   }
 
   public static final Stats stats = new Stats();

@@ -4,6 +4,7 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -94,7 +95,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
   }
 
   @Override
-  public void processPacket(ByteBuf bb) {
+  public void processPacket(Channel ch, ByteBuf bb) {
     Gdx.app.debug(TAG, "Processing packet...");
     Gdx.app.log(TAG, ByteBufUtil.hexDump(bb));
   }
