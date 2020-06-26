@@ -9,10 +9,10 @@ import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Gdx;
 
-import com.riiablo.net.Endpoint;
 import com.riiablo.net.PacketProcessor;
+import com.riiablo.net.UnicastEndpoint;
 
-public class TcpEndpoint implements Endpoint<ByteBuf> {
+public class TcpEndpoint implements UnicastEndpoint<ByteBuf> {
   private static final String TAG = "TcpEndpoint";
 
   private static final boolean DEBUG = true;
@@ -39,8 +39,18 @@ public class TcpEndpoint implements Endpoint<ByteBuf> {
   }
 
   @Override
+  public void sendMessage(ByteBuffer bb) {
+    sendMessage((InetSocketAddress) channel.remoteAddress(), bb);
+  }
+
+  @Override
+  public void sendMessage(Object qos, ByteBuffer bb) {
+    sendMessage((InetSocketAddress) channel.remoteAddress(), qos, bb);
+  }
+
+  @Override
   public void sendMessage(InetSocketAddress to, ByteBuffer bb) {
-    if (DEBUG_SEND) Gdx.app.debug(TAG, "sendMessage");
+    if (DEBUG_SEND) Gdx.app.debug(TAG, "sendMessage to " + to);
     assert to == channel.remoteAddress();
     channel.writeAndFlush(Unpooled.wrappedBuffer(bb)); // releases msg
   }

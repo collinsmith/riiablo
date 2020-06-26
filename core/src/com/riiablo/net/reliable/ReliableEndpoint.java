@@ -10,14 +10,14 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
-import com.riiablo.net.Endpoint;
 import com.riiablo.net.PacketProcessor;
+import com.riiablo.net.UnicastEndpoint;
 import com.riiablo.net.reliable.channel.ReliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableMessageChannel;
 import com.riiablo.net.reliable.channel.UnreliableOrderedMessageChannel;
 import com.riiablo.util.EnumIntMap;
 
-public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChannel.PacketTransceiver {
+public class ReliableEndpoint implements UnicastEndpoint<DatagramPacket>, MessageChannel.PacketTransceiver {
   private static final String TAG = "ReliableEndpoint";
 
   private static final boolean DEBUG = true;
@@ -74,14 +74,24 @@ public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChanne
   }
 
   @Override
+  public void sendMessage(ByteBuffer bb) {
+    sendMessage((InetSocketAddress) channel.remoteAddress(), bb);
+  }
+
+  @Override
+  public void sendMessage(Object qos, ByteBuffer bb) {
+    sendMessage((InetSocketAddress) channel.remoteAddress(), QoS.Reliable, bb);
+  }
+
+  @Override
   public void sendMessage(InetSocketAddress to, ByteBuffer bb) {
-    if (DEBUG_SEND) Log.debug(TAG, "sendMessage (auto)");
+    if (DEBUG_SEND) Log.debug(TAG, "sendMessage (auto) to " + to);
     sendMessage(to, QoS.Reliable, bb);
   }
 
   @Override
   public void sendMessage(InetSocketAddress to, Object qos, ByteBuffer bb) {
-    if (DEBUG_SEND) Log.debug(TAG, "sendMessage");
+    if (DEBUG_SEND) Log.debug(TAG, "sendMessage to " + to);
     assert qos instanceof QoS;
     if (DEBUG_QOS) Log.debug(TAG, "sending message with %s QoS (0x%02x)", qos, ((QoS) qos).ordinal());
     int channelId = defaultChannels.get((QoS) qos);

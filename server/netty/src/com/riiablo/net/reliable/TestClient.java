@@ -21,9 +21,9 @@ import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
-import com.riiablo.net.Endpoint;
 import com.riiablo.net.EndpointedChannelHandler;
 import com.riiablo.net.PacketProcessor;
+import com.riiablo.net.UnicastEndpoint;
 import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
@@ -38,7 +38,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     new HeadlessApplication(new TestClient(), config);
   }
 
-  private Endpoint<?> endpoint;
+  private UnicastEndpoint<?> endpoint;
   private EventLoopGroup group;
 
   @Override
@@ -53,7 +53,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
           .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-              Endpoint<DatagramPacket> endpoint = new ReliableEndpoint(ch, TestClient.this);
+              UnicastEndpoint<DatagramPacket> endpoint = new ReliableEndpoint(ch, TestClient.this);
               TestClient.this.endpoint = endpoint;
               ch.pipeline()
                   .addLast(new EndpointedChannelHandler<>(DatagramPacket.class, endpoint))
@@ -79,7 +79,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     int offset = Netty.createNetty(builder, 0L, NettyData.Connection, dataOffset);
     Netty.finishNettyBuffer(builder, offset);
 
-    endpoint.sendMessage((InetSocketAddress) endpoint.channel().remoteAddress(), QoS.Unreliable, builder.dataBuffer());
+    endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
   }
 
   @Override
