@@ -76,10 +76,10 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     FlatBufferBuilder builder = new FlatBufferBuilder();
     Connection.startConnection(builder);
     int dataOffset = Connection.endConnection(builder);
-    int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
+    int offset = Netty.createNetty(builder, 0L, NettyData.Connection, dataOffset);
     Netty.finishNettyBuffer(builder, offset);
 
-    endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
+    endpoint.sendMessage((InetSocketAddress) endpoint.channel().remoteAddress(), QoS.Unreliable, builder.dataBuffer());
   }
 
   @Override

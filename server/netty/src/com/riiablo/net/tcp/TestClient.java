@@ -81,7 +81,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     int offset = Netty.createNetty(builder, 0L, NettyData.Connection, dataOffset);
     Netty.finishNettyBuffer(builder, offset);
 
-    endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
+    endpoint.sendMessage((InetSocketAddress) endpoint.channel().remoteAddress(), QoS.Unreliable, builder.dataBuffer());
   }
 
   @Override

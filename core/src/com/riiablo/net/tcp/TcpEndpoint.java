@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Gdx;
@@ -38,14 +39,15 @@ public class TcpEndpoint implements Endpoint<ByteBuf> {
   }
 
   @Override
-  public void sendMessage(ByteBuffer bb) {
+  public void sendMessage(InetSocketAddress to, ByteBuffer bb) {
     if (DEBUG_SEND) Gdx.app.debug(TAG, "sendMessage");
+    assert to == channel.remoteAddress();
     channel.writeAndFlush(Unpooled.wrappedBuffer(bb)); // releases msg
   }
 
   @Override
-  public void sendMessage(Object qos, ByteBuffer bb) {
-    sendMessage(bb);
+  public void sendMessage(InetSocketAddress to, Object qos, ByteBuffer bb) {
+    sendMessage(to, bb);
   }
 
   @Override

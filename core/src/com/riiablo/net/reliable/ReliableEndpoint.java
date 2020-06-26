@@ -6,6 +6,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
@@ -73,21 +74,21 @@ public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChanne
   }
 
   @Override
-  public void sendMessage(ByteBuffer bb) {
+  public void sendMessage(InetSocketAddress to, ByteBuffer bb) {
     if (DEBUG_SEND) Log.debug(TAG, "sendMessage (auto)");
-    sendMessage(QoS.Reliable, bb);
+    sendMessage(to, QoS.Reliable, bb);
   }
 
   @Override
-  public void sendMessage(Object qos, ByteBuffer bb) {
+  public void sendMessage(InetSocketAddress to, Object qos, ByteBuffer bb) {
     if (DEBUG_SEND) Log.debug(TAG, "sendMessage");
     assert qos instanceof QoS;
     if (DEBUG_QOS) Log.debug(TAG, "sending message with %s QoS (0x%02x)", qos, ((QoS) qos).ordinal());
     int channelId = defaultChannels.get((QoS) qos);
-    sendMessage(channelId, bb);
+    sendMessage(to, channelId, bb);
   }
 
-  public void sendMessage(int channelId, ByteBuffer bb) {
+  public void sendMessage(InetSocketAddress to, int channelId, ByteBuffer bb) {
     if (DEBUG_SEND) Log.debug(TAG, "sendMessage");
     Validate.inclusiveBetween(0x00, 0xFF, channelId, "channelId must fit within a ubyte");
     if (DEBUG_CHANNEL) Log.debug(TAG, "sending message on channel %d", channelId);
