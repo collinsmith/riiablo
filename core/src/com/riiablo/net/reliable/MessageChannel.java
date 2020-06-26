@@ -37,6 +37,6 @@ public abstract class MessageChannel implements ReliablePacketController.PacketL
 
   public interface PacketTransceiver {
     void sendPacket(ByteBuf bb);
-    void receivePacket(ByteBuf bb);
+    void receivePacket(ChannelHandlerContext ctx, ByteBuf bb);
   }
 }

@@ -34,7 +34,7 @@ public class TcpEndpoint implements Endpoint<ByteBuf> {
   @Override
   public void messageReceived(ChannelHandlerContext ctx, ByteBuf msg) {
     if (DEBUG_RECEIVE) Gdx.app.debug(TAG, "onMessageReceived");
-    packetProcessor.processPacket(channel, msg);
+    packetProcessor.processPacket(ctx, msg);
   }
 
   @Override

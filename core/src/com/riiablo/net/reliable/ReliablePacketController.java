@@ -267,7 +267,7 @@ public class ReliablePacketController {
         if (!isStale && !isAck) {
           if (DEBUG_RECEIVE) Log.debug(TAG, "processing packet %d", sequence);
           ByteBuf slice = bb.readSlice(bb.readableBytes());
-          channel.onPacketProcessed(sequence, slice);
+          channel.onPacketProcessed(ctx, sequence, slice);
           synchronized (receivedPackets) {
             ReceivedPacketData receivedPacketData = receivedPackets.insert(sequence);
             receivedPacketData.time = time;
@@ -285,7 +285,7 @@ public class ReliablePacketController {
                 if (DEBUG_RECEIVE) Log.debug(TAG, "acked packet %d", ackSequence);
                 ReliableEndpoint.stats.NUM_PACKETS_ACKED++;
                 sentPacketData.acked = true;
-                channel.onAckProcessed(ackSequence);
+                channel.onAckProcessed(ctx, ackSequence);
 
                 float rtt = (time - sentPacketData.time) * 1000f;
                 if ((this.rtt == 0.0f && rtt > 0.0f) || MathUtils.isEqual(this.rtt, rtt, TOLERANCE)) {
@@ -315,7 +315,7 @@ public class ReliablePacketController {
 
   public interface PacketListener {
     void onPacketTransmitted(ByteBuf bb);
-    void onAckProcessed(int sequence);
-    void onPacketProcessed(int sequence, ByteBuf bb);
+    void onAckProcessed(ChannelHandlerContext ctx, int sequence);
+    void onPacketProcessed(ChannelHandlerContext ctx, int sequence, ByteBuf bb);
   }
 }

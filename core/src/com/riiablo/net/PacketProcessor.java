@@ -1,8 +1,8 @@
 package com.riiablo.net;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 public interface PacketProcessor {
-  void processPacket(Channel ch, ByteBuf bb);
+  void processPacket(ChannelHandlerContext ctx, ByteBuf bb);
 }

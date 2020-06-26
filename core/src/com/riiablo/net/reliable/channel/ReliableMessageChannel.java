@@ -256,7 +256,7 @@ public class ReliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void onAckProcessed(int sequence) {
+  public void onAckProcessed(ChannelHandlerContext ctx, int sequence) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onAckProcessed " + sequence);
     // first, map sequence to message IDs and ack them
     OutgoingPacketSet outgoingPacket = ackBuffer.find(sequence);
@@ -290,9 +290,9 @@ public class ReliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void onPacketProcessed(int sequence, ByteBuf bb) {
+  public void onPacketProcessed(ChannelHandlerContext ctx, int sequence, ByteBuf bb) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + sequence + " " + bb);
-    packetTransceiver.receivePacket(bb);
+    packetTransceiver.receivePacket(ctx, bb);
     // TODO: this is different from original function, see above note within #sendMessage
   }
 

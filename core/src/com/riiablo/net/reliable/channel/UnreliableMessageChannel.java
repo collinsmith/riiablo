@@ -25,14 +25,14 @@ public class UnreliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void onAckProcessed(int sequence) {
+  public void onAckProcessed(ChannelHandlerContext ctx, int sequence) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onAckProcessed " + sequence);
   }
 
   @Override
-  public void onPacketProcessed(int sequence, ByteBuf bb) {
+  public void onPacketProcessed(ChannelHandlerContext ctx, int sequence, ByteBuf bb) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + sequence + " " + bb);
-    packetTransceiver.receivePacket(bb);
+    packetTransceiver.receivePacket(ctx, bb);
   }
 
   @Override
