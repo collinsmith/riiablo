@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
 
+import com.riiablo.Riiablo;
+
 /**
  * Example profiling system.
  *
@@ -69,7 +71,9 @@ public class ProfilerSystem extends BaseSystem {
       return;
     }
 
-    checkActivationButton();
+    if (!Riiablo.console.isVisible()) {
+      checkActivationButton();
+    }
 
     if (gui.isVisible()) {
       processInput();
