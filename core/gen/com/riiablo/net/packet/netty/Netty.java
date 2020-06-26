@@ -14,21 +14,25 @@ public final class Netty extends Table {
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public Netty __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public byte dataType() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public Table data(Table obj) { int o = __offset(6); return o != 0 ? __union(obj, o) : null; }
+  public long salt() { int o = __offset(4); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
+  public byte dataType() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public Table data(Table obj) { int o = __offset(8); return o != 0 ? __union(obj, o) : null; }
 
   public static int createNetty(FlatBufferBuilder builder,
+      long salt,
       byte data_type,
       int dataOffset) {
-    builder.startObject(2);
+    builder.startObject(3);
+    Netty.addSalt(builder, salt);
     Netty.addData(builder, dataOffset);
     Netty.addDataType(builder, data_type);
     return Netty.endNetty(builder);
   }
 
-  public static void startNetty(FlatBufferBuilder builder) { builder.startObject(2); }
-  public static void addDataType(FlatBufferBuilder builder, byte dataType) { builder.addByte(0, dataType, 0); }
-  public static void addData(FlatBufferBuilder builder, int dataOffset) { builder.addOffset(1, dataOffset, 0); }
+  public static void startNetty(FlatBufferBuilder builder) { builder.startObject(3); }
+  public static void addSalt(FlatBufferBuilder builder, long salt) { builder.addLong(0, salt, 0L); }
+  public static void addDataType(FlatBufferBuilder builder, byte dataType) { builder.addByte(1, dataType, 0); }
+  public static void addData(FlatBufferBuilder builder, int dataOffset) { builder.addOffset(2, dataOffset, 0); }
   public static int endNetty(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

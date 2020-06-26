@@ -198,6 +198,8 @@ public class ReliablePacketController {
     }
 
     final int sequence = channel.incSequence();
+    if (DEBUG_SEND) Log.debug(TAG, "packet sequence set to %d", sequence);
+
     int ack, ackBits;
     synchronized (receivedPackets) {
       ack = receivedPackets.generateAck();
@@ -263,6 +265,7 @@ public class ReliablePacketController {
           isStale = !receivedPackets.testInsert(sequence);
         }
 
+        if (DEBUG_RECEIVE) Log.debug(TAG, "packet reported sequence as %d", sequence);
         final boolean isAck = Packet.isAck(flags);
         if (!isStale && !isAck) {
           if (DEBUG_RECEIVE) Log.debug(TAG, "processing packet %d", sequence);

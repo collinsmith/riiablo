@@ -52,7 +52,7 @@ public class ReliableUtilTest {
     FlatBufferBuilder builder = new FlatBufferBuilder();
     Connection.startConnection(builder);
     int dataOffset = Connection.endConnection(builder);
-    int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
+    int offset = Netty.createNetty(builder, 0L, NettyData.Connection, dataOffset);
     Netty.finishNettyBuffer(builder, offset);
     Packet.Single.setContent(bb, builder.dataBuffer());
 
@@ -80,7 +80,7 @@ public class ReliableUtilTest {
     FlatBufferBuilder builder = new FlatBufferBuilder();
     Connection.startConnection(builder);
     int dataOffset = Connection.endConnection(builder);
-    int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
+    int offset = Netty.createNetty(builder, 0L, NettyData.Connection, dataOffset);
     Netty.finishNettyBuffer(builder, offset);
 
     ByteBuf bbContent = bb.alloc().buffer();

@@ -9,6 +9,7 @@ union NettyData {
 }
 
 table Netty {
+  salt:int64;
   data:NettyData;
 }
 

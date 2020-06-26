@@ -84,7 +84,7 @@ public class Client extends ApplicationAdapter {
       FlatBufferBuilder builder = new FlatBufferBuilder();
       Connection.startConnection(builder);
       int dataOffset = Connection.endConnection(builder);
-      int offset = Netty.createNetty(builder, NettyData.Connection, dataOffset);
+      int offset = Netty.createNetty(builder, 0L, NettyData.Connection, dataOffset);
       Netty.finishNettyBuffer(builder, offset);
 
       ByteBuf byteBuf = Unpooled.wrappedBuffer(builder.dataBuffer());

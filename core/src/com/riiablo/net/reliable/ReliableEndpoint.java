@@ -90,7 +90,7 @@ public class ReliableEndpoint implements Endpoint<DatagramPacket>, MessageChanne
   public void sendMessage(int channelId, ByteBuffer bb) {
     if (DEBUG_SEND) Log.debug(TAG, "sendMessage");
     Validate.inclusiveBetween(0x00, 0xFF, channelId, "channelId must fit within a ubyte");
-    if (DEBUG_CHANNEL) Log.debug(TAG, "sending message with on channel %d", channelId);
+    if (DEBUG_CHANNEL) Log.debug(TAG, "sending message on channel %d", channelId);
     MessageChannel mc = channels[channelId];
     mc.sendMessage(channelId, channel, Unpooled.wrappedBuffer(bb)); // automatically released
   }
