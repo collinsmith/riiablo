@@ -131,10 +131,9 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   public void processPacket(ChannelHandlerContext ctx, SocketAddress from, Netty netty) {
     Gdx.app.debug(TAG, "  " + "dataType=" + NettyData.name(netty.dataType()));
     switch (netty.dataType()) {
-      case NettyData.Connection: {
+      case NettyData.Connection:
         Connection(ctx, from, netty);
         break;
-      }
       default:
         Gdx.app.debug(TAG, "unknown data type: " + netty.dataType());
         ctx.close();
