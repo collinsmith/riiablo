@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import java.net.SocketAddress;
 
 import com.badlogic.gdx.math.MathUtils;
 
@@ -270,7 +271,7 @@ public class ReliablePacketController {
         if (!isStale && !isAck) {
           if (DEBUG_RECEIVE) Log.debug(TAG, "processing packet %d", sequence);
           ByteBuf slice = bb.readSlice(bb.readableBytes());
-          channel.onPacketProcessed(ctx, sequence, slice);
+          channel.onPacketProcessed(ctx, packet.sender(), sequence, slice);
           synchronized (receivedPackets) {
             ReceivedPacketData receivedPacketData = receivedPackets.insert(sequence);
             receivedPacketData.time = time;
@@ -288,7 +289,7 @@ public class ReliablePacketController {
                 if (DEBUG_RECEIVE) Log.debug(TAG, "acked packet %d", ackSequence);
                 ReliableEndpoint.stats.NUM_PACKETS_ACKED++;
                 sentPacketData.acked = true;
-                channel.onAckProcessed(ctx, ackSequence);
+                channel.onAckProcessed(ctx, packet.sender(), ackSequence);
 
                 float rtt = (time - sentPacketData.time) * 1000f;
                 if ((this.rtt == 0.0f && rtt > 0.0f) || MathUtils.isEqual(this.rtt, rtt, TOLERANCE)) {
@@ -318,7 +319,7 @@ public class ReliablePacketController {
 
   public interface PacketListener {
     void onPacketTransmitted(ByteBuf bb);
-    void onAckProcessed(ChannelHandlerContext ctx, int sequence);
-    void onPacketProcessed(ChannelHandlerContext ctx, int sequence, ByteBuf bb);
+    void onAckProcessed(ChannelHandlerContext ctx, SocketAddress from, int sequence);
+    void onPacketProcessed(ChannelHandlerContext ctx, SocketAddress from, int sequence, ByteBuf bb);
   }
 }

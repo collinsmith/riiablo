@@ -46,7 +46,7 @@ public class ReliableChannelHandler implements ChannelHandler, ChannelInboundHan
     Gdx.app.log(TAG, "messageReceived received packet from " + sender.getHostName() + ":" + sender.getPort());
     ByteBuf in = packet.content();
     if (DEBUG_INBOUND) Gdx.app.debug(TAG, "  " + ByteBufUtil.hexDump(in));
-    endpoint.messageReceived(ctx, packet);
+    endpoint.messageReceived(ctx, packet.sender(), packet);
   }
 
   protected Object writeMessage(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {

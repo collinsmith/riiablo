@@ -13,6 +13,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -95,7 +96,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
   }
 
   @Override
-  public void processPacket(ChannelHandlerContext ctx, ByteBuf bb) {
+  public void processPacket(ChannelHandlerContext ctx, SocketAddress from, ByteBuf bb) {
     Gdx.app.debug(TAG, "Processing packet...");
     Gdx.app.log(TAG, ByteBufUtil.hexDump(bb));
   }

@@ -7,7 +7,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPromise;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.TypeParameterMatcher;
 import java.net.InetSocketAddress;
@@ -36,11 +35,11 @@ public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInbou
   }
 
   protected void messageReceived(ChannelHandlerContext ctx, T msg) throws Exception {
+    SocketAddress sender = endpoint.getRemoteAddress(ctx, msg);
     if (DEBUG_CALLS) {
-      InetSocketAddress sender = msg instanceof DatagramPacket
-          ? ((DatagramPacket) msg).sender()
-          : (InetSocketAddress) ctx.channel().remoteAddress();
-      Gdx.app.log(TAG, "messageReceived received packet from " + sender.getHostName() + ":" + sender.getPort());
+      assert sender instanceof InetSocketAddress;
+      InetSocketAddress casted = (InetSocketAddress) sender;
+      Gdx.app.log(TAG, "messageReceived received packet from " + casted.getHostName() + ":" + casted.getPort());
     }
     if (DEBUG_INBOUND) {
       if (msg instanceof ByteBuf) {
@@ -49,7 +48,7 @@ public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInbou
         Gdx.app.debug(TAG, "  " + msg);
       }
     }
-    endpoint.messageReceived(ctx, msg);
+    endpoint.messageReceived(ctx, sender, msg);
   }
 
   protected Object writeMessage(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {

@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import java.net.SocketAddress;
 
 import com.riiablo.net.reliable.Log;
 import com.riiablo.net.reliable.MessageChannel;
@@ -25,14 +26,14 @@ public class UnreliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void onAckProcessed(ChannelHandlerContext ctx, int sequence) {
+  public void onAckProcessed(ChannelHandlerContext ctx, SocketAddress from, int sequence) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onAckProcessed " + sequence);
   }
 
   @Override
-  public void onPacketProcessed(ChannelHandlerContext ctx, int sequence, ByteBuf bb) {
+  public void onPacketProcessed(ChannelHandlerContext ctx, SocketAddress from, int sequence, ByteBuf bb) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + sequence + " " + bb);
-    packetTransceiver.receivePacket(ctx, bb);
+    packetTransceiver.receivePacket(ctx, from, bb);
   }
 
   @Override

@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import java.net.SocketAddress;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.IntArray;
@@ -255,7 +256,7 @@ public class ReliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void onAckProcessed(ChannelHandlerContext ctx, int sequence) {
+  public void onAckProcessed(ChannelHandlerContext ctx, SocketAddress from, int sequence) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onAckProcessed " + sequence);
     // first, map sequence to message IDs and ack them
     OutgoingPacketSet outgoingPacket = ackBuffer.find(sequence);
@@ -289,9 +290,9 @@ public class ReliableMessageChannel extends MessageChannel {
   }
 
   @Override
-  public void onPacketProcessed(ChannelHandlerContext ctx, int sequence, ByteBuf bb) {
+  public void onPacketProcessed(ChannelHandlerContext ctx, SocketAddress from, int sequence, ByteBuf bb) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onPacketProcessed " + sequence + " " + bb);
-    packetTransceiver.receivePacket(ctx, bb);
+    packetTransceiver.receivePacket(ctx, from, bb);
     // TODO: this is different from original function, see above note within #sendMessage
   }
 

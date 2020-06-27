@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Gdx;
@@ -33,9 +34,14 @@ public class TcpEndpoint implements UnicastEndpoint<ByteBuf> {
   }
 
   @Override
-  public void messageReceived(ChannelHandlerContext ctx, ByteBuf msg) {
+  public SocketAddress getRemoteAddress(ChannelHandlerContext ctx, ByteBuf msg) {
+    return ctx.channel().remoteAddress();
+  }
+
+  @Override
+  public void messageReceived(ChannelHandlerContext ctx, SocketAddress from, ByteBuf msg) {
     if (DEBUG_RECEIVE) Gdx.app.debug(TAG, "onMessageReceived");
-    packetProcessor.processPacket(ctx, msg);
+    packetProcessor.processPacket(ctx, from, msg);
   }
 
   @Override

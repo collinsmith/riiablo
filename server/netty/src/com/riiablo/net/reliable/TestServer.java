@@ -12,6 +12,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Application;
@@ -81,7 +82,7 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
   }
 
   @Override
-  public void processPacket(ChannelHandlerContext ctx, ByteBuf bb) {
+  public void processPacket(ChannelHandlerContext ctx, SocketAddress from, ByteBuf bb) {
     Gdx.app.debug(TAG, "Processing packet...");
     Gdx.app.log(TAG, ByteBufUtil.hexDump(bb));
 

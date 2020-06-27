@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import java.net.SocketAddress;
 
 public abstract class MessageChannel implements ReliablePacketController.PacketListener {
   protected final PacketTransceiver packetTransceiver;
@@ -37,6 +38,6 @@ public abstract class MessageChannel implements ReliablePacketController.PacketL
 
   public interface PacketTransceiver {
     void sendPacket(ByteBuf bb);
-    void receivePacket(ChannelHandlerContext ctx, ByteBuf bb);
+    void receivePacket(ChannelHandlerContext ctx, SocketAddress from, ByteBuf bb);
   }
 }

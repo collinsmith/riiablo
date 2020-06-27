@@ -119,7 +119,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   }
 
   @Override
-  public void processPacket(ChannelHandlerContext ctx, ByteBuf bb) {
+  public void processPacket(ChannelHandlerContext ctx, SocketAddress from, ByteBuf bb) {
     Gdx.app.debug(TAG, "Processing packet...");
     Gdx.app.debug(TAG, "  " + ByteBufUtil.hexDump(bb));
     processPacket(ctx, Netty.getRootAsNetty(bb.nioBuffer()));
@@ -136,7 +136,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     InetSocketAddress from = (InetSocketAddress) ctx.channel().remoteAddress();
     switch (netty.dataType()) {
       case NettyData.Connection: {
-        Connection(from, netty);
+        Connection(ctx, from, netty);
         break;
       }
       default:
@@ -145,7 +145,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     }
   }
 
-  private void Connection(InetSocketAddress from, Netty netty) {
+  private void Connection(ChannelHandlerContext ctx, InetSocketAddress from, Netty netty) {
     Gdx.app.debug(TAG, "Connection from " + from);
     Connection connection = (Connection) netty.data(new Connection());
 

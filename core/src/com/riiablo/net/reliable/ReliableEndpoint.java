@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
@@ -107,7 +108,12 @@ public class ReliableEndpoint implements UnicastEndpoint<DatagramPacket>, Messag
   }
 
   @Override
-  public void messageReceived(ChannelHandlerContext ctx, DatagramPacket packet) {
+  public SocketAddress getRemoteAddress(ChannelHandlerContext ctx, DatagramPacket msg) {
+    return msg.sender();
+  }
+
+  @Override
+  public void messageReceived(ChannelHandlerContext ctx, SocketAddress from, DatagramPacket packet) {
     if (DEBUG_RECEIVE) Log.debug(TAG, "onMessageReceived");
     int channelId = Packet.getChannelId(packet.content());
     if (DEBUG_QOS) {
@@ -131,8 +137,8 @@ public class ReliableEndpoint implements UnicastEndpoint<DatagramPacket>, Messag
   }
 
   @Override
-  public void receivePacket(ChannelHandlerContext ctx, ByteBuf bb) {
-    packetProcessor.processPacket(ctx, bb);
+  public void receivePacket(ChannelHandlerContext ctx, SocketAddress from, ByteBuf bb) {
+    packetProcessor.processPacket(ctx, from, bb);
   }
 
   public static final Stats stats = new Stats();
