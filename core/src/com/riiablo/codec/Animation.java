@@ -1,5 +1,8 @@
 package com.riiablo.codec;
 
+import java.util.Arrays;
+import org.apache.commons.lang3.Validate;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -13,14 +16,11 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
-
-import org.apache.commons.lang3.Validate;
-
-import java.util.Arrays;
 
 public class Animation extends BaseDrawable implements Pool.Poolable {
   private static final String TAG = "Animation";
@@ -48,6 +48,8 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
 
   public enum Mode { ONCE, LOOP, CLAMP }
   Mode mode = Mode.LOOP;
+
+  boolean reversed;
 
   boolean highlighted;
 
@@ -80,6 +82,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
     startIndex    = 0;
     endIndex      = 0;
     mode          = Mode.LOOP;
+    reversed      = false;
     frameDuration = FRAME_DURATION;
     highlighted   = false;
     Layer.freeAll(layers);
@@ -184,6 +187,14 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
   public void setMode(Mode mode) {
     assert mode != null;
     this.mode = mode;
+  }
+
+  public boolean isReversed() {
+    return reversed;
+  }
+
+  public void setReversed(boolean b) {
+    reversed = b;
   }
 
   public boolean isHighlighted() {
@@ -367,6 +378,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
   public void update(float delta) {
     elapsedTime += delta;
     frame = getFrame(elapsedTime);
+    if (reversed) frame = endIndex - 1 - frame;
     notifyListeners(frame);
     if (frame == endIndex - 1) notifyAnimationFinished();
   }

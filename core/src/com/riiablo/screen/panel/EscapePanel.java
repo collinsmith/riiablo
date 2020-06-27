@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC6;
@@ -31,7 +32,7 @@ public class EscapePanel extends WidgetGroup implements Disposable {
   EscapeButton returntogame;
 
   final AssetDescriptor<DC6> pentspinDescriptor = new AssetDescriptor<>("data\\global\\ui\\CURSOR\\pentspin.DC6", DC6.class);
-  Animation pentspin;
+  Animation pentspinL, pentspin;
   FocusActor[] focusActor;
 
   public EscapePanel() {
@@ -69,10 +70,13 @@ public class EscapePanel extends WidgetGroup implements Disposable {
 
     Riiablo.assets.load(pentspinDescriptor);
     Riiablo.assets.finishLoadingAsset(pentspinDescriptor);
+    pentspinL = Animation.newAnimation(Riiablo.assets.get(pentspinDescriptor));
+    pentspinL.setReversed(true);
     pentspin = Animation.newAnimation(Riiablo.assets.get(pentspinDescriptor));
     focusActor = new FocusActor[6];
-    for (int i = 0; i < focusActor.length; i++) {
-      focusActor[i] = new FocusActor(pentspin);
+    for (int i = 0; i < focusActor.length; i += 2) {
+      focusActor[i    ] = new FocusActor(pentspinL);
+      focusActor[i + 1] = new FocusActor(pentspin);
     }
     ClickListener focusListener = new ClickListener() {
       @Override
@@ -136,6 +140,7 @@ public class EscapePanel extends WidgetGroup implements Disposable {
 
   @Override
   public void draw(Batch batch, float a) {
+    pentspinL.act();
     pentspin.act();
     super.draw(batch, a);
   }
