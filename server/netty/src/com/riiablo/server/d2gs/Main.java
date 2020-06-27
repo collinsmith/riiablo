@@ -75,6 +75,13 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
               Main.this.endpoint = endpoint;
               ch.pipeline()
                   .addFirst(connectionLimiter)
+                  .addLast(new ChannelInboundHandlerAdapter() {
+                    @Override
+                    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+                      super.channelInactive(ctx);
+                      notifyChannelInactive(ctx);
+                    }
+                  })
                   .addLast(new SizePrefixedDecoder())
                   .addLast(new EndpointedChannelHandler<>(ByteBuf.class, endpoint))
                   ;
@@ -122,8 +129,12 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
       case NettyData.Connection:
         Connection(ctx, from, netty);
         break;
+      case NettyData.Disconnect:
+        Disconnect(ctx, from, netty);
+        break;
       default:
         Gdx.app.debug(TAG, "unknown data type: " + netty.dataType());
+        Gdx.app.debug(TAG, "  " + "closing " + ctx);
         ctx.close();
     }
   }
@@ -150,6 +161,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
         assert id != MAX_CLIENTS : "no available client slots. connection limiter should have caught this";
         if (id == MAX_CLIENTS) {
           Gdx.app.error(TAG, "  " + "client connected, but no slot is available");
+          Gdx.app.debug(TAG, "  " + "closing " + ctx);
           ctx.close();
           return;
         }
@@ -188,6 +200,36 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     }
   }
 
+  private void Disconnect(ChannelHandlerContext ctx, SocketAddress from, Netty netty) {
+    Gdx.app.debug(TAG, "Disconnect from " + from);
+//    Disconnect disconnect = (Disconnect) netty.data(new Disconnect());
+    disconnect(ctx, from);
+  }
+
+  private void disconnect(ChannelHandlerContext ctx, SocketAddress from) {
+    Gdx.app.debug(TAG, "  " + "disconnecting " + from);
+    synchronized (clients) {
+      int id;
+      for (id = 0; id < MAX_CLIENTS && !from.equals(clients[id].address); id++) ;
+      Gdx.app.debug(TAG, "  " + "found connection record for " + from + " as " + id);
+      if (id == MAX_CLIENTS) {
+        Gdx.app.error(TAG, "  " + "channel reported inactive, but there isn't any client connecting from it: " + from);
+      } else {
+        Gdx.app.debug(TAG, "  " + "disconnecting " + id);
+        clients[id].disconnect();
+      }
+
+      Gdx.app.debug(TAG, "  " + "closing " + ctx);
+      ctx.close();
+    }
+  }
+
+  private void notifyChannelInactive(ChannelHandlerContext ctx) {
+    Gdx.app.debug(TAG, "notifyChannelInactive");
+    SocketAddress from = endpoint.getRemoteAddress(ctx, null);
+    disconnect(ctx, from);
+  }
+
   @ChannelHandler.Sharable
   static class ConnectionLimiter extends ChannelInboundHandlerAdapter {
     static final String TAG = "ConnectionLimiter";
@@ -206,8 +248,9 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
         Gdx.app.debug(TAG, String.format("connection accepted. %d / %d", count, maxClients));
         super.channelActive(ctx);
       } else {
+        Gdx.app.debug(TAG, "  " + "closing " + ctx);
         ctx.close();
-        Gdx.app.debug(TAG, String.format("closing connection. maximum concurrent connections reached %d / %d", count, maxClients));
+        Gdx.app.debug(TAG, String.format("connection closed. maximum concurrent connections reached %d / %d", count, maxClients));
       }
     }
 
@@ -238,6 +281,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     ClientData disconnect() {
       assert connected;
       connected = false;
+      address = null;
       return this;
     }
   }
