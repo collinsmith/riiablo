@@ -58,10 +58,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   private final ConnectionLimiter connectionLimiter = new ConnectionLimiter();
 
   private final ConcurrentHashMap<SocketAddress, Integer> connectionIds = new ConcurrentHashMap<>(32);
-  private final byte[] connectionState = new byte[MAX_CLIENTS];
-  private final ConcurrentHashMap<SocketAddress, Long> clientSalts = new ConcurrentHashMap<>(32);
-  private final ConcurrentHashMap<SocketAddress, Long> serverSalts = new ConcurrentHashMap<>(32);
-  private final ConcurrentHashMap<SocketAddress, Long> xor = new ConcurrentHashMap<>(32);
+  private final ConcurrentHashMap<SocketAddress, ClientData> clientDatas = new ConcurrentHashMap<>(32);
 
   @Override
   public void create() {
@@ -155,39 +152,38 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     boolean generateSalt = true;
     long clientSalt = connection.salt();
     Gdx.app.debug(TAG, "  " + String.format("client salt=%016x", clientSalt));
-    if (clientSalts.containsKey(from)) {
-      long storedClientSalt = clientSalts.get(from);
+    ClientData client = clientDatas.get(from);
+    if (client != null) {
+      long storedClientSalt = client.clientSalt;
       if (storedClientSalt == clientSalt) {
         Gdx.app.debug(TAG, "  " + "client salt matches server record");
         generateSalt = false;
       } else {
         Gdx.app.debug(TAG, "  " + "client salt mismatch with server record");
         Gdx.app.debug(TAG, "  " + "updating client salt to server record");
-        clientSalts.put(from, clientSalt);
+        client.clientSalt = clientSalt;
         clientSalt = storedClientSalt;
         Gdx.app.debug(TAG, "  " + String.format("client salt=%016x", clientSalt));
       }
     } else {
       Gdx.app.debug(TAG, "  " + "no server record found matching client salt");
-      clientSalts.put(from, clientSalt);
-
+      clientDatas.put(from, client = new ClientData(clientSalt));
     }
 
     long serverSalt;
     if (generateSalt) {
       Gdx.app.debug(TAG, "  " + "generating server salt");
       serverSalt = MathUtils.random.nextLong();
-      Long previousValue = serverSalts.put(from, serverSalt);
-      if (previousValue != null) {
-        Gdx.app.debug(TAG, "  " + String.format("overwriting existing server salt %016x", previousValue));
+      if (client.serverSalt != 0L) {
+        Gdx.app.debug(TAG, "  " + String.format("overwriting existing server salt %016x", client.serverSalt));
       }
+      client.serverSalt = serverSalt;
       Gdx.app.debug(TAG, "  " + String.format("server salt=%016x", serverSalt));
     } else {
-      serverSalt = serverSalts.get(from);
+      serverSalt = client.serverSalt;
     }
 
-    long salt = clientSalt ^ serverSalt;
-    xor.put(from, salt);
+    long salt = client.xor = clientSalt ^ serverSalt;
     Gdx.app.debug(TAG, "  " + String.format("salt=%016x", salt));
   }
 
@@ -214,6 +210,17 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
       super.channelInactive(ctx);
       int count = connections.decrementAndGet();
       Gdx.app.debug(TAG, String.format("connection closed. %d / %d", count, MAX_CLIENTS));
+    }
+  }
+
+  private static class ClientData {
+    long clientSalt;
+    long serverSalt;
+    long xor;
+    byte state;
+
+    ClientData(long clientSalt) {
+      this.clientSalt = clientSalt;
     }
   }
 }
