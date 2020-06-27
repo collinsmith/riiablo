@@ -1,9 +1,18 @@
 namespace com.riiablo.net.packet.netty;
 
+enum ConnectionState:byte {
+  request,
+  waiting_for_challenge,
+  answering_challenge,
+  awaiting_connect,
+  connection_payload
+}
+
 table Connection {
   // request
 
   // response
+  salt:int64;
 }
 
 table Disconnect {
