@@ -14,10 +14,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.badlogic.gdx.Application;
@@ -56,9 +54,9 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   private EventLoopGroup workerGroup;
 
   private final ConnectionLimiter connectionLimiter = new ConnectionLimiter(MAX_CLIENTS);
-
-  private final ConcurrentHashMap<SocketAddress, Integer> connectionIds = new ConcurrentHashMap<>(32);
-  private final ConcurrentHashMap<SocketAddress, ClientData> clientDatas = new ConcurrentHashMap<>(32);
+  private final ClientData[] clients = new ClientData[MAX_CLIENTS]; {
+    for (int i = 0; i < MAX_CLIENTS; i++) clients[i] = new ClientData();
+  }
 
   @Override
   public void create() {
@@ -122,7 +120,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   public void processPacket(ChannelHandlerContext ctx, SocketAddress from, ByteBuf bb) {
     Gdx.app.debug(TAG, "Processing packet...");
     Gdx.app.debug(TAG, "  " + ByteBufUtil.hexDump(bb));
-    processPacket(ctx, Netty.getRootAsNetty(bb.nioBuffer()));
+    processPacket(ctx, from, Netty.getRootAsNetty(bb.nioBuffer()));
   }
 
   private int state = 0;
@@ -130,10 +128,8 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   public static final int CLIENT_DISCONNECTED = 0;
   public static final int CLIENT_CONNECT = 0;
 
-  public void processPacket(ChannelHandlerContext ctx, Netty netty) {
+  public void processPacket(ChannelHandlerContext ctx, SocketAddress from, Netty netty) {
     Gdx.app.debug(TAG, "  " + "dataType=" + NettyData.name(netty.dataType()));
-
-    InetSocketAddress from = (InetSocketAddress) ctx.channel().remoteAddress();
     switch (netty.dataType()) {
       case NettyData.Connection: {
         Connection(ctx, from, netty);
@@ -145,46 +141,64 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     }
   }
 
-  private void Connection(ChannelHandlerContext ctx, InetSocketAddress from, Netty netty) {
+  private void Connection(ChannelHandlerContext ctx, SocketAddress from, Netty netty) {
     Gdx.app.debug(TAG, "Connection from " + from);
     Connection connection = (Connection) netty.data(new Connection());
 
     boolean generateSalt = true;
     long clientSalt = connection.salt();
     Gdx.app.debug(TAG, "  " + String.format("client salt=%016x", clientSalt));
-    ClientData client = clientDatas.get(from);
-    if (client != null) {
-      long storedClientSalt = client.clientSalt;
-      if (storedClientSalt == clientSalt) {
-        Gdx.app.debug(TAG, "  " + "client salt matches server record");
-        generateSalt = false;
+
+    synchronized (clients) {
+      final ClientData client;
+      final ClientData[] clients = this.clients;
+
+      int id;
+      for (id = 0; id < MAX_CLIENTS && !from.equals(clients[id].address); id++);
+      if (id == MAX_CLIENTS) {
+        Gdx.app.debug(TAG, "  " + "no connection record found for " + from);
+        Gdx.app.debug(TAG, "  " + "creating connection record for " + from);
+
+        for (id = 0; id < MAX_CLIENTS && clients[id].connected; id++);
+        assert id != MAX_CLIENTS : "no available client slots. connection limiter should have caught this";
+        if (id == MAX_CLIENTS) {
+          Gdx.app.error(TAG, "  " + "client connected, but no slot is available");
+          ctx.channel().close(); // TODO: does this work on a UDP? (connectionless)
+          return;
+        }
+
+        Gdx.app.debug(TAG, "  " + "assigned " + from + " to " + id);
+        client = clients[id].connect(from, clientSalt);
       } else {
-        Gdx.app.debug(TAG, "  " + "client salt mismatch with server record");
-        Gdx.app.debug(TAG, "  " + "updating client salt to server record");
-        client.clientSalt = clientSalt;
-        clientSalt = storedClientSalt;
-        Gdx.app.debug(TAG, "  " + String.format("client salt=%016x", clientSalt));
+        Gdx.app.debug(TAG, "  " + "found connection record for " + from + " as " + id);
+        client = clients[id];
+        Gdx.app.debug(TAG, "  " + "checking client salt");
+        if (client.clientSalt == clientSalt) {
+          Gdx.app.debug(TAG, "  " + "client salt matches server record");
+          generateSalt = false;
+        } else {
+          Gdx.app.debug(TAG, "  " + "client salt mismatch with server record");
+          Gdx.app.debug(TAG, "  " + "updating client salt to server record");
+          clientSalt = client.clientSalt;
+          Gdx.app.debug(TAG, "  " + String.format("client salt=%016x", clientSalt));
+        }
       }
-    } else {
-      Gdx.app.debug(TAG, "  " + "no server record found matching client salt");
-      clientDatas.put(from, client = new ClientData(clientSalt));
-    }
 
-    long serverSalt;
-    if (generateSalt) {
-      Gdx.app.debug(TAG, "  " + "generating server salt");
-      serverSalt = MathUtils.random.nextLong();
-      if (client.serverSalt != 0L) {
-        Gdx.app.debug(TAG, "  " + String.format("overwriting existing server salt %016x", client.serverSalt));
+      long serverSalt;
+      if (generateSalt) {
+        Gdx.app.debug(TAG, "  " + "generating server salt");
+        if (client.serverSalt != 0L) {
+          Gdx.app.debug(TAG, "  " + String.format("overwriting existing server salt %016x", client.serverSalt));
+        }
+        serverSalt = client.serverSalt = MathUtils.random.nextLong();
+        Gdx.app.debug(TAG, "  " + String.format("server salt=%016x", serverSalt));
+      } else {
+        serverSalt = client.serverSalt;
       }
-      client.serverSalt = serverSalt;
-      Gdx.app.debug(TAG, "  " + String.format("server salt=%016x", serverSalt));
-    } else {
-      serverSalt = client.serverSalt;
-    }
 
-    long salt = client.xor = clientSalt ^ serverSalt;
-    Gdx.app.debug(TAG, "  " + String.format("salt=%016x", salt));
+      long salt = client.xor = clientSalt ^ serverSalt;
+      Gdx.app.debug(TAG, "  " + String.format("salt=%016x", salt));
+    }
   }
 
   @ChannelHandler.Sharable
@@ -223,9 +237,21 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     long serverSalt;
     long xor;
     byte state;
+    SocketAddress address;
+    boolean connected;
 
-    ClientData(long clientSalt) {
+    ClientData connect(SocketAddress address, long clientSalt) {
+      assert !connected;
+      this.address = address;
       this.clientSalt = clientSalt;
+      connected = true;
+      return this;
+    }
+
+    ClientData disconnect() {
+      assert connected;
+      connected = false;
+      return this;
     }
   }
 }
