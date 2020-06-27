@@ -55,7 +55,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   private EventLoopGroup bossGroup;
   private EventLoopGroup workerGroup;
 
-  private final ConnectionLimiter connectionLimiter = new ConnectionLimiter();
+  private final ConnectionLimiter connectionLimiter = new ConnectionLimiter(MAX_CLIENTS);
 
   private final ConcurrentHashMap<SocketAddress, Integer> connectionIds = new ConcurrentHashMap<>(32);
   private final ConcurrentHashMap<SocketAddress, ClientData> clientDatas = new ConcurrentHashMap<>(32);
@@ -191,17 +191,22 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
   static class ConnectionLimiter extends ChannelInboundHandlerAdapter {
     static final String TAG = "ConnectionLimiter";
 
+    final int maxClients;
     final AtomicInteger connections = new AtomicInteger();
+
+    ConnectionLimiter(int maxClients) {
+      this.maxClients = maxClients;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
       int count = connections.incrementAndGet();
       if (count <= MAX_CLIENTS) {
-        Gdx.app.debug(TAG, String.format("connection accepted. %d / %d", count, MAX_CLIENTS));
+        Gdx.app.debug(TAG, String.format("connection accepted. %d / %d", count, maxClients));
         super.channelActive(ctx);
       } else {
         ctx.close();
-        Gdx.app.debug(TAG, String.format("closing connection. maximum concurrent connections reached %d / %d", count, MAX_CLIENTS));
+        Gdx.app.debug(TAG, String.format("closing connection. maximum concurrent connections reached %d / %d", count, maxClients));
       }
     }
 
