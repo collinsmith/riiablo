@@ -235,9 +235,8 @@ public class ReliableMessageChannel extends MessageChannel {
     packet.time = -1.0f;
 
     // ensure size for header
-    // TODO: there appears to be extra code here outside of the spec that aggregates multiple
-    //       messages together and prepends messageId and messageLength fields. Maybe this was done
-    //       to group up smaller messages? Needs to be looked into more.
+    // TODO: prepend sequence and variable length field for size of packet.
+    //       variable length is 1 or 2 bytes depending on value and 2 byte sequence id ushort
     // https://github.com/KillaMaaki/ReliableNetcode.NET/blob/c5a7339e2de70f52bfda2078f1bbdab2ec9a85c1/ReliableNetcode/MessageChannel.cs#L331-L393
 
     packet.bb = bb;
