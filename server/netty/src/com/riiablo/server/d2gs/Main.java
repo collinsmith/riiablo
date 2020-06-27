@@ -162,7 +162,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
         assert id != MAX_CLIENTS : "no available client slots. connection limiter should have caught this";
         if (id == MAX_CLIENTS) {
           Gdx.app.error(TAG, "  " + "client connected, but no slot is available");
-          ctx.channel().close(); // TODO: does this work on a UDP? (connectionless)
+          ctx.close();
           return;
         }
 
