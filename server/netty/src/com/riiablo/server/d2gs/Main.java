@@ -75,19 +75,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
               Main.this.endpoint = endpoint;
               ch.pipeline()
                   .addFirst(connectionLimiter)
-                  .addLast(new ByteToMessageDecoder() {
-                    @Override
-                    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-                      if (in.readableBytes() < 4) return;
-                      in.markReaderIndex();
-                      final int length = in.readIntLE();
-                      if (in.readableBytes() < length) {
-                        in.resetReaderIndex();
-                        return;
-                      }
-                      out.add(in.readRetainedSlice(length));
-                    }
-                  })
+                  .addLast(new SizePrefixedDecoder())
                   .addLast(new EndpointedChannelHandler<>(ByteBuf.class, endpoint))
                   ;
             }
@@ -251,6 +239,20 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
       assert connected;
       connected = false;
       return this;
+    }
+  }
+
+  private static class SizePrefixedDecoder extends ByteToMessageDecoder {
+    @Override
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+      if (in.readableBytes() < 4) return;
+      in.markReaderIndex();
+      final int length = in.readIntLE();
+      if (in.readableBytes() < length) {
+        in.resetReaderIndex();
+        return;
+      }
+      out.add(in.readRetainedSlice(length));
     }
   }
 }
