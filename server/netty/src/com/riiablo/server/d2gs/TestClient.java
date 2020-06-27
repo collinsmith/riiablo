@@ -69,16 +69,15 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
           });
 
       ChannelFuture f = b.connect("localhost", Main.PORT).sync();
-      sendPacket();
-      Thread.currentThread().sleep(1);
-      sendPacket();
+      sendConnectionPacket();
+      sendConnectionPacket();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
       Gdx.app.exit();
     }
   }
 
-  private void sendPacket() {
+  private void sendConnectionPacket() {
     InetSocketAddress remoteAddress = (InetSocketAddress) endpoint.channel().remoteAddress();
     Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
 
