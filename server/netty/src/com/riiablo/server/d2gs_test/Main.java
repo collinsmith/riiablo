@@ -1,4 +1,4 @@
-package com.riiablo.server.d2gs;
+package com.riiablo.server.d2gs_test;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;

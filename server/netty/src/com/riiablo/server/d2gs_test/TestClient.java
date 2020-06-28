@@ -1,4 +1,4 @@
-package com.riiablo.server.d2gs;
+package com.riiablo.server.d2gs_test;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
