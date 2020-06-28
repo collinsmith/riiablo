@@ -12,7 +12,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import com.badlogic.gdx.Application;
@@ -78,8 +77,8 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
   }
 
   private void sendConnectionPacket() {
-    InetSocketAddress remoteAddress = (InetSocketAddress) endpoint.channel().remoteAddress();
-    Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
+    SocketAddress remoteAddress = endpoint.channel().remoteAddress();
+    Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress);
 
     long salt = MathUtils.random.nextLong();
     FlatBufferBuilder builder = new FlatBufferBuilder();
