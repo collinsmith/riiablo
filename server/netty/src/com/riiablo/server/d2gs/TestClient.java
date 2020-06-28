@@ -26,6 +26,7 @@ import com.riiablo.net.EndpointedChannelHandler;
 import com.riiablo.net.PacketProcessor;
 import com.riiablo.net.UnicastEndpoint;
 import com.riiablo.net.packet.netty.Connection;
+import com.riiablo.net.packet.netty.Disconnect;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
 import com.riiablo.net.reliable.QoS;
@@ -70,6 +71,7 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
       ChannelFuture f = b.connect("localhost", Main.PORT).sync();
       sendConnectionPacket();
       sendConnectionPacket();
+      sendDisconnectPacket();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
       Gdx.app.exit();
@@ -86,6 +88,19 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
     Connection.addSalt(builder, salt);
     int dataOffset = Connection.endConnection(builder);
     int offset = Netty.createNetty(builder, salt, NettyData.Connection, dataOffset);
+    Netty.finishSizePrefixedNettyBuffer(builder, offset);
+
+    endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
+  }
+
+  private void sendDisconnectPacket() {
+    SocketAddress remoteAddress = endpoint.channel().remoteAddress();
+    Gdx.app.log(TAG, "Sending Disconnect packet to " + remoteAddress);
+
+    FlatBufferBuilder builder = new FlatBufferBuilder();
+    Disconnect.startDisconnect(builder);
+    int dataOffset = Disconnect.endDisconnect(builder);
+    int offset = Netty.createNetty(builder, 0L, NettyData.Disconnect, dataOffset);
     Netty.finishSizePrefixedNettyBuffer(builder, offset);
 
     endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
