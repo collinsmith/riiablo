@@ -319,7 +319,7 @@ public class Main extends ApplicationAdapter {
             } else if (in.equalsIgnoreCase("address")) {
               Gdx.app.log(TAG, "address: " + server.future().channel().localAddress());
             } else if (in.equalsIgnoreCase("clients")) {
-              Gdx.app.log(TAG, "clients: " + "...");
+              Gdx.app.log(TAG, "clients: " + server.resolver());
             } else if (in.equalsIgnoreCase("seed")) {
               Gdx.app.log(TAG, "seed: " + seed);
             } else {

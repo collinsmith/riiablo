@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 
 import com.badlogic.gdx.Gdx;
@@ -38,7 +39,6 @@ import com.riiablo.net.packet.netty.NettyData;
 import com.riiablo.nnet.Endpoint;
 import com.riiablo.nnet.PacketProcessor;
 import com.riiablo.nnet.tcp.TcpEndpoint;
-import com.riiablo.server.d2gs.tcp.ChannelIdResolver;
 
 public class Server implements PacketProcessor {
   private static final String TAG = "D2GS";
@@ -69,6 +69,27 @@ public class Server implements PacketProcessor {
 
   private final ClientData[] clients = new ClientData[MAX_CLIENTS]; {
     for (int i = 0; i < MAX_CLIENTS; i++) clients[i] = new ClientData();
+    idResolver = new Endpoint.IdResolver<Channel>() {
+      @Override
+      public Channel get(int id) {
+        return clients[id].channel;
+      }
+
+      @Override
+      public Channel put(int id, Channel ch) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Channel remove(int id) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public String toString() {
+        return ArrayUtils.toString(clients);
+      }
+    };
   }
 
 //  final BlockingQueue<Packet> packets = new ArrayBlockingQueue<>(32);
@@ -89,6 +110,10 @@ public class Server implements PacketProcessor {
     return future;
   }
 
+  public Endpoint.IdResolver resolver() {
+    return idResolver;
+  }
+
   @SuppressWarnings("unchecked")
   private static Endpoint<?> createEndpoint(Endpoint.IdResolver<?> idResolver, PacketProcessor packetProcessor) {
     return new TcpEndpoint((Endpoint.IdResolver<Channel>) idResolver, packetProcessor);
@@ -104,7 +129,6 @@ public class Server implements PacketProcessor {
     Validate.validState(workerGroup == null);
     Validate.validState(bootstrap == null);
 
-    idResolver = new ChannelIdResolver(MAX_CLIENTS);
     endpoint = createEndpoint(idResolver, this);
     bossGroup = new NioEventLoopGroup();
     workerGroup = new NioEventLoopGroup();
@@ -220,7 +244,7 @@ public class Server implements PacketProcessor {
         }
 
         Gdx.app.debug(TAG, "  " + "assigned " + from + " to " + id);
-        client = clients[id].connect(from, clientSalt);
+        client = clients[id].connect(ctx.channel(), from, clientSalt);
       } else {
         Gdx.app.debug(TAG, "  " + "found connection record for " + from + " as " + id);
         client = clients[id];
@@ -320,11 +344,13 @@ public class Server implements PacketProcessor {
     long serverSalt;
     long xor;
     byte state;
+    Channel channel;
     SocketAddress address;
     boolean connected;
 
-    ClientData connect(SocketAddress address, long clientSalt) {
+    ClientData connect(Channel channel, SocketAddress address, long clientSalt) {
       assert !connected;
+      this.channel = channel;
       this.address = address;
       this.clientSalt = clientSalt;
       connected = true;
@@ -334,8 +360,14 @@ public class Server implements PacketProcessor {
     ClientData disconnect() {
       assert connected;
       connected = false;
+      channel = null;
       address = null;
       return this;
+    }
+
+    @Override
+    public String toString() {
+      return connected ? String.format("[%016x: %s]", xor, address) : "[disconnected]";
     }
   }
 
