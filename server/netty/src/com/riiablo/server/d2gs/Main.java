@@ -316,6 +316,8 @@ public class Main extends ApplicationAdapter {
             String in = reader.readLine();
             if (in.equalsIgnoreCase("exit")) {
               Gdx.app.exit();
+            } else if (in.equalsIgnoreCase("help") || in.equalsIgnoreCase("?")) {
+              Gdx.app.log(TAG, "commands: address, clients, seed, exit");
             } else if (in.equalsIgnoreCase("address")) {
               Gdx.app.log(TAG, "address: " + server.future().channel().localAddress());
             } else if (in.equalsIgnoreCase("clients")) {
