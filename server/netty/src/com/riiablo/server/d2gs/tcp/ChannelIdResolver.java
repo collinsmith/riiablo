@@ -4,6 +4,11 @@ import io.netty.channel.Channel;
 
 import com.riiablo.nnet.Endpoint;
 
+/**
+ * Not used anymore -- prefer to use anonymous implementations of {@link Endpoint.IdResolver} which
+ * wrap preexisting data structures.
+ */
+@Deprecated
 public class ChannelIdResolver implements Endpoint.IdResolver<Channel> {
   private final Channel[] channels;
 
@@ -14,17 +19,5 @@ public class ChannelIdResolver implements Endpoint.IdResolver<Channel> {
   @Override
   public Channel get(int id) {
     return channels[id];
-  }
-
-  @Override
-  public Channel put(int id, Channel ch) {
-    Channel oldValue = channels[id];
-    channels[id] = ch;
-    return oldValue;
-  }
-
-  @Override
-  public Channel remove(int id) {
-    return put(id, null);
   }
 }

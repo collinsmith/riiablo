@@ -11,7 +11,5 @@ public interface Endpoint<T> {
 
   interface IdResolver<R> {
     R get(int id);
-    R put(int id, R ch);
-    R remove(int id);
   }
 }

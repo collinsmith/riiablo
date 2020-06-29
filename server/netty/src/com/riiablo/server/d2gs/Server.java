@@ -76,16 +76,6 @@ public class Server implements PacketProcessor {
       }
 
       @Override
-      public Channel put(int id, Channel ch) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public Channel remove(int id) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
       public String toString() {
         return ArrayUtils.toString(clients);
       }
