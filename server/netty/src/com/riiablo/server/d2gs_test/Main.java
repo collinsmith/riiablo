@@ -3,6 +3,7 @@ package com.riiablo.server.d2gs_test;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -152,7 +153,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
       final ClientData[] clients = this.clients;
 
       int id;
-      for (id = 0; id < MAX_CLIENTS && !from.equals(clients[id].address); id++);
+      for (id = 0; id < MAX_CLIENTS && !from.equals(clients[id].address); id++) ;
       if (id == MAX_CLIENTS) {
         Gdx.app.debug(TAG, "  " + "no connection record found for " + from);
         Gdx.app.debug(TAG, "  " + "creating connection record for " + from);
@@ -167,7 +168,7 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
         }
 
         Gdx.app.debug(TAG, "  " + "assigned " + from + " to " + id);
-        client = clients[id].connect(from, clientSalt);
+        client = clients[id].connect(ctx.channel(), from, clientSalt);
       } else {
         Gdx.app.debug(TAG, "  " + "found connection record for " + from + " as " + id);
         client = clients[id];
@@ -211,10 +212,10 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     synchronized (clients) {
       int id;
       for (id = 0; id < MAX_CLIENTS && !from.equals(clients[id].address); id++) ;
-      Gdx.app.debug(TAG, "  " + "found connection record for " + from + " as " + id);
       if (id == MAX_CLIENTS) {
-        Gdx.app.error(TAG, "  " + "channel reported inactive, but there isn't any client connecting from it: " + from);
+        Gdx.app.debug(TAG, "  " + "client from " + from + " already disconnected");
       } else {
+        Gdx.app.debug(TAG, "  " + "found connection record for " + from + " as " + id);
         Gdx.app.debug(TAG, "  " + "disconnecting " + id);
         clients[id].disconnect();
       }
@@ -267,11 +268,13 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     long serverSalt;
     long xor;
     byte state;
+    Channel channel;
     SocketAddress address;
     boolean connected;
 
-    ClientData connect(SocketAddress address, long clientSalt) {
+    ClientData connect(Channel channel, SocketAddress address, long clientSalt) {
       assert !connected;
+      this.channel = channel;
       this.address = address;
       this.clientSalt = clientSalt;
       connected = true;
@@ -281,8 +284,14 @@ public class Main extends ApplicationAdapter implements PacketProcessor {
     ClientData disconnect() {
       assert connected;
       connected = false;
+      channel = null;
       address = null;
       return this;
+    }
+
+    @Override
+    public String toString() {
+      return connected ? String.format("[%016x: %s]", xor, address) : "[disconnected]";
     }
   }
 

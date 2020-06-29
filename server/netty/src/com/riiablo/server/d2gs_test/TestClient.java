@@ -70,8 +70,8 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
 
       ChannelFuture f = b.connect("localhost", Main.PORT).sync();
       sendConnectionPacket();
-      sendConnectionPacket();
-      sendDisconnectPacket();
+//      sendConnectionPacket();
+//      sendDisconnectPacket();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
       Gdx.app.exit();
