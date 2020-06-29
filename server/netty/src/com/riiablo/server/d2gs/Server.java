@@ -19,11 +19,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.net.InetAddress;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
@@ -47,7 +43,7 @@ public class Server implements PacketProcessor {
 
   private final InetAddress address;
   private final int port;
-  private final PacketProcessor packetProcessor;
+  private final D2GSPacketProcessor packetProcessor;
 
   private ChannelFuture future;
   private ServerBootstrap bootstrap;
@@ -82,15 +78,9 @@ public class Server implements PacketProcessor {
     };
   }
 
-//  final BlockingQueue<Packet> packets = new ArrayBlockingQueue<>(32);
-//  final Collection<Packet> cache = new ArrayList<>(1024);
-//  final BlockingQueue<Packet> outPackets = new ArrayBlockingQueue<>(1024);
-  final BlockingQueue packets = new ArrayBlockingQueue<>(32);
-  final Collection cache = new ArrayList<>(1024);
-  final BlockingQueue outPackets = new ArrayBlockingQueue<>(1024);
   final IntIntMap player = new IntIntMap();
 
-  public Server(InetAddress address, int port, PacketProcessor packetProcessor) {
+  public Server(InetAddress address, int port, D2GSPacketProcessor packetProcessor) {
     this.address = address;
     this.port = port;
     this.packetProcessor = packetProcessor;
@@ -203,6 +193,7 @@ public class Server implements PacketProcessor {
         break;
       default:
         Gdx.app.debug(TAG, "  " + "not connection-related. propagating to " + packetProcessor);
+        packetProcessor.processPacket(ctx, from, netty);
     }
   }
 

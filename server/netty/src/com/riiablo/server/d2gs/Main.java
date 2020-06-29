@@ -60,7 +60,6 @@ import com.riiablo.map.DT1Loader;
 import com.riiablo.map.Map;
 import com.riiablo.map.MapManager;
 import com.riiablo.mpq.MPQFileHandleResolver;
-import com.riiablo.nnet.PacketProcessor;
 
 public class Main extends ApplicationAdapter {
   private static final String TAG = "Main";
@@ -131,7 +130,7 @@ public class Main extends ApplicationAdapter {
   AtomicBoolean kill;
 
   Server server;
-  PacketProcessor packetProcessor;
+  D2GSPacketProcessor packetProcessor;
 
   World world;
   Map map;
@@ -227,7 +226,7 @@ public class Main extends ApplicationAdapter {
         .register("map", map)
         .register("factory", factory)
         .register("player", server.player)
-        .register("outPackets", server.outPackets)
+        .register("outPackets", packetProcessor.outPackets)
         ;
     Riiablo.engine = world = new World(config);
 
