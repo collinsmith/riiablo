@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable.data;
+package com.riiablo.onet.reliable.data;
 
 import io.netty.buffer.ByteBuf;
 

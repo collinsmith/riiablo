@@ -28,13 +28,13 @@ import com.badlogic.gdx.math.MathUtils;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
-import com.riiablo.net.Endpoint;
-import com.riiablo.net.EndpointedChannelHandler;
-import com.riiablo.net.PacketProcessor;
 import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
-import com.riiablo.net.tcp.TcpEndpoint;
+import com.riiablo.onet.Endpoint;
+import com.riiablo.onet.EndpointedChannelHandler;
+import com.riiablo.onet.PacketProcessor;
+import com.riiablo.onet.tcp.TcpEndpoint;
 
 public class Main extends ApplicationAdapter implements PacketProcessor {
   private static final String TAG = "D2GS";

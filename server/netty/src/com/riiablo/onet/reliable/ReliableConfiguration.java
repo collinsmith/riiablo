@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable;
+package com.riiablo.onet.reliable;
 
 public class ReliableConfiguration {
   public int maxPacketSize = 16384;

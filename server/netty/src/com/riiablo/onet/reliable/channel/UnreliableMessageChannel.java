@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable.channel;
+package com.riiablo.onet.reliable.channel;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -6,9 +6,9 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.SocketAddress;
 
-import com.riiablo.net.reliable.Log;
-import com.riiablo.net.reliable.MessageChannel;
-import com.riiablo.net.reliable.ReliableConfiguration;
+import com.riiablo.onet.reliable.Log;
+import com.riiablo.onet.reliable.MessageChannel;
+import com.riiablo.onet.reliable.ReliableConfiguration;
 
 public class UnreliableMessageChannel extends MessageChannel {
   private static final String TAG = "UnreliableMessageChannel";

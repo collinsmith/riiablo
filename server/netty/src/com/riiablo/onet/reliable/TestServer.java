@@ -1,19 +1,19 @@
-package com.riiablo.net.reliable;
+package com.riiablo.onet.reliable;
 
-import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -22,24 +22,24 @@ import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
-import com.riiablo.net.EndpointedChannelHandler;
-import com.riiablo.net.PacketProcessor;
-import com.riiablo.net.UnicastEndpoint;
-import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
+import com.riiablo.onet.Endpoint;
+import com.riiablo.onet.EndpointedChannelHandler;
+import com.riiablo.onet.PacketProcessor;
 
-public class TestClient extends ApplicationAdapter implements PacketProcessor {
-  private static final String TAG = "Client";
+public class TestServer extends ApplicationAdapter implements PacketProcessor {
+  private static final String TAG = "Server";
 
-  public static void main(String[] args) throws Exception {
-    Thread.sleep(1000);
+  static final int PORT = 6114;
+
+  public static void main(String[] args) {
     HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
     config.renderInterval = Animation.FRAME_DURATION;
-    new HeadlessApplication(new TestClient(), config);
+    new HeadlessApplication(new TestServer(), config);
   }
 
-  private UnicastEndpoint<?> endpoint;
+  private Endpoint<?> endpoint;
   private EventLoopGroup group;
 
   @Override
@@ -51,36 +51,24 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
       Bootstrap b = new Bootstrap()
           .group(group)
           .channel(NioDatagramChannel.class)
+          .option(ChannelOption.SO_BROADCAST, true)
           .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-              UnicastEndpoint<DatagramPacket> endpoint = new ReliableEndpoint(ch, TestClient.this);
-              TestClient.this.endpoint = endpoint;
+              ReliableEndpoint endpoint = new ReliableEndpoint(ch, TestServer.this);
+              TestServer.this.endpoint = endpoint;
               ch.pipeline()
                   .addLast(new EndpointedChannelHandler<>(DatagramPacket.class, endpoint))
                   ;
             }
-          });
+          })
+          ;
 
-      ChannelFuture f = b.connect("localhost", TestServer.PORT).sync();
-      sendPacket();
+      ChannelFuture f = b.bind(PORT).sync();
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
       Gdx.app.exit();
     }
-  }
-
-  private void sendPacket() {
-    InetSocketAddress remoteAddress = (InetSocketAddress) endpoint.channel().remoteAddress();
-    Gdx.app.log(TAG, "Sending Connection packet to " + remoteAddress.getHostString() + ":" + remoteAddress.getPort());
-
-    FlatBufferBuilder builder = new FlatBufferBuilder();
-    Connection.startConnection(builder);
-    int dataOffset = Connection.endConnection(builder);
-    int offset = Netty.createNetty(builder, 0L, NettyData.Connection, dataOffset);
-    Netty.finishNettyBuffer(builder, offset);
-
-    endpoint.sendMessage(QoS.Unreliable, builder.dataBuffer());
   }
 
   @Override
@@ -97,5 +85,13 @@ public class TestClient extends ApplicationAdapter implements PacketProcessor {
   public void processPacket(ChannelHandlerContext ctx, SocketAddress from, ByteBuf bb) {
     Gdx.app.debug(TAG, "Processing packet...");
     Gdx.app.log(TAG, ByteBufUtil.hexDump(bb));
+
+    ByteBuffer nioBuffer = bb.nioBuffer();
+    Netty netty = Netty.getRootAsNetty(nioBuffer);
+
+    byte dataType = netty.dataType();
+    if (0 <= dataType && dataType < NettyData.names.length) {
+      Gdx.app.debug(TAG, "dataType=" + NettyData.name(dataType));
+    }
   }
 }

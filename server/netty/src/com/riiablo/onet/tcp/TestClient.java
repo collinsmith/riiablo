@@ -1,4 +1,4 @@
-package com.riiablo.net.tcp;
+package com.riiablo.onet.tcp;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 import io.netty.bootstrap.Bootstrap;
@@ -22,13 +22,13 @@ import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
-import com.riiablo.net.EndpointedChannelHandler;
-import com.riiablo.net.PacketProcessor;
-import com.riiablo.net.UnicastEndpoint;
 import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
-import com.riiablo.net.reliable.QoS;
+import com.riiablo.onet.EndpointedChannelHandler;
+import com.riiablo.onet.PacketProcessor;
+import com.riiablo.onet.UnicastEndpoint;
+import com.riiablo.onet.reliable.QoS;
 
 public class TestClient extends ApplicationAdapter implements PacketProcessor {
   private static final String TAG = "Client";

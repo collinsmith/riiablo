@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable;
+package com.riiablo.onet.reliable;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,9 +8,9 @@ import java.net.SocketAddress;
 
 import com.badlogic.gdx.math.MathUtils;
 
-import com.riiablo.net.reliable.data.FragmentReassemblyData;
-import com.riiablo.net.reliable.data.ReceivedPacketData;
-import com.riiablo.net.reliable.data.SentPacketData;
+import com.riiablo.onet.reliable.data.FragmentReassemblyData;
+import com.riiablo.onet.reliable.data.ReceivedPacketData;
+import com.riiablo.onet.reliable.data.SentPacketData;
 
 public class ReliablePacketController {
   private static final String TAG = "ReliablePacketController";

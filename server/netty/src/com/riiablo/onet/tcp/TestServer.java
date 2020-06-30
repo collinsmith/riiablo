@@ -1,4 +1,4 @@
-package com.riiablo.net.tcp;
+package com.riiablo.onet.tcp;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -20,9 +20,9 @@ import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
 import com.riiablo.codec.Animation;
-import com.riiablo.net.Endpoint;
-import com.riiablo.net.EndpointedChannelHandler;
-import com.riiablo.net.PacketProcessor;
+import com.riiablo.onet.Endpoint;
+import com.riiablo.onet.EndpointedChannelHandler;
+import com.riiablo.onet.PacketProcessor;
 
 public class TestServer extends ApplicationAdapter implements PacketProcessor {
   private static final String TAG = "Server";

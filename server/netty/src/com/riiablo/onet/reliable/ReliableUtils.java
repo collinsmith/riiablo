@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable;
+package com.riiablo.onet.reliable;
 
 public class ReliableUtils {
   private ReliableUtils() {}

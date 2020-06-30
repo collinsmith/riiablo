@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable;
+package com.riiablo.onet.reliable;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -11,11 +11,11 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import org.apache.commons.lang3.Validate;
 
-import com.riiablo.net.PacketProcessor;
-import com.riiablo.net.UnicastEndpoint;
-import com.riiablo.net.reliable.channel.ReliableMessageChannel;
-import com.riiablo.net.reliable.channel.UnreliableMessageChannel;
-import com.riiablo.net.reliable.channel.UnreliableOrderedMessageChannel;
+import com.riiablo.onet.PacketProcessor;
+import com.riiablo.onet.UnicastEndpoint;
+import com.riiablo.onet.reliable.channel.ReliableMessageChannel;
+import com.riiablo.onet.reliable.channel.UnreliableMessageChannel;
+import com.riiablo.onet.reliable.channel.UnreliableOrderedMessageChannel;
 import com.riiablo.util.EnumIntMap;
 
 public class ReliableEndpoint implements UnicastEndpoint<DatagramPacket>, MessageChannel.PacketTransceiver {

@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable;
+package com.riiablo.onet.reliable;
 
 import java.util.Arrays;
 import org.apache.commons.lang3.exception.ExceptionUtils;

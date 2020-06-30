@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable.data;
+package com.riiablo.onet.reliable.data;
 
 public class SentPacketData {
   public float   time;

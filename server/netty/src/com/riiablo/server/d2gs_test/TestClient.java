@@ -22,15 +22,15 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.badlogic.gdx.math.MathUtils;
 
 import com.riiablo.codec.Animation;
-import com.riiablo.net.EndpointedChannelHandler;
-import com.riiablo.net.PacketProcessor;
-import com.riiablo.net.UnicastEndpoint;
 import com.riiablo.net.packet.netty.Connection;
 import com.riiablo.net.packet.netty.Disconnect;
 import com.riiablo.net.packet.netty.Netty;
 import com.riiablo.net.packet.netty.NettyData;
-import com.riiablo.net.reliable.QoS;
-import com.riiablo.net.tcp.TcpEndpoint;
+import com.riiablo.onet.EndpointedChannelHandler;
+import com.riiablo.onet.PacketProcessor;
+import com.riiablo.onet.UnicastEndpoint;
+import com.riiablo.onet.reliable.QoS;
+import com.riiablo.onet.tcp.TcpEndpoint;
 
 public class TestClient extends ApplicationAdapter implements PacketProcessor {
   private static final String TAG = "Client";

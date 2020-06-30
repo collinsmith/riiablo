@@ -1,4 +1,4 @@
-package com.riiablo.net.reliable.channel;
+package com.riiablo.onet.reliable.channel;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -11,12 +11,12 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Queue;
 
-import com.riiablo.net.reliable.Log;
-import com.riiablo.net.reliable.MessageChannel;
-import com.riiablo.net.reliable.Packet;
-import com.riiablo.net.reliable.ReliableConfiguration;
-import com.riiablo.net.reliable.ReliableUtils;
-import com.riiablo.net.reliable.SequenceBuffer;
+import com.riiablo.onet.reliable.Log;
+import com.riiablo.onet.reliable.MessageChannel;
+import com.riiablo.onet.reliable.Packet;
+import com.riiablo.onet.reliable.ReliableConfiguration;
+import com.riiablo.onet.reliable.ReliableUtils;
+import com.riiablo.onet.reliable.SequenceBuffer;
 
 public class ReliableMessageChannel extends MessageChannel {
   private static final String TAG = "ReliableMessageChannel";

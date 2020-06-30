@@ -1,4 +1,4 @@
-package com.riiablo.net.tcp;
+package com.riiablo.onet.tcp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.Gdx;
 
-import com.riiablo.net.PacketProcessor;
-import com.riiablo.net.UnicastEndpoint;
+import com.riiablo.onet.PacketProcessor;
+import com.riiablo.onet.UnicastEndpoint;
 
 public class TcpEndpoint implements UnicastEndpoint<ByteBuf> {
   private static final String TAG = "TcpEndpoint";

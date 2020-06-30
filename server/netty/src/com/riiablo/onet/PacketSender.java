@@ -1,4 +1,4 @@
-package com.riiablo.net;
+package com.riiablo.onet;
 
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;

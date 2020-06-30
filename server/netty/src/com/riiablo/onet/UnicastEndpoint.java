@@ -1,4 +1,4 @@
-package com.riiablo.net;
+package com.riiablo.onet;
 
 import java.nio.ByteBuffer;
 
