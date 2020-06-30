@@ -137,7 +137,7 @@ public class Server implements PacketProcessor {
         .option(ChannelOption.SO_BACKLOG, 128)
         .childOption(ChannelOption.TCP_NODELAY, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true)
-//        .localAddress(address, port)
+//        .localAddress(address, port) // FIXME disable binding to LAN IP in favor of localhost
         ;
   }
 
