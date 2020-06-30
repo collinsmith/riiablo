@@ -24,10 +24,16 @@ public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInbou
   private static final boolean DEBUG_INBOUND = DEBUG && true;
   private static final boolean DEBUG_OUTBOUND = DEBUG && true;
 
+  private final boolean autoRelease;
   private final TypeParameterMatcher matcher;
   private final Endpoint<T> endpoint;
 
   public EndpointedChannelHandler(Class<T> packetType, Endpoint<T> endpoint) {
+    this(true, packetType, endpoint);
+  }
+
+  public EndpointedChannelHandler(boolean autoRelease, Class<T> packetType, Endpoint<T> endpoint) {
+    this.autoRelease = autoRelease;
     this.endpoint = endpoint;
     matcher = TypeParameterMatcher.get(packetType);
   }
@@ -118,7 +124,7 @@ public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInbou
         ctx.fireChannelRead(msg);
       }
     } finally {
-      if (release) ReferenceCountUtil.release(msg);
+      if (autoRelease && release) ReferenceCountUtil.release(msg);
     }
   }
 
