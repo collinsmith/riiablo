@@ -226,7 +226,7 @@ public class Main extends ApplicationAdapter {
         .register("map", map)
         .register("factory", factory)
         .register("player", server.player)
-        .register("outPackets", packetProcessor.outPackets)
+        .register("outPackets", server.outPackets)
         ;
     Riiablo.engine = world = new World(config);
 

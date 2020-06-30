@@ -19,7 +19,11 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
@@ -78,6 +82,9 @@ public class Server implements PacketProcessor {
     };
   }
 
+  final BlockingQueue<D2GSPacket<D2GS>> packets = new ArrayBlockingQueue<>(32);
+  final Collection<D2GSPacket<D2GS>> cache = new ArrayList<>(1024);
+  final BlockingQueue<D2GSPacket<D2GS>> outPackets = new ArrayBlockingQueue<>(1024);
   final IntIntMap player = new IntIntMap();
 
   public Server(InetAddress address, int port, D2GSPacketProcessor packetProcessor) {
