@@ -19,7 +19,7 @@ import com.riiablo.nnet.Endpoint;
 public class EndpointedChannelHandler<T> implements ChannelHandler, ChannelInboundHandler, ChannelOutboundHandler {
   private static final String TAG = "EndpointedChannelHandler";
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = !true;
   private static final boolean DEBUG_CALLS = DEBUG && true;
   private static final boolean DEBUG_INBOUND = DEBUG && true;
   private static final boolean DEBUG_OUTBOUND = DEBUG && true;

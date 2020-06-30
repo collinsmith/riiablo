@@ -30,7 +30,7 @@ public class NetworkSynchronizer extends BaseEntitySystem {
   protected SerializationManager serializer;
 
   @Wire(name = "outPackets")
-  protected BlockingQueue<Packet> outPackets;
+  protected BlockingQueue<D2GSPacket> outPackets;
 
   @Wire(name = "player")
   protected IntIntMap players;
@@ -69,7 +69,7 @@ public class NetworkSynchronizer extends BaseEntitySystem {
   protected void process(int entityId) {
     FlatBufferBuilder builder = sync(new FlatBufferBuilder(0), entityId);
     int id = players.findKey(entityId, -1); // TODO: replace with component referencing player id
-    Packet packet = Packet.obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, builder.dataBuffer());
+    D2GSPacket packet = D2GSPacket.obtain(id != -1 ? ~(1 << id) : 0xFFFFFFFF, D2GSData.EntitySync, builder.dataBuffer());
     boolean success = outPackets.offer(packet);
     assert success;
   }

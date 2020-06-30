@@ -197,7 +197,7 @@ public class Main extends ApplicationAdapter {
     map.finishLoading();
 
     packetProcessor = new D2GSPacketProcessor();
-    server = new Server(address, PORT, packetProcessor);
+    server = new Server(this, address, PORT, packetProcessor);
 
     factory = new ServerEntityFactory();
     itemManager = new ServerItemManager();
@@ -232,6 +232,7 @@ public class Main extends ApplicationAdapter {
 
     world.inject(map);
     world.inject(Act1MapBuilder.INSTANCE);
+    world.inject(packetProcessor);
 
     map.generate();
     mapManager.createEntities();
@@ -277,9 +278,9 @@ public class Main extends ApplicationAdapter {
   @Override
   public void render() {
     final float delta = Gdx.graphics.getDeltaTime();
-    server.update(delta);
+    server.updateIncoming(delta);
     world.process();
-    // TODO: send outgoing packets
+    server.updateOutgoing(delta);
   }
 
   private InetAddress getLocalHostAddress() {

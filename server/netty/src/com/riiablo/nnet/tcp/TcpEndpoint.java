@@ -15,7 +15,7 @@ import com.riiablo.nnet.PacketProcessor;
 public class TcpEndpoint implements Endpoint<ByteBuf> {
   private static final String TAG = "TcpEndpoint";
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = !true;
   private static final boolean DEBUG_SEND = DEBUG && true;
   private static final boolean DEBUG_RECEIVE = DEBUG && true;
 
