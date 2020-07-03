@@ -206,9 +206,9 @@ public class MapViewer extends ApplicationAdapter {
         .with(new EventSystem())
         .with(new TagManager())
         .with(mapManager)
+        .with(new ItemManager())
         .with(new CofManager())
         .with(new ObjectInitializer())
-        .with(new ItemManager())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
         .with(new MenuManager(), new DialogManager())
 
@@ -248,7 +248,8 @@ public class MapViewer extends ApplicationAdapter {
     Riiablo.engine = engine = new World(config);
     mPosition = engine.getMapper(Position.class);
 
-    engine.getInjector().inject(Act1MapBuilder.INSTANCE);
+    engine.inject(map);
+    engine.inject(Act1MapBuilder.INSTANCE);
 
     map.setAct(act);
     map.load();
