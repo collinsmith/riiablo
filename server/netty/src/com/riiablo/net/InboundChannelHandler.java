@@ -61,7 +61,7 @@ public class InboundChannelHandler<T> implements ChannelInboundHandler {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     if (DEBUG_CALLS) Gdx.app.debug(TAG, "exceptionCaught");
-    Gdx.app.error(TAG, cause.getMessage(), cause);
+    Gdx.app.error(TAG, ctx.channel().remoteAddress() + " " + cause.getMessage(), cause);
     ctx.close();
   }
 
