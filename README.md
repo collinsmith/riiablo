@@ -50,6 +50,7 @@ compatible with playing with users using the original game client.
 # Screenshots
 ![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-1.png)
 ![Create Character](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-2.png)
+![Paladin](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-5.png)
 [![MP Test](https://media.giphy.com/media/U7aXAwLcaQM0lxvPVY/giphy.gif)](https://www.youtube.com/watch?v=B2XhiS_JbIA)
 
 # Setup
