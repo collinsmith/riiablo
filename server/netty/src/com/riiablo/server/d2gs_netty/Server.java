@@ -237,13 +237,13 @@ public class Server implements MessageProcessor {
     int numCached = inPackets.drainTo(inCache);
     if (DEBUG_RECEIVED_CACHE && numCached > 0) Gdx.app.debug(TAG, "Processing " + numCached + " packets...");
     for (InboundPacket<D2GS> packet : inCache) {
+      packet.setId(cdata.get(packet.sender(), InboundPacket.INVALID_CLIENT));
+      if (packet.id() == InboundPacket.INVALID_CLIENT && packet.dataType() != D2GSData.Connection) {
+        Gdx.app.error(TAG, "  " + packet + " from invalid client and not a connection request");
+        continue;
+      }
       if (DEBUG_RECEIVED_PACKETS && !ignoredPackets.get(packet.dataType())) Gdx.app.debug(TAG, "Processing " + packet);
       try {
-        packet.setId(cdata.get(packet.sender(), InboundPacket.INVALID_CLIENT));
-        if (packet.id() == InboundPacket.INVALID_CLIENT && packet.dataType() != D2GSData.Connection) {
-          Gdx.app.error(TAG, "  " + packet + " from invalid client and not a connection request");
-          continue;
-        }
         processPacket(packet);
       } finally {
         ReferenceCountUtil.release(packet);
