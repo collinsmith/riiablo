@@ -1,11 +1,18 @@
 package com.riiablo.save;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.Pool;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.DifficultyLevels;
@@ -17,12 +24,6 @@ import com.riiablo.item.PropertyList;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.item.Type;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.Validate;
-
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 // TODO: support pooling CharData for multiplayer
 public class CharData implements ItemData.UpdateListener, Pool.Poolable {
@@ -109,6 +110,11 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   /** Constructs an unmanaged instance. Used for remote players with only partial save data. */
   public static CharData createRemote(String name, byte charClass) {
     return new CharData().set(Riiablo.NORMAL, false, name, charClass);
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this).append(name).append(classId).append("level", level).build();
   }
 
   public CharData set(int diff, boolean managed) {
