@@ -64,6 +64,7 @@ import com.riiablo.net.tcp.InboundPacket;
 import com.riiablo.net.tcp.OutboundPacket;
 import com.riiablo.net.tcp.TcpEndpoint;
 import com.riiablo.save.CharData;
+import com.riiablo.util.ArrayUtils;
 import com.riiablo.util.DebugUtils;
 
 public class Server implements MessageProcessor {
@@ -71,16 +72,16 @@ public class Server implements MessageProcessor {
 
   private static final boolean DEBUG = true;
   private static final boolean DEBUG_EVENTS = DEBUG && true;
-  private static final boolean DEBUG_CHILD_EVENTS = DEBUG_EVENTS && true;
+  private static final boolean DEBUG_CHILD_EVENTS = DEBUG_EVENTS && !true;
   private static final boolean DEBUG_BINDING = DEBUG && true;
   private static final boolean DEBUG_INACTIVE = DEBUG && true;
-  private static final boolean DEBUG_PROPAGATION = DEBUG && true;
-  private static final boolean DEBUG_MSG_CONTENTS = DEBUG && true;
+  private static final boolean DEBUG_PROPAGATION = DEBUG && !true;
+  private static final boolean DEBUG_MSG_CONTENTS = DEBUG && !true;
   private static final boolean DEBUG_CONNECTION = DEBUG && true;
-  private static final boolean DEBUG_RECEIVED_CACHE = DEBUG && true;
+  private static final boolean DEBUG_RECEIVED_CACHE = DEBUG && !true;
   private static final boolean DEBUG_RECEIVED_PACKETS = DEBUG && true;
+  private static final boolean DEBUG_SENT_CACHE = DEBUG && !true;
   private static final boolean DEBUG_SENT_PACKETS = DEBUG && true;
-  private static final boolean DEBUG_SENT_CACHE = DEBUG && true;
 
   static final int MAX_CLIENTS = Riiablo.MAX_PLAYERS;
 
@@ -105,6 +106,7 @@ public class Server implements MessageProcessor {
 
   static final BitVector ignoredPackets = new BitVector(D2GSData.names.length); {
     ignoredPackets.set(D2GSData.EntitySync);
+    ignoredPackets.set(D2GSData.Ping);
   }
 
   private int connectedFlags;
@@ -173,7 +175,7 @@ public class Server implements MessageProcessor {
         .childHandler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel ch) {
-            Gdx.app.debug(TAG, "initChannel " + ch);
+            if (DEBUG_CHILD_EVENTS) Gdx.app.debug(TAG, "initChannel " + ch);
             ch.pipeline()
                 .addFirst(connectionLimiter)
                 .addLast(connectionListener)
@@ -287,7 +289,7 @@ public class Server implements MessageProcessor {
     if (DEBUG_RECEIVED_CACHE) Gdx.app.debug(TAG, "Queueing packet from " + sender);
     if (DEBUG_MSG_CONTENTS && DEBUG_RECEIVED_PACKETS) Gdx.app.debug(TAG, "  " + ByteBufUtil.hexDump(msg));
     InboundPacket<D2GS> packet = D2GSInboundPacketFactory.obtain(ctx, (InetSocketAddress) sender, msg);
-    if (DEBUG_RECEIVED_CACHE) Gdx.app.debug(TAG, "  " + packet.toString("unknown"));
+    if (DEBUG_RECEIVED_CACHE && !ignoredPackets.get(packet.dataType())) Gdx.app.debug(TAG, "  " + packet.toString("unknown"));
     // NOTE: packet sender id is not resolved until the message is processed
     boolean success = false;
     try {
@@ -326,7 +328,7 @@ public class Server implements MessageProcessor {
 
   private void onConnection(InboundPacket<D2GS> packet) {
     assert packet.dataType() == D2GSData.Connection;
-    if (DEBUG_CONNECTION) Gdx.app.debug(TAG, "  " + packet);
+    if (DEBUG_CONNECTION) Gdx.app.debug(TAG, "  " + packet.toString("unknown"));
 
     synchronized (clients) {
       ClientData client = null;
@@ -361,8 +363,7 @@ public class Server implements MessageProcessor {
 
     byte[] cofAlphas = new byte[16];
     connection.cofAlphasAsByteBuffer().get(cofAlphas);
-    Gdx.app.debug(TAG, "  " + Arrays.toString(cofAlphas));
-    Gdx.app.debug(TAG, "  >" + Arrays.toString(com.riiablo.util.ArrayUtils.toFloatingPoint(cofAlphas)));
+    Gdx.app.debug(TAG, "  " + Arrays.toString(ArrayUtils.toFloatingPoint(cofAlphas)));
 
     byte[] cofTransforms = new byte[16];
     connection.cofTransformsAsByteBuffer().get(cofTransforms);
@@ -372,14 +373,14 @@ public class Server implements MessageProcessor {
     CharData charData = CharData.loadFromBuffer(main.diff, d2sData);
     Gdx.app.debug(TAG, "  " + charData);
 
-    Gdx.app.log(TAG, String.format("Connection from %s : %s (Level %d %s)", packet.sender(), charData.name, charData.level, charData.classId));
-
     Vector2 origin = map.find(Map.ID.TOWN_ENTRY_1);
     if (origin == null) origin = map.find(Map.ID.TOWN_ENTRY_2);
     if (origin == null) origin = map.find(Map.ID.TP_LOCATION);
     int entityId = factory.createPlayer(charData, origin);
     player.put(packet.id(), entityId);
     Gdx.app.debug(TAG, "  entityId=" + entityId);
+
+    Gdx.app.log(TAG, String.format("Connection from %s : %s (Level %d %s)", packet.sender(), charData.name, charData.level, charData.classId));
 
     FlatBufferBuilder builder = new FlatBufferBuilder();
     Connection.startConnection(builder);

@@ -13,7 +13,7 @@ import com.badlogic.gdx.Gdx;
 public class InboundChannelHandler<T> implements ChannelInboundHandler {
   private static final String TAG = "InboundChannelHandler";
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = !true;
   private static final boolean DEBUG_CALLS = DEBUG && true;
   private static final boolean DEBUG_INBOUND = DEBUG && true;
 
