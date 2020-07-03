@@ -763,6 +763,7 @@ public class Map implements Disposable {
       return (this.flags[index(width, x, y)] |= flags) & 0xFF;
     }
 
+    /** Should not be accessed directly. Managed by {@link com.riiablo.map.MapManager} */
     @Deprecated
     void addEntity(int entityId) {
       if (entityId == Engine.INVALID_ENTITY) return;
@@ -770,6 +771,7 @@ public class Map implements Disposable {
       entities.add(entityId);
     }
 
+    /** Should not be accessed directly. Managed by {@link com.riiablo.map.MapManager} */
     @Deprecated
     void addWarp(int index, int warpX, int warpY) {
       final int x = this.x + (warpX * DT1.Tile.SUBTILE_SIZE);
@@ -1153,6 +1155,7 @@ public class Map implements Disposable {
       }
     }
 
+    /** Should not be accessed directly. Managed by {@link com.riiablo.map.MapManager} */
     @Deprecated
     void copyObjects(Zone zone, int tx, int ty) {
       final int x = zone.x + (tx * DT1.Tile.SUBTILE_SIZE);
