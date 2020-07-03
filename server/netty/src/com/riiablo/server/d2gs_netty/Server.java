@@ -293,6 +293,7 @@ public class Server implements MessageProcessor {
     // NOTE: packet sender id is not resolved until the message is processed
     boolean success = false;
     try {
+      if (packet.dataType() == D2GSData.Ping) onPing(packet, true);
       success = inPackets.offer(packet, 5, TimeUnit.MILLISECONDS); // TODO: what is a reasonable timeout
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
@@ -318,7 +319,7 @@ public class Server implements MessageProcessor {
         onDisconnect(packet);
         break;
       case D2GSData.Ping:
-        onPing(packet);
+        onPing(packet, false);
         break;
       default:
         if (DEBUG_PROPAGATION && !ignoredPackets.get(packet.dataType())) Gdx.app.debug(TAG, "  " + "Propagating " + packet + " to " + messageProcessor);
@@ -493,14 +494,26 @@ public class Server implements MessageProcessor {
     player.remove(id, Engine.INVALID_ENTITY);
   }
 
-  private void onPing(InboundPacket<D2GS> packet) {
+  private void onPing(InboundPacket<D2GS> packet, boolean ack) {
     Ping ping = (Ping) packet.table().data(new Ping());
     FlatBufferBuilder builder = new FlatBufferBuilder(0);
-    int dataOffset = Ping.createPing(builder, ping.tickCount(), ping.sendTime(), TimeUtils.millis() - packet.time(), false);
+    int dataOffset = Ping.createPing(builder, ping.tickCount(), ping.sendTime(), ack ? 0 : TimeUtils.millis() - packet.time(), ack);
     int root = D2GS.createD2GS(builder, D2GSData.Ping, dataOffset);
     D2GS.finishSizePrefixedD2GSBuffer(builder, root);
-    OutboundPacket response = D2GSOutboundPacketFactory.obtain(packet.flag(), D2GSData.Ping, builder.dataBuffer());
-    outPackets.offer(response);
+    if (ack) {
+      try {
+        int id = cdata.get(packet.sender(), InboundPacket.INVALID_CLIENT);
+        if (id == InboundPacket.INVALID_CLIENT) return;
+        OutboundPacket response = D2GSOutboundPacketFactory.obtain(1 << id, D2GSData.Ping, builder.dataBuffer());
+        if (DEBUG_SENT_PACKETS && !ignoredPackets.get(packet.dataType())) Gdx.app.debug(TAG, "  " + "Dispatching " + response);
+        sendMessage(id, response);
+      } catch (Throwable t) {
+        Gdx.app.error(TAG, t.getMessage(), t);
+      }
+    } else {
+      OutboundPacket response = D2GSOutboundPacketFactory.obtain(packet.flag(), D2GSData.Ping, builder.dataBuffer());
+      outPackets.offer(response);
+    }
   }
 
   @ChannelHandler.Sharable
