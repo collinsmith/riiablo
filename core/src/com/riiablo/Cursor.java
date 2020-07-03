@@ -1,11 +1,17 @@
 package com.riiablo;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+
+import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC;
+import com.riiablo.codec.DC6;
 import com.riiablo.codec.Index;
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -28,9 +34,11 @@ import com.riiablo.save.ItemData;
  */
 public class Cursor implements ItemData.LocationListener {
   private static final String TAG = "Cursor";
-  private static final boolean DEBUG             = true;
-  private static final boolean DEBUG_ITEM_BOUNDS = DEBUG && !true;
-  private static final boolean DEBUG_LISTENER    = DEBUG && !true;
+  private static final boolean DEBUG               = true;
+  private static final boolean DEBUG_ITEM_BOUNDS   = DEBUG && !true;
+  private static final boolean DEBUG_CURSOR_BOUNDS = DEBUG && !true;
+  private static final boolean DEBUG_LISTENER      = DEBUG && !true;
+  private static final boolean DEBUG_MOBILE        = DEBUG && !true;
 
   private com.badlogic.gdx.graphics.Cursor cursor;
   private Item item;
@@ -39,10 +47,25 @@ public class Cursor implements ItemData.LocationListener {
   private int transformColor;
   private Vector2 coords = new Vector2();
 
-  public Cursor() {
-    //Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-    //cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
-    //Gdx.graphics.setCursor(cursor);
+  private final AssetDescriptor<DC6> protateDescriptor = new AssetDescriptor<>("data\\global\\ui\\CURSOR\\protate.dc6", DC6.class);
+  private DC6 protate;
+  private Animation cursorAnim;
+
+  public Cursor(AssetManager assets) {
+    if (DEBUG_MOBILE || Gdx.app.getType() != Application.ApplicationType.Desktop) {
+      cursorAnim = Animation.newAnimation();
+    } else {
+      assets.load(protateDescriptor);
+      assets.finishLoadingAsset(protateDescriptor);
+      protate = assets.get(protateDescriptor);
+
+      cursorAnim = Animation.newAnimation().edit().layer(protate).build();
+      cursorAnim.setFrameDuration(1 / 5f);
+
+      Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+      cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
+      Gdx.graphics.setCursor(cursor);
+    }
   }
 
   public com.badlogic.gdx.graphics.Cursor getCursor() {
@@ -54,12 +77,6 @@ public class Cursor implements ItemData.LocationListener {
   }
 
   public void setCursor(DC dc, Index colormap, int id) {
-    if (cursor == null) {
-      Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-      cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
-      Gdx.graphics.setCursor(cursor);
-    }
-
     this.dc = dc;
     if (colormap != null) {
       transform = colormap;
@@ -72,8 +89,6 @@ public class Cursor implements ItemData.LocationListener {
 
   public void resetCursor() {
     dc = null;
-    Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-    cursor = null;
   }
 
   public Item getItem() {
@@ -94,13 +109,28 @@ public class Cursor implements ItemData.LocationListener {
   }
 
   public void act(float delta) {
+    if (dc == null) cursorAnim.update(delta);
     if (dc == null && item != null && item.checkLoaded()) {
       setCursor(item.invFile, item.invColormap, item.invColorIndex);
     }
   }
 
   public void render(PaletteIndexedBatch batch) {
-    if (dc != null) {
+    if (dc == null) {
+      coords.set(Gdx.input.getX(), Gdx.input.getY());
+      Riiablo.extendViewport.unproject(coords);
+
+      batch.begin();
+      cursorAnim.draw(batch, coords.x, coords.y);
+      batch.end();
+
+      if (DEBUG_CURSOR_BOUNDS) {
+        ShapeRenderer shapes = Riiablo.shapes;
+        shapes.setProjectionMatrix(Riiablo.extendViewport.getCamera().combined);
+        cursorAnim.drawDebug(shapes, coords.x, coords.y);
+        shapes.end();
+      }
+    } else {
       BBox box = dc.getBox();
       coords.set(Gdx.input.getX(), Gdx.input.getY());
       Riiablo.extendViewport.unproject(coords);

@@ -277,7 +277,7 @@ public class Client extends Game {
     Riiablo.colors = colors = new Colors();
     Riiablo.bundle = bundle = I18NBundle.createBundle(Gdx.files.internal("lang/Client"));
     Riiablo.textures = textures = new Textures();
-    Riiablo.cursor = cursor = new Cursor();
+    Riiablo.cursor = cursor = new Cursor(assets);
     Riiablo.charData = charData = CharData.obtain();
     Riiablo.anim = anim = D2.loadFromFile(mpqs.resolve("data\\global\\eanimdata.d2"));
     Riiablo.metrics = metrics = new Metrics();
