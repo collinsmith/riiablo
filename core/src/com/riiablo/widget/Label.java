@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.FontTBL;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -47,6 +48,10 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label {
 
   public Label(BitmapFont font) {
     this(null, font);
+  }
+
+  public Label(LabelStyle style) {
+    super(null, style);
   }
 
   public Label(Label src) {

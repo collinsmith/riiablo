@@ -1,5 +1,9 @@
 package com.riiablo.screen.panel;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -12,25 +16,25 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntIntMap;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
-import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
+import com.riiablo.item.Stat;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.CharData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.LabelButton;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
-public class SpellsPanel extends WidgetGroup implements Disposable {
+public class SpellsPanel extends WidgetGroup implements Disposable, CharData.SkillListener {
   private static final String TAG = "SpellsPanel";
   private static final String SPELLS_PATH = "data\\global\\ui\\SPELLS\\";
 
@@ -41,6 +45,13 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
   DC6 Skillicon;
 
   final AssetDescriptor<DC6> buysellbtnDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysellbtn.DC6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
+
+  final SkillButton[] buttons;
+
+  static final com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle SMALL_LABEL_STYLE
+      = new com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle(Riiablo.fonts.fontformal10, null);
+  static final com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle LARGE_LABEL_STYLE
+      = new com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle(Riiablo.fonts.font16, null);
 
   public SpellsPanel() {
     CharacterClass charClass = Riiablo.charData.classId;
@@ -135,90 +146,27 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
 
     float[] X = { 0, 15, 84, 153 };
     float[] Y = { 0, 370, 302, 234, 166, 98, 30 };
+    buttons = new SkillButton[charClass.lastSpell - charClass.firstSpell];
     for (int i = charClass.firstSpell; i < charClass.lastSpell; i++) {
-      final int sLvl = Riiablo.charData.getSkill(i);
       final Skills.Entry skill = Riiablo.files.skills.get(i);
       final SkillDesc.Entry desc = Riiablo.files.skilldesc.get(skill.skilldesc);
-      final Table details = new Table() {{
-        final float SPACING = 2;
-        final BitmapFont font = Riiablo.fonts.font16;
-        setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
-        add(new Label(Riiablo.string.lookup(desc.str_name), font, Riiablo.colors.green)).center().space(SPACING).row();
-        add(new Label(font) {{
-          // TODO: It might possible to optimize this more -- goal is to reverse lines since they are backwards for some reason
-          String text = Riiablo.string.lookup(desc.str_long);
-          String[] lines = StringUtils.split(text, '\n');
-          ArrayUtils.reverse(lines);
-          text = StringUtils.join(lines, '\n');
-          setText(text);
-          setAlignment(Align.center);
-        }}).center().space(SPACING).row();
-        if (sLvl <= 0) {
-          add(new Label(Riiablo.string.lookup("skilldesc3") + skill.reqlevel, font)).center().space(SPACING).row();
-        }
-        add().height(font.getLineHeight()).center().space(SPACING).row();
-        for (int i = 0; i < desc.dsc2line.length; i++) {
-          if (desc.dsc2line[i] <= 0) break;
-          String str = calc(desc, i, desc.descline, desc.dsc2texta, desc.dsc2textb, desc.dsc2calca, desc.dsc2calcb, skill, sLvl);
-          if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
-        }
-        add().height(font.getLineHeight()).center().space(SPACING).row();
-        add(new Label(sLvl <= 0 ? Riiablo.string.lookup("StrSkill17") : Riiablo.string.lookup("StrSkill2") + sLvl, font)).center().space(SPACING).row();
-        for (int i = 0; i < desc.descline.length; i++) {
-          if (desc.descline[i] <= 0) break;
-          String str = calc(desc, i, desc.descline, desc.desctexta, desc.desctextb, desc.desccalca, desc.desccalcb, skill, sLvl);
-          if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
-        }
-        if (sLvl > 0) {
-          add().height(font.getLineHeight()).center().space(SPACING).row();
-          add(new Label(Riiablo.string.lookup("StrSkill1"), font)).center().space(SPACING).row();
-          for (int i = 0; i < desc.descline.length; i++) {
-            if (desc.descline[i] <= 0) break;
-            String str = calc(desc, i, desc.descline, desc.desctexta, desc.desctextb, desc.desccalca, desc.desccalcb, skill, sLvl + 1);
-            if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
-          }
-        }
-        add().height(font.getLineHeight()).center().space(SPACING).row();
-        //add(new Label(Riiablo.string.format("Sksyn", Riiablo.string.lookup(desc.str_name)), font, Riiablo.colors.green)).center().space(SPACING).row();
-        for (int i = 0; i < desc.dsc3line.length; i++) {
-          if (desc.dsc3line[i] <= 0) break;
-          String str = calc(desc, i, desc.dsc3line, desc.dsc3texta, desc.dsc3textb, desc.dsc3calca, desc.dsc3calcb, skill, sLvl);
-          if (str != null) add(new Label(str, Riiablo.fonts.font16, desc.dsc3line[i] == 40 ? SpellsPanel.getColor(desc.dsc3calca[i]) : Riiablo.colors.white)).center().space(SPACING).row();
-        }
-        pack();
-      }};
-      Button button = new Button(new Button.ButtonStyle(
-          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel)),
-          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel + 1))) {{
-            disabled = up;
-      }}) {
-        @Override
-        public void draw(PaletteIndexedBatch batch, float parentAlpha) {
-          super.draw(batch, parentAlpha);
-          if (isOver()) {
-            Riiablo.game.setDetails(details, null, SpellsPanel.this, this);
-          }
-        }
-      };
+      SkillButton button = buttons[i - charClass.firstSpell] = new SkillButton(skill, desc);
       button.setPosition(X[desc.SkillColumn], Y[desc.SkillRow]);
-      //button.setSize(48, 48);
-
-      // TODO: can be lazily init if default is 0
-      Label skillLevel = new Label(sLvl > 0 ? Integer.toString(sLvl) : "", sLvl > 9 ? Riiablo.fonts.fontformal10 : Riiablo.fonts.font16);
-      skillLevel.setAlignment(Align.center);
-      //skillLevel.setSize(16, 14);
-      //skillLevel.setPosition(X[desc.SkillColumn] + 44, Y[desc.SkillRow] - 12);
-      skillLevel.setPosition(X[desc.SkillColumn] + 52, Y[desc.SkillRow] - 5, Align.center);
-      button.setUserObject(skillLevel);
-      button.setDisabled(sLvl <= 0);
-
-      Tab tab = tabs[desc.SkillPage];
-      tab.addActor(button);
-      tab.addActor(skillLevel);
+      tabs[desc.SkillPage].addActor(button);
     }
 
     tabs[1].setVisible(true);
     //setDebug(true, true);
+
+    Riiablo.charData.addSkillListener(this);
+  }
+
+  @Override
+  public void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills) {
+    for (int i = client.classId.firstSpell; i < client.classId.lastSpell; i++) {
+      SkillButton button = buttons[i - client.classId.firstSpell];
+      button.update(skills.get(i, 0));
+    }
   }
 
   private static Color getColor(String str) {
@@ -295,6 +243,100 @@ public class SpellsPanel extends WidgetGroup implements Disposable {
     Riiablo.assets.unload(skltreeDescriptor.fileName);
     Riiablo.assets.unload(SkilliconDescriptor.fileName);
     Riiablo.assets.unload(buysellbtnDescriptor.fileName);
+  }
+
+  private class SkillButton extends Button {
+    final Skills.Entry skill;
+    final SkillDesc.Entry desc;
+    final Details details;
+    final Label label;
+
+    int sLvl;
+
+    SkillButton(Skills.Entry skill, SkillDesc.Entry desc) {
+      super(new Button.ButtonStyle(
+          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel)),
+          new TextureRegionDrawable(Skillicon.getTexture(desc.IconCel + 1))) {{
+        disabled = up;
+      }});
+      this.skill = skill;
+      this.desc = desc;
+      this.details = new Details();
+
+      this.label = new Label(LARGE_LABEL_STYLE);
+      setLayoutEnabled(false); // disables centering of label
+      setCullingArea(null); // disabled culling of label, since it's outside button bounds
+      add(label); // has to be after setLayoutDisabled, otherwise contents are empty for some reason
+    }
+
+    void update(int sLvl) {
+      this.sLvl = sLvl;
+      details.update();
+      label.setStyle(sLvl > 9 ? SMALL_LABEL_STYLE : LARGE_LABEL_STYLE);
+      label.setText(sLvl > 0 ? Integer.toString(sLvl) : "");
+      label.setPosition(52, -5, Align.center);
+      setDisabled(sLvl <= 0);
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+      super.draw(batch, parentAlpha);
+      if (isOver()) {
+        Riiablo.game.setDetails(details, null, SpellsPanel.this, this);
+      }
+    }
+
+    private class Details extends Table {
+      void update() {
+        clearChildren();
+        final float SPACING = 2;
+        final BitmapFont font = Riiablo.fonts.font16;
+        setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
+        add(new Label(Riiablo.string.lookup(desc.str_name), font, Riiablo.colors.green)).center().space(SPACING).row();
+        add(new Label(font) {{
+          // TODO: It might possible to optimize this more -- goal is to reverse lines since they are backwards for some reason
+          String text = Riiablo.string.lookup(desc.str_long);
+          String[] lines = StringUtils.split(text, '\n');
+          ArrayUtils.reverse(lines);
+          text = StringUtils.join(lines, '\n');
+          setText(text);
+          setAlignment(Align.center);
+        }}).center().space(SPACING).row();
+        if (sLvl <= 0) {
+          add(new Label(Riiablo.string.lookup("skilldesc3") + skill.reqlevel, font)).center().space(SPACING).row();
+        }
+        add().height(font.getLineHeight()).center().space(SPACING).row();
+        for (int i = 0; i < desc.dsc2line.length; i++) {
+          if (desc.dsc2line[i] <= 0) break;
+          String str = calc(desc, i, desc.descline, desc.dsc2texta, desc.dsc2textb, desc.dsc2calca, desc.dsc2calcb, skill, sLvl);
+          if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
+        }
+        add().height(font.getLineHeight()).center().space(SPACING).row();
+        add(new Label(sLvl <= 0 ? Riiablo.string.lookup("StrSkill17") : Riiablo.string.lookup("StrSkill2") + sLvl, font)).center().space(SPACING).row();
+        for (int i = 0; i < desc.descline.length; i++) {
+          if (desc.descline[i] <= 0) break;
+          String str = calc(desc, i, desc.descline, desc.desctexta, desc.desctextb, desc.desccalca, desc.desccalcb, skill, sLvl);
+          if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
+        }
+        if (sLvl > 0) {
+          add().height(font.getLineHeight()).center().space(SPACING).row();
+          add(new Label(Riiablo.string.lookup("StrSkill1"), font)).center().space(SPACING).row();
+          for (int i = 0; i < desc.descline.length; i++) {
+            if (desc.descline[i] <= 0) break;
+            String str = calc(desc, i, desc.descline, desc.desctexta, desc.desctextb, desc.desccalca, desc.desccalcb, skill, sLvl + 1);
+            if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
+          }
+        }
+        add().height(font.getLineHeight()).center().space(SPACING).row();
+        //add(new Label(Riiablo.string.format("Sksyn", Riiablo.string.lookup(desc.str_name)), font, Riiablo.colors.green)).center().space(SPACING).row();
+        for (int i = 0; i < desc.dsc3line.length; i++) {
+          if (desc.dsc3line[i] <= 0) break;
+          String str = calc(desc, i, desc.dsc3line, desc.dsc3texta, desc.dsc3textb, desc.dsc3calca, desc.dsc3calcb, skill, sLvl);
+          if (str != null) add(new Label(str, Riiablo.fonts.font16, desc.dsc3line[i] == 40 ? SpellsPanel.getColor(desc.dsc3calca[i]) : Riiablo.colors.white)).center().space(SPACING).row();
+        }
+        pack();
+      }
+    }
   }
 
   private static class Tab extends WidgetGroup {
