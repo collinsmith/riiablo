@@ -35,6 +35,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
   public static final int REPAIRER = REPAIR | REPAIR_ALL;
   public static final int TRADER   = BUYSELL | EXIT;
   public static final int SMITHY   = BUYSELL | REPAIRER;
+  public static final int GAMBLER  = TRADER;
 
   static final int BLANK_MASKS[] = {
       BUY,

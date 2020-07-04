@@ -135,7 +135,13 @@ public class Npc extends AI {
     }
 
     if (GAMBLERS.contains(entType)) {
-      menu.addItem(3398, new ClickListener()); // gamble
+      menu.addItem(3398, new ClickListener() { // gamble
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+          Riiablo.game.vendorPanel.config(VendorPanel.GAMBLER);
+          Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
+        }
+      });
     }
 
     menu.addCancel(new NpcMenu.CancellationListener() {
