@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -57,6 +58,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
   Button btnRepairAll;
   Button btnExit;
   Button btnBlank[];
+  ButtonGroup<Button> buttonGroup;
 
   Tab[] tabs;
 
@@ -127,7 +129,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnBuy.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-        btnSell.setChecked(false);
+
       }
     });
     btnBuy.setVisible(false);
@@ -142,7 +144,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnSell.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-        btnBuy.setChecked(false);
+
       }
     });
     btnSell.setVisible(false);
@@ -151,6 +153,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnRepair = new Button(new Button.ButtonStyle() {{
       up   = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(6));
       down = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(7));
+      checked = down;
     }});
     btnRepair.setPosition(btnBlank[2].getX(), btnBlank[2].getY());
     btnRepair.addListener(new ClickListener() {
@@ -191,6 +194,10 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     });
     btnExit.setVisible(false);
     addActor(btnExit);
+
+    buttonGroup = new ButtonGroup<>();
+    buttonGroup.setMinCheckCount(0);
+    buttonGroup.add(btnBuy, btnSell, btnRepair);
 
     Label goldbankLabel = Label.i18n("stash", Riiablo.fonts.font16);
     goldbankLabel.setSize(180, 16);
@@ -242,8 +249,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
   }
 
   public void config(int flags) {
-    btnBuy.setChecked(false);
-    btnSell.setChecked(false);
+    buttonGroup.uncheckAll();
     btnBuy.setVisible((flags & BUY) == BUY);
     btnSell.setVisible((flags & SELL) == SELL);
     btnRepair.setVisible((flags & REPAIR) == REPAIR);
