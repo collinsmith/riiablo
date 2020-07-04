@@ -114,12 +114,6 @@ public class VendorPanel extends WidgetGroup implements Disposable {
       button.setDisabledBlendMode(BlendMode.NONE, Riiablo.colors.white);
       button.setDisabled(true);
       button.setPosition(X[i], 15);
-      button.addListener(new ClickListener() {
-        @Override
-        public void clicked(InputEvent event, float x, float y) {
-
-        }
-      });
       button.setVisible(false);
       addActor(button);
     }
