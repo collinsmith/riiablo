@@ -45,6 +45,7 @@ public class ItemGrid extends Group {
   final ItemData itemData = Riiablo.charData.getItems();
   final GridListener gridListener;
 
+  boolean showFill = true;
   boolean blocked = true;
   StoredItem swap = null;
   Vector2 coords = new Vector2();
@@ -236,7 +237,7 @@ public class ItemGrid extends Group {
     super.drawChildren(batch, parentAlpha);
     mouseMoved();
     Item cursor = itemData.getCursor();
-    if (cursor != null && clickListener.isOver()) {
+    if (cursor != null && clickListener.isOver() && showFill) {
       PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
       if (!accept(cursor)) {
         b.setBlendMode(BlendMode.SOLID, backgroundColorR);

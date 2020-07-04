@@ -168,7 +168,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
 
     // TODO: add support for special vendor grid /w pages
     inventory = Riiablo.files.inventory.get("Monster");
-    ItemGrid grid = new ItemGrid(inventory, null);
+    VendorGrid grid = new VendorGrid(inventory, null);
     grid.setPosition(
         inventory.gridLeft - inventory.invLeft,
         getHeight() - inventory.gridTop - grid.getHeight());
