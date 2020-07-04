@@ -129,7 +129,11 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnBuy.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-
+        if (btnBuy.isChecked()) {
+          Riiablo.cursor.setCursor(Riiablo.cursor.buysell, 3);
+        } else {
+          Riiablo.cursor.resetCursor();
+        }
       }
     });
     btnBuy.setVisible(false);
@@ -144,7 +148,11 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnSell.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-
+        if (btnSell.isChecked()) {
+          Riiablo.cursor.setCursor(Riiablo.cursor.buysell, 4);
+        } else {
+          Riiablo.cursor.resetCursor();
+        }
       }
     });
     btnSell.setVisible(false);
@@ -159,7 +167,11 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnRepair.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-
+        if (btnRepair.isChecked()) {
+          Riiablo.cursor.setCursor(Riiablo.cursor.buysell, 1);
+        } else {
+          Riiablo.cursor.resetCursor();
+        }
       }
     });
     btnRepair.setVisible(false);
@@ -245,6 +257,10 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     super.setVisible(visible);
     if (visible) {
       Riiablo.game.setRightPanel(Riiablo.game.inventoryPanel);
+    } else {
+      if (buttonGroup != null && buttonGroup.getCheckedIndex() >= 0) {
+        Riiablo.cursor.resetCursor();
+      }
     }
   }
 
