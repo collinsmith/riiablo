@@ -580,7 +580,7 @@ public class MapViewer extends ApplicationAdapter {
         .append("Zoom " + String.format("%.2f", mapRenderer.zoom()))
         .toString();
     batch.setBlendMode(BlendMode.SOLID, Color.BLACK);
-    batch.draw(Riiablo.textures.modal, 0, height - 140, 120, 140 - textHeight);
+    batch.draw(Riiablo.textures.modal, 0, height - 140 - textHeight, 120, 140);
     font.draw(batch, status, 0, height - textHeight);
 
     batch.end();
