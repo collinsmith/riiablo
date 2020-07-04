@@ -139,8 +139,12 @@ public class Cursor implements ItemData.LocationListener {
     page = -1;
 
     offset.setZero();
-    cursorAnim.edit().layer(protate).build();
-    cursorAnim.setFrameDuration(CURSOR_FRAME_DURATION);
+    if (protate == null) {
+      cursorAnim.reset();
+    } else {
+      cursorAnim.edit().layer(protate).build();
+      cursorAnim.setFrameDuration(CURSOR_FRAME_DURATION);
+    }
   }
 
   public Item getItem() {
