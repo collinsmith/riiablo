@@ -1,12 +1,18 @@
 package com.riiablo.ai;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Validate;
+
 import com.artemis.ComponentMapper;
+import net.mostlyoriginal.api.event.common.EventSystem;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.IntSet;
+
 import com.riiablo.Riiablo;
 import com.riiablo.audio.Audio;
 import com.riiablo.codec.excel.MonStats;
@@ -18,13 +24,9 @@ import com.riiablo.engine.server.component.PathWrapper;
 import com.riiablo.engine.server.component.Pathfind;
 import com.riiablo.engine.server.event.NpcInteractionEvent;
 import com.riiablo.map.DS1;
+import com.riiablo.screen.panel.VendorPanel;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
-
-import net.mostlyoriginal.api.event.common.EventSystem;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.Validate;
 
 public class Npc extends AI {
   private static final String TAG = "Npc";
@@ -111,13 +113,25 @@ public class Npc extends AI {
     }
 
     if (REPAIRERS.contains(entType)) {
-      menu.addItem(3334, new ClickListener()); // trade/repair
+      menu.addItem(3334, new ClickListener() { // trade/repair
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+          Riiablo.game.vendorPanel.config(VendorPanel.SMITHY);
+          Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
+        }
+      });
     } else if (TRADERS.contains(entType)) {
-      menu.addItem(3396, new ClickListener()); // trade
+      menu.addItem(3396, new ClickListener() { // trade
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+          Riiablo.game.vendorPanel.config(VendorPanel.TRADER);
+          Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
+        }
+      });
     }
 
     if (HIRERERS.contains(entType)) {
-      menu.addItem(3397, new ClickListener()); // gamble
+      menu.addItem(3397, new ClickListener()); // hire
     }
 
     if (GAMBLERS.contains(entType)) {

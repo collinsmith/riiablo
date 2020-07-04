@@ -25,6 +25,24 @@ import com.riiablo.widget.LabelButton;
 public class VendorPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "VendorPanel";
 
+  public static final int BUY        = 1 << 0;
+  public static final int SELL       = 1 << 1;
+  public static final int REPAIR     = 1 << 2;
+  public static final int REPAIR_ALL = 1 << 4;
+  public static final int EXIT       = 1 << 5;
+
+  public static final int BUYSELL  = BUY | SELL;
+  public static final int REPAIRER = REPAIR | REPAIR_ALL;
+  public static final int TRADER   = BUYSELL | EXIT;
+  public static final int SMITHY   = BUYSELL | REPAIRER;
+
+  static final int BLANK_MASKS[] = {
+      BUY,
+      SELL,
+      REPAIR,
+      EXIT | REPAIR_ALL
+  };
+
   final AssetDescriptor<DC6> buysellDescriptor = new AssetDescriptor<>("data\\global\\ui\\PANEL\\buysell.dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
   TextureRegion buysell;
 
@@ -35,8 +53,9 @@ public class VendorPanel extends WidgetGroup implements Disposable {
   Button btnBuy;
   Button btnSell;
   Button btnRepair;
-  Button btnBlank;
+  Button btnRepairAll;
   Button btnExit;
+  Button btnBlank[];
 
   Tab[] tabs;
 
@@ -84,33 +103,39 @@ public class VendorPanel extends WidgetGroup implements Disposable {
       addActor(label);
     }
 
-    Riiablo.assets.load(buysellbtnDescriptor);
-    Riiablo.assets.finishLoadingAsset(buysellbtnDescriptor);
-    btnExit = new Button(new Button.ButtonStyle() {{
-      up   = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(10));
-      down = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(11));
-    }});
-    btnExit.setPosition(272, 15);
-    btnExit.addListener(new ClickListener() {
-      @Override
-      public void clicked(InputEvent event, float x, float y) {
-        setVisible(false);
-      }
-    });
-    addActor(btnExit);
+    final float[] X = {116, 168, 220, 272};
+    Button.ButtonStyle blankButtonStyle = new Button.ButtonStyle() {{
+      up = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(0));
+    }};
+    btnBlank = new Button[4];
+    for (int i = 0; i < btnBlank.length; i++) {
+      Button button = btnBlank[i] = new Button(blankButtonStyle);
+      button.setDisabledBlendMode(BlendMode.NONE, Riiablo.colors.white);
+      button.setDisabled(true);
+      button.setPosition(X[i], 15);
+      button.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+
+        }
+      });
+      button.setVisible(false);
+      addActor(button);
+    }
 
     btnBuy = new Button(new Button.ButtonStyle() {{
       up   = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(2));
       down = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(3));
       checked = down;
     }});
-    btnBuy.setPosition(116, 15);
+    btnBuy.setPosition(btnBlank[0].getX(), btnBlank[0].getY());
     btnBuy.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
 
       }
     });
+    btnBuy.setVisible(false);
     addActor(btnBuy);
 
     btnSell = new Button(new Button.ButtonStyle() {{
@@ -118,34 +143,21 @@ public class VendorPanel extends WidgetGroup implements Disposable {
       down = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(5));
       checked = down;
     }});
-    btnSell.setPosition(168, 15);
+    btnSell.setPosition(btnBlank[1].getX(), btnBlank[1].getY());
     btnSell.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
 
       }
     });
+    btnSell.setVisible(false);
     addActor(btnSell);
-
-    btnBlank = new Button(new Button.ButtonStyle() {{
-      up = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(0));
-    }});
-    btnBlank.setDisabledBlendMode(BlendMode.NONE, Riiablo.colors.white);
-    btnBlank.setDisabled(true);
-    btnBlank.setPosition(220, 15);
-    btnBlank.addListener(new ClickListener() {
-      @Override
-      public void clicked(InputEvent event, float x, float y) {
-
-      }
-    });
-    addActor(btnBlank);
 
     btnRepair = new Button(new Button.ButtonStyle() {{
       up   = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(6));
       down = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(7));
     }});
-    btnRepair.setPosition(220, 15);
+    btnRepair.setPosition(btnBlank[2].getX(), btnBlank[2].getY());
     btnRepair.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
@@ -154,6 +166,36 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     });
     btnRepair.setVisible(false);
     addActor(btnRepair);
+
+    btnRepairAll = new Button(new Button.ButtonStyle() {{
+      up   = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(18));
+      down = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(19));
+    }});
+    btnRepairAll.setPosition(btnBlank[3].getX(), btnBlank[3].getY());
+    btnRepairAll.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+
+      }
+    });
+    btnRepairAll.setVisible(false);
+    addActor(btnRepairAll);
+
+    Riiablo.assets.load(buysellbtnDescriptor);
+    Riiablo.assets.finishLoadingAsset(buysellbtnDescriptor);
+    btnExit = new Button(new Button.ButtonStyle() {{
+      up   = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(10));
+      down = new TextureRegionDrawable(Riiablo.assets.get(buysellbtnDescriptor).getTexture(11));
+    }});
+    btnExit.setPosition(btnBlank[3].getX(), btnBlank[3].getY());
+    btnExit.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        setVisible(false);
+      }
+    });
+    btnExit.setVisible(false);
+    addActor(btnExit);
 
     Label goldbankLabel = Label.i18n("stash", Riiablo.fonts.font16);
     goldbankLabel.setSize(180, 16);
@@ -179,11 +221,12 @@ public class VendorPanel extends WidgetGroup implements Disposable {
 
   @Override
   public void dispose() {
-    btnExit.dispose();
     btnBuy.dispose();
     btnSell.dispose();
     btnRepair.dispose();
-    btnBlank.dispose();
+    btnRepairAll.dispose();
+    btnExit.dispose();
+    for (int i = 0; i < btnBlank.length; i++) btnBlank[i].dispose();
     Riiablo.assets.unload(buysellDescriptor.fileName);
     Riiablo.assets.unload(buyselltabsDescriptor.fileName);
     Riiablo.assets.unload(buysellbtnDescriptor.fileName);
@@ -200,6 +243,17 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     super.setVisible(visible);
     if (visible) {
       Riiablo.game.setRightPanel(Riiablo.game.inventoryPanel);
+    }
+  }
+
+  public void config(int flags) {
+    btnBuy.setVisible((flags & BUY) == BUY);
+    btnSell.setVisible((flags & SELL) == SELL);
+    btnRepair.setVisible((flags & REPAIR) == REPAIR);
+    btnRepairAll.setVisible((flags & REPAIR_ALL) == REPAIR_ALL);
+    btnExit.setVisible((flags & EXIT) == EXIT);
+    for (int i = 0; i < btnBlank.length; i++) {
+      btnBlank[i].setVisible((flags & BLANK_MASKS[i]) == 0);
     }
   }
 
