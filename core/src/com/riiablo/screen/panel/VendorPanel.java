@@ -127,7 +127,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnBuy.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-
+        btnSell.setChecked(false);
       }
     });
     btnBuy.setVisible(false);
@@ -142,7 +142,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     btnSell.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
-
+        btnBuy.setChecked(false);
       }
     });
     btnSell.setVisible(false);
