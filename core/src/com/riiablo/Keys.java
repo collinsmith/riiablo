@@ -1,13 +1,14 @@
 package com.riiablo;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
+
 import com.riiablo.key.KeyMapper;
 import com.riiablo.key.MappedKey;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 public class Keys {
   public static Collection<Throwable> addTo(KeyMapper keyMapper) {
@@ -43,6 +44,7 @@ public class Keys {
   public static final MappedKey Hireling = new MappedKey("Hireling", "hireling", Input.Keys.O);
   public static final MappedKey Quests = new MappedKey("Quest Journal", "quests", Input.Keys.Q, Input.Keys.J);
   public static final MappedKey Stash = new MappedKey("Stash", "stash", Input.Keys.NUMPAD_1);
+  public static final MappedKey Vendor = new MappedKey("Vendor", "vendor", Input.Keys.NUMPAD_2);
   public static final MappedKey SwapWeapons = new MappedKey("SwapWeapons", "swap", Input.Keys.W);
   public static final MappedKey Enter = new MappedKey("Enter", "enter", Input.Keys.ENTER);
 

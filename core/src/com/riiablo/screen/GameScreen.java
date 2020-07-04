@@ -124,6 +124,7 @@ import com.riiablo.screen.panel.QuestsPanel;
 import com.riiablo.screen.panel.SpellsPanel;
 import com.riiablo.screen.panel.SpellsQuickPanel;
 import com.riiablo.screen.panel.StashPanel;
+import com.riiablo.screen.panel.VendorPanel;
 import com.riiablo.screen.panel.WaygatePanel;
 import com.riiablo.widget.TextArea;
 
@@ -223,6 +224,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   public WaygatePanel waygatePanel;
   public QuestsPanel questsPanel;
   public CubePanel cubePanel;
+  public VendorPanel vendorPanel;
   public SpellsQuickPanel spellsQuickPanelL;
   public SpellsQuickPanel spellsQuickPanelR;
 
@@ -338,6 +340,10 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     cubePanel.setPosition(0, stage.getHeight() - cubePanel.getHeight());
     stage.addActor(cubePanel);
 
+    vendorPanel = new VendorPanel();
+    vendorPanel.setPosition(0, stage.getHeight() - vendorPanel.getHeight());
+    stage.addActor(vendorPanel);
+
     characterPanel = new CharacterPanel();
     characterPanel.setPosition(0, stage.getHeight() - characterPanel.getHeight());
     stage.addActor(characterPanel);
@@ -415,6 +421,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
           setRightPanel(spellsPanel.isVisible() ? null : spellsPanel);
         } else if (key == Keys.Quests) {
           setLeftPanel(questsPanel.isVisible() ? null : questsPanel);
+        } else if (key == Keys.Vendor) {
+          setLeftPanel(vendorPanel.isVisible() ? null : vendorPanel);
         } else if (key == Keys.SwapWeapons) {
           Riiablo.charData.getItems().alternate();
         }
@@ -531,6 +539,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     engine.inject(controlPanel);
     engine.inject(cubePanel);
     engine.inject(stashPanel);
+    engine.inject(vendorPanel);
 // TODO: maybe it would be better to do more like?:
 //    for (Actor actor : stage.getActors()) {
 //      engine.inject(actor);
@@ -754,6 +763,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     Keys.Quests.addStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.addStateListener(mappedKeyStateListener);
     Keys.Stash.addStateListener(mappedKeyStateListener);
+    Keys.Vendor.addStateListener(mappedKeyStateListener);
     Riiablo.input.addProcessor(testingInputProcessor);
     Riiablo.input.addProcessor(stage);
     Riiablo.input.addProcessor(scaledStage);
@@ -817,6 +827,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     Keys.Quests.removeStateListener(mappedKeyStateListener);
     Keys.SwapWeapons.removeStateListener(mappedKeyStateListener);
     Keys.Stash.removeStateListener(mappedKeyStateListener);
+    Keys.Vendor.removeStateListener(mappedKeyStateListener);
     Riiablo.input.removeProcessor(testingInputProcessor);
     Riiablo.input.removeProcessor(stage);
     Riiablo.input.removeProcessor(scaledStage);
