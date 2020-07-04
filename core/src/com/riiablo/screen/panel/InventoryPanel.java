@@ -1,6 +1,9 @@
 package com.riiablo.screen.panel;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -17,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
@@ -33,8 +37,6 @@ import com.riiablo.save.ItemController;
 import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.GridListener {
   private static final String TAG = "InventoryPanel";
@@ -277,8 +279,8 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
     addActor(grid);
 
     Label invgold = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.gold).value()), Riiablo.fonts.font16);
-    invgold.setSize(90, 16);
-    invgold.setPosition(107, 24);
+    invgold.setSize(88, 16);
+    invgold.setPosition(109, 24);
     addActor(invgold);
 
     btnDropGold = new Button(new Button.ButtonStyle() {{
