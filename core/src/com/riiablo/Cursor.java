@@ -17,6 +17,7 @@ import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
+import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.ItemData;
 
 /**
@@ -40,16 +41,24 @@ public class Cursor implements ItemData.LocationListener {
   private static final boolean DEBUG_LISTENER      = DEBUG && !true;
   private static final boolean DEBUG_MOBILE        = DEBUG && !true;
 
+  private static final float CURSOR_FRAME_DURATION = 1 / 5f;
+
   private com.badlogic.gdx.graphics.Cursor cursor;
   private Item item;
   private DC dc;
+  private int page = -1;
   private Index transform;
   private int transformColor;
   private Vector2 coords = new Vector2();
+  private Vector2 offset = new Vector2();
 
   private final AssetDescriptor<DC6> protateDescriptor = new AssetDescriptor<>("data\\global\\ui\\CURSOR\\protate.dc6", DC6.class);
   private DC6 protate;
   private Animation cursorAnim;
+
+  private final AssetDescriptor<DC6> buysellDescriptor = new AssetDescriptor<>("data\\global\\ui\\CURSOR\\buysell.dc6", DC6.class, DC6Loader.DC6Parameters.COMBINE);
+  public final DC6 buysell;
+  public static final Vector2 buysellHotspot = new Vector2(-1, 4);
 
   public Cursor(AssetManager assets) {
     if (DEBUG_MOBILE || Gdx.app.getType() != Application.ApplicationType.Desktop) {
@@ -59,12 +68,22 @@ public class Cursor implements ItemData.LocationListener {
       assets.finishLoadingAsset(protateDescriptor);
       protate = assets.get(protateDescriptor);
 
-      cursorAnim = Animation.newAnimation().edit().layer(protate).build();
-      cursorAnim.setFrameDuration(1 / 5f);
+      cursorAnim = Animation.newAnimation();
+      resetCursor();
 
       Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
       cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
       Gdx.graphics.setCursor(cursor);
+    }
+
+    assets.load(buysellDescriptor);
+    assets.finishLoadingAsset(buysellDescriptor);
+    buysell = assets.get(buysellDescriptor);
+    for (int f = 0, s = buysell.getNumPages(); f < s; f++) {
+      // manually offset to align top left
+      BBox box = buysell.getBox(0, f);
+      box.yMax = -box.yMin;
+      box.yMin = 0;
     }
   }
 
@@ -72,10 +91,38 @@ public class Cursor implements ItemData.LocationListener {
     return cursor;
   }
 
+  /** used for cursors -- automatically applies hotspot if predefined cursor */
+  public void setCursor(DC dc, int i) {
+    if (dc == buysell) {
+      setCursor(dc, i, buysellHotspot);
+    } else {
+      setCursor(dc, i, 0, 0);
+    }
+  }
+
+  /** used for cursors */
+  public void setCursor(DC dc, int i, Vector2 hotspot) {
+    setCursor(dc, i, hotspot.x, hotspot.y);
+  }
+
+  /** used for cursors */
+  public void setCursor(DC dc, int i, float xHotspot, float yHotspot) {
+    this.dc = null;
+    page = i;
+
+    offset.set(xHotspot, yHotspot);
+    cursorAnim.edit().layer(dc).build();
+    cursorAnim.setClamp(page, page + 1);
+    cursorAnim.setFrameDuration(Float.MAX_VALUE);
+    cursorAnim.setFrame(page);
+  }
+
+  /** used internally for items -- doesn't support hotspot or animating */
   public void setCursor(DC dc) {
     setCursor(dc, null, 0);
   }
 
+  /** used internally for items -- doesn't support hotspot or animating */
   public void setCursor(DC dc, Index colormap, int id) {
     this.dc = dc;
     if (colormap != null) {
@@ -89,6 +136,11 @@ public class Cursor implements ItemData.LocationListener {
 
   public void resetCursor() {
     dc = null;
+    page = -1;
+
+    offset.setZero();
+    cursorAnim.edit().layer(protate).build();
+    cursorAnim.setFrameDuration(CURSOR_FRAME_DURATION);
   }
 
   public Item getItem() {
@@ -119,6 +171,7 @@ public class Cursor implements ItemData.LocationListener {
     if (dc == null) {
       coords.set(Gdx.input.getX(), Gdx.input.getY());
       Riiablo.extendViewport.unproject(coords);
+      coords.add(offset);
 
       batch.begin();
       cursorAnim.draw(batch, coords.x, coords.y);
