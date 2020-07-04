@@ -305,16 +305,18 @@ public class SpellsPanel extends WidgetGroup implements Disposable, CharData.Ski
         if (sLvl <= 0) {
           add(new Label(Riiablo.string.lookup("skilldesc3") + skill.reqlevel, font)).center().space(SPACING).row();
         }
-        add().height(font.getLineHeight()).center().space(SPACING).row();
         for (int i = 0; i < desc.dsc2line.length; i++) {
-          if (desc.dsc2line[i] <= 0) break;
+          if (desc.dsc2line[i] <= 1) break;
+          if (i == 0) add().height(font.getLineHeight()).center().space(SPACING).row();
           String str = calc(desc, i, desc.descline, desc.dsc2texta, desc.dsc2textb, desc.dsc2calca, desc.dsc2calcb, skill, sLvl);
           if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
         }
-        add().height(font.getLineHeight()).center().space(SPACING).row();
-        add(new Label(sLvl <= 0 ? Riiablo.string.lookup("StrSkill17") : Riiablo.string.lookup("StrSkill2") + sLvl, font)).center().space(SPACING).row();
         for (int i = 0; i < desc.descline.length; i++) {
           if (desc.descline[i] <= 0) break;
+          if (i == 0) {
+            add().height(font.getLineHeight()).center().space(SPACING).row();
+            add(new Label(sLvl <= 0 ? Riiablo.string.lookup("StrSkill17") : Riiablo.string.lookup("StrSkill2") + sLvl, font)).center().space(SPACING).row();
+          }
           String str = calc(desc, i, desc.descline, desc.desctexta, desc.desctextb, desc.desccalca, desc.desccalcb, skill, sLvl);
           if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
         }
@@ -327,10 +329,10 @@ public class SpellsPanel extends WidgetGroup implements Disposable, CharData.Ski
             if (str != null) add(new Label(str, Riiablo.fonts.font16)).center().space(SPACING).row();
           }
         }
-        add().height(font.getLineHeight()).center().space(SPACING).row();
         //add(new Label(Riiablo.string.format("Sksyn", Riiablo.string.lookup(desc.str_name)), font, Riiablo.colors.green)).center().space(SPACING).row();
         for (int i = 0; i < desc.dsc3line.length; i++) {
           if (desc.dsc3line[i] <= 0) break;
+          if (i == 0) add().height(font.getLineHeight()).center().space(SPACING).row();
           String str = calc(desc, i, desc.dsc3line, desc.dsc3texta, desc.dsc3textb, desc.dsc3calca, desc.dsc3calcb, skill, sLvl);
           if (str != null) add(new Label(str, Riiablo.fonts.font16, desc.dsc3line[i] == 40 ? SpellsPanel.getColor(desc.dsc3calca[i]) : Riiablo.colors.white)).center().space(SPACING).row();
         }
