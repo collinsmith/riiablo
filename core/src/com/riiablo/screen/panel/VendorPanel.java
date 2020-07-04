@@ -242,6 +242,8 @@ public class VendorPanel extends WidgetGroup implements Disposable {
   }
 
   public void config(int flags) {
+    btnBuy.setChecked(false);
+    btnSell.setChecked(false);
     btnBuy.setVisible((flags & BUY) == BUY);
     btnSell.setVisible((flags & SELL) == SELL);
     btnRepair.setVisible((flags & REPAIR) == REPAIR);
