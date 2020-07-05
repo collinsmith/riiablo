@@ -332,9 +332,16 @@ public class MapViewer extends ApplicationAdapter {
             }
             return true;
           case Input.Keys.GRAVE:
-            RenderSystem.RENDER_DEBUG_WALKABLE++;
-            if (RenderSystem.RENDER_DEBUG_WALKABLE > Map.MAX_LAYERS + 1) {
-              RenderSystem.RENDER_DEBUG_WALKABLE = 0;
+            if (UIUtils.shift()) {
+              RenderSystem.RENDER_DEBUG_MATERIAL++;
+              if (RenderSystem.RENDER_DEBUG_MATERIAL > Map.MAX_FLOORS + 1) {
+                RenderSystem.RENDER_DEBUG_MATERIAL = 0;
+              }
+            } else {
+              RenderSystem.RENDER_DEBUG_WALKABLE++;
+              if (RenderSystem.RENDER_DEBUG_WALKABLE > Map.MAX_LAYERS + 1) {
+                RenderSystem.RENDER_DEBUG_WALKABLE = 0;
+              }
             }
             return true;
           case Input.Keys.ALT_LEFT:
@@ -575,12 +582,13 @@ public class MapViewer extends ApplicationAdapter {
         .append("(" + (int) tmpVec2a.x + ", " + (int) tmpVec2a.y + ")").append('\n')
         .append("(" + x + ", " + y + ")").append('\n')
         .append("Grid (TAB) " + (RenderSystem.RENDER_DEBUG_GRID == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_GRID)).append('\n')
-        .append("Walkable (~) " + (RenderSystem.RENDER_DEBUG_WALKABLE == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_WALKABLE)).append('\n')
+        .append("Walkable (`) " + (RenderSystem.RENDER_DEBUG_WALKABLE == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_WALKABLE)).append('\n')
+        .append("Material (~) " + (RenderSystem.RENDER_DEBUG_MATERIAL == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_MATERIAL)).append('\n')
         .append("Cell (F9) " + (RenderSystem.RENDER_DEBUG_CELLS == 0 ? "OFF" : RenderSystem.RENDER_DEBUG_CELLS)).append('\n')
         .append("Zoom " + String.format("%.2f", mapRenderer.zoom()))
         .toString();
     batch.setBlendMode(BlendMode.SOLID, Color.BLACK);
-    batch.draw(Riiablo.textures.modal, 0, height - 140 - textHeight, 120, 140);
+    batch.draw(Riiablo.textures.modal, 0, height - 158 - textHeight, 120, 158);
     font.draw(batch, status, 0, height - textHeight);
 
     batch.end();

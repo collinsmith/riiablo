@@ -63,6 +63,7 @@ public class RenderSystem extends BaseEntitySystem {
   private static final boolean DEBUG_OVERSCAN = DEBUG && true;
   private static final boolean DEBUG_GRID     = DEBUG && true;
   private static final boolean DEBUG_WALKABLE = DEBUG && !true;
+  private static final boolean DEBUG_MATERIAL = DEBUG && !true;
   private static final boolean DEBUG_SPECIAL  = DEBUG && true;
   private static final boolean DEBUG_MOUSE    = DEBUG && true;
   private static final boolean DEBUG_POPPADS  = DEBUG && !true;
@@ -76,6 +77,7 @@ public class RenderSystem extends BaseEntitySystem {
   public static int     RENDER_DEBUG_OVERSCAN = DEBUG_OVERSCAN ? 0b010 : 0;
   public static int     RENDER_DEBUG_GRID     = DEBUG_GRID ? 3 : 0;
   public static int     RENDER_DEBUG_WALKABLE = DEBUG_WALKABLE ? 1 : 0;
+  public static int     RENDER_DEBUG_MATERIAL = DEBUG_MATERIAL ? 1 : 0;
   public static boolean RENDER_DEBUG_SPECIAL  = DEBUG_SPECIAL;
   public static boolean RENDER_DEBUG_SELECT   = DEBUG_SELECT;
   public static int     RENDER_DEBUG_CELLS    = DEBUG_CELLS ? 1 : 0;
@@ -796,6 +798,9 @@ public class RenderSystem extends BaseEntitySystem {
   public void drawDebug(ShapeRenderer shapes) {
     batch.setProjectionMatrix(iso.combined);
     shapes.setProjectionMatrix(iso.combined);
+    if (RENDER_DEBUG_MATERIAL > 0)
+      drawDebugMaterial(shapes);
+
     if (RENDER_DEBUG_GRID > 0)
       drawDebugGrid(shapes);
 
@@ -1101,6 +1106,79 @@ public class RenderSystem extends BaseEntitySystem {
           offX + 16, offY + 8,
           offX + 8, offY + 4);
     }
+  }
+
+  private void drawDebugMaterial(ShapeRenderer shapes) {
+    final int[] WALKABLE_ID = {
+        20, 21, 22, 23, 24,
+        15, 16, 17, 18, 19,
+        10, 11, 12, 13, 14,
+        5, 6, 7, 8, 9,
+        0, 1, 2, 3, 4
+    };
+
+    ShapeRenderer.ShapeType shapeType = shapes.getCurrentType();
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+
+    int startX2 = startX;
+    int startY2 = startY;
+    float startPx2 = startPx;
+    float startPy2 = startPy;
+    int x, y;
+    for (y = 0; y < viewBuffer.length; y++) {
+      int tx = startX2;
+      int ty = startY2;
+      float px = startPx2;
+      float py = startPy2;
+      int size = viewBuffer[y];
+      for (x = 0; x < size; x++) {
+        Map.Zone zone = map.getZone(tx * Tile.SUBTILE_SIZE, ty * Tile.SUBTILE_SIZE);
+        if (zone != null) {
+          if (RENDER_DEBUG_MATERIAL == 1) {
+            for (int sty = 0, t = 0; sty < Tile.SUBTILE_SIZE; sty++) {
+              for (int stx = 0; stx < Tile.SUBTILE_SIZE; stx++, t++) {
+                int flags = zone.flags(zone.getLocalTX(tx) * Tile.SUBTILE_SIZE + stx, zone.getLocalTY(ty) * Tile.SUBTILE_SIZE + sty);
+                if (flags != 0) continue;
+                // TODO: zone.type(x, y) which is an xor of type for the layers
+              }
+            }
+          } else {
+            Tile tile = zone.get(RENDER_DEBUG_MATERIAL - 2, tx, ty);
+            for (int t = 0; tile != null && tile != null && t < Tile.NUM_SUBTILES; t++) {
+              int flags = tile.flags[WALKABLE_ID[t]] & 0xFF;
+              if (flags != 0) continue;
+              DT1Materials.Material type = DT1Materials.getMaterial(zone.level, tile);
+              drawDebugMaterialTiles(shapes, px, py, t, type);
+            }
+          }
+        }
+
+        tx++;
+        px += Tile.WIDTH50;
+        py -= Tile.HEIGHT50;
+      }
+
+      startY2++;
+      if (y >= tilesX - 1) {
+        startX2++;
+        startPy2 -= Tile.HEIGHT;
+      } else {
+        startX2--;
+        startPx2 -= Tile.WIDTH;
+      }
+    }
+
+    shapes.set(shapeType);
+  }
+
+  private static void drawDebugMaterialTiles(ShapeRenderer shapes, float px, float py, int t, DT1Materials.Material type) {
+    float offX = px + Tile.SUBTILE_OFFSET[t][0];
+    float offY = py + Tile.SUBTILE_OFFSET[t][1];
+
+    shapes.setColor(type.color);
+    shapes.set(ShapeRenderer.ShapeType.Filled);
+    DebugUtils.drawDiamond2(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
+    shapes.set(ShapeRenderer.ShapeType.Filled);
   }
 
   private void drawDebugCells(ShapeRenderer shapes) {
