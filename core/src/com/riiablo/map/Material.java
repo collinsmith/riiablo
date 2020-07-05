@@ -5,35 +5,31 @@ import com.badlogic.gdx.math.MathUtils;
 
 import com.riiablo.codec.excel.Levels;
 
-public class DT1Materials {
-  private DT1Materials() {}
+public enum Material {
+  DIRT(new Color(0x4F7942FF)),
+  WOOD(new Color(0x654321FF)),
+  ;
 
-  public enum Material {
-    DIRT(new Color(0x4F7942FF)),
-    WOOD(new Color(0x654321FF)),
-    ;
+  final String name;
+  final Color color;
 
-    final String name;
-    final Color color;
+  Material() {
+    this(new Color(MathUtils.random.nextInt() | 0xFF));
+  }
 
-    Material() {
-      this(new Color(MathUtils.random.nextInt() | 0xFF));
-    }
+  Material(Color color) {
+    this.name = name().toLowerCase();
+    this.color = color;
+  }
 
-    Material(Color color) {
-      this.name = name().toLowerCase();
-      this.color = color;
-    }
+  Material(String name, Color color) {
+    this.name = name;
+    this.color = color;
+  }
 
-    Material(String name, Color color) {
-      this.name = name;
-      this.color = color;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
+  @Override
+  public String toString() {
+    return name;
   }
 
   /**

@@ -1147,7 +1147,7 @@ public class RenderSystem extends BaseEntitySystem {
             for (int t = 0; tile != null && tile != null && t < Tile.NUM_SUBTILES; t++) {
               int flags = tile.flags[WALKABLE_ID[t]] & 0xFF;
               if (flags != 0) continue;
-              DT1Materials.Material type = DT1Materials.getMaterial(zone.level, tile);
+              Material type = Material.getMaterial(zone.level, tile);
               drawDebugMaterialTiles(shapes, px, py, t, type);
             }
           }
@@ -1171,11 +1171,11 @@ public class RenderSystem extends BaseEntitySystem {
     shapes.set(shapeType);
   }
 
-  private static void drawDebugMaterialTiles(ShapeRenderer shapes, float px, float py, int t, DT1Materials.Material type) {
+  private static void drawDebugMaterialTiles(ShapeRenderer shapes, float px, float py, int t, Material material) {
     float offX = px + Tile.SUBTILE_OFFSET[t][0];
     float offY = py + Tile.SUBTILE_OFFSET[t][1];
 
-    shapes.setColor(type.color);
+    shapes.setColor(material.color);
     shapes.set(ShapeRenderer.ShapeType.Filled);
     DebugUtils.drawDiamond2(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
     shapes.set(ShapeRenderer.ShapeType.Filled);
