@@ -8,6 +8,10 @@ import com.riiablo.codec.excel.Levels;
 public enum Material {
   DIRT(new Color(0x4F7942FF)),
   WOOD(new Color(0x654321FF)),
+  ISTONE(new Color(0x708090FF)),
+  OSTONE(new Color(0xA9A9A9FF)),
+  SAND(new Color(0xedc9afFF)),
+  SNOW(new Color(0xfffafaFF)),
   ;
 
   final String name;
