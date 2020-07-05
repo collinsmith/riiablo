@@ -763,6 +763,10 @@ public class Map implements Disposable {
       return (this.flags[index(width, x, y)] |= flags) & 0xFF;
     }
 
+    public Material material(int tx, int ty) {
+      return Material.getMaterial(level, get(FLOOR_OFFSET, tx, ty));
+    }
+
     /** Should not be accessed directly. Managed by {@link com.riiablo.map.MapManager} */
     @Deprecated
     void addEntity(int entityId) {

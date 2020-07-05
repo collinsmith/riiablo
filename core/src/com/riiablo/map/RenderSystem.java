@@ -1135,11 +1135,12 @@ public class RenderSystem extends BaseEntitySystem {
         Map.Zone zone = map.getZone(tx * Tile.SUBTILE_SIZE, ty * Tile.SUBTILE_SIZE);
         if (zone != null) {
           if (RENDER_DEBUG_MATERIAL == 1) {
+            Material type = zone.material(tx, ty);
             for (int sty = 0, t = 0; sty < Tile.SUBTILE_SIZE; sty++) {
               for (int stx = 0; stx < Tile.SUBTILE_SIZE; stx++, t++) {
                 int flags = zone.flags(zone.getLocalTX(tx) * Tile.SUBTILE_SIZE + stx, zone.getLocalTY(ty) * Tile.SUBTILE_SIZE + sty);
                 if (flags != 0) continue;
-                // TODO: zone.type(x, y) which is an xor of type for the layers
+                drawDebugMaterialTiles(shapes, px, py, t, type);
               }
             }
           } else {
@@ -1176,9 +1177,7 @@ public class RenderSystem extends BaseEntitySystem {
     float offY = py + Tile.SUBTILE_OFFSET[t][1];
 
     shapes.setColor(material.color);
-    shapes.set(ShapeRenderer.ShapeType.Filled);
     DebugUtils.drawDiamond2(shapes, offX, offY, Tile.SUBTILE_WIDTH, Tile.SUBTILE_HEIGHT);
-    shapes.set(ShapeRenderer.ShapeType.Filled);
   }
 
   private void drawDebugCells(ShapeRenderer shapes) {
