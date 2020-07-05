@@ -496,6 +496,20 @@ public class Map implements Disposable {
     }
   }
 
+  public Material material(Vector2 vec) {
+    return material(round(vec.x), round(vec.y));
+  }
+
+  public Material material(int x, int y) {
+    Zone zone = getZone(x, y);
+    if (zone == null) return null;
+    // FIXME: looks sloppy -- come back and improve this later
+    int tx = (x - zone.x) / DT1.Tile.SUBTILE_SIZE;
+    int ty = (y - zone.y) / DT1.Tile.SUBTILE_SIZE;
+//    System.out.println(tx + "," + ty + "  " + (tx + zone.tx) + "," + (ty + zone.ty));
+    return zone.material(tx + zone.tx, ty + zone.ty);
+  }
+
   public Zone getZone(Vector2 vec) {
     return getZone(vec.x, vec.y);
   }

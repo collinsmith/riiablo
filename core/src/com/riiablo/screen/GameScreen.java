@@ -59,6 +59,7 @@ import com.riiablo.engine.client.CofUnloader;
 import com.riiablo.engine.client.CursorMovementSystem;
 import com.riiablo.engine.client.DialogManager;
 import com.riiablo.engine.client.DirectionResolver;
+import com.riiablo.engine.client.FootstepEmitter;
 import com.riiablo.engine.client.HoveredManager;
 import com.riiablo.engine.client.ItemEffectManager;
 import com.riiablo.engine.client.ItemLoader;
@@ -598,6 +599,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new ZoneChangeTracker())
         .with(new ZoneMovementModesChanger())
         .with(new ZoneEntryDisplayer())
+
+        .with(new FootstepEmitter())
 
         .with(new SelectableManager())
         .with(new HoveredManager())
