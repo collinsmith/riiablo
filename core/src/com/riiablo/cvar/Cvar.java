@@ -1,22 +1,19 @@
 package com.riiablo.cvar;
 
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import com.riiablo.serializer.SerializeException;
-import com.riiablo.serializer.StringSerializer;
-import com.riiablo.validator.Validator;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.Validate;
-
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.Validate;
+
+import com.riiablo.serializer.SerializeException;
+import com.riiablo.serializer.StringSerializer;
+import com.riiablo.validator.Validator;
 
 public class Cvar<T> implements SuggestionProvider {
   @NonNull
@@ -163,8 +160,12 @@ public class Cvar<T> implements SuggestionProvider {
   }
 
   public boolean addStateListener(StateListener<T> l) {
+    return addStateListener(true, l);
+  }
+
+  public boolean addStateListener(boolean init, StateListener<T> l) {
     boolean added = STATE_LISTENERS.add(l);
-    l.onLoaded(this, value);
+    if (init) l.onLoaded(this, value);
     return added;
   }
 
