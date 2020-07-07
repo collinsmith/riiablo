@@ -6,7 +6,7 @@ public enum Location {
   STORED,
   EQUIPPED,
   BELT,
-  UNK3,
+  GROUND,
   CURSOR,
   UNK5,
   SOCKET;
@@ -16,7 +16,7 @@ public enum Location {
       case 0: return STORED;
       case 1: return EQUIPPED;
       case 2: return BELT;
-      case 3: return UNK3;
+      case 3: return GROUND;
       case 4: return CURSOR;
       case 5: return UNK5;
       case 6: return SOCKET;
