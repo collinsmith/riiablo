@@ -1,5 +1,8 @@
 package com.riiablo.item;
 
+import java.util.Arrays;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -11,6 +14,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
@@ -34,10 +38,6 @@ import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
 import com.riiablo.widget.Label;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.util.Arrays;
-
 import static com.riiablo.item.Location.EQUIPPED;
 import static com.riiablo.item.Quality.SET;
 
@@ -53,19 +53,32 @@ public class Item extends Actor implements Disposable {
   private static final int RARE_AFFIX_SIZE = 8;
   private static final int RARE_AFFIX_MASK = 0xFF;
 
-  private static final int QUEST      = 0x00000001;
+  private static final int QUEST      = 0x00000001; // Unconfirmed is equipped
+//private static final int U00000002  = 0x00000002;
+//private static final int U00000004  = 0x00000004;
+//private static final int U00000008  = 0x00000008; // Unconfirmed is in socket -- SOCKETED -> has sockets
   private static final int IDENTIFIED = 0x00000010;
-  private static final int SWITCHIN   = 0x00000040; // Unconfirmed
-  private static final int SWITCHOUT  = 0x00000080; // Unconfirmed
+//private static final int U00000020  = 0x00000020;
+  private static final int SWITCHIN   = 0x00000040; // Unconfirmed a weapon switch command was performed, and this item is now being used
+  private static final int SWITCHOUT  = 0x00000080; // Unconfirmed a weapon switch command was performed, and this item is no longer being used
   private static final int BROKEN     = 0x00000100; // Unconfirmed (0 durability?)
+//private static final int U00000200  = 0x00000200;
+//private static final int POTION     = 0x00000400; // Unconfirmed: only seen set for full rejuvs for now
   private static final int SOCKETED   = 0x00000800;
+//private static final int U00001000  = 0x00001000;
   private static final int INSTORE    = 0x00002000; // Unconfirmed (must be bought)
+//private static final int U00008000  = 0x00004000; // Unconfirmed: 0 if in socket, 0 if in belt, 0 if equipped or equipped by merc, 0 for gems/charms/..
   private static final int EAR        = 0x00010000;
   private static final int STARTER    = 0x00020000;
+//private static final int U00040000  = 0x00040000;
+//private static final int U00080000  = 0x00080000;
+//private static final int U00100000  = 0x00100000;
   private static final int COMPACT    = 0x00200000;
   private static final int ETHEREAL   = 0x00400000;
+//private static final int U00800000  = 0x00800000; // Unconfirmed: was set for all items tested (tested in inv, stash, store)
   private static final int INSCRIBED  = 0x01000000;
   private static final int RUNEWORD   = 0x04000000;
+//private static final int U08000000  = 0x08000000;
 
   private static final int MAGIC_PROPS = 0;
   private static final int SET_PROPS   = 1;
@@ -548,6 +561,7 @@ public class Item extends Actor implements Disposable {
     return builder.toString();
   }
 
+  @Override
   public String getName() {
     if (name == null) updateName();
     return name;
