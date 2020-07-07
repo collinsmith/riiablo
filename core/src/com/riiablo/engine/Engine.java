@@ -115,4 +115,17 @@ public class Engine {
     //public static final byte MODE_GH = 18;
     //public static final byte MODE_GH = 19;
   }
+
+  /*
+  // Unused
+  public static final class Item {
+    public static final byte MODE_ST = 0; // inven, stash, cube, store
+    public static final byte MODE_EQ = 1; // equipped
+    public static final byte MODE_BT = 2; // belt
+    public static final byte MODE_GR = 3; // ground
+    public static final byte MODE_CR = 4; // cursor
+    public static final byte MODE_DR = 5; // dropped
+    public static final byte MODE_SO = 6; // socketed
+  }
+  */
 }
