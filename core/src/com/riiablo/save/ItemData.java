@@ -3,6 +3,7 @@ package com.riiablo.save;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.SetItems;
@@ -89,7 +90,7 @@ public class ItemData {
           cursor = i;
           break;
         case STORED:
-        case UNK3:
+        case GROUND:
         case UNK5:
         case SOCKET:
         default:
