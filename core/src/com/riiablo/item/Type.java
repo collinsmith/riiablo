@@ -1,6 +1,7 @@
 package com.riiablo.item;
 
 import com.badlogic.gdx.utils.Bits;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemTypes;
 
@@ -41,7 +42,7 @@ public class Type extends Bits {
   }
 
   Type() {
-    super(128);
+    super(0x7F);
   }
 
   public boolean is(int index) {
