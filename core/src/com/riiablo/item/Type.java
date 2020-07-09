@@ -51,8 +51,12 @@ public class Type extends Bits {
 
   @Override
   public String toString() {
+    return getOrdinalString();
+  }
+
+  public String getOrdinalString() {
     StringBuilder builder = new StringBuilder();
-    for (int i = -1; (i = nextSetBit(i + 1)) != -1;) {
+    for (int i = -1; (i = nextSetBit(i + 1)) != -1; ) {
       builder.append(Riiablo.files.ItemTypes.get(i).Code).append(',');
     }
     if (builder.length() > 0) builder.setLength(builder.length() - 1);
