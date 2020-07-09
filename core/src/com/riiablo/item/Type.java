@@ -78,6 +78,7 @@ public class Type extends Bits {
     return builder.toString();
   }
 
+  public static final int NONE = Riiablo.files.ItemTypes.index("");
   public static final int SHIE = Riiablo.files.ItemTypes.index("shie");
   public static final int TORS = Riiablo.files.ItemTypes.index("tors");
   public static final int GOLD = Riiablo.files.ItemTypes.index("gold");
