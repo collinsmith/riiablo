@@ -1,11 +1,14 @@
 package com.riiablo.item;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Bits;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemTypes;
 
 public class Type extends Bits {
+  private static final String TAG = "Type";
+
   private static final Type[] TYPES;
   static {
     TYPES = new Type[128];
@@ -177,4 +180,118 @@ public class Type extends Bits {
   public static final int GEMS = Riiablo.files.ItemTypes.index("gems");
   public static final int GEMT = Riiablo.files.ItemTypes.index("gemt");
   public static final int GEMZ = Riiablo.files.ItemTypes.index("gemz");
+
+  static final Type GEMA0 = create(TYPES[GEMA], TYPES[GEM0]);
+  static final Type GEMA1 = create(TYPES[GEMA], TYPES[GEM1]);
+  static final Type GEMA2 = create(TYPES[GEMA], TYPES[GEM2]);
+  static final Type GEMA3 = create(TYPES[GEMA], TYPES[GEM3]);
+  static final Type GEMA4 = create(TYPES[GEMA], TYPES[GEM4]);
+
+  static final Type GEMT0 = create(TYPES[GEMT], TYPES[GEM0]);
+  static final Type GEMT1 = create(TYPES[GEMT], TYPES[GEM1]);
+  static final Type GEMT2 = create(TYPES[GEMT], TYPES[GEM2]);
+  static final Type GEMT3 = create(TYPES[GEMT], TYPES[GEM3]);
+  static final Type GEMT4 = create(TYPES[GEMT], TYPES[GEM4]);
+
+  static final Type GEMS0 = create(TYPES[GEMS], TYPES[GEM0]);
+  static final Type GEMS1 = create(TYPES[GEMS], TYPES[GEM1]);
+  static final Type GEMS2 = create(TYPES[GEMS], TYPES[GEM2]);
+  static final Type GEMS3 = create(TYPES[GEMS], TYPES[GEM3]);
+  static final Type GEMS4 = create(TYPES[GEMS], TYPES[GEM4]);
+
+  static final Type GEME0 = create(TYPES[GEME], TYPES[GEM0]);
+  static final Type GEME1 = create(TYPES[GEME], TYPES[GEM1]);
+  static final Type GEME2 = create(TYPES[GEME], TYPES[GEM2]);
+  static final Type GEME3 = create(TYPES[GEME], TYPES[GEM3]);
+  static final Type GEME4 = create(TYPES[GEME], TYPES[GEM4]);
+
+  static final Type GEMR0 = create(TYPES[GEMR], TYPES[GEM0]);
+  static final Type GEMR1 = create(TYPES[GEMR], TYPES[GEM1]);
+  static final Type GEMR2 = create(TYPES[GEMR], TYPES[GEM2]);
+  static final Type GEMR3 = create(TYPES[GEMR], TYPES[GEM3]);
+  static final Type GEMR4 = create(TYPES[GEMR], TYPES[GEM4]);
+
+  static final Type GEMD0 = create(TYPES[GEMD], TYPES[GEM0]);
+  static final Type GEMD1 = create(TYPES[GEMD], TYPES[GEM1]);
+  static final Type GEMD2 = create(TYPES[GEMD], TYPES[GEM2]);
+  static final Type GEMD3 = create(TYPES[GEMD], TYPES[GEM3]);
+  static final Type GEMD4 = create(TYPES[GEMD], TYPES[GEM4]);
+
+  static final Type GEMZ0 = create(TYPES[GEMZ], TYPES[GEM0]);
+  static final Type GEMZ1 = create(TYPES[GEMZ], TYPES[GEM1]);
+  static final Type GEMZ2 = create(TYPES[GEMZ], TYPES[GEM2]);
+  static final Type GEMZ3 = create(TYPES[GEMZ], TYPES[GEM3]);
+  static final Type GEMZ4 = create(TYPES[GEMZ], TYPES[GEM4]);
+
+  private static Type create(Type type1, Type type2) {
+    Type type = new Type();
+    type.or(type1);
+    type.or(type2);
+    return type;
+  }
+
+  /**
+   * Returns a pre-existing type for the cartesian products of gems types and qualities.
+   */
+  private static Type _get(Type type1, Type type2) {
+    if (TYPES[GEMA].equals(type1)) {
+      if (TYPES[GEM0].equals(type2)) return GEMA0;
+      if (TYPES[GEM1].equals(type2)) return GEMA1;
+      if (TYPES[GEM2].equals(type2)) return GEMA2;
+      if (TYPES[GEM3].equals(type2)) return GEMA3;
+      if (TYPES[GEM4].equals(type2)) return GEMA4;
+    } else if (TYPES[GEMT].equals(type1)) {
+      if (TYPES[GEM0].equals(type2)) return GEMT0;
+      if (TYPES[GEM1].equals(type2)) return GEMT1;
+      if (TYPES[GEM2].equals(type2)) return GEMT2;
+      if (TYPES[GEM3].equals(type2)) return GEMT3;
+      if (TYPES[GEM4].equals(type2)) return GEMT4;
+    } else if (TYPES[GEMS].equals(type1)) {
+      if (TYPES[GEM0].equals(type2)) return GEMS0;
+      if (TYPES[GEM1].equals(type2)) return GEMS1;
+      if (TYPES[GEM2].equals(type2)) return GEMS2;
+      if (TYPES[GEM3].equals(type2)) return GEMS3;
+      if (TYPES[GEM4].equals(type2)) return GEMS4;
+    } else if (TYPES[GEME].equals(type1)) {
+      if (TYPES[GEM0].equals(type2)) return GEME0;
+      if (TYPES[GEM1].equals(type2)) return GEME1;
+      if (TYPES[GEM2].equals(type2)) return GEME2;
+      if (TYPES[GEM3].equals(type2)) return GEME3;
+      if (TYPES[GEM4].equals(type2)) return GEME4;
+    } else if (TYPES[GEMR].equals(type1)) {
+      if (TYPES[GEM0].equals(type2)) return GEMR0;
+      if (TYPES[GEM1].equals(type2)) return GEMR1;
+      if (TYPES[GEM2].equals(type2)) return GEMR2;
+      if (TYPES[GEM3].equals(type2)) return GEMR3;
+      if (TYPES[GEM4].equals(type2)) return GEMR4;
+    } else if (TYPES[GEMD].equals(type1)) {
+      if (TYPES[GEM0].equals(type2)) return GEMD0;
+      if (TYPES[GEM1].equals(type2)) return GEMD1;
+      if (TYPES[GEM2].equals(type2)) return GEMD2;
+      if (TYPES[GEM3].equals(type2)) return GEMD3;
+      if (TYPES[GEM4].equals(type2)) return GEMD4;
+    } else if (TYPES[GEMZ].equals(type1)) {
+      if (TYPES[GEM0].equals(type2)) return GEMZ0;
+      if (TYPES[GEM1].equals(type2)) return GEMZ1;
+      if (TYPES[GEM2].equals(type2)) return GEMZ2;
+      if (TYPES[GEM3].equals(type2)) return GEMZ3;
+      if (TYPES[GEM4].equals(type2)) return GEMZ4;
+    }
+
+    // Shouldn't get this far in normal gameplay.
+    // In production we don't care, but log it anyways if it happens.
+    assert false : "type1 and type2 did not match expected values";
+    Gdx.app.error(TAG, "Creating aggregate type of " + type1 + " and " + type2);
+    assert !type1.is(NONE) : "type1 shouldn't have 'none' bit set: " + type1.getHexString();
+    if (type2.is(NONE)) return type1;
+    Type type = new Type();
+    type.or(type1);
+    type.or(type2);
+    return type;
+  }
+
+  public static Type get(Type type1, Type type2) {
+    if (type2.is(NONE)) return type1;
+    return _get(type1, type2);
+  }
 }
