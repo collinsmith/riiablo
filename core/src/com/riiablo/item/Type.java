@@ -63,6 +63,21 @@ public class Type extends Bits {
     return builder.toString();
   }
 
+  public String getHexString() {
+    // shorts because blocks of 4 is easier to read at this scale
+    short[] words = new short[(numBits() + Short.SIZE - 1) / Short.SIZE];
+    for (int i = -1; (i = nextSetBit(i + 1)) != -1; ) {
+      int w0 = i / Short.SIZE;
+      words[w0] |= (1 << (i >>> (w0 * Short.SIZE)));
+    }
+    StringBuilder builder = new StringBuilder();
+    for (int i = words.length - 1; i >= 0; i--) {
+      builder.append(String.format("%04x", words[i])).append(' ');
+    }
+    if (builder.length() > 0) builder.setLength(builder.length() - 1);
+    return builder.toString();
+  }
+
   public static final int SHIE = Riiablo.files.ItemTypes.index("shie");
   public static final int TORS = Riiablo.files.ItemTypes.index("tors");
   public static final int GOLD = Riiablo.files.ItemTypes.index("gold");
