@@ -294,4 +294,8 @@ public class Type extends Bits {
     if (type2.is(NONE)) return type1;
     return _get(type1, type2);
   }
+
+  public static Type get(ItemTypes.Entry type1, ItemTypes.Entry type2) {
+    return get(get(type1), get(type2));
+  }
 }

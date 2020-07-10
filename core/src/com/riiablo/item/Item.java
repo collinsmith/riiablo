@@ -168,6 +168,7 @@ public class Item extends Actor implements Disposable {
 
   public ItemEntry       base;
   public ItemTypes.Entry typeEntry;
+  public ItemTypes.Entry type2Entry;
   public Type            type;
 
   private String  name;
@@ -216,7 +217,8 @@ public class Item extends Actor implements Disposable {
 
     base = findBase(code);
     typeEntry = Riiablo.files.ItemTypes.get(base.type);
-    type = Type.get(typeEntry);
+    type2Entry = Riiablo.files.ItemTypes.get(base.type2);
+    type = Type.get(typeEntry, type2Entry);
 
     props = new Attributes();
     PropertyList baseProps = props.base;
