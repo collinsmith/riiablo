@@ -455,7 +455,7 @@ public class Item extends Actor implements Disposable {
     ToStringBuilder builder = new ToStringBuilder(this);
     builder
         .append("name", getName())
-        .append("type", code)
+        .append("code", code)
         .append("flags", getFlagsString())
         .append("version", version);
     if (DEBUG_VERBOSE) {
