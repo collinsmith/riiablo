@@ -147,7 +147,7 @@ public class Item extends Actor implements Disposable {
   public StoreLoc storeLoc;
   public byte     gridX;
   public byte     gridY;
-  public String   typeCode;
+  public String   code;
   public int      socketsFilled;
 
   public Array<Item> sockets;
@@ -202,19 +202,19 @@ public class Item extends Actor implements Disposable {
     storeLoc = StoreLoc.valueOf(bitStream.readUnsigned7OrLess(3));
 
     if ((flags & EAR) == EAR) {
-      typeCode      = "play"; // Player Body Part
+      code          = "ear";
       socketsFilled = 0;
       qualityId     = bitStream.readUnsigned7OrLess(3); // class
       qualityData   = bitStream.readUnsigned7OrLess(7); // level
       inscription   = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7); // name
     } else {
-      typeCode      = bitStream.readString(4).trim();
+      code          = bitStream.readString(4).trim();
       socketsFilled = bitStream.readUnsigned7OrLess(3);
     }
 
     sockets = EMPTY_SOCKETS_ARRAY;
 
-    base = findBase(typeCode);
+    base = findBase(code);
     typeEntry = Riiablo.files.ItemTypes.get(base.type);
     type = Type.get(typeEntry);
 
@@ -446,7 +446,7 @@ public class Item extends Actor implements Disposable {
     ToStringBuilder builder = new ToStringBuilder(this);
     builder
         .append("name", getName())
-        .append("type", typeCode)
+        .append("type", code)
         .append("flags", getFlagsString())
         .append("version", version);
     if (DEBUG_VERBOSE) {
