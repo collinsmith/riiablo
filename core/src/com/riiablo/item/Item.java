@@ -58,6 +58,7 @@ public class Item extends Actor implements Disposable {
   static final int VERSION_110  = 2;
   static final int VERSION_108e = 100;
   static final int VERSION_110e = 101;
+  static final int VERSION_200e = 200; // Riiablo
 
   static final int QUEST      = 0x00000001; // Unconfirmed is equipped
 //static final int U00000002  = 0x00000002;
