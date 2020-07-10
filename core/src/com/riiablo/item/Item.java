@@ -53,6 +53,12 @@ public class Item extends Actor implements Disposable {
   private static final int RARE_AFFIX_SIZE = 8;
   private static final int RARE_AFFIX_MASK = 0xFF;
 
+  static final int VERSION_100  = 0;
+  static final int VERSION_108  = 1;
+  static final int VERSION_110  = 2;
+  static final int VERSION_108e = 100;
+  static final int VERSION_110e = 101;
+
   static final int QUEST      = 0x00000001; // Unconfirmed is equipped
 //static final int U00000002  = 0x00000002;
 //static final int U00000004  = 0x00000004;
