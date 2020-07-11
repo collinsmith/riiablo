@@ -13,6 +13,7 @@ public class ItemEntry extends Excel.Entry {
 
   @Column public String  name;
   @Column public String  namestr;
+  @Column public boolean compactsave;
   @Column public int     version;
   @Column public String  alternateGfx;
   @Column public String  type;
@@ -31,6 +32,7 @@ public class ItemEntry extends Excel.Entry {
   @Column public boolean stackable;
   @Column public int     minstack;
   @Column public int     maxstack;
+  @Column public int     spawnstack;
   @Column public boolean useable;
   @Column public String  usesound;
   @Column public int     quest;
@@ -41,4 +43,6 @@ public class ItemEntry extends Excel.Entry {
   @Column public int     maxdam;
   @Column public int     speed;
   @Column public int     gemapplytype;
+  @Column public boolean PermStoreItem;
+  @Column public boolean multibuy;
 }

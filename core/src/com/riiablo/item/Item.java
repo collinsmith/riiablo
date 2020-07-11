@@ -370,6 +370,40 @@ public class Item extends Actor implements Disposable {
     return this;
   }
 
+  void reset() {
+    version = VERSION_200e;
+    flags = 0;
+    socketsFilled = 0;
+    quality = Quality.NONE;
+    location = null; // FIXME: null location will throw NPE if toString is called
+    pictureId = -1;
+    classOnly = -1;
+    qualityId = 0;
+    qualityData = null;
+    runewordData = 0;
+    inscription = null;
+
+    props = new Attributes();
+    stats = EMPTY_PROPERTY_ARRAY;
+    sockets = EMPTY_SOCKETS_ARRAY;
+  }
+
+  public int getBaseIndex() {
+    ItemEntry entry;
+    if ((entry = Riiablo.files.armor  .get(code)) != null) return Riiablo.files.armor  .index(entry.code);
+    if ((entry = Riiablo.files.weapons.get(code)) != null) return Riiablo.files.weapons.index(entry.code);
+    if ((entry = Riiablo.files.misc   .get(code)) != null) return Riiablo.files.misc   .index(entry.code);
+    throw new GdxRuntimeException("Unable to locate entry for code: " + code);
+  }
+
+  // TODO: support width/height also to check full collision rect
+  public boolean contains(int x, int y) {
+    x -= gridX;
+    y -= gridY;
+    return 0 <= x && x < base.invwidth
+        && 0 <= y && y < base.invheight;
+  }
+
   public void update(Attributes attrs, CharStats.Entry charStats, IntIntMap equippedSets) {
     if ((flags & COMPACT) == COMPACT) return;
     props.reset();
