@@ -33,6 +33,7 @@ public class BinGenerationTool extends ApplicationAdapter {
 
   @Override
   public void create() {
+    Excel.preserveOrder = true;
     try {
       Package pkg = Package.getPackage(args[0]);
       Gdx.app.log(TAG, "package=" + pkg.getName());

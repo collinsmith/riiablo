@@ -1,21 +1,7 @@
 package com.riiablo.codec.excel;
 
-import com.google.common.io.LittleEndianDataInputStream;
-
 import android.support.annotation.CallSuper;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.ObjectIntMap;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
-import com.badlogic.gdx.utils.StreamUtils;
-import com.riiablo.util.ClassUtils;
-
-import org.apache.commons.io.IOUtils;
-
+import com.google.common.io.LittleEndianDataInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -29,6 +15,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Iterator;
+import org.apache.commons.io.IOUtils;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.StreamUtils;
+
+import com.riiablo.util.ClassUtils;
 
 public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
   public static final String TAG = "Excel";
@@ -49,6 +48,8 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
   private static final ObjectSet EMPTY_SET = new ObjectSet<>();
   private static final ObjectIntMap EMPTY_MAP = new ObjectIntMap<>();
+
+  public static boolean preserveOrder = false;
 
   public static final ObjectSet<String> EXPANSION = ObjectSet.with("Expansion");
 
@@ -90,6 +91,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
 
   ObjectIntMap<String> STRING_TO_ID = EMPTY_MAP;
   IntMap<T> entries = new IntMap<>();
+  Array<Entry> orderedEntries = new Array<>(Entry.class);
 
   public static <T extends Excel> T load(Class<T> excelClass, FileHandle txt) {
     return load(excelClass, txt, Excel.<String>emptySet());
@@ -318,6 +320,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
         }
       }
 
+      if (preserveOrder) excel.orderedEntries.add(entry);
       putIndex(primaryKey, primaryKeyType, j++, index, excel, entry);
     }
 
@@ -401,10 +404,20 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
       Class binClass = Class.forName(binClassName);
       Method writeBin = binClass.getMethod("writeBin", entryClass, DataOutput.class);
 
-      int size = size();
-      out.writeInt(size);
-      for (Entry entry : this) {
-        writeBin.invoke(null, entry, out);
+      if (preserveOrder) {
+        Entry[] items = orderedEntries.items;
+        int size = orderedEntries.size;
+        out.writeInt(size);
+        for (int i = 0; i < size; i++) {
+          Entry entry = items[i];
+          writeBin.invoke(null, entry, out);
+        }
+      } else {
+        int size = size();
+        out.writeInt(size);
+        for (Entry entry : this) {
+          writeBin.invoke(null, entry, out);
+        }
       }
     } catch (Throwable t) {
       throw new GdxRuntimeException("Failed to write bin for " + excelClass, t);
