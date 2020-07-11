@@ -1,20 +1,20 @@
 package com.riiablo.codec.excel;
 
 import com.google.common.io.LittleEndianDataOutputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ClassPathUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 import com.riiablo.mpq.MPQFileHandleResolver;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ClassPathUtils;
-
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 
 public class BinGenerationTool extends ApplicationAdapter {
   private static final String TAG = "BinGenerationTool";
@@ -98,12 +98,14 @@ public class BinGenerationTool extends ApplicationAdapter {
       String binClassName = excelClass.getName() + "Bin";
       Class binClass = Class.forName(binClassName);
       Method equals = binClass.getMethod("equals", entryClass, entryClass);
+      Method validate = binClass.getMethod("validate", entryClass, entryClass);
       Excel binExcel = Excel.load(excelClass, txt, bin, null);
       if (binExcel.size() != excel.size()) Gdx.app.error(TAG, "excel sizes do not match!");
       for (Excel.Entry e1 : excel) {
         Excel.Entry eq = getEqual(equals, e1, binExcel);
         if (eq == null) {
           Gdx.app.log(TAG, "ERROR at index " + e1);
+          validate(validate, e1, binExcel);
           //break;
         } else {
           //Gdx.app.log(TAG, e1 + "=" + eq);
@@ -116,6 +118,25 @@ public class BinGenerationTool extends ApplicationAdapter {
     for (Excel.Entry e2 : binExcel) {
       Object result = equals.invoke(null, e1, e2);
       if (((Boolean) result).booleanValue()) {
+        return e2;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Attempts to find the matching object and invokes the validate function which will print the
+   * fields that have a mismatch and what the values are. This isn't perfect, but will be extremely
+   * useful for any bins that have issues, as {@link #getEqual} only tells if one object in the
+   * generation is equal.
+   *
+   * TODO: Should consider modifying this to pass along the key so it can look for an entry with a matching key.
+   */
+  private static Excel.Entry validate(Method validate, Excel.Entry e1, Excel<Excel.Entry> binExcel) throws Exception {
+    for (Excel.Entry e2 : binExcel) {
+      if (StringUtils.equalsIgnoreCase(e1.toString(), e2.toString())) {
+        validate.invoke(null, e1, e2);
         return e2;
       }
     }
