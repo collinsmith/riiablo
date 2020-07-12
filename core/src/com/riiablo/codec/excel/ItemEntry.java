@@ -45,4 +45,33 @@ public class ItemEntry extends Excel.Entry {
   @Column public int     gemapplytype;
   @Column public boolean PermStoreItem;
   @Column public boolean multibuy;
+
+  @Column(format = "Charsi%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int charsi[];
+  @Column(format = "Gheed%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int gheed[];
+  @Column(format = "Akara%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int akara[];
+
+  @Column(format = "Fara%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int fara[];
+  @Column(format = "Lysander%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int lysander[];
+  @Column(format = "Drognan%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int drognan[];
+
+  /**
+   * FIXME: Hratli mislabeled within tables as Hralti in many places -- may require custom code per sheet
+   *        NOTE: This is the only discrepancy between these columns
+   * weapons: HraltiMin HraltiMax HraltiMagicMin HraltiMagicMax HratliMagicLvl
+   * armor:   HraltiMin HraltiMax HraltiMagicMin HraltiMagicMax HratliMagicLvl
+   * misc:    HraltiMin HraltiMax HraltiMagicMin HraltiMagicMax HraltiMagicLvl
+   *
+   */
+  @Column(format = "Hralti%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int hratli[];
+  @Column(format = "Alkor%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int alkor[];
+  @Column(format = "Ormus%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int ormus[];
+  @Column(format = "Elzix%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int elzix[];
+  @Column(format = "Asheara%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int asheara[];
+
+  @Column(format = "Halbu%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int halbu[];
+  @Column(format = "Jamella%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int jamella[];
+
+  @Column(format = "Malah%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int malah[];
+  @Column(format = "Larzuk%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int larzuk[];
+  @Column(format = "Drehya%s", values = {"Min", "Max", "MagicMin", "MagicMax", "MagicLvl"}, endIndex = 5) public int drehya[];
 }

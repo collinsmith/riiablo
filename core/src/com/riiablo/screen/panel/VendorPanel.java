@@ -1,5 +1,6 @@
 package com.riiablo.screen.panel;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -21,6 +22,7 @@ import com.riiablo.graphics.BlendMode;
 import com.riiablo.item.Item;
 import com.riiablo.item.ItemGenerator;
 import com.riiablo.item.Stat;
+import com.riiablo.item.VendorGenerator;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
@@ -240,19 +242,29 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     }
 
     ItemGenerator generator = new ItemGenerator();
-    Item tsc = generator.generate("tsc"); tsc.load();
-    Item tbk = generator.generate("tbk"); tbk.load();
-    Item isc = generator.generate("isc"); isc.load();
-    Item ibk = generator.generate("ibk"); ibk.load();
-    Item vps = generator.generate("vps"); vps.load();
-    Item yps = generator.generate("yps"); yps.load();
-    Item wms = generator.generate("wms"); wms.load();
-    Item key = generator.generate("key"); key.load();
-    Item hp1 = generator.generate("hp1"); hp1.load();
-    Item mp1 = generator.generate("mp1"); mp1.load();
-    Array<Item> items = Array.with(tsc, tbk, isc, ibk, vps, yps, wms, key, hp1, mp1);
-    tabs[TAB_MISC].grid.sort(items);
-    tabs[TAB_MISC].grid.populate(items);
+    VendorGenerator vendors = new VendorGenerator();
+    vendors.generator = generator;
+
+    Array<Item> items = new Array<>(Item.class);
+    try {
+      vendors.generate("akara", items, Riiablo.files.armor);
+      tabs[TAB_ARMOR].grid.drain(items);
+      // TODO: hide tab if empty
+
+      vendors.generate("akara", items, Riiablo.files.weapons);
+      tabs[TAB_WEAPONS].grid.drain(items);
+      // TODO: hide tab if empty
+
+      tabs[TAB_WEAPONS2].grid.drain(items);
+      Gdx.app.debug(TAG, "Dropping " + items);
+      // TODO: hide tab if empty
+
+      vendors.generate("akara", items, Riiablo.files.misc);
+      tabs[TAB_MISC].grid.drain(items);
+      // TODO: hide tab if empty
+    } catch (Throwable t) {
+      Gdx.app.error(TAG, t.getMessage(), t);
+    }
 
     setTab(TAB_MISC);
     setDebug(true, true);

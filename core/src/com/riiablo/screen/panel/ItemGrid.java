@@ -121,7 +121,7 @@ public class ItemGrid extends Group {
     }
   }
 
-  private StoredItem addItem(Item item) {
+  protected StoredItem addItem(Item item) {
     StoredItem store = new StoredItem(item);
     store.setPosition(item.gridX * boxWidth, getHeight() - item.gridY * boxHeight - store.getHeight());
     addActor(store);

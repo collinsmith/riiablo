@@ -437,6 +437,11 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
     return null;
   }
 
+  @SuppressWarnings("unchecked")
+  public Class<T> getEntryClass() {
+    return (Class<T>) getEntryClass(getClass());
+  }
+
   @CallSuper
   protected void put(int id, T value) {
     entries.put(id, value);

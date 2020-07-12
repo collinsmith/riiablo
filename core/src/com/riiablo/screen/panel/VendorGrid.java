@@ -3,6 +3,7 @@ package com.riiablo.screen.panel;
 import java.util.Comparator;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.codec.excel.Inventory;
@@ -28,26 +29,43 @@ public class VendorGrid extends ItemGrid {
     return false;
   }
 
-  public void sort(Array<Item> items) {
+  public static Array<Item> sort(Array<Item> items) {
     items.sort(ITEM_CODE_COMPARATOR);
-    Array<Item> placed = new Array<>(false, items.size, Item.class);
-    int x = 0, y = 0;
-    for (Item item : items) {
-      if (item.base.multibuy) {
-        placeMultibuyItem(x, y, item, placed);
+    return items;
+  }
+
+  public int drain(Array<Item> items) {
+    sort(items);
+    Gdx.app.debug(TAG, "Draining " + items);
+    GridPoint2 coords = new GridPoint2(0, 0);
+    Array<Item> placedItems = new Array<>(true, items.size, Item.class);
+    for (Array.ArrayIterator<Item> it = new Array.ArrayIterator<>(items); it.hasNext(); ) {
+      Item item = it.next();
+      coords.set(0, 0); // TODO: handle non-zero when switching below state
+      boolean placed = item.base.multibuy
+          ? placeMultibuyItem(coords, item, placedItems)
+          : placeItem(coords, item, placedItems);
+      if (placed) {
+        item.gridX = (byte) coords.x;
+        item.gridY = (byte) coords.y;
+        it.remove();
+        addItem(item);
+        placedItems.add(item);
+        Gdx.app.debug(TAG, "Placing " + item.code + " @ " + coords);
       } else {
-        placeItem(x, y, item, placed);
-//        x = item.gridX;
-//        y = item.gridY;
+        Gdx.app.debug(TAG, "Draining " + item.code);
       }
-      Gdx.app.debug(TAG, "Putting " + item.code + " at " + x + "," + y + "; multibuy: " + item.base.multibuy);
     }
+
+    return placedItems.size;
   }
 
   // y isn't used -- just for posterity in case it will be needed
-  private void placeItem(int x, int y, Item item, Array<Item> placed) {
+  private boolean placeItem(GridPoint2 coords, Item item, Array<Item> placed) {
     boolean contains = false;
     final Item[] items = placed.items;
+    int x = coords.x;
+    int y = coords.y;
 TopLevelSort:
     for (; x < width; x++) {
       for (y = 0; y < height; y++) {
@@ -63,14 +81,15 @@ TopLevelSort:
       }
     }
 
-    item.gridX = (byte) x;
-    item.gridY = (byte) y;
-    placed.add(item);
+    coords.set(x, y);
+    return x < width && y < height;
   }
 
-  private void placeMultibuyItem(int x, int y, Item item, Array<Item> placed) {
+  private boolean placeMultibuyItem(GridPoint2 coords, Item item, Array<Item> placed) {
     boolean contains = false;
     final Item[] items = placed.items;
+    int x = coords.x;
+    int y = coords.y;
 TopLevelSort:
     for (x = width - 1; x >= 0; x--) {
       for (y = 0; y < height; y++) {
@@ -86,8 +105,7 @@ TopLevelSort:
       }
     }
 
-    item.gridX = (byte) x;
-    item.gridY = (byte) y;
-    placed.add(item);
+    coords.set(x, y);
+    return x < width && y < height;
   }
 }
