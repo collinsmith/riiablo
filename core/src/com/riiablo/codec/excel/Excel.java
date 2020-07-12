@@ -215,6 +215,7 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
           TMP[0] = format;
           columns.put(field, in.getColumnId(TMP));
         } else {
+          // TODO: support custom replacement with field name %z or something
           String[] columnNames = new String[endIndex - startIndex];
           if (values.length == 0) {
             for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
