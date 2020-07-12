@@ -82,7 +82,9 @@ TopLevelSort:
     }
 
     coords.set(x, y);
-    return x < width && y < height;
+    if (contains) return false;
+    return x + item.base.invwidth  - 1 < width
+        && y + item.base.invheight - 1 < height;
   }
 
   private boolean placeMultibuyItem(GridPoint2 coords, Item item, Array<Item> placed) {
@@ -106,6 +108,8 @@ TopLevelSort:
     }
 
     coords.set(x, y);
-    return x < width && y < height;
+    if (contains) return false;
+    return x + item.base.invwidth  - 1 < width
+        && y + item.base.invheight - 1 < height;
   }
 }
