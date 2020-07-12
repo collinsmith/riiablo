@@ -35,6 +35,7 @@ public class VendorGrid extends ItemGrid {
   }
 
   public int drain(Array<Item> items) {
+    clearChildren();
     sort(items);
     Gdx.app.debug(TAG, "Draining " + items);
     GridPoint2 coords = new GridPoint2(0, 0);
