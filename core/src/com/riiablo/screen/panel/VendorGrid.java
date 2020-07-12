@@ -59,7 +59,7 @@ TopLevelSort:
           }
         }
 
-        if (!contains) break TopLevelSort;
+        if (!contains && y + item.base.invheight - 1 < height) break TopLevelSort;
       }
     }
 
@@ -82,7 +82,7 @@ TopLevelSort:
           }
         }
 
-        if (!contains) break TopLevelSort;
+        if (!contains && y + item.base.invheight - 1 < height) break TopLevelSort;
       }
     }
 
