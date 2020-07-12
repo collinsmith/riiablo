@@ -103,6 +103,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
       final LabelButton label = labels[i] = LabelButton.i18n(names[i], Riiablo.fonts.font16);
       label.setAlignment(Align.center);
       Tab tab = tabs[i];
+      tab.label = label;
       label.setPosition(tab.getX(), tab.getY());
       label.setSize(tab.getWidth(), tab.getHeight());
       label.setUserObject(tab);
@@ -247,21 +248,24 @@ public class VendorPanel extends WidgetGroup implements Disposable {
 
     Array<Item> items = new Array<>(Item.class);
     try {
+      int count;
       vendors.generate("akara", items, Riiablo.files.armor);
-      tabs[TAB_ARMOR].grid.drain(items);
-      // TODO: hide tab if empty
+      count = tabs[TAB_ARMOR].grid.drain(items);
+      if (count == 0) tabs[TAB_ARMOR].setVisible(false);
+      Gdx.app.debug(TAG, "Dropping " + items);
 
       vendors.generate("akara", items, Riiablo.files.weapons);
-      tabs[TAB_WEAPONS].grid.drain(items);
-      // TODO: hide tab if empty
+      count = tabs[TAB_WEAPONS].grid.drain(items);
+      if (count == 0) tabs[TAB_WEAPONS].setVisible(false);
 
-      tabs[TAB_WEAPONS2].grid.drain(items);
+      count = tabs[TAB_WEAPONS2].grid.drain(items);
+      if (count == 0) tabs[TAB_WEAPONS2].setVisible(false);
       Gdx.app.debug(TAG, "Dropping " + items);
-      // TODO: hide tab if empty
 
       vendors.generate("akara", items, Riiablo.files.misc);
-      tabs[TAB_MISC].grid.drain(items);
-      // TODO: hide tab if empty
+      count = tabs[TAB_MISC].grid.drain(items);
+      if (count == 0) tabs[TAB_MISC].setVisible(false);
+      Gdx.app.debug(TAG, "Dropping " + items);
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);
     }
@@ -332,6 +336,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     final TextureRegion[] modes;
     int mode;
 
+    Label label;
     VendorGrid grid;
 
     public Tab(TextureRegion active, TextureRegion inactive) {
@@ -340,6 +345,12 @@ public class VendorPanel extends WidgetGroup implements Disposable {
       modes[ACTIVE]   = active;
       modes[INACTIVE] = inactive;
       mode = INACTIVE;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+      super.setVisible(visible);
+      label.setVisible(visible);
     }
 
     public void setMode(int mode) {
