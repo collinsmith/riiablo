@@ -53,9 +53,8 @@ public class ItemTypes extends Excel<ItemTypes.Entry> {
     @Column public boolean Charm;
     @Column public boolean Gem;
     @Column public boolean Beltable;
-    @Column public int     MaxSock1;
-    @Column public int     MaxSock25;
-    @Column public int     MaxSock40;
+    @Column(format = "MaxSock%s", values = {"1", "25", "40"}, endIndex = 3)
+    public int     MaxSock[];
     @Column public int     TreasureClass;
     @Column public int     Rarity;
     @Column public String  StaffMods;
