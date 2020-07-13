@@ -40,11 +40,40 @@ public class Npc extends AI {
   static final IntSet GAMBLERS   = new IntSet();
   static final IntSet HIRERERS   = new IntSet();
   static {
+    // Act 1
     TALKERS.addAll(146, 147, 148, 150, 154, 155);
     REPAIRERS.addAll(154);
     TRADERS.addAll(147, 148, 154);
     GAMBLERS.addAll(147);
     HIRERERS.addAll(150);
+
+    // Act 2
+    TALKERS.addAll();
+    REPAIRERS.addAll();
+    TRADERS.addAll();
+    GAMBLERS.addAll();
+    HIRERERS.addAll();
+
+    // Act 3
+    TALKERS.addAll();
+    REPAIRERS.addAll();
+    TRADERS.addAll();
+    GAMBLERS.addAll();
+    HIRERERS.addAll();
+
+    // Act 4
+    TALKERS.addAll();
+    REPAIRERS.addAll();
+    TRADERS.addAll();
+    GAMBLERS.addAll();
+    HIRERERS.addAll();
+
+    // Act 5
+    TALKERS.addAll();
+    REPAIRERS.addAll();
+    TRADERS.addAll();
+    GAMBLERS.addAll();
+    HIRERERS.addAll();
   }
 
   protected ComponentMapper<MenuWrapper> mMenuWrapper;
