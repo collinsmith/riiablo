@@ -51,6 +51,8 @@ import com.riiablo.engine.server.ServerItemManager;
 import com.riiablo.engine.server.ServerNetworkIdManager;
 import com.riiablo.engine.server.VelocityAdder;
 import com.riiablo.engine.server.WarpInteractor;
+import com.riiablo.item.ItemGenerator;
+import com.riiablo.item.VendorGenerator;
 import com.riiablo.map.Act1MapBuilder;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
@@ -207,10 +209,12 @@ public class Main extends ApplicationAdapter {
         .with(new SerializationManager())
         .with(mapManager)
         .with(itemManager)
+        .with(new ItemGenerator())
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
 
+        .with(new VendorGenerator())
         .with(new AIStepper())
         .with(new Pathfinder())
 

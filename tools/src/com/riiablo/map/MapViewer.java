@@ -79,6 +79,8 @@ import com.riiablo.engine.server.component.Classname;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.item.ItemGenerator;
+import com.riiablo.item.VendorGenerator;
 import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DC6Loader;
@@ -207,6 +209,8 @@ public class MapViewer extends ApplicationAdapter {
         .with(new TagManager())
         .with(mapManager)
         .with(new ItemManager())
+        .with(new ItemGenerator()) // TODO: remove when support for inventory component added
+        .with(new VendorGenerator()) // TODO: remove when support for inventory component added
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())

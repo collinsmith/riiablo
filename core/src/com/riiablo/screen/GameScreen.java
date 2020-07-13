@@ -103,6 +103,8 @@ import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.engine.server.event.ZoneChangeEvent;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
 import com.riiablo.item.Item;
+import com.riiablo.item.ItemGenerator;
+import com.riiablo.item.VendorGenerator;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.map.Act1MapBuilder;
@@ -567,6 +569,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
       builder.with(new CursorMovementSystem());
     }
     if (socket == null) {
+      builder.with(new ItemGenerator());
+      builder.with(new VendorGenerator());
       builder.with(new AIStepper());
     }
     builder

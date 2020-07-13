@@ -7,17 +7,24 @@ import net.mostlyoriginal.api.system.core.PassiveSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
+import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Excel;
 import com.riiablo.codec.excel.ItemEntry;
 
 public class VendorGenerator extends PassiveSystem {
-  public ItemGenerator generator;
+  protected ItemGenerator generator;
+
+  public Array<Item> generate(String vendor) throws Exception {
+    Array<Item> items = new Array<>(true, 64, Item.class);
+    generate(vendor, items, Riiablo.files.armor);
+    generate(vendor, items, Riiablo.files.weapons);
+    generate(vendor, items, Riiablo.files.misc);
+    return items;
+  }
 
   public void generate(String vendor, Array<Item> items, Excel<? extends ItemEntry> excel) throws Exception {
     Class<? extends ItemEntry> entryClass = excel.getEntryClass();
     Field field = entryClass.getField(vendor);
-
-    items.clear();
     for (ItemEntry base : excel) {
       int[] vendorData = (int[]) field.get(base);
       if (vendorData[1] > 0) {

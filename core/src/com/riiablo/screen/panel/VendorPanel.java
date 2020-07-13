@@ -20,9 +20,7 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.item.Item;
-import com.riiablo.item.ItemGenerator;
 import com.riiablo.item.Stat;
-import com.riiablo.item.VendorGenerator;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
@@ -242,35 +240,6 @@ public class VendorPanel extends WidgetGroup implements Disposable {
       addActor(grid);
     }
 
-    ItemGenerator generator = new ItemGenerator();
-    VendorGenerator vendors = new VendorGenerator();
-    vendors.generator = generator;
-
-    Array<Item> items = new Array<>(Item.class);
-    try {
-      int count;
-      vendors.generate("akara", items, Riiablo.files.armor);
-      count = tabs[TAB_ARMOR].grid.drain(items);
-      if (count == 0) tabs[TAB_ARMOR].setVisible(false);
-      Gdx.app.debug(TAG, "Dropping " + items);
-
-      vendors.generate("akara", items, Riiablo.files.weapons);
-      count = tabs[TAB_WEAPONS].grid.drain(items);
-      if (count == 0) tabs[TAB_WEAPONS].setVisible(false);
-
-      count = tabs[TAB_WEAPONS2].grid.drain(items);
-      if (count == 0) tabs[TAB_WEAPONS2].setVisible(false);
-      Gdx.app.debug(TAG, "Dropping " + items);
-
-      vendors.generate("akara", items, Riiablo.files.misc);
-      count = tabs[TAB_MISC].grid.drain(items);
-      if (count == 0) tabs[TAB_MISC].setVisible(false);
-      Gdx.app.debug(TAG, "Dropping " + items);
-    } catch (Throwable t) {
-      Gdx.app.error(TAG, t.getMessage(), t);
-    }
-
-    setTab(TAB_MISC);
     setDebug(true, true);
   }
 
@@ -305,7 +274,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     }
   }
 
-  public void config(int flags) {
+  public void config(int flags, Array<Item> items) {
     buttonGroup.uncheckAll();
     btnBuy.setVisible((flags & BUY) == BUY);
     btnSell.setVisible((flags & SELL) == SELL);
@@ -315,6 +284,43 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     for (int i = 0; i < btnBlank.length; i++) {
       btnBlank[i].setVisible((flags & BLANK_MASKS[i]) == 0);
     }
+
+    // TODO: supply cleaner API grid.drain(items, "misc") or similar
+    Array<Item> tmp = new Array<>(true, items.size, Item.class);
+    try {
+      int count;
+      collect(items, tmp, "armo");
+      count = tabs[TAB_ARMOR].grid.drain(tmp);
+      tabs[TAB_ARMOR].setVisible(count > 0);
+      Gdx.app.debug(TAG, "Dropping " + tmp);
+
+      collect(items, tmp, "weap");
+      count = tabs[TAB_WEAPONS].grid.drain(tmp);
+      tabs[TAB_WEAPONS].setVisible(count > 0);
+
+      count = tabs[TAB_WEAPONS2].grid.drain(tmp);
+      tabs[TAB_WEAPONS2].setVisible(count > 0);
+      Gdx.app.debug(TAG, "Dropping " + tmp);
+
+      collect(items, tmp, "misc");
+      count = tabs[TAB_MISC].grid.drain(tmp);
+      tabs[TAB_MISC].setVisible(count > 0);
+      Gdx.app.debug(TAG, "Dropping " + tmp);
+    } catch (Throwable t) {
+      Gdx.app.error(TAG, t.getMessage(), t);
+    }
+
+    setTab(TAB_MISC);
+  }
+
+  private static Array<Item> collect(Array<Item> items, Array<Item> to, String page) {
+    to.clear();
+    for (Item item : items) {
+      if (item.typeEntry.StorePage.equalsIgnoreCase(page)) {
+        to.add(item);
+      }
+    }
+    return to;
   }
 
   void setTab(Tab tab) {

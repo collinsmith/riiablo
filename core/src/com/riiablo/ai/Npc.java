@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
 
 import com.riiablo.Riiablo;
@@ -23,6 +24,8 @@ import com.riiablo.engine.server.component.MenuWrapper;
 import com.riiablo.engine.server.component.PathWrapper;
 import com.riiablo.engine.server.component.Pathfind;
 import com.riiablo.engine.server.event.NpcInteractionEvent;
+import com.riiablo.item.Item;
+import com.riiablo.item.VendorGenerator;
 import com.riiablo.map.DS1;
 import com.riiablo.screen.panel.VendorPanel;
 import com.riiablo.widget.NpcDialogBox;
@@ -59,6 +62,8 @@ public class Npc extends AI {
 
   String name;
   MonStats.Entry monstats;
+
+  protected VendorGenerator vendors;
 
   public Npc(int entityId) {
     super(entityId);
@@ -116,7 +121,15 @@ public class Npc extends AI {
       menu.addItem(3334, new ClickListener() { // trade/repair
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          Riiablo.game.vendorPanel.config(VendorPanel.SMITHY);
+          // TODO: create inventory component
+          Array<Item> items;
+          try {
+            items = vendors.generate(monstats.Id);
+          } catch (Throwable t) {
+            items = new Array<>(false, 0, Item.class);
+            Gdx.app.error(TAG, t.getMessage(), t);
+          }
+          Riiablo.game.vendorPanel.config(VendorPanel.SMITHY, items);
           Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
         }
       });
@@ -124,7 +137,15 @@ public class Npc extends AI {
       menu.addItem(3396, new ClickListener() { // trade
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          Riiablo.game.vendorPanel.config(VendorPanel.TRADER);
+          // TODO: create inventory component
+          Array<Item> items;
+          try {
+            items = vendors.generate(monstats.Id);
+          } catch (Throwable t) {
+            items = new Array<>(false, 0, Item.class);
+            Gdx.app.error(TAG, t.getMessage(), t);
+          }
+          Riiablo.game.vendorPanel.config(VendorPanel.TRADER, items);
           Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
         }
       });
@@ -138,7 +159,8 @@ public class Npc extends AI {
       menu.addItem(3398, new ClickListener() { // gamble
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          Riiablo.game.vendorPanel.config(VendorPanel.GAMBLER);
+          // TODO: generate special gamble inventory each time
+          Riiablo.game.vendorPanel.config(VendorPanel.GAMBLER, new Array<Item>(false, 0, Item.class));
           Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
         }
       });
