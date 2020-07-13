@@ -240,7 +240,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
       addActor(grid);
     }
 
-    setDebug(true, true);
+    //setDebug(true, true);
   }
 
   @Override
