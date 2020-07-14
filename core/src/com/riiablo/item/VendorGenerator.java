@@ -31,6 +31,7 @@ public class VendorGenerator extends PassiveSystem {
         int count = base.PermStoreItem ? 1 : MathUtils.random(vendorData[0], vendorData[1]);
         for (int i = 0; i < count; i++) {
           Item item = generator.generate(base);
+          item.flags |= Item.INSTORE;
           item.load();
           items.add(item);
         }
@@ -39,6 +40,7 @@ public class VendorGenerator extends PassiveSystem {
         int count = base.PermStoreItem ? 1 : MathUtils.random(vendorData[2], vendorData[3]);
         for (int i = 0; i < count; i++) {
           Item item = generator.generate(base);
+          item.flags |= Item.INSTORE;
           item.load();
           item.quality = Quality.MAGIC;
           items.add(item);

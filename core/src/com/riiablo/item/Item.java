@@ -967,6 +967,9 @@ public class Item extends Actor implements Disposable {
       if (Item.this.type.is(Type.RUNE))
         name.setColor(Riiablo.colors.orange);
 
+      if ((Item.this.flags & INSTORE) == INSTORE) {
+        add(new Label(Riiablo.string.lookup("cost") + 0, font, name.getColor())).center().space(SPACING).row();
+      }
       add(name).center().space(SPACING).row();
       if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
         add(type).center().space(SPACING).row();
