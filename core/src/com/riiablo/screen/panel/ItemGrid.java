@@ -287,6 +287,10 @@ public class ItemGrid extends Group {
       addListener(clickListener = new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
+          if ((item.flags & Item.INSTORE) == Item.INSTORE) {
+            event.handle();
+            return;
+          }
           if (itemData.getCursor() == null) {
             onPickup(StoredItem.this.item);
             removeActor(StoredItem.this);
@@ -299,6 +303,10 @@ public class ItemGrid extends Group {
       addListener(new ClickListener(Input.Buttons.RIGHT) {
         @Override
         public void clicked(InputEvent event, float x, float y) {
+          if ((item.flags & Item.INSTORE) == Item.INSTORE) {
+            event.handle();
+            return;
+          }
           ItemEntry entry = StoredItem.this.item.base;
           if (entry.useable) {
             Riiablo.audio.play(StoredItem.this.item.getUseSound(), true);
