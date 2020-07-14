@@ -60,7 +60,7 @@ public class Item extends Actor implements Disposable {
   static final int VERSION_110e = 101;
   static final int VERSION_200e = 200; // Riiablo
 
-  public static final int QUEST      = 0x00000001; // Unconfirmed is equipped
+//public static final int U00000001  = 0x00000001;
 //public static final int U00000002  = 0x00000002;
 //public static final int U00000004  = 0x00000004;
 //public static final int U00000008  = 0x00000008; // Unconfirmed is in socket -- SOCKETED -> has sockets
@@ -591,7 +591,6 @@ public class Item extends Actor implements Disposable {
 
   private String getFlagsString() {
     StringBuilder builder = new StringBuilder();
-    if ((flags & QUEST     ) == QUEST     ) builder.append("QUEST"     ).append('|');
     if ((flags & IDENTIFIED) == IDENTIFIED) builder.append("IDENTIFIED").append('|');
     if ((flags & SOCKETED  ) == SOCKETED  ) builder.append("SOCKETED"  ).append('|');
     if ((flags & EAR       ) == EAR       ) builder.append("EAR"       ).append('|');
