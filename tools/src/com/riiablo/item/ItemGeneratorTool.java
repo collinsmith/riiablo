@@ -42,7 +42,7 @@ public class ItemGeneratorTool extends ApplicationAdapter {
     int numItems = 5;
     String type = "sst";
     for (int i = 0; i < numItems; i++) {
-      Item item = generator.generate("sst");
+      Item item = generator.generate(type);
       Gdx.app.log(TAG, ObjectUtils.toString(item));
     }
 
