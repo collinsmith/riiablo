@@ -286,7 +286,7 @@ public class ItemData {
 
     IntArray inventoryItems = getStore(StoreLoc.INVENTORY);
     cache = inventoryItems.items;
-    for (int i = 0, s = cache.length, j; i < s; i++) {
+    for (int i = 0, s = inventoryItems.size, j; i < s; i++) {
       j = cache[i];
       if (j == INVALID_ITEM) continue;
       Item item = itemData.get(j);
