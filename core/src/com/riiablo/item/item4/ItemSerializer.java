@@ -125,7 +125,7 @@ public class ItemSerializer {
       case RARE:
       case CRAFTED:
         item.qualityId = bitStream.readUnsigned31OrLess(2 * Item.RARE_AFFIX_SIZE); // 8 for prefix, 8 for suffix
-        item.qualityData = new Item.RareQualityData(bitStream);
+        item.qualityData = new RareQualityData(bitStream);
         return true;
 
       default:
