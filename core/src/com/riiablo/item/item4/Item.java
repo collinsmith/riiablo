@@ -36,6 +36,8 @@ public class Item {
   private static final boolean SIMPLE_FLAGS = false;
   private static final boolean ONLY_KNOWN_FLAGS = SIMPLE_FLAGS && true;
 
+  public static final float ETHEREAL_ALPHA = 2 / 3f;
+
   public static final int VERSION_100  = 0;
   public static final int VERSION_108  = 1;
   public static final int VERSION_110  = 2;
