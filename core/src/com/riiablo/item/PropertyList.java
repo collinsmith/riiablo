@@ -1,15 +1,16 @@
 package com.riiablo.item;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.Properties;
 import com.riiablo.codec.util.BitStream;
-
-import java.util.Iterator;
 
 public class PropertyList implements Iterable<Stat> {
   private static final String TAG = "PropertyList";
@@ -27,6 +28,10 @@ public class PropertyList implements Iterable<Stat> {
   private static final int[] MAXDMG2     = {Stat.maxdamage, Stat.secondary_maxdamage, Stat.item_throw_maxdamage};
 
   final IntMap<Stat> props = new IntMap<>();
+
+  public static PropertyList obtain() {
+    return new PropertyList();
+  }
 
   PropertyList() {}
 
