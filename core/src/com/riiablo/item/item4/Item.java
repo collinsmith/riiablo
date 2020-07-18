@@ -249,6 +249,14 @@ public class Item {
     return (flags & flag) == flag;
   }
 
+  public boolean isIdentified() {
+    return hasFlag(ITEMFLAG_IDENTIFIED);
+  }
+
+  public boolean isEthereal() {
+    return hasFlag(ITEMFLAG_ETHEREAL);
+  }
+
   @SuppressWarnings("unchecked")
   public <T extends ItemEntry> T getBase() {
     return (T) base;
