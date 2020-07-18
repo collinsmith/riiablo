@@ -16,7 +16,6 @@ import com.riiablo.codec.excel.ItemTypes;
 import com.riiablo.codec.excel.MagicAffix;
 import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.Weapons;
-import com.riiablo.codec.util.BitStream;
 import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Location;
@@ -490,41 +489,5 @@ public class Item {
       }
     }
     return builder.build();
-  }
-
-  static class RareQualityData {
-    static final int NUM_AFFIXES = 3;
-    int[] prefixes, suffixes;
-    RareQualityData(BitStream bitStream) {
-      prefixes = new int[NUM_AFFIXES];
-      suffixes = new int[NUM_AFFIXES];
-      for (int i = 0; i < NUM_AFFIXES; i++) {
-        prefixes[i] = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(MAGIC_AFFIX_SIZE) : 0;
-        suffixes[i] = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(MAGIC_AFFIX_SIZE) : 0;
-      }
-    }
-
-    @Override
-    public String toString() {
-      return new ToStringBuilder(this)
-          .append("prefixes", prefixes)
-          .append("suffixes", suffixes)
-          .build();
-    }
-  }
-
-  static class RunewordData {
-    static final int RUNEWORD_ID_SHIFT    = 0;
-    static final int RUNEWORD_ID_MASK     = 0xFFF << RUNEWORD_ID_SHIFT;
-    static final int RUNEWORD_EXTRA_SHIFT = 12;
-    static final int RUNEWORD_EXTRA_MASK  = 0xF << RUNEWORD_EXTRA_SHIFT;
-
-    static int id(int pack) {
-      return (pack & RUNEWORD_ID_MASK) >>> RUNEWORD_ID_SHIFT;
-    }
-
-    static int extra(int pack) {
-      return (pack & RUNEWORD_EXTRA_MASK) >>> RUNEWORD_EXTRA_SHIFT;
-    }
   }
 }
