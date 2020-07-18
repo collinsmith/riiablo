@@ -160,7 +160,7 @@ public class ItemSerializer {
   }
 
   private static boolean readSockets(BitStream bitStream, Item item) {
-    boolean hasSockets = (item.flags * Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED
+    boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED
         && (item.type.is(Type.ARMO) || item.type.is(Type.WEAP));
     if (hasSockets) {
       int item_numsockets = item.attrs.base().read(Stat.item_numsockets, bitStream);

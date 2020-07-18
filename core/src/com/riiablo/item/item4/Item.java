@@ -402,6 +402,18 @@ public class Item {
           .append("storeLoc", storeLoc)
           .append("gridX", gridX)
           .append("gridY", gridY)
+          .append("socketsFilled", socketsFilled)
+          .append("id", String.format("0x%08X", (int) id))
+          .append("ilvl", ilvl)
+          .append("quality", quality)
+          .append("pictureId", pictureId)
+          .append("classOnly", String.format("0x%04X", classOnly))
+          .append("qualityId", String.format("0x%08X", qualityId))
+          .append("qualityData", qualityData)
+          .append("runewordData", String.format("0x%04X", runewordData))
+          .append("inscription", inscription)
+          .append("sockets", sockets)
+          .append("attrs", Arrays.toString(stats))
           ;
     } else {
       builder.append("location", location);
