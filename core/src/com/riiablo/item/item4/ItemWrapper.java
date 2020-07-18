@@ -42,7 +42,6 @@ public class ItemWrapper extends Actor implements Disposable {
     setSize(item.base.invwidth * inv.gridBoxWidth, item.base.invheight * inv.gridBoxHeight);
   }
 
-
   public void load() {
     if (invFileDescriptor != null) return;
     invFileDescriptor = new AssetDescriptor<>("data\\global\\items\\" + ItemUtils.getInvFileName(item) + '.' + DC6.EXT, DC6.class);
@@ -84,6 +83,6 @@ public class ItemWrapper extends Actor implements Disposable {
 
   @Override
   public void dispose() {
-
+    Riiablo.assets.unload(invFileDescriptor.fileName);
   }
 }
