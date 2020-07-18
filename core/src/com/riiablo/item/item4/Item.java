@@ -3,13 +3,10 @@ package com.riiablo.item.item4;
 import java.util.Arrays;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.Riiablo;
-import com.riiablo.codec.DC6;
-import com.riiablo.codec.Index;
 import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.ItemEntry;
 import com.riiablo.codec.excel.ItemTypes;
@@ -155,14 +152,6 @@ public class Item {
 
   String name; // cache?
   Table header; // needed?
-
-  // Cursor and 2d image stuff
-  AssetDescriptor<DC6> invFileDescriptor;
-  DC6 invFile;
-  Index invColormap;
-  int invColorIndex;
-  Index charColormap;
-  int charColorIndex;
 
   Item() {}
 
