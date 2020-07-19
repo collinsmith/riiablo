@@ -12,6 +12,8 @@ import com.riiablo.codec.excel.ItemEntry;
 import com.riiablo.codec.excel.ItemTypes;
 import com.riiablo.codec.excel.MagicAffix;
 import com.riiablo.codec.excel.Misc;
+import com.riiablo.codec.excel.SetItems;
+import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
@@ -27,9 +29,9 @@ public class Item {
   private static final String TAG = "Item";
 
   private static final boolean DEBUG = true;
-  private static final boolean DEBUG_VERBOSE = DEBUG && true;
+  private static final boolean DEBUG_VERBOSE = DEBUG && !true;
 
-  private static final boolean SIMPLE_FLAGS = false;
+  private static final boolean SIMPLE_FLAGS = !true;
   private static final boolean ONLY_KNOWN_FLAGS = SIMPLE_FLAGS && true;
 
   public static final float ETHEREAL_ALPHA = 2 / 3f;
@@ -147,8 +149,8 @@ public class Item {
   public int     runewordData;
   public String  inscription;
 
-  Attributes   attrs;
-  PropertyList stats[];
+  public Attributes   attrs;
+  public PropertyList stats[];
 
   String name; // cache?
   Table header; // needed?
@@ -266,6 +268,162 @@ public class Item {
       assert base instanceof Misc.Entry;
       return ItemEntryType.MISC;
     }
+  }
+
+  public String getInvFileName() {
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (!setItem.invfile.isEmpty()) return setItem.invfile;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (!uniqueItem.invfile.isEmpty()) return uniqueItem.invfile;
+          break;
+        default:
+          // do nothing
+      }
+    }
+
+    return pictureId >= 0 ? typeEntry.InvGfx[pictureId] : base.invfile;
+  }
+
+  public String getInvColor() {
+    if (base.InvTrans == 0 || !isIdentified()) return null;
+    switch (quality) {
+      case MAGIC: {
+        MagicAffix affix;
+        int prefix = qualityId & Item.MAGIC_AFFIX_MASK;
+        if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null && affix.transform)
+          return affix.transformcolor;
+        int suffix = qualityId >>> Item.MAGIC_AFFIX_SIZE;
+        if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null && affix.transform)
+          return affix.transformcolor;
+        return null;
+      }
+
+      case RARE:
+      case CRAFTED: {
+        MagicAffix affix;
+        RareQualityData rareQualityData = (RareQualityData) qualityData;
+        for (int i = 0; i < RareQualityData.NUM_AFFIXES; i++) {
+          int prefix = rareQualityData.prefixes[i];
+          if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null && affix.transform)
+            return affix.transformcolor;
+          int suffix = rareQualityData.suffixes[i];
+          if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null && affix.transform)
+            return affix.transformcolor;
+        }
+        return null;
+      }
+
+      case SET:
+        return ((SetItems.Entry) qualityData).invtransform;
+
+      case UNIQUE:
+        return ((UniqueItems.Entry) qualityData).invtransform;
+
+      default:
+        return null;
+    }
+  }
+
+  public String getCharColor() {
+    if (base.Transform == 0 || !isIdentified()) return null;
+    switch (quality) {
+      case MAGIC: {
+        MagicAffix affix;
+        int prefix = qualityId & Item.MAGIC_AFFIX_MASK;
+        if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null && affix.transform)
+          return affix.transformcolor;
+        int suffix = qualityId >>> Item.MAGIC_AFFIX_SIZE;
+        if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null && affix.transform)
+          return affix.transformcolor;
+        return null;
+      }
+
+      case RARE:
+      case CRAFTED: {
+        MagicAffix affix;
+        RareQualityData rareQualityData = (RareQualityData) qualityData;
+        for (int i = 0; i < RareQualityData.NUM_AFFIXES; i++) {
+          int prefix = rareQualityData.prefixes[i];
+          if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null && affix.transform)
+            return affix.transformcolor;
+          int suffix = rareQualityData.suffixes[i];
+          if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null && affix.transform)
+            return affix.transformcolor;
+        }
+        return null;
+      }
+
+      case SET:
+        return ((SetItems.Entry) qualityData).chrtransform;
+
+      case UNIQUE:
+        return ((UniqueItems.Entry) qualityData).chrtransform;
+
+      default:
+        return null;
+    }
+  }
+
+  public int getDropFxFrame() {
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (setItem.dropsfxframe > 0) return setItem.dropsfxframe;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (uniqueItem.dropsfxframe > 0) return uniqueItem.dropsfxframe;
+          break;
+        default:
+          // do nothing
+      }
+    }
+
+    return base.dropsfxframe;
+  }
+
+  public String getDropSound() {
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (!setItem.dropsound.isEmpty()) return setItem.dropsound;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (!uniqueItem.dropsound.isEmpty()) return uniqueItem.dropsound;
+          break;
+        default:
+          // do nothing
+      }
+    }
+
+    return base.dropsound;
+  }
+
+  public String getUseSound() {
+    if (isIdentified()) {
+      switch (quality) {
+        case SET:
+          SetItems.Entry setItem = (SetItems.Entry) qualityData;
+          if (!setItem.usesound.isEmpty()) return setItem.usesound;
+          break;
+        case UNIQUE:
+          UniqueItems.Entry uniqueItem = (UniqueItems.Entry) qualityData;
+          if (!uniqueItem.usesound.isEmpty()) return uniqueItem.usesound;
+          break;
+        default:
+          // do nothing
+      }
+    }
+
+    return base.usesound;
   }
 
   private String getFlagsString() {

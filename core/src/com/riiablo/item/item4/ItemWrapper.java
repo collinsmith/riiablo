@@ -44,16 +44,16 @@ public class ItemWrapper extends Actor implements Disposable {
 
   public void load() {
     if (invFileDescriptor != null) return;
-    invFileDescriptor = new AssetDescriptor<>("data\\global\\items\\" + ItemUtils.getInvFileName(item) + '.' + DC6.EXT, DC6.class);
+    invFileDescriptor = new AssetDescriptor<>("data\\global\\items\\" + item.getInvFileName() + '.' + DC6.EXT, DC6.class);
     Riiablo.assets.load(invFileDescriptor);
     checkLoaded();
 
     invColormap      = Riiablo.colormaps.get(item.base.InvTrans);
-    String invColor  = ItemUtils.getInvColor(item);
+    String invColor  = item.getInvColor();
     invColorIndex    = invColor != null ? Riiablo.files.colors.index(invColor) + 1 : 0;
 
     charColormap     = Riiablo.colormaps.get(item.base.Transform);
-    String charColor = ItemUtils.getCharColor(item);
+    String charColor = item.getCharColor();
     charColorIndex   = charColor != null ? Riiablo.files.colors.index(charColor) + 1 : 0;
 
     // TODO: load images of socketed items
