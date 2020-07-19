@@ -1,4 +1,4 @@
-package com.riiablo.item.item4;
+package com.riiablo.item;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -16,15 +16,15 @@ public class ItemWrapper extends Actor implements Disposable {
   final Item item;
 
   AssetDescriptor<DC6> invFileDescriptor;
-  DC6   invFile;
+  public DC6   invFile;
 
-  Index invColormap;
-  int   invColorIndex;
+  public Index invColormap;
+  public int   invColorIndex;
 
-  Index charColormap;
-  int   charColorIndex;
+  public Index charColormap;
+  public int   charColorIndex;
 
-  private ItemWrapper(Item item) {
+  ItemWrapper(Item item) {
     this.item = item;
   }
 

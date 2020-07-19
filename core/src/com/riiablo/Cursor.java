@@ -158,7 +158,7 @@ public class Cursor implements ItemData.LocationListener {
 
     this.item = item;
     if (item != null) {
-      setCursor(item.invFile, item.invColormap, item.invColorIndex);
+      setCursor(item.wrapper.invFile, item.wrapper.invColormap, item.wrapper.invColorIndex);
     } else {
       resetCursor();
     }
@@ -166,8 +166,8 @@ public class Cursor implements ItemData.LocationListener {
 
   public void act(float delta) {
     if (dc == null) cursorAnim.update(delta);
-    if (dc == null && item != null && item.checkLoaded()) {
-      setCursor(item.invFile, item.invColormap, item.invColorIndex);
+    if (dc == null && item != null && item.wrapper.checkLoaded()) {
+      setCursor(item.wrapper.invFile, item.wrapper.invColormap, item.wrapper.invColorIndex);
     }
   }
 

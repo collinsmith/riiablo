@@ -415,9 +415,9 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
       }
 
       // FIXME: Alt images on weapons are slightly off by maybe a pixel or so (rounding?) -- backgrounds fine
-      if (item != null && item.checkLoaded()) {
-        BBox box = item.invFile.getBox();
-        item.setPosition(
+      if (item != null && item.wrapper.checkLoaded()) {
+        BBox box = item.wrapper.invFile.getBox();
+        item.wrapper.setPosition(
             getX() + getWidth()  / 2 - box.width  / 2f + x,
             getY() + getHeight() / 2 - box.height / 2f + y);
         item.draw(b, 1);

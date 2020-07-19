@@ -4,6 +4,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC6;
@@ -42,7 +43,7 @@ public class ItemLoader extends IteratingSystem {
 
     Animation animation = mAnimationWrapper.create(entityId).animation;
     animation.edit()
-        .layer(flippy, BlendMode.ID, (byte) ((item.item.base.Transform << 5) | (item.item.charColorIndex & 0x1F)))
+        .layer(flippy, BlendMode.ID, (byte) ((item.item.base.Transform << 5) | (item.item.wrapper.charColorIndex & 0x1F)))
         .build();
     animation.setMode(Animation.Mode.CLAMP);
 
@@ -60,7 +61,7 @@ public class ItemLoader extends IteratingSystem {
 
     Label label = mLabel.create(entityId);
     label.offset.set(box.xMin + box.width / 2, -box.yMax + box.height);
-    label.actor = item.item.details().header;
+    label.actor = item.item.header();
     label.actor.setUserObject(entityId);
   }
 }

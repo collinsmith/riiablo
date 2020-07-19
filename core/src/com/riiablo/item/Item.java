@@ -3,165 +3,149 @@ package com.riiablo.item;
 import java.util.Arrays;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
-import com.badlogic.gdx.utils.ObjectMap;
 
-import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
-import com.riiablo.codec.DC6;
-import com.riiablo.codec.Index;
-import com.riiablo.codec.StringTBL;
 import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.CharStats;
-import com.riiablo.codec.excel.Gems;
-import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
 import com.riiablo.codec.excel.ItemTypes;
 import com.riiablo.codec.excel.MagicAffix;
 import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.SetItems;
-import com.riiablo.codec.excel.Sets;
 import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
-import com.riiablo.codec.util.BBox;
 import com.riiablo.codec.util.BitStream;
-import com.riiablo.graphics.PaletteIndexedBatch;
-import com.riiablo.graphics.PaletteIndexedColorDrawable;
-import com.riiablo.widget.Label;
 
-import static com.riiablo.item.Location.EQUIPPED;
-import static com.riiablo.item.Quality.SET;
-
-public class Item extends Actor implements Disposable {
+public class Item {
   private static final String TAG = "Item";
+
   private static final boolean DEBUG = true;
   private static final boolean DEBUG_VERBOSE = DEBUG && !true;
 
-  public static final float ETHEREAL_ALPHA = 0.667f;
+  private static final boolean SIMPLE_FLAGS = !true;
+  private static final boolean ONLY_KNOWN_FLAGS = SIMPLE_FLAGS && true;
 
-  private static final int MAGIC_AFFIX_SIZE = 11;
-  private static final int MAGIC_AFFIX_MASK = 0x7FF;
-  private static final int RARE_AFFIX_SIZE = 8;
-  private static final int RARE_AFFIX_MASK = 0xFF;
+  private static final ItemSerializer DEFAULT_SERIALIZER = new ItemSerializer();
+  private static final ItemLabeler DEFAULT_LABELER = new ItemLabeler();
 
-  static final int VERSION_100  = 0;
-  static final int VERSION_108  = 1;
-  static final int VERSION_110  = 2;
-  static final int VERSION_108e = 100;
-  static final int VERSION_110e = 101;
-  static final int VERSION_200e = 200; // Riiablo
+  public static Item loadFromStream(BitStream bitStream) {
+    return DEFAULT_SERIALIZER.read(bitStream);
+  }
 
-//public static final int U00000001  = 0x00000001;
-//public static final int U00000002  = 0x00000002;
-//public static final int U00000004  = 0x00000004;
-//public static final int U00000008  = 0x00000008; // Unconfirmed is in socket -- SOCKETED -> has sockets
-  public static final int IDENTIFIED = 0x00000010;
-//public static final int U00000020  = 0x00000020;
-  public static final int SWITCHIN   = 0x00000040; // Unconfirmed a weapon switch command was performed, and this item is now being used
-  public static final int SWITCHOUT  = 0x00000080; // Unconfirmed a weapon switch command was performed, and this item is no longer being used
-  public static final int BROKEN     = 0x00000100; // Unconfirmed (0 durability?)
-//public static final int U00000200  = 0x00000200;
-//public static final int POTION     = 0x00000400; // Unconfirmed: only seen set for full rejuvs for now
-  public static final int SOCKETED   = 0x00000800;
-//public static final int U00001000  = 0x00001000;
-  public static final int INSTORE    = 0x00002000; // Unconfirmed (must be bought)
-//public static final int U00008000  = 0x00004000; // Unconfirmed: 0 if in socket, 0 if in belt, 0 if equipped or equipped by merc, 0 for gems/charms/..
-  public static final int EAR        = 0x00010000;
-  public static final int STARTER    = 0x00020000;
-//public static final int U00040000  = 0x00040000;
-//public static final int U00080000  = 0x00080000;
-//public static final int U00100000  = 0x00100000;
-  public static final int COMPACT    = 0x00200000;
-  public static final int ETHEREAL   = 0x00400000;
-//public static final int U00800000  = 0x00800000; // Unconfirmed: was set for all items tested (tested in inv, stash, store)
-  public static final int INSCRIBED  = 0x01000000;
-  public static final int RUNEWORD   = 0x04000000;
-//public static final int U08000000  = 0x08000000;
+  public static final float ETHEREAL_ALPHA = 2 / 3f;
 
-  private static final int MAGIC_PROPS = 0;
-  private static final int SET_PROPS   = 1;
-  private static final int RUNE_PROPS  = 6;
-  private static final int NUM_PROPS   = 7;
-  private static final int MAGIC_PROPS_FLAG = 1 << MAGIC_PROPS;
-  private static final int SET_2_PROPS_FLAG = 1 << SET_PROPS + 0;
-  private static final int SET_3_PROPS_FLAG = 1 << SET_PROPS + 1;
-  private static final int SET_4_PROPS_FLAG = 1 << SET_PROPS + 2;
-  private static final int SET_5_PROPS_FLAG = 1 << SET_PROPS + 3;
-  private static final int SET_6_PROPS_FLAG = 1 << SET_PROPS + 4;
-  private static final int RUNE_PROPS_FLAG  = 1 << RUNE_PROPS;
+  public static final int VERSION_100  = 0;
+  public static final int VERSION_108  = 1;
+  public static final int VERSION_110  = 2;
+  public static final int VERSION_108e = 100;
+  public static final int VERSION_110e = 101;
+  public static final int VERSION_200e = 200; // Riiablo
 
-  private static final int WEAPON_PROPS  = 0;
-  private static final int ARMOR_PROPS   = 1;
-  private static final int SHIELD_PROPS  = 2;
-  private static final int NUM_GEM_PROPS = 3;
+  // TODO: Research the unconfirmed flags (prefixed with an extra '_')
+  //       Copied from another project -- appears many flags are not in the save files
+  //       It's probably safe to re-purpose unused flags for this project during runtime, but some
+  //         of these may indicate flags that will be needed down the line.
+  public static final int ITEMFLAG__RELOAD     = 0x00000001; // Note: Updates client side stats
+  public static final int ITEMFLAG__BOUGHT     = 0x00000002;
+  public static final int ITEMFLAG__CURSOR     = 0x00000004;
+  public static final int ITEMFLAG__IGNORE     = 0x00000008; // Note: Tells client not to reset the cursor when the update packed is received
+  public static final int ITEMFLAG_IDENTIFIED  = 0x00000010;
+  public static final int ITEMFLAG__REMOVED    = 0x00000020;
+  public static final int ITEMFLAG__ADDED      = 0x00000040;
+  public static final int ITEMFLAG__TAKEN      = 0x00000080;
+  public static final int ITEMFLAG_BROKEN      = 0x00000100;
+  public static final int ITEMFLAG__RESTORED   = 0x00000200;
+  public static final int ITEMFLAG__SORTED     = 0x00000400;
+  public static final int ITEMFLAG_SOCKETED    = 0x00000800;
+  public static final int ITEMFLAG__MONSTER    = 0x00001000;
+  public static final int ITEMFLAG__NEW        = 0x00002000;
+  public static final int ITEMFLAG__DISABLED   = 0x00004000;
+  public static final int ITEMFLAG__HARDCORE   = 0x00008000;
+  public static final int ITEMFLAG_BODYPART    = 0x00010000;
+  public static final int ITEMFLAG_BEGINNER    = 0x00020000;
+  public static final int ITEMFLAG__RESTRICT   = 0x00040000; // Note: Blocks RELOAD, i.e., mutex with RELOAD
+  public static final int ITEMFLAG__SERVER     = 0x00080000;
+  public static final int ITEMFLAG__1000000    = 0x00100000;
+  public static final int ITEMFLAG_COMPACT     = 0x00200000;
+  public static final int ITEMFLAG_ETHEREAL    = 0x00400000;
+  public static final int ITEMFLAG__SAVED      = 0x00800000;
+  public static final int ITEMFLAG_INSCRIBED   = 0x01000000;
+  public static final int ITEMFLAG__CRUDE      = 0x02000000;
+  public static final int ITEMFLAG_RUNEWORD    = 0x04000000;
+  public static final int ITEMFLAG__MAGICAL    = 0x08000000;
+  public static final int ITEMFLAG__STAFFMODS  = 0x10000000; // Note: New (Unconfirmed?)
+  public static final int ITEMFLAG__CURSED     = 0x20000000; // Note: New (Unconfirmed?)
+  public static final int ITEMFLAG__DROW       = 0x40000000; // Note: New (Unconfirmed?)
+  public static final int ITEMFLAG__TAGGED     = 0x80000000; // Note: New (Unconfirmed?) Use depends on item type
 
-  private static final Array<Item> EMPTY_SOCKETS_ARRAY = new Array<Item>(0) {
+  public static final int ITEMFLAG_SAVE_MASK   = 0xFFFFFFFF; // TODO: remove flags which should not be saved
+
+  public static final int ITEMFLAG2_INSTORE    = 0x00000001;
+
+  public static final int NO_PICTURE_ID = -1;
+  public static final int NO_CLASS_ONLY = -1;
+
+  static final int MAGIC_AFFIX_SIZE = 11;
+  static final int MAGIC_AFFIX_MASK = 0x7FF;
+
+  static final int RARE_AFFIX_SIZE  = 8;
+  static final int RARE_AFFIX_MASK  = 0xFF;
+
+  static final int SET_ID_SIZE      = 12;
+  static final int UNIQUE_ID_SIZE   = 12;
+
+  static final int MAGIC_PROPS = 0;
+  static final int SET_PROPS   = 1;
+  static final int RUNE_PROPS  = 6;
+  static final int NUM_PROPS   = 7;
+
+  static final int MAGIC_PROPS_FLAG = 1 << MAGIC_PROPS;
+  static final int SET_2_PROPS_FLAG = 1 << SET_PROPS + 0;
+  static final int SET_3_PROPS_FLAG = 1 << SET_PROPS + 1;
+  static final int SET_4_PROPS_FLAG = 1 << SET_PROPS + 2;
+  static final int SET_5_PROPS_FLAG = 1 << SET_PROPS + 3;
+  static final int SET_6_PROPS_FLAG = 1 << SET_PROPS + 4;
+  static final int RUNE_PROPS_FLAG  = 1 << RUNE_PROPS;
+
+  static final int GEMPROPS_WEAPON  = 0;
+  static final int GEMPROPS_ARMOR   = 1;
+  static final int GEMPROPS_SHIELD  = 2;
+  static final int NUM_GEMPROPS     = 3;
+
+  static final PropertyList[] EMPTY_PROPERTY_ARRAY = new PropertyList[NUM_PROPS];
+
+  static final Array<Item> EMPTY_SOCKETS_ARRAY = new Array<Item>(0) {
     @Override
     public void add(Item value) {
       throw new UnsupportedOperationException();
     }
   };
-  private static final Array<Stat> EMPTY_STAT_ARRAY = new Array<Stat>(0) {
-    @Override
-    public void add(Stat value) {
-      throw new UnsupportedOperationException();
-    }
-  };
-  private static final PropertyList[] EMPTY_PROPERTY_ARRAY = new PropertyList[NUM_PROPS];
 
-  private static final ObjectMap<String, String> WEAPON_DESC = new ObjectMap<>();
-  static {
-    WEAPON_DESC.put("mace", "WeaponDescMace");
-    WEAPON_DESC.put("club", "WeaponDescMace");
-    WEAPON_DESC.put("hamm", "WeaponDescMace");
-    WEAPON_DESC.put("scep", "WeaponDescMace");
-    WEAPON_DESC.put("axe", "WeaponDescAxe");
-    WEAPON_DESC.put("taxe", "WeaponDescAxe");
-    WEAPON_DESC.put("swor", "WeaponDescSword");
-    WEAPON_DESC.put("knif", "WeaponDescDagger");
-    WEAPON_DESC.put("tkni", "WeaponDescDagger");
-    WEAPON_DESC.put("tpot", "WeaponDescThrownPotion");
-    WEAPON_DESC.put("jave", "WeaponDescJavelin");
-    WEAPON_DESC.put("ajav", "WeaponDescJavelin");
-    WEAPON_DESC.put("spea", "WeaponDescSpear");
-    WEAPON_DESC.put("aspe", "WeaponDescSpear");
-    WEAPON_DESC.put("bow", "WeaponDescBow");
-    WEAPON_DESC.put("abow", "WeaponDescBow");
-    WEAPON_DESC.put("staf", "WeaponDescStaff");
-    WEAPON_DESC.put("wand", "WeaponDescStaff");
-    WEAPON_DESC.put("pole", "WeaponDescPoleArm");
-    WEAPON_DESC.put("xbow", "WeaponDescCrossBow");
-    WEAPON_DESC.put("h2h", "WeaponDescH2H");
-    WEAPON_DESC.put("h2h2", "WeaponDescH2H");
-    WEAPON_DESC.put("orb", "WeaponDescOrb");
-  }
+  // Basic fields
+  public int         flags;
+  public int         flags2; // riiablo-specific
+  public int         version;
+  public Location    location;
+  public BodyLoc     bodyLoc;
+  public StoreLoc    storeLoc;
+  public byte        gridX;
+  public byte        gridY;
+  public String      code;
+  public int         socketsFilled;
+  public Array<Item> sockets; // derived
 
-  public byte     data[];
+  public ItemEntry base;
+  public ItemTypes.Entry typeEntry;
+  public ItemTypes.Entry type2Entry;
+  public Type type;
 
-  public int      flags;
-  public int      version; // 0 = pre-1.08; 1 = 1.08/1.09 normal; 2 = 1.10 normal; 100 = 1.08/1.09 expansion; 101 = 1.10 expansion
-  public Location location;
-  public BodyLoc  bodyLoc;
-  public StoreLoc storeLoc;
-  public byte     gridX;
-  public byte     gridY;
-  public String   code;
-  public int      socketsFilled;
-
-  public Array<Item> sockets;
-
-  // Extended
-  public long    id;
-  public byte    level;
+  // Extended fields
+  public int     id;
+  public byte    ilvl;
   public Quality quality;
   public byte    pictureId;
   public short   classOnly;
@@ -173,310 +157,53 @@ public class Item extends Actor implements Disposable {
   public Attributes   props;
   public PropertyList stats[];
 
-  public ItemEntry       base;
-  public ItemTypes.Entry typeEntry;
-  public ItemTypes.Entry type2Entry;
-  public Type            type;
-
-  private String  name;
-  private AssetDescriptor<DC6> invFileDescriptor;
-  public DC6      invFile;
-  public Index    invColormap;
-  public int      invColorIndex;
-  public Index    charColormap;
-  public int      charColorIndex;
-
-  private Details details;
-
-  public static Item loadFromStream(BitStream bitStream) {
-    return new Item().read(bitStream);
-  }
+  byte data[]; // TODO: replace with ItemSerializer serialization
+  String name;
+  Table details; // TODO: decouple
+  Table header; // TODO: decouple
+  public ItemWrapper wrapper; // TODO: decouple
 
   Item() {}
 
-  public byte[] serialize() {
+  public byte[] data() {
+    if (data == null) throw new NullPointerException("Cannot serialize items yet!");
     return data;
   }
 
-  private Item read(BitStream bitStream) {
-    data     = bitStream.getBufferView();
-    flags    = bitStream.read32BitsOrLess(Integer.SIZE);
-    version  = bitStream.readUnsigned8OrLess(8);
-    bitStream.skip(2); // TODO: Unknown, likely included with location, should log at some point to check
-    location = Location.valueOf(bitStream.readUnsigned7OrLess(3));
-    bodyLoc  = BodyLoc.valueOf(bitStream.readUnsigned7OrLess(4));
-    gridX    = bitStream.readUnsigned7OrLess(4);
-    gridY    = bitStream.readUnsigned7OrLess(4);
-    storeLoc = StoreLoc.valueOf(bitStream.readUnsigned7OrLess(3));
-
-    if ((flags & EAR) == EAR) {
-      code          = "ear";
-      socketsFilled = 0;
-      qualityId     = bitStream.readUnsigned7OrLess(3); // class
-      qualityData   = bitStream.readUnsigned7OrLess(7); // level
-      inscription   = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7); // name
-    } else {
-      code          = bitStream.readString(4).trim();
-      socketsFilled = bitStream.readUnsigned7OrLess(3);
-    }
-
-    sockets = EMPTY_SOCKETS_ARRAY;
-
-    base = findBase(code);
-    typeEntry = Riiablo.files.ItemTypes.get(base.type);
-    type2Entry = Riiablo.files.ItemTypes.get(base.type2);
-    type = Type.get(typeEntry, type2Entry);
-
-    props = new Attributes();
-    PropertyList baseProps = props.base;
-    baseProps.put(Stat.item_levelreq, base.levelreq);
-    if (base instanceof Weapons.Entry) {
-      Weapons.Entry weapon = getBase();
-      baseProps.put(Stat.mindamage, weapon.mindam);
-      baseProps.put(Stat.maxdamage, weapon.maxdam);
-      baseProps.put(Stat.secondary_mindamage, weapon._2handmindam);
-      baseProps.put(Stat.secondary_maxdamage, weapon._2handmaxdam);
-      baseProps.put(Stat.item_throw_mindamage, weapon.minmisdam);
-      baseProps.put(Stat.item_throw_maxdamage, weapon.maxmisdam);
-      baseProps.put(Stat.reqstr, weapon.reqstr);
-      baseProps.put(Stat.reqdex, weapon.reqdex);
-    } else if (base instanceof Armor.Entry) {
-      Armor.Entry armor = getBase();
-      baseProps.put(Stat.reqstr, armor.reqstr);
-      baseProps.put(Stat.reqdex, 0);
-      baseProps.put(Stat.toblock, armor.block); // FIXME: apply Riiablo.charData.getCharacterClass().entry().BlockFactor for view stats
-      baseProps.put(Stat.mindamage, armor.mindam);
-      baseProps.put(Stat.maxdamage, armor.maxdam);
-    } else if (base instanceof Misc.Entry) {
-      Misc.Entry misc = getBase();
-    }
-    // TODO: copy base items stats
-
-    if ((flags & COMPACT) == COMPACT) {
-      id           = 0;
-      level        = 0;
-      quality      = Quality.NONE;
-      pictureId    = -1;
-      classOnly    = -1;
-      qualityId    = 0;
-      qualityData  = null;
-      runewordData = 0;
-      inscription  = null;
-      if (type.is(Type.GEM) || type.is(Type.RUNE)) {
-        Gems.Entry gem = Riiablo.files.Gems.get(base.code);
-        stats = new PropertyList[NUM_GEM_PROPS];
-        stats[WEAPON_PROPS] = new PropertyList().add(gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
-        stats[ARMOR_PROPS ] = new PropertyList().add(gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
-        stats[SHIELD_PROPS] = new PropertyList().add(gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
-      } else {
-        stats = EMPTY_PROPERTY_ARRAY;
-      }
-    } else {
-      id        = bitStream.read32BitsOrLess(Integer.SIZE);
-      level     = bitStream.readUnsigned7OrLess(7);
-      quality   = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
-      pictureId = bitStream.readBoolean() ? bitStream.readUnsigned7OrLess(3)   : -1;
-      classOnly = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(11) : -1;
-      int listsFlags = MAGIC_PROPS_FLAG;
-      switch (quality) {
-        case LOW:
-        case HIGH:
-          qualityId = bitStream.readUnsigned31OrLess(3);
-          break;
-
-        case NORMAL:
-          qualityId = 0;
-          break;
-
-        case SET:
-          qualityId = bitStream.readUnsigned31OrLess(12);
-          qualityData = Riiablo.files.SetItems.get(qualityId);
-          break;
-
-        case UNIQUE:
-          qualityId = bitStream.readUnsigned31OrLess(12);
-          qualityData = Riiablo.files.UniqueItems.get(qualityId);
-          break;
-
-        case MAGIC:
-          qualityId = bitStream.readUnsigned31OrLess(2 * MAGIC_AFFIX_SIZE); // 11 for prefix, 11 for suffix
-          break;
-
-        case RARE:
-        case CRAFTED:
-          qualityId = bitStream.readUnsigned31OrLess(2 * RARE_AFFIX_SIZE); // 8 for prefix, 8 for suffix
-          qualityData = new RareQualityData(bitStream);
-          break;
-
-        default:
-          qualityId = 0;
-      }
-
-      if ((flags & RUNEWORD) == RUNEWORD) {
-        runewordData = bitStream.read16BitsOrLess(Short.SIZE);
-        listsFlags |= RUNE_PROPS_FLAG;
-      }
-
-      if ((flags & INSCRIBED) == INSCRIBED) {
-        inscription = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7);
-      }
-
-      bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
-
-      if (type.is(Type.ARMO)) {
-        baseProps.read(Stat.armorclass, bitStream);
-      }
-
-      if (type.is(Type.ARMO) || type.is(Type.WEAP)) {
-        int maxdurability = baseProps.read(Stat.maxdurability, bitStream);
-        if (maxdurability > 0) {
-          baseProps.read(Stat.durability, bitStream);
-        }
-      }
-
-      if ((flags & SOCKETED) == SOCKETED && (type.is(Type.ARMO) || type.is(Type.WEAP))) {
-        int item_numsockets = baseProps.read(Stat.item_numsockets, bitStream);
-        sockets = new Array<>(item_numsockets);
-      }
-
-      if (type.is(Type.BOOK)) {
-        bitStream.skip(5); // TODO: Tomes have an extra 5 bits inserted at this point.  I have no idea what purpose they serve.  It looks like the value is 0 on all of my tomes.
-      }
-
-      if (base.stackable) {
-        int quantity = bitStream.readUnsigned15OrLess(9);
-        baseProps.put(Stat.quantity, quantity);
-      }
-
-      if (quality == SET) {
-        int lists = bitStream.readUnsigned7OrLess(5);
-        listsFlags |= (lists << SET_PROPS);
-      }
-
-      if (type.is(Type.BOOK)) {
-        listsFlags = 0;
-      }
-
-      stats = new PropertyList[NUM_PROPS];
-      for (int i = 0; i < NUM_PROPS; i++) {
-        if (((listsFlags >> i) & 1) == 1) {
-          stats[i] = new PropertyList().read(bitStream);
-        }
-      }
-
-      //System.out.println(getName() + " : " + Arrays.toString(stats) + " : " + Integer.toBinaryString(listsFlags));
-    }
-
-    return this;
-  }
-
   void reset() {
-    version = VERSION_200e;
-    flags = 0;
+    flags         = 0;
+    version       = 0;
+    location      = Location.STORED;
+    bodyLoc       = BodyLoc.NONE;
+    storeLoc      = StoreLoc.NONE;
+    gridX         = 0;
+    gridY         = 0;
+    code          = "";
     socketsFilled = 0;
-    quality = Quality.NONE;
-    location = null; // FIXME: null location will throw NPE if toString is called
-    pictureId = -1;
-    classOnly = -1;
-    qualityId = 0;
-    qualityData = null;
-    runewordData = 0;
-    inscription = null;
+    sockets       = EMPTY_SOCKETS_ARRAY;
 
-    props = new Attributes();
+    base          = null;
+    typeEntry     = null;
+    type2Entry    = null;
+    type          = null;
+
+    id            = 0;
+    ilvl          = 0;
+    quality       = Quality.NONE;
+    pictureId     = NO_PICTURE_ID;
+    classOnly     = NO_CLASS_ONLY;
+    qualityId     = 0;
+    qualityData   = null;
+    runewordData  = 0;
+    inscription   = null;
+
+    props = null;
     stats = EMPTY_PROPERTY_ARRAY;
-    sockets = EMPTY_SOCKETS_ARRAY;
-  }
 
-  public int getBaseIndex() {
-    ItemEntry entry;
-    if ((entry = Riiablo.files.armor  .get(code)) != null) return Riiablo.files.armor  .index(entry.code);
-    if ((entry = Riiablo.files.weapons.get(code)) != null) return Riiablo.files.weapons.index(entry.code);
-    if ((entry = Riiablo.files.misc   .get(code)) != null) return Riiablo.files.misc   .index(entry.code);
-    throw new GdxRuntimeException("Unable to locate entry for code: " + code);
-  }
-
-  // TODO: support width/height also to check full collision rect
-  public boolean contains(int x, int y) {
-    x -= gridX;
-    y -= gridY;
-    return 0 <= x && x < base.invwidth
-        && 0 <= y && y < base.invheight;
-  }
-
-  public void update(Attributes attrs, CharStats.Entry charStats, IntIntMap equippedSets) {
-    if ((flags & COMPACT) == COMPACT) return;
-    props.reset();
-    if (stats[MAGIC_PROPS] != null) props.add(stats[MAGIC_PROPS]);
-    if (stats[RUNE_PROPS ] != null) props.add(stats[RUNE_PROPS ]);
-    for (Item socket : sockets) {
-      if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
-        props.add(socket.stats[base.gemapplytype]);
-      } else {
-        props.add(socket.stats[MAGIC_PROPS]);
-      }
-    }
-    if (quality == SET && location == EQUIPPED) {
-      SetItems.Entry setItem = (SetItems.Entry) qualityData;
-      int setId = Riiablo.files.Sets.index(setItem.set);
-      int numEquipped = equippedSets.get(setId, 0);
-      if (numEquipped >= 2) {
-        for (int i = 0; i < numEquipped; i++) {
-          props.add(stats[SET_PROPS + i]);
-        }
-      }
-    }
-    props.update(attrs, charStats);
-  }
-
-  public Details details() {
-    if (details == null) {
-      // TODO: use item parent itemdata for equipped set counter
-      update(Riiablo.charData.getStats(), Riiablo.charData.classId.entry(), Riiablo.charData.getItems().getEquippedSets());
-      details = new Details();
-    }
-    return details;
-  }
-
-  public void load() {
-    if (invFileDescriptor != null) return;
-    invFileDescriptor = new AssetDescriptor<>("data\\global\\items\\" + getInvFileName() + '.' + DC6.EXT, DC6.class);
-    Riiablo.assets.load(invFileDescriptor);
-    checkLoaded();
-
-    invColormap     = Riiablo.colormaps.get(base.InvTrans);
-    String invColor = getInvColor();
-    invColorIndex   = invColor != null ? Riiablo.files.colors.index(invColor) + 1 : 0;
-
-    charColormap    = Riiablo.colormaps.get(base.Transform);
-    String charColor = getCharColor();
-    charColorIndex  = charColor != null ? Riiablo.files.colors.index(charColor) + 1 : 0;
-
-    // TODO: load the images of socketed items
-  }
-
-  public boolean checkLoaded() {
-    boolean b = Riiablo.assets.isLoaded(invFileDescriptor);
-    if (b && invFile == null) {
-      invFile = Riiablo.assets.get(invFileDescriptor);
-      resize();
-    }
-
-    return b;
-  }
-
-  @Override
-  public void dispose() {
-    Riiablo.assets.unload(invFileDescriptor.fileName);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T extends ItemEntry> T findBase(String code) {
-    ItemEntry entry;
-    if ((entry = Riiablo.files.armor  .get(code)) != null) return (T) entry;
-    if ((entry = Riiablo.files.weapons.get(code)) != null) return (T) entry;
-    if ((entry = Riiablo.files.misc   .get(code)) != null) return (T) entry;
-    throw new GdxRuntimeException("Unable to locate entry for code: " + code);
+    name = null;
+    details = null;
+    header = null;
+    wrapper = new ItemWrapper(this);
   }
 
   @SuppressWarnings("unchecked")
@@ -484,201 +211,97 @@ public class Item extends Actor implements Disposable {
     return (T) base;
   }
 
-  @Override
-  public String toString() {
-    ToStringBuilder builder = new ToStringBuilder(this);
-    builder
-        .append("name", getName())
-        .append("code", code)
-        .append("flags", getFlagsString())
-        .append("version", version);
-    if (DEBUG_VERBOSE) {
-      builder
-          .append("location", location)
-          .append("bodyLoc", bodyLoc)
-          .append("storeLoc", storeLoc)
-          .append("gridX", gridX)
-          .append("gridY", gridY)
-          .append("socketsFilled", socketsFilled)
-          .append("id", String.format("0x%08X", (int) id))
-          .append("level", level)
-          .append("quality", quality)
-          .append("pictureId", pictureId)
-          .append("classOnly", String.format("0x%04X", classOnly))
-          .append("qualityId", String.format("0x%08X", qualityId))
-          .append("qualityData", qualityData)
-          .append("runewordData", String.format("0x%04X", runewordData))
-          .append("inscription", inscription)
-          .append("sockets", sockets)
-          .append("attrs", Arrays.toString(stats));
+  public boolean isBase(Class type) {
+    return base.getClass().isAssignableFrom(type);
+  }
+
+  public int getBaseIndex() {
+    return ItemUtils.getBaseIndex(code);
+  }
+
+  void setBase(ItemEntry base) {
+    setBase(base.code);
+  }
+
+  void setBase(String code) {
+    assert base == null : "setBase called on unrecycled Item?";
+    this.code = code;
+    base = ItemUtils.getBase(code);
+    type = Type.get(
+        typeEntry  = Riiablo.files.ItemTypes.get(base.type),
+        type2Entry = Riiablo.files.ItemTypes.get(base.type2));
+
+    this.props = new Attributes();
+    PropertyList baseProps = props.base();
+    baseProps.put(Stat.item_levelreq, base.levelreq);
+    switch (getBaseType()) {
+      case WEAPON: {
+        Weapons.Entry weapon = getBase();
+        baseProps.put(Stat.mindamage, weapon.mindam);
+        baseProps.put(Stat.maxdamage, weapon.maxdam);
+        baseProps.put(Stat.secondary_mindamage, weapon._2handmindam);
+        baseProps.put(Stat.secondary_maxdamage, weapon._2handmaxdam);
+        baseProps.put(Stat.item_throw_mindamage, weapon.minmisdam);
+        baseProps.put(Stat.item_throw_maxdamage, weapon.maxmisdam);
+        baseProps.put(Stat.reqstr, weapon.reqstr);
+        baseProps.put(Stat.reqdex, weapon.reqdex);
+        break;
+      }
+      case ARMOR: {
+        Armor.Entry armor = getBase();
+        baseProps.put(Stat.reqstr, armor.reqstr);
+        baseProps.put(Stat.reqdex, 0);
+        baseProps.put(Stat.toblock, armor.block); // FIXME: apply Riiablo.charData.getCharacterClass().entry().BlockFactor for view stats
+        baseProps.put(Stat.mindamage, armor.mindam);
+        baseProps.put(Stat.maxdamage, armor.maxdam);
+        break;
+      }
+      case MISC: {
+        Misc.Entry misc = getBase();
+        break;
+      }
+      default: throw new AssertionError();
+    }
+    // TODO: copy base item stats
+  }
+
+  void setEar(int charClass, int charLevel, String charName) {
+    setBase("ear");
+    flags |= ITEMFLAG_BODYPART;
+    qualityId   = charClass;
+    qualityData = charLevel;
+    inscription = charName;
+  }
+
+  public boolean hasFlag(int flag) {
+    return (flags & flag) == flag;
+  }
+
+  public boolean isIdentified() {
+    return hasFlag(ITEMFLAG_IDENTIFIED);
+  }
+
+  public boolean isEthereal() {
+    return hasFlag(ITEMFLAG_ETHEREAL);
+  }
+
+  public boolean hasFlag2(int flag) {
+    return (flags2 & flag) == flag;
+  }
+
+  enum ItemEntryType { WEAPON, ARMOR, MISC }
+  public ItemEntryType getBaseType() {
+    if (base instanceof Weapons.Entry) {
+      return ItemEntryType.WEAPON;
+    } else if (base instanceof Armor.Entry) {
+      return ItemEntryType.ARMOR;
     } else {
-      builder.append("location", location);
-      switch (location) {
-        case EQUIPPED:
-          builder.append("bodyLoc", bodyLoc);
-          break;
-
-        case STORED:
-          builder
-              .append("storeLoc", storeLoc)
-              .append("gridX", gridX)
-              .append("gridY", gridY);
-          break;
-
-        case BELT:
-          builder.append("gridX", gridX);
-          break;
-
-        default:
-          // ignored
-      }
-
-      if ((flags & COMPACT) == 0) {
-        builder
-            .append("id", String.format("0x%08X", (int) id))
-            .append("level", level)
-            .append("quality", quality);
-        if (pictureId >= 0) builder.append("pictureId", pictureId);
-        if (classOnly >= 0) builder.append("classOnly", String.format("0x%04X", classOnly));
-        switch (quality) {
-          case LOW:
-            builder.append("qualityId", LowQuality.valueOf((int) qualityId));
-            break;
-
-          case NORMAL:
-            break;
-
-          case HIGH:
-            builder.append("qualityId", Riiablo.files.QualityItems.get((int) qualityId));
-            break;
-
-          case MAGIC:
-            builder.append("qualityId", String.format("0x%06X", qualityId));
-            break;
-
-          case RARE:
-          case CRAFTED:
-            builder
-                .append("qualityId", String.format("0x%02X", qualityId))
-                .append("affixes", qualityData);
-            break;
-
-          case SET:
-          case UNIQUE:
-          default:
-            builder.append("qualityId", qualityId);
-        }
-
-        if ((flags & RUNEWORD) == RUNEWORD) {
-          builder.append("runewordData", String.format("[id=%d, extra=%d]",
-              RunewordData.id(runewordData), RunewordData.extra(runewordData)));
-        }
-
-        if ((flags & INSCRIBED) == INSCRIBED) {
-          builder.append("inscription", inscription);
-        }
-
-        if ((flags & SOCKETED) == SOCKETED && socketsFilled > 0) {
-          builder.append("sockets", sockets);
-        }
-
-        builder.append("attrs", Arrays.toString(stats));
-      }
+      assert base instanceof Misc.Entry;
+      return ItemEntryType.MISC;
     }
-
-    return builder.toString();
   }
 
-  private String getFlagsString() {
-    StringBuilder builder = new StringBuilder();
-    if ((flags & IDENTIFIED) == IDENTIFIED) builder.append("IDENTIFIED").append('|');
-    if ((flags & SOCKETED  ) == SOCKETED  ) builder.append("SOCKETED"  ).append('|');
-    if ((flags & EAR       ) == EAR       ) builder.append("EAR"       ).append('|');
-    if ((flags & STARTER   ) == STARTER   ) builder.append("STARTER"   ).append('|');
-    if ((flags & COMPACT   ) == COMPACT   ) builder.append("COMPACT"   ).append('|');
-    if ((flags & ETHEREAL  ) == ETHEREAL  ) builder.append("ETHEREAL"  ).append('|');
-    if ((flags & INSCRIBED ) == INSCRIBED ) builder.append("INSCRIBED" ).append('|');
-    if ((flags & RUNEWORD  ) == RUNEWORD  ) builder.append("RUNEWORD"  ).append('|');
-    if (builder.length() > 0) builder.setLength(builder.length() - 1);
-    return builder.toString();
-  }
-
-  @Override
-  public String getName() {
-    if (name == null) updateName();
-    return name;
-  }
-
-  public void updateName() {
-    StringBuilder name = new StringBuilder();
-    int prefix, suffix;
-    MagicAffix affix;
-    switch (quality) {
-      case LOW:
-      case NORMAL:
-      case HIGH:
-        if ((flags & RUNEWORD) == RUNEWORD) {
-          int runeword = RunewordData.id(runewordData);
-          name.append(Riiablo.string.lookup(Riiablo.files.Runes.get(runeword).Name));
-          break;
-        } else if (socketsFilled > 0) {
-          name.append(Riiablo.string.lookup(1728)) // Gemmed
-              .append(' ')
-              .append(Riiablo.string.lookup(base.namestr));
-          break;
-        }
-
-        switch (quality) {
-          case LOW:
-            name.append(Riiablo.string.lookup(LowQuality.valueOf(qualityId).stringId))
-                .append(' ')
-                .append(Riiablo.string.lookup(base.namestr));
-            break;
-
-          case HIGH:
-            name.append(Riiablo.string.lookup(1727)) // Superior
-                .append(' ')
-                .append(Riiablo.string.lookup(base.namestr));
-            break;
-
-          default:
-            name.append(Riiablo.string.lookup(base.namestr));
-        }
-        break;
-
-      case MAGIC:
-        prefix = qualityId &   MAGIC_AFFIX_MASK;
-        suffix = qualityId >>> MAGIC_AFFIX_SIZE;
-        if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null) name.append(Riiablo.string.lookup(affix.name)).append(' ');
-        name.append(Riiablo.string.lookup(base.namestr));
-        if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null) name.append(' ').append(Riiablo.string.lookup(affix.name));
-        break;
-
-      case RARE:
-      case CRAFTED:
-        prefix = qualityId &   RARE_AFFIX_MASK;
-        suffix = qualityId >>> RARE_AFFIX_SIZE;
-        name.append(Riiablo.string.lookup(Riiablo.files.RarePrefix.get(prefix).name))
-            .append(' ')
-            .append(Riiablo.string.lookup(Riiablo.files.RareSuffix.get(suffix).name));
-        break;
-
-      case SET:
-        name.append(Riiablo.string.lookup(Riiablo.files.SetItems.get(qualityId).index));
-        break;
-
-      case UNIQUE:
-        name.append(Riiablo.string.lookup(Riiablo.files.UniqueItems.get(qualityId).index));
-        break;
-
-      default:
-        name.append(Riiablo.string.lookup(base.namestr));
-    }
-
-    this.name = name.toString();
-  }
-
-  private String getInvFileName() {
+  public String getInvFileName() {
     if (isIdentified()) {
       switch (quality) {
         case SET:
@@ -702,10 +325,10 @@ public class Item extends Actor implements Disposable {
     switch (quality) {
       case MAGIC: {
         MagicAffix affix;
-        int prefix = qualityId & MAGIC_AFFIX_MASK;
+        int prefix = qualityId & Item.MAGIC_AFFIX_MASK;
         if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null && affix.transform)
           return affix.transformcolor;
-        int suffix = qualityId >>> MAGIC_AFFIX_SIZE;
+        int suffix = qualityId >>> Item.MAGIC_AFFIX_SIZE;
         if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null && affix.transform)
           return affix.transformcolor;
         return null;
@@ -742,10 +365,10 @@ public class Item extends Actor implements Disposable {
     switch (quality) {
       case MAGIC: {
         MagicAffix affix;
-        int prefix = qualityId & MAGIC_AFFIX_MASK;
+        int prefix = qualityId & Item.MAGIC_AFFIX_MASK;
         if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null && affix.transform)
           return affix.transformcolor;
-        int suffix = qualityId >>> MAGIC_AFFIX_SIZE;
+        int suffix = qualityId >>> Item.MAGIC_AFFIX_SIZE;
         if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null && affix.transform)
           return affix.transformcolor;
         return null;
@@ -853,380 +476,303 @@ public class Item extends Actor implements Disposable {
     return base.usesound;
   }
 
-  public boolean isIdentified() {
-    return (flags & IDENTIFIED) == IDENTIFIED;
+  private String getFlagsString() {
+    StringBuilder builder = new StringBuilder();
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__RELOAD   ) == ITEMFLAG__RELOAD   ) builder.append("ITEMFLAG__RELOAD"   ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__BOUGHT   ) == ITEMFLAG__BOUGHT   ) builder.append("ITEMFLAG__BOUGHT"   ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__CURSOR   ) == ITEMFLAG__CURSOR   ) builder.append("ITEMFLAG__CURSOR"   ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__IGNORE   ) == ITEMFLAG__IGNORE   ) builder.append("ITEMFLAG__IGNORE"   ).append('|');
+    if ((flags & ITEMFLAG_IDENTIFIED) == ITEMFLAG_IDENTIFIED) builder.append("ITEMFLAG_IDENTIFIED").append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__REMOVED  ) == ITEMFLAG__REMOVED  ) builder.append("ITEMFLAG__REMOVED"  ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__ADDED    ) == ITEMFLAG__ADDED    ) builder.append("ITEMFLAG__ADDED"    ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__TAKEN    ) == ITEMFLAG__TAKEN    ) builder.append("ITEMFLAG__TAKEN"    ).append('|');
+    if ((flags & ITEMFLAG_BROKEN    ) == ITEMFLAG_BROKEN    ) builder.append("ITEMFLAG_BROKEN"    ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__RESTORED ) == ITEMFLAG__RESTORED ) builder.append("ITEMFLAG__RESTORED" ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__SORTED   ) == ITEMFLAG__SORTED   ) builder.append("ITEMFLAG__SORTED"   ).append('|');
+    if ((flags & ITEMFLAG_SOCKETED  ) == ITEMFLAG_SOCKETED  ) builder.append("ITEMFLAG_SOCKETED"  ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__MONSTER  ) == ITEMFLAG__MONSTER  ) builder.append("ITEMFLAG__MONSTER"  ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__NEW      ) == ITEMFLAG__NEW      ) builder.append("ITEMFLAG__NEW"      ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__DISABLED ) == ITEMFLAG__DISABLED ) builder.append("ITEMFLAG__DISABLED" ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__HARDCORE ) == ITEMFLAG__HARDCORE ) builder.append("ITEMFLAG__HARDCORE" ).append('|');
+    if ((flags & ITEMFLAG_BODYPART  ) == ITEMFLAG_BODYPART  ) builder.append("ITEMFLAG_BODYPART"  ).append('|');
+    if ((flags & ITEMFLAG_BEGINNER  ) == ITEMFLAG_BEGINNER  ) builder.append("ITEMFLAG_BEGINNER"  ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__RESTRICT ) == ITEMFLAG__RESTRICT ) builder.append("ITEMFLAG__RESTRICT" ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__SERVER   ) == ITEMFLAG__SERVER   ) builder.append("ITEMFLAG__SERVER"   ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__1000000  ) == ITEMFLAG__1000000  ) builder.append("ITEMFLAG__1000000"  ).append('|');
+    if ((flags & ITEMFLAG_COMPACT   ) == ITEMFLAG_COMPACT   ) builder.append("ITEMFLAG_COMPACT"   ).append('|');
+    if ((flags & ITEMFLAG_ETHEREAL  ) == ITEMFLAG_ETHEREAL  ) builder.append("ITEMFLAG_ETHEREAL"  ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__SAVED    ) == ITEMFLAG__SAVED    ) builder.append("ITEMFLAG__SAVED"    ).append('|');
+    if ((flags & ITEMFLAG_INSCRIBED ) == ITEMFLAG_INSCRIBED ) builder.append("ITEMFLAG_INSCRIBED" ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__CRUDE    ) == ITEMFLAG__CRUDE    ) builder.append("ITEMFLAG__CRUDE"    ).append('|');
+    if ((flags & ITEMFLAG_RUNEWORD  ) == ITEMFLAG_RUNEWORD  ) builder.append("ITEMFLAG_RUNEWORD"  ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__MAGICAL  ) == ITEMFLAG__MAGICAL  ) builder.append("ITEMFLAG__MAGICAL"  ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__STAFFMODS) == ITEMFLAG__STAFFMODS) builder.append("ITEMFLAG__STAFFMODS").append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__CURSED   ) == ITEMFLAG__CURSED   ) builder.append("ITEMFLAG__CURSED"   ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__DROW     ) == ITEMFLAG__DROW     ) builder.append("ITEMFLAG__DROW"     ).append('|');
+    if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__TAGGED   ) == ITEMFLAG__TAGGED   ) builder.append("ITEMFLAG__TAGGED"   ).append('|');
+    if (builder.length() > 0) builder.setLength(builder.length() - 1);
+    return builder.toString();
   }
 
-  public boolean isEthereal() {
-    return (flags & ETHEREAL) == ETHEREAL;
+  public String getNameString() {
+    if (name == null) updateName();
+    return name;
   }
 
-  public void resize() {
-    BBox box = invFile.getBox();
-    setSize(box.width, box.height);
+  private void updateName() {
+    StringBuilder name = new StringBuilder();
+    int prefix, suffix;
+    MagicAffix affix;
+    switch (quality) {
+      case LOW:
+      case NORMAL:
+      case HIGH:
+        if ((flags & ITEMFLAG_RUNEWORD) == ITEMFLAG_RUNEWORD) {
+          int runeword = RunewordData.id(runewordData);
+          name.append(Riiablo.string.lookup(Riiablo.files.Runes.get(runeword).Name));
+          break;
+        } else if (socketsFilled > 0) {
+          name.append(Riiablo.string.lookup(1728)) // Gemmed
+              .append(' ')
+              .append(Riiablo.string.lookup(base.namestr));
+          break;
+        }
+
+        switch (quality) {
+          case LOW:
+            name.append(Riiablo.string.lookup(LowQuality.valueOf(qualityId).stringId))
+                .append(' ')
+                .append(Riiablo.string.lookup(base.namestr));
+            break;
+
+          case HIGH:
+            name.append(Riiablo.string.lookup(1727)) // Superior
+                .append(' ')
+                .append(Riiablo.string.lookup(base.namestr));
+            break;
+
+          default:
+            name.append(Riiablo.string.lookup(base.namestr));
+        }
+        break;
+
+      case MAGIC:
+        prefix = qualityId &   MAGIC_AFFIX_MASK;
+        suffix = qualityId >>> MAGIC_AFFIX_SIZE;
+        if ((affix = Riiablo.files.MagicPrefix.get(prefix)) != null) name.append(Riiablo.string.lookup(affix.name)).append(' ');
+        name.append(Riiablo.string.lookup(base.namestr));
+        if ((affix = Riiablo.files.MagicSuffix.get(suffix)) != null) name.append(' ').append(Riiablo.string.lookup(affix.name));
+        break;
+
+      case RARE:
+      case CRAFTED:
+        prefix = qualityId &   RARE_AFFIX_MASK;
+        suffix = qualityId >>> RARE_AFFIX_SIZE;
+        name.append(Riiablo.string.lookup(Riiablo.files.RarePrefix.get(prefix).name))
+            .append(' ')
+            .append(Riiablo.string.lookup(Riiablo.files.RareSuffix.get(suffix).name));
+        break;
+
+      case SET:
+        if (qualityId != (1 << SET_ID_SIZE) - 1) {
+          name.append(Riiablo.string.lookup(Riiablo.files.SetItems.get(qualityId).index));
+        } else {
+          name.append(Riiablo.string.lookup(base.namestr));
+        }
+        break;
+
+      case UNIQUE:
+        if (qualityId != (1 << UNIQUE_ID_SIZE) - 1) {
+          name.append(Riiablo.string.lookup(Riiablo.files.UniqueItems.get(qualityId).index));
+        } else {
+          name.append(Riiablo.string.lookup(base.namestr));
+        }
+        break;
+
+      default:
+        name.append(Riiablo.string.lookup(base.namestr));
+    }
+
+    this.name = name.toString();
   }
 
-  public void resize(Inventory.Entry inv) {
-    setSize(base.invwidth * inv.gridBoxWidth, base.invheight * inv.gridBoxHeight);
+  // TODO: support width/height also to check full collision rect
+  public boolean contains(int x, int y) {
+    x -= gridX;
+    y -= gridY;
+    return 0 <= x && x < base.invwidth
+        && 0 <= y && y < base.invheight;
+  }
+
+  public void update(Attributes attrs, CharStats.Entry charStats, IntIntMap equippedSets) {
+    if ((flags & ITEMFLAG_COMPACT) == ITEMFLAG_COMPACT) return;
+    props.reset();
+    if (stats[MAGIC_PROPS] != null) props.add(stats[MAGIC_PROPS]);
+    if (stats[RUNE_PROPS ] != null) props.add(stats[RUNE_PROPS ]);
+    for (Item socket : sockets) {
+      if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
+        props.add(socket.stats[base.gemapplytype]);
+      } else {
+        props.add(socket.stats[MAGIC_PROPS]);
+      }
+    }
+    if (quality == Quality.SET && location == Location.EQUIPPED) {
+      SetItems.Entry setItem = (SetItems.Entry) qualityData;
+      int setId = Riiablo.files.Sets.index(setItem.set);
+      int numEquipped = equippedSets.get(setId, 0);
+      if (numEquipped >= 2) {
+        for (int i = 0; i < numEquipped; i++) {
+          props.add(stats[SET_PROPS + i]);
+        }
+      }
+    }
+    props.update(attrs, charStats);
+  }
+
+  // loads client-side resources
+  public void load() {
+    wrapper.load();
+  }
+
+  public float getX() {
+    return wrapper.getX();
+  }
+
+  public float getY() {
+    return wrapper.getY();
+  }
+
+  public float getWidth() {
+    return wrapper.getWidth();
+  }
+
+  public float getHeight() {
+    return wrapper.getHeight();
+  }
+
+  public void draw(Batch b, float a) {
+    wrapper.draw(b, a);
   }
 
   @Override
-  public void draw(Batch batch, float a) {
-    if (invFile == null && !checkLoaded()) return;
-    PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
-    boolean ethereal = (flags & ETHEREAL) == ETHEREAL;
-    if (ethereal) b.setAlpha(ETHEREAL_ALPHA);
-    if (invColormap != null) b.setColormap(invColormap, invColorIndex);
-    invFile.draw(b, getX(), getY());
-    if (invColormap != null) b.resetColormap();
-    if (ethereal) b.resetColor();
+  public String toString() {
+    ToStringBuilder builder = new ToStringBuilder(this)
+        .append("name", getNameString())
+        .append("code", code)
+        .append("flags", SIMPLE_FLAGS ? getFlagsString() : String.format("0x%08x", flags))
+        .append("version", version);
+    if (DEBUG_VERBOSE) {
+      builder
+          .append("location", location)
+          .append("bodyLoc", bodyLoc)
+          .append("storeLoc", storeLoc)
+          .append("gridX", gridX)
+          .append("gridY", gridY)
+          .append("socketsFilled", socketsFilled)
+          .append("id", String.format("0x%08X", (int) id))
+          .append("ilvl", ilvl)
+          .append("quality", quality)
+          .append("pictureId", pictureId)
+          .append("classOnly", String.format("0x%04X", classOnly))
+          .append("qualityId", String.format("0x%08X", qualityId))
+          .append("qualityData", qualityData)
+          .append("runewordData", String.format("0x%04X", runewordData))
+          .append("inscription", inscription)
+          .append("sockets", sockets)
+          .append("attrs", Arrays.toString(stats))
+          ;
+    } else {
+      builder.append("location", location);
+      switch (location) {
+        case EQUIPPED:
+          builder.append("bodyLoc", bodyLoc);
+          break;
+
+        case STORED:
+          builder
+              .append("storeLoc", storeLoc)
+              .append("gridX", gridX)
+              .append("gridY", gridY);
+          break;
+
+        case BELT:
+          builder.append("gridX", gridX);
+          break;
+
+        default:
+          // ignored
+      }
+
+      if ((flags & ITEMFLAG_COMPACT) == 0) {
+        builder
+            .append("id", String.format("0x%08X", (int) id))
+            .append("ilvl", ilvl)
+            .append("quality", quality);
+        if (pictureId >= 0) builder.append("pictureId", pictureId);
+        if (classOnly >= 0) builder.append("classOnly", String.format("0x%04X", classOnly));
+        switch (quality) {
+          case LOW:
+            builder.append("qualityId", LowQuality.valueOf(qualityId));
+            break;
+
+          case NORMAL:
+            break;
+
+          case HIGH:
+            builder.append("qualityId", Riiablo.files.QualityItems.get((int) qualityId));
+            break;
+
+          case MAGIC:
+            builder.append("qualityId", String.format("0x%06X", qualityId));
+            break;
+
+          case RARE:
+          case CRAFTED:
+            builder
+                .append("qualityId", String.format("0x%02X", qualityId))
+                .append("affixes", qualityData);
+            break;
+
+          case SET:
+          case UNIQUE:
+          default:
+            builder.append("qualityId", qualityId);
+        }
+
+        if ((flags & ITEMFLAG_RUNEWORD) == ITEMFLAG_RUNEWORD) {
+          builder.append("runewordData", String.format("[id=%d, extra=%d]",
+              RunewordData.id(runewordData), RunewordData.extra(runewordData)));
+        }
+
+        if ((flags & ITEMFLAG_INSCRIBED) == ITEMFLAG_INSCRIBED) {
+          builder.append("inscription", inscription);
+        }
+
+        if ((flags & ITEMFLAG_SOCKETED) == ITEMFLAG_SOCKETED && socketsFilled > 0) {
+          builder.append("sockets", sockets);
+        }
+
+        builder.append("attrs", Arrays.toString(stats));
+      }
+    }
+    return builder.build();
   }
 
-  private static class RareQualityData {
-    static final int NUM_AFFIXES = 3;
-    int[] prefixes, suffixes;
-    RareQualityData(BitStream bitStream) {
-      prefixes = new int[NUM_AFFIXES];
-      suffixes = new int[NUM_AFFIXES];
-      for (int i = 0; i < NUM_AFFIXES; i++) {
-        prefixes[i] = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(MAGIC_AFFIX_SIZE) : 0;
-        suffixes[i] = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(MAGIC_AFFIX_SIZE) : 0;
-      }
+  public Table details() {
+    if (details == null) {
+      // TODO: use item parent itemdata for equipped set counter
+      update(Riiablo.charData.getStats(), Riiablo.charData.classId.entry(), Riiablo.charData.getItems().getEquippedSets());
+      details = DEFAULT_LABELER.updateLabel(this, new Table(), 0);
     }
 
-    @Override
-    public String toString() {
-      return new ToStringBuilder(this)
-          .append("prefixes", prefixes)
-          .append("suffixes", suffixes)
-          .build();
-    }
+    return details;
   }
 
-  private static class RunewordData {
-    static final int RUNEWORD_ID_SHIFT    = 0;
-    static final int RUNEWORD_ID_MASK     = 0xFFF << RUNEWORD_ID_SHIFT;
-    static final int RUNEWORD_EXTRA_SHIFT = 12;
-    static final int RUNEWORD_EXTRA_MASK  = 0xF << RUNEWORD_EXTRA_SHIFT;
-
-    static int id(int pack) {
-      return (pack & RUNEWORD_ID_MASK) >>> RUNEWORD_ID_SHIFT;
+  public Table header() {
+    if (header == null) {
+      header = DEFAULT_LABELER.updateHeader(this, new Table());
     }
 
-    static int extra(int pack) {
-      return (pack & RUNEWORD_EXTRA_MASK) >>> RUNEWORD_EXTRA_SHIFT;
-    }
-  }
-
-  public class Details extends Table {
-    private static final float SPACING = 2;
-
-    public final Table header;
-
-    Label name;
-    Label type;
-    Label usable;
-
-    Details() {
-      setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
-      BitmapFont font = Riiablo.fonts.font16;
-      name = new Label(Item.this.getName(), font);
-      type = new Label(Riiablo.string.lookup(base.namestr), font);
-      switch (quality) {
-        case LOW:
-        case NORMAL:
-        case HIGH:
-          if ((flags & RUNEWORD) == RUNEWORD || base.quest > 0)
-            name.setColor(Riiablo.colors.gold);
-          if ((flags & (ETHEREAL|SOCKETED)) != 0)
-            type.setColor(Riiablo.colors.grey);
-          break;
-        case MAGIC:
-          name.setColor(Riiablo.colors.blue);
-          type.setColor(Riiablo.colors.blue);
-          break;
-        case SET:
-          name.setColor(Riiablo.colors.green);
-          type.setColor(Riiablo.colors.green);
-          break;
-        case RARE:
-          name.setColor(Riiablo.colors.yellow);
-          type.setColor(Riiablo.colors.yellow);
-          break;
-        case UNIQUE:
-          name.setColor(Riiablo.colors.gold);
-          type.setColor(Riiablo.colors.gold);
-          break;
-        case CRAFTED:
-          name.setColor(Riiablo.colors.orange);
-          type.setColor(Riiablo.colors.orange);
-          break;
-      }
-
-      if (Item.this.type.is(Type.RUNE))
-        name.setColor(Riiablo.colors.orange);
-
-      if ((Item.this.flags & INSTORE) == INSTORE) {
-        add(new Label(Riiablo.string.lookup("cost") + 0, font, name.getColor())).center().space(SPACING).row();
-      }
-      add(name).center().space(SPACING).row();
-      if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
-        add(type).center().space(SPACING).row();
-
-      header = new Table() {{
-        setBackground(PaletteIndexedColorDrawable.MODAL_FONT16);
-        add(new Label(name)).center().space(SPACING).row();
-        if (quality.ordinal() > Quality.MAGIC.ordinal() || (flags & RUNEWORD) == RUNEWORD)
-          add(new Label(type)).center().space(SPACING).row();
-        pack();
-      }};
-
-      if (sockets.size > 0) {
-        String runequote = Riiablo.string.lookup("RuneQuote");
-        StringBuilder runewordBuilder = null;
-        for (Item socket : sockets) {
-          if (socket.type.is(Type.RUNE)) {
-            if (runewordBuilder == null) runewordBuilder = new StringBuilder(runequote);
-            runewordBuilder.append(Riiablo.string.lookup(socket.base.namestr + "L")); // TODO: Is there a r##L reference somewhere?
-          }
-        }
-        if (runewordBuilder != null) {
-          runewordBuilder.append(runequote);
-          add(new Label(runewordBuilder.toString(), font, Riiablo.colors.gold)).center().space(SPACING).row();
-        }
-      }
-
-      if (Item.this.type.is(Type.BOOK)) {
-        add(new Label(Riiablo.string.lookup("InsertScrolls"), font, Riiablo.colors.white)).center().space(SPACING).row();
-      } else if (Item.this.type.is(Type.CHAR)) {
-        add(new Label(Riiablo.string.lookup("ItemExpcharmdesc"), font, Riiablo.colors.white)).center().space(SPACING).row();
-      } else if (Item.this.type.is(Type.SOCK)) {
-        add(new Label(Riiablo.string.lookup("ExInsertSocketsX"), font, Riiablo.colors.white)).center().space(SPACING).row();
-      }
-
-      if (Item.this.type.is(Type.GEM) || Item.this.type.is(Type.RUNE)) {
-        assert stats.length == NUM_GEM_PROPS;
-        add().height(font.getLineHeight()).space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp3") + " " + stats[WEAPON_PROPS].copy().reduce().get().format(Riiablo.charData), font, Riiablo.colors.white)).center().space(SPACING).row();
-        String tmp = stats[ARMOR_PROPS].copy().reduce().get().format(Riiablo.charData);
-        add(new Label(Riiablo.string.lookup("GemXp4") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp1") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
-        add(new Label(Riiablo.string.lookup("GemXp2") + " " + stats[SHIELD_PROPS].copy().reduce().get().format(Riiablo.charData), font, Riiablo.colors.white)).center().space(SPACING).row();
-        add().height(font.getLineHeight()).space(SPACING).row();
-      }
-
-      // TODO: This seems a bit hacky, check and see if this is located somewhere (doesn't look like it)
-      if (base.useable) {
-        String string;
-        if (base.code.equalsIgnoreCase("box")) {
-          string = Riiablo.string.lookup("RightClicktoOpen");
-        } else if (base.code.equalsIgnoreCase("bkd")) {
-          string = Riiablo.string.lookup("RightClicktoRead");
-        } else if (base instanceof Misc.Entry) {
-          Misc.Entry misc = (Misc.Entry) base;
-          if (misc.spelldesc > 0) {
-            string = Riiablo.string.lookup(misc.spelldescstr);
-          } else {
-            string = Riiablo.string.lookup("RightClicktoUse");
-          }
-        } else {
-          string = Riiablo.string.lookup("RightClicktoUse");
-        }
-        usable = new Label(string, font);
-        usable.setColor(name.getColor());
-        add(usable).center().space(SPACING).row();
-      }
-
-      //if ((flags & COMPACT) == 0) {
-        Stat prop;
-        if ((prop = props.agg.get(Stat.armorclass)) != null) {
-          Table table = new Table();
-          table.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font));
-          table.add(new Label(Integer.toString(prop.val), font, props.get(Stat.armorclass).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
-          table.pack();
-          add(table).space(SPACING).row();
-        }
-        if (Item.this.type.is(Type.WEAP)) {
-          Weapons.Entry weapon = getBase();
-          int i;
-          if (weapon._1or2handed && Riiablo.charData.classId == CharacterClass.BARBARIAN) {
-            i = 3;
-          } else if (weapon._2handed) {
-            i = 2;
-          } else {
-            i = 1;
-          }
-          if ((i & 1) != 0 && (prop = props.agg.get(Stat.maxdamage)) != null) {
-            Table table = new Table();
-            table.add(new Label(Riiablo.string.lookup("ItemStats1l") + " ", font));
-            table.add(new Label(props.get(Stat.mindamage).val + " to " + prop.val, font, props.get(Stat.maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
-            table.pack();
-            add(table).space(SPACING).row();
-          }
-          if ((i & 2) != 0 && (prop = props.agg.get(Stat.secondary_maxdamage)) != null) {
-            Table table = new Table();
-            table.add(new Label(Riiablo.string.lookup("ItemStats1m") + " ", font));
-            table.add(new Label(props.get(Stat.secondary_mindamage).val + " to " + prop.val, font, props.get(Stat.secondary_maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
-            table.pack();
-            add(table).space(SPACING).row();
-          }
-          if (typeEntry.Throwable && (prop = props.agg.get(Stat.item_throw_maxdamage)) != null) {
-            Table table = new Table();
-            table.add(new Label(Riiablo.string.lookup("ItemStats1n") + " ", font));
-            table.add(new Label(props.get(Stat.item_throw_mindamage).val + " to " + prop.val, font, props.get(Stat.item_throw_maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
-            table.pack();
-            add(table).space(SPACING).row();
-          }
-        }
-        if (Item.this.type.is(Type.SHLD)) {
-          if ((prop = props.agg.get(Stat.toblock)) != null) {
-            Table table = new Table();
-            table.add(new Label(Riiablo.string.lookup("ItemStats1r"), font));
-            table.add(new Label(prop.val + "%", font, Riiablo.colors.blue));
-            table.pack();
-            add(table).space(SPACING).row();
-          }
-          if (Riiablo.charData.classId == CharacterClass.PALADIN && (prop = props.agg.get(Stat.maxdamage)) != null && prop.val > 0)
-            add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + props.agg.get(Stat.mindamage).val + " to " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-        }
-        if (!Item.this.base.nodurability && (prop = props.agg.get(Stat.durability)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.val + " " + Riiablo.string.lookup("ItemStats1j") + " " + props.agg.get(Stat.maxdurability).val, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if (Item.this.type.is(Type.CLAS)) {
-          add(new Label(Riiablo.string.lookup(CharacterClass.get(Item.this.typeEntry.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
-        }
-        if ((prop = props.agg.get(Stat.reqdex)) != null && prop.val > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.agg.get(Stat.reqstr)) != null && prop.val > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.agg.get(Stat.item_levelreq)) != null && prop.val > 0)
-          add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if ((prop = props.agg.get(Stat.quantity)) != null)
-          add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-        if (Item.this.type.is(Type.WEAP)) {
-          add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(Item.this.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
-        }
-      //}
-
-      // magic props
-      if ((flags & COMPACT) == 0) {
-        PropertyList magicProps = stats[MAGIC_PROPS];
-        PropertyList runeProps = stats[RUNE_PROPS];
-        if (magicProps != null) {
-          PropertyList magicPropsAggregate = magicProps.copy();
-          for (Item socket : sockets) {
-            if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
-              magicPropsAggregate.addAll(socket.stats[base.gemapplytype]);
-            } else {
-              magicPropsAggregate.addAll(socket.stats[MAGIC_PROPS]);
-            }
-          }
-          if (runeProps != null) magicPropsAggregate.addAll(runeProps);
-          magicPropsAggregate.reduce();
-
-          Array<Stat> aggregate = magicPropsAggregate.toArray();
-          aggregate.sort();
-          for (Stat stat : aggregate) {
-            String text = stat.format(Riiablo.charData);
-            if (text == null) continue;
-            add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
-          }
-        }
-      }
-
-      StringBuilder itemFlags = null;
-      if ((Item.this.flags & ETHEREAL) == ETHEREAL) {
-        itemFlags = new StringBuilder(32);
-        itemFlags.append(Riiablo.string.lookup(StringTBL.EXPANSION_OFFSET + 2745));
-      }
-      if ((Item.this.flags & SOCKETED) == SOCKETED) {
-        if (itemFlags != null) itemFlags.append(',').append(' ');
-        else itemFlags = new StringBuilder(16);
-        Stat stat = props.get(Stat.item_numsockets);
-        if (stat != null) {
-          itemFlags.append(Riiablo.string.lookup("Socketable")).append(' ').append('(').append(stat.val).append(')');
-        } else {
-          if (itemFlags.length() == 0) itemFlags = null;
-          Gdx.app.error(TAG, "Item marked socketed, but missing item_numsockets: " + Item.this.getName());
-        }
-      }
-      if (itemFlags != null) {
-        add(new Label(itemFlags.toString(), font, Riiablo.colors.blue)).center().space(SPACING).row();
-      }
-
-      if (quality == SET && location == EQUIPPED) {
-        SetItems.Entry setItem = Riiablo.files.SetItems.get(qualityId);
-        int setId = Riiablo.files.Sets.index(setItem.set);
-        int numEquipped = Riiablo.charData.getItems().getEquippedSets().get(setId, 0); // TODO: use parent itemdata instead
-        if (numEquipped >= 2) {
-          PropertyList setPropsAggregate = null;
-          for (int i = 0; i < numEquipped; i++) {
-            PropertyList setProps = stats[SET_PROPS + i];
-            if (setProps == null) continue; // It might be the case that gaps exist
-            if (setPropsAggregate == null) {
-              setPropsAggregate = setProps.copy();
-            } else {
-              setPropsAggregate.addAll(setProps);
-            }
-          }
-
-          Array<Stat> aggregate = setPropsAggregate != null
-              ? setPropsAggregate.reduce().toArray()
-              : EMPTY_STAT_ARRAY;
-          aggregate.sort();
-          for (Stat stat : aggregate) {
-            String text = stat.format(Riiablo.charData);
-            if (text == null) continue;
-            add(new Label(text, font, Riiablo.colors.green)).center().space(SPACING).row();
-          }
-
-          Sets.Entry set = setItem.getSet();
-          PropertyList setBonus = null;
-          if (numEquipped == set.getItems().size) { // full set bonus
-            setBonus = new PropertyList().add(set.FCode, set.FParam, set.FMin, set.FMax);
-          } else { // partial set bonus
-            switch (numEquipped) {
-              case 2:
-                setBonus = new PropertyList().add(set.PCode2, set.PParam2, set.PMin2, set.PMax2);
-                break;
-              case 3:
-                setBonus = new PropertyList().add(set.PCode3, set.PParam3, set.PMin3, set.PMax3);
-                break;
-              case 4:
-                setBonus = new PropertyList().add(set.PCode4, set.PParam4, set.PMin4, set.PMax4);
-                break;
-              case 5:
-                setBonus = new PropertyList().add(set.PCode5, set.PParam5, set.PMin5, set.PMax5);
-                break;
-              default:
-                // do nothing
-            }
-          }
-
-          if (setBonus != null && setBonus.size() > 0) {
-            add().height(font.getLineHeight()).space(SPACING).row();
-            setBonus.reduce().toArray();
-            aggregate = setBonus.toArray();
-            aggregate.sort();
-            for (Stat stat : aggregate) {
-              String text = stat.format(Riiablo.charData);
-              if (text == null) continue;
-              add(new Label(text, font, Riiablo.colors.gold)).center().space(SPACING).row();
-            }
-          }
-        }
-
-        add().height(font.getLineHeight()).space(SPACING).row();
-        Sets.Entry set = Riiablo.files.SetItems.get(qualityId).getSet();
-        add(new Label(Riiablo.string.lookup(set.name), font, Riiablo.colors.gold)).space(SPACING).row();
-        for (SetItems.Entry item : set.getItems()) {
-          int numOwned = Riiablo.charData.getItems().getOwnedSetCount(Riiablo.files.SetItems.index(item.index));
-          Label label = new Label(Riiablo.string.lookup(item.index), font,
-              numOwned > 0 ? Riiablo.colors.green : Riiablo.colors.red);
-          add(label).space(SPACING).row();
-        }
-      }
-
-      pack();
-    }
+    return header;
   }
 }

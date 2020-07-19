@@ -1,6 +1,9 @@
 package com.riiablo.screen.panel;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -16,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
@@ -31,8 +35,6 @@ import com.riiablo.save.ItemController;
 import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 public class HirelingPanel extends WidgetGroup implements Disposable {
   private static final String TAG = "HirelingPanel";
@@ -368,9 +370,9 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
       }
 
       // FIXME: Alt images on weapons are slightly off by maybe a pixel or so (rounding?) -- backgrounds fine
-      if (item != null && item.checkLoaded()) {
-        BBox box = item.invFile.getBox();
-        item.setPosition(
+      if (item != null && item.wrapper.checkLoaded()) {
+        BBox box = item.wrapper.invFile.getBox();
+        item.wrapper.setPosition(
             getX() + getWidth()  / 2 - box.width  / 2f + x,
             getY() + getHeight() / 2 - box.height / 2f + y);
         item.draw(b, 1);

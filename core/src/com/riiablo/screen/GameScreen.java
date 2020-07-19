@@ -875,6 +875,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     left = actor;
   }
 
+  // TODO: #90
   public void setDetails(Actor details, Item item, Actor parent, Actor slot) {
     if (this.details == details) return;
     this.details = details;

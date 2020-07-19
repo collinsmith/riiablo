@@ -1,11 +1,18 @@
 package com.riiablo.save;
 
 import com.google.common.primitives.Ints;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.Date;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
@@ -16,14 +23,6 @@ import com.riiablo.item.PropertyList;
 import com.riiablo.item.Stat;
 import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.Date;
 
 public class D2S {
   private static final String TAG = "D2S";
@@ -814,7 +813,7 @@ public class D2S {
           .append("size", size)
           .append("actualSize", items.size);
       for (int i = 0; i < items.size; i++) {
-        builder.append("items[" + i + "]", items.get(i).getName());
+        builder.append("items[" + i + "]", items.get(i).getNameString());
       }
       return builder.build();
     }

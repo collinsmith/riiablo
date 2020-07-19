@@ -167,7 +167,7 @@ public class ItemGrid extends Group {
       switch (cursor.base.invwidth) {
         case 1:  break;
         case 2:  if (coords.x < boxWidth / 2) x -= boxWidth; break;
-        default: Gdx.app.error(TAG, "Unsupported invWidth for " + cursor.getName() + ": " + cursor.base.invwidth);
+        default: Gdx.app.error(TAG, "Unsupported invWidth for " + cursor.getNameString() + ": " + cursor.base.invwidth);
       }
 
       switch (cursor.base.invheight) {
@@ -189,7 +189,7 @@ public class ItemGrid extends Group {
             y -= boxHeight;
           break;
 
-        default: Gdx.app.error(TAG, "Unsupported invHeight for " + cursor.getName() + ": " + cursor.base.invheight);
+        default: Gdx.app.error(TAG, "Unsupported invHeight for " + cursor.getNameString() + ": " + cursor.base.invheight);
       }
 
       x = MathUtils.clamp(x, 0, getWidth()  - itemWidth);
@@ -287,7 +287,7 @@ public class ItemGrid extends Group {
       addListener(clickListener = new ClickListener() {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          if ((item.flags & Item.INSTORE) == Item.INSTORE) {
+          if (item.hasFlag2(Item.ITEMFLAG2_INSTORE)) {
             event.handle();
             return;
           }
@@ -303,7 +303,7 @@ public class ItemGrid extends Group {
       addListener(new ClickListener(Input.Buttons.RIGHT) {
         @Override
         public void clicked(InputEvent event, float x, float y) {
-          if ((item.flags & Item.INSTORE) == Item.INSTORE) {
+          if (item.hasFlag2(Item.ITEMFLAG2_INSTORE)) {
             event.handle();
             return;
           }
@@ -344,7 +344,7 @@ public class ItemGrid extends Group {
     @Override
     public void setPosition(float x, float y) {
       super.setPosition(x, y);
-      item.setPosition(x, y);
+      item.wrapper.setPosition(x, y);
     }
 
     @Override
@@ -355,7 +355,7 @@ public class ItemGrid extends Group {
       b.resetBlendMode();
       item.draw(b, 1);
       if (clickListener.isOver() && itemData.getCursor() == null) {
-        Riiablo.game.setDetails(item.details(), item, ItemGrid.this, item);
+        Riiablo.game.setDetails(item.details(), item, ItemGrid.this, item.wrapper);
       }
     }
   }

@@ -1,4 +1,4 @@
-package com.riiablo.item.item4;
+package com.riiablo.item;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
@@ -6,13 +6,6 @@ import com.badlogic.gdx.utils.Array;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.util.BitStream;
-import com.riiablo.item.BodyLoc;
-import com.riiablo.item.Location;
-import com.riiablo.item.PropertyList;
-import com.riiablo.item.Quality;
-import com.riiablo.item.Stat;
-import com.riiablo.item.StoreLoc;
-import com.riiablo.item.Type;
 
 public class ItemSerializer {
   private static final String TAG = "ItemSerializer";
@@ -60,6 +53,7 @@ public class ItemSerializer {
   }
 
   private static void read(BitStream bitStream, Item item) {
+    item.data      = bitStream.getBufferView(); // TODO: remove when serialization implemented
     item.id        = bitStream.read32BitsOrLess(Integer.SIZE);
     item.ilvl      = bitStream.readUnsigned7OrLess(7);
     item.quality   = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
@@ -146,15 +140,15 @@ public class ItemSerializer {
 
   private static boolean readArmorClass(BitStream bitStream, Item item) {
     boolean hasAC = item.type.is(Type.ARMO);
-    if (hasAC) item.attrs.base().read(Stat.armorclass, bitStream);
+    if (hasAC) item.props.base().read(Stat.armorclass, bitStream);
     return hasAC;
   }
 
   private static boolean readDurability(BitStream bitStream, Item item) {
     boolean hasDurability = item.type.is(Type.ARMO) || item.type.is(Type.WEAP);
     if (hasDurability) {
-      int maxdurability = item.attrs.base().read(Stat.maxdurability, bitStream);
-      if (maxdurability > 0) item.attrs.base().read(Stat.durability, bitStream);
+      int maxdurability = item.props.base().read(Stat.maxdurability, bitStream);
+      if (maxdurability > 0) item.props.base().read(Stat.durability, bitStream);
     }
     return hasDurability;
   }
@@ -163,7 +157,7 @@ public class ItemSerializer {
     boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED
         && (item.type.is(Type.ARMO) || item.type.is(Type.WEAP));
     if (hasSockets) {
-      int item_numsockets = item.attrs.base().read(Stat.item_numsockets, bitStream);
+      int item_numsockets = item.props.base().read(Stat.item_numsockets, bitStream);
       item.sockets = new Array<>(item_numsockets);
     }
     return hasSockets;
@@ -179,7 +173,7 @@ public class ItemSerializer {
     boolean hasQuantity = item.base.stackable;
     if (hasQuantity) {
       int quantity = bitStream.readUnsigned15OrLess(9);
-      item.attrs.base().put(Stat.quantity, quantity);
+      item.props.base().put(Stat.quantity, quantity);
     }
     return hasQuantity;
   }

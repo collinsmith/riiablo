@@ -1,4 +1,4 @@
-package com.riiablo.item.item4;
+package com.riiablo.item;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 

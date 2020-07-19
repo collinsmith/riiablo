@@ -1,4 +1,4 @@
-package com.riiablo.item.item4;
+package com.riiablo.item;
 
 class RunewordData {
   static final int RUNEWORD_ID_SHIFT    = 0;

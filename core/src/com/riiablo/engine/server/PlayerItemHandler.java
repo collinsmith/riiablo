@@ -1,10 +1,14 @@
 package com.riiablo.engine.server;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.ObjectIntMap;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.codec.excel.Armor;
@@ -20,8 +24,6 @@ import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.save.CharData;
 import com.riiablo.save.ItemData;
-
-import org.apache.commons.lang3.ObjectUtils;
 
 @All({Player.class, CofReference.class})
 public class PlayerItemHandler extends BaseEntitySystem implements ItemData.EquipListener, ItemData.AlternateListener {
@@ -132,7 +134,7 @@ public class PlayerItemHandler extends BaseEntitySystem implements ItemData.Equi
     int transformFlags = 0;
     Item head = itemData.getSlot(BodyLoc.HEAD);
     cofs.setComponent(entityId, COF.Component.HD, head != null ? Class.Type.PLR.getComponent(head.base.alternateGfx) : CofComponents.COMPONENT_LIT);
-    transformFlags |= cofs.setTransform(entityId, COF.Component.HD, head != null ? (byte) ((head.base.Transform << 5) | (head.charColorIndex & 0x1F)) : CofTransforms.TRANSFORM_NULL);
+    transformFlags |= cofs.setTransform(entityId, COF.Component.HD, head != null ? (byte) ((head.base.Transform << 5) | (head.wrapper.charColorIndex & 0x1F)) : CofTransforms.TRANSFORM_NULL);
 
     Item body = itemData.getSlot(BodyLoc.TORS);
     if (body != null) {
@@ -144,7 +146,7 @@ public class PlayerItemHandler extends BaseEntitySystem implements ItemData.Equi
       cofs.setComponent(entityId, COF.Component.S1, (armor.lSPad + 1));
       cofs.setComponent(entityId, COF.Component.S2, (armor.rSPad + 1));
 
-      byte packedTransform = (byte) ((body.base.Transform << 5) | (body.charColorIndex & 0x1F));
+      byte packedTransform = (byte) ((body.base.Transform << 5) | (body.wrapper.charColorIndex & 0x1F));
       transformFlags |= cofs.setTransform(entityId, COF.Component.TR, packedTransform);
       transformFlags |= cofs.setTransform(entityId, COF.Component.LG, packedTransform);
       transformFlags |= cofs.setTransform(entityId, COF.Component.RA, packedTransform);
