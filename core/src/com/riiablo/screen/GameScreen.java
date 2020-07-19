@@ -572,6 +572,9 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
       builder.with(new ItemGenerator());
       builder.with(new VendorGenerator());
       builder.with(new AIStepper());
+    } else {
+      builder.with(new ItemGenerator()); // TODO: #89
+      builder.with(new VendorGenerator()); // TODO: #89
     }
     builder
         .with(new Pathfinder())
