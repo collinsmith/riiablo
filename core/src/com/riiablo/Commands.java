@@ -1,6 +1,10 @@
 package com.riiablo;
 
 import android.support.annotation.NonNull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -10,24 +14,20 @@ import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
+
 import com.riiablo.command.Action;
 import com.riiablo.command.Command;
 import com.riiablo.command.CommandManager;
 import com.riiablo.command.OptionalParameter;
 import com.riiablo.command.Parameter;
 import com.riiablo.command.ParameterException;
+import com.riiablo.console.Console;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.key.MappedKey;
 import com.riiablo.screen.SelectCharacterScreen3;
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.serializer.StringSerializer;
 import com.riiablo.validator.ValidationException;
-
-import org.apache.commons.lang3.math.NumberUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
 
 public class Commands {
   public static Collection<Throwable> addTo(CommandManager commandManager) {
@@ -244,7 +244,13 @@ public class Commands {
       .alias("connect")
       .description("Connects to specified server")
       .params(
-          Parameter.of(String.class),
+          Parameter.of(String.class).suggester(new Console.SuggestionProvider() {
+            @Override
+            public int suggest(Console console, CharSequence buffer, String[] args, int arg) {
+              console.in.append("127.0.0.1");
+              return 1;
+            }
+          }),
           OptionalParameter.of(String.class))
       .action(new Action() {
         @Override
