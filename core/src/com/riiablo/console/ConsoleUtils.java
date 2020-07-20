@@ -1,7 +1,6 @@
 package com.riiablo.console;
 
 import com.google.common.base.Strings;
-
 import java.util.Iterator;
 
 public class ConsoleUtils {
@@ -14,12 +13,14 @@ public class ConsoleUtils {
     StringBuilder sb = new StringBuilder(columns * width);
     while (it.hasNext()) {
       String text = it.next();
-      if (++i % columns == 0) {
+      if (columns > 0 && ++i % columns == 0) {
         sb.append(text);
         console.out.println(sb.toString());
         sb.setLength(0);
       } else if (it.hasNext()) {
-        sb.append(Strings.padEnd(text, width, ' '));
+        String padded = Strings.padEnd(text, width, ' ');
+        sb.append(padded);
+        if (text.equals(padded)) sb.append(' ');
       } else {
         sb.append(text);
       }
