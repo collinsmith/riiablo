@@ -765,9 +765,9 @@ public class D2S {
     static final byte[] SECTION_FOOTER = ArrayUtils.addAll(SECTION_HEADER, new byte[] {0x00, 0x00});
     public static final int SECTION_HEADER_BITS = SECTION_HEADER.length * Byte.SIZE;
 
-    public byte                   header[];
-    public short                  size;
-    public Array<Item>            items;
+    public byte        header[];
+    public short       size;
+    public Array<Item> items;
 
     static ItemData obtain(ByteBuffer buffer, byte[] SECTION_FOOTER, boolean consumeFooter) {
       return new ItemData().read(buffer, SECTION_FOOTER, consumeFooter);
