@@ -111,7 +111,7 @@ public class Client extends Game {
   private Cursor                cursor;
   private CharData              charData;
   private D2                    anim;
-  private Metrics metrics;
+  private Metrics               metrics;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
