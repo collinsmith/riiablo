@@ -244,6 +244,11 @@ project(":core") {
     }
 
     dependencies {
+        compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
+        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'
+    }
+
+    dependencies {
         testCompile 'junit:junit:4.12'
         testCompile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
