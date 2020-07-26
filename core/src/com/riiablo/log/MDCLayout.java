@@ -60,6 +60,7 @@ public class MDCLayout extends AbstractStringLayout {
     return parent.getContentFormat();
   }
 
+  @Deprecated
   private void writeEntry(
       ByteBufferDestination destination,
       int depth,
