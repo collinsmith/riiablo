@@ -2,6 +2,7 @@ package com.riiablo.log;
 
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
@@ -17,9 +18,9 @@ import org.apache.logging.log4j.core.config.plugins.validation.constraints.Requi
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.ByteBufferDestination;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.util.BiConsumer;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
 
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedMap;
 
 @Plugin(
@@ -35,7 +36,7 @@ public class MDCLayout extends AbstractStringLayout {
   private static final int DEPTH_STEP = 2;
 
   private int depth = 0;
-  private final OrderedMap.Entry<String, String> tail = new ObjectMap.Entry<>();
+  private ReadOnlyStringMap ctx;
   private final byte[] spaces = StringUtils.repeat(' ', MAX_DEPTH * DEPTH_STEP).getBytes(super.getCharset());
   private final byte[] endl = System.getProperty("line.separator").getBytes(super.getCharset());
 
@@ -70,27 +71,50 @@ public class MDCLayout extends AbstractStringLayout {
     destination.writeBytes(endl, 0, endl.length);
   }
 
+  private void writeEntry(
+      ByteBufferDestination destination,
+      int depth,
+      Object obj
+  ) {
+    byte[] b = String.valueOf(obj).getBytes(getCharset());
+    destination.writeBytes(spaces, 0, (depth - 1) * DEPTH_STEP + 1);
+    destination.writeBytes(b, 0, b.length);
+    destination.writeBytes(endl, 0, endl.length);
+  }
+
+  // Deprecated. May be needed when implementing different output
+  @Deprecated
+  private void writeMapDifference(
+      ByteBufferDestination destination,
+      int depth,
+      final ReadOnlyStringMap parent,
+      final ReadOnlyStringMap child
+  ) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append('{');
+    child.forEach(new BiConsumer<String, Object>() {
+      @Override
+      public void accept(String s, Object o) {
+        if (parent != null && Objects.equals(parent.getValue(s), o)) return;
+        sb.append(s);
+        sb.append(':');
+        sb.append(o);
+        sb.append(',');
+      }
+    });
+    if (sb.length() > 1) sb.setLength(sb.length() - 1);
+    sb.append('}');
+    writeEntry(destination, depth, sb);
+  }
+
   @Override
   public void encode(LogEvent event, ByteBufferDestination destination) {
-    OrderedMap<String, String> ctx = CTX.map();
-    int depth = ctx.size;
-    if (this.depth != depth) {
-      this.depth = depth;
-    }
-
+    ReadOnlyStringMap ctx = event.getContextData();
+    depth = ctx.size();
     if (depth > 0) {
-      Array<String> ordered = ctx.orderedKeys();
-      String tailKey = ordered.peek();
-      String tailValue = ctx.get(tailKey);
-      if (tailKey.equals(tail.key)) {
-        if (!tailValue.equals(tail.value)) {
-          tail.value = tailValue;
-          writeEntry(destination, depth, tail);
-        }
-      } else {
-        tail.key = tailKey;
-        tail.value = tailValue;
-        writeEntry(destination, depth, tail);
+      if (!ctx.equals(this.ctx)) {
+        writeEntry(destination, depth, ctx);
+        this.ctx = ctx;
       }
 
       destination.writeBytes(spaces, 0, depth * DEPTH_STEP);
