@@ -8,24 +8,26 @@ import com.badlogic.gdx.utils.OrderedMap;
 public enum CTX {
   INSTANCE;
 
-  public static String put(String key, String value) {
+  public static void put(String key, String value) {
     ThreadContext.put(key, value);
-    return INSTANCE.map.put(key, value);
+//    INSTANCE.map.put(key, value);
   }
 
-  public static String remove(String key) {
+  public static void remove(String key) {
     ThreadContext.remove(key);
-    return INSTANCE.map.remove(key);
+//    INSTANCE.map.remove(key);
   }
 
   public static void clear() {
     ThreadContext.clearMap();
-    INSTANCE.map.clear();
+//    INSTANCE.map.clear();
   }
 
+  @Deprecated
   public static OrderedMap<String, String> map() {
-    return INSTANCE.map;
+    return null;
+//    return INSTANCE.map;
   }
 
-  final OrderedMap<String, String> map = new OrderedMap<>();
+//  final OrderedMap<String, String> map = new OrderedMap<>();
 }
