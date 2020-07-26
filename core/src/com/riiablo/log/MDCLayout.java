@@ -31,6 +31,7 @@ import com.badlogic.gdx.utils.OrderedMap;
 )
 public class MDCLayout extends AbstractStringLayout {
   private final PatternLayout parent;
+  private final boolean fullMode;
 
   private static final int MAX_DEPTH = 256;
   private static final int DEPTH_STEP = 2;
@@ -40,9 +41,10 @@ public class MDCLayout extends AbstractStringLayout {
   private final byte[] spaces = StringUtils.repeat(' ', MAX_DEPTH * DEPTH_STEP).getBytes(super.getCharset());
   private final byte[] endl = System.getProperty("line.separator").getBytes(super.getCharset());
 
-  public MDCLayout(Configuration config, Charset charset, PatternLayout parent) {
+  public MDCLayout(Configuration config, Charset charset, PatternLayout parent, boolean fullMode) {
     super(config, charset, null, null);
     this.parent = parent;
+    this.fullMode = fullMode;
   }
 
   @Override
@@ -78,7 +80,7 @@ public class MDCLayout extends AbstractStringLayout {
       Object obj
   ) {
     byte[] b = String.valueOf(obj).getBytes(getCharset());
-    destination.writeBytes(spaces, 0, (depth - 1) * DEPTH_STEP + 1);
+    if (depth > 0) destination.writeBytes(spaces, 0, (depth - 1) * DEPTH_STEP + 1);
     destination.writeBytes(b, 0, b.length);
     destination.writeBytes(endl, 0, endl.length);
   }
@@ -110,18 +112,25 @@ public class MDCLayout extends AbstractStringLayout {
 
   @Override
   public void encode(LogEvent event, ByteBufferDestination destination) {
-    ReadOnlyStringMap ctx = event.getContextData();
-    depth = ctx.size();
-    if (depth > 0) {
-      if (!ctx.equals(this.ctx)) {
-        writeEntry(destination, depth, ctx);
-        this.ctx = ctx;
+    if (fullMode) {
+      parent.encode(event, destination);
+      destination.writeBytes(spaces, 0, 1);
+      writeEntry(destination, 0, event.getContextData());
+    } else {
+      ReadOnlyStringMap ctx = event.getContextData();
+      depth = ctx.size();
+      if (depth > 0) {
+        if (!ctx.equals(this.ctx)) {
+          writeEntry(destination, depth, ctx);
+          this.ctx = ctx;
+        }
+
+        destination.writeBytes(spaces, 0, depth * DEPTH_STEP);
       }
 
-      destination.writeBytes(spaces, 0, depth * DEPTH_STEP);
+      parent.encode(event, destination);
+      destination.writeBytes(endl, 0, endl.length);
     }
-
-    parent.encode(event, destination);
   }
 
   @Override
@@ -146,6 +155,9 @@ public class MDCLayout extends AbstractStringLayout {
     @PluginConfiguration
     private Configuration configuration;
 
+    @PluginBuilderAttribute
+    private boolean fullMode = false;
+
     private Builder() {}
 
     public Builder withPatternLayout(final PatternLayout patternLayout) {
@@ -166,13 +178,18 @@ public class MDCLayout extends AbstractStringLayout {
       return this;
     }
 
+    public Builder withFullMode(final boolean fullMode) {
+      this.fullMode = fullMode;
+      return this;
+    }
+
     @Override
     public MDCLayout build() {
       // fall back to DefaultConfiguration
       if (configuration == null) {
         configuration = new DefaultConfiguration();
       }
-      return new MDCLayout(configuration, charset, patternLayout);
+      return new MDCLayout(configuration, charset, patternLayout, fullMode);
     }
   }
 }
