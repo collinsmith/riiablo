@@ -1,6 +1,7 @@
 package com.riiablo.log;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MessageFactory;
 import org.apache.logging.log4j.message.StringFormatterMessageFactory;
@@ -30,5 +31,17 @@ public class Log {
 
   public static void errorf(Logger logger, Throwable t, String format, Object... args) {
     logger.error(createMessage(format, args), t);
+  }
+
+  public static void put(String key, String value) {
+    ThreadContext.put(key, value);
+  }
+
+  public static void remove(String key) {
+    ThreadContext.remove(key);
+  }
+
+  public static void clearMap() {
+    ThreadContext.clearMap();
   }
 }
