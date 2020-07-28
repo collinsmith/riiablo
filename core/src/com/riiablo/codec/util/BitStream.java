@@ -155,21 +155,6 @@ public class BitStream {
     return (int) readUnsigned(bits);
   }
 
-  public short read16BitsOrLess(int bits) {
-    assert bits <= Short.SIZE;
-    return (short) readUnsigned(bits);
-  }
-
-  public int read32BitsOrLess(int bits) {
-    assert bits <= Integer.SIZE;
-    return (int) readUnsigned(bits);
-  }
-
-  public long read64BitsOrLess(int bits) {
-    assert bits <= Long.SIZE;
-    return readUnsigned(bits);
-  }
-
   public int readSigned(int bits) {
     int shift = Integer.SIZE - bits;
     return ((int) readUnsigned(bits)) << shift >> shift;

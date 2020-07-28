@@ -15,7 +15,7 @@ public class ItemSerializer {
   public Item read(BitStream bitStream) {
     Item item = new Item();
     item.reset();
-    item.flags    = bitStream.read32BitsOrLess(Integer.SIZE);
+    item.flags    = (int) bitStream.readUnsigned(Integer.SIZE);
     item.version  = bitStream.readUnsigned8OrLess(Byte.SIZE);
     bitStream.skip(2); // Unknown use -- safe to skip
     item.location = Location.valueOf(bitStream.readUnsigned7OrLess(3));
@@ -54,7 +54,7 @@ public class ItemSerializer {
 
   private static void read(BitStream bitStream, Item item) {
     item.data      = bitStream.getBufferView(); // TODO: remove when serialization implemented
-    item.id        = bitStream.read32BitsOrLess(Integer.SIZE);
+    item.id        = (int) bitStream.readUnsigned(Integer.SIZE);
     item.ilvl      = bitStream.readUnsigned7OrLess(7);
     item.quality   = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
     item.pictureId = bitStream.readBoolean() ? bitStream.readUnsigned7OrLess(3)   : Item.NO_PICTURE_ID;
@@ -134,7 +134,7 @@ public class ItemSerializer {
 
   private static boolean readRunewordData(BitStream bitStream, Item item) {
     boolean hasRunewordData = (item.flags & Item.ITEMFLAG_RUNEWORD) == Item.ITEMFLAG_RUNEWORD;
-    item.runewordData = hasRunewordData ? bitStream.read16BitsOrLess(Short.SIZE) : 0;
+    item.runewordData = hasRunewordData ? (short) bitStream.readUnsigned(Short.SIZE) : 0;
     return hasRunewordData;
   }
 
