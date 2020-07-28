@@ -155,9 +155,9 @@ public class BitStream {
     return (int) readUnsigned(bits);
   }
 
-  public int readSigned(int bits) {
-    int shift = Integer.SIZE - bits;
-    return ((int) readUnsigned(bits)) << shift >> shift;
+  public long readSigned(int bits) {
+    final int shift = Long.SIZE - bits;
+    return readUnsigned(bits) << shift >> shift;
   }
 
   public void readFully(byte[] b) {

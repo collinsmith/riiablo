@@ -1,5 +1,14 @@
 package com.riiablo.codec;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -8,20 +17,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
+
 import com.riiablo.codec.util.BBox;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.graphics.PaletteIndexedPixmap;
 import com.riiablo.util.BufferUtils;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
 
 public class DCC extends com.riiablo.codec.DC {
   private static final String TAG = "DCC";
@@ -906,8 +906,8 @@ public class DCC extends com.riiablo.codec.DC {
       variable0     = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.variable0Bits]);
       width         = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.widthBits]);
       height        = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.heightBits]);
-      xOffset       =       bitStream.readSigned  (BITS_WIDTH_TABLE[d.xOffsetBits]);
-      yOffset       =       bitStream.readSigned  (BITS_WIDTH_TABLE[d.yOffsetBits]);
+      xOffset       = (int) bitStream.readSigned  (BITS_WIDTH_TABLE[d.xOffsetBits]);
+      yOffset       = (int) bitStream.readSigned  (BITS_WIDTH_TABLE[d.yOffsetBits]);
       optionalBytes = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.optionalBytesBits]);
       codedBytes    = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.codedBytesBits]);
       flip          =       bitStream.readBit();
