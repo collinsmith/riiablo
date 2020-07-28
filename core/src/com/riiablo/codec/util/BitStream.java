@@ -136,17 +136,17 @@ public class BitStream {
   }
 
   public byte readUnsigned7OrLess(int bits) {
-    assert bits <= Byte.SIZE - 1;
+    assert bits < Byte.SIZE : "only 7 bits can fit into byte and be unsigned. bits: " + bits;
     return (byte) readUnsigned(bits);
   }
 
   public short readUnsigned15OrLess(int bits) {
-    assert bits <= Short.SIZE - 1;
+    assert bits < Short.SIZE : "only 15 bits can fit into short and be unsigned. bits: " + bits;
     return (short) readUnsigned(bits);
   }
 
   public int readUnsigned31OrLess(int bits) {
-    assert bits < Integer.SIZE;
+    assert bits < Integer.SIZE : "only 31 bits can fit into int and be unsigned. bits: " + bits;
     return (int) readUnsigned(bits);
   }
 
