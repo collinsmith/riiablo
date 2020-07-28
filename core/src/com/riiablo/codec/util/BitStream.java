@@ -135,29 +135,9 @@ public class BitStream {
     return value;
   }
 
-  public long read64BitsOrLess(int bits) {
-    assert bits <= Long.SIZE;
-    return readUnsigned(bits);
-  }
-
-  public int read32BitsOrLess(int bits) {
-    assert bits <= Integer.SIZE;
-    return (int) readUnsigned(bits);
-  }
-
-  public short read16BitsOrLess(int bits) {
-    assert bits <= Short.SIZE;
-    return (short) readUnsigned(bits);
-  }
-
   public byte readUnsigned7OrLess(int bits) {
     assert bits <= Byte.SIZE - 1;
     return (byte) readUnsigned(bits);
-  }
-
-  public int readUnsigned8OrLess(int bits) {
-    assert bits <= Byte.SIZE;
-    return (int) readUnsigned(bits);
   }
 
   public short readUnsigned15OrLess(int bits) {
@@ -168,6 +148,26 @@ public class BitStream {
   public int readUnsigned31OrLess(int bits) {
     assert bits < Integer.SIZE;
     return (int) readUnsigned(bits);
+  }
+
+  public int readUnsigned8OrLess(int bits) {
+    assert bits <= Byte.SIZE;
+    return (int) readUnsigned(bits);
+  }
+
+  public short read16BitsOrLess(int bits) {
+    assert bits <= Short.SIZE;
+    return (short) readUnsigned(bits);
+  }
+
+  public int read32BitsOrLess(int bits) {
+    assert bits <= Integer.SIZE;
+    return (int) readUnsigned(bits);
+  }
+
+  public long read64BitsOrLess(int bits) {
+    assert bits <= Long.SIZE;
+    return readUnsigned(bits);
   }
 
   public int readSigned(int bits) {
