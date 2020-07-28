@@ -2,6 +2,7 @@ package com.riiablo.codec.util;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import org.apache.commons.lang3.Validate;
 
 import com.riiablo.util.BufferUtils;
 
@@ -115,6 +116,7 @@ public class BitStream {
   }
 
   public long readUnsigned(int bits) {
+    Validate.inclusiveBetween(0, Long.SIZE, bits, "bits must be in range [0,64]");
     if (bits == 0) return 0;
     int curBytesPos     = (int) (curBitPosition / Byte.SIZE);
     int bitPosInCurByte = (int) (curBitPosition % Byte.SIZE);
@@ -152,21 +154,20 @@ public class BitStream {
     assert bits <= Byte.SIZE - 1;
     return (byte) readUnsigned(bits);
   }
+
   public int readUnsigned8OrLess(int bits) {
     assert bits <= Byte.SIZE;
     return (int) readUnsigned(bits);
   }
+
   public short readUnsigned15OrLess(int bits) {
     assert bits <= Short.SIZE - 1;
     return (short) readUnsigned(bits);
   }
+
   public int readUnsigned31OrLess(int bits) {
     assert bits < Integer.SIZE;
     return (int) readUnsigned(bits);
-  }
-
-  public int read0Bits() {
-    return 0;
   }
 
   public int readSigned(int bits) {
