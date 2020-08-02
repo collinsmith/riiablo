@@ -1,43 +1,82 @@
 package com.riiablo.item;
 
-import com.badlogic.gdx.Gdx;
+import java.util.Arrays;
+import org.apache.logging.log4j.Logger;
+
 import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.util.BitStream;
+import com.riiablo.log.Log;
+import com.riiablo.log.LogManager;
+import com.riiablo.save.InvalidFormat;
+import com.riiablo.util.DebugUtils;
 
 public class ItemSerializer {
-  private static final String TAG = "ItemSerializer";
+  private static final Logger log = LogManager.getLogger(ItemSerializer.class);
 
-  private static final boolean DEBUG = true;
+  private static final byte[] SIGNATURE = {0x4A, 0x4D};
 
-  public Item read(BitStream bitStream) {
+  private static boolean readSignature(BitStream bitStream) {
+    log.trace("Validating item signature");
+    byte[] signature = bitStream.readFully(SIGNATURE.length);
+    boolean matched = Arrays.equals(signature, SIGNATURE);
+    if (!matched) {
+      throw new InvalidFormat(
+          String.format("Item signature doesn't match expected signature: %s, expected %s",
+          DebugUtils.toByteArray(signature),
+          DebugUtils.toByteArray(SIGNATURE)));
+    }
+    return matched;
+  }
+
+  public Item readItem(BitStream bitStream) {
+    Item item = readSingleItem(bitStream);
+    if (item.socketsFilled > 0) log.trace("Reading {} sockets...", item.socketsFilled);
+    for (int i = 0; i < item.socketsFilled; i++) {
+      try {
+        Log.put("socket", String.valueOf(i));
+        bitStream.alignToByte();
+        item.sockets.add(readSingleItem(bitStream));
+      } finally {
+        Log.remove("socket");
+      }
+    }
+    return item;
+  }
+
+  public Item readSingleItem(BitStream bitStream) {
+    log.trace("Reading item...");
+    readSignature(bitStream);
     Item item = new Item();
     item.reset();
-    item.flags    = (int) bitStream.readUnsigned(Integer.SIZE);
-    item.version  = bitStream.readUnsigned8OrLess(Byte.SIZE);
+    item.flags = (int) bitStream.readUnsigned(Integer.SIZE);
+    Log.tracef(log, "flags: 0x%08X [%s]", item.flags, item.getFlagsString());
+    item.version = bitStream.readUnsigned8OrLess(Byte.SIZE);
+    log.trace("version: {}", item.version);
     bitStream.skip(2); // Unknown use -- safe to skip
     item.location = Location.valueOf(bitStream.readUnsigned7OrLess(3));
-    item.bodyLoc  = BodyLoc.valueOf(bitStream.readUnsigned7OrLess(4));
-    item.gridX    = bitStream.readUnsigned7OrLess(4);
-    item.gridY    = bitStream.readUnsigned7OrLess(4);
+    item.bodyLoc = BodyLoc.valueOf(bitStream.readUnsigned7OrLess(4));
+    item.gridX = bitStream.readUnsigned7OrLess(4);
+    item.gridY = bitStream.readUnsigned7OrLess(4);
     item.storeLoc = StoreLoc.valueOf(bitStream.readUnsigned7OrLess(3));
 
     if ((item.flags & Item.ITEMFLAG_BODYPART) == Item.ITEMFLAG_BODYPART) {
-      int    charClass = bitStream.readUnsigned7OrLess(3);
-      int    charLevel = bitStream.readUnsigned7OrLess(7);
-      String charName  = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7);
+      int charClass = bitStream.readUnsigned7OrLess(3);
+      int charLevel = bitStream.readUnsigned7OrLess(7);
+      String charName = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7);
       item.setEar(charClass, charLevel, charName);
     } else {
       item.setBase(bitStream.readString(4).trim());
       item.socketsFilled = bitStream.readUnsigned7OrLess(3);
     }
 
+    log.trace("code: {}", item.code);
     if ((item.flags & Item.ITEMFLAG_COMPACT) == Item.ITEMFLAG_COMPACT) {
       readCompact(item);
     } else {
-      read(bitStream, item);
+      readStandard(bitStream, item);
     }
 
     return item;
@@ -52,12 +91,13 @@ public class ItemSerializer {
     }
   }
 
-  private static void read(BitStream bitStream, Item item) {
-    item.data      = bitStream.getBufferView(); // TODO: remove when serialization implemented
-    item.id        = (int) bitStream.readUnsigned(Integer.SIZE);
-    item.ilvl      = bitStream.readUnsigned7OrLess(7);
-    item.quality   = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
-    item.pictureId = bitStream.readBoolean() ? bitStream.readUnsigned7OrLess(3)   : Item.NO_PICTURE_ID;
+  private static void readStandard(BitStream bitStream, Item item) {
+    item.data = bitStream.getBufferView(); // TODO: remove when serialization implemented
+    item.id = (int) bitStream.readUnsigned(Integer.SIZE);
+    Log.tracef(log, "id: 0x%08X", item.id);
+    item.ilvl = bitStream.readUnsigned7OrLess(7);
+    item.quality = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
+    item.pictureId = bitStream.readBoolean() ? bitStream.readUnsigned7OrLess(3) : Item.NO_PICTURE_ID;
     item.classOnly = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(11) : Item.NO_CLASS_ONLY;
     readQualityData(bitStream, item);
 
@@ -86,10 +126,12 @@ public class ItemSerializer {
   }
 
   private static boolean readQualityData(BitStream bitStream, Item item) {
+    log.trace("quality: {}", item.quality);
     switch (item.quality) {
       case LOW:
       case HIGH:
         item.qualityId = bitStream.readUnsigned31OrLess(3);
+        log.trace("qualityId: {}", item.qualityId);
         return true;
 
       case NORMAL:
@@ -98,28 +140,39 @@ public class ItemSerializer {
 
       case SET:
         item.qualityId = bitStream.readUnsigned31OrLess(Item.SET_ID_SIZE);
+        log.trace("qualityId: {}", item.qualityId);
         item.qualityData = Riiablo.files.SetItems.get(item.qualityId);
+        log.trace("qualityData: {}", item.qualityData);
         if (item.qualityId == (1 << Item.SET_ID_SIZE) - 1) {
-          Gdx.app.error(TAG, String.format("Unknown set id: 0x%03x", item.qualityId));
+          log.error("Unknown set item id: {}", item.qualityId);
+          // This is unexpected -- all set items should reference a set id
+          // TODO: throw item format exception
         }
         return true;
 
       case UNIQUE:
         item.qualityId = bitStream.readUnsigned31OrLess(Item.UNIQUE_ID_SIZE);
+        log.trace("qualityId: {}", item.qualityId);
         item.qualityData = Riiablo.files.UniqueItems.get(item.qualityId);
+        log.trace("qualityData: {}", item.qualityData);
         if (item.qualityId == (1 << Item.UNIQUE_ID_SIZE) - 1) {
-          Gdx.app.error(TAG, String.format("Unknown unique id: 0x%03x", item.qualityId));
+          log.warn("Unknown unique item id: {}", item.qualityId);
+          // This is expected for hdm and possibly others
+          // TODO: ensure item can be gracefully handled, else throw item format exception
         }
         return true;
 
       case MAGIC:
         item.qualityId = bitStream.readUnsigned31OrLess(2 * Item.MAGIC_AFFIX_SIZE); // 11 for prefix, 11 for suffix
+        log.trace("qualityId: {}", item.qualityId);
         return true;
 
       case RARE:
       case CRAFTED:
         item.qualityId = bitStream.readUnsigned31OrLess(2 * Item.RARE_AFFIX_SIZE); // 8 for prefix, 8 for suffix
+        log.trace("qualityId: {}", item.qualityId);
         item.qualityData = new RareQualityData(bitStream);
+        log.trace("qualityData: {}", item.qualityData);
         return true;
 
       default:

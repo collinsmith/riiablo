@@ -33,7 +33,7 @@ public class Item {
   private static final ItemLabeler DEFAULT_LABELER = new ItemLabeler();
 
   public static Item loadFromStream(BitStream bitStream) {
-    return DEFAULT_SERIALIZER.read(bitStream);
+    return DEFAULT_SERIALIZER.readSingleItem(bitStream);
   }
 
   public static final float ETHEREAL_ALPHA = 2 / 3f;
@@ -277,6 +277,10 @@ public class Item {
     return (flags & flag) == flag;
   }
 
+  public boolean isCompact() {
+    return hasFlag(ITEMFLAG_COMPACT);
+  }
+
   public boolean isIdentified() {
     return hasFlag(ITEMFLAG_IDENTIFIED);
   }
@@ -476,7 +480,7 @@ public class Item {
     return base.usesound;
   }
 
-  private String getFlagsString() {
+  String getFlagsString() {
     StringBuilder builder = new StringBuilder();
     if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__RELOAD   ) == ITEMFLAG__RELOAD   ) builder.append("ITEMFLAG__RELOAD"   ).append('|');
     if (ONLY_KNOWN_FLAGS && (flags & ITEMFLAG__BOUGHT   ) == ITEMFLAG__BOUGHT   ) builder.append("ITEMFLAG__BOUGHT"   ).append('|');

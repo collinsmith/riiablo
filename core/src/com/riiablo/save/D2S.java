@@ -763,7 +763,7 @@ public class D2S {
   public static class ItemData {
     static final byte[] SECTION_HEADER = {0x4A, 0x4D};
     static final byte[] SECTION_FOOTER = ArrayUtils.addAll(SECTION_HEADER, new byte[] {0x00, 0x00});
-    public static final int SECTION_HEADER_BITS = SECTION_HEADER.length * Byte.SIZE;
+//    public static final int SECTION_HEADER_BITS = SECTION_HEADER.length * Byte.SIZE;
 
     public byte        header[];
     public short       size;
@@ -784,7 +784,7 @@ public class D2S {
         //else System.out.println(i + " = " + slice.remaining());
         byte[] bytes = BufferUtils.readRemaining(slice);
         BitStream bitStream = new BitStream(bytes);
-        bitStream.skip(SECTION_HEADER_BITS);
+//        bitStream.skip(SECTION_HEADER_BITS);
         Item item = Item.loadFromStream(bitStream);
         items.add(item);
 
@@ -794,7 +794,7 @@ public class D2S {
           //else System.out.println(i + " = " + slice.remaining());
           bytes = BufferUtils.readRemaining(slice);
           bitStream = new BitStream(bytes);
-          bitStream.skip(SECTION_HEADER_BITS);
+//          bitStream.skip(SECTION_HEADER_BITS);
           Item socket = Item.loadFromStream(bitStream);
           item.sockets.add(socket);
           assert socket.location == Location.SOCKET;
@@ -838,7 +838,7 @@ public class D2S {
       if (slice.remaining() <= 0) return this;
       byte[] bytes = BufferUtils.readRemaining(buffer);
       BitStream bitStream = new BitStream(bytes);
-      bitStream.skip(ItemData.SECTION_HEADER_BITS);
+//      bitStream.skip(ItemData.SECTION_HEADER_BITS);
       item = Item.loadFromStream(bitStream);
       for (int j = 0; j < item.socketsFilled; j++) {
         slice = BufferUtils.slice(buffer, ItemData.SECTION_HEADER, true);
@@ -846,7 +846,7 @@ public class D2S {
         //else System.out.println(i + " = " + slice.remaining());
         bytes = BufferUtils.readRemaining(slice);
         bitStream = new BitStream(bytes);
-        bitStream.skip(ItemData.SECTION_HEADER_BITS);
+//        bitStream.skip(ItemData.SECTION_HEADER_BITS);
         Item socket = Item.loadFromStream(bitStream);
         item.sockets.add(socket);
         assert socket.location == Location.SOCKET;

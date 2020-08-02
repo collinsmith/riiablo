@@ -72,7 +72,6 @@ import com.riiablo.net.packet.d2gs.SwapStoreItem;
 import com.riiablo.net.packet.d2gs.VelocityP;
 import com.riiablo.net.packet.d2gs.WarpP;
 import com.riiablo.save.CharData;
-import com.riiablo.save.D2S;
 import com.riiablo.util.ArrayUtils;
 import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
@@ -314,7 +313,7 @@ public class ClientNetworkReceiver extends IntervalSystem {
         PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
         byte[] bytes = BufferUtils.readRemaining(item.dataAsByteBuffer());
         BitStream bitStream = new BitStream(bytes);
-        bitStream.skip(D2S.ItemData.SECTION_HEADER_BITS);
+//        bitStream.skip(D2S.ItemData.SECTION_HEADER_BITS);
         Item itemObj = com.riiablo.item.Item.loadFromStream(bitStream);
         return factory.createItem(itemObj, position.x(), position.y());
       }
