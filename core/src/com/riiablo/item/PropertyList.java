@@ -78,7 +78,7 @@ public class PropertyList implements Iterable<Stat> {
   }
 
   public PropertyList read(BitStream bitStream) {
-    for (int prop; (prop = bitStream.readUnsigned15OrLess(Stat.BITS)) != Stat.NONE;) {
+    for (int prop; (prop = bitStream.readU15(Stat.BITS)) != Stat.NONE;) {
       for (int j = prop, size = j + Stat.getNumEncoded(prop); j < size; j++) {
         read(j, bitStream);
       }

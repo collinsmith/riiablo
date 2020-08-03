@@ -11,8 +11,8 @@ class RareQualityData {
     prefixes = new int[NUM_AFFIXES];
     suffixes = new int[NUM_AFFIXES];
     for (int i = 0; i < NUM_AFFIXES; i++) {
-      prefixes[i] = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(Item.MAGIC_AFFIX_SIZE) : 0;
-      suffixes[i] = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(Item.MAGIC_AFFIX_SIZE) : 0;
+      prefixes[i] = bitStream.readBoolean() ? bitStream.readU15(Item.MAGIC_AFFIX_SIZE) : 0;
+      suffixes[i] = bitStream.readBoolean() ? bitStream.readU15(Item.MAGIC_AFFIX_SIZE) : 0;
     }
   }
 

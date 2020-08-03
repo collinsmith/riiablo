@@ -98,7 +98,7 @@ public class ItemSerializer {
     item.ilvl = bitStream.readU7(7);
     item.quality = Quality.valueOf(bitStream.readU7(4));
     item.pictureId = bitStream.readBoolean() ? bitStream.readU7(3) : Item.NO_PICTURE_ID;
-    item.classOnly = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(11) : Item.NO_CLASS_ONLY;
+    item.classOnly = bitStream.readBoolean() ? bitStream.readU15(11) : Item.NO_CLASS_ONLY;
     readQualityData(bitStream, item);
 
     int listFlags = Item.MAGIC_PROPS_FLAG;
@@ -225,7 +225,7 @@ public class ItemSerializer {
   private static boolean readQuantity(BitStream bitStream, Item item) {
     boolean hasQuantity = item.base.stackable;
     if (hasQuantity) {
-      int quantity = bitStream.readUnsigned15OrLess(9);
+      int quantity = bitStream.readU15(9);
       item.props.base().put(Stat.quantity, quantity);
     }
     return hasQuantity;

@@ -140,7 +140,7 @@ public class BitStream {
     return (byte) readUnsigned(bits);
   }
 
-  public short readUnsigned15OrLess(int bits) {
+  public short readU15(int bits) {
     assert bits < Short.SIZE : "only 15 bits can fit into short and be unsigned. bits: " + bits;
     return (short) readUnsigned(bits);
   }
