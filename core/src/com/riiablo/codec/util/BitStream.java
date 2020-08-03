@@ -150,6 +150,11 @@ public class BitStream {
     return (int) readUnsigned(bits);
   }
 
+  public long readU63(int bits) {
+    assert bits < Long.SIZE : "only 63 bits can fit into long and be unsigned. bits: " + bits;
+    return readUnsigned(bits);
+  }
+
   public int readU8(int bits) {
     assert bits <= Byte.SIZE;
     return (int) readUnsigned(bits);
