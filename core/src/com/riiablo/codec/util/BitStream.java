@@ -115,6 +115,10 @@ public class BitStream {
     return readBoolean() ? 1 : 0;
   }
 
+  public long readRaw(int bits) {
+    return readUnsigned(bits);
+  }
+
   public long readUnsigned(int bits) {
     Validate.inclusiveBetween(0, Long.SIZE, bits, "bits must be in range [0,64]");
     if (bits == 0) return 0;
@@ -161,6 +165,10 @@ public class BitStream {
   }
 
   public long readSigned(int bits) {
+    if (bits == Long.SIZE) {
+      return readRaw(bits);
+    }
+
     final int shift = Long.SIZE - bits;
     return readUnsigned(bits) << shift >> shift;
   }
