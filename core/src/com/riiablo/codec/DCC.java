@@ -401,7 +401,7 @@ public class DCC extends com.riiablo.codec.DC {
             }
 
             if (tmp == 0) {
-              pixelMask = dir.pixelMaskBitStream.readUnsigned8OrLess(4);
+              pixelMask = dir.pixelMaskBitStream.readU8(4);
               assert pixelMask >= 0;
             } else {
               nextCell = true;
@@ -424,11 +424,11 @@ public class DCC extends com.riiablo.codec.DC {
             decodedPixels = 0;
             for (int i = 0; i < pixels; i++) {
               if (encodingType > 0) {
-                readPixel[i] = dir.rawPixelCodesBitStream.readUnsigned8OrLess(8);
+                readPixel[i] = dir.rawPixelCodesBitStream.readU8(8);
               } else {
                 readPixel[i] = lastPixel;
                 do {
-                  pixelDisplacement = dir.pixelCodeAndDisplacementBitStream.readUnsigned8OrLess(4);
+                  pixelDisplacement = dir.pixelCodeAndDisplacementBitStream.readU8(4);
                   readPixel[i] += pixelDisplacement;
                 } while (pixelDisplacement == 0xF);
               }
@@ -651,7 +651,7 @@ public class DCC extends com.riiablo.codec.DC {
 
             for (int y = 0; y < cell.h; y++) {
               for (int x = 0; x < cell.w; x++) {
-                int pix = dir.pixelCodeAndDisplacementBitStream.readUnsigned8OrLess(bits);
+                int pix = dir.pixelCodeAndDisplacementBitStream.readU8(bits);
                 cell.bmp.setPixel(x, y, pbe.val[pix]);
               }
             }
@@ -755,14 +755,14 @@ public class DCC extends com.riiablo.codec.DC {
     Direction read(InputStream in, int size, Frame[] frames) throws IOException {
       BitStream bitStream = new BitStream(IOUtils.readFully(in, size), size * Byte.SIZE);
       outsizeCoded      = (int)  bitStream.readUnsigned(32);
-      compressionFlags  = (byte) bitStream.readUnsigned8OrLess(2);
-      variable0Bits     = (byte) bitStream.readUnsigned8OrLess(4);
-      widthBits         = (byte) bitStream.readUnsigned8OrLess(4);
-      heightBits        = (byte) bitStream.readUnsigned8OrLess(4);
-      xOffsetBits       = (byte) bitStream.readUnsigned8OrLess(4);
-      yOffsetBits       = (byte) bitStream.readUnsigned8OrLess(4);
-      optionalBytesBits = (byte) bitStream.readUnsigned8OrLess(4);
-      codedBytesBits    = (byte) bitStream.readUnsigned8OrLess(4);
+      compressionFlags  = (byte) bitStream.readU8(2);
+      variable0Bits     = (byte) bitStream.readU8(4);
+      widthBits         = (byte) bitStream.readU8(4);
+      heightBits        = (byte) bitStream.readU8(4);
+      xOffsetBits       = (byte) bitStream.readU8(4);
+      yOffsetBits       = (byte) bitStream.readU8(4);
+      optionalBytesBits = (byte) bitStream.readU8(4);
+      codedBytesBits    = (byte) bitStream.readU8(4);
 
       box = new BBox();
       box.xMin = box.yMin = Integer.MAX_VALUE;

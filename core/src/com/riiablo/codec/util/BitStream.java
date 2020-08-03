@@ -150,7 +150,7 @@ public class BitStream {
     return (int) readUnsigned(bits);
   }
 
-  public int readUnsigned8OrLess(int bits) {
+  public int readU8(int bits) {
     assert bits <= Byte.SIZE;
     return (int) readUnsigned(bits);
   }
@@ -186,7 +186,7 @@ public class BitStream {
     assert bitsPerChar <= Byte.SIZE;
     byte[] b = new byte[len];
     for (int i = 0; i < len; i++) {
-      b[i] = (byte) readUnsigned8OrLess(bitsPerChar);
+      b[i] = (byte) readU8(bitsPerChar);
     }
     return BufferUtils.readString(ByteBuffer.wrap(b), len);
   }
@@ -194,7 +194,7 @@ public class BitStream {
   public String readString2(int len, int bitsPerChar) {
     assert bitsPerChar <= Byte.SIZE;
     byte[] b = new byte[len];
-    for (int i = 0; i < len && (b[i] = (byte) readUnsigned8OrLess(bitsPerChar)) != '\0'; i++);
+    for (int i = 0; i < len && (b[i] = (byte) readU8(bitsPerChar)) != '\0'; i++);
     return BufferUtils.readString(ByteBuffer.wrap(b), len);
   }
 }

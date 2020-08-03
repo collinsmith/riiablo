@@ -53,7 +53,7 @@ public class ItemSerializer {
     item.reset();
     item.flags = (int) bitStream.readUnsigned(Integer.SIZE);
     Log.tracef(log, "flags: 0x%08X [%s]", item.flags, item.getFlagsString());
-    item.version = bitStream.readUnsigned8OrLess(Byte.SIZE);
+    item.version = bitStream.readU8(Byte.SIZE);
     log.trace("version: {}", item.version);
     bitStream.skip(2); // Unknown use -- safe to skip
     item.location = Location.valueOf(bitStream.readU7(3));
