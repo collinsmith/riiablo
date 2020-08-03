@@ -184,9 +184,9 @@ public class D2S {
       data.waypointData[i][4] = bitStream.readU31(9);
 
       bitStream = new BitStream(npcs.data[NPCData.GREETING_INTRO][i]);
-      data.npcIntroData[i]  = bitStream.readUnsigned(64);
+      data.npcIntroData[i]  = bitStream.readRaw(64);
       bitStream = new BitStream(npcs.data[NPCData.GREETING_RETURN][i]);
-      data.npcReturnData[i] = bitStream.readUnsigned(64);
+      data.npcReturnData[i] = bitStream.readRaw(64);
     }
 
     PropertyList base = data.statData.base();
@@ -669,7 +669,7 @@ public class D2S {
           case 0xA: stamina     = bitStream.readU31(numBits(id)); break;
           case 0xB: maxstamina  = bitStream.readU31(numBits(id)); break;
           case 0xC: level       = bitStream.readU31(numBits(id)); break;
-          case 0xD: experience  = bitStream.readUnsigned(numBits(id)); break;
+          case 0xD: experience  = bitStream.readU63(numBits(id)); break;
           case 0xE: gold        = bitStream.readU31(numBits(id)); break;
           case 0xF: goldbank    = bitStream.readU31(numBits(id)); break;
           default:  continue;

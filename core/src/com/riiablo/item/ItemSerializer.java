@@ -51,7 +51,7 @@ public class ItemSerializer {
     readSignature(bitStream);
     Item item = new Item();
     item.reset();
-    item.flags = (int) bitStream.readUnsigned(Integer.SIZE);
+    item.flags = (int) bitStream.readRaw(32);
     Log.tracef(log, "flags: 0x%08X [%s]", item.flags, item.getFlagsString());
     item.version = bitStream.readU8(Byte.SIZE);
     log.trace("version: {}", item.version);
@@ -93,7 +93,7 @@ public class ItemSerializer {
 
   private static void readStandard(BitStream bitStream, Item item) {
     item.data = bitStream.getBufferView(); // TODO: remove when serialization implemented
-    item.id = (int) bitStream.readUnsigned(Integer.SIZE);
+    item.id = (int) bitStream.readRaw(32);
     Log.tracef(log, "id: 0x%08X", item.id);
     item.ilvl = bitStream.readU7(7);
     item.quality = Quality.valueOf(bitStream.readU7(4));
@@ -187,7 +187,7 @@ public class ItemSerializer {
 
   private static boolean readRunewordData(BitStream bitStream, Item item) {
     boolean hasRunewordData = (item.flags & Item.ITEMFLAG_RUNEWORD) == Item.ITEMFLAG_RUNEWORD;
-    item.runewordData = hasRunewordData ? (short) bitStream.readUnsigned(Short.SIZE) : 0;
+    item.runewordData = hasRunewordData ? (short) bitStream.readRaw(16) : 0;
     return hasRunewordData;
   }
 
