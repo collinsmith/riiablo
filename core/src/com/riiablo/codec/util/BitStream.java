@@ -135,7 +135,7 @@ public class BitStream {
     return value;
   }
 
-  public byte readUnsigned7OrLess(int bits) {
+  public byte readU7(int bits) {
     assert bits < Byte.SIZE : "only 7 bits can fit into byte and be unsigned. bits: " + bits;
     return (byte) readUnsigned(bits);
   }

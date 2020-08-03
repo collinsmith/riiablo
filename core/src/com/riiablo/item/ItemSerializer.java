@@ -56,20 +56,20 @@ public class ItemSerializer {
     item.version = bitStream.readUnsigned8OrLess(Byte.SIZE);
     log.trace("version: {}", item.version);
     bitStream.skip(2); // Unknown use -- safe to skip
-    item.location = Location.valueOf(bitStream.readUnsigned7OrLess(3));
-    item.bodyLoc = BodyLoc.valueOf(bitStream.readUnsigned7OrLess(4));
-    item.gridX = bitStream.readUnsigned7OrLess(4);
-    item.gridY = bitStream.readUnsigned7OrLess(4);
-    item.storeLoc = StoreLoc.valueOf(bitStream.readUnsigned7OrLess(3));
+    item.location = Location.valueOf(bitStream.readU7(3));
+    item.bodyLoc = BodyLoc.valueOf(bitStream.readU7(4));
+    item.gridX = bitStream.readU7(4);
+    item.gridY = bitStream.readU7(4);
+    item.storeLoc = StoreLoc.valueOf(bitStream.readU7(3));
 
     if ((item.flags & Item.ITEMFLAG_BODYPART) == Item.ITEMFLAG_BODYPART) {
-      int charClass = bitStream.readUnsigned7OrLess(3);
-      int charLevel = bitStream.readUnsigned7OrLess(7);
+      int charClass = bitStream.readU7(3);
+      int charLevel = bitStream.readU7(7);
       String charName = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7);
       item.setEar(charClass, charLevel, charName);
     } else {
       item.setBase(bitStream.readString(4).trim());
-      item.socketsFilled = bitStream.readUnsigned7OrLess(3);
+      item.socketsFilled = bitStream.readU7(3);
     }
 
     log.trace("code: {}", item.code);
@@ -95,9 +95,9 @@ public class ItemSerializer {
     item.data = bitStream.getBufferView(); // TODO: remove when serialization implemented
     item.id = (int) bitStream.readUnsigned(Integer.SIZE);
     Log.tracef(log, "id: 0x%08X", item.id);
-    item.ilvl = bitStream.readUnsigned7OrLess(7);
-    item.quality = Quality.valueOf(bitStream.readUnsigned7OrLess(4));
-    item.pictureId = bitStream.readBoolean() ? bitStream.readUnsigned7OrLess(3) : Item.NO_PICTURE_ID;
+    item.ilvl = bitStream.readU7(7);
+    item.quality = Quality.valueOf(bitStream.readU7(4));
+    item.pictureId = bitStream.readBoolean() ? bitStream.readU7(3) : Item.NO_PICTURE_ID;
     item.classOnly = bitStream.readBoolean() ? bitStream.readUnsigned15OrLess(11) : Item.NO_CLASS_ONLY;
     readQualityData(bitStream, item);
 
@@ -182,7 +182,7 @@ public class ItemSerializer {
   }
 
   private static int readSetFlags(BitStream bitStream, Item item) {
-    return item.quality == Quality.SET ? bitStream.readUnsigned7OrLess(5) : 0;
+    return item.quality == Quality.SET ? bitStream.readU7(5) : 0;
   }
 
   private static boolean readRunewordData(BitStream bitStream, Item item) {
