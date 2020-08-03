@@ -723,7 +723,7 @@ public class DCC extends com.riiablo.codec.DC {
     static final int HasRawPixelEncoding = 0x1;
     static final int CompressEqualCells  = 0x2;
 
-    int  outsizeCoded;
+    long outsizeCoded;
     byte compressionFlags;  // 2 bits
     byte variable0Bits;     // 4 bits
     byte widthBits;         // 4 bits
@@ -754,7 +754,7 @@ public class DCC extends com.riiablo.codec.DC {
 
     Direction read(InputStream in, int size, Frame[] frames) throws IOException {
       BitStream bitStream = new BitStream(IOUtils.readFully(in, size), size * Byte.SIZE);
-      outsizeCoded      = (int)  bitStream.readUnsigned(32);
+      outsizeCoded      =        bitStream.readUnsigned(32);
       compressionFlags  = (byte) bitStream.readU8(2);
       variable0Bits     = (byte) bitStream.readU8(4);
       widthBits         = (byte) bitStream.readU8(4);

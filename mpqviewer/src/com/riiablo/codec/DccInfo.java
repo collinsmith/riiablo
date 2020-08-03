@@ -1,7 +1,6 @@
 package com.riiablo.codec;
 
 import com.kotcrab.vis.ui.widget.VisTable;
-
 import org.apache.commons.lang3.ObjectUtils;
 
 public class DccInfo extends VisTable {
@@ -65,7 +64,7 @@ public class DccInfo extends VisTable {
     body.clear();
     body.add("Direction:").left().colspan(2).row();
     add(body, "direction: ",           d);
-    add(body, "outsize coded: ",       dir.outsizeCoded);
+    add(body, "outsize coded: ",       (int) dir.outsizeCoded);
     add(body, "compression flags: ",   dir.compressionFlags);
     body.add(dir.getFlags()).colspan(2).row();
     add(body, "variable0 bits: ",      dir.variable0Bits);
