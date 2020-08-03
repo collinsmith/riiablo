@@ -145,7 +145,7 @@ public class BitStream {
     return (short) readUnsigned(bits);
   }
 
-  public int readUnsigned31OrLess(int bits) {
+  public int readU31(int bits) {
     assert bits < Integer.SIZE : "only 31 bits can fit into int and be unsigned. bits: " + bits;
     return (int) readUnsigned(bits);
   }

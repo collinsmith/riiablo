@@ -130,7 +130,7 @@ public class ItemSerializer {
     switch (item.quality) {
       case LOW:
       case HIGH:
-        item.qualityId = bitStream.readUnsigned31OrLess(3);
+        item.qualityId = bitStream.readU31(3);
         log.trace("qualityId: {}", item.qualityId);
         return true;
 
@@ -139,7 +139,7 @@ public class ItemSerializer {
         return true;
 
       case SET:
-        item.qualityId = bitStream.readUnsigned31OrLess(Item.SET_ID_SIZE);
+        item.qualityId = bitStream.readU31(Item.SET_ID_SIZE);
         log.trace("qualityId: {}", item.qualityId);
         item.qualityData = Riiablo.files.SetItems.get(item.qualityId);
         log.trace("qualityData: {}", item.qualityData);
@@ -151,7 +151,7 @@ public class ItemSerializer {
         return true;
 
       case UNIQUE:
-        item.qualityId = bitStream.readUnsigned31OrLess(Item.UNIQUE_ID_SIZE);
+        item.qualityId = bitStream.readU31(Item.UNIQUE_ID_SIZE);
         log.trace("qualityId: {}", item.qualityId);
         item.qualityData = Riiablo.files.UniqueItems.get(item.qualityId);
         log.trace("qualityData: {}", item.qualityData);
@@ -163,13 +163,13 @@ public class ItemSerializer {
         return true;
 
       case MAGIC:
-        item.qualityId = bitStream.readUnsigned31OrLess(2 * Item.MAGIC_AFFIX_SIZE); // 11 for prefix, 11 for suffix
+        item.qualityId = bitStream.readU31(2 * Item.MAGIC_AFFIX_SIZE); // 11 for prefix, 11 for suffix
         log.trace("qualityId: {}", item.qualityId);
         return true;
 
       case RARE:
       case CRAFTED:
-        item.qualityId = bitStream.readUnsigned31OrLess(2 * Item.RARE_AFFIX_SIZE); // 8 for prefix, 8 for suffix
+        item.qualityId = bitStream.readU31(2 * Item.RARE_AFFIX_SIZE); // 8 for prefix, 8 for suffix
         log.trace("qualityId: {}", item.qualityId);
         item.qualityData = new RareQualityData(bitStream);
         log.trace("qualityData: {}", item.qualityData);

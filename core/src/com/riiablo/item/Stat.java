@@ -1,9 +1,10 @@
 package com.riiablo.item;
 
 import com.google.common.primitives.UnsignedInts;
+import java.util.Arrays;
 
 import com.badlogic.gdx.Gdx;
-import com.riiablo.save.CharData;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.CharStats;
@@ -11,8 +12,7 @@ import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.codec.util.BitStream;
-
-import java.util.Arrays;
+import com.riiablo.save.CharData;
 
 @SuppressWarnings("unused")
 public class Stat implements Comparable<Stat> {
@@ -487,8 +487,8 @@ public class Stat implements Comparable<Stat> {
   Stat _obtain(int stat, BitStream bitStream) {
     this.id  = stat;
     entry    = Riiablo.files.ItemStatCost.get(stat);
-    param    = bitStream.readUnsigned31OrLess(entry.Save_Param_Bits);
-    val      = bitStream.readUnsigned31OrLess(entry.Save_Bits) - entry.Save_Add;
+    param    = bitStream.readU31(entry.Save_Param_Bits);
+    val      = bitStream.readU31(entry.Save_Bits) - entry.Save_Add;
     hash     = hash(stat, param);
     modified = false;
     return this;

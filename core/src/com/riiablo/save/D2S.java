@@ -170,18 +170,18 @@ public class D2S {
     BitStream bitStream;
     for (int i = 0, i0 = Riiablo.MAX_DIFFS; i < i0; i++) {
       bitStream = new BitStream(quests.data[i]);
-      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][0][q] = (short) bitStream.readUnsigned31OrLess(16);
-      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][1][q] = (short) bitStream.readUnsigned31OrLess(16);
-      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][2][q] = (short) bitStream.readUnsigned31OrLess(16);
-      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][3][q] = (short) bitStream.readUnsigned31OrLess(16);
-      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][4][q] = (short) bitStream.readUnsigned31OrLess(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][0][q] = (short) bitStream.readU31(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][1][q] = (short) bitStream.readU31(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][2][q] = (short) bitStream.readU31(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][3][q] = (short) bitStream.readU31(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][4][q] = (short) bitStream.readU31(16);
 
       bitStream = new BitStream(waypoints.diff[i].data);
-      data.waypointData[i][0] = bitStream.readUnsigned31OrLess(9);
-      data.waypointData[i][1] = bitStream.readUnsigned31OrLess(9);
-      data.waypointData[i][2] = bitStream.readUnsigned31OrLess(9);
-      data.waypointData[i][3] = bitStream.readUnsigned31OrLess(3);
-      data.waypointData[i][4] = bitStream.readUnsigned31OrLess(9);
+      data.waypointData[i][0] = bitStream.readU31(9);
+      data.waypointData[i][1] = bitStream.readU31(9);
+      data.waypointData[i][2] = bitStream.readU31(9);
+      data.waypointData[i][3] = bitStream.readU31(3);
+      data.waypointData[i][4] = bitStream.readU31(9);
 
       bitStream = new BitStream(npcs.data[NPCData.GREETING_INTRO][i]);
       data.npcIntroData[i]  = bitStream.readUnsigned(64);
@@ -655,23 +655,23 @@ public class D2S {
       byte[] bytes = BufferUtils.readRemaining(slice);
       BitStream bitStream = new BitStream(bytes);
       for (int id; bitStream.sizeInBits() - bitStream.bitPositionInBuffer() >= 9;) {
-        switch (id = bitStream.readUnsigned31OrLess(9)) {
-          case 0x0: strength    = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x1: energy      = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x2: dexterity   = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x3: vitality    = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x4: statpts     = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x5: newskills   = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x6: hitpoints   = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x7: maxhp       = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x8: mana        = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0x9: maxmana     = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0xA: stamina     = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0xB: maxstamina  = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0xC: level       = bitStream.readUnsigned31OrLess(numBits(id)); break;
+        switch (id = bitStream.readU31(9)) {
+          case 0x0: strength    = bitStream.readU31(numBits(id)); break;
+          case 0x1: energy      = bitStream.readU31(numBits(id)); break;
+          case 0x2: dexterity   = bitStream.readU31(numBits(id)); break;
+          case 0x3: vitality    = bitStream.readU31(numBits(id)); break;
+          case 0x4: statpts     = bitStream.readU31(numBits(id)); break;
+          case 0x5: newskills   = bitStream.readU31(numBits(id)); break;
+          case 0x6: hitpoints   = bitStream.readU31(numBits(id)); break;
+          case 0x7: maxhp       = bitStream.readU31(numBits(id)); break;
+          case 0x8: mana        = bitStream.readU31(numBits(id)); break;
+          case 0x9: maxmana     = bitStream.readU31(numBits(id)); break;
+          case 0xA: stamina     = bitStream.readU31(numBits(id)); break;
+          case 0xB: maxstamina  = bitStream.readU31(numBits(id)); break;
+          case 0xC: level       = bitStream.readU31(numBits(id)); break;
           case 0xD: experience  = bitStream.readUnsigned(numBits(id)); break;
-          case 0xE: gold        = bitStream.readUnsigned31OrLess(numBits(id)); break;
-          case 0xF: goldbank    = bitStream.readUnsigned31OrLess(numBits(id)); break;
+          case 0xE: gold        = bitStream.readU31(numBits(id)); break;
+          case 0xF: goldbank    = bitStream.readU31(numBits(id)); break;
           default:  continue;
         }
       }
