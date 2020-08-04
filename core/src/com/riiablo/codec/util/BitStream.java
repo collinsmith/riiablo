@@ -103,6 +103,26 @@ public class BitStream {
     curBitPosition = (curBitPosition + highestBit) & (~highestBit);
   }
 
+  public long skipUntil(byte[] signature) {
+    assert signature.length == 2 : "Only supports signatures with length of 2";
+    alignToByte();
+    final byte fb0 = signature[0];
+    final byte fb1 = signature[1];
+    long start = curBitPosition;
+    byte b0, b1;
+    b1 = (byte) readUnsigned(Byte.SIZE);
+    for (long i = curBitPosition; i < size; i += Byte.SIZE) {
+      b0 = b1;
+      b1 = (byte) readUnsigned(Byte.SIZE);
+      if (b0 == fb0 && b1 == fb1) {
+        curBitPosition -= (signature.length * Byte.SIZE);
+        break;
+      }
+    }
+
+    return curBitPosition - start;
+  }
+
   public boolean readBoolean() {
     int curBytesPos     = (int) (curBitPosition / Byte.SIZE);
     int bitPosInCurByte = (int) (curBitPosition % Byte.SIZE);
