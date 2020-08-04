@@ -25,6 +25,10 @@ public class Log {
     logger.info(createMessage(format, args));
   }
 
+  public static void warnf(Logger logger, String format, Object... args) {
+    logger.warn(createMessage(format, args));
+  }
+
   public static void warnf(Logger logger, Throwable t, String format, Object... args) {
     logger.warn(createMessage(format, args), t);
   }
