@@ -3,6 +3,10 @@ package com.riiablo.io.nio;
 import org.apache.commons.lang3.StringUtils;
 
 public class BitInput {
+  public static BitInput wrap(byte[] bytes) {
+    return ByteInput.wrap(bytes).unalign();
+  }
+
   private static final int MAX_ULONG_BITS = Long.SIZE - 1;
   private static final int MAX_UINT_BITS = Integer.SIZE - 1;
   private static final int MAX_USHORT_BITS = Short.SIZE - 1;
