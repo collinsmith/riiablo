@@ -34,6 +34,11 @@ public class ByteInput {
     return bitInput != null ? bitInput : (bitInput = new BitInput(this));
   }
 
+  /**
+   * Assigns the bit stream of this byte stream to the specified bit stream.
+   * <b>Precondition:</b> {@link #bitInput} is {@code null} and
+   * {@link BitInput#byteInput()} is {@code this}.
+   */
   BitInput bitInput(BitInput bitInput) {
     assert this.bitInput == null : "this.bitInput(" + this.bitInput + ") != null";
     assert bitInput.byteInput() == this : "bitInput.byteInput()(" + bitInput.byteInput() + ") != this(" + this + ")";
