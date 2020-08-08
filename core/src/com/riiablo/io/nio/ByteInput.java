@@ -30,7 +30,7 @@ public class ByteInput {
    *
    * @see #unalign()
    */
-  public BitInput bitInput() {
+  BitInput bitInput() {
     return bitInput != null ? bitInput : (bitInput = new BitInput(this));
   }
 
