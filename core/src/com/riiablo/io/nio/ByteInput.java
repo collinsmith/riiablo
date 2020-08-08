@@ -61,6 +61,7 @@ public class ByteInput {
    * Skips <i>n</i> bytes by discarding them.
    */
   public ByteInput skipBytes(int bytes) {
+    incrementBitsRead((long) bytes * Byte.SIZE);
     buffer.skipBytes(bytes);
     return this;
   }
