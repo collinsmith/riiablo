@@ -22,10 +22,9 @@ public class BitInput {
     }
   }
 
-  final ByteInput byteInput;
-  final long numBits;
-  long bitsRead;
-
+  private final ByteInput byteInput;
+  private final long numBits;
+  private long bitsRead;
   private int bitsCached;
   private long cache;
 
@@ -46,6 +45,10 @@ public class BitInput {
     this.bitsCached = bitsCached;
     this.cache = cache;
     this.numBits = numBits;
+  }
+
+  ByteInput byteInput() {
+    return byteInput;
   }
 
   public int bytesRead() {
@@ -136,7 +139,7 @@ public class BitInput {
     // length should include the last byte that bits belong (round to ceil)
     final long numBytes = (numBits - bitsCached + Byte.SIZE - 1) / Byte.SIZE;
     final ByteInput byteInput = this.byteInput.readSlice(numBytes);
-    return byteInput.bitInput = new BitInput(byteInput, bitsCached, cache, numBits);
+    return byteInput.bitInput(new BitInput(byteInput, bitsCached, cache, numBits));
   }
 
   /**

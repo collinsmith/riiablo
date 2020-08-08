@@ -17,11 +17,17 @@ public class ByteInput {
     return bytes == null ? emptyByteInput() : new ByteInput(Unpooled.wrappedBuffer(bytes));
   }
 
-  final ByteBuf buffer;
-  BitInput bitInput;
+  private final ByteBuf buffer;
+  private BitInput bitInput;
 
   ByteInput(ByteBuf buffer) {
     this.buffer = buffer;
+  }
+
+  BitInput bitInput(BitInput bitInput) {
+    assert this.bitInput == null : "this.bitInput(" + this.bitInput + ") != null";
+    assert bitInput.byteInput() == this : "bitInput.byteInput()(" + bitInput.byteInput() + ") != this(" + this + ")";
+    return this.bitInput = bitInput;
   }
 
   public int bytesRead() {
