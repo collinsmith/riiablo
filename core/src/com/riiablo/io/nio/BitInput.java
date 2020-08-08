@@ -146,11 +146,20 @@ public class BitInput {
     if (bits < 0) throw new IllegalArgumentException("bits(" + bits + ") < " + 0);
     if (bits == 0) return this;
 
+    // aligns bit stream for multi-byte skipping
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    if (bits >= bitsCached) {
+      bits -= bitsCached;
+      align();
+    }
+
+    // skips multiple bytes
     final long startingBitsRead = bitsRead;
     final long bytes = bits / Byte.SIZE;
     assert bytes <= Integer.MAX_VALUE : "bytes(" + bytes + ") > Integer.MAX_VALUE";
     if (bytes > 0) align().skipBytes((int) bytes);
 
+    // skips overflow bits
     final long overflowBits = (startingBitsRead + bits) - bitsRead;
     // checks single byte, multi-byte and expected max value
     assert bytes != 0 || overflowBits < Byte.SIZE : "overflowBits(" + overflowBits + ") > " + (Byte.SIZE - 1);
