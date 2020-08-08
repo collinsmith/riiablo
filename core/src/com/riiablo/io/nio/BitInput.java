@@ -449,31 +449,31 @@ public class BitInput {
     return read64(Long.SIZE);
   }
 
-  /**
-   * @deprecated unaligned reads not supported!
-   *    use {@code align().readBytes(int)} instead!
-   *    <pre>{@link #align()} {@link ByteInput#readBytes(int)}</pre>
-   */
+//  /**
+//   * @deprecated unaligned reads not supported!
+//   *    use {@code align().readBytes(int)} instead!
+//   *    <pre>{@link #align()} {@link ByteInput#readBytes(int)}</pre>
+//   */
 //  @Deprecated
 //  public byte[] readBytes(int len) {
 //    throw new UnsupportedOperationException("use align().readBytes(int) instead!");
 //  }
 
-  /**
-   * @deprecated unaligned reads not supported!
-   *    use {@code align().readBytes(byte[])} instead!
-   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[])}</pre>
-   */
+//  /**
+//   * @deprecated unaligned reads not supported!
+//   *    use {@code align().readBytes(byte[])} instead!
+//   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[])}</pre>
+//   */
 //  @Deprecated
 //  public byte[] readBytes(byte[] dst) {
 //    throw new UnsupportedOperationException("use align().readBytes(byte[]) instead!");
 //  }
 
-  /**
-   * @deprecated unaligned reads not supported!
-   *    use {@code align().readBytes(byte[], int, int)} instead!
-   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[], int, int)}</pre>
-   */
+//  /**
+//   * @deprecated unaligned reads not supported!
+//   *    use {@code align().readBytes(byte[], int, int)} instead!
+//   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[], int, int)}</pre>
+//   */
 //  @Deprecated
 //  public byte[] readBytes(byte[] dst, int dstOffset, int len) {
 //    throw new UnsupportedOperationException("use align().readBytes(byte[],int,int) instead!");
