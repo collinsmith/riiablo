@@ -49,7 +49,7 @@ public class ByteInput implements Aligned, AlignedReader {
     return bitInput;
   }
 
-  public ByteInput discard(int bytes) {
+  public ByteInput discardBytes(int bytes) {
     buffer.skipBytes(bytes);
     return this;
   }
@@ -61,7 +61,7 @@ public class ByteInput implements Aligned, AlignedReader {
    * <p/>
    * <b>Precondition:</b> {@code signature.length == 2}.
    *
-   * @see #discard(int)
+   * @see #discardBytes(int)
    */
   public ByteInput discardUntil(byte[] signature) {
     assert aligned() : "not aligned";

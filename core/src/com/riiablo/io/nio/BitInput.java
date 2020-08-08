@@ -115,14 +115,14 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return byteInput.bitInput = new BitInput(byteInput, bitsCached, cache, numBits);
   }
 
-  public BitInput discard(long bits) {
+  public BitInput discardBits(long bits) {
     if (bits < 0) throw new IllegalArgumentException("bits(" + bits + ") < " + 0);
     if (bits == 0) return this;
 
     final long startingBitsRead = bitsRead;
     final long bytes = bits / Byte.SIZE;
     assert bytes <= Integer.MAX_VALUE : "bytes(" + bytes + ") > Integer.MAX_VALUE";
-    if (bytes > 0) align().discard((int) bytes);
+    if (bytes > 0) align().discardBytes((int) bytes);
 
     final long overflowBits = (startingBitsRead + bits) - bitsRead;
     // checks single byte, multi-byte and expected max value
