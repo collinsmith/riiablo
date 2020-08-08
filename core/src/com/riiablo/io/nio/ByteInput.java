@@ -24,6 +24,16 @@ public class ByteInput {
     this.buffer = buffer;
   }
 
+  /**
+   * Returns a reference to the bit stream associated with this byte stream,
+   * initializing one if it doesn't already exist.
+   *
+   * @see #unalign()
+   */
+  public BitInput bitInput() {
+    return bitInput != null ? bitInput : (bitInput = new BitInput(this));
+  }
+
   BitInput bitInput(BitInput bitInput) {
     assert this.bitInput == null : "this.bitInput(" + this.bitInput + ") != null";
     assert bitInput.byteInput() == this : "bitInput.byteInput()(" + bitInput.byteInput() + ") != this(" + this + ")";
@@ -57,10 +67,10 @@ public class ByteInput {
    * the byte stream state can be done via {@link BitInput#align()}.
    *
    * @see BitInput#align()
+   * @see #bitInput()
    */
   public BitInput unalign() {
-    if (bitInput == null) this.bitInput = new BitInput(this);
-    return bitInput;
+    return bitInput();
   }
 
   /**
