@@ -18,19 +18,20 @@ import com.riiablo.util.DebugUtils;
  */
 // TODO: improve placeholder documentation
 public class ByteInput {
-  private static final ByteInput EMPTY_BYTEINPUT = new ByteInput(Unpooled.EMPTY_BUFFER);
+  private static final ByteInput EMPTY_BYTEINPUT = new ByteInput(Unpooled.EMPTY_BUFFER.asReadOnly());
   public static ByteInput emptyByteInput() {
     return EMPTY_BYTEINPUT;
   }
 
   public static ByteInput wrap(byte[] bytes) {
-    return bytes == null ? emptyByteInput() : new ByteInput(Unpooled.wrappedBuffer(bytes));
+    return bytes == null ? emptyByteInput() : new ByteInput(Unpooled.wrappedBuffer(bytes).asReadOnly());
   }
 
   private final ByteBuf buffer;
   private BitInput bitInput;
 
   ByteInput(ByteBuf buffer) {
+    assert buffer.isReadOnly() : "buffer should be tagged ByteBuf#asReadOnly()";
     this.buffer = buffer;
   }
 
