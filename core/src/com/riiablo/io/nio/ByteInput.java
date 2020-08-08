@@ -60,7 +60,7 @@ public class ByteInput {
   /**
    * Skips <i>n</i> bytes by discarding them.
    */
-  public ByteInput discardBytes(int bytes) {
+  public ByteInput skipBytes(int bytes) {
     buffer.skipBytes(bytes);
     return this;
   }
@@ -72,9 +72,9 @@ public class ByteInput {
    * <p/>
    * <b>Precondition:</b> {@code signature.length == 2}.
    *
-   * @see #discardBytes(int)
+   * @see #skipBytes(int)
    */
-  public ByteInput discardUntil(byte[] signature) {
+  public ByteInput skipUntil(byte[] signature) {
     assert aligned() : "not aligned";
     if (signature.length != 2) {
       throw new IllegalArgumentException(
