@@ -16,16 +16,11 @@ public class ByteInput implements Aligned, AlignedReader {
     return bytes == null ? emptyByteInput() : new ByteInput(Unpooled.wrappedBuffer(bytes));
   }
 
-  final BitInput bitInput;
   final ByteBuf buffer;
+  BitInput bitInput;
 
   ByteInput(ByteBuf buffer) {
-    this(buffer, 0, 0L, (long) buffer.readableBytes() * Byte.SIZE);
-  }
-
-  ByteInput(ByteBuf buffer, int bitsCached, long cache, long numBits) {
     this.buffer = buffer;
-    this.bitInput = new BitInput(this, bitsCached, cache, numBits);
   }
 
   @Override
@@ -49,6 +44,8 @@ public class ByteInput implements Aligned, AlignedReader {
   }
 
   public BitInput unalign() {
+    // FIXME: should bitInput.bitsRead = (long) bytesRead * Byte.SIZE
+    if (bitInput == null) this.bitInput = new BitInput(this);
     return bitInput;
   }
 
@@ -99,13 +96,9 @@ public class ByteInput implements Aligned, AlignedReader {
   }
 
   public ByteInput readSlice(long numBytes) {
-    return readSlice(numBytes, 0, 0L, numBytes * Byte.SIZE);
-  }
-
-  public ByteInput readSlice(long numBytes, int bitsCached, long cache, long numBits) {
     assert numBytes <= Integer.MAX_VALUE : "ByteBuf only supports int length";
     final ByteBuf slice = buffer.readSlice((int) numBytes);
-    return new ByteInput(slice, bitsCached, cache, numBits);
+    return new ByteInput(slice);
   }
 
   /**

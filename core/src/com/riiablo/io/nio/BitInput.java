@@ -14,16 +14,18 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
   }
 
   final ByteInput byteInput;
-//  final ByteBuf buffer;
   final long numBits;
   long bitsRead;
 
   private int bitsCached;
   private long cache;
 
+  BitInput(ByteInput byteInput) {
+    this(byteInput, 0, 0L, (long) byteInput.bytesRemaining() * Byte.SIZE);
+  }
+
   BitInput(ByteInput byteInput, int bitsCached, long cache, long numBits) {
     this.byteInput = byteInput;
-//    this.buffer = byteInput.buffer;
     this.bitsCached = bitsCached;
     this.cache = cache;
     this.numBits = numBits;
@@ -109,7 +111,8 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
 
     // length should include the last byte that bits belong (round to ceil)
     final long numBytes = (numBits - bitsCached + Byte.SIZE - 1) / Byte.SIZE;
-    return byteInput.readSlice(numBytes, bitsCached, cache, numBits).unalign();
+    final ByteInput byteInput = this.byteInput.readSlice(numBytes);
+    return byteInput.bitInput = new BitInput(byteInput, bitsCached, cache, numBits);
   }
 
   public BitInput discard(long bits) {
