@@ -37,7 +37,7 @@ public class BitInput {
    * Constructs a BitInput instance with an initial state. This is typically
    * done when the BitInput is created as the child of another BitInput.
    */
-  BitInput(ByteInput byteInput, int bitsCached, long cache, long numBits) {
+  private BitInput(ByteInput byteInput, int bitsCached, long cache, long numBits) {
     this.byteInput = byteInput;
     this.bitsCached = bitsCached;
     this.cache = cache;
