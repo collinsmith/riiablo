@@ -3,10 +3,11 @@ package com.riiablo.io.nio;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
+import java.nio.charset.Charset;
 
 import com.riiablo.util.DebugUtils;
 
-public class ByteInput implements Aligned, AlignedReader {
+public class ByteInput {
   private static final ByteInput EMPTY_BYTEINPUT = new ByteInput(Unpooled.EMPTY_BUFFER);
   public static ByteInput emptyByteInput() {
     return EMPTY_BYTEINPUT;
@@ -23,31 +24,42 @@ public class ByteInput implements Aligned, AlignedReader {
     this.buffer = buffer;
   }
 
-  @Override
   public int bytesRead() {
     return buffer.readerIndex();
   }
 
-  @Override
   public int bytesRemaining() {
     return buffer.readableBytes();
   }
 
-  @Override
   public int numBytes() {
     return buffer.capacity();
   }
 
-  @Override
+  /**
+   * Indicates whether or not this byte stream's current bit is located on a
+   * byte boundary. This method takes into account the read position of the
+   * {@link #unalign() child bit stream} in order to enforce invariants.
+   */
   public boolean aligned() {
     return bitInput == null || bitInput.aligned();
   }
 
+  /**
+   * Returns a byte unaligned view of this byte stream's content. This method
+   * should be called when byte unaligned operations are required. Returning to
+   * the byte stream state can be done via {@link BitInput#align()}.
+   *
+   * @see BitInput#align()
+   */
   public BitInput unalign() {
     if (bitInput == null) this.bitInput = new BitInput(this);
     return bitInput;
   }
 
+  /**
+   * Skips <i>n</i> bytes by discarding them.
+   */
   public ByteInput discardBytes(int bytes) {
     buffer.skipBytes(bytes);
     return this;
@@ -94,6 +106,12 @@ public class ByteInput implements Aligned, AlignedReader {
     return this;
   }
 
+  /**
+   * Reads a slice of this buffer's sub-region starting at the current position
+   * and increases the position by the size of the new slice (= numBytes).
+   *
+   * @see ByteBuf#readSlice(int)
+   */
   public ByteInput readSlice(long numBytes) {
     assert numBytes <= Integer.MAX_VALUE : "ByteBuf only supports int length";
     final ByteBuf slice = buffer.readSlice((int) numBytes);
@@ -125,7 +143,11 @@ public class ByteInput implements Aligned, AlignedReader {
     return bitInput.decrementBitsRead(bits);
   }
 
-  @Override
+  /**
+   * Reads an unsigned byte.
+   *
+   * @see ByteBuf#readUnsignedByte()
+   */
   public short read8u() {
     assert aligned() : "not aligned";
     try {
@@ -136,7 +158,11 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Reads an unsigned 16-bit short integer.
+   *
+   * @see ByteBuf#readUnsignedShortLE()
+   */
   public int read16u() {
     assert aligned() : "not aligned";
     try {
@@ -147,7 +173,11 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Reads an unsigned 32-bit integer.
+   *
+   * @see ByteBuf#readUnsignedIntLE()
+   */
   public long read32u() {
     assert aligned() : "not aligned";
     try {
@@ -158,7 +188,11 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Reads a byte.
+   *
+   * @see ByteBuf#readByte()
+   */
   public byte read8() {
     assert aligned() : "not aligned";
     try {
@@ -169,7 +203,11 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Reads a 16-bit short integer.
+   *
+   * @see ByteBuf#readShortLE()
+   */
   public short read16() {
     assert aligned() : "not aligned";
     try {
@@ -180,7 +218,11 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Reads a 32-bit integer.
+   *
+   * @see ByteBuf#readIntLE()
+   */
   public int read32() {
     assert aligned() : "not aligned";
     try {
@@ -191,7 +233,11 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Reads a 64-bit long integer.
+   *
+   * @see ByteBuf#readLongLE()
+   */
   public long read64() {
     assert aligned() : "not aligned";
     try {
@@ -202,17 +248,35 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Transfers this buffer's data to a newly created byte array starting at the
+   * current position and increases the position by the number of the
+   * transferred bytes (= length).
+   *
+   * @see ByteBuf#readBytes(int)
+   */
   public byte[] readBytes(int len) {
     return readBytes(new byte[len]);
   }
 
-  @Override
+  /**
+   * Transfers this buffer's data to a newly created byte array starting at the
+   * current position and increases the position by the number of the
+   * transferred bytes (= length).
+   *
+   * @see ByteBuf#readBytes(byte[])
+   */
   public byte[] readBytes(byte[] dst) {
     return readBytes(dst, 0, dst.length);
   }
 
-  @Override
+  /**
+   * Transfers this buffer's data to a newly created byte array starting at the
+   * current position and increases the position by the number of the
+   * transferred bytes (= length).
+   *
+   * @see ByteBuf#readBytes(byte[], int, int)
+   */
   public byte[] readBytes(byte[] dst, int dstOffset, int len) {
     assert aligned() : "not aligned";
     try {
@@ -224,7 +288,11 @@ public class ByteInput implements Aligned, AlignedReader {
     }
   }
 
-  @Override
+  /**
+   * Reads <i>n</i> bytes from the bit stream and constructs a string.
+   *
+   * @see ByteBuf#readCharSequence(int, Charset)
+   */
   public String readString(int len) {
     assert aligned() : "not aligned";
     try {

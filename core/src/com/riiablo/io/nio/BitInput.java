@@ -2,7 +2,12 @@ package com.riiablo.io.nio;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class BitInput implements Aligned, AlignedReader, UnalignedReader {
+public class BitInput {
+  private static final int MAX_ULONG_BITS = Long.SIZE - 1;
+  private static final int MAX_UINT_BITS = Integer.SIZE - 1;
+  private static final int MAX_USHORT_BITS = Short.SIZE - 1;
+  private static final int MAX_UBYTE_BITS = Byte.SIZE - 1;
+  private static final int MAX_UNSIGNED_BITS = MAX_ULONG_BITS;
 
   private static final int MAX_SAFE_CACHED_BITS = Long.SIZE - Byte.SIZE;
 
@@ -20,10 +25,18 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
   private int bitsCached;
   private long cache;
 
+  /**
+   * Constructs a BitInput instance at the start of the byteInput with
+   * {@code numBits} including all bits within {@code byteInput}.
+   */
   BitInput(ByteInput byteInput) {
     this(byteInput, 0, 0L, (long) byteInput.bytesRemaining() * Byte.SIZE);
   }
 
+  /**
+   * Constructs a BitInput instance with an initial state. This is typically
+   * done when the BitInput is created as the child of another BitInput.
+   */
   BitInput(ByteInput byteInput, int bitsCached, long cache, long numBits) {
     this.byteInput = byteInput;
     this.bitsCached = bitsCached;
@@ -31,27 +44,22 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     this.numBits = numBits;
   }
 
-  @Override
   public int bytesRead() {
     return byteInput.bytesRead();
   }
 
-  @Override
   public int bytesRemaining() {
     return byteInput.bytesRemaining();
   }
 
-  @Override
   public int numBytes() {
     return byteInput.numBytes();
   }
 
-  @Override
   public int bitsCached() {
     return bitsCached;
   }
 
-  @Override
   public long cache() {
     return cache;
   }
@@ -61,29 +69,37 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     cache = 0L;
   }
 
-  @Override
   public long bitsRead() {
     return bitsRead;
   }
 
-  @Override
   public long bitsRemaining() {
     assert (numBits - bitsRead) == (bitsCached + ((long) bytesRemaining() * Byte.SIZE))
         : "actual(" + (numBits - bitsRead) + ") != expected(" + (bitsCached + ((long) bytesRemaining() * Byte.SIZE)) + ")";
     return numBits - bitsRead;
   }
 
-  @Override
   public long numBits() {
     return numBits;
   }
 
-  @Override
+  /**
+   * Indicates whether or not this bit stream's current bit is located on a
+   * byte boundary.
+   */
   public boolean aligned() {
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
     return bitsCached == 0;
   }
 
+  /**
+   * Returns a byte aligned view of this bit stream's content. This method
+   * should be called when multiple successive byte aligned operations are
+   * required. Returning to the bit stream state can be done via
+   * {@link ByteInput#unalign()}.
+   *
+   * @see ByteInput#unalign()
+   */
   public ByteInput align() {
     // consume cache if bits remaining
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
@@ -96,6 +112,10 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return byteInput;
   }
 
+  /**
+   * Reads a slice of this bit stream's sub-region starting at the current
+   * bit and increases the bits read by the size of the new slice (= numBits).
+   */
   public BitInput readSlice(long numBits) {
     // since this shouldn't go more than 1 level deep, can also generate a new
     // ByteInput with a new BitInput if allowing align
@@ -115,6 +135,9 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return byteInput.bitInput = new BitInput(byteInput, bitsCached, cache, numBits);
   }
 
+  /**
+   * Skips <i>n</i> bits by discarding them.
+   */
   public BitInput discardBits(long bits) {
     if (bits < 0) throw new IllegalArgumentException("bits(" + bits + ") < " + 0);
     if (bits == 0) return this;
@@ -248,13 +271,19 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return (hi << Integer.SIZE) | lo;
   }
 
-  @Override
+  /**
+   * Reads up to {@value Long#SIZE} bits as a {@code long}. This method is
+   * intended to be used to read raw memory (i.e., flags).
+   */
   public long readRaw(int bits) {
     BitConstraints.validate64(bits);
     return _readRaw(bits);
   }
 
-  @Override
+  /**
+   * Reads up to {@value #MAX_UBYTE_BITS} bits as unsigned and casts the result
+   * into a {@code byte}.
+   */
   public byte read7u(int bits) {
     BitConstraints.validate7u(bits);
     final byte value = (byte) readUnsigned(bits);
@@ -262,7 +291,10 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return value;
   }
 
-  @Override
+  /**
+   * Reads up to {@value #MAX_USHORT_BITS} bits as unsigned and casts the
+   * result into a {@code short}.
+   */
   public short read15u(int bits) {
     BitConstraints.validate15u(bits);
     final short value = (short) readUnsigned(bits);
@@ -270,7 +302,10 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return value;
   }
 
-  @Override
+  /**
+   * Reads up to {@value #MAX_UINT_BITS} bits as unsigned and casts the result
+   * into a {@code int}.
+   */
   public int read31u(int bits) {
     BitConstraints.validate31u(bits);
     final int value = (int) readUnsigned(bits);
@@ -278,7 +313,10 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return value;
   }
 
-  @Override
+  /**
+   * Reads up to {@value #MAX_ULONG_BITS} bits as unsigned and casts the result
+   * into a {@code long}.
+   */
   public long read63u(int bits) {
     BitConstraints.validate63u(bits);
     final long value = (long) readUnsigned(bits);
@@ -286,73 +324,101 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
     return value;
   }
 
-  @Override
+  /**
+   * Reads {@code 1} bit as a {@code boolean}.
+   *
+   * @see #read1()
+   */
   public boolean readBoolean() {
     return read1() != 0;
   }
 
-  @Override
+  /**
+   * Reads {@code 1} bit as a {@code byte}.
+   */
   public byte read1() {
     final byte value = read7u(1);
     assert (value & ~1) == 0;
     return value;
   }
 
-  @Override
+  /**
+   * Reads up to {@value Byte#SIZE} bits as a sign-extended {@code byte}.
+   */
   public byte read8(int bits) {
     BitConstraints.validate8(bits);
     return (byte) readSigned(bits);
   }
 
-  @Override
+  /**
+   * Reads up to {@value Short#SIZE} bits as a sign-extended {@code short}.
+   */
   public short read16(int bits) {
     BitConstraints.validate16(bits);
     return (short) readSigned(bits);
   }
 
-  @Override
+  /**
+   * Reads up to {@value Integer#SIZE} bits as a sign-extended {@code int}.
+   */
   public int read32(int bits) {
     BitConstraints.validate32(bits);
     return (int) readSigned(bits);
   }
 
-  @Override
+  /**
+   * Reads up to {@value Long#SIZE} bits as a sign-extended {@code long}.
+   */
   public long read64(int bits) {
     BitConstraints.validate64(bits);
     return readSigned(bits);
   }
 
-  @Override
+  /**
+   * Reads an unsigned byte.
+   */
   public short read8u() {
     return read15u(Byte.SIZE);
   }
 
-  @Override
+  /**
+   * Reads an unsigned 16-bit short integer.
+   */
   public int read16u() {
     return read31u(Short.SIZE);
   }
 
-  @Override
+  /**
+   * Reads an unsigned 32-bit integer.
+   */
   public long read32u() {
     return read63u(Integer.SIZE);
   }
 
-  @Override
+  /**
+   * Reads a byte.
+   */
   public byte read8() {
     return read8(Byte.SIZE);
   }
 
-  @Override
+  /**
+   * Reads a 16-bit short integer.
+   */
   public short read16() {
     return read16(Short.SIZE);
   }
 
-  @Override
+  /**
+   * Reads a 32-bit integer.
+   */
   public int read32() {
     return read32(Integer.SIZE);
   }
 
-  @Override
+  /**
+   * Reads a 64-bit long integer.
+   */
   public long read64() {
     return read64(Long.SIZE);
   }
@@ -360,7 +426,6 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
   /**
    * Aligns bit stream and reads from {@link #align()}
    */
-  @Override
   public byte[] readBytes(int len) {
     return align().readBytes(len);
   }
@@ -368,7 +433,6 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
   /**
    * Aligns bit stream and reads from {@link #align()}
    */
-  @Override
   public byte[] readBytes(byte[] dst) {
     return align().readBytes(dst);
   }
@@ -376,17 +440,25 @@ public class BitInput implements Aligned, AlignedReader, UnalignedReader {
   /**
    * Aligns bit stream and reads from {@link #align()}
    */
-  @Override
   public byte[] readBytes(byte[] dst, int dstOffset, int len) {
     return align().readBytes(dst, dstOffset, len);
   }
 
-  @Override
+  /**
+   * Reads <i>n</i> bytes from the bit stream and constructs a string.
+   */
   public String readString(int len) {
     return readString(len, Byte.SIZE, false);
   }
 
-  @Override
+  /**
+   * Reads <i>n</i> characters of size {@code bits} and constructs a string.
+   *
+   * @param len number of characters to read
+   * @param bits size of each character ({@code 7} or {@code 8})
+   * @param nullTerminated {@code true} to stop reading at {@code \0}, otherwise
+   *     {@code len} characters will be read (variable-width string)
+   */
   public String readString(int len, int bits, boolean nullTerminated) {
     if (len < 0) throw new IllegalArgumentException("len(" + len + ") < " + 0);
     BitConstraints.validateAscii(bits);
