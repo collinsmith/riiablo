@@ -40,11 +40,10 @@ public class ByteInput implements Aligned, AlignedReader {
 
   @Override
   public boolean aligned() {
-    return bitInput.aligned();
+    return bitInput == null || bitInput.aligned();
   }
 
   public BitInput unalign() {
-    // FIXME: should bitInput.bitsRead = (long) bytesRead * Byte.SIZE
     if (bitInput == null) this.bitInput = new BitInput(this);
     return bitInput;
   }
@@ -116,11 +115,13 @@ public class ByteInput implements Aligned, AlignedReader {
 
   long incrementBitsRead(long bits) {
     assert (bits & (Byte.SIZE - 1)) == 0;
+    if (bitInput == null) return 0;
     return bitInput.incrementBitsRead(bits);
   }
 
   long decrementBitsRead(long bits) {
     assert (bits & (Byte.SIZE - 1)) == 0;
+    if (bitInput == null) return 0;
     return bitInput.decrementBitsRead(bits);
   }
 
