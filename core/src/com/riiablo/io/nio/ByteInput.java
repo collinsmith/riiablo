@@ -7,6 +7,16 @@ import java.nio.charset.Charset;
 
 import com.riiablo.util.DebugUtils;
 
+/**
+ * Wraps a {@link ByteBuf} to support reading sequences of bytes and supporting
+ * {@link #unalign() unaligning} the byte stream to read sequences of
+ * {@link BitInput bits}. All read functions will return results in little
+ * endian byte order.
+ *
+ * @see BitInput
+ * @see #unalign()
+ */
+// TODO: improve placeholder documentation
 public class ByteInput {
   private static final ByteInput EMPTY_BYTEINPUT = new ByteInput(Unpooled.EMPTY_BUFFER);
   public static ByteInput emptyByteInput() {

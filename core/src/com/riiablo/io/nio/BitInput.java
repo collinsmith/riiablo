@@ -2,6 +2,16 @@ package com.riiablo.io.nio;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Wraps a {@link ByteInput} to support reading sequences of bits and
+ * supporting {@link #align() re-aligning} the byte stream to read sequences of
+ * {@link ByteInput bytes}. All read functions will return results in little
+ * endian byte order.
+ *
+ * @see BitInput
+ * @see #align()
+ */
+// TODO: improve placeholder documentation
 public class BitInput {
   public static BitInput wrap(byte[] bytes) {
     return ByteInput.wrap(bytes).unalign();
