@@ -450,25 +450,34 @@ public class BitInput {
   }
 
   /**
-   * Aligns bit stream and reads from {@link #align()}
+   * @deprecated unaligned reads not supported!
+   *    use {@code align().readBytes(int)} instead!
+   *    <pre>{@link #align()} {@link ByteInput#readBytes(int)}</pre>
    */
-  public byte[] readBytes(int len) {
-    return align().readBytes(len);
-  }
+//  @Deprecated
+//  public byte[] readBytes(int len) {
+//    throw new UnsupportedOperationException("use align().readBytes(int) instead!");
+//  }
 
   /**
-   * Aligns bit stream and reads from {@link #align()}
+   * @deprecated unaligned reads not supported!
+   *    use {@code align().readBytes(byte[])} instead!
+   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[])}</pre>
    */
-  public byte[] readBytes(byte[] dst) {
-    return align().readBytes(dst);
-  }
+//  @Deprecated
+//  public byte[] readBytes(byte[] dst) {
+//    throw new UnsupportedOperationException("use align().readBytes(byte[]) instead!");
+//  }
 
   /**
-   * Aligns bit stream and reads from {@link #align()}
+   * @deprecated unaligned reads not supported!
+   *    use {@code align().readBytes(byte[], int, int)} instead!
+   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[], int, int)}</pre>
    */
-  public byte[] readBytes(byte[] dst, int dstOffset, int len) {
-    return align().readBytes(dst, dstOffset, len);
-  }
+//  @Deprecated
+//  public byte[] readBytes(byte[] dst, int dstOffset, int len) {
+//    throw new UnsupportedOperationException("use align().readBytes(byte[],int,int) instead!");
+//  }
 
   /**
    * Reads <i>n</i> bytes from the bit stream and constructs a string.
