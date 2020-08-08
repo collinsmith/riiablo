@@ -1,4 +1,4 @@
-package com.riiablo.io.nio;
+package com.riiablo.io;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

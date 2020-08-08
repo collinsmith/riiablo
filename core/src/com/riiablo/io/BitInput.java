@@ -1,19 +1,20 @@
 package com.riiablo.io;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.apache.commons.lang3.StringUtils;
 
-import com.riiablo.util.DebugUtils;
-
+/**
+ * Wraps a {@link ByteInput} to support reading sequences of bits and
+ * supporting {@link #align() re-aligning} the byte stream to read sequences of
+ * {@link ByteInput bytes}. All read functions will return results in little
+ * endian byte order.
+ *
+ * @see BitInput
+ * @see #align()
+ */
+// TODO: improve placeholder documentation
 public class BitInput {
-  private static final BitInput EMPTY_BITINPUT = new BitInput(new byte[0]);
-  public static BitInput emptyBitInput() {
-    return EMPTY_BITINPUT;
-  }
-
   public static BitInput wrap(byte[] bytes) {
-    return bytes == null ? emptyBitInput() : new BitInput(bytes);
+    return ByteInput.wrap(bytes).unalign();
   }
 
   private static final int MAX_ULONG_BITS = Long.SIZE - 1;
@@ -31,54 +32,61 @@ public class BitInput {
     }
   }
 
-  private final ByteBuf buffer;
+  private final ByteInput byteInput;
   private final long numBits;
   private long bitsRead;
   private int bitsCached;
   private long cache;
 
-  private BitInput(byte[] b) {
-    buffer = Unpooled.wrappedBuffer(b);
-    numBits = (long) b.length * Byte.SIZE;
+  /**
+   * Constructs a BitInput instance at the start of the byteInput with
+   * {@code numBits} including all bits within {@code byteInput}.
+   */
+  BitInput(ByteInput byteInput) {
+    this(byteInput, 0, 0L, (long) byteInput.bytesRemaining() * Byte.SIZE);
   }
 
   /**
-   * Clears the overflow bits of the previously read byte.
+   * Constructs a BitInput instance with an initial state. This is typically
+   * done when the BitInput is created as the child of another BitInput.
    */
-  public void clearCache() {
+  private BitInput(ByteInput byteInput, int bitsCached, long cache, long numBits) {
+    this.byteInput = byteInput;
+    this.bitsCached = bitsCached;
+    this.cache = cache;
+    this.numBits = numBits;
+  }
+
+  ByteInput byteInput() {
+    return byteInput;
+  }
+
+  public int bytesRead() {
+    return byteInput.bytesRead();
+  }
+
+  public int bytesRemaining() {
+    return byteInput.bytesRemaining();
+  }
+
+  public int numBytes() {
+    return byteInput.numBytes();
+  }
+
+  public int bitsCached() {
+    return bitsCached;
+  }
+
+  public long cache() {
+    return cache;
+  }
+
+  void clearCache() {
     bitsCached = 0;
     cache = 0L;
   }
 
-  int bitsCached() {
-    return bitsCached;
-  }
-
-  long cache() {
-    return cache;
-  }
-
   public long bitsRead() {
-    return bitsRead;
-  }
-
-  public long numBits() {
-    return numBits;
-  }
-
-  // TODO: include parent offset?
-  public int bytePosition() {
-    return buffer.readerIndex();
-  }
-
-  public int bytesRemaining() {
-    return buffer.readableBytes();
-  }
-
-  // TODO: include parent offset?
-  public long bitPosition() {
-    assert bitsRead == ((Byte.SIZE - bitsCached) + ((long) bytePosition() * Byte.SIZE))
-        : "actual(" + bitsRead + ") != expected(" + ((Byte.SIZE - bitsCached) + ((long) bytePosition() * Byte.SIZE)) + ")";
     return bitsRead;
   }
 
@@ -88,18 +96,83 @@ public class BitInput {
     return numBits - bitsRead;
   }
 
+  public long numBits() {
+    return numBits;
+  }
+
+  /**
+   * Indicates whether or not this bit stream's current bit is located on a
+   * byte boundary.
+   */
+  public boolean aligned() {
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    return bitsCached == 0;
+  }
+
+  /**
+   * Returns a byte aligned view of this bit stream's content. This method
+   * should be called when multiple successive byte aligned operations are
+   * required. Returning to the bit stream state can be done via
+   * {@link ByteInput#unalign()}.
+   *
+   * @see ByteInput#unalign()
+   */
+  public ByteInput align() {
+    // consume cache if bits remaining
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    if (bitsCached > 0) {
+      bitsRead = Math.min(numBits, bitsRead + bitsCached);
+      clearCache();
+    }
+
+    assert bitsRead <= numBits : "bitsRead(" + bitsRead + ") > numBits(" + numBits + ")";
+    return byteInput;
+  }
+
+  /**
+   * Reads a slice of this bit stream's sub-region starting at the current
+   * bit and increases the bits read by the size of the new slice (= numBits).
+   */
+  public BitInput readSlice(long numBits) {
+    // since this shouldn't go more than 1 level deep, can also generate a new
+    // ByteInput with a new BitInput if allowing align
+    if (numBits == 0) return ByteInput.emptyByteInput().unalign();
+    if (numBits < 0) throw new IllegalArgumentException("numBits(" + numBits + ") < " + 0);
+    if (bitsRead + numBits > this.numBits) {
+      throw new IllegalArgumentException(
+          "bitsRead(" + bitsRead + ") + sliceBits(" + numBits + ") > numBits(" + this.numBits + ")");
+    }
+
+
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+
+    // length should include the last byte that bits belong (round to ceil)
+    final long numBytes = (numBits - bitsCached + Byte.SIZE - 1) / Byte.SIZE;
+    final ByteInput byteInput = this.byteInput.readSlice(numBytes);
+    return byteInput.bitInput(new BitInput(byteInput, bitsCached, cache, numBits));
+  }
+
   /**
    * Skips <i>n</i> bits by discarding them.
    */
-  public BitInput skip(long bits) {
+  public BitInput skipBits(long bits) {
     if (bits < 0) throw new IllegalArgumentException("bits(" + bits + ") < " + 0);
     if (bits == 0) return this;
 
+    // aligns bit stream for multi-byte skipping
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    if (bits >= bitsCached) {
+      bits -= bitsCached;
+      align();
+    }
+
+    // skips multiple bytes
     final long startingBitsRead = bitsRead;
     final long bytes = bits / Byte.SIZE;
     assert bytes <= Integer.MAX_VALUE : "bytes(" + bytes + ") > Integer.MAX_VALUE";
-    if (bytes > 0) align((int) bytes);
+    if (bytes > 0) align().skipBytes((int) bytes);
 
+    // skips overflow bits
     final long overflowBits = (startingBitsRead + bits) - bitsRead;
     // checks single byte, multi-byte and expected max value
     assert bytes != 0 || overflowBits < Byte.SIZE : "overflowBits(" + overflowBits + ") > " + (Byte.SIZE - 1);
@@ -109,95 +182,128 @@ public class BitInput {
     return this;
   }
 
-  /**
-   * Aligns the bit stream to the nearest byte boundary, or not at all if it is
-   * already at one.
-   *
-   * @see #align(int)
-   */
-  public BitInput align() {
-    return align(0);
-  }
-
-  /**
-   * Aligns the bit stream to the <i>nth</i> byte boundary. Alignment will
-   * behave as follows:
-   * <ul>
-   *   <li>cache will always be erased</li>
-   *   <li>{@code cached bits = 0} will consume {@code 0} bytes</li>
-   *   <li>{@code cached bits > 0} will consume {@code 1} byte</li>
-   * </ul>
-   */
-  public BitInput align(int bytes) {
-    if (bytes < 0) throw new IllegalArgumentException("bytes(" + bytes + ") < " + 0);
-
-    // consume cache if bits remaining
-    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
-    if (bitsCached > 0) {
-      bitsRead = Math.min(numBits, bitsRead + bitsCached);
-      if (bytes > 0) bytes--;
-      clearCache();
+  long incrementBitsRead(long bits) {
+    if ((bitsRead += bits) > numBits) {
+      bitsRead = numBits;
+      throw new EndOfInput();
     }
 
-    if (bytes > 0) {
-      bitsRead = Math.min(numBits, bitsRead + (bytes * Byte.SIZE));
-      buffer.skipBytes(bytes);
+    return bitsRead;
+  }
+
+  long decrementBitsRead(long bits) {
+    if ((bitsRead -= bits) < 0) {
+      assert false : "bitsRead(" + bitsRead + ") < " + 0;
+      bitsRead = 0;
     }
 
-    assert bitsRead <= numBits : "bitsRead(" + bitsRead + ") > numBits(" + numBits + ")";
-    return this;
+    return bitsRead;
   }
 
   /**
-   * Returns whether or not the bit stream is aligned on a byte boundary.
-   */
-  public boolean isAligned() {
-    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
-    return bitsCached == 0;
-  }
-
-  /**
-   * Consumes bits until the specified sequence of bytes are encountered. After
-   * this method executes, position will be such that the next read operation
-   * is at the first byte in the signature. This method will align the bit
-   * stream to the byte boundary according to {@link #align()}.
+   * Reads up to {@value #MAX_UNSIGNED_BITS} bits as unsigned and casts the
+   * result into a {@code long}.
    * <p/>
-   * <b>Precondition:</b> {@code signature.length == 2}.
-   *
-   * @see #align()
-   * @see #skip(long)
+   * <p>{@code bits} should be in [0, {@value #MAX_UNSIGNED_BITS}].
+   * <p>Reading {@code 0} bits will always return {@code 0}.
    */
-  public BitInput skipUntil(byte[] signature) {
-    if (signature.length != 2) {
-      throw new IllegalArgumentException(
-          "signature.length(" + signature.length + ") != " + 2 + ": " + DebugUtils.toByteArray(signature));
+  long readUnsigned(int bits) {
+    assert bits >= 0 : "bits(" + bits + ") < " + 0;
+    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
+    if (bits <= 0) return 0;
+    incrementBitsRead(bits);
+    ensureCache(bits);
+    return bitsCached < bits
+        ? readCacheSafe(bits)
+        : readCacheUnsafe(bits);
+  }
+
+  /**
+   * Ensures {@link #cache} contains at least <i>n</i> bits, up to
+   * {@value #MAX_SAFE_CACHED_BITS} bits due to overflow.
+   */
+  private int ensureCache(int bits) {
+    assert bits > 0 : "bits(" + bits + ") < " + 1;
+    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
+    while (bitsCached < bits && bitsCached <= MAX_SAFE_CACHED_BITS) {
+      final long nextByte = byteInput._read8u();
+      cache |= (nextByte << bitsCached);
+      bitsCached += Byte.SIZE;
     }
 
-    align();
-    final byte fb0 = signature[0];
-    final byte fb1 = signature[1];
-    byte b0, b1;
-    b1 = read8();
-    for (;;) {
-      b0 = b1;
-      b1 = read8();
-      if (b0 == fb0 && b1 == fb1) {
-        buffer.readerIndex(buffer.readerIndex() - signature.length);
-        bitsRead -= ((long) signature.length * Byte.SIZE);
-        assert bitsRead >= 0 : "bitsRead(" + bitsRead + ") < " + 0;
-        assert bytesRemaining() >= signature.length
-            : "bytesRemaining(" + bytesRemaining() + ") < signature.length(" + signature.length + ")";
-        break;
-      }
-    }
+    return bitsCached;
+  }
 
-    // TODO: support dynamic signature lengths
-    //       create a byte[] of size signature.length
-    //       use as a circular buffer with each read byte incrementing index and then going back to
-    //       0 when signature.length is reached. Comparisons will need to be index..length
-    //       and 0..index (and 0..length in case where index == 0)
+  /**
+   * Reads <i>n</i> bits from {@link #cache}, consuming the next byte in the
+   * underlying byte stream.
+   * <p/>
+   * This function asserts that {@link #cache} would have overflowed if
+   * <i>n</i> bits were read from the underlying byte stream and thus reads
+   * the next byte accounting for this case.
+   */
+  private long readCacheSafe(int bits) {
+    assert bits > 0 : "bits(" + bits + ") < " + 1;
+    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
+    final int bitsToAddCount = bits - bitsCached;
+    final int overflowBits = Byte.SIZE - bitsToAddCount;
+    final long nextByte = byteInput._read8u();
+    long bitsToAdd = nextByte & MASKS[bitsToAddCount];
+    cache |= (bitsToAdd << bitsCached);
+    final long overflow = (nextByte >>> bitsToAddCount) & MASKS[overflowBits];
+    final long bitsOut = bitsCached & MASKS[bits];
+    cache = overflow;
+    bitsCached = overflowBits;
+    return bitsOut;
+  }
 
-    return this;
+  /**
+   * Reads <i>n</i> bits from {@link #cache}.
+   * <p/>
+   * This function asserts {@link #cache} contains at least <i>n</i> bits.
+   */
+  private long readCacheUnsafe(int bits) {
+    assert bits > 0 : "bits(" + bits + ") < " + 1;
+    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
+    final long bitsOut = cache & MASKS[bits];
+    cache >>>= bits;
+    bitsCached -= bits;
+    return bitsOut;
+  }
+
+  /**
+   * Reads up to {@value Long#SIZE} bits and sign extending the result as a
+   * {@code long}.
+   * <p/>
+   * <p>{@code bits} should be in [0, {@value Long#SIZE}].
+   * <p>Reading {@code 0} bits will always return {@code 0}.
+   */
+  long readSigned(int bits) {
+    assert bits >= 0 : "bits(" + bits + ") < " + 0;
+    assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
+    if (bits <= 0) return 0;
+    if (bits == Long.SIZE) return _readRaw(Long.SIZE);
+    final int shift = Long.SIZE - bits;
+    assert shift > 0;
+    final long value = readUnsigned(bits);
+    return value << shift >> shift;
+  }
+
+  long _readRaw(int bits) {
+    assert bits > 0 : "bits(" + bits + ") <= " + 0;
+    assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
+    long lo = readUnsigned(Math.min(Integer.SIZE, bits));
+    long hi = readUnsigned(Math.max(bits - Integer.SIZE, 0));
+    return (hi << Integer.SIZE) | lo;
+  }
+
+  /**
+   * Reads up to {@value Long#SIZE} bits as a {@code long}. This method is
+   * intended to be used to read raw memory (i.e., flags).
+   */
+  public long readRaw(int bits) {
+    BitConstraints.validate64(bits);
+    return _readRaw(bits);
   }
 
   /**
@@ -246,6 +352,8 @@ public class BitInput {
 
   /**
    * Reads {@code 1} bit as a {@code boolean}.
+   *
+   * @see #read1()
    */
   public boolean readBoolean() {
     return read1() != 0;
@@ -293,308 +401,100 @@ public class BitInput {
   }
 
   /**
-   * Reads up to {@value Long#SIZE} bits as a {@code long}. This method is
-   * intended to be used to read raw memory (i.e., flags).
-   */
-  public long readRaw(int bits) {
-    BitConstraints.validate64(bits);
-    return _readRaw(bits);
-  }
-
-  /**
-   * @see #readRaw
-   */
-  private long _readRaw(int bits) {
-    assert bits > 0 : "bits(" + bits + ") <= " + 0;
-    assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
-    long lo = readUnsigned(Math.min(Integer.SIZE, bits));
-    long hi = readUnsigned(Math.max(bits - Integer.SIZE, 0));
-    return (hi << Integer.SIZE) | lo;
-  }
-
-  /**
-   * Reads up to {@value Long#SIZE} bits and sign extending the result as a
-   * {@code long}.
-   * <p/>
-   * <p>{@code bits} should be in [0, {@value Long#SIZE}].
-   * <p>Reading {@code 0} bits will always return {@code 0}.
-   */
-  long readSigned(int bits) {
-    assert bits >= 0 : "bits(" + bits + ") < " + 0;
-    assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
-    if (bits <= 0) return 0;
-    if (bits == Long.SIZE) return _readRaw(Long.SIZE);
-    final int shift = Long.SIZE - bits;
-    assert shift > 0;
-    final long value = readUnsigned(bits);
-    return value << shift >> shift;
-  }
-
-  /**
-   * Reads the next byte from the underlying byte stream, ignoring alignment.
-   */
-  private short _read8u() {
-    try {
-      final short octet = buffer.readUnsignedByte();
-      assert 0 <= octet && octet < (1 << Byte.SIZE);
-      return octet;
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
-  }
-
-  long incrementBitsRead(long bits) {
-    if ((bitsRead += bits) > numBits) {
-      bitsRead = bits;
-      throw new EndOfInput();
-    }
-
-    return bitsRead;
-  }
-
-  /**
-   * Reads up to {@value #MAX_UNSIGNED_BITS} bits as unsigned and casts the
-   * result into a {@code long}.
-   * <p/>
-   * <p>{@code bits} should be in [0, {@value #MAX_UNSIGNED_BITS}].
-   * <p>Reading {@code 0} bits will always return {@code 0}.
-   */
-  long readUnsigned(int bits) {
-    assert bits >= 0 : "bits(" + bits + ") < " + 0;
-    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
-    if (bits <= 0) return 0;
-    incrementBitsRead(bits);
-    ensureCache(bits);
-    return bitsCached < bits
-        ? readCacheSafe(bits)
-        : readCacheUnsafe(bits);
-  }
-
-  /**
-   * Ensures {@link #cache} contains at least <i>n</i> bits, up to
-   * {@value #MAX_SAFE_CACHED_BITS} bits due to overflow.
-   */
-  private int ensureCache(int bits) {
-    assert bits > 0 : "bits(" + bits + ") < " + 1;
-    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
-    while (bitsCached < bits && bitsCached <= MAX_SAFE_CACHED_BITS) {
-      final long nextByte = _read8u();
-      cache |= (nextByte << bitsCached);
-      bitsCached += Byte.SIZE;
-    }
-
-    return bitsCached;
-  }
-
-  /**
-   * Reads <i>n</i> bits from {@link #cache}, consuming the next byte in the
-   * underlying byte stream.
-   * <p/>
-   * This function asserts that {@link #cache} would have overflowed if
-   * <i>n</i> bits were read from the underlying byte stream and thus reads
-   * the next byte accounting for this case.
-   */
-  private long readCacheSafe(int bits) {
-    assert bits > 0 : "bits(" + bits + ") < " + 1;
-    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
-    final int bitsToAddCount = bits - bitsCached;
-    final int overflowBits = Byte.SIZE - bitsToAddCount;
-    final long nextByte = _read8u();
-    long bitsToAdd = nextByte & MASKS[bitsToAddCount];
-    cache |= (bitsToAdd << bitsCached);
-    final long overflow = (nextByte >>> bitsToAddCount) & MASKS[overflowBits];
-    final long bitsOut = bitsCached & MASKS[bits];
-    cache = overflow;
-    bitsCached = overflowBits;
-    return bitsOut;
-  }
-
-  /**
-   * Reads <i>n</i> bits from {@link #cache}.
-   * <p/>
-   * This function asserts {@link #cache} contains at least <i>n</i> bits.
-   */
-  private long readCacheUnsafe(int bits) {
-    assert bits > 0 : "bits(" + bits + ") < " + 1;
-    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
-    final long bitsOut = cache & MASKS[bits];
-    cache >>>= bits;
-    bitsCached -= bits;
-    return bitsOut;
-  }
-
-  private void validateAlignment() {
-    if (!isAligned()) {
-      throw new IllegalStateException(
-          "no-args method called on unaligned stream!");
-    }
-  }
-
-  /**
-   * Reads an unsigned byte from the bit stream.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
+   * Reads an unsigned byte.
    */
   public short read8u() {
-    validateAlignment();
-    try {
-      incrementBitsRead(Byte.SIZE);
-      return buffer.readUnsignedByte();
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
+    return read15u(Byte.SIZE);
   }
 
   /**
-   * Reads an unsigned 16-bit short integer from the bit stream.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
+   * Reads an unsigned 16-bit short integer.
    */
   public int read16u() {
-    validateAlignment();
-    try {
-      incrementBitsRead(Short.SIZE);
-      return buffer.readUnsignedShortLE();
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
+    return read31u(Short.SIZE);
   }
 
   /**
-   * Reads an unsigned 32-bit integer from the bit stream.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
+   * Reads an unsigned 32-bit integer.
    */
   public long read32u() {
-    validateAlignment();
-    try {
-      incrementBitsRead(Integer.SIZE);
-      return buffer.readUnsignedIntLE();
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
+    return read63u(Integer.SIZE);
   }
 
   /**
-   * Reads a byte from the bit stream.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
+   * Reads a byte.
    */
   public byte read8() {
-    validateAlignment();
-    try {
-      incrementBitsRead(Byte.SIZE);
-      return buffer.readByte();
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
+    return read8(Byte.SIZE);
   }
 
   /**
-   * Reads a 16-bit short integer from the bit stream.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
+   * Reads a 16-bit short integer.
    */
   public short read16() {
-    validateAlignment();
-    try {
-      incrementBitsRead(Short.SIZE);
-      return buffer.readShortLE();
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
+    return read16(Short.SIZE);
   }
 
   /**
-   * Reads a 32-bit integer from the bit stream.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
+   * Reads a 32-bit integer.
    */
   public int read32() {
-    validateAlignment();
-    try {
-      incrementBitsRead(Integer.SIZE);
-      return buffer.readIntLE();
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
+    return read32(Integer.SIZE);
   }
 
   /**
-   * Reads a 64-bit long integer from the bit stream.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
+   * Reads a 64-bit long integer.
    */
   public long read64() {
-    validateAlignment();
-    try {
-      incrementBitsRead(Long.SIZE);
-      return buffer.readLongLE();
-    } catch (IndexOutOfBoundsException t) {
-      throw new EndOfInput(t);
-    }
+    return read64(Long.SIZE);
   }
 
-  /**
-   * Reads <i>n</i> bytes from the bit stream into a created byte array.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
-   *
-   * @see #readBytes(byte[])
-   * @see #readBytes(byte[], int, int)
-   */
-  public byte[] readBytes(int len) {
-    validateAlignment();
-    byte[] dst = new byte[len];
-    readBytes(dst);
-    return dst;
-  }
+//  /**
+//   * @deprecated unaligned reads not supported!
+//   *    use {@code align().readBytes(int)} instead!
+//   *    <pre>{@link #align()} {@link ByteInput#readBytes(int)}</pre>
+//   */
+//  @Deprecated
+//  public byte[] readBytes(int len) {
+//    throw new UnsupportedOperationException("use align().readBytes(int) instead!");
+//  }
+
+//  /**
+//   * @deprecated unaligned reads not supported!
+//   *    use {@code align().readBytes(byte[])} instead!
+//   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[])}</pre>
+//   */
+//  @Deprecated
+//  public byte[] readBytes(byte[] dst) {
+//    throw new UnsupportedOperationException("use align().readBytes(byte[]) instead!");
+//  }
+
+//  /**
+//   * @deprecated unaligned reads not supported!
+//   *    use {@code align().readBytes(byte[], int, int)} instead!
+//   *    <pre>{@link #align()} {@link ByteInput#readBytes(byte[], int, int)}</pre>
+//   */
+//  @Deprecated
+//  public byte[] readBytes(byte[] dst, int dstOffset, int len) {
+//    throw new UnsupportedOperationException("use align().readBytes(byte[],int,int) instead!");
+//  }
 
   /**
-   * Reads <i>n</i> bytes from the bit stream into the specified byte array.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
-   *
-   * @see #readBytes(int)
-   * @see #readBytes(byte[], int, int)
-   */
-  public void readBytes(byte[] dst) {
-    validateAlignment();
-    readBytes(dst, 0, dst.length);
-  }
-
-  /**
-   * Reads <i>n</i> bytes from the bit stream into the specified byte array.
-   * <p/>
-   * <b>Precondition:</b> This stream must be byte aligned to use this method.
-   *
-   * @see #readBytes(int)
-   * @see #readBytes(byte[])
-   */
-  public void readBytes(byte[] dst, int dstOffset, int len) {
-    validateAlignment();
-    align();
-    assert bitsCached == 0;
-    incrementBitsRead((long) len * Byte.SIZE);
-    buffer.readBytes(dst, dstOffset, len);
-  }
-
-  /**
-   * Reads <i>n</i> bytes from the bit stream and constructs a String.
+   * Reads <i>n</i> bytes from the bit stream and constructs a string.
    */
   public String readString(int len) {
     return readString(len, Byte.SIZE, false);
   }
 
   /**
-   * Reads <i>n</i> characters of size {@code bits} and constructs a String.
+   * Reads <i>n</i> characters of size {@code bits} and constructs a string.
    *
    * @param len number of characters to read
    * @param bits size of each character ({@code 7} or {@code 8})
-   * @param nullTerminate {@code true} to stop reading at {@code \0}, otherwise
-   *     {@code len} characters will be read
+   * @param nullTerminated {@code true} to stop reading at {@code \0}, otherwise
+   *     {@code len} characters will be read (variable-width string)
    */
-  public String readString(int len, int bits, boolean nullTerminate) {
+  public String readString(int len, int bits, boolean nullTerminated) {
     if (len < 0) throw new IllegalArgumentException("len(" + len + ") < " + 0);
     BitConstraints.validateAscii(bits);
 
@@ -602,7 +502,7 @@ public class BitInput {
     final byte[] dst = new byte[len];
     for (int i = 0; i < len; i++) {
       final byte b = dst[i] = (byte) readUnsigned(bits);
-      if (nullTerminate && b == '\0') break;
+      if (nullTerminated && b == '\0') break;
     }
 
     return new String(dst);
