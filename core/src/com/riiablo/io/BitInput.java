@@ -2,6 +2,8 @@ package com.riiablo.io;
 
 import org.apache.commons.lang3.StringUtils;
 
+import static com.riiablo.io.BitConstants.MAX_SAFE_CACHED_BITS;
+
 /**
  * Wraps a {@link ByteInput} to support reading sequences of bits and
  * supporting {@link #align() re-aligning} the byte stream to read sequences of
@@ -16,14 +18,6 @@ public class BitInput {
   public static BitInput wrap(byte[] bytes) {
     return ByteInput.wrap(bytes).unalign();
   }
-
-  private static final int MAX_ULONG_BITS = Long.SIZE - 1;
-  private static final int MAX_UINT_BITS = Integer.SIZE - 1;
-  private static final int MAX_USHORT_BITS = Short.SIZE - 1;
-  private static final int MAX_UBYTE_BITS = Byte.SIZE - 1;
-  private static final int MAX_UNSIGNED_BITS = MAX_ULONG_BITS;
-
-  private static final int MAX_SAFE_CACHED_BITS = Long.SIZE - Byte.SIZE;
 
   private static final long[] MASKS = BitConstants.UNSIGNED_MASKS;
 
@@ -196,11 +190,11 @@ public class BitInput {
   }
 
   /**
-   * Reads up to {@value #MAX_UNSIGNED_BITS} bits as unsigned and casts the
-   * result into a {@code long}.
+   * Reads up to {@value BitConstants#MAX_UNSIGNED_BITS} bits as unsigned and
+   * casts the result into a {@code long}.
    * <p/>
-   * <p>{@code bits} should be in [0, {@value #MAX_UNSIGNED_BITS}].
-   * <p>Reading {@code 0} bits will always return {@code 0}.
+   * <p>{@code bits} should be in [0, {@value BitConstants##MAX_UNSIGNED_BITS}]
+   * <p>Reading {@code 0} bits will always return {@code 0}
    */
   long readUnsigned(int bits) {
     assert bits >= 0 : "bits(" + bits + ") < " + 0;
@@ -215,7 +209,7 @@ public class BitInput {
 
   /**
    * Ensures {@link #cache} contains at least <i>n</i> bits, up to
-   * {@value #MAX_SAFE_CACHED_BITS} bits due to overflow.
+   * {@value BitConstants#MAX_SAFE_CACHED_BITS} bits due to overflow.
    */
   private int ensureCache(int bits) {
     assert bits > 0 : "bits(" + bits + ") < " + 1;
@@ -302,8 +296,8 @@ public class BitInput {
   }
 
   /**
-   * Reads up to {@value #MAX_UBYTE_BITS} bits as unsigned and casts the result
-   * into a {@code byte}.
+   * Reads up to {@value BitConstants##MAX_UBYTE_BITS} bits as unsigned and
+   * casts the result into a {@code byte}.
    */
   public byte read7u(int bits) {
     BitConstraints.validate7u(bits);
@@ -313,8 +307,8 @@ public class BitInput {
   }
 
   /**
-   * Reads up to {@value #MAX_USHORT_BITS} bits as unsigned and casts the
-   * result into a {@code short}.
+   * Reads up to {@value BitConstants#MAX_USHORT_BITS} bits as unsigned and
+   * casts the result into a {@code short}.
    */
   public short read15u(int bits) {
     BitConstraints.validate15u(bits);
@@ -324,8 +318,8 @@ public class BitInput {
   }
 
   /**
-   * Reads up to {@value #MAX_UINT_BITS} bits as unsigned and casts the result
-   * into a {@code int}.
+   * Reads up to {@value BitConstants#MAX_UINT_BITS} bits as unsigned and casts
+   * the result into a {@code int}.
    */
   public int read31u(int bits) {
     BitConstraints.validate31u(bits);
@@ -335,8 +329,8 @@ public class BitInput {
   }
 
   /**
-   * Reads up to {@value #MAX_ULONG_BITS} bits as unsigned and casts the result
-   * into a {@code long}.
+   * Reads up to {@value BitConstants#MAX_ULONG_BITS} bits as unsigned and
+   * casts the result into a {@code long}.
    */
   public long read63u(int bits) {
     BitConstraints.validate63u(bits);
