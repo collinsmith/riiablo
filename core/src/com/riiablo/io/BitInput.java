@@ -284,7 +284,7 @@ public class BitInput {
     if (bits <= 0) return 0;
     if (bits == Long.SIZE) return _readRaw(Long.SIZE);
     final int shift = Long.SIZE - bits;
-    assert shift > 0;
+    assert shift > 0 : "shift(" + shift + ") <= " + 0;
     final long value = readUnsigned(bits);
     return value << shift >> shift;
   }
