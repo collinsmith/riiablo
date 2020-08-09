@@ -25,12 +25,7 @@ public class BitInput {
 
   private static final int MAX_SAFE_CACHED_BITS = Long.SIZE - Byte.SIZE;
 
-  private static final long[] MASKS = new long[Long.SIZE];
-  static {
-    for (int i = 1; i < Long.SIZE; i++) {
-      MASKS[i] = (MASKS[i - 1] << 1) + 1;
-    }
-  }
+  private static final long[] MASKS = BitConstants.UNSIGNED_MASKS;
 
   private final ByteInput byteInput;
   private final long numBits;
