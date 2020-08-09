@@ -234,6 +234,7 @@ public class BitInput {
   private long readCacheSafe(int bits) {
     assert bits > 0 : "bits(" + bits + ") < " + 1;
     assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
+    assert bitsCached < bits : "bitsCached(" + bitsCached + ") >= bits(" + bits + ")";
     final int bitsToAddCount = bits - bitsCached;
     final int overflowBits = Byte.SIZE - bitsToAddCount;
     final long nextByte = byteInput._read8u();
@@ -254,6 +255,7 @@ public class BitInput {
   private long readCacheUnsafe(int bits) {
     assert bits > 0 : "bits(" + bits + ") < " + 1;
     assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
+    assert bitsCached >= bits : "bitsCached(" + bitsCached + ") < bits(" + bits + ")";
     final long bitsOut = cache & MASKS[bits];
     cache >>>= bits;
     bitsCached -= bits;
