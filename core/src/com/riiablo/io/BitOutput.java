@@ -110,10 +110,37 @@ public class BitOutput {
   void writeSigned(long value, int bits) {
     assert bits > 0 : "bits(" + bits + ") <= " + 0;
     assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
-    // bits == Long.SIZE write raw?
     final int shift = Long.SIZE - bits;
-    assert shift > 0 : "shift(" + shift + ") <= " + 0;
-    value = value << shift >> shift;
+    value = (value << shift >> shift) & MASKS[bits];
+    _writeRaw(value, bits);
+  }
+
+  void _writeRaw(long value, int bits) {
+    assert bits > 0 : "bits(" + bits + ") < " + 1;
+    assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    incrementBitsWritten(bits);
+    cache |= (value << bitsCached);
+    bitsCached += bits;
+
+    final int overflowBits = bitsCached - Long.SIZE;
+    _writeCache(bits);
+    if (overflowBits > 0) {
+      final int overflowShift = Long.SIZE - overflowBits;
+      cache = (value >>> overflowShift) & MASKS[overflowBits];
+    }
+  }
+
+  private void _writeCache(int bits) {
+    assert bits > 0 : "bits(" + bits + ") < " + 1;
+    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
+    assert bitsCached >= bits : "bitsCached(" + bitsCached + ") < bits(" + bits + ")";
+    assert bitsCached <= (Long.SIZE + Byte.SIZE - 1) : "bitsCached(" + bitsCached + ") > " + (Long.SIZE + Byte.SIZE - 1);
+    for (; bitsCached >= Byte.SIZE; bitsCached -= Byte.SIZE) {
+      final long octet = cache & 0xFF;
+      byteOutput._write8(octet);
+      cache >>>= Byte.SIZE;
+    }
   }
 
   public void writeRaw(long value, int bits) {
