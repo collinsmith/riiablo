@@ -12,6 +12,7 @@ public class BitConstants {
   static final int MAX_SAFE_CACHED_BITS = Long.SIZE - Byte.SIZE;
 
   static final int BYTE_SHIFT = Integer.bitCount(Byte.SIZE - 1);
+  static final int BYTE_MASK = (1 << Byte.SIZE) - 1;
 
   static final long[] UNSIGNED_MASKS = new long[Long.SIZE];
   static {
