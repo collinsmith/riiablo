@@ -3,7 +3,6 @@ package com.riiablo.io;
 public class BitOutput {
   private static final long[] MASKS = BitConstants.UNSIGNED_MASKS;
 
-  private final boolean autoFlush = true;
   private final ByteOutput byteOutput;
   private final long numBits;
   private long bitsWritten;
@@ -25,6 +24,14 @@ public class BitOutput {
     return byteOutput;
   }
 
+  int bitsCached() {
+    return bitsCached;
+  }
+
+  long cache() {
+    return cache;
+  }
+
   void clearCache() {
     bitsCached = 0;
     cache = 0L;
@@ -43,37 +50,23 @@ public class BitOutput {
     return true;
   }
 
-  void align() {
-
+  public ByteOutput align() {
+    return flush().byteOutput;
   }
 
-  void flush(boolean align) {
-    // write cache and clear it (align stream too?)
-    if (align) {
-      align();
-      // assert cache cleared
-    } else {
-      // write byte
-      // backup writer index 1 byte
-    }
-
+  public BitOutput flush() {
+    assert bitsCached >= 0 : "bitsCached(" + bitsCached + ") < " + 0;
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    if (bitsCached <= 0) return this;
     byteOutput._write8(cache);
     clearCache();
+    return this;
   }
 
   void _writeUnsigned(long value, int bits) {
     assert bits > 0 : "bits(" + bits + ") <= " + 0;
     assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
     assert (value & ~MASKS[bits]) == 0 : "value(" + value + ") is larger than bits(" + bits + ")";
-    _writeRaw(value, bits);
-  }
-
-  void writeSigned(long value, int bits) {
-    assert bits > 0 : "bits(" + bits + ") <= " + 0;
-    assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
-    final int shift = Long.SIZE - bits;
-    value = (value << shift >> shift) & MASKS[bits];
     _writeRaw(value, bits);
   }
 
@@ -106,12 +99,17 @@ public class BitOutput {
     }
   }
 
-  public void writeRaw(long value, int bits) {
-    BitConstraints.validate64(bits);
+  void _writeSigned(long value, int bits) {
+    assert bits > 0 : "bits(" + bits + ") <= " + 0;
+    assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
+    final int shift = Long.SIZE - bits;
+    value = (value << shift >> shift) & MASKS[bits];
+    _writeRaw(value, bits);
   }
 
-  public void writeUnsigned(long value, int bits) {
-    write63u(value, bits);
+  public void writeRaw(long value, int bits) {
+    BitConstraints.validate64(bits);
+    _writeRaw(value, bits);
   }
 
   public void write7u(byte value, int bits) {
@@ -134,24 +132,24 @@ public class BitOutput {
     _writeUnsigned(value, bits);
   }
 
-  // sign-extends bits
   public void write8(int value, int bits) {
     BitConstraints.validate8(bits);
+    _writeSigned(value, bits);
   }
 
-  // sign-extends bits
   public void write16(int value, int bits) {
     BitConstraints.validate16(bits);
+    _writeSigned(value, bits);
   }
 
-  // sign-extends bits
   public void write32(int value, int bits) {
     BitConstraints.validate32(bits);
+    _writeSigned(value, bits);
   }
 
-  // sign-extends bits
   public void write64(long value, int bits) {
     BitConstraints.validate64(bits);
+    _writeSigned(value, bits);
   }
 
   public void write8(int value) {
