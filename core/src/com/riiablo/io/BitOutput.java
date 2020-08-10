@@ -66,45 +66,7 @@ public class BitOutput {
     assert bits > 0 : "bits(" + bits + ") <= " + 0;
     assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
     assert (value & ~MASKS[bits]) == 0 : "value(" + value + ") is larger than bits(" + bits + ")";
-    incrementBitsWritten(bits);
-    cache |= (value << bitsCached);
-    bitsCached += bits;
-    if (bitsCached > Long.SIZE) {
-      writeCacheSafe(value, bits);
-    } else {
-      writeCacheUnsafe(bits);
-    }
-  }
-
-  private void writeCacheSafe(long value, int bits) {
-    assert bits > 0 : "bits(" + bits + ") < " + 1;
-    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
-    assert bitsCached > Long.SIZE : "bitsCached(" + bitsCached + ") <= " + Long.SIZE;
-    assert bitsCached - bits < Byte.SIZE : "bitsCached(" + bitsCached + ") - bits(" + bits + ") > " + (Byte.SIZE - 1);
-
-    final int overflowBits = bitsCached - Long.SIZE;
-    final int overflowShift = Long.SIZE - overflowBits;
-
-    for (; bitsCached >= Byte.SIZE; bitsCached -= Byte.SIZE) {
-      final long octet = cache & 0xFF;
-      byteOutput._write8(octet);
-      cache >>>= Byte.SIZE;
-    }
-
-    assert overflowBits > 0 : "overflowBits(" + overflowBits + ") < " + 1;
-    cache = (value >>> overflowShift) & MASKS[overflowBits];
-  }
-
-  private void writeCacheUnsafe(int bits) {
-    assert bits > 0 : "bits(" + bits + ") < " + 1;
-    assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
-    assert bitsCached >= bits : "bitsCached(" + bitsCached + ") < bits(" + bits + ")";
-    assert bitsCached <= Long.SIZE : "bitsCached(" + bitsCached + ") > " + Long.SIZE;
-    for (; bitsCached >= Byte.SIZE; bitsCached -= Byte.SIZE) {
-      final long octet = cache & 0xFF;
-      byteOutput._write8(octet);
-      cache >>>= Byte.SIZE;
-    }
+    _writeRaw(value, bits);
   }
 
   void writeSigned(long value, int bits) {
@@ -125,6 +87,7 @@ public class BitOutput {
 
     final int overflowBits = bitsCached - Long.SIZE;
     _writeCache(bits);
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
     if (overflowBits > 0) {
       final int overflowShift = Long.SIZE - overflowBits;
       cache = (value >>> overflowShift) & MASKS[overflowBits];
