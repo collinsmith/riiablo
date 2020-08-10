@@ -238,7 +238,7 @@ public class BitInput {
     final int bitsToAddCount = bits - bitsCached;
     final int overflowBits = Byte.SIZE - bitsToAddCount;
     final long nextByte = byteInput._read8u();
-    long bitsToAdd = nextByte & MASKS[bitsToAddCount];
+    final long bitsToAdd = nextByte & MASKS[bitsToAddCount];
     cache |= (bitsToAdd << bitsCached);
     final long overflow = (nextByte >>> bitsToAddCount) & MASKS[overflowBits];
     final long bitsOut = bitsCached & MASKS[bits];
