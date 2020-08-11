@@ -190,4 +190,17 @@ public class BitOutput {
     write64(value, Long.SIZE);
     return this;
   }
+
+  public BitOutput writeString(CharSequence chars, int bits) {
+    BitConstraints.validateAscii(bits);
+
+    final int length = chars.length();
+    if (length == 0) return this;
+    for (int i = 0; i < length; i++) {
+      final char c = chars.charAt(i);
+      _writeRaw(c, bits);
+    }
+
+    return this;
+  }
 }
