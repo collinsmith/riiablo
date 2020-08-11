@@ -328,7 +328,7 @@ public class ByteInput {
    *
    * @see #read32u()
    */
-  public long readSafe32u() {
+  public int readSafe32u() {
     assert aligned() : "not aligned";
     try {
       incrementBitsRead(Integer.SIZE);
