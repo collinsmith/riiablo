@@ -59,4 +59,36 @@ class BitConstraints {
   public static int validateAscii(int bits) {
     return _validateSize(Byte.SIZE - 1, Byte.SIZE, bits);
   }
+
+  public static byte safe8u(short i) {
+    if (!BitUtils.isUnsigned(i, Byte.SIZE)) {
+      throw new SafeUnsigned(i);
+    }
+
+    return (byte) i;
+  }
+
+  public static short safe16u(int i) {
+    if (!BitUtils.isUnsigned(i, Short.SIZE)) {
+      throw new SafeUnsigned(i);
+    }
+
+    return (short) i;
+  }
+
+  public static int safe32u(long i) {
+    if (!BitUtils.isUnsigned(i, Integer.SIZE)) {
+      throw new SafeUnsigned(i);
+    }
+
+    return (int) i;
+  }
+
+  public static long safe64u(long i) {
+    if (!BitUtils.isUnsigned(i, Long.SIZE)) {
+      throw new SafeUnsigned(i);
+    }
+
+    return (long) i;
+  }
 }

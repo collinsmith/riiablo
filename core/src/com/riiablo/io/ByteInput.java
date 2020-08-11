@@ -286,6 +286,78 @@ public class ByteInput {
   }
 
   /**
+   * Reads an unsigned byte as a {@code byte}.
+   *
+   * @throws SafeUnsigned if the read value is larger than 7 bits.
+   *
+   * @see #read8u()
+   */
+  public byte readSafe8u() {
+    assert aligned() : "not aligned";
+    try {
+      incrementBitsRead(Byte.SIZE);
+      final short value = read8u();
+      return BitConstraints.safe8u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
+  /**
+   * Reads an unsigned 16-bit short integer as a {@code short}.
+   *
+   * @throws SafeUnsigned if the read value is larger than 15 bits.
+   *
+   * @see #read16u()
+   */
+  public short readSafe16u() {
+    assert aligned() : "not aligned";
+    try {
+      incrementBitsRead(Short.SIZE);
+      final int value = read16u();
+      return BitConstraints.safe16u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
+  /**
+   * Reads an unsigned 32-bit integer as an {@code int}.
+   *
+   * @throws SafeUnsigned if the read value is larger than 31 bits.
+   *
+   * @see #read32u()
+   */
+  public long readSafe32u() {
+    assert aligned() : "not aligned";
+    try {
+      incrementBitsRead(Integer.SIZE);
+      final long value = read32u();
+      return BitConstraints.safe32u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
+  /**
+   * Reads an unsigned 64-bit long integer as a {@code long}.
+   *
+   * @throws SafeUnsigned if the read value is larger than 63 bits.
+   *
+   * @see #read32u()
+   */
+  public long readSafe64u() {
+    assert aligned() : "not aligned";
+    try {
+      incrementBitsRead(Long.SIZE);
+      final long value = read32u();
+      return BitConstraints.safe32u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
+  /**
    * Transfers this buffer's data to a newly created byte array starting at the
    * current position and increases the position by the number of the
    * transferred bytes (= length).
