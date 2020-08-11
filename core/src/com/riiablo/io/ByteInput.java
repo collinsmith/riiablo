@@ -411,4 +411,22 @@ public class ByteInput {
       throw new EndOfInput(t);
     }
   }
+
+  /**
+   * Reads up to <i>n</i> bytes and constructs a string.
+   *
+   * @param maxLen maximum number of characters to read
+   * @param nullTerminated {@code true} to stop reading at {@code '\0'}
+   */
+  public String readString(int maxLen, boolean nullTerminated) {
+    assert aligned() : "not aligned";
+    if (!nullTerminated) return readString(maxLen);
+    try {
+      final String string = unalign().readString(maxLen, Byte.SIZE, true);
+      assert aligned() : "not aligned";
+      return string;
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
 }
