@@ -1,12 +1,23 @@
 package com.riiablo.io;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.util.CharsetUtil;
 
 public class ByteOutput {
+  public static ByteOutput wrap(byte[] bytes) {
+    return wrap(Unpooled.wrappedBuffer(bytes));
+  }
+
+  public static ByteOutput wrap(ByteBuf buffer) {
+    return new ByteOutput(buffer);
+  }
+
   private final ByteBuf buffer;
   private BitOutput bitOutput;
 
   ByteOutput(ByteBuf buffer) {
+    assert !buffer.isReadOnly();
     this.buffer = buffer;
   }
 
@@ -23,7 +34,7 @@ public class ByteOutput {
   }
 
   public boolean aligned() {
-    throw null;
+    return bitOutput == null || bitOutput.aligned();
   }
 
   public BitOutput unalign() {
@@ -47,27 +58,49 @@ public class ByteOutput {
     buffer.writeByte((int) octet);
   }
 
-  public void write8(int value) {
+  public ByteOutput write8(int value) {
     assert aligned() : "not aligned";
     incrementBitsWritten(Byte.SIZE);
     buffer.writeByte(value);
+    return this;
   }
 
-  public void write16(int value) {
+  public ByteOutput write16(int value) {
     assert aligned() : "not aligned";
     incrementBitsWritten(Short.SIZE);
     buffer.writeShortLE(value);
+    return this;
   }
 
-  public void write32(int value) {
+  public ByteOutput write32(int value) {
     assert aligned() : "not aligned";
     incrementBitsWritten(Short.SIZE);
     buffer.writeIntLE(value);
+    return this;
   }
 
-  public void write64(long value) {
+  public ByteOutput write64(long value) {
     assert aligned() : "not aligned";
     incrementBitsWritten(Short.SIZE);
     buffer.writeLongLE(value);
+    return this;
+  }
+
+  public ByteOutput writeBytes(byte[] src) {
+    assert aligned() : "not aligned";
+    return writeBytes(src, 0, src.length);
+  }
+
+  public ByteOutput writeBytes(byte[] src, int srcOffset, int len) {
+    assert aligned() : "not aligned";
+    incrementBitsWritten((long) len * Byte.SIZE);
+    buffer.writeBytes(src, srcOffset, len);
+    return this;
+  }
+
+  public ByteOutput writeString(CharSequence chars) {
+    incrementBitsWritten((long) chars.length() * Byte.SIZE);
+    buffer.writeCharSequence(chars, CharsetUtil.US_ASCII);
+    return this;
   }
 }
