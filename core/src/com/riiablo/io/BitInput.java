@@ -480,18 +480,18 @@ public class BitInput {
   /**
    * Reads <i>n</i> characters of size {@code bits} and constructs a string.
    *
-   * @param len number of characters to read
+   * @param maxLen number of characters to read
    * @param bits size of each character ({@code 7} or {@code 8})
    * @param nullTerminated {@code true} to stop reading at {@code \0}, otherwise
-   *     {@code len} characters will be read (variable-width string)
+   *     {@code maxLen} characters will be read (variable-width string)
    */
-  public String readString(int len, int bits, boolean nullTerminated) {
-    if (len < 0) throw new IllegalArgumentException("len(" + len + ") < " + 0);
+  public String readString(int maxLen, int bits, boolean nullTerminated) {
+    if (maxLen < 0) throw new IllegalArgumentException("maxLen(" + maxLen + ") < " + 0);
     BitConstraints.validateAscii(bits);
 
-    if (len == 0) return StringUtils.EMPTY;
-    final byte[] dst = new byte[len];
-    for (int i = 0; i < len; i++) {
+    if (maxLen == 0) return StringUtils.EMPTY;
+    final byte[] dst = new byte[maxLen];
+    for (int i = 0; i < maxLen; i++) {
       final byte b = dst[i] = (byte) readUnsigned(bits);
       if (nullTerminated && b == '\0') break;
     }
