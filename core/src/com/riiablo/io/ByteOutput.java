@@ -30,6 +30,12 @@ public class ByteOutput {
     return bitOutput();
   }
 
+  public ByteOutput skipBytes(int bytes) {
+    incrementBitsWritten((long) bytes * Byte.SIZE);
+    buffer.writeZero(bytes);
+    return this;
+  }
+
   long incrementBitsWritten(long bits) {
     assert (bits & (Byte.SIZE - 1)) == 0;
     if (bitOutput == null) return 0;

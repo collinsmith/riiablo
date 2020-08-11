@@ -63,6 +63,31 @@ public class BitOutput {
     return this;
   }
 
+  public BitOutput skipBits(long bits) {
+    if (bits < 0) throw new IllegalArgumentException("bits(" + bits + ") < " + 0);
+    if (bits == 0) return this;
+
+    // aligns bit stream for multi-byte skipping
+    assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    final int bitsUncached = Byte.SIZE - bitsCached;
+    if (bits >= bitsUncached) {
+      bits -= bitsUncached;
+      flush();
+    }
+
+    // skips multiple bytes
+    final long startingBitsWritten = bitsWritten;
+    final long bytes = bits / Byte.SIZE;
+    assert bytes <= Integer.MAX_VALUE : "bytes(" + bytes + ") > Integer.MAX_VALUE";
+    if (bytes > 0) align().skipBytes((int) bytes);
+
+    // skips overflow bits
+    final long overflowBits = (startingBitsWritten + bits) - bitsWritten;
+    assert overflowBits < Byte.SIZE : "overflowBits(" + overflowBits + ") > " + (Byte.SIZE - 1);
+    if (overflowBits > 0) _writeRaw(0L, (int) overflowBits);
+    return this;
+  }
+
   void _writeUnsigned(long value, int bits) {
     assert bits >= 0 : "bits(" + bits + ") < " + 0;
     assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
