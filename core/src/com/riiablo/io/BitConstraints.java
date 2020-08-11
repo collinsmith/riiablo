@@ -56,11 +56,6 @@ class BitConstraints {
     return validateSize(Long.SIZE, bits);
   }
 
-  public static boolean isUnsigned(long value, int size) {
-    assert 0 < size && size <= Long.SIZE;
-    return (value & (1 << (size - 1))) == 0;
-  }
-
   public static int validateAscii(int bits) {
     return _validateSize(Byte.SIZE - 1, Byte.SIZE, bits);
   }

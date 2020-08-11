@@ -304,7 +304,7 @@ public class BitInput {
   public byte read7u(int bits) {
     BitConstraints.validate7u(bits);
     final byte value = (byte) readUnsigned(bits);
-    assert BitConstraints.isUnsigned(value, Byte.SIZE);
+    assert BitUtils.isUnsigned(value);
     return value;
   }
 
@@ -315,7 +315,7 @@ public class BitInput {
   public short read15u(int bits) {
     BitConstraints.validate15u(bits);
     final short value = (short) readUnsigned(bits);
-    assert BitConstraints.isUnsigned(value, Short.SIZE);
+    assert BitUtils.isUnsigned(value);
     return value;
   }
 
@@ -326,7 +326,7 @@ public class BitInput {
   public int read31u(int bits) {
     BitConstraints.validate31u(bits);
     final int value = (int) readUnsigned(bits);
-    assert BitConstraints.isUnsigned(value, Integer.SIZE);
+    assert BitUtils.isUnsigned(value);
     return value;
   }
 
@@ -337,7 +337,7 @@ public class BitInput {
   public long read63u(int bits) {
     BitConstraints.validate63u(bits);
     final long value = (long) readUnsigned(bits);
-    assert BitConstraints.isUnsigned(value, Long.SIZE);
+    assert BitUtils.isUnsigned(value);
     return value;
   }
 
