@@ -138,6 +138,15 @@ public class BitOutput {
     return this;
   }
 
+  public BitOutput writeBoolean(boolean b) {
+    return write1(b ? 1 : 0);
+  }
+
+  public BitOutput write1(int value) {
+    _writeRaw(value, 1);
+    return this;
+  }
+
   public BitOutput write8(int value, int bits) {
     BitConstraints.validate8(bits);
     _writeSigned(value, bits);
