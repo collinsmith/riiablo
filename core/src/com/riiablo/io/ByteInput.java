@@ -56,6 +56,10 @@ public class ByteInput {
     return this.bitInput = bitInput;
   }
 
+  ByteBuf buffer() {
+    return buffer;
+  }
+
   public int bytesRead() {
     return buffer.readerIndex();
   }
