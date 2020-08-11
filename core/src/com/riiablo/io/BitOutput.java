@@ -107,64 +107,77 @@ public class BitOutput {
     _writeRaw(value, bits);
   }
 
-  public void writeRaw(long value, int bits) {
+  public BitOutput writeRaw(long value, int bits) {
     BitConstraints.validate64(bits);
     _writeRaw(value, bits);
+    return this;
   }
 
-  public void write7u(byte value, int bits) {
+  public BitOutput write7u(byte value, int bits) {
     BitConstraints.validate7u(bits);
     _writeUnsigned(value, bits);
+    return this;
   }
 
-  public void write15u(short value, int bits) {
+  public BitOutput write15u(short value, int bits) {
     BitConstraints.validate15u(bits);
     _writeUnsigned(value, bits);
+    return this;
   }
 
-  public void write31u(int value, int bits) {
+  public BitOutput write31u(int value, int bits) {
     BitConstraints.validate31u(bits);
     _writeUnsigned(value, bits);
+    return this;
   }
 
-  public void write63u(long value, int bits) {
+  public BitOutput write63u(long value, int bits) {
     BitConstraints.validate63u(bits);
     _writeUnsigned(value, bits);
+    return this;
   }
 
-  public void write8(int value, int bits) {
+  public BitOutput write8(int value, int bits) {
     BitConstraints.validate8(bits);
     _writeSigned(value, bits);
+    return this;
   }
 
-  public void write16(int value, int bits) {
+  public BitOutput write16(int value, int bits) {
     BitConstraints.validate16(bits);
     _writeSigned(value, bits);
+    return this;
   }
 
-  public void write32(int value, int bits) {
+  public BitOutput write32(int value, int bits) {
     BitConstraints.validate32(bits);
     _writeSigned(value, bits);
+    return this;
   }
 
-  public void write64(long value, int bits) {
+  public BitOutput write64(long value, int bits) {
     BitConstraints.validate64(bits);
     _writeSigned(value, bits);
+    return this;
   }
 
-  public void write8(int value) {
+  public BitOutput write8(int value) {
     write8(value, Byte.SIZE);
+    return this;
   }
 
-  public void write16(int value) {
+  public BitOutput write16(int value) {
     write16(value, Short.SIZE);
+    return this;
   }
 
-  public void write32(int value) {
+  public BitOutput write32(int value) {
     write32(value, Integer.SIZE);
+    return this;
   }
 
-  public void write64(long value) {
+  public BitOutput write64(long value) {
     write64(value, Long.SIZE);
+    return this;
   }
 }
