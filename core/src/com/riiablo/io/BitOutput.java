@@ -64,16 +64,17 @@ public class BitOutput {
   }
 
   void _writeUnsigned(long value, int bits) {
-    assert bits > 0 : "bits(" + bits + ") <= " + 0;
+    assert bits >= 0 : "bits(" + bits + ") < " + 0;
     assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
     assert (value & ~MASKS[bits]) == 0 : "value(" + value + ") is larger than bits(" + bits + ")";
     _writeRaw(value, bits);
   }
 
   void _writeRaw(long value, int bits) {
-    assert bits > 0 : "bits(" + bits + ") < " + 1;
+    assert bits >= 0 : "bits(" + bits + ") < " + 0;
     assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
+    if (bits == 0) return;
     incrementBitsWritten(bits);
     cache |= (value << bitsCached);
     bitsCached += bits;
