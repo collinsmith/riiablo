@@ -1,10 +1,10 @@
 package com.riiablo.io;
 
-public class SafeUnsigned extends RuntimeException {
+public class UnsafeNarrowing extends RuntimeException {
   public final long value;
 
-  SafeUnsigned(long value) {
-    super("value(" + value + ") is not unsigned!");
+  UnsafeNarrowing(long value) {
+    super("value(" + value + ") cannot be safely narrowed!");
     this.value = value;
   }
 

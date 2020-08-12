@@ -62,7 +62,7 @@ class BitConstraints {
 
   public static byte safe8u(short i) {
     if (!BitUtils.isUnsigned(i, Byte.SIZE)) {
-      throw new SafeUnsigned(i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (byte) i;
@@ -70,7 +70,7 @@ class BitConstraints {
 
   public static short safe16u(int i) {
     if (!BitUtils.isUnsigned(i, Short.SIZE)) {
-      throw new SafeUnsigned(i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (short) i;
@@ -78,7 +78,7 @@ class BitConstraints {
 
   public static int safe32u(long i) {
     if (!BitUtils.isUnsigned(i, Integer.SIZE)) {
-      throw new SafeUnsigned(i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (int) i;
@@ -86,7 +86,7 @@ class BitConstraints {
 
   public static long safe64u(long i) {
     if (!BitUtils.isUnsigned(i, Long.SIZE)) {
-      throw new SafeUnsigned(i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (long) i;

@@ -288,7 +288,7 @@ public class ByteInput {
   /**
    * Reads an unsigned byte as a {@code byte}.
    *
-   * @throws SafeUnsigned if the read value is larger than 7 bits.
+   * @throws UnsafeNarrowing if the read value is larger than 7 bits.
    *
    * @see #read8u()
    */
@@ -306,7 +306,7 @@ public class ByteInput {
   /**
    * Reads an unsigned 16-bit short integer as a {@code short}.
    *
-   * @throws SafeUnsigned if the read value is larger than 15 bits.
+   * @throws UnsafeNarrowing if the read value is larger than 15 bits.
    *
    * @see #read16u()
    */
@@ -324,7 +324,7 @@ public class ByteInput {
   /**
    * Reads an unsigned 32-bit integer as an {@code int}.
    *
-   * @throws SafeUnsigned if the read value is larger than 31 bits.
+   * @throws UnsafeNarrowing if the read value is larger than 31 bits.
    *
    * @see #read32u()
    */
@@ -342,7 +342,7 @@ public class ByteInput {
   /**
    * Reads an unsigned 64-bit long integer as a {@code long}.
    *
-   * @throws SafeUnsigned if the read value is larger than 63 bits.
+   * @throws UnsafeNarrowing if the read value is larger than 63 bits.
    *
    * @see #read32u()
    */
