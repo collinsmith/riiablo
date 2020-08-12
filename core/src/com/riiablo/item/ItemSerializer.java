@@ -8,9 +8,9 @@ import com.badlogic.gdx.utils.Array;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.util.BitStream;
+import com.riiablo.io.InvalidFormat;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
-import com.riiablo.save.InvalidFormat;
 import com.riiablo.util.DebugUtils;
 
 public class ItemSerializer {
