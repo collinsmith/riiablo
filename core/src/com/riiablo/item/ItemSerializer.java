@@ -8,7 +8,6 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.io.BitInput;
-import com.riiablo.io.BitUtils;
 import com.riiablo.io.ByteInput;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
@@ -44,7 +43,8 @@ public class ItemSerializer {
     /** FIXME: workaround for {@link Item#loadFromStream(BitStream)} */
     final int itemOffset = in.bytesRead(); // TODO: remove when serialization implemented
     log.trace("Reading item...");
-    BitUtils.readSignature(in, SIGNATURE, log, "item");
+    log.trace("Validating item signature");
+    in.readSignature(SIGNATURE);
     Item item = new Item();
     item.reset();
     item.flags = in.read32();

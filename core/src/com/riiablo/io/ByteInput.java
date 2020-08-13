@@ -1,9 +1,11 @@
 package com.riiablo.io;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import com.riiablo.util.DebugUtils;
 
@@ -167,6 +169,47 @@ public class ByteInput {
     //       0 when signature.length is reached. Comparisons will need to be index..length
     //       and 0..index (and 0..length in case where index == 0)
 
+    return this;
+  }
+
+  /**
+   * Checks if the subsequent bytes match the specified sequence of bytes.
+   * If they do, they will be consumed by this method call, otherwise an
+   * {@link InvalidFormat} will be thrown and any bytes read by this method
+   * will be unread.
+   *
+   * @throws InvalidFormat if the next bytes do not match the specified
+   *    signature.
+   *
+   * @see InvalidFormat
+   * @see #skipUntil(byte[])
+   */
+  public ByteInput readSignature(byte[] signature) {
+    assert aligned() : "not aligned";
+    buffer.markReaderIndex();
+    if (buffer.readableBytes() < signature.length) {
+      final byte[] actual = new byte[buffer.readableBytes()];
+      buffer.readBytes(actual);
+      buffer.resetReaderIndex();
+      throw new InvalidFormat(
+          this,
+          String.format("Signatures do not match: %s, expected %s",
+              ByteBufUtil.hexDump(actual),
+              ByteBufUtil.hexDump(signature)));
+    }
+
+    final byte[] actual = new byte[signature.length];
+    buffer.readBytes(actual);
+    final boolean match = Arrays.equals(actual, signature);
+    if (!match) {
+      buffer.resetReaderIndex();
+      throw new InvalidFormat(
+          this,
+          String.format("Signatures do not match: %s, expected %s",
+              ByteBufUtil.hexDump(actual),
+              ByteBufUtil.hexDump(signature)));
+    }
+    incrementBitsRead((long) signature.length * Byte.SIZE);
     return this;
   }
 
