@@ -12,8 +12,8 @@ public class InvalidFormat extends RuntimeException {
   }
 
   public InvalidFormat(ByteInput in, String message, Throwable cause) {
-    super(message + " @0x" + Integer.toHexString(in.bytesRead()), cause);
-    this.offset = in.bytesRead();
+    super(message + " +0x" + Integer.toHexString(in.mark()), cause);
+    this.offset = in.mark();
   }
 
   @Deprecated

@@ -172,6 +172,7 @@ public class BitInput {
   }
 
   long incrementBitsRead(long bits) {
+    byteInput.updateMark();
     if ((bitsRead += bits) > numBits) {
       bitsRead = numBits;
       throw new EndOfInput();
@@ -181,6 +182,7 @@ public class BitInput {
   }
 
   long decrementBitsRead(long bits) {
+    byteInput.updateMark();
     if ((bitsRead -= bits) < 0) {
       assert false : "bitsRead(" + bitsRead + ") < " + 0;
       bitsRead = 0;

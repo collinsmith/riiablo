@@ -28,11 +28,27 @@ public class ByteInput {
   }
 
   private final ByteBuf buffer;
+  private final int offset;
+  private int mark;
   private BitInput bitInput;
 
   ByteInput(ByteBuf buffer) {
+    this(buffer, 0);
+  }
+
+  ByteInput(ByteBuf buffer, int offset) {
     assert buffer.isReadOnly() : "buffer should be tagged ByteBuf#asReadOnly()";
     this.buffer = buffer;
+    this.offset = offset;
+    updateMark();
+  }
+
+  int updateMark() {
+    return mark = offset + buffer.readerIndex();
+  }
+
+  public int mark() {
+    return mark;
   }
 
   /**
@@ -151,8 +167,10 @@ public class ByteInput {
    */
   public ByteInput readSlice(long numBytes) {
     assert numBytes <= Integer.MAX_VALUE : "ByteBuf only supports int length";
+    final int mark = updateMark(); // updates mark to start offset of slice
     final ByteBuf slice = buffer.readSlice((int) numBytes);
-    return new ByteInput(slice);
+    updateMark(); // updates mark to end position of slice
+    return new ByteInput(slice, mark);
   }
 
   /**
@@ -169,6 +187,7 @@ public class ByteInput {
   }
 
   long incrementBitsRead(long bits) {
+    updateMark();
     assert (bits & (Byte.SIZE - 1)) == 0;
     if (bitInput == null) return 0;
     return bitInput.incrementBitsRead(bits);
@@ -177,7 +196,9 @@ public class ByteInput {
   long decrementBitsRead(long bits) {
     assert (bits & (Byte.SIZE - 1)) == 0;
     if (bitInput == null) return 0;
-    return bitInput.decrementBitsRead(bits);
+    long bitsRead = bitInput.decrementBitsRead(bits);
+    assert mark == buffer.readerIndex() : "mark(" + mark + ") != buffer.readerIndex(" + buffer.readerIndex() + ")";
+    return bitsRead;
   }
 
   /**
