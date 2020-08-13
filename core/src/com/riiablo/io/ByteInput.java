@@ -110,6 +110,17 @@ public class ByteInput {
   }
 
   /**
+   * Aligns the bit stream associated with this byte stream (if one exists)
+   * with the byte boundary.
+   *
+   * @see BitInput#align()
+   */
+  public ByteInput realign() {
+    if (bitInput == null) return this;
+    return bitInput.align();
+  }
+
+  /**
    * Skips <i>n</i> bytes by discarding them.
    */
   public ByteInput skipBytes(int bytes) {
