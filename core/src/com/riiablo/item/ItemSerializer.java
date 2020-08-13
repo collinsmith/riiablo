@@ -69,7 +69,7 @@ public class ItemSerializer {
       item.socketsFilled = bits.read7u(3);
     }
 
-    log.trace("code: {}", item.code);
+    log.trace("code: {} ({})", item.code, item.base.name);
     if ((item.flags & Item.ITEMFLAG_COMPACT) == Item.ITEMFLAG_COMPACT) {
       readCompact(item);
     } else {
