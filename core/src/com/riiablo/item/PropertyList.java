@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.Properties;
-import com.riiablo.codec.util.BitStream;
+import com.riiablo.io.BitInput;
 
 public class PropertyList implements Iterable<Stat> {
   private static final String TAG = "PropertyList";
@@ -71,14 +71,14 @@ public class PropertyList implements Iterable<Stat> {
     return props.entries().next().value;
   }
 
-  public int read(int stat, BitStream bitStream) {
+  public int read(int stat, BitInput bitStream) {
     Stat instance = Stat.obtain(stat, bitStream);
     props.put(instance.hash, instance);
     return instance.val;
   }
 
-  public PropertyList read(BitStream bitStream) {
-    for (int prop; (prop = bitStream.readU15(Stat.BITS)) != Stat.NONE;) {
+  public PropertyList read(BitInput bitStream) {
+    for (int prop; (prop = bitStream.read15u(Stat.BITS)) != Stat.NONE;) {
       for (int j = prop, size = j + Stat.getNumEncoded(prop); j < size; j++) {
         read(j, bitStream);
       }

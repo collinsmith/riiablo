@@ -1,6 +1,5 @@
 package com.riiablo.item;
 
-import java.util.Arrays;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.utils.Array;
@@ -8,77 +7,78 @@ import com.badlogic.gdx.utils.Array;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.util.BitStream;
-import com.riiablo.io.InvalidFormat;
+import com.riiablo.io.BitInput;
+import com.riiablo.io.BitUtils;
+import com.riiablo.io.ByteInput;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
-import com.riiablo.util.DebugUtils;
 
 public class ItemSerializer {
   private static final Logger log = LogManager.getLogger(ItemSerializer.class);
 
   private static final byte[] SIGNATURE = {0x4A, 0x4D};
 
-  private static boolean readSignature(BitStream bitStream) {
-    log.trace("Validating item signature");
-    byte[] signature = bitStream.readFully(SIGNATURE.length);
-    boolean matched = Arrays.equals(signature, SIGNATURE);
-    if (!matched) {
-      throw new InvalidFormat(
-          String.format("Item signature doesn't match expected signature: %s, expected %s",
-          DebugUtils.toByteArray(signature),
-          DebugUtils.toByteArray(SIGNATURE)));
-    }
-    return matched;
+  public void skipUntil(ByteInput in) {
+    in.skipUntil(SIGNATURE);
   }
 
-  public Item readItem(BitStream bitStream) {
-    Item item = readSingleItem(bitStream);
+  public Item readItem(ByteInput in) {
+    final int itemOffset = in.bytesRead(); // TODO: remove when serialization implemented
+    Item item = readSingleItem(in);
     if (item.socketsFilled > 0) log.trace("Reading {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
       try {
         Log.put("socket", String.valueOf(i));
-        bitStream.alignToByte();
-        item.sockets.add(readSingleItem(bitStream));
+        in.skipUntil(SIGNATURE);
+        item.sockets.add(readSingleItem(in));
       } finally {
         Log.remove("socket");
       }
     }
+    final int itemSize = in.bytesRead() - itemOffset; // TODO: remove when serialization implemented
+    item.data = in.duplicate(itemOffset, itemSize); // TODO: remove when serialization implemented
     return item;
   }
 
-  public Item readSingleItem(BitStream bitStream) {
+  public Item readSingleItem(ByteInput in) {
+    /** FIXME: workaround for {@link Item#loadFromStream(BitStream)} */
+    final int itemOffset = in.bytesRead(); // TODO: remove when serialization implemented
     log.trace("Reading item...");
-    readSignature(bitStream);
+    BitUtils.readSignature(in, SIGNATURE, log, "item");
     Item item = new Item();
     item.reset();
-    item.flags = (int) bitStream.readRaw(32);
+    item.flags = in.read32();
     Log.tracef(log, "flags: 0x%08X [%s]", item.flags, item.getFlagsString());
-    item.version = bitStream.readU31(8);
+    item.version = in.readSafe8u();
     log.trace("version: {}", item.version);
-    bitStream.skip(2); // Unknown use -- safe to skip
-    item.location = Location.valueOf(bitStream.readU7(3));
-    item.bodyLoc = BodyLoc.valueOf(bitStream.readU7(4));
-    item.gridX = bitStream.readU7(4);
-    item.gridY = bitStream.readU7(4);
-    item.storeLoc = StoreLoc.valueOf(bitStream.readU7(3));
+    final BitInput bits = in.unalign();
+    bits.skipBits(2); // Unknown use -- safe to skip
+    item.location = Location.valueOf(bits.read7u(3));
+    item.bodyLoc = BodyLoc.valueOf(bits.read7u(4));
+    item.gridX = bits.read7u(4);
+    item.gridY = bits.read7u(4);
+    item.storeLoc = StoreLoc.valueOf(bits.read7u(3));
 
     if ((item.flags & Item.ITEMFLAG_BODYPART) == Item.ITEMFLAG_BODYPART) {
-      int charClass = bitStream.readU7(3);
-      int charLevel = bitStream.readU7(7);
-      String charName = bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7);
+      int charClass = bits.read7u(3);
+      int charLevel = bits.read7u(7);
+      String charName = bits.readString(Riiablo.MAX_NAME_LENGTH + 1, 7, true);
       item.setEar(charClass, charLevel, charName);
     } else {
-      item.setBase(bitStream.readString(4).trim());
-      item.socketsFilled = bitStream.readU7(3);
+      item.setBase(bits.readString(4).trim());
+      item.socketsFilled = bits.read7u(3);
     }
 
     log.trace("code: {}", item.code);
     if ((item.flags & Item.ITEMFLAG_COMPACT) == Item.ITEMFLAG_COMPACT) {
       readCompact(item);
     } else {
-      readStandard(bitStream, item);
+      readStandard(bits, item);
     }
 
+    bits.align();
+    final int itemSize = in.bytesRead() - itemOffset; // TODO: remove when serialization implemented
+    item.data = in.duplicate(itemOffset, itemSize); // TODO: remove when serialization implemented
     return item;
   }
 
@@ -91,46 +91,46 @@ public class ItemSerializer {
     }
   }
 
-  private static void readStandard(BitStream bitStream, Item item) {
-    item.data = bitStream.getBufferView(); // TODO: remove when serialization implemented
-    item.id = (int) bitStream.readRaw(32);
+  private static void readStandard(BitInput bits, Item item) {
+    item.id = (int) bits.readRaw(32);
     Log.tracef(log, "id: 0x%08X", item.id);
-    item.ilvl = bitStream.readU7(7);
-    item.quality = Quality.valueOf(bitStream.readU7(4));
-    item.pictureId = bitStream.readBoolean() ? bitStream.readU7(3) : Item.NO_PICTURE_ID;
-    item.classOnly = bitStream.readBoolean() ? bitStream.readU15(11) : Item.NO_CLASS_ONLY;
-    readQualityData(bitStream, item);
+    item.ilvl = bits.read7u(7);
+    item.quality = Quality.valueOf(bits.read7u(4));
+    item.pictureId = bits.readBoolean() ? bits.read7u(3) : Item.NO_PICTURE_ID;
+    item.classOnly = bits.readBoolean() ? bits.read15u(11) : Item.NO_CLASS_ONLY;
+    readQualityData(bits, item);
 
     int listFlags = Item.MAGIC_PROPS_FLAG;
-    if (readRunewordData(bitStream, item)) listFlags |= Item.RUNE_PROPS_FLAG;
+    if (readRunewordData(bits, item)) listFlags |= Item.RUNE_PROPS_FLAG;
 
     item.inscription = (item.flags & Item.ITEMFLAG_INSCRIBED) == Item.ITEMFLAG_INSCRIBED
-        ? bitStream.readString2(Riiablo.MAX_NAME_LENGTH + 1, 7) : null;
+        ? bits.readString(Riiablo.MAX_NAME_LENGTH + 1, 7, true)
+        : null;
 
-    bitStream.skip(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
+    bits.skipBits(1); // TODO: Unknown, this usually is 0, but is 1 on a Tome of Identify.  (It's still 0 on a Tome of Townportal.)
 
-    readArmorClass(bitStream, item);
-    readDurability(bitStream, item);
-    readSockets(bitStream, item);
-    readBook(bitStream, item);
-    readQuantity(bitStream, item);
+    readArmorClass(bits, item);
+    readDurability(bits, item);
+    readSockets(bits, item);
+    readBook(bits, item);
+    readQuantity(bits, item);
 
     if (item.type.is(Type.BOOK)) listFlags = 0;
-    listFlags |= (readSetFlags(bitStream, item) << Item.SET_PROPS);
+    listFlags |= (readSetFlags(bits, item) << Item.SET_PROPS);
     PropertyList[] props = item.stats = new PropertyList[Item.NUM_PROPS];
     for (int i = 0; i < Item.NUM_PROPS; i++) {
       if (((listFlags >> i) & 1) == 1) {
-        props[i] = PropertyList.obtain().read(bitStream);
+        props[i] = PropertyList.obtain().read(bits);
       }
     }
   }
 
-  private static boolean readQualityData(BitStream bitStream, Item item) {
+  private static boolean readQualityData(BitInput bits, Item item) {
     log.trace("quality: {}", item.quality);
     switch (item.quality) {
       case LOW:
       case HIGH:
-        item.qualityId = bitStream.readU31(3);
+        item.qualityId = bits.read31u(3);
         log.trace("qualityId: {}", item.qualityId);
         return true;
 
@@ -139,7 +139,7 @@ public class ItemSerializer {
         return true;
 
       case SET:
-        item.qualityId = bitStream.readU31(Item.SET_ID_SIZE);
+        item.qualityId = bits.read31u(Item.SET_ID_SIZE);
         log.trace("qualityId: {}", item.qualityId);
         item.qualityData = Riiablo.files.SetItems.get(item.qualityId);
         log.trace("qualityData: {}", item.qualityData);
@@ -151,7 +151,7 @@ public class ItemSerializer {
         return true;
 
       case UNIQUE:
-        item.qualityId = bitStream.readU31(Item.UNIQUE_ID_SIZE);
+        item.qualityId = bits.read31u(Item.UNIQUE_ID_SIZE);
         log.trace("qualityId: {}", item.qualityId);
         item.qualityData = Riiablo.files.UniqueItems.get(item.qualityId);
         log.trace("qualityData: {}", item.qualityData);
@@ -163,15 +163,15 @@ public class ItemSerializer {
         return true;
 
       case MAGIC:
-        item.qualityId = bitStream.readU31(2 * Item.MAGIC_AFFIX_SIZE); // 11 for prefix, 11 for suffix
+        item.qualityId = bits.read31u(2 * Item.MAGIC_AFFIX_SIZE); // 11 for prefix, 11 for suffix
         log.trace("qualityId: {}", item.qualityId);
         return true;
 
       case RARE:
       case CRAFTED:
-        item.qualityId = bitStream.readU31(2 * Item.RARE_AFFIX_SIZE); // 8 for prefix, 8 for suffix
+        item.qualityId = bits.read31u(2 * Item.RARE_AFFIX_SIZE); // 8 for prefix, 8 for suffix
         log.trace("qualityId: {}", item.qualityId);
-        item.qualityData = new RareQualityData(bitStream);
+        item.qualityData = new RareQualityData(bits);
         log.trace("qualityData: {}", item.qualityData);
         return true;
 
@@ -181,51 +181,51 @@ public class ItemSerializer {
     }
   }
 
-  private static int readSetFlags(BitStream bitStream, Item item) {
-    return item.quality == Quality.SET ? bitStream.readU7(5) : 0;
+  private static int readSetFlags(BitInput bits, Item item) {
+    return item.quality == Quality.SET ? bits.read7u(5) : 0;
   }
 
-  private static boolean readRunewordData(BitStream bitStream, Item item) {
+  private static boolean readRunewordData(BitInput bits, Item item) {
     boolean hasRunewordData = (item.flags & Item.ITEMFLAG_RUNEWORD) == Item.ITEMFLAG_RUNEWORD;
-    item.runewordData = hasRunewordData ? (short) bitStream.readRaw(16) : 0;
+    item.runewordData = hasRunewordData ? (short) bits.readRaw(16) : 0;
     return hasRunewordData;
   }
 
-  private static boolean readArmorClass(BitStream bitStream, Item item) {
+  private static boolean readArmorClass(BitInput bits, Item item) {
     boolean hasAC = item.type.is(Type.ARMO);
-    if (hasAC) item.props.base().read(Stat.armorclass, bitStream);
+    if (hasAC) item.props.base().read(Stat.armorclass, bits);
     return hasAC;
   }
 
-  private static boolean readDurability(BitStream bitStream, Item item) {
+  private static boolean readDurability(BitInput bits, Item item) {
     boolean hasDurability = item.type.is(Type.ARMO) || item.type.is(Type.WEAP);
     if (hasDurability) {
-      int maxdurability = item.props.base().read(Stat.maxdurability, bitStream);
-      if (maxdurability > 0) item.props.base().read(Stat.durability, bitStream);
+      int maxdurability = item.props.base().read(Stat.maxdurability, bits);
+      if (maxdurability > 0) item.props.base().read(Stat.durability, bits);
     }
     return hasDurability;
   }
 
-  private static boolean readSockets(BitStream bitStream, Item item) {
+  private static boolean readSockets(BitInput bits, Item item) {
     boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED
         && (item.type.is(Type.ARMO) || item.type.is(Type.WEAP));
     if (hasSockets) {
-      int item_numsockets = item.props.base().read(Stat.item_numsockets, bitStream);
+      int item_numsockets = item.props.base().read(Stat.item_numsockets, bits);
       item.sockets = new Array<>(item_numsockets);
     }
     return hasSockets;
   }
 
-  private static boolean readBook(BitStream bitStream, Item item) {
+  private static boolean readBook(BitInput bits, Item item) {
     boolean isBook = item.type.is(Type.BOOK);
-    if (isBook) bitStream.skip(5); // TODO: Appears to be 0 for tbk and 1 for ibk
+    if (isBook) bits.skipBits(5); // TODO: Appears to be 0 for tbk and 1 for ibk
     return isBook;
   }
 
-  private static boolean readQuantity(BitStream bitStream, Item item) {
+  private static boolean readQuantity(BitInput bits, Item item) {
     boolean hasQuantity = item.base.stackable;
     if (hasQuantity) {
-      int quantity = bitStream.readU15(9);
+      int quantity = bits.read15u(9);
       item.props.base().put(Stat.quantity, quantity);
     }
     return hasQuantity;

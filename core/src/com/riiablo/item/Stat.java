@@ -11,7 +11,7 @@ import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
-import com.riiablo.codec.util.BitStream;
+import com.riiablo.io.BitInput;
 import com.riiablo.save.CharData;
 
 @SuppressWarnings("unused")
@@ -459,7 +459,7 @@ public class Stat implements Comparable<Stat> {
     return new Stat(); // POOL.obtain();
   }
 
-  static Stat obtain(int stat, BitStream bitStream) {
+  static Stat obtain(int stat, BitInput bitStream) {
     return obtain()._obtain(stat, bitStream);
   }
 
@@ -484,11 +484,11 @@ public class Stat implements Comparable<Stat> {
 
   Stat() {}
 
-  Stat _obtain(int stat, BitStream bitStream) {
+  Stat _obtain(int stat, BitInput bitStream) {
     this.id  = stat;
     entry    = Riiablo.files.ItemStatCost.get(stat);
-    param    = bitStream.readU31(entry.Save_Param_Bits);
-    val      = bitStream.readU31(entry.Save_Bits) - entry.Save_Add;
+    param    = bitStream.read31u(entry.Save_Param_Bits);
+    val      = bitStream.read31u(entry.Save_Bits) - entry.Save_Add;
     hash     = hash(stat, param);
     modified = false;
     return this;

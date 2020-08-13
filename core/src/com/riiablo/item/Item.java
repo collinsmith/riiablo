@@ -19,6 +19,7 @@ import com.riiablo.codec.excel.SetItems;
 import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.codec.util.BitStream;
+import com.riiablo.io.ByteInput;
 
 public class Item {
   private static final String TAG = "Item";
@@ -32,8 +33,14 @@ public class Item {
   private static final ItemSerializer DEFAULT_SERIALIZER = new ItemSerializer();
   private static final ItemLabeler DEFAULT_LABELER = new ItemLabeler();
 
+  /**
+   * @deprecated use {@link ItemSerializer#readItem(ByteInput)} instead!
+   */
+  @Deprecated
   public static Item loadFromStream(BitStream bitStream) {
-    return DEFAULT_SERIALIZER.readSingleItem(bitStream);
+    // FIXME: workaround for BitStream backcompat
+    ByteInput bitInput = ByteInput.wrap(bitStream.getBufferAtPos());
+    return DEFAULT_SERIALIZER.readSingleItem(bitInput);
   }
 
   public static final float ETHEREAL_ALPHA = 2 / 3f;

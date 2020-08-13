@@ -174,6 +174,18 @@ public class ByteInput {
   }
 
   /**
+   * Returns a byte array containing a duplicated region of the byte stream.
+   *
+   * @deprecated will be removed
+   */
+  @Deprecated
+  public byte[] duplicate(int offset, int len) {
+    byte[] dst = new byte[len];
+    buffer.getBytes(offset, dst);
+    return dst;
+  }
+
+  /**
    * Reads the next byte from the byte stream, ignoring alignment.
    */
   short _read8u() {
