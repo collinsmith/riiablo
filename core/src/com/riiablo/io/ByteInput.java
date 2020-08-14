@@ -373,8 +373,7 @@ public class ByteInput {
   public byte readSafe8u() {
     assert aligned() : "not aligned";
     try {
-      incrementBitsRead(Byte.SIZE);
-      final short value = read8u();
+      final short value = read8u(); // increments bits
       return BitConstraints.safe8u(value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
@@ -391,8 +390,7 @@ public class ByteInput {
   public short readSafe16u() {
     assert aligned() : "not aligned";
     try {
-      incrementBitsRead(Short.SIZE);
-      final int value = read16u();
+      final int value = read16u(); // increments bits
       return BitConstraints.safe16u(value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
@@ -409,8 +407,7 @@ public class ByteInput {
   public int readSafe32u() {
     assert aligned() : "not aligned";
     try {
-      incrementBitsRead(Integer.SIZE);
-      final long value = read32u();
+      final long value = read32u(); // increments bits
       return BitConstraints.safe32u(value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
@@ -427,8 +424,7 @@ public class ByteInput {
   public long readSafe64u() {
     assert aligned() : "not aligned";
     try {
-      incrementBitsRead(Long.SIZE);
-      final long value = read32u();
+      final long value = read32u(); // increments bits
       return BitConstraints.safe32u(value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
