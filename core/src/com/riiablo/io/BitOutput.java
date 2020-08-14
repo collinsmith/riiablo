@@ -91,7 +91,7 @@ public class BitOutput {
   void _writeUnsigned(long value, int bits) {
     assert bits >= 0 : "bits(" + bits + ") < " + 0;
     assert bits < Long.SIZE : "bits(" + bits + ") > " + (Long.SIZE - 1);
-    assert (value & ~MASKS[bits]) == 0 : "value(" + value + ") is larger than bits(" + bits + ")";
+    assert bits == 0 || (value & ~MASKS[bits]) == 0 : "value(" + value + ") is larger than bits(" + bits + ")";
     _writeRaw(value, bits);
   }
 
@@ -139,13 +139,13 @@ public class BitOutput {
     return this;
   }
 
-  public BitOutput write7u(byte value, int bits) {
+  public BitOutput write7u(int value, int bits) {
     BitConstraints.validate7u(bits);
     _writeUnsigned(value, bits);
     return this;
   }
 
-  public BitOutput write15u(short value, int bits) {
+  public BitOutput write15u(int value, int bits) {
     BitConstraints.validate15u(bits);
     _writeUnsigned(value, bits);
     return this;
@@ -217,6 +217,10 @@ public class BitOutput {
   }
 
   public BitOutput writeString(CharSequence chars, int bits) {
+    return writeString(chars, bits, false);
+  }
+
+  public BitOutput writeString(CharSequence chars, int bits, boolean nullTerminated) {
     BitConstraints.validateAscii(bits);
 
     final int length = chars.length();
@@ -226,6 +230,7 @@ public class BitOutput {
       _writeRaw(c, bits);
     }
 
+    if (nullTerminated) _writeRaw('\0', bits);
     return this;
   }
 }
