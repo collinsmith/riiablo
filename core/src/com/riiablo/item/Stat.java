@@ -12,6 +12,7 @@ import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.io.BitInput;
+import com.riiablo.io.BitOutput;
 import com.riiablo.save.CharData;
 
 @SuppressWarnings("unused")
@@ -512,6 +513,11 @@ public class Stat implements Comparable<Stat> {
     val      = src.val;
     modified = src.modified;
     return this;
+  }
+
+  void write(BitOutput bitStream) {
+    bitStream.write31u(param, entry.Save_Param_Bits);
+    bitStream.write31u(val + entry.Save_Add, entry.Save_Bits);
   }
 
   Stat copy() {

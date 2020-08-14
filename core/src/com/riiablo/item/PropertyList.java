@@ -1,5 +1,6 @@
 package com.riiablo.item;
 
+import java.util.Comparator;
 import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
@@ -11,6 +12,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.Properties;
 import com.riiablo.io.BitInput;
+import com.riiablo.io.BitOutput;
 
 public class PropertyList implements Iterable<Stat> {
   private static final String TAG = "PropertyList";
@@ -84,6 +86,39 @@ public class PropertyList implements Iterable<Stat> {
       }
     }
 
+    return this;
+  }
+
+  public int write(int stat, BitOutput bitStream) {
+    Stat instance = props.get(stat);
+    instance.write(bitStream);
+    return instance.val;
+  }
+
+  public PropertyList write(BitOutput bitStream) {
+    // FIXME: relatively expensive operation to fix issue with writing stats out of order -- should be replaced at some point...
+    Array<Stat> props = this.props.values().toArray();
+    props.sort(new Comparator<Stat>() {
+      @Override
+      public int compare(Stat o1, Stat o2) {
+        return Integer.compare(o1.id, o2.id);
+      }
+    });
+
+    for (Array.ArrayIterator<Stat> it = props.iterator(); it.hasNext();) {
+      Stat instance = it.next();
+      int j = instance.id;
+      bitStream.write15u(j, Stat.BITS);
+      instance.write(bitStream);
+      for (final int size = j++ + Stat.getNumEncoded(instance.id); j < size; j++) {
+        Stat next = it.next(); // consume extra encoded stats
+        assert next.id == j : String.format("it.next(%s) != %d : getNumEncoded(%s)[%d..%d]",
+            next, j, instance, instance.id, instance.id + Stat.getNumEncoded(instance.id) - 1);
+        next.write(bitStream);
+      }
+    }
+
+    bitStream.write15u(Stat.NONE, Stat.BITS);
     return this;
   }
 

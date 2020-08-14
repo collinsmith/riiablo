@@ -115,7 +115,6 @@ public class ItemReader {
     readBook(bits, item);
     readQuantity(bits, item);
 
-    if (item.type.is(Type.BOOK)) listFlags = 0;
     listFlags |= (readSetFlags(bits, item) << Item.SET_PROPS);
     PropertyList[] props = item.stats = new PropertyList[Item.NUM_PROPS];
     for (int i = 0; i < Item.NUM_PROPS; i++) {
