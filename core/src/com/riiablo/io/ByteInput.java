@@ -73,7 +73,13 @@ public class ByteInput {
     return this.bitInput = bitInput;
   }
 
-  ByteBuf buffer() {
+  /**
+   * Returns a read-only view of the underlying byte buffer. This method is
+   * provided for debugging and testing purposes. <b>Do not use this in
+   * production code!</b>
+   */
+  public ByteBuf buffer() {
+    assert buffer.isReadOnly();
     return buffer;
   }
 

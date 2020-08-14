@@ -25,8 +25,13 @@ public class ByteOutput {
     return bitOutput != null ? bitOutput : (bitOutput = new BitOutput(this));
   }
 
+  /**
+   * Returns a read-only view of the underlying byte buffer. This method is
+   * provided for debugging and testing purposes. <b>Do not use this in
+   * production code!</b>
+   */
   public ByteBuf buffer() {
-    return buffer;
+    return buffer.asReadOnly();
   }
 
   public int bytesRemaining() {
