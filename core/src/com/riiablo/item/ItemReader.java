@@ -12,8 +12,8 @@ import com.riiablo.io.ByteInput;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
 
-public class ItemSerializer {
-  private static final Logger log = LogManager.getLogger(ItemSerializer.class);
+public class ItemReader {
+  private static final Logger log = LogManager.getLogger(ItemReader.class);
 
   private static final byte[] SIGNATURE = {0x4A, 0x4D};
 

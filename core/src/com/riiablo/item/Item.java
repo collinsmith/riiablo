@@ -30,11 +30,11 @@ public class Item {
   private static final boolean SIMPLE_FLAGS = !true;
   private static final boolean ONLY_KNOWN_FLAGS = SIMPLE_FLAGS && true;
 
-  private static final ItemSerializer DEFAULT_SERIALIZER = new ItemSerializer();
+  private static final ItemReader DEFAULT_SERIALIZER = new ItemReader();
   private static final ItemLabeler DEFAULT_LABELER = new ItemLabeler();
 
   /**
-   * @deprecated use {@link ItemSerializer#readItem(ByteInput)} instead!
+   * @deprecated use {@link ItemReader#readItem(ByteInput)} instead!
    */
   @Deprecated
   public static Item loadFromStream(BitStream bitStream) {
