@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" strict="true" name="XMLConfigTest"
+               packages="com.riiablo">
+  <!--<Filter type="ThresholdFilter" level="trace"/>-->
+
+  <Appenders>
+    <!--<Appender type="Console" name="STDOUT" follow="true">-->
+      <!--<PatternLayout>-->
+        <!--<MarkerPatternSelector defaultPattern="%-5level [%logger{1}] %message%n">-->
+          <!--<PatternMatch key="FLOW" pattern="%-5level [%logger{1}] %method %message%n"/>-->
+        <!--</MarkerPatternSelector>-->
+      <!--</PatternLayout>-->
+    <!--</Appender>-->
+    <Appender type="Console" name="STDOUT" follow="true">
+      <MDCLayout fullMode="false">
+        <PatternLayout alwaysWriteExceptions="true">
+          <MarkerPatternSelector defaultPattern="%-5level [%logger{1}] %message">
+            <PatternMatch key="FLOW" pattern="%-5level [%logger{1}] %method %message"/>
+          </MarkerPatternSelector>
+        </PatternLayout>
+      </MDCLayout>
+    </Appender>
+  </Appenders>
+
+  <Loggers>
+    <Logger name="com.riiablo.item" level="trace" additivity="false">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
+
+    <Root level="trace">
+      <AppenderRef ref="STDOUT"/>
+    </Root>
+  </Loggers>
+
+</Configuration>
