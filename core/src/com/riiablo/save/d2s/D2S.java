@@ -98,6 +98,32 @@ public class D2S {
     return isExpansion();
   }
 
+  public boolean isMale() {
+    switch (charClass) {
+      case 2: case 3: case 4: case 5: // TODO: use const fields
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  public String getProgressionString() {
+    int prog = (flags >>> 8) & 0xFF;
+    final boolean hc = isHardcore();
+    final boolean male = isMale();
+    if (isExpansion()) {
+      if (prog >= 15) return hc ? "Guardian" : male ? "Patriarch" : "Matriarch";
+      if (prog >= 10) return hc ? "Conqueror" : "Champion";
+      if (prog >= 5) return hc ? "Destroyer" : "Slayer";
+    } else {
+      if (prog >= 12) return hc ? male ? "King" : "Queen" : male ? "Baron" : "Baroness";
+      if (prog >= 8) return hc ? male ? "Duke" : "Duchess" : male ? "Lord" : "Lady";
+      if (prog >= 4) return hc ? male ? "Count" : "Countess" : male ? "Sir" : "Dame";
+    }
+
+    return "";
+  }
+
   public static class MercData {
     int flags;
     int seed;
