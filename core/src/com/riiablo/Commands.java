@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.spi.LoggerContext;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -270,6 +274,46 @@ public class Commands {
             Gdx.app.error("Command", t.getMessage(), t);
             if (socket != null) socket.dispose();
           }
+        }
+      })
+      .build();
+
+  public static final Command getlogger = Command.builder()
+      .alias("getlogger")
+      .description("Prints the log level for the specified logger")
+      .params(Parameter.of(String.class).suggester(LoggerSuggester.INSTANCE))
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          String name = instance.getArg(0);
+          LoggerContext context = LogManager.getContext(false);
+          Level level;
+          if (name.equalsIgnoreCase("root")) {
+            level = context.getLogger(LogManager.ROOT_LOGGER_NAME).getLevel();
+          } else {
+            level = context.getLogger(name).getLevel();
+          }
+          Riiablo.console.out.println(level);
+        }
+      })
+      .build();
+
+  public static final Command setlogger = Command.builder()
+      .alias("setlogger")
+      .description("Sets the log level for the specified logger")
+      .params(
+          Parameter.of(String.class).suggester(LoggerSuggester.INSTANCE),
+          Parameter.of(String.class).suggester(LoggerLevelSuggester.INSTANCE))
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          String name = instance.getArg(0);
+          Level level = Level.toLevel(instance.getArg(1), null);
+          if (level == null) {
+            Riiablo.console.out.println("Unknown log level: " + instance.getArg(1));
+            return;
+          }
+          Configurator.setLevel(name, level);
         }
       })
       .build();

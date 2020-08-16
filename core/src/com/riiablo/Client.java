@@ -59,6 +59,7 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
+import com.riiablo.log.LogManager;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
 import com.riiablo.map.DT1;
@@ -112,6 +113,7 @@ public class Client extends Game {
   private CharData              charData;
   private D2                    anim;
   private Metrics               metrics;
+  private LogManager            logs;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
@@ -214,6 +216,7 @@ public class Client extends Game {
   @Override
   public void create() {
     Riiablo.client = this;
+    Riiablo.logs = logs = LogManager.INSTANCE;
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
     // This is needed so that home is in a platform-dependent handle
@@ -493,6 +496,7 @@ public class Client extends Game {
   @Override
   public void resume() {
     Riiablo.client = this;
+    Riiablo.logs = logs;
     Riiablo.home = home;
     Riiablo.viewport = viewport;
     Riiablo.defaultViewport = defaultViewport;
