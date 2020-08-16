@@ -9,7 +9,9 @@ import com.riiablo.item.ItemReader;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
 
-public class D2SReader {
+public enum D2SReader {
+  INSTANCE;
+
   private static final Logger log = LogManager.getLogger(D2SReader.class);
 
   public D2S readD2S(ByteInput in) {

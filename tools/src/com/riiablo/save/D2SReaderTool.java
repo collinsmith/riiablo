@@ -44,7 +44,7 @@ public class D2SReaderTool extends ApplicationAdapter {
     Riiablo.string = new StringTBLs(Riiablo.mpqs);
 
     ItemReader itemReader = new ItemReader();
-    D2SReader serializer = new D2SReader();
+    D2SReader serializer = D2SReader.INSTANCE;
     for (String d2ss0 : d2ss) {
       FileHandle handle = Riiablo.home.child("Save/" + d2ss0 + '.' + D2S.EXT);
       ByteInput byteInput = ByteInput.wrap(handle.readBytes());
