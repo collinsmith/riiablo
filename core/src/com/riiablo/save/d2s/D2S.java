@@ -100,7 +100,10 @@ public class D2S {
 
   public boolean isMale() {
     switch (charClass) {
-      case 2: case 3: case 4: case 5: // TODO: use const fields
+      case Riiablo.NECROMANCER:
+      case Riiablo.PALADIN:
+      case Riiablo.BARBARIAN:
+      case Riiablo.DRUID:
         return true;
       default:
         return false;

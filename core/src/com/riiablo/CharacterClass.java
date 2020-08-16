@@ -6,7 +6,7 @@ import com.riiablo.codec.excel.CharStats;
 import com.riiablo.graphics.BlendMode;
 
 public enum CharacterClass {
-  AMAZON     ("am", 0) {{
+  AMAZON     ("am", Riiablo.AMAZON) {{
     name = 4011;
     description = 5128;
     spellsBackground = "skltree_a_back";
@@ -20,7 +20,7 @@ public enum CharacterClass {
     firstSpell = 6;
     lastSpell  = 36;
   }},
-  SORCERESS  ("so", 1) {{
+  SORCERESS  ("so", Riiablo.SORCERESS) {{
     name = 4010;
     description = 5131;
     spellsBackground = "skltree_s_back";
@@ -36,7 +36,7 @@ public enum CharacterClass {
     fws = bws = nu3s = true;
     blendSpecial = BlendMode.LUMINOSITY;
   }},
-  NECROMANCER("ne", 2) {{
+  NECROMANCER("ne", Riiablo.NECROMANCER) {{
     name = 4009;
     description = 5129;
     spellsBackground = "skltree_n_back";
@@ -52,7 +52,7 @@ public enum CharacterClass {
     fws = bws = nu3s = true;
     blendSpecial = BlendMode.LUMINOSITY;
   }},
-  PALADIN    ("pa", 3) {{
+  PALADIN    ("pa", Riiablo.PALADIN) {{
     name = 4008;
     description = 5132;
     spellsBackground = "skltree_p_back";
@@ -68,7 +68,7 @@ public enum CharacterClass {
     fws = true;
     blendSpecial = BlendMode.ID;
   }},
-  BARBARIAN  ("ba", 4) {{
+  BARBARIAN  ("ba", Riiablo.BARBARIAN) {{
     name = 4007;
     description = 5130;
     spellsBackground = "skltree_b_back";
@@ -84,7 +84,7 @@ public enum CharacterClass {
     fws = true;
     blendSpecial = BlendMode.ID;
   }},
-  DRUID      ("dz", 5) {{
+  DRUID      ("dz", Riiablo.DRUID) {{
     name = 4012;
     description = 22518;
     spellsBackground = "skltree_d_back";
@@ -98,7 +98,7 @@ public enum CharacterClass {
     firstSpell = 221;
     lastSpell  = 251;
   }},
-  ASSASSIN   ("as", 6) {{
+  ASSASSIN   ("as", Riiablo.ASSASSIN) {{
     name = 4013;
     description = 22519;
     spellsBackground = "skltree_i_back";
@@ -136,13 +136,13 @@ public enum CharacterClass {
 
   public static CharacterClass get(int classId) {
     switch (classId) {
-      case 0:  return AMAZON;
-      case 1:  return SORCERESS;
-      case 2:  return NECROMANCER;
-      case 3:  return PALADIN;
-      case 4:  return BARBARIAN;
-      case 5:  return DRUID;
-      case 6:  return ASSASSIN;
+      case Riiablo.AMAZON:      return AMAZON;
+      case Riiablo.SORCERESS:   return SORCERESS;
+      case Riiablo.NECROMANCER: return NECROMANCER;
+      case Riiablo.PALADIN:     return PALADIN;
+      case Riiablo.BARBARIAN:   return BARBARIAN;
+      case Riiablo.DRUID:       return DRUID;
+      case Riiablo.ASSASSIN:    return ASSASSIN;
       default: throw new GdxRuntimeException("Invalid class id: " + classId);
     }
   }
