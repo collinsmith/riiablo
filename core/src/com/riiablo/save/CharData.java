@@ -146,7 +146,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
 
   public CharData load(D2S d2s) {
     managed = true;
-    if (d2s.file != null) { // FIXME: workaround for D2GS networked D2S data until loaded directly
+    if (d2s.file != null) { // FIXME: workaround -- D2GS doesn't have D2S files, but will when authoritative
     data = d2s.file.readBytes();
     }
     d2s.copyTo(this);
