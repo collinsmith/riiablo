@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.utils.Array;
 
-import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.io.BitInput;
@@ -20,6 +19,7 @@ import com.riiablo.item.ItemReader;
 import com.riiablo.item.Stat;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
+import com.riiablo.util.DebugUtils;
 
 public class D2SReader96 {
   private static final Logger log = LogManager.getLogger(D2SReader96.class);
@@ -87,7 +87,7 @@ public class D2SReader96 {
       d2s.flags = in.read32();
       Log.debugf(log, "flags: 0x%08X [%s]", d2s.flags, d2s.getFlagsString());
       d2s.charClass = in.readSafe8u();
-      log.debug("charClass: {} ({})", d2s.charClass, CharacterClass.get(d2s.charClass));
+      log.debug("charClass: {} ({})", d2s.charClass, DebugUtils.getClassString(d2s.charClass));
       in.skipBytes(2); // unknown
       d2s.level = in.readSafe8u();
       in.skipBytes(4); // unknown
@@ -213,7 +213,7 @@ public class D2SReader96 {
       flags[i] = in.readBytes(D2S.QuestData.NUM_QUESTFLAGS);
       if (log.isDebugEnabled()) {
         Log.debugf(log, "quests.flags[%.4s]: %s",
-            Riiablo.getDifficultyString(i),
+            DebugUtils.getDifficultyString(i),
             ByteBufUtil.hexDump(flags[i]));
       }
     }
@@ -236,7 +236,7 @@ public class D2SReader96 {
       flags[i] = readWaypointFlags(in);
       if (log.isDebugEnabled()) {
         Log.debugf(log, "waypoints.flags[%.4s]: %s",
-            Riiablo.getDifficultyString(i),
+            DebugUtils.getDifficultyString(i),
             ByteBufUtil.hexDump(flags[i]));
       }
     }
@@ -267,7 +267,7 @@ public class D2SReader96 {
         if (log.isDebugEnabled()) {
           Log.debugf(log, "npcs.flags[%s][%.4s]: %s",
               D2S.NPCData.getGreetingString(i),
-              Riiablo.getDifficultyString(j),
+              DebugUtils.getDifficultyString(j),
               ByteBufUtil.hexDump(flags[i][j]));
         }
       }

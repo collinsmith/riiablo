@@ -29,17 +29,6 @@ public class Riiablo {
   public static final int NIGHTMARE = 1;
   public static final int HELL      = 2;
 
-  public static String getDifficultyString(int diff) {
-    switch (diff) {
-      case NORMAL:    return "NORM";
-      case NIGHTMARE: return "NIGHTMARE";
-      case HELL:      return "HELL";
-      default:
-        throw new IllegalArgumentException(
-            "diff(" + diff + ") is not a valid difficulty [" + NORMAL + "," + HELL + "]");
-    }
-  }
-
   public static final byte AMAZON      = 0;
   public static final byte SORCERESS   = 1;
   public static final byte NECROMANCER = 2;

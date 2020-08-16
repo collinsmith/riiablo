@@ -2,8 +2,36 @@ package com.riiablo.util;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import com.riiablo.Riiablo;
+
 public class DebugUtils {
   private DebugUtils() {}
+
+  public static String getDifficultyString(int diff) {
+    switch (diff) {
+      case Riiablo.NORMAL:    return "NORM";
+      case Riiablo.NIGHTMARE: return "NIGHTMARE";
+      case Riiablo.HELL:      return "HELL";
+      default:
+        throw new IllegalArgumentException(
+            "diff(" + diff + ") is not a valid difficulty");
+    }
+  }
+
+  public static String getClassString(int classId) {
+    switch (classId) {
+      case Riiablo.AMAZON:      return "AMAZON";
+      case Riiablo.SORCERESS:   return "SORCERESS";
+      case Riiablo.NECROMANCER: return "NECROMANCER";
+      case Riiablo.PALADIN:     return "PALADIN";
+      case Riiablo.BARBARIAN:   return "BARBARIAN";
+      case Riiablo.DRUID:       return "DRUID";
+      case Riiablo.ASSASSIN:    return "ASSASSIN";
+      default:
+        throw new IllegalArgumentException(
+            "classId(" + classId + ") is not a valid class id");
+    }
+  }
 
   public static String toByteArray(byte[] bytes) {
     StringBuilder sb = new StringBuilder();
