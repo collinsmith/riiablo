@@ -51,6 +51,7 @@ public class ByteOutput {
   }
 
   public ByteOutput skipBytes(int bytes) {
+    assert aligned() : "not aligned";
     incrementBitsWritten((long) bytes * Byte.SIZE);
     buffer.writeZero(bytes);
     return this;
@@ -108,6 +109,7 @@ public class ByteOutput {
   }
 
   public ByteOutput writeString(CharSequence chars) {
+    assert aligned() : "not aligned";
     incrementBitsWritten((long) chars.length() * Byte.SIZE);
     buffer.writeCharSequence(chars, CharsetUtil.US_ASCII);
     return this;

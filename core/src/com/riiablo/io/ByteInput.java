@@ -217,6 +217,7 @@ public class ByteInput {
    * @see ByteBuf#readSlice(int)
    */
   public ByteInput readSlice(long numBytes) {
+    assert aligned() : "not aligned";
     assert numBytes <= Integer.MAX_VALUE : "ByteBuf only supports int length";
     final int mark = updateMark(); // updates mark to start offset of slice
     final ByteBuf slice = buffer.readSlice((int) numBytes);
