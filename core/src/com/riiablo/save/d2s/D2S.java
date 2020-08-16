@@ -6,6 +6,8 @@ import com.riiablo.Riiablo;
 import com.riiablo.item.Item;
 
 public class D2S {
+  public static final String EXT = "d2s";
+
   static final byte[] SIGNATURE = {0x55, (byte) 0xAA, 0x55, (byte) 0xAA};
 
   static final int VERSION_100 = 71;
