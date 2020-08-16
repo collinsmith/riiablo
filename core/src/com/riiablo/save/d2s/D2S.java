@@ -69,19 +69,32 @@ public class D2S {
   public String getVersionString() {
     return getVersionString(version);
   }
-    public String getFlagsString() {
-      StringBuilder sb = new StringBuilder();
-      if ((flags & FLAG_BIT0)      == FLAG_BIT0)      sb.append("FLAG_BIT0|");
-      if ((flags & FLAG_BIT1)      == FLAG_BIT1)      sb.append("FLAG_BIT1|");
-      if ((flags & FLAG_HARDCORE)  == FLAG_HARDCORE)  sb.append("FLAG_HARDCORE|");
-      if ((flags & FLAG_DIED)      == FLAG_DIED)      sb.append("FLAG_DIED|");
-      if ((flags & FLAG_BIT4)      == FLAG_BIT4)      sb.append("FLAG_BIT4|");
-      if ((flags & FLAG_EXPANSION) == FLAG_EXPANSION) sb.append("FLAG_EXPANSION|");
-      if ((flags & FLAG_BIT6)      == FLAG_BIT6)      sb.append("FLAG_BIT6|");
-      if ((flags & FLAG_BIT7)      == FLAG_BIT7)      sb.append("FLAG_BIT7|");
-      if (sb.length() > 0) sb.setLength(sb.length() - 1);
-      return sb.toString();
-    }
+
+  public String getFlagsString() {
+    StringBuilder sb = new StringBuilder();
+    if ((flags & FLAG_BIT0)      == FLAG_BIT0)      sb.append("FLAG_BIT0|");
+    if ((flags & FLAG_BIT1)      == FLAG_BIT1)      sb.append("FLAG_BIT1|");
+    if ((flags & FLAG_HARDCORE)  == FLAG_HARDCORE)  sb.append("FLAG_HARDCORE|");
+    if ((flags & FLAG_DIED)      == FLAG_DIED)      sb.append("FLAG_DIED|");
+    if ((flags & FLAG_BIT4)      == FLAG_BIT4)      sb.append("FLAG_BIT4|");
+    if ((flags & FLAG_EXPANSION) == FLAG_EXPANSION) sb.append("FLAG_EXPANSION|");
+    if ((flags & FLAG_BIT6)      == FLAG_BIT6)      sb.append("FLAG_BIT6|");
+    if ((flags & FLAG_BIT7)      == FLAG_BIT7)      sb.append("FLAG_BIT7|");
+    if (sb.length() > 0) sb.setLength(sb.length() - 1);
+    return sb.toString();
+  }
+
+  public boolean hasFlag(int flag) {
+    return (flags & flag) == flag;
+  }
+
+  public boolean isHardcore() {
+    return hasFlag(FLAG_HARDCORE);
+  }
+
+  public boolean isExpansion() {
+    return isExpansion();
+  }
 
   public static class MercData {
     int flags;
