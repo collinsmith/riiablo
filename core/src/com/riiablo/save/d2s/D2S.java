@@ -127,6 +127,22 @@ public class D2S {
     return "";
   }
 
+  public String getTownsString() {
+    final int DIFF_ACT_MASK = 0x7;
+    final int DIFF_FLAG_ACTIVE = 1 << 7;
+    StringBuilder sb = new StringBuilder();
+    sb.append("[");
+    for (byte town : towns) {
+      sb.append('A').append((town & DIFF_ACT_MASK) + 1);
+      if ((town & DIFF_FLAG_ACTIVE) == DIFF_FLAG_ACTIVE) sb.append('*');
+      sb.append(", ");
+    }
+
+    sb.setLength(sb.length() - 2);
+    sb.append("]");
+    return sb.toString();
+  }
+
   public static class MercData {
     int flags;
     int seed;
