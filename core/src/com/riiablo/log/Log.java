@@ -41,6 +41,10 @@ public class Log {
     ThreadContext.put(key, value);
   }
 
+  public static void put(String key, int value) {
+    put(key, String.valueOf(value));
+  }
+
   public static void remove(String key) {
     ThreadContext.remove(key);
   }
