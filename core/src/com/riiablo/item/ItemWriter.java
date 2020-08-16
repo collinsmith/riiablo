@@ -1,5 +1,6 @@
 package com.riiablo.item;
 
+import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -18,6 +19,7 @@ public class ItemWriter {
   private static final byte[] SIGNATURE = {0x4A, 0x4D};
 
   public ByteOutput writeItem(Item item, ByteOutput out) {
+    final int startOffset = out.bytesWritten();
     writeSingleItem(item, out);
     if (item.socketsFilled > 0) log.trace("Writing {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
@@ -27,6 +29,20 @@ public class ItemWriter {
         writeSingleItem(socket, out);
       } finally {
         Log.remove("socket");
+      }
+    }
+    if (log.isDebugEnabled()) {
+      final int endOffset = out.bytesWritten();
+      final int itemSize = endOffset - startOffset;
+      log.debug("size: {} (0x{}) (+{} .. +{})",
+          itemSize,
+          Integer.toHexString(itemSize),
+          Integer.toHexString(startOffset),
+          Integer.toHexString(endOffset));
+      if (log.isTraceEnabled()) {
+        Log.tracef(log, "bytes: %n%s", ByteBufUtil.prettyHexDump(out.buffer()));
+      } else {
+        log.debug("bytes: {}", ByteBufUtil.hexDump(out.buffer()));
       }
     }
     return out;

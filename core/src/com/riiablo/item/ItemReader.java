@@ -22,7 +22,7 @@ public class ItemReader {
   }
 
   public Item readItem(ByteInput in) {
-    final int itemOffset = in.bytesRead(); // TODO: remove when serialization implemented
+    final int startOffset = in.bytesRead(); // TODO: remove when serialization implemented
     Item item = readSingleItem(in);
     if (item.socketsFilled > 0) log.trace("Reading {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
@@ -34,8 +34,16 @@ public class ItemReader {
         Log.remove("socket");
       }
     }
-    final int itemSize = in.bytesRead() - itemOffset; // TODO: remove when serialization implemented
-    item.data = in.duplicate(itemOffset, itemSize); // TODO: remove when serialization implemented
+    final int endOffset = in.bytesRead();
+    final int itemSize = endOffset - startOffset; // TODO: remove when serialization implemented
+    item.data = in.duplicate(startOffset, itemSize); // TODO: remove when serialization implemented
+    if (log.isTraceEnabled()) {
+      log.trace("size: {} (0x{}) (+{} .. +{})",
+          itemSize,
+          Integer.toHexString(itemSize),
+          Integer.toHexString(startOffset),
+          Integer.toHexString(endOffset));
+    }
     return item;
   }
 
