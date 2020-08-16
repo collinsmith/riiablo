@@ -55,6 +55,7 @@ public class D2S {
   StatData stats;
   SkillData skills;
   ItemData items;
+  ItemData corpse;
   GolemData golem;
 
   public static String getVersionString(int versionCode) {

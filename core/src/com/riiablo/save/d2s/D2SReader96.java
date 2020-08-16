@@ -162,16 +162,8 @@ public class D2SReader96 {
       d2s.skills = readSkillData(in);
       Log.put("d2s.section", "items");
       d2s.items = readItemData(in, itemReader);
-      try {
-        log.trace("Validating items footer signature");
-        itemReader.skipUntil(in.realign());
-        in.readSignature(ITEMS_FOOTER_SIGNATURE);
-      } catch (EndOfInput t) {
-        throw new InvalidFormat(
-            in,
-            "items footer " + ByteBufUtil.hexDump(ITEMS_FOOTER_SIGNATURE) + " is missing!",
-            t);
-      }
+      Log.put("d2s.section", "corpse");
+      d2s.corpse = readItemData(in, itemReader);
       try {
         in.skipUntil(MERC_SIGNATURE);
       } catch (EndOfInput t) {
