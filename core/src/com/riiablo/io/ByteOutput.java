@@ -34,6 +34,10 @@ public class ByteOutput {
     return buffer.asReadOnly();
   }
 
+  public int bytesWritten() {
+    return buffer.writerIndex();
+  }
+
   public int bytesRemaining() {
     return buffer.writableBytes();
   }
