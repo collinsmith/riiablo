@@ -76,7 +76,7 @@ public class D2SReader96 {
   static D2S readHeader(ByteInput in, D2S d2s) {
     assert d2s.version == VERSION : "d2s.version(" + d2s.version + ") != VERSION(" + VERSION + ")";
     in = in.readSlice(HEADER_SIZE - SIGNATURE.length - 4);
-    d2s.size = in.readSafe32u();
+    d2s.size = in.readSafe32u(); // TODO: validate this field in a test case
     d2s.checksum = in.read32();
     d2s.alternate = in.readSafe32u();
     d2s.name = in.readString(Riiablo.MAX_NAME_LENGTH + 1);
