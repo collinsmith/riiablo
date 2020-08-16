@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="warn" strict="true" name="XMLConfigTest"
+<Configuration status="warn" strict="true" name="RiiabloConfig"
                packages="com.riiablo">
   <!--<Filter type="ThresholdFilter" level="trace"/>-->
 
@@ -23,11 +23,19 @@
   </Appenders>
 
   <Loggers>
+    <Logger name="io.netty" level="warn" additivity="false">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
+
+    <Logger name="com.riiablo.save" level="trace" additivity="false">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
+
     <Logger name="com.riiablo.item" level="trace" additivity="false">
       <AppenderRef ref="STDOUT"/>
     </Logger>
 
-    <Root level="trace">
+    <Root level="debug">
       <AppenderRef ref="STDOUT"/>
     </Root>
   </Loggers>
