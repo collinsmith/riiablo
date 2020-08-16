@@ -17,6 +17,7 @@ import com.riiablo.codec.D2;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
 import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.log.LogManager;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.save.CharData;
 import com.riiablo.screen.GameScreen;
@@ -27,6 +28,17 @@ public class Riiablo {
   public static final int NORMAL    = 0;
   public static final int NIGHTMARE = 1;
   public static final int HELL      = 2;
+
+  public static String getDifficultyString(int diff) {
+    switch (diff) {
+      case NORMAL:    return "NORM";
+      case NIGHTMARE: return "NIGHTMARE";
+      case HELL:      return "HELL";
+      default:
+        throw new IllegalArgumentException(
+            "diff(" + diff + ") is not a valid difficulty [" + NORMAL + "," + HELL + "]");
+    }
+  }
 
   public static final int MAX_DIFFS = 3;
   public static final int MAX_ACTS = 5;
@@ -70,4 +82,5 @@ public class Riiablo {
   public static GameScreen            game;
   public static D2                    anim;
   public static Metrics               metrics;
+  public static LogManager            logs;
 }
