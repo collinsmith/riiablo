@@ -405,7 +405,7 @@ public class D2SReader96 {
     int errors = 0;
     for (int i = 0; i < size; i++) {
       try {
-        Log.put("item", String.valueOf(i));
+        Log.put("item", i);
         final Item item = itemReader.readItem(in);
         itemList.add(item);
       } catch (SignatureMismatch t) {

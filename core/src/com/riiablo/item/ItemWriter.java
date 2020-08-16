@@ -22,7 +22,7 @@ public class ItemWriter {
     if (item.socketsFilled > 0) log.trace("Writing {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
       try {
-        Log.put("socket", String.valueOf(i));
+        Log.put("socket", i);
         Item socket = item.sockets.get(i);
         writeSingleItem(socket, out);
       } finally {

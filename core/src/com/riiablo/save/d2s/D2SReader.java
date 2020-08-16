@@ -28,7 +28,7 @@ public class D2SReader {
     d2s.version = in.readSafe32u();
     log.debug("version: {} ({})", d2s.version, D2S.getVersionString(d2s.version));
     try {
-      Log.put("d2s.version", String.valueOf(d2s.version));
+      Log.put("d2s.version", d2s.version);
       switch (d2s.version) {
         case D2S.VERSION_110:
           return D2SReader96.readHeader(in, d2s);
@@ -47,7 +47,7 @@ public class D2SReader {
 
   public D2S readRemaining(D2S d2s, ByteInput in, ItemReader itemReader) {
     try {
-      Log.put("d2s.version", String.valueOf(d2s.version));
+      Log.put("d2s.version", d2s.version);
       switch (d2s.version) {
         case D2S.VERSION_110:
           return D2SReader96.readRemaining(d2s, in, itemReader);

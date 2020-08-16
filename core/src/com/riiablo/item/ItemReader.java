@@ -27,7 +27,7 @@ public class ItemReader {
     if (item.socketsFilled > 0) log.trace("Reading {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
       try {
-        Log.put("socket", String.valueOf(i));
+        Log.put("socket", i);
         in.skipUntil(SIGNATURE);
         item.sockets.add(readSingleItem(in));
       } finally {
