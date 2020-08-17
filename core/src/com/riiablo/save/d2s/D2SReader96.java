@@ -34,7 +34,6 @@ public class D2SReader96 {
   private static final byte[] STATS_SIGNATURE = {0x67, 0x66};
   private static final byte[] SKILLS_SIGNATURE = {0x69, 0x66};
   private static final byte[] ITEMS_SIGNATURE = {0x4A, 0x4D};
-  private static final byte[] ITEMS_FOOTER_SIGNATURE = {0x4A, 0x4D, 0x00, 0x00};
   private static final byte[] MERC_SIGNATURE = {0x6A, 0x66};
   private static final byte[] GOLEM_SIGNATURE = {0x6B, 0x66};
 
@@ -139,6 +138,17 @@ public class D2SReader96 {
     return merc;
   }
 
+  private static void recover(ByteInput in, byte[] signature, String tag) {
+      try {
+        in.skipUntil(signature);
+      } catch (EndOfInput t) {
+        throw new InvalidFormat(
+            in,
+            tag + " section " + ByteBufUtil.hexDump(signature) + " is missing!",
+            t);
+      }
+  }
+
   static D2S readRemaining(D2S d2s, ByteInput in, ItemReader itemReader) {
     try {
       Log.put("d2s.name", d2s.name);
@@ -150,37 +160,18 @@ public class D2SReader96 {
       d2s.npcs = readNPCData(in);
       Log.put("d2s.section", "stats");
       d2s.stats = readStatData(in);
-      try {
-        in.skipUntil(SKILLS_SIGNATURE);
-      } catch (EndOfInput t) {
-        throw new InvalidFormat(
-            in,
-            "skills section " + ByteBufUtil.hexDump(SKILLS_SIGNATURE) + " is missing!",
-            t);
-      }
+      recover(in, SKILLS_SIGNATURE, "skills");
       Log.put("d2s.section", "skills");
       d2s.skills = readSkillData(in);
       Log.put("d2s.section", "items");
       d2s.items = readItemData(in, itemReader);
+      recover(in, ITEMS_SIGNATURE, "corpse");
       Log.put("d2s.section", "corpse");
       d2s.corpse = readItemData(in, itemReader);
-      try {
-        in.skipUntil(MERC_SIGNATURE);
-      } catch (EndOfInput t) {
-        throw new InvalidFormat(
-            in,
-            "merc section " + ByteBufUtil.hexDump(MERC_SIGNATURE) + " is missing!",
-            t);
-      }
+      recover(in, MERC_SIGNATURE, "merc");
       Log.put("d2s.section", "merc");
       d2s.merc = readMercData(d2s.merc, in, itemReader);
-      try {
-        in.skipUntil(GOLEM_SIGNATURE);
-      } catch (EndOfInput t) {
-        throw new InvalidFormat(
-            in, "golem section (" + ByteBufUtil.hexDump(GOLEM_SIGNATURE) + ") is missing!",
-            t);
-      }
+      recover(in, GOLEM_SIGNATURE, "golem");
       Log.put("d2s.section", "golem");
       d2s.golem = readGolemData(in, itemReader);
     } finally {
