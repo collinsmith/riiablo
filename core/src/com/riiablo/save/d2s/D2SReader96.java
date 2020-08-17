@@ -28,7 +28,7 @@ public class D2SReader96 {
 
   private static final byte[] SIGNATURE = D2S.SIGNATURE;
   private static final byte[] QUESTS_SIGNATURE = {0x57, 0x6F, 0x6F, 0x21};
-  private static final byte[] WAYPOINTS_SIGNATURE = {'W', 'S'};
+  private static final byte[] WAYPOINTS_SIGNATURE = {0x57, 0x53};
   private static final byte[] WAYPOINTS_DIFF_SIGNATURE = {0x02, 0x01};
   private static final byte[] NPCS_SIGNATURE = {0x01, 0x77};
   private static final byte[] STATS_SIGNATURE = {0x67, 0x66};
