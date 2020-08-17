@@ -152,25 +152,35 @@ public class D2SReader96 {
   static D2S readRemaining(D2S d2s, ByteInput in, ItemReader itemReader) {
     try {
       Log.put("d2s.name", d2s.name);
+
       Log.put("d2s.section", "quests");
       d2s.quests = readQuestData(in);
+
       Log.put("d2s.section", "waypoints");
       d2s.waypoints = readWaypointData(in);
+
       Log.put("d2s.section", "npcs");
       d2s.npcs = readNPCData(in);
+
       Log.put("d2s.section", "stats");
       d2s.stats = readStatData(in);
+
       recover(in, SKILLS_SIGNATURE, "skills");
       Log.put("d2s.section", "skills");
       d2s.skills = readSkillData(in);
+
+      recover(in, ITEMS_SIGNATURE, "items");
       Log.put("d2s.section", "items");
       d2s.items = readItemData(in, itemReader);
+
       recover(in, ITEMS_SIGNATURE, "corpse");
       Log.put("d2s.section", "corpse");
       d2s.corpse = readItemData(in, itemReader);
+
       recover(in, MERC_SIGNATURE, "merc");
       Log.put("d2s.section", "merc");
       d2s.merc = readMercData(d2s.merc, in, itemReader);
+
       recover(in, GOLEM_SIGNATURE, "golem");
       Log.put("d2s.section", "golem");
       d2s.golem = readGolemData(in, itemReader);
