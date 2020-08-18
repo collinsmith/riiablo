@@ -1,5 +1,11 @@
 package com.riiablo.console;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import org.apache.commons.io.output.TeeOutputStream;
+import org.apache.commons.lang3.Validate;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -12,18 +18,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Timer;
+
 import com.riiablo.Cvars;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
-
-import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.commons.lang3.Validate;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 public class RenderedConsole extends Console implements Disposable, InputProcessor {
   private static final String TAG = "RenderedConsole";
@@ -370,7 +370,9 @@ public class RenderedConsole extends Console implements Disposable, InputProcess
 
     @Override
     public void flush() throws IOException {
-      console.OUTPUT.add(console.BUFFER.toString("UTF-8"));
+      String content = console.BUFFER.toString("UTF-8");
+      if (content.isEmpty()) return;
+      console.OUTPUT.add(content);
       console.BUFFER.reset();
       int size = console.OUTPUT.size;
       if (console.scrollOffset == size - 1) {
