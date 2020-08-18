@@ -37,7 +37,7 @@ public class Main extends ApplicationAdapter {
     Options options = new Options()
         .addOption("home", true, "directory containing D2 MPQ files")
         .addOption("seed", true, "seed used to generate map")
-        .addOption("diff", true, String.format("game difficulty (%d-%d)", Riiablo.NORMAL, Riiablo.MAX_DIFFS - 1))
+        .addOption("diff", true, String.format("game difficulty (%d-%d)", Riiablo.NORMAL, Riiablo.NUM_DIFFS - 1))
         ;
 
     CommandLine cmd = null;

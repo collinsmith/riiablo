@@ -103,7 +103,7 @@ public class D2SReader96 {
       if (log.isDebugEnabled()) log.debug("composites: {}", ByteBufUtil.hexDump(d2s.composites));
       d2s.colors = in.readBytes(COF.Component.NUM_COMPONENTS);
       if (log.isDebugEnabled()) log.debug("colors: {}", ByteBufUtil.hexDump(d2s.colors));
-      d2s.towns = in.readBytes(Riiablo.MAX_DIFFS);
+      d2s.towns = in.readBytes(Riiablo.NUM_DIFFS);
       if (log.isDebugEnabled()) log.debug("towns: {} ({})", ByteBufUtil.hexDump(d2s.towns), d2s.getTownsString());
       d2s.mapSeed = in.read32();
       Log.debugf(log, "mapSeed: 0x%08X", d2s.mapSeed);

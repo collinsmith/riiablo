@@ -43,7 +43,7 @@ public class Riiablo {
   public static final byte DRUID       = 5;
   public static final byte ASSASSIN    = 6;
 
-  public static final int MAX_DIFFS = 3;
+  public static final int NUM_DIFFS = 3;
   public static final int MAX_ACTS = 5;
   public static final int MAX_CLASSES = 7;
   public static final int MAX_PLAYERS = 8;

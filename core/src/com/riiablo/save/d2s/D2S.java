@@ -31,7 +31,7 @@ public class D2S {
   static final int NUM_ACTIONS = NUM_ALTS;
   static final int NUM_BUTTONS = 2;
   static final int NUM_HOTKEYS = 16;
-  static final int NUM_DIFFS = Riiablo.MAX_DIFFS;
+  static final int NUM_DIFFS = Riiablo.NUM_DIFFS;
 
   int version;
   int size;

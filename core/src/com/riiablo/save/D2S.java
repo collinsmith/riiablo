@@ -64,7 +64,7 @@ public class D2S {
   public static final int NUM_ACTIONS = NUM_ALTS;
   public static final int NUM_BUTTONS = 2;
   public static final int NUM_HOTKEYS = 16;
-  public static final int NUM_DIFFS   = Riiablo.MAX_DIFFS;
+  public static final int NUM_DIFFS   = Riiablo.NUM_DIFFS;
 
   static final int DIFF_ACT_MASK    = 0x7;
   static final int DIFF_FLAG_ACTIVE = 1 << 7;
@@ -168,7 +168,7 @@ public class D2S {
     if (header.merc.seed != 0) data.mercData.itemData.addAll(header.merc.items.items.items);
 
     BitStream bitStream;
-    for (int i = 0, i0 = Riiablo.MAX_DIFFS; i < i0; i++) {
+    for (int i = 0, i0 = Riiablo.NUM_DIFFS; i < i0; i++) {
       bitStream = new BitStream(quests.data[i]);
       for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][0][q] = (short) bitStream.readU31(16);
       for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][1][q] = (short) bitStream.readU31(16);

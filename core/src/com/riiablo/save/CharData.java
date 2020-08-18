@@ -63,10 +63,10 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   public final byte   realmData[] = new byte[144];
 
   final MercData   mercData = new MercData();
-  final short      questData[][][] = new short[Riiablo.MAX_DIFFS][Riiablo.MAX_ACTS][8];
-  final int        waypointData[][] = new int[Riiablo.MAX_DIFFS][Riiablo.MAX_ACTS];
-  final long       npcIntroData[] = new long[Riiablo.MAX_DIFFS];
-  final long       npcReturnData[] = new long[Riiablo.MAX_DIFFS];
+  final short      questData[][][] = new short[Riiablo.NUM_DIFFS][Riiablo.MAX_ACTS][8];
+  final int        waypointData[][] = new int[Riiablo.NUM_DIFFS][Riiablo.MAX_ACTS];
+  final long       npcIntroData[] = new long[Riiablo.NUM_DIFFS];
+  final long       npcReturnData[] = new long[Riiablo.NUM_DIFFS];
   final Attributes statData = new Attributes();
   final IntIntMap  skillData = new IntIntMap();
   final ItemData   itemData = new ItemData(statData, null);
@@ -180,7 +180,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     mercData.type  = 0;
     mercData.xp    = 0;
 
-    for (int i = 0, i0 = Riiablo.MAX_DIFFS; i < i0; i++) {
+    for (int i = 0, i0 = Riiablo.NUM_DIFFS; i < i0; i++) {
       for (int a = 0; a < Riiablo.MAX_ACTS; a++) Arrays.fill(questData[i][a], (short) 0);
       Arrays.fill(waypointData[i], 0);
       npcIntroData[i] = 0;
