@@ -19,6 +19,7 @@ import com.riiablo.item.ItemReader;
 import com.riiablo.item.Stat;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
+import com.riiablo.save.CharData;
 import com.riiablo.util.DebugUtils;
 
 public class D2SReader96 {
@@ -441,4 +442,11 @@ public class D2SReader96 {
     }
     return golem;
   }
+
+  static CharData copyTo(D2S d2s, CharData data) {
+    throw new UnsupportedOperationException();
+  }
+
+  // TODO: Tuples should be specific to versions -- versions may have different data types, fields, etc
+//  static class D2SData extends D2S {}
 }

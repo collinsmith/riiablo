@@ -1,5 +1,6 @@
 package com.riiablo.save.d2s;
 
+import io.netty.util.ByteProcessor;
 import org.apache.logging.log4j.Logger;
 
 import com.riiablo.io.ByteInput;
@@ -8,11 +9,29 @@ import com.riiablo.io.UnsafeNarrowing;
 import com.riiablo.item.ItemReader;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
+import com.riiablo.save.CharData;
 
 public enum D2SReader {
   INSTANCE;
 
   private static final Logger log = LogManager.getLogger(D2SReader.class);
+
+  // set the value of it in the d2s data to be zero and iterate through all the bytes
+  public int calculateChecksum(ByteInput in) {
+    ChecksumCalculator checksumCalculator = new ChecksumCalculator();
+    in.buffer().forEachByte(checksumCalculator);
+    return checksumCalculator.checksum;
+  }
+
+  private static class ChecksumCalculator implements ByteProcessor {
+    int checksum = 0;
+
+    @Override
+    public boolean process(byte value) {
+      checksum = (checksum << 1) + value;
+      return true;
+    }
+  }
 
   public D2S readD2S(ByteInput in) {
     log.trace("Reading d2s...");
@@ -59,10 +78,29 @@ public enum D2SReader {
         case D2S.VERSION_109:
         default:
           log.error("Unsupported d2s version: " + D2S.getVersionString(d2s.version));
+          return d2s;
       }
     } finally {
       Log.remove("d2s.version");
     }
-    return d2s;
+  }
+
+  CharData copyTo(D2S d2s, CharData data) {
+    try {
+      Log.put("d2s.version", d2s.version);
+      switch (d2s.version) {
+        case D2S.VERSION_110:
+          return D2SReader96.copyTo(d2s, data);
+        case D2S.VERSION_100:
+        case D2S.VERSION_107:
+        case D2S.VERSION_108:
+        case D2S.VERSION_109:
+        default:
+          log.error("Unsupported d2s version: " + D2S.getVersionString(d2s.version));
+          return data;
+      }
+    } finally {
+      Log.remove("d2s.version");
+    }
   }
 }
