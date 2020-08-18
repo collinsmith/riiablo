@@ -45,6 +45,7 @@ public class Riiablo {
 
   public static final int MAX_DIFFS = 3;
   public static final int MAX_ACTS = 5;
+  public static final int MAX_CLASSES = 7;
   public static final int MAX_PLAYERS = 8;
   public static final int MAX_NAME_LENGTH = 15;
 
