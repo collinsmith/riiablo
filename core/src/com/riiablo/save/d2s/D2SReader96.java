@@ -414,6 +414,7 @@ public class D2SReader96 {
         Log.remove("item");
       }
     }
+    assert itemList.size == size : "itemList.size(" + itemList.size + ") != size(" + size + ")";
     if (errors > 0) {
       log.warn("{} items could not be loaded due to formatting errors.", errors);
     }
