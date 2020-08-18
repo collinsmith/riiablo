@@ -426,13 +426,13 @@ public class ByteInput {
    *
    * @throws UnsafeNarrowing if the read value is larger than 63 bits.
    *
-   * @see #read32u()
+   * @see #read64()
    */
   public long readSafe64u() {
     assert aligned() : "not aligned";
     try {
-      final long value = read32u(); // increments bits
-      return BitConstraints.safe32u(value);
+      final long value = read64(); // increments bits
+      return BitConstraints.safe64u(value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
     }
