@@ -495,9 +495,9 @@ public class BitInput {
     final byte[] dst = new byte[maxLen];
     for (int i = 0; i < maxLen; i++) {
       final byte b = dst[i] = (byte) readUnsigned(bits);
-      if (nullTerminated && b == '\0') break;
+      if (nullTerminated && b == '\0') maxLen = i;
     }
 
-    return new String(dst);
+    return new String(dst, 0, maxLen);
   }
 }

@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 
 import com.riiablo.util.DebugUtils;
 
@@ -487,7 +488,9 @@ public class ByteInput {
     assert aligned() : "not aligned";
     try {
       incrementBitsRead((long) len * Byte.SIZE);
-      return buffer.readCharSequence(len, CharsetUtil.US_ASCII).toString();
+      CharSequence charSequence = buffer.readCharSequence(len, CharsetUtil.US_ASCII);
+      charSequence = charSequence.subSequence(0, StringUtils.indexOf(charSequence, '\0'));
+      return charSequence.toString();
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
     }
