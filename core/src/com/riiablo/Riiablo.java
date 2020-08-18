@@ -29,6 +29,12 @@ public class Riiablo {
   public static final int NIGHTMARE = 1;
   public static final int HELL      = 2;
 
+  public static final int ACT1 = 0;
+  public static final int ACT2 = 1;
+  public static final int ACT3 = 2;
+  public static final int ACT4 = 3;
+  public static final int ACT5 = 4;
+
   public static final byte AMAZON      = 0;
   public static final byte SORCERESS   = 1;
   public static final byte NECROMANCER = 2;
