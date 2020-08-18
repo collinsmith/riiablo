@@ -84,33 +84,32 @@ public class IOTest {
     b.write8(101); // version
     BitOutput bits = b.unalign();
     bits.skipBits(2); // unknown
-    bits.write7u((byte) 0, 3); // location
-    bits.write7u((byte) 0, 4); // body location
-    bits.write7u((byte) 2, 4); // grid x
-    bits.write7u((byte) 0, 4); // grid y
-    bits.write7u((byte) 1, 3); // store location
+    bits.write7u(0, 3); // location
+    bits.write7u(0, 4); // body location
+    bits.write7u(2, 4); // grid x
+    bits.write7u(0, 4); // grid y
+    bits.write7u(1, 3); // store location
     bits.writeString("hbw ", Byte.SIZE); // code
-    bits.write7u((byte) 0, 3); // sockets filled
+    bits.write7u(0, 3); // sockets filled
     bits.writeRaw(0x2555A813, 32); // id
-    bits.write7u((byte) 6, 7); // ilvl
-    bits.write7u((byte) 4, 4); // quality
+    bits.write7u(6, 7); // ilvl
+    bits.write7u(4, 4); // quality
     bits.writeBoolean(false); // picture id
     bits.writeBoolean(false); // class only
-    bits.write15u((short) 0, 11); // magic prefix
-    bits.write15u((short) 737, 11); // magic suffix
+    bits.write15u(0, 11); // magic prefix
+    bits.write15u(737, 11); // magic suffix
     bits.skipBits(1); // unknown
-    bits.write15u((short) 32, 8); // max durability
-    bits.write15u((short) 32, 9); // durability
-    bits.write15u((short) 57, 9); // poisonmindam
+    bits.write15u(32, 8); // max durability
+    bits.write15u(32, 9); // durability
+    bits.write15u(57, 9); // poisonmindam
     bits.write31u(0, 0); // poisonmindam param bits
     bits.write31u(8, 10); // poisonmindam value
     bits.write31u(0, 0); // poisonmaxdam param bits
     bits.write31u(8, 10); // poisonmaxdam value
     bits.write31u(0, 0); // poisonlength param bits
     bits.write31u(50, 9); // poisonlength value
-    bits.write15u((short) 0x1ff, 9); // stat list finished
+    bits.write15u(0x1ff, 9); // stat list finished
     bits.flush();
-    System.out.println(ByteBufUtil.prettyHexDump(b.buffer()));
     Assert.assertTrue(ByteBufUtil.equals(bytes.buffer(), b.buffer()));
   }
 }
