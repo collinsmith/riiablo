@@ -1,16 +1,24 @@
 package com.riiablo.engine.server.component.serializer;
 
 import com.google.flatbuffers.FlatBufferBuilder;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 
-import com.riiablo.codec.util.BitStream;
 import com.riiablo.engine.server.component.Item;
+import com.riiablo.io.ByteInput;
+import com.riiablo.io.ByteOutput;
+import com.riiablo.item.ItemReader;
+import com.riiablo.item.ItemWriter;
 import com.riiablo.net.packet.d2gs.ComponentP;
 import com.riiablo.net.packet.d2gs.EntitySync;
 import com.riiablo.net.packet.d2gs.ItemP;
-import com.riiablo.util.BufferUtils;
 
 public class ItemSerializer implements FlatBuffersSerializer<Item, ItemP> {
   public static final ItemP table = new ItemP();
+
+  protected static final ItemReader itemReader = new ItemReader();
+  protected static final ItemWriter itemWriter = new ItemWriter();
 
   @Override
   public byte getDataType() {
@@ -19,7 +27,11 @@ public class ItemSerializer implements FlatBuffersSerializer<Item, ItemP> {
 
   @Override
   public int putData(FlatBufferBuilder builder, Item c) {
-    int dataOffset = ItemP.createDataVector(builder, c.item.data());
+    ByteBuf buffer = Unpooled.buffer();
+    ByteOutput out = ByteOutput.wrap(buffer);
+    itemWriter.writeItem(c.item, out);
+    byte[] itemBytes = ByteBufUtil.getBytes(buffer);
+    int dataOffset = ItemP.createDataVector(builder, itemBytes);
     return ItemP.createItemP(builder, dataOffset);
   }
 
@@ -32,10 +44,8 @@ public class ItemSerializer implements FlatBuffersSerializer<Item, ItemP> {
   @Override
   public Item getData(EntitySync sync, int j, Item c) {
     getTable(sync, j);
-    byte[] bytes = BufferUtils.readRemaining(table.dataAsByteBuffer());
-    BitStream bitStream = new BitStream(bytes);
-//    bitStream.skip(D2S.ItemData.SECTION_HEADER_BITS);
-    c.item = com.riiablo.item.Item.loadFromStream(bitStream);
+    ByteBuf buffer = Unpooled.wrappedBuffer(table.dataAsByteBuffer());
+    c.item = itemReader.readItem(ByteInput.wrap(buffer));
     return c;
   }
 }
