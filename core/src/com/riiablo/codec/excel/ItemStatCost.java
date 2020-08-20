@@ -21,6 +21,14 @@ public class ItemStatCost extends Excel<ItemStatCost.Entry> {
 
   @Override
   protected void init() {
+    put(Stat.reqstr, new Entry() {{
+      Stat = "reqstr";
+      ID = com.riiablo.item.Stat.reqstr;
+    }});
+    put(Stat.reqdex, new Entry() {{
+      Stat = "reqdex";
+      ID = com.riiablo.item.Stat.reqstr;
+    }});
     put(Stat.all_attributes, new Entry() {{
       Stat = "all_attributes";
       ID = com.riiablo.item.Stat.all_attributes;
