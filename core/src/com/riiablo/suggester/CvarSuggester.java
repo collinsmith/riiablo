@@ -1,12 +1,13 @@
-package com.riiablo;
+package com.riiablo.suggester;
 
+import java.util.Set;
+import java.util.SortedMap;
+
+import com.riiablo.Riiablo;
 import com.riiablo.console.Console;
 import com.riiablo.console.ConsoleUtils;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.util.StringUtils;
-
-import java.util.Set;
-import java.util.SortedMap;
 
 public enum CvarSuggester implements Console.SuggestionProvider {
   INSTANCE;

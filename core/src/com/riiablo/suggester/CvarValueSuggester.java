@@ -1,37 +1,27 @@
-package com.riiablo;
-
-import com.badlogic.gdx.Input;
-import com.riiablo.console.Console;
-import com.riiablo.console.ConsoleUtils;
-import com.riiablo.util.StringUtils;
-
-import org.apache.commons.collections4.Trie;
-import org.apache.commons.collections4.trie.PatriciaTrie;
+package com.riiablo.suggester;
 
 import java.util.Collection;
 
-public enum KeyValueSuggester implements Console.SuggestionProvider {
+import com.riiablo.Riiablo;
+import com.riiablo.command.ParameterException;
+import com.riiablo.console.Console;
+import com.riiablo.console.ConsoleUtils;
+import com.riiablo.cvar.Cvar;
+import com.riiablo.util.StringUtils;
+
+public enum CvarValueSuggester implements Console.SuggestionProvider {
   INSTANCE;
-
-  private static final Trie<String, Integer> KEYS = new PatriciaTrie<>();
-  static {
-    for (int i = 0; i < 256; i++) {
-      String key = Input.Keys.toString(i);
-      if (key == null) continue;
-      KEYS.put(key.toLowerCase(), i);
-    }
-  }
-
-  public int get(String keyname) {
-    if (keyname == null) return -1;
-    Integer keycode = KEYS.get(keyname.toLowerCase());
-    return keycode != null ? keycode : -1;
-  }
 
   @Override
   public int suggest(Console console, CharSequence buffer, String[] args, int targetArg) {
+    String alias = args[targetArg - 1];
+    Cvar cvar = Riiablo.cvars.get(alias);
+    if (cvar == null) {
+      throw new ParameterException("A parameter of type %s must precede a parameter using CvarValueSuggester", Cvar.class.getName());
+    }
+
     String arg = targetArg == args.length ? "" : args[targetArg];
-    Collection<String> suggestions = KEYS.prefixMap(arg.toLowerCase()).keySet();
+    @SuppressWarnings("unchecked") Collection<String> suggestions = cvar.suggest(arg);
     switch (suggestions.size()) {
       case 0:
         return 0;

@@ -31,6 +31,12 @@ import com.riiablo.key.MappedKey;
 import com.riiablo.screen.SelectCharacterScreen3;
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.serializer.StringSerializer;
+import com.riiablo.suggester.CvarSuggester;
+import com.riiablo.suggester.CvarValueSuggester;
+import com.riiablo.suggester.KeySuggester;
+import com.riiablo.suggester.KeyValueSuggester;
+import com.riiablo.suggester.LoggerLevelSuggester;
+import com.riiablo.suggester.LoggerSuggester;
 import com.riiablo.validator.ValidationException;
 
 public class Commands {

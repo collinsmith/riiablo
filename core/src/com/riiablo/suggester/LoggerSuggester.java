@@ -1,29 +1,20 @@
-package com.riiablo;
+package com.riiablo.suggester;
 
 import java.util.Set;
 import java.util.SortedMap;
-import org.apache.commons.collections4.Trie;
-import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apache.logging.log4j.Level;
 
+import com.riiablo.Riiablo;
 import com.riiablo.console.Console;
 import com.riiablo.console.ConsoleUtils;
 import com.riiablo.util.StringUtils;
 
-public enum LoggerLevelSuggester implements Console.SuggestionProvider {
+public enum LoggerSuggester implements Console.SuggestionProvider {
   INSTANCE;
-
-  private static final Trie<String, Level> LEVELS = new PatriciaTrie<>();
-  static {
-    for (Level level : Level.values()) {
-      LEVELS.put(level.name().toLowerCase(), level);
-    }
-  }
 
   @Override
   public int suggest(Console console, CharSequence buffer, String[] args, int targetArg) {
     String arg = targetArg == args.length ? "" : args[targetArg];
-    SortedMap<String, ?> keys = LEVELS.prefixMap(arg);
+    SortedMap<String, ?> keys = Riiablo.logs.prefixMap(arg);
     switch (keys.size()) {
       case 0:
         return 0;
