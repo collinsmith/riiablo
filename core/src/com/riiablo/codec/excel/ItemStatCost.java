@@ -27,7 +27,7 @@ public class ItemStatCost extends Excel<ItemStatCost.Entry> {
     }});
     put(Stat.reqdex, new Entry() {{
       Stat = "reqdex";
-      ID = com.riiablo.item.Stat.reqstr;
+      ID = com.riiablo.item.Stat.reqdex;
     }});
     put(Stat.all_attributes, new Entry() {{
       Stat = "all_attributes";
