@@ -29,6 +29,10 @@ public class ByteInput {
     return bytes == null ? emptyByteInput() : new ByteInput(Unpooled.wrappedBuffer(bytes).asReadOnly());
   }
 
+  public static ByteInput wrap(ByteBuf buffer) {
+    return new ByteInput(buffer.asReadOnly());
+  }
+
   private final ByteBuf buffer;
   private final int offset;
   private int mark;
