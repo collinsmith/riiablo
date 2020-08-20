@@ -55,7 +55,7 @@ public class ItemWriter {
     out.write8(item.version);
     final BitOutput bits = out.unalign();
     bits.skipBits(2); // Unknown
-    bits.write7u(item.location.ordinal(), 3);
+    bits.write7u(item.location == null ? 0 : item.location.ordinal(), 3); // FIXME: workaround for #99
     bits.write7u(item.bodyLoc.ordinal(), 4);
     bits.write7u(item.gridX, 4);
     bits.write7u(item.gridY, 4);
