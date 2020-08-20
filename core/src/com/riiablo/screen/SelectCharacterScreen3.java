@@ -16,12 +16,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+
 import com.riiablo.Riiablo;
-import com.riiablo.save.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.StringTBL;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.D2S;
+import com.riiablo.save.D2SReader;
 import com.riiablo.widget.CharacterSelectButton;
 import com.riiablo.widget.TextButton;
 
@@ -110,7 +112,7 @@ public class SelectCharacterScreen3 extends ScreenAdapter {
     characters = new Array<>();
     for (FileHandle save : saves) {
       Gdx.app.debug(TAG, "Loading " + save.toString());
-      D2S d2s = D2S.loadFromFile(save);
+      D2S d2s = D2SReader.INSTANCE.readD2S(save);
       CharacterSelectButton button = new CharacterSelectButton(d2s);
       button.addListener(new ClickListener() {
         @Override

@@ -1,4 +1,4 @@
-package com.riiablo.save.d2s;
+package com.riiablo.save;
 
 import io.netty.buffer.ByteBufUtil;
 import java.util.Arrays;
@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.utils.Array;
 
+import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
 import com.riiablo.io.BitInput;
@@ -16,10 +17,10 @@ import com.riiablo.io.SignatureMismatch;
 import com.riiablo.io.UnsafeNarrowing;
 import com.riiablo.item.Item;
 import com.riiablo.item.ItemReader;
+import com.riiablo.item.PropertyList;
 import com.riiablo.item.Stat;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
-import com.riiablo.save.CharData;
 import com.riiablo.util.DebugUtils;
 
 public class D2SReader96 {
@@ -46,7 +47,7 @@ public class D2SReader96 {
   static final int NPCS_SIZE = NPCS_SIGNATURE.length + 2 + (D2S.NPCData.NUM_GREETINGS * D2S.NPCData.NUM_INTROS * D2S.NUM_DIFFS);
   static final int SKILLS_SIZE = SKILLS_SIGNATURE.length + (D2S.SkillData.NUM_TREES * D2S.SkillData.NUM_SKILLS);
 
-  public D2S readD2S(ByteInput in) {
+  D2S readD2S(ByteInput in) {
     log.trace("Reading d2s...");
     log.trace("Validating d2s signature");
     in.readSignature(SIGNATURE);
@@ -133,7 +134,7 @@ public class D2SReader96 {
     log.debug("merc.name: {}", merc.name);
     merc.type = in.readSafe16u();
     log.debug("merc.type: {}", merc.type);
-    merc.experience = in.readSafe32u();
+    merc.experience = in.read32u();
     log.debug("merc.experience: {}", merc.experience);
     assert in.bytesRemaining() == 0 : "in.bytesRemaining(" + in.bytesRemaining() + ") > " + 0;
     return merc;
@@ -185,6 +186,8 @@ public class D2SReader96 {
       recover(in, GOLEM_SIGNATURE, "golem");
       Log.put("d2s.section", "golem");
       d2s.golem = readGolemData(in, itemReader);
+
+      d2s.bodyRead = true;
     } finally {
       Log.remove("d2s.section");
       Log.remove("d2s.name");
@@ -446,7 +449,80 @@ public class D2SReader96 {
   }
 
   static CharData copyTo(D2S d2s, CharData data) {
-    throw new UnsupportedOperationException();
+//    readRemaining(d2s, in, itemReader);
+    data.softReset();
+    data.name = d2s.name;
+    data.charClass = d2s.charClass;
+    data.classId = CharacterClass.get(d2s.charClass);
+    data.flags = d2s.flags;
+    data.level = d2s.level;
+    System.arraycopy(d2s.hotkeys, 0, data.hotkeys, 0, D2S.NUM_HOTKEYS);
+    for (int i = 0, s = D2S.NUM_ACTIONS; i < s; i++) System.arraycopy(d2s.actions[i], 0, data.actions[i], 0, D2S.NUM_BUTTONS);
+    System.arraycopy(d2s.towns, 0, data.towns, 0, D2S.NUM_DIFFS);
+    data.mapSeed = d2s.mapSeed;
+//    System.arraycopy(d2s.realmData, 0, data.realmData, 0, d2s.realmData.length);
+
+    data.mercData.flags = d2s.merc.flags;
+    data.mercData.seed  = d2s.merc.seed;
+    data.mercData.name  = d2s.merc.name;
+    data.mercData.type  = d2s.merc.type;
+    data.mercData.xp    = d2s.merc.experience;
+    data.mercData.itemData.clear();
+    if (d2s.merc.seed != 0) data.mercData.itemData.addAll(d2s.merc.items.items);
+
+    BitInput bits;
+    for (int i = 0, i0 = Riiablo.NUM_DIFFS; i < i0; i++) {
+      bits = BitInput.wrap(d2s.quests.flags[i]);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][Riiablo.ACT1][q] = (short) bits.readRaw(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][Riiablo.ACT2][q] = (short) bits.readRaw(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][Riiablo.ACT3][q] = (short) bits.readRaw(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][Riiablo.ACT4][q] = (short) bits.readRaw(16);
+      for (int q = 0, q0 = 8; q < q0; q++) data.questData[i][Riiablo.ACT5][q] = (short) bits.readRaw(16);
+
+      bits = BitInput.wrap(d2s.waypoints.flags[i]);
+      data.waypointData[i][Riiablo.ACT1] = (int) bits.readRaw(9);
+      data.waypointData[i][Riiablo.ACT2] = (int) bits.readRaw(9);
+      data.waypointData[i][Riiablo.ACT3] = (int) bits.readRaw(9);
+      data.waypointData[i][Riiablo.ACT4] = (int) bits.readRaw(3);
+      data.waypointData[i][Riiablo.ACT5] = (int) bits.readRaw(9);
+
+      bits = BitInput.wrap(d2s.npcs.flags[D2S.NPCData.GREETING_INTRO][i]);
+      data.npcIntroData[i] = bits.readRaw(64);
+      bits = BitInput.wrap(d2s.npcs.flags[D2S.NPCData.GREETING_RETURN][i]);
+      data.npcReturnData[i] = bits.readRaw(64);
+    }
+
+    PropertyList base = data.statData.base();
+    base.put(Stat.strength, d2s.stats.strength);
+    base.put(Stat.energy, d2s.stats.energy);
+    base.put(Stat.dexterity, d2s.stats.dexterity);
+    base.put(Stat.vitality, d2s.stats.vitality);
+    base.put(Stat.statpts, d2s.stats.statpts);
+    base.put(Stat.newskills, d2s.stats.newskills);
+    base.put(Stat.hitpoints, d2s.stats.hitpoints);
+    base.put(Stat.maxhp, d2s.stats.maxhp);
+    base.put(Stat.mana, d2s.stats.mana);
+    base.put(Stat.maxmana, d2s.stats.maxmana);
+    base.put(Stat.stamina, d2s.stats.stamina);
+    base.put(Stat.maxstamina, d2s.stats.maxstamina);
+    base.put(Stat.level, d2s.stats.level);
+    base.put(Stat.experience, (int) d2s.stats.experience);
+    base.put(Stat.gold, d2s.stats.gold);
+    base.put(Stat.goldbank, d2s.stats.goldbank);
+
+    CharacterClass classId = data.classId;
+    for (int spellId = classId.firstSpell, s = classId.lastSpell, i = 0; spellId < s; spellId++, i++) {
+      data.skillData.put(spellId, d2s.skills.skills[i]);
+    }
+
+    data.itemData.clear();
+    data.itemData.addAll(d2s.items.items);
+    data.itemData.charStats = classId.entry();
+    data.itemData.alternate = d2s.alternate;
+
+    data.golemItemData = d2s.golem.item;
+
+    return data;
   }
 
   // TODO: Tuples should be specific to versions -- versions may have different data types, fields, etc

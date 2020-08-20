@@ -8,12 +8,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
-import com.riiablo.save.D2S;
 import com.riiablo.codec.DC6;
 import com.riiablo.entity.CharacterPreview;
 import com.riiablo.loader.DC6Loader;
+import com.riiablo.save.D2S;
 
 public class CharacterSelectButton extends Table implements Disposable {
   public static final int WIDTH  = 272;
@@ -80,13 +81,13 @@ public class CharacterSelectButton extends Table implements Disposable {
 
   public void set(D2S d2s) {
     this.d2s = d2s;
-    setName(d2s.header.name);
+    setName(d2s.name());
     preview.set(new CharacterPreview(d2s));
-    title.setText(d2s.header.getProgressionString()); // TODO: i18n? This may be hard-coded in-game
-    name.setText(d2s.header.name);
-    name.setColor(d2s.header.isHardcore() ? Riiablo.colors.red : Riiablo.colors.gold);
-    levelClass.setText(Riiablo.string.format(5017, d2s.header.level) + " " + Riiablo.string.lookup(CharacterClass.get(d2s.header.charClass).name));
-    expansion.setText(d2s.header.isExpansion() ? 11077 : -1);
+    title.setText(d2s.getProgressionString()); // TODO: i18n? This may be hard-coded in-game
+    name.setText(d2s.name());
+    name.setColor(d2s.isHardcore() ? Riiablo.colors.red : Riiablo.colors.gold);
+    levelClass.setText(Riiablo.string.format(5017, d2s.level()) + " " + Riiablo.string.lookup(CharacterClass.get(d2s.charClass()).name));
+    expansion.setText(d2s.isExpansion() ? 11077 : -1);
   }
 
   public D2S getD2S() {

@@ -1,7 +1,9 @@
-package com.riiablo.save.d2s;
+package com.riiablo.save;
 
 import io.netty.util.ByteProcessor;
 import org.apache.logging.log4j.Logger;
+
+import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.InvalidFormat;
@@ -9,7 +11,6 @@ import com.riiablo.io.UnsafeNarrowing;
 import com.riiablo.item.ItemReader;
 import com.riiablo.log.Log;
 import com.riiablo.log.LogManager;
-import com.riiablo.save.CharData;
 
 public enum D2SReader {
   INSTANCE;
@@ -31,6 +32,14 @@ public enum D2SReader {
       checksum = (checksum << 1) + value;
       return true;
     }
+  }
+
+  // TODO: rewrite this function without stubbing serialization
+  public D2S readD2S(FileHandle handle) {
+    byte[] bytes = handle.readBytes();
+    D2S d2s = readD2S(ByteInput.wrap(bytes));
+    D2SWriterStub.put(d2s, bytes);
+    return d2s;
   }
 
   public D2S readD2S(ByteInput in) {

@@ -16,7 +16,6 @@ import com.riiablo.codec.StringTBLs;
 import com.riiablo.io.ByteInput;
 import com.riiablo.item.ItemReader;
 import com.riiablo.mpq.MPQFileHandleResolver;
-import com.riiablo.save.d2s.D2SReader;
 
 public class D2SReaderTool extends ApplicationAdapter {
   public static void main(String[] args) {
@@ -48,7 +47,7 @@ public class D2SReaderTool extends ApplicationAdapter {
     for (String d2ss0 : d2ss) {
       FileHandle handle = Riiablo.home.child("Save/" + d2ss0 + '.' + D2S.EXT);
       ByteInput byteInput = ByteInput.wrap(handle.readBytes());
-      com.riiablo.save.d2s.D2S d2s = serializer.readD2S(byteInput);
+      D2S d2s = serializer.readD2S(byteInput);
       serializer.readRemaining(d2s, byteInput, itemReader);
     }
 

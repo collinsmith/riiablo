@@ -16,14 +16,17 @@ import com.badlogic.gdx.utils.Pool;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.DifficultyLevels;
+import com.riiablo.io.ByteInput;
 import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
+import com.riiablo.item.ItemReader;
 import com.riiablo.item.Location;
 import com.riiablo.item.PropertyList;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.item.Type;
+import com.riiablo.util.BufferUtils;
 
 // TODO: support pooling CharData for multiplayer
 public class CharData implements ItemData.UpdateListener, Pool.Poolable {
@@ -76,22 +79,26 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   public boolean managed;
   public CharacterClass classId;
 
-  private byte[] data; // TODO: replace this reference with D2S.serialize(CharData)
-
   final IntIntMap            skills = new IntIntMap();
   final Array<Stat>          chargedSkills = new Array<>(false, 16);
   final Array<SkillListener> skillListeners = new Array<>(false, 16);
 
+  /** TODO: inject this field? */
+  @Deprecated
+  private static final ItemReader ITEM_READER = new ItemReader();
+
   /** Constructs a managed instance. Used for local players with complete save data */
   public static CharData loadFromD2S(int diff, D2S d2s) {
-    CharData charData = new CharData().set(diff, true).load(d2s);
-    if (d2s.file != null) charData.data = d2s.file.readBytes();
-    return charData;
+    return new CharData().set(diff, true).load(d2s);
   }
 
   /** Constructs an unmanaged instance. Used for remote players with complete save data. */
   public static CharData loadFromBuffer(int diff, ByteBuffer buffer) {
-    D2S d2s = D2S.loadFromBuffer(buffer, true);
+    byte[] bytes = BufferUtils.readRemaining(buffer);
+    ByteInput in = ByteInput.wrap(bytes);
+    D2S d2s = D2SReader.INSTANCE.readD2S(in);
+    D2SReader.INSTANCE.readRemaining(d2s, in, ITEM_READER);
+    D2SWriterStub.put(d2s, bytes);
     return new CharData().set(diff, false).load(d2s);
   }
 
@@ -145,11 +152,22 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public CharData load(D2S d2s) {
+    /**
+     * FIXME: designed to call {@link D2SReader#readRemaining} on local clients
+     *        because they will only have had their headers loaded. This is a
+     *        problem because network clients already have their remaining data
+     *        loaded, and this method shouldn't have access to the remaining
+     *        bytes.
+     */
     managed = true;
-    if (d2s.file != null) { // FIXME: workaround -- D2GS doesn't have D2S files, but will when authoritative
-    data = d2s.file.readBytes();
+    if (!d2s.bodyRead()) { // FIXME: workaround -- D2GS doesn't have D2S files, but will when authoritative
+      byte[] data = D2SWriterStub.getBytes(d2s.name);
+      assert data != null : "d2s.bodyRead(" + d2s.bodyRead() + ") but data == null";
+      ByteInput in = ByteInput.wrap(data);
+      in.skipBytes(D2SReader96.HEADER_SIZE);
+      D2SReader.INSTANCE.readRemaining(d2s, in, ITEM_READER);
     }
-    d2s.copyTo(this);
+    D2SReader.INSTANCE.copyTo(d2s, this);
     preprocessItems();
     itemData.addUpdateListener(this);
     return this;
@@ -257,8 +275,9 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   public byte[] serialize() {
-    Validate.isTrue(isManaged(), "Cannot serialize unmanaged data"); // TODO: replace temp check with D2S.serialize(CharData)
-    return ArrayUtils.nullToEmpty(data);
+    /** TODO: replace this code when {@link D2SWriter} is implemented */
+    Validate.isTrue(isManaged(), "Cannot serialize unmanaged data");
+    return D2SWriterStub.getBytes(name);
   }
 
   public int getHotkey(int button, int skill) {
@@ -550,7 +569,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     public int   seed;
     public short name;
     public short type;
-    public int   xp;
+    public long  xp;
 
     final Attributes statData = new Attributes();
     final ItemData   itemData = new ItemData(statData, null);

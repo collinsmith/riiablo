@@ -1,16 +1,17 @@
 package com.riiablo.entity;
 
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.badlogic.gdx.Gdx;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COF;
-import com.riiablo.save.D2S;
 import com.riiablo.codec.excel.Weapons;
 import com.riiablo.engine.Direction;
 import com.riiablo.engine.Engine.Player;
 import com.riiablo.item.ItemCodes;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.riiablo.save.D2S;
 
 @Deprecated
 public class CharacterPreview extends Entity {
@@ -21,7 +22,7 @@ public class CharacterPreview extends Entity {
   final D2S d2s;
 
   public CharacterPreview(D2S d2s) {
-    super(Type.PLR, "char-preview", Player.getToken(d2s.header.charClass), d2s.header.composites, d2s.header.colors);
+    super(Type.PLR, "char-preview", Player.getToken(d2s.charClass()), d2s.composites(), d2s.colors());
     this.d2s = d2s;
     setMode(Player.MODE_TN);
     setWeapon(Entity.WEAPON_1HS);
@@ -30,9 +31,10 @@ public class CharacterPreview extends Entity {
   }
 
   private void updateWeaponClass() {
-    String RH = ItemCodes.getCode(d2s.header.composites[COF.Component.RH]);
-    String LH = ItemCodes.getCode(d2s.header.composites[COF.Component.LH]);
-    String SH = ItemCodes.getCode(d2s.header.composites[COF.Component.SH]);
+    final byte[] composites = d2s.composites();
+    String RH = ItemCodes.getCode(composites[COF.Component.RH]);
+    String LH = ItemCodes.getCode(composites[COF.Component.LH]);
+    String SH = ItemCodes.getCode(composites[COF.Component.SH]);
 
     Weapons.Entry RHEntry = Riiablo.files.weapons.get(StringUtils.defaultString(RH).toLowerCase());
     com.riiablo.item.Type RHtype = RHEntry != null ? com.riiablo.item.Type.get(RHEntry.type) : null;
@@ -85,8 +87,8 @@ public class CharacterPreview extends Entity {
       setWeapon(WEAPON_HTH);
     }
 
-    setComponent(COF.Component.RH, RH != null ? d2s.header.composites[COF.Component.RH] : 0);
-    setComponent(COF.Component.LH, LH != null ? d2s.header.composites[COF.Component.LH] : 0);
-    setComponent(COF.Component.SH, SH != null ? d2s.header.composites[COF.Component.SH] : 0);
+    setComponent(COF.Component.RH, RH != null ? composites[COF.Component.RH] : 0);
+    setComponent(COF.Component.LH, LH != null ? composites[COF.Component.LH] : 0);
+    setComponent(COF.Component.SH, SH != null ? composites[COF.Component.SH] : 0);
   }
 }
