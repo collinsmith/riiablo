@@ -164,7 +164,9 @@ public class Item {
   public Attributes   props;
   public PropertyList stats[];
 
-  byte data[]; // TODO: replace with ItemSerializer serialization
+  @Deprecated
+  byte data[]; // TODO: refactor to act as a cache for serialized item data
+
   String name;
   Table details; // TODO: decouple
   Table header; // TODO: decouple
@@ -172,6 +174,7 @@ public class Item {
 
   Item() {}
 
+  @Deprecated
   public byte[] data() {
     if (data == null) throw new NullPointerException("Cannot serialize items yet!");
     return data;
