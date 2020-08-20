@@ -127,7 +127,12 @@ public class ItemReader {
     PropertyList[] props = item.stats = new PropertyList[Item.NUM_PROPS];
     for (int i = 0; i < Item.NUM_PROPS; i++) {
       if (((listFlags >> i) & 1) == 1) {
-        props[i] = PropertyList.obtain().read(bits);
+        try {
+          Log.put("propList", Item.getPropListString(i));
+          props[i] = PropertyList.obtain().read(bits);
+        } finally {
+          Log.remove("propList");
+        }
       }
     }
   }

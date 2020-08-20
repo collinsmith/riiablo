@@ -2,8 +2,7 @@ package com.riiablo.item;
 
 import com.google.common.primitives.UnsignedInts;
 import java.util.Arrays;
-
-import com.badlogic.gdx.Gdx;
+import org.apache.logging.log4j.Logger;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -13,11 +12,12 @@ import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.BitOutput;
+import com.riiablo.log.LogManager;
 import com.riiablo.save.CharData;
 
 @SuppressWarnings("unused")
 public class Stat implements Comparable<Stat> {
-  private static final String TAG = "Stat";
+  private static final Logger log = LogManager.getLogger(Stat.class);
 
   public static final int strength                        = 0;
   public static final int energy                          = 1;
@@ -492,6 +492,7 @@ public class Stat implements Comparable<Stat> {
     val      = bitStream.read31u(entry.Save_Bits) - entry.Save_Add;
     hash     = hash(stat, param);
     modified = false;
+    log.trace("{}: {} {}", entry, val, param); // TODO: improve
     return this;
   }
 
@@ -502,6 +503,7 @@ public class Stat implements Comparable<Stat> {
     entry      = Riiablo.files.ItemStatCost.get(stat);
     hash       = Stat.hash(stat, param);
     modified   = false;
+    log.trace("{}: {} {}", entry, val, param); // TODO: improve
     return this;
   }
 
@@ -576,7 +578,7 @@ public class Stat implements Comparable<Stat> {
     switch (entry.Encode) {
       case 3:
       case 4:
-        Gdx.app.error(TAG, "add unsupported when Encoding = " + entry.Encode);
+        log.error("add unsupported when Encoding = {}", entry.Encode);
         break;
       case 0:
       case 1:

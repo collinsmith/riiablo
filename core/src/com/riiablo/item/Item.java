@@ -118,6 +118,23 @@ public class Item {
   static final int SET_6_PROPS_FLAG = 1 << SET_PROPS + 4;
   static final int RUNE_PROPS_FLAG  = 1 << RUNE_PROPS;
 
+  static String getPropListString(int i) {
+    switch (i) {
+      case MAGIC_PROPS: return "MAGIC_PROPS";
+      case SET_PROPS:
+      case SET_PROPS + 1:
+      case SET_PROPS + 2:
+      case SET_PROPS + 3:
+      case SET_PROPS + 4:
+        return "SET_PROPS (" + (i + 1) + " items)";
+      case RUNE_PROPS:
+        return "RUNE_PROPS";
+      default:
+        assert false : "i(" + i + ") is not a valid prop list id!";
+        return String.valueOf(i);
+    }
+  }
+
   static final int GEMPROPS_WEAPON  = 0;
   static final int GEMPROPS_ARMOR   = 1;
   static final int GEMPROPS_SHIELD  = 2;
