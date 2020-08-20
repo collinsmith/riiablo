@@ -114,4 +114,15 @@ public class ByteOutput {
     buffer.writeCharSequence(chars, CharsetUtil.US_ASCII);
     return this;
   }
+
+  public ByteOutput writeString(CharSequence chars, int len) {
+    if (len < 0) throw new IllegalArgumentException("len(" + len + ") < " + 0);
+    assert aligned() : "not aligned";
+    final int charsLength = chars.length();
+    if (len <= charsLength) {
+      return writeString(chars.subSequence(0, len));
+    } else {
+      return writeString(chars).skipBytes(len - charsLength);
+    }
+  }
 }
