@@ -214,8 +214,7 @@ public class ItemReader {
   }
 
   private static boolean readSockets(BitInput bits, Item item) {
-    boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED
-        && (item.type.is(Type.ARMO) || item.type.is(Type.WEAP));
+    boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED;
     if (hasSockets) {
       int item_numsockets = item.props.base().read(Stat.item_numsockets, bits);
       item.sockets = new Array<>(item_numsockets);

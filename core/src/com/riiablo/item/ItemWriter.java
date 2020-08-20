@@ -182,8 +182,7 @@ public class ItemWriter {
   }
 
   private static boolean writeSockets(Item item, BitOutput bits) {
-    boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED
-        && (item.type.is(Type.ARMO) || item.type.is(Type.WEAP));
+    boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED;
     if (hasSockets) {
       item.props.base().write(Stat.item_numsockets, bits);
     }
