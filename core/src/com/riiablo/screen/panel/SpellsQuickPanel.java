@@ -167,6 +167,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         @Override
         public void clicked(InputEvent event, float x, float y) {
           observer.copy(button);
+          Riiablo.charData.setAction(buttonId, button.getSkill());
           SpellsQuickPanel.this.setVisible(false);
         }
       });
@@ -206,6 +207,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         @Override
         public void clicked(InputEvent event, float x, float y) {
           observer.copy(button);
+          Riiablo.charData.setAction(buttonId, button.getSkill());
           SpellsQuickPanel.this.setVisible(false);
         }
       });
