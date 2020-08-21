@@ -286,6 +286,10 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     return actions[alternate][button];
   }
 
+  public void setAction(int button, int skill) {
+    setAction(itemData.alternate, button, skill);
+  }
+
   public void setAction(int alternate, int button, int skill) {
     actions[alternate][button] = skill;
   }

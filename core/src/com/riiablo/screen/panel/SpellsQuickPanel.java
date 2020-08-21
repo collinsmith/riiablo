@@ -70,10 +70,12 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   final float SIZE;
   final int ALIGN;
   IntMap<HotkeyButton> buttons;
+  final int buttonId;
 
   public SpellsQuickPanel(final HotkeyButton o, final boolean leftSkills) {
     this.observer = o;
     this.leftSkills = leftSkills;
+    this.buttonId = leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT;
 
     Riiablo.assets.load(SkilliconDescriptor);
     Riiablo.assets.finishLoadingAsset(SkilliconDescriptor);
@@ -108,10 +110,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         if (button == null) return;
         observer.copy(button);
         // FIXME: it isn't appropriate to have this call here -- should separate into a controller
-        Riiablo.charData.setAction(
-            Riiablo.charData.getItems().getAlternate(),
-            leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT,
-            button.getSkill());
+        Riiablo.charData.setAction(buttonId, button.getSkill());
       }
     };
     for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
@@ -120,7 +119,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     Riiablo.charData.getItems().addAlternateListener(new ItemData.AlternateListener() {
       @Override
       public void onAlternated(ItemData items, int alternate, Item LH, Item RH) {
-        int skillId = Riiablo.charData.getAction(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT);
+        int skillId = Riiablo.charData.getAction(buttonId);
         HotkeyButton button = buttons.get(skillId);
         observer.copy(button);
       }
@@ -157,7 +156,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
 
-      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, chargedSkill.param2());
+      int index = Riiablo.charData.getHotkey(buttonId, chargedSkill.param2());
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
         MappedKey mapping = Keys.Skill[index];
         button.map(mapping);
@@ -196,7 +195,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
 
-      int index = Riiablo.charData.getHotkey(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT, skillId.key);
+      int index = Riiablo.charData.getHotkey(buttonId, skillId.key);
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
         MappedKey mapping = Keys.Skill[index];
         button.map(mapping);
