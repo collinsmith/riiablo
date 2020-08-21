@@ -32,5 +32,7 @@ public class Actioneer extends PassiveSystem {
     }
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
+
+    Riiablo.audio.play(skill.stsound, true);
   }
 }
