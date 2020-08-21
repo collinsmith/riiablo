@@ -1,5 +1,7 @@
 package com.riiablo.screen.panel;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -12,7 +14,9 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
@@ -21,14 +25,14 @@ import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.BlendMode;
+import com.riiablo.item.Item;
 import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.CharData;
+import com.riiablo.save.ItemData;
 import com.riiablo.widget.HotkeyButton;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 public class SpellsQuickPanel extends Table implements Disposable, CharData.SkillListener {
   private static final String SPELLS_PATH = "data\\global\\ui\\SPELLS\\";
@@ -65,6 +69,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   Table[] tables;
   final float SIZE;
   final int ALIGN;
+  IntMap<HotkeyButton> buttons;
 
   public SpellsQuickPanel(final HotkeyButton o, final boolean leftSkills) {
     this.observer = o;
@@ -86,6 +91,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     SIZE = Gdx.app.getType() == Application.ApplicationType.Android ? 64 : 48;
     ALIGN = leftSkills ? Align.left : Align.right;
 
+    buttons = new IntMap<>(31);
     keyMappings = new ObjectMap<>(31);
     tables = new Table[5];
     for (int i = tables.length - 1; i >= 0; i--) {
@@ -111,10 +117,27 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     };
     for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
     Riiablo.charData.addSkillListener(this);
+
+    Riiablo.charData.getItems().addAlternateListener(new ItemData.AlternateListener() {
+      @Override
+      public void onAlternated(ItemData items, int alternate, Item LH, Item RH) {
+        ControlPanel controlPanel = Riiablo.game.controlPanel;
+        if (leftSkills) {
+          int leftSkillId = Riiablo.charData.getAction(Input.Buttons.LEFT);
+          HotkeyButton button = buttons.get(leftSkillId);
+          controlPanel.getLeftSkill().copy(button);
+        } else {
+          int rightSkillId = Riiablo.charData.getAction(Input.Buttons.RIGHT);
+          HotkeyButton button = buttons.get(rightSkillId);
+          controlPanel.getRightSkill().copy(button);
+        }
+      }
+    });
   }
 
   @Override
   public void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills) {
+    buttons.clear();
     for (Table table : tables) {
       for (Actor child : table.getChildren()) child.clear();
       table.clear();
@@ -157,6 +180,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         }
       });
       table.add(button).size(SIZE);
+      buttons.put(button.getSkill(), button);
     }
     for (IntIntMap.Entry skillId : skills) {
       if (skillId.value <= 0) continue; // level <= 0
@@ -195,6 +219,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         }
       });
       table.add(button).size(SIZE);
+      buttons.put(button.getSkill(), button);
     }
     float x = getX(ALIGN);
     float y = getY();
