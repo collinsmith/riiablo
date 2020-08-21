@@ -26,6 +26,7 @@ import com.riiablo.item.PropertyList;
 import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.item.Type;
+import com.riiablo.skill.SkillCodes;
 import com.riiablo.util.BufferUtils;
 
 // TODO: support pooling CharData for multiplayer
@@ -34,25 +35,14 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   private static final boolean DEBUG       = true;
   private static final boolean DEBUG_ITEMS = DEBUG && !true;
 
-  private static final int attack               = 0;
-  private static final int kick                 = 1;
-  private static final int throw_               = 2;
-  private static final int unsummon             = 3;
-  private static final int left_hand_throw      = 4;
-  private static final int left_hand_swing      = 5;
-  private static final int scroll_of_identify   = 217;
-  private static final int book_of_identify     = 218;
-  private static final int scroll_of_townportal = 219;
-  private static final int book_of_townportal   = 220;
-
   private static final IntIntMap defaultSkills = new IntIntMap();
   static {
-    defaultSkills.put(attack, 1);
-    defaultSkills.put(kick, 1);
-    //defaultSkills.put(throw_, 1);
-    defaultSkills.put(unsummon, 1);
-    //defaultSkills.put(left_hand_throw, 1);
-    defaultSkills.put(left_hand_swing, 1);
+    defaultSkills.put(SkillCodes.attack, 1);
+    defaultSkills.put(SkillCodes.kick, 1);
+    //defaultSkills.put(SkillCodes.throw_, 1);
+    defaultSkills.put(SkillCodes.unsummon, 1);
+    //defaultSkills.put(SkillCodes.left_hand_throw, 1);
+    defaultSkills.put(SkillCodes.left_hand_swing, 1);
   }
 
   public       String name;
@@ -362,9 +352,9 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     Item RARM = itemData.getEquipped(BodyLoc.RARM);
     if ((LARM != null && LARM.typeEntry.Throwable)
      || (RARM != null && RARM.typeEntry.Throwable)) {
-      skills.put(throw_, 1);
+      skills.put(SkillCodes.throw_, 1);
       if (classId == CharacterClass.BARBARIAN) {
-        skills.put(left_hand_throw, 1);
+        skills.put(SkillCodes.left_hand_throw, 1);
       }
     }
     IntArray inventoryItems = itemData.getStore(StoreLoc.INVENTORY);
@@ -374,13 +364,13 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
       Item item = itemData.getItem(j);
       if (item.type.is(Type.BOOK) || item.type.is(Type.SCRO)) {
         if (item.base.code.equalsIgnoreCase("ibk")) {
-          skills.getAndIncrement(book_of_identify, 0, item.props.get(Stat.quantity).value());
+          skills.getAndIncrement(SkillCodes.book_of_identify, 0, item.props.get(Stat.quantity).value());
         } else if (item.base.code.equalsIgnoreCase("isc")) {
-          skills.getAndIncrement(scroll_of_identify, 0, 1);
+          skills.getAndIncrement(SkillCodes.scroll_of_identify, 0, 1);
         } else if (item.base.code.equalsIgnoreCase("tbk")) {
-          skills.getAndIncrement(book_of_townportal, 0, item.props.get(Stat.quantity).value());
+          skills.getAndIncrement(SkillCodes.book_of_townportal, 0, item.props.get(Stat.quantity).value());
         } else if (item.base.code.equalsIgnoreCase("tsc")) {
-          skills.getAndIncrement(scroll_of_townportal, 0, 1);
+          skills.getAndIncrement(SkillCodes.scroll_of_townportal, 0, 1);
         }
       }
     }
