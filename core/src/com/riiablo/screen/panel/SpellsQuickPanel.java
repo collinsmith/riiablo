@@ -106,8 +106,12 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
       public void onPressed(MappedKey key, int keycode) {
         HotkeyButton button = keyMappings.get(key);
         if (button == null) return;
-        // TODO: Replace Riiablo.charData.action with this button's action
         observer.copy(button);
+        // FIXME: it isn't appropriate to have this call here -- should separate into a controller
+        Riiablo.charData.setAction(
+            Riiablo.charData.getItems().getAlternate(),
+            leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT,
+            button.getSkill());
       }
     };
     for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
