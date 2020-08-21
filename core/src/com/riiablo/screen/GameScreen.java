@@ -79,6 +79,7 @@ import com.riiablo.engine.client.debug.PathDebugger;
 import com.riiablo.engine.client.debug.PathfindDebugger;
 import com.riiablo.engine.client.debug.RenderSystemDebugger;
 import com.riiablo.engine.server.AIStepper;
+import com.riiablo.engine.server.Actioneer;
 import com.riiablo.engine.server.AngularVelocity;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.AnimStepper;
@@ -567,6 +568,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         ;
     if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
       builder.with(new CursorMovementSystem());
+      builder.with(new Actioneer());
     }
     if (socket == null) {
       builder.with(new ItemGenerator());

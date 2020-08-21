@@ -1,5 +1,7 @@
 package com.riiablo.engine.client;
 
+import org.apache.logging.log4j.Logger;
+
 import com.artemis.Aspect;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
@@ -18,18 +20,20 @@ import com.riiablo.Riiablo;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.component.Hovered;
+import com.riiablo.engine.server.Actioneer;
 import com.riiablo.engine.server.Pathfinder;
 import com.riiablo.engine.server.component.Interactable;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Target;
 import com.riiablo.item.Item;
+import com.riiablo.log.LogManager;
 import com.riiablo.map.Map;
 import com.riiablo.map.RenderSystem;
 import com.riiablo.profiler.ProfilerSystem;
 import com.riiablo.save.ItemController;
 
 public class CursorMovementSystem extends BaseSystem {
-  private static final String TAG = "CursorMovementSystem";
+  private static final Logger log = LogManager.getLogger(CursorMovementSystem.class);
 
   protected ComponentMapper<Target> mTarget;
   protected ComponentMapper<Position> mPosition;
@@ -40,6 +44,7 @@ public class CursorMovementSystem extends BaseSystem {
   protected MenuManager menuManager;
   protected DialogManager dialogManager;
   protected ProfilerSystem profiler;
+  protected Actioneer actioneer;
 
   @Wire(name = "iso")
   protected IsometricCamera iso;
@@ -77,9 +82,9 @@ public class CursorMovementSystem extends BaseSystem {
     if (hit) return;
 
     if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && UIUtils.shift()) {
-      // static primary cast
+      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.LEFT));
     } else if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-      // secondary cast
+      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.RIGHT));
     } else {
       updateLeft();
     }
