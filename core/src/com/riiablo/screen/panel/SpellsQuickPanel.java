@@ -116,16 +116,9 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
     Riiablo.charData.getItems().addAlternateListener(new ItemData.AlternateListener() {
       @Override
       public void onAlternated(ItemData items, int alternate, Item LH, Item RH) {
-        ControlPanel controlPanel = Riiablo.game.controlPanel;
-        if (leftSkills) {
-          int leftSkillId = Riiablo.charData.getAction(Input.Buttons.LEFT);
-          HotkeyButton button = buttons.get(leftSkillId);
-          controlPanel.getLeftSkill().copy(button);
-        } else {
-          int rightSkillId = Riiablo.charData.getAction(Input.Buttons.RIGHT);
-          HotkeyButton button = buttons.get(rightSkillId);
-          controlPanel.getRightSkill().copy(button);
-        }
+        int skillId = Riiablo.charData.getAction(leftSkills ? Input.Buttons.LEFT : Input.Buttons.RIGHT);
+        HotkeyButton button = buttons.get(skillId);
+        observer.copy(button);
       }
     });
   }
