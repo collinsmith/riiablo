@@ -11,7 +11,7 @@ import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.MovementModes;
 import com.riiablo.engine.server.component.Sequence;
-import com.riiablo.engine.server.event.SpellcastEvent;
+import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.log.LogManager;
 
 public class Actioneer extends PassiveSystem {
@@ -32,10 +32,10 @@ public class Actioneer extends PassiveSystem {
     log.trace("mode: {}", mode);
     if (mode == -1) { // TODO: replace -1 with some const INVALID_SKILL
       mode = (byte) mClass.get(entityId).type.getMode("SC");
-      log.trace("changed mode to {} because it was invalid", mode);
+      log.trace("mode changed to {} because it was invalid", mode);
     }
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
-    events.dispatch(SpellcastEvent.obtain(entityId, skillId));
+    events.dispatch(SkillCastEvent.obtain(entityId, skillId));
   }
 }

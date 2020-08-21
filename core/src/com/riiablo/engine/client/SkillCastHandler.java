@@ -5,13 +5,13 @@ import net.mostlyoriginal.api.system.core.PassiveSystem;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
-import com.riiablo.engine.server.event.SpellcastEvent;
+import com.riiablo.engine.server.event.SkillCastEvent;
 
-public class SpellcastHandler extends PassiveSystem {
+public class SkillCastHandler extends PassiveSystem {
   protected OverlayManager overlays;
 
   @Subscribe
-  public void onSpellcast(SpellcastEvent event) {
+  public void onSkillCast(SkillCastEvent event) {
     final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
 
     Riiablo.audio.play(skill.stsound, true);

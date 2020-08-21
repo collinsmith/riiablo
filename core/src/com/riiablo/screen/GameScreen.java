@@ -72,8 +72,8 @@ import com.riiablo.engine.client.NetworkedClientItemManager;
 import com.riiablo.engine.client.OverlayManager;
 import com.riiablo.engine.client.OverlayStepper;
 import com.riiablo.engine.client.SelectableManager;
+import com.riiablo.engine.client.SkillCastHandler;
 import com.riiablo.engine.client.SoundEmitterHandler;
-import com.riiablo.engine.client.SpellcastHandler;
 import com.riiablo.engine.client.WarpSubstManager;
 import com.riiablo.engine.client.ZoneChangeTracker;
 import com.riiablo.engine.client.ZoneEntryDisplayer;
@@ -572,7 +572,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
       builder.with(new CursorMovementSystem());
       builder.with(new Actioneer()); // TODO: move to more appropriate spot in list
-      builder.with(new SpellcastHandler()); // TODO: move to more appropriate spot in list
+      builder.with(new SkillCastHandler()); // TODO: move to more appropriate spot in list
       builder.with(new OverlayManager()); // TODO: move to more appropriate spot in list
       builder.with(new OverlayStepper()); // TODO: move to more appropriate spot in list
     }
