@@ -34,6 +34,7 @@ import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.component.AnimationWrapper;
 import com.riiablo.engine.client.component.BBoxWrapper;
 import com.riiablo.engine.client.component.Hovered;
+import com.riiablo.engine.client.component.Overlay;
 import com.riiablo.engine.client.component.Selectable;
 import com.riiablo.engine.server.component.AIWrapper;
 import com.riiablo.engine.server.component.Angle;
@@ -103,6 +104,7 @@ public class RenderSystem extends BaseEntitySystem {
   };
 
   protected ComponentMapper<AnimationWrapper> mAnimationWrapper;
+  protected ComponentMapper<Overlay> mOverlay;
   protected ComponentMapper<CofReference> mCofReference;
   protected ComponentMapper<Position> mPosition;
   protected ComponentMapper<Object> mObject;
@@ -672,10 +674,22 @@ public class RenderSystem extends BaseEntitySystem {
 
 //      CofComponent cofComponent = this.cofComponent.get(entity);
 //      if (cofComponent != null && cofComponent.load != Dirty.NONE) return;
-      Animation animation = mAnimationWrapper.get(entity).animation;
+
+      // TODO: create EntityRenderer class to encapsulate the following code:
       Vector2 pos = mPosition.get(entity).position;
       Vector2 tmp = iso.toScreen(tmpVec2.set(pos));
+
+      Overlay overlay = mOverlay.get(entity);
+      if (overlay != null && overlay.entry.PreDraw) {
+        overlay.animation.draw(batch, tmp.x, tmp.y);
+      }
+
+      Animation animation = mAnimationWrapper.get(entity).animation;
       animation.draw(batch, tmp.x, tmp.y);
+
+      if (overlay != null && !overlay.entry.PreDraw) {
+        overlay.animation.draw(batch, tmp.x, tmp.y);
+      }
     }
   }
 

@@ -69,6 +69,8 @@ import com.riiablo.engine.client.MissileLoader;
 import com.riiablo.engine.client.MonsterLabelManager;
 import com.riiablo.engine.client.NetworkIdManager;
 import com.riiablo.engine.client.NetworkedClientItemManager;
+import com.riiablo.engine.client.OverlayManager;
+import com.riiablo.engine.client.OverlayStepper;
 import com.riiablo.engine.client.SelectableManager;
 import com.riiablo.engine.client.SoundEmitterHandler;
 import com.riiablo.engine.client.WarpSubstManager;
@@ -568,7 +570,10 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         ;
     if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
       builder.with(new CursorMovementSystem());
-      builder.with(new Actioneer());
+      /** FIXME: below is tightly coupled with client-side-only code {@link Actioneer#cast} */
+      builder.with(new Actioneer()); // TODO: move to more appropriate spot in list
+      builder.with(new OverlayManager()); // TODO: move to more appropriate spot in list
+      builder.with(new OverlayStepper()); // TODO: move to more appropriate spot in list
     }
     if (socket == null) {
       builder.with(new ItemGenerator());

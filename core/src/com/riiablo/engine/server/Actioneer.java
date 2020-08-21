@@ -7,6 +7,7 @@ import net.mostlyoriginal.api.system.core.PassiveSystem;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
+import com.riiablo.engine.client.OverlayManager;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.MovementModes;
 import com.riiablo.engine.server.component.Sequence;
@@ -15,10 +16,13 @@ import com.riiablo.log.LogManager;
 public class Actioneer extends PassiveSystem {
   private static final Logger log = LogManager.getLogger(Actioneer.class);
 
+  protected OverlayManager overlays;
+
   protected ComponentMapper<Class> mClass;
   protected ComponentMapper<Sequence> mSequence;
   protected ComponentMapper<MovementModes> mMovementModes;
 
+  // TODO: much of this should be split into different systems or events (e.g., onSpellCast)
   public void cast(int entityId, int skillId) {
     if (mSequence.has(entityId)) return;
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
@@ -33,6 +37,12 @@ public class Actioneer extends PassiveSystem {
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
 
+    // FIXME: below uses client-side-only code -- may change to event-based model
+    //        does server even need to care about overlays?
     Riiablo.audio.play(skill.stsound, true);
+
+    if (!skill.castoverlay.isEmpty()) {
+      overlays.set(entityId, skill.castoverlay);
+    }
   }
 }
