@@ -107,12 +107,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         HotkeyButton button = keyMappings.get(key);
         if (button == null) return;
         // TODO: Assign
-        ControlPanel controlPanel = Riiablo.game.controlPanel;
-        if (leftSkills) {
-          controlPanel.getLeftSkill().copy(button);
-        } else {
-          controlPanel.getRightSkill().copy(button);
-        }
+        observer.copy(button);
       }
     };
     for (MappedKey Skill : Keys.Skill) Skill.addStateListener(mappedKeyListener);
