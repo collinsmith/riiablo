@@ -37,5 +37,37 @@ public class Actioneer extends PassiveSystem {
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
     events.dispatch(SkillCastEvent.obtain(entityId, skillId));
+
+    srvstfunc(entityId, skill.srvstfunc);
+  }
+
+  // start func
+  private void srvstfunc(int entityId, int srvstfunc) {
+    log.trace("srvstfunc({},{})", entityId, srvstfunc);
+    switch (srvstfunc) {
+      case 0:
+        break;
+      case 1: // attack
+        break;
+      default:
+        log.warn("Unsupported srvstfunc({}) for {}", srvstfunc, entityId);
+        // TODO: default case will log an error when all valid cases are enumerated
+        // log.error("Invalid srvdofunc({}) for {}", srvstfunc, entityId);
+    }
+  }
+
+  // do func
+  private void srvdofunc(int entityId, int srvdofunc) {
+    log.trace("srvdofunc({},{})", entityId, srvdofunc);
+    switch (srvdofunc) {
+      case 0:
+        break;
+      case 1: // attack
+        break;
+      default:
+        log.warn("Unsupported srvdofunc({}) for {}", srvdofunc, entityId);
+        // TODO: default case will log an error when all valid cases are enumerated
+        //log.error("Invalid srvdofunc({}) for {}", srvdofunc, entityId);
+    }
   }
 }
