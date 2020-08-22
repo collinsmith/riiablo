@@ -28,10 +28,11 @@ public class Actioneer extends PassiveSystem {
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
     log.trace("casting skill: {}", skill);
 
-    byte mode = (byte) mClass.get(entityId).type.getMode(skill.anim);
+    final Class.Type type = mClass.get(entityId).type;
+    byte mode = (byte) type.getMode(skill.anim);
     log.trace("mode: {}", mode);
     if (mode == -1) { // TODO: replace -1 with some const INVALID_SKILL
-      mode = (byte) mClass.get(entityId).type.getMode("SC");
+      mode = (byte) type.getMode("SC");
       log.trace("mode changed to {} because it was invalid", mode);
     }
 
