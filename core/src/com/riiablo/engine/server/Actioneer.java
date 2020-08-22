@@ -50,18 +50,18 @@ public class Actioneer extends PassiveSystem {
   }
 
   @Subscribe
-  public void onKeyframe(AnimDataKeyframeEvent event) {
+  public void onAnimDataKeyframe(AnimDataKeyframeEvent event) {
     if (!mCasting.has(event.entityId)) return;
-    log.debug("onKeyframe: {}, {} ({})", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
+    log.debug("onAnimDataKeyframe: {}, {} ({})", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
     final int skillId = mCasting.get(event.entityId).skillId;
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
     srvdofunc(event.entityId, skill.srvdofunc);
   }
 
   @Subscribe
-  public void onFinished(AnimDataFinishedEvent event) {
+  public void onAnimDataFinished(AnimDataFinishedEvent event) {
     if (!mCasting.has(event.entityId)) return;
-    log.debug("onFinished: {}, {} ({})", event.entityId);
+    log.debug("onAnimDataFinished: {}", event.entityId);
     mCasting.remove(event.entityId);
   }
 
