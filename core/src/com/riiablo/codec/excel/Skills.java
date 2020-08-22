@@ -52,5 +52,9 @@ public class Skills extends Excel<Skills.Entry> {
     @Column public boolean leftskill;
     @Column public boolean passive;
     @Column public boolean aura;
+    @Column public int     srvstfunc;
+    @Column public int     srvdofunc;
+    @Column public int     cltstfunc;
+    @Column public int     cltdofunc;
   }
 }
