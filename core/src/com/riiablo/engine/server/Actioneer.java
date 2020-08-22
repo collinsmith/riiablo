@@ -10,9 +10,11 @@ import net.mostlyoriginal.api.system.core.PassiveSystem;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.Engine;
+import com.riiablo.engine.server.component.Casting;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.MovementModes;
 import com.riiablo.engine.server.component.Sequence;
+import com.riiablo.engine.server.event.AnimDataFinishedEvent;
 import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.log.LogManager;
@@ -23,11 +25,12 @@ public class Actioneer extends PassiveSystem {
   protected ComponentMapper<Class> mClass;
   protected ComponentMapper<Sequence> mSequence;
   protected ComponentMapper<MovementModes> mMovementModes;
+  protected ComponentMapper<Casting> mCasting;
 
   protected EventSystem events;
 
   public void cast(int entityId, int skillId) {
-    if (mSequence.has(entityId)) return;
+    if (mSequence.has(entityId)) return; // TODO: mCasting.has(entityId) ?
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
     log.trace("casting skill: {}", skill);
 
@@ -40,6 +43,7 @@ public class Actioneer extends PassiveSystem {
     }
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
+    mCasting.create(entityId).skillId = skillId;
     events.dispatch(SkillCastEvent.obtain(entityId, skillId));
 
     srvstfunc(entityId, skill.srvstfunc);
@@ -47,8 +51,18 @@ public class Actioneer extends PassiveSystem {
 
   @Subscribe
   public void onKeyframe(AnimDataKeyframeEvent event) {
+    if (!mCasting.has(event.entityId)) return;
     log.debug("onKeyframe: {}, {} ({})", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
-    // if isCasting(id): srvdofunc(id, spell.srcdofunc)
+    final int skillId = mCasting.get(event.entityId).skillId;
+    final Skills.Entry skill = Riiablo.files.skills.get(skillId);
+    srvdofunc(event.entityId, skill.srvdofunc);
+  }
+
+  @Subscribe
+  public void onFinished(AnimDataFinishedEvent event) {
+    if (!mCasting.has(event.entityId)) return;
+    log.debug("onFinished: {}, {} ({})", event.entityId);
+    mCasting.remove(event.entityId);
   }
 
   // start func
