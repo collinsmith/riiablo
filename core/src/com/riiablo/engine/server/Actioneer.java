@@ -37,7 +37,7 @@ public class Actioneer extends PassiveSystem {
     final Class.Type type = mClass.get(entityId).type;
     byte mode = (byte) type.getMode(skill.anim);
     log.trace("mode: {}", mode);
-    if (mode == -1) { // TODO: replace -1 with some const INVALID_SKILL
+    if (mode == Engine.INVALID_MODE) {
       mode = (byte) type.getMode("SC");
       log.trace("mode changed to {} because it was invalid", mode);
     }

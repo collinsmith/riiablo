@@ -2,9 +2,12 @@ package com.riiablo.engine.server.component;
 
 import com.artemis.Component;
 import com.artemis.annotations.PooledWeaver;
+
 import com.badlogic.gdx.utils.ObjectIntMap;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.COFD2;
+import com.riiablo.engine.Engine;
 
 @PooledWeaver
 public class Class extends Component {
@@ -86,7 +89,7 @@ public class Class extends Component {
     }
 
     public int getMode(String mode) {
-      return MODES.get(mode.toLowerCase(), -1);
+      return MODES.get(mode.toLowerCase(), Engine.INVALID_MODE);
     }
 
     public String getMode(byte mode) {
@@ -94,7 +97,7 @@ public class Class extends Component {
     }
 
     public int getComponent(String comp) {
-      return COMPS.get(comp.toLowerCase(), -1);
+      return COMPS.get(comp.toLowerCase(), Engine.INVALID_COMPONENT);
     }
 
     public static Type valueOf(int i) {

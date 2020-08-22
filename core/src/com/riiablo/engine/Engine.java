@@ -51,6 +51,9 @@ public class Engine {
     return KEYFRAME_NAME[keyframe];
   }
 
+  public static final int INVALID_COMPONENT = -1;
+  public static final int INVALID_MODE = -1;
+
   public static final class Object {
     public static final int SUBCLASS_SHRINE    = 1 << 0; // displays "<shrine_type> Shrine"
     public static final int SUBCLASS_OBELISH   = 1 << 1; // does nothing
