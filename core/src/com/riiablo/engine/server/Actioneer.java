@@ -4,13 +4,16 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.ComponentMapper;
 import net.mostlyoriginal.api.event.common.EventSystem;
+import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
+import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.MovementModes;
 import com.riiablo.engine.server.component.Sequence;
+import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.log.LogManager;
 
@@ -40,6 +43,12 @@ public class Actioneer extends PassiveSystem {
     events.dispatch(SkillCastEvent.obtain(entityId, skillId));
 
     srvstfunc(entityId, skill.srvstfunc);
+  }
+
+  @Subscribe
+  public void onKeyframe(AnimDataKeyframeEvent event) {
+    log.debug("onKeyframe: {}, {} ({})", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
+    // if isCasting(id): srvdofunc(id, spell.srcdofunc)
   }
 
   // start func

@@ -37,6 +37,20 @@ public class Engine {
     return COMPOSITE_NAME[component];
   }
 
+  public static final byte KEYFRAME_NIL = 0;
+  public static final byte KEYFRAME_ATK = 1;
+  public static final byte KEYFRAME_MIS = 2;
+  public static final byte KEYFRAME_SND = 3;
+  public static final byte KEYFRAME_SKL = 4;
+
+  private static final String[] KEYFRAME_NAME = {
+      "", "ATK", "MIS", "SND", "SKL"
+  };
+
+  public static String getKeyframe(byte keyframe) {
+    return KEYFRAME_NAME[keyframe];
+  }
+
   public static final class Object {
     public static final int SUBCLASS_SHRINE    = 1 << 0; // displays "<shrine_type> Shrine"
     public static final int SUBCLASS_OBELISH   = 1 << 1; // does nothing
