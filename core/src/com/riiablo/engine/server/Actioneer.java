@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.Engine;
+import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.Casting;
 import com.riiablo.engine.server.component.Class;
@@ -30,6 +31,7 @@ public class Actioneer extends PassiveSystem {
   protected ComponentMapper<Sequence> mSequence;
   protected ComponentMapper<MovementModes> mMovementModes;
   protected ComponentMapper<Casting> mCasting;
+  protected ComponentMapper<Angle> mAngle;
 
   // teleport-specific components
   protected ComponentMapper<Position> mPosition;
@@ -51,6 +53,9 @@ public class Actioneer extends PassiveSystem {
       mode = (byte) type.getMode("SC");
       log.trace("mode changed to {} because it was invalid", mode);
     }
+
+    Vector2 entityPos = mPosition.get(entityId).position;
+    mAngle.get(entityId).target.set(target).sub(entityPos).nor();
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
     mCasting.create(entityId).set(skillId, target);
