@@ -12,9 +12,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.Engine;
+import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.Casting;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.MovementModes;
+import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Sequence;
 import com.riiablo.engine.server.event.AnimDataFinishedEvent;
 import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
@@ -28,6 +30,10 @@ public class Actioneer extends PassiveSystem {
   protected ComponentMapper<Sequence> mSequence;
   protected ComponentMapper<MovementModes> mMovementModes;
   protected ComponentMapper<Casting> mCasting;
+
+  // teleport-specific components
+  protected ComponentMapper<Position> mPosition;
+  protected ComponentMapper<Box2DBody> mBox2DBody;
 
   protected EventSystem events;
 
@@ -91,6 +97,11 @@ public class Actioneer extends PassiveSystem {
       case 0:
         break;
       case 1: // attack
+        break;
+      case 27: // teleport
+        mPosition.get(entityId).position.set(target);
+        Box2DBody box2dWrapper = mBox2DBody.get(entityId);
+        if (box2dWrapper != null) box2dWrapper.body.setTransform(target, 0);
         break;
       default:
         log.warn("Unsupported srvdofunc({}) for {}", srvdofunc, entityId);
