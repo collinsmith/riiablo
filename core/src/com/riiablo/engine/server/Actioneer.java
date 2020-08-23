@@ -7,6 +7,8 @@ import net.mostlyoriginal.api.event.common.EventSystem;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
+import com.badlogic.gdx.math.Vector2;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.Engine;
@@ -29,8 +31,10 @@ public class Actioneer extends PassiveSystem {
 
   protected EventSystem events;
 
-  public void cast(int entityId, int skillId) {
-    if (mSequence.has(entityId)) return; // TODO: mCasting.has(entityId) ?
+  public void cast(int entityId, int skillId, Vector2 target) {
+    if (mCasting.has(entityId)) return;
+    if (mSequence.has(entityId)) return;
+    // TODO: unsure if both checks will be needed -- may be more appropriate to use pflags
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
     log.trace("casting skill: {}", skill);
 
@@ -43,19 +47,19 @@ public class Actioneer extends PassiveSystem {
     }
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
-    mCasting.create(entityId).skillId = skillId;
+    mCasting.create(entityId).set(skillId, target);
     events.dispatch(SkillCastEvent.obtain(entityId, skillId));
 
-    srvstfunc(entityId, skill.srvstfunc);
+    srvstfunc(entityId, skill.srvstfunc, target);
   }
 
   @Subscribe
   public void onAnimDataKeyframe(AnimDataKeyframeEvent event) {
     if (!mCasting.has(event.entityId)) return;
     log.debug("onAnimDataKeyframe: {}, {} ({})", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
-    final int skillId = mCasting.get(event.entityId).skillId;
-    final Skills.Entry skill = Riiablo.files.skills.get(skillId);
-    srvdofunc(event.entityId, skill.srvdofunc);
+    final Casting casting = mCasting.get(event.entityId);
+    final Skills.Entry skill = Riiablo.files.skills.get(casting.skillId);
+    srvdofunc(event.entityId, skill.srvdofunc, casting.target);
   }
 
   @Subscribe
@@ -66,7 +70,7 @@ public class Actioneer extends PassiveSystem {
   }
 
   // start func
-  private void srvstfunc(int entityId, int srvstfunc) {
+  private void srvstfunc(int entityId, int srvstfunc, Vector2 target) {
     log.trace("srvstfunc({},{})", entityId, srvstfunc);
     switch (srvstfunc) {
       case 0:
@@ -81,7 +85,7 @@ public class Actioneer extends PassiveSystem {
   }
 
   // do func
-  private void srvdofunc(int entityId, int srvdofunc) {
+  private void srvdofunc(int entityId, int srvdofunc, Vector2 target) {
     log.trace("srvdofunc({},{})", entityId, srvdofunc);
     switch (srvdofunc) {
       case 0:

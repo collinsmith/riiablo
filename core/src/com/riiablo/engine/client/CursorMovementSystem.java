@@ -82,9 +82,11 @@ public class CursorMovementSystem extends BaseSystem {
     if (hit) return;
 
     if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && UIUtils.shift()) {
-      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.LEFT));
+      iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
+      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.LEFT), tmpVec2);
     } else if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.RIGHT));
+      iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
+      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.RIGHT), tmpVec2);
     } else {
       updateLeft();
     }
