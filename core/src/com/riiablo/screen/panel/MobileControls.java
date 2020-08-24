@@ -1,5 +1,7 @@
 package com.riiablo.screen.panel;
 
+import net.mostlyoriginal.api.event.common.EventSystem;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -11,13 +13,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
 import com.riiablo.engine.client.event.InteractEvent;
+import com.riiablo.engine.server.Actioneer;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
-
-import net.mostlyoriginal.api.event.common.EventSystem;
 
 public class MobileControls extends WidgetGroup implements Disposable {
   final AssetDescriptor<DC6> SkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\Skillicon.DC6", DC6.class);
@@ -27,6 +29,7 @@ public class MobileControls extends WidgetGroup implements Disposable {
   DC6 SoSkillicon;
 
   protected EventSystem events;
+  protected Actioneer actioneer;
 
   Button interact;
   HotkeyButton skills[];
@@ -87,7 +90,10 @@ public class MobileControls extends WidgetGroup implements Disposable {
         }
 
         HotkeyButton actor = (HotkeyButton) event.getListenerActor();
-//        gameScreen.player.cast(actor.getSkill());
+        final int skillId = actor.getSkill();
+        if (skillId == -1) return;
+        actioneer.cast(Riiablo.game.player, skillId, Vector2.Zero);
+        // TODO: above target is placeholder
       }
     };
     gestureListener.getGestureDetector().setLongPressSeconds(0.5f);

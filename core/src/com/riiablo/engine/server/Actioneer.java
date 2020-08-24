@@ -62,8 +62,10 @@ public class Actioneer extends PassiveSystem {
       log.trace("mode changed to {} because it was invalid", mode);
     }
 
+    if (!targetVec.isZero()) {
     Vector2 entityPos = mPosition.get(entityId).position;
     mAngle.get(entityId).target.set(targetVec).sub(entityPos).nor();
+    }
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
     mCasting.create(entityId).set(skillId, targetVec);
