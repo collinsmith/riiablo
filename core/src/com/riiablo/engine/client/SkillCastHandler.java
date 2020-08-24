@@ -39,6 +39,8 @@ public class SkillCastHandler extends PassiveSystem {
     switch (event.srvdofunc) {
       case 0:
         break;
+      case 1: // attack
+        break;
       case 68: // shouts
         Riiablo.audio.play("barbarian_circle_1", true);
         break;
@@ -81,6 +83,8 @@ public class SkillCastHandler extends PassiveSystem {
 
     switch (event.cltdofunc) {
       case 0:
+        break;
+      case 1: // attack
         break;
       case 25: // shouts / novas
         break;
