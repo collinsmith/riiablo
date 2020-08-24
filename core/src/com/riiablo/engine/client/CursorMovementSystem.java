@@ -82,11 +82,11 @@ public class CursorMovementSystem extends BaseSystem {
     if (hit) return;
 
     if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && UIUtils.shift()) {
-      setTarget(renderer.getSrc(), null);
+      setTarget(renderer.getSrc(), Engine.INVALID_ENTITY);
       iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
       actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.LEFT), tmpVec2);
     } else if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-      setTarget(renderer.getSrc(), null);
+      setTarget(renderer.getSrc(), Engine.INVALID_ENTITY);
       iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
       actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.RIGHT), tmpVec2);
     } else {
@@ -133,6 +133,9 @@ public class CursorMovementSystem extends BaseSystem {
         if (interactable != null && srcPos.dst(targetPos) <= interactable.range) {
           setTarget(src, Engine.INVALID_ENTITY);
           interactable.interactor.interact(src, targetId);
+        } else {
+          setTarget(src, Engine.INVALID_ENTITY);
+          actioneer.cast(src, Riiablo.charData.getAction(Input.Buttons.LEFT), targetId);
         }
       }
     }
