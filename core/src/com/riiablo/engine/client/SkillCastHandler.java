@@ -26,6 +26,12 @@ public class SkillCastHandler extends PassiveSystem {
     final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
     Riiablo.audio.play(skill.stsound, true);
 
+//    // get event.entityId charclass (component does not exist yet) and compare
+//    if (!skill.charclass.isEmpty()) {
+//      if (CharacterClass.get(skill.charclass) == )
+//      Riiablo.audio.play(skill.stsoundclass, true);
+//    }
+
     if (!skill.castoverlay.isEmpty()) {
       overlays.set(event.entityId, skill.castoverlay);
     }
