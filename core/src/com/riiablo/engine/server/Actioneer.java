@@ -41,10 +41,16 @@ public class Actioneer extends PassiveSystem {
 
   protected EventSystem events;
 
-  public void cast(int entityId, int skillId, Vector2 target) {
-    if (mCasting.has(entityId)) return;
-    if (mSequence.has(entityId)) return;
+  private boolean canCast(int entityId) {
+    if (mCasting.has(entityId)) return false;
+    if (mSequence.has(entityId)) return false;
     // TODO: unsure if both checks will be needed -- may be more appropriate to use pflags
+    return true;
+  }
+
+  public void cast(int entityId, int skillId, Vector2 targetVec) {
+    if (!canCast(entityId)) return;
+
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
     log.trace("casting skill: {}", skill);
 
@@ -57,14 +63,19 @@ public class Actioneer extends PassiveSystem {
     }
 
     Vector2 entityPos = mPosition.get(entityId).position;
-    mAngle.get(entityId).target.set(target).sub(entityPos).nor();
+    mAngle.get(entityId).target.set(targetVec).sub(entityPos).nor();
 
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
-    mCasting.create(entityId).set(skillId, target);
+    mCasting.create(entityId).set(skillId, targetVec);
     events.dispatch(SkillCastEvent.obtain(entityId, skillId));
 
-    srvstfunc(entityId, skill.srvstfunc, target);
+    srvstfunc(entityId, skill.srvstfunc, targetVec);
     events.dispatch(SkillStartEvent.obtain(entityId, skillId, skill.srvstfunc, skill.cltstfunc));
+  }
+
+  public void cast(int entityId, int skillId, int targetId) {
+    Vector2 targetVec = mPosition.get(targetId).position;
+    cast(entityId, skillId, targetVec);
   }
 
   @Subscribe
