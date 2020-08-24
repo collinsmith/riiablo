@@ -128,6 +128,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   @Override
   public void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills) {
     buttons.clear();
+    keyMappings.clear();
     for (Table table : tables) {
       for (Actor child : table.getChildren()) child.clear();
       table.clear();
