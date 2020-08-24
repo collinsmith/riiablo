@@ -65,6 +65,8 @@ public class SkillCastHandler extends PassiveSystem {
     }
 
     switch (event.cltstfunc) {
+      case 0:
+        break;
       default:
         log.warn("Unsupported cltstfunc({}) for {} casting {}", event.cltstfunc, event.entityId, event.skillId);
         // TODO: default case will log an error when all valid cases are enumerated
