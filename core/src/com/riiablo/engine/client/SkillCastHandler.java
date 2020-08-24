@@ -22,6 +22,33 @@ public class SkillCastHandler extends PassiveSystem {
   }
 
   @Subscribe
+  public void srvstfunc(SkillStartEvent event) {
+    log.trace("srvstfunc({},{})", event.entityId, event.srvstfunc);
+    switch (event.srvstfunc) {
+      case 0:
+        break;
+      default:
+        log.warn("Unsupported srvstfunc({}) for {} casting {}", event.srvstfunc, event.entityId, event.skillId);
+        // TODO: default case will log an error when all valid cases are enumerated
+    }
+  }
+
+  @Subscribe
+  public void srvdofunc(SkillDoEvent event) {
+    log.trace("srvdofunc({},{})", event.entityId, event.srvdofunc);
+    switch (event.srvdofunc) {
+      case 0:
+        break;
+      case 68: // shouts
+        Riiablo.audio.play("barbarian_circle_1", true);
+        break;
+      default:
+        log.warn("Unsupported srvdofunc({}) for {} casting {}", event.srvdofunc, event.entityId, event.skillId);
+        // TODO: default case will log an error when all valid cases are enumerated
+    }
+  }
+
+  @Subscribe
   public void cltstfunc(SkillStartEvent event) {
     log.trace("cltstfunc({},{})", event.entityId, event.cltstfunc);
     final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
@@ -53,8 +80,7 @@ public class SkillCastHandler extends PassiveSystem {
     switch (event.cltdofunc) {
       case 0:
         break;
-      case 25: // shout
-        Riiablo.audio.play("barbarian_circle_1", true);
+      case 25: // shouts / novas
         break;
       default:
         log.warn("Unsupported cltdofunc({}) for {} casting {}", event.cltdofunc, event.entityId, event.skillId);
