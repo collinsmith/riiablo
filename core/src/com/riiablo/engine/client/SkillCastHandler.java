@@ -39,6 +39,9 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void cltdofunc(SkillDoEvent event) {
+    final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
+    Riiablo.audio.play(skill.dosound, true);
+
     switch (event.cltdofunc) {
       case 0:
         break;
