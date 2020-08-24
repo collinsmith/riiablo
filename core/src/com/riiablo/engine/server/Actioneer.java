@@ -22,6 +22,8 @@ import com.riiablo.engine.server.component.Sequence;
 import com.riiablo.engine.server.event.AnimDataFinishedEvent;
 import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
+import com.riiablo.engine.server.event.SkillDoEvent;
+import com.riiablo.engine.server.event.SkillStartEvent;
 import com.riiablo.log.LogManager;
 
 public class Actioneer extends PassiveSystem {
@@ -62,6 +64,7 @@ public class Actioneer extends PassiveSystem {
     events.dispatch(SkillCastEvent.obtain(entityId, skillId));
 
     srvstfunc(entityId, skill.srvstfunc, target);
+    events.dispatch(SkillStartEvent.obtain(entityId, skillId, skill.srvstfunc, skill.cltstfunc));
   }
 
   @Subscribe
@@ -71,6 +74,7 @@ public class Actioneer extends PassiveSystem {
     final Casting casting = mCasting.get(event.entityId);
     final Skills.Entry skill = Riiablo.files.skills.get(casting.skillId);
     srvdofunc(event.entityId, skill.srvdofunc, casting.target);
+    events.dispatch(SkillDoEvent.obtain(event.entityId, casting.skillId, skill.srvdofunc, skill.cltdofunc));
   }
 
   @Subscribe
