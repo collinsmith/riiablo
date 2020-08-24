@@ -84,7 +84,6 @@ public class Actioneer extends PassiveSystem {
     mCasting.remove(event.entityId);
   }
 
-  // start func
   private void srvstfunc(int entityId, int srvstfunc, Vector2 target) {
     log.trace("srvstfunc({},{})", entityId, srvstfunc);
     switch (srvstfunc) {
@@ -99,7 +98,6 @@ public class Actioneer extends PassiveSystem {
     }
   }
 
-  // do func
   private void srvdofunc(int entityId, int srvdofunc, Vector2 target) {
     log.trace("srvdofunc({},{})", entityId, srvdofunc);
     switch (srvdofunc) {
