@@ -23,6 +23,7 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void cltstfunc(SkillStartEvent event) {
+    log.trace("cltstfunc({},{})", event.entityId, event.cltstfunc);
     final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
     Riiablo.audio.play(skill.stsound, true);
 
@@ -45,6 +46,7 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void cltdofunc(SkillDoEvent event) {
+    log.trace("cltdofunc({},{})", event.entityId, event.cltdofunc);
     final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
     Riiablo.audio.play(skill.dosound, true);
 
