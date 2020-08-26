@@ -5,7 +5,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-public class RiiabloLayouter extends SimpleLayouter {
+public class RiiabloEncoder extends SimpleEncoder {
   private final StringBuilder buffer = new StringBuilder(1024);
 
   @Override

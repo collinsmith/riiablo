@@ -4,19 +4,19 @@ import java.io.OutputStream;
 
 public class OutputStreamAppender implements Appender {
   private final OutputStream out;
-  private final Layouter layouter = new RiiabloLayouter();
+  private final Encoder encoder = new RiiabloEncoder();
 
   public OutputStreamAppender(OutputStream out) {
     this.out = out;
   }
 
   @Override
-  public Layouter layout() {
-    return layouter;
+  public Encoder encoder() {
+    return encoder;
   }
 
   @Override
   public void append(LogEvent event) {
-    layouter.encode(event, out);
+    encoder.encode(event, out);
   }
 }

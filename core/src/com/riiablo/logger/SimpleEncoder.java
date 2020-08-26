@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-public class SimpleLayouter implements Layouter {
+public class SimpleEncoder implements Encoder {
   static final Charset US_ASCII = Charset.forName("US-ASCII");
   final byte[] newLine = System.getProperty("line.separator").getBytes(US_ASCII);
 
