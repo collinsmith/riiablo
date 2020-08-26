@@ -67,7 +67,7 @@ public final class Logger extends AbstractLogger {
       final Level level,
       final Message message,
       final StackTraceElement location) {
-    final LogEvent event = new LogEvent(level, message, location);
+    final LogEvent event = new LogEvent(level, message, location, MDC.freeze());
     appender.append(event);
   }
 
