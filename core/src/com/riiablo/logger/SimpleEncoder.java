@@ -1,5 +1,6 @@
 package com.riiablo.logger;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import org.apache.commons.lang3.ClassUtils;
@@ -15,20 +16,28 @@ public class SimpleEncoder implements Encoder {
   @Override
   public void encode(LogEvent event, OutputStream out) {
     try {
-      buffer.append(StringUtils.rightPad(event.level().name(), 5));
-      buffer.append(' ');
-      buffer.append('[');
-      buffer.append(ClassUtils.getShortClassName(event.source().getClassName()));
-      buffer.append(']');
-      buffer.append(' ');
-      buffer.append(event.message().format());
+      encodeMessage(event, buffer);
       out.write(buffer.toString().getBytes(US_ASCII));
-      out.write(newLine);
-      out.flush();
+      newLine(out);
     } catch (Throwable t) {
       ExceptionUtils.rethrow(t);
     } finally {
       buffer.setLength(0);
     }
+  }
+
+  protected void newLine(OutputStream out) throws IOException {
+    out.write(newLine);
+    out.flush();
+  }
+
+  protected void encodeMessage(LogEvent event, StringBuilder buffer) {
+    buffer.append(StringUtils.rightPad(event.level().name(), 5));
+    buffer.append(' ');
+    buffer.append('[');
+    buffer.append(ClassUtils.getShortClassName(event.source().getClassName()));
+    buffer.append(']');
+    buffer.append(' ');
+    buffer.append(event.message().format());
   }
 }
