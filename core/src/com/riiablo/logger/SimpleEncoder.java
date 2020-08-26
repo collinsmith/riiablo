@@ -10,7 +10,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class SimpleEncoder implements Encoder {
   static final Charset US_ASCII = Charset.forName("US-ASCII");
-  final byte[] newLine = System.getProperty("line.separator").getBytes(US_ASCII);
+  final CharSequence lineSeparator = System.getProperty("line.separator");
+  final byte[] newLine = lineSeparator.toString().getBytes(US_ASCII);
 
   private final StringBuilder buffer = new StringBuilder(1024);
 
