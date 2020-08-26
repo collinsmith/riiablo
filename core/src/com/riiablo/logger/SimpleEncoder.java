@@ -2,6 +2,7 @@ package com.riiablo.logger;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ public class SimpleEncoder implements Encoder {
       encodeMessage(event, buffer);
       out.write(buffer.toString().getBytes(US_ASCII));
       newLine(out);
+      encodeStackTrace(event, out);
     } catch (Throwable t) {
       ExceptionUtils.rethrow(t);
     } finally {
@@ -39,5 +41,11 @@ public class SimpleEncoder implements Encoder {
     buffer.append(']');
     buffer.append(' ');
     buffer.append(event.message().format());
+  }
+
+  protected void encodeStackTrace(LogEvent event, OutputStream out) {
+    final Throwable throwable = event.message().throwable();
+    if (throwable == null) return;
+    throwable.printStackTrace(new PrintStream(out));
   }
 }

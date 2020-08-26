@@ -27,6 +27,7 @@ public class RiiabloEncoder extends SimpleEncoder {
       }
       out.write(buffer.toString().getBytes(US_ASCII));
       newLine(out);
+      encodeStackTrace(event, out);
     } catch (Throwable t) {
       ExceptionUtils.rethrow(t);
     } finally {
