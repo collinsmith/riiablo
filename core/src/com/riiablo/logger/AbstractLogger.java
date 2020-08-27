@@ -41,32 +41,32 @@ abstract class AbstractLogger {
     return enabled(Level.TRACE);
   }
 
-  public final boolean debugEnabled() {
-    return enabled(Level.DEBUG);
-  }
-
-  public final boolean warnEnabled() {
-    return enabled(Level.WARN);
-  }
-
   public final void trace(final String message, final Object... params) {
     logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, params), getLocation());
-  }
-
-  public final void debug(final String message, final Object... params) {
-    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, params), getLocation());
-  }
-
-  public final void warn(final String message, final Object... params) {
-    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, params), getLocation());
   }
 
   public final void tracef(final String message, final Object... params) {
     logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, params), getLocation());
   }
 
+  public final boolean debugEnabled() {
+    return enabled(Level.DEBUG);
+  }
+
+  public final void debug(final String message, final Object... params) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, params), getLocation());
+  }
+
   public final void debugf(final String message, final Object... params) {
     logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, params), getLocation());
+  }
+
+  public final boolean warnEnabled() {
+    return enabled(Level.WARN);
+  }
+
+  public final void warn(final String message, final Object... params) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, params), getLocation());
   }
 
   public final void warnf(final String message, final Object... params) {
