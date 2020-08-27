@@ -85,6 +85,18 @@ abstract class AbstractLogger {
     logIfEnabled(Level.WARN, formattedFactory().newMessage(message, params), getLocation());
   }
 
+  public final boolean errorEnabled() {
+    return enabled(Level.ERROR);
+  }
+
+  public final void error(final String message, final Object... params) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, params), getLocation());
+  }
+
+  public final void errorf(final String message, final Object... params) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, params), getLocation());
+  }
+
   private StackTraceElement getLocation() {
     return getLocation(FQCN);
   }
