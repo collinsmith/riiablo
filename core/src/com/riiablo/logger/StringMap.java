@@ -76,14 +76,14 @@ public class StringMap {
     }
 
     assert keys != null && vals != null;
-    final int index = indexes.get(key, -1);
-    if (index >= 0) {
+    final int index = indexes.get(key, size);
+    if (index < size) {
       vals[index] = value;
     } else {
-      ensureCapacity(size + 1);
-      keys[size] = key;
-      vals[size] = value;
-      indexes.put(key, size);
+      ensureCapacity(index);
+      keys[index] = key;
+      vals[index] = value;
+      indexes.put(key, index);
       size++;
     }
     assert size == indexes.size;
