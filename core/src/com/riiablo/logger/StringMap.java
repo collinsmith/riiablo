@@ -139,11 +139,9 @@ public class StringMap {
   }
 
   public StringMap freeze() {
-    if (immutableCopy == null) {
-      return immutableCopy = new StringMap(this);
-    } else {
-      return immutableCopy;
-    }
+    return immutableCopy == null
+        ? immutableCopy = new StringMap(this)
+        : immutableCopy;
   }
 
   @Override
