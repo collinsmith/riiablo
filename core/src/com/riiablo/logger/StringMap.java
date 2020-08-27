@@ -58,6 +58,13 @@ public class StringMap {
   }
 
   public void put(String key, String value) {
+    if (key == null) {
+      throw new IllegalArgumentException("key == null");
+    }
+    if (value == null) {
+      throw new IllegalArgumentException("value == null -- use remove instead.");
+    }
+
     assertMutable();
     if (immutableCopy != null) {
       immutableCopy = null;
