@@ -65,6 +65,8 @@ public class RiiabloEncoder extends SimpleEncoder {
       }
 
       if (!mdc.equals(this.mdc)) {
+        final int dirty = mdc.getDirtyDepth();
+        if (dirty < depth && dirty < this.depth) this.depth = dirty;
         encodeCompactMDC(mdc, buffer, depth);
         this.mdc = mdc;
         this.depth = depth;

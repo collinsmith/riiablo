@@ -16,21 +16,25 @@ public class StringMap {
   private boolean immutable;
   private StringMap immutableCopy;
   private String toString;
+  private int dirtyDepth;
 
   public StringMap() {
     keys = ArrayUtils.EMPTY_STRING_ARRAY;
     vals = ArrayUtils.EMPTY_STRING_ARRAY;
     indexes = new ObjectIntMap<>(DEFAULT_CAPACITY);
+    dirtyDepth = Integer.MAX_VALUE;
   }
 
   private StringMap(StringMap other) {
     assert other.keys.length == other.vals.length;
     assert other.size == other.indexes.size;
     size = other.size;
+    dirtyDepth = Math.min(other.dirtyDepth, other.size);
     keys = Arrays.copyOf(other.keys, size);
     vals = Arrays.copyOf(other.vals, size);
     indexes = new ObjectIntMap<>(other.indexes);
     immutable = true;
+    other.dirtyDepth = Integer.MAX_VALUE;
   }
 
   private void inflateTable(final int size) {
@@ -48,6 +52,12 @@ public class StringMap {
       assert resize > size;
       keys = Arrays.copyOf(keys, resize);
       vals = Arrays.copyOf(vals, resize);
+    }
+  }
+
+  private void updateDirtyDepth(final int index) {
+    if (index < dirtyDepth) {
+      dirtyDepth = index < 0 ? Integer.MAX_VALUE : index;
     }
   }
 
@@ -86,6 +96,7 @@ public class StringMap {
       indexes.put(key, index);
       size++;
     }
+    updateDirtyDepth(index);
     assert size == indexes.size;
     assert size > 0;
   }
@@ -117,6 +128,7 @@ public class StringMap {
     System.arraycopy(vals, index + 1, vals, index, size - index - 1);
     keys[size] = vals[size] = null;
     indexes.remove(key, -1);
+    updateDirtyDepth(index - 1);
     size--;
     assert size == indexes.size;
   }
@@ -132,6 +144,7 @@ public class StringMap {
     Arrays.fill(vals, null);
     indexes.clear();
     size = 0;
+    dirtyDepth = 0;
     assert size == indexes.size;
   }
 
@@ -180,6 +193,16 @@ public class StringMap {
     if (!immutable) {
       throw new UnsupportedOperationException("StringMap has not been frozen.");
     }
+  }
+
+  int dirtyDepth() {
+    return dirtyDepth;
+  }
+
+  public int getDirtyDepth() {
+    assertImmutable();
+    assert dirtyDepth < Integer.MAX_VALUE;
+    return dirtyDepth;
   }
 
   public StringMapIterator iterator() {
