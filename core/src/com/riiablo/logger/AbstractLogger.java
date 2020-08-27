@@ -61,6 +61,18 @@ abstract class AbstractLogger {
     logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, params), getLocation());
   }
 
+  public final boolean infoEnabled() {
+    return enabled(Level.INFO);
+  }
+
+  public final void info(final String message, final Object... params) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, params), getLocation());
+  }
+
+  public final void infof(final String message, final Object... params) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, params), getLocation());
+  }
+
   public final boolean warnEnabled() {
     return enabled(Level.WARN);
   }
