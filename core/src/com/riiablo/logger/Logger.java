@@ -73,6 +73,6 @@ public final class Logger extends AbstractLogger {
 
   @Override
   public boolean enabled(final Level level) {
-    return this.level.isMoreSpecificThan(level);
+    return this.level.isLessSpecificThan(level);
   }
 }
