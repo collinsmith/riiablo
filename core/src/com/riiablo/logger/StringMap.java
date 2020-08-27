@@ -76,10 +76,6 @@ public class StringMap {
     }
 
     assertMutable();
-    if (immutableCopy != null) {
-      immutableCopy = null;
-    }
-
     assert keys.length == vals.length;
     if (keys.length == 0) {
       inflateTable(DEFAULT_CAPACITY);
@@ -99,6 +95,9 @@ public class StringMap {
     updateDirtyDepth(index);
     assert size == indexes.size;
     assert size > 0;
+    if (immutableCopy != null) {
+      immutableCopy = null;
+    }
   }
 
   public String get(String key) {
@@ -113,10 +112,6 @@ public class StringMap {
 
   public void remove(String key) {
     assertMutable();
-    if (immutableCopy != null) {
-      immutableCopy = null;
-    }
-
     assert keys.length == vals.length;
     if (keys.length == 0) {
       return;
@@ -131,6 +126,9 @@ public class StringMap {
     updateDirtyDepth(index - 1);
     size--;
     assert size == indexes.size;
+    if (immutableCopy != null) {
+      immutableCopy = null;
+    }
   }
 
   public void clear() {
@@ -146,6 +144,9 @@ public class StringMap {
     size = 0;
     dirtyDepth = 0;
     assert size == indexes.size;
+    if (immutableCopy != null) {
+      immutableCopy = null;
+    }
   }
 
   public int size() {
