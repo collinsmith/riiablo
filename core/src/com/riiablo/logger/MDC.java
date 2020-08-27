@@ -1,17 +1,13 @@
 package com.riiablo.logger;
 
-import org.apache.commons.collections4.OrderedMap;
-import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.collections4.map.UnmodifiableOrderedMap;
-
 public class MDC {
   private MDC() {}
 
-  private static final ThreadLocal<OrderedMap<String, String>> threadLocal
-      = new ThreadLocal<OrderedMap<String, String>>() {
+  private static final ThreadLocal<StringMap> threadLocal
+      = new ThreadLocal<StringMap>() {
     @Override
-    protected OrderedMap<String, String> initialValue() {
-      return new ListOrderedMap<>(); // TODO: copy on write map
+    protected StringMap initialValue() {
+      return new StringMap();
     }
   };
 
@@ -39,8 +35,7 @@ public class MDC {
     return threadLocal.get().size();
   }
 
-  public static UnmodifiableOrderedMap<String, String> freeze() {
-    return (UnmodifiableOrderedMap<String,String>)
-        UnmodifiableOrderedMap.unmodifiableOrderedMap(threadLocal.get());
+  public static StringMap freeze() {
+    return threadLocal.get().freeze();
   }
 }

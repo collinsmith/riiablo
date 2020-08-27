@@ -1,7 +1,6 @@
 package com.riiablo.logger;
 
 import java.io.OutputStream;
-import org.apache.commons.collections4.OrderedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -12,8 +11,9 @@ public class RiiabloEncoder extends SimpleEncoder {
 
   private final StringBuilder buffer = new StringBuilder(1024);
 
+  private Thread context;
   private boolean fullMode;
-  private OrderedMap<String, String> mdc;
+  private StringMap mdc;
   private int depth;
 
   public boolean isFullMode() {
@@ -43,22 +43,28 @@ public class RiiabloEncoder extends SimpleEncoder {
   }
 
   private void encodeFullMode(LogEvent event, StringBuilder buffer) {
-    final OrderedMap<String, String> mdc = event.mdc();
+    final StringMap mdc = event.mdc();
     encodeMessage(event, buffer);
     encodeFullMDC(mdc, buffer);
   }
 
-  private void encodeFullMDC(OrderedMap<String, String> mdc, StringBuilder buffer) {
+  private void encodeFullMDC(StringMap mdc, StringBuilder buffer) {
     if (mdc.isEmpty()) return;
     buffer.append(' ');
     buffer.append(mdc.toString());
   }
 
   private void encodeCompactMode(LogEvent event, StringBuilder buffer) {
-    final OrderedMap<String, String> mdc = event.mdc();
+    final StringMap mdc = event.mdc();
     final int depth = mdc.size();
     if (depth > 0) {
-      if (!mdc.equals(this.mdc) || this.depth != depth) {
+      final Thread currentThread = Thread.currentThread();
+      if (context != currentThread) {
+        context = currentThread;
+        this.depth = 0;
+      }
+
+      if (!mdc.equals(this.mdc)) {
         encodeCompactMDC(mdc, buffer, depth);
         this.mdc = mdc;
         this.depth = depth;
@@ -70,9 +76,14 @@ public class RiiabloEncoder extends SimpleEncoder {
     encodeMessage(event, buffer);
   }
 
-  private void encodeCompactMDC(OrderedMap<String, String> mdc, StringBuilder buffer, int depth) {
-    buffer.append(spaces, 0, (depth - 1) * DEPTH_STEP);
-    encodeFullMDC(mdc, buffer);
-    buffer.append(lineSeparator);
+  private void encodeCompactMDC(StringMap mdc, StringBuilder buffer, int depth) {
+    for (int d = this.depth; d < depth; d++) {
+      buffer.append(spaces, 0, d * DEPTH_STEP);
+      buffer.append(' ');
+      buffer.append('{');
+      mdc.appendEntry(d, buffer);
+      buffer.append('}');
+      buffer.append(lineSeparator);
+    }
   }
 }
