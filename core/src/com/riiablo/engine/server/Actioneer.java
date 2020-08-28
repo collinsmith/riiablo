@@ -49,9 +49,8 @@ public class Actioneer extends PassiveSystem {
 
   public void cast(int entityId, int skillId, Vector2 targetVec) {
     if (!canCast(entityId)) return;
-
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
-    log.trace("casting skill: {}", skill);
+    log.traceEntry("cast(entityId: {}, skillId: {} ({}))", entityId, skillId, skill);
 
     final Class.Type type = mClass.get(entityId).type;
     byte mode = (byte) type.getMode(skill.anim);
@@ -82,7 +81,7 @@ public class Actioneer extends PassiveSystem {
   @Subscribe
   public void onAnimDataKeyframe(AnimDataKeyframeEvent event) {
     if (!mCasting.has(event.entityId)) return;
-    log.debug("onAnimDataKeyframe: {}, {} ({})", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
+    log.traceEntry("onAnimDataKeyframe(entityId: {}, keyframe: {} ({}))", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
     final Casting casting = mCasting.get(event.entityId);
     final Skills.Entry skill = Riiablo.files.skills.get(casting.skillId);
     srvdofunc(event.entityId, skill.srvdofunc, casting.target);
@@ -92,12 +91,12 @@ public class Actioneer extends PassiveSystem {
   @Subscribe
   public void onAnimDataFinished(AnimDataFinishedEvent event) {
     if (!mCasting.has(event.entityId)) return;
-    log.debug("onAnimDataFinished: {}", event.entityId);
+    log.traceEntry("onAnimDataFinished(entityId: {})", event.entityId);
     mCasting.remove(event.entityId);
   }
 
   private void srvstfunc(int entityId, int srvstfunc, Vector2 target) {
-    log.trace("srvstfunc({},{})", entityId, srvstfunc);
+    log.traceEntry("srvstfunc(entityId: {}, srvstfunc: {})", entityId, srvstfunc);
     switch (srvstfunc) {
       case 0:
         break;
@@ -111,7 +110,7 @@ public class Actioneer extends PassiveSystem {
   }
 
   private void srvdofunc(int entityId, int srvdofunc, Vector2 target) {
-    log.trace("srvdofunc({},{})", entityId, srvdofunc);
+    log.traceEntry("srvdofunc(entityId: {}, srvdofunc: {})", entityId, srvdofunc);
     switch (srvdofunc) {
       case 0:
         break;
