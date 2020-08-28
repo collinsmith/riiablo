@@ -22,10 +22,6 @@ public final class Logger extends AbstractLogger {
   }
 
   public void addAppender(Appender appender) {
-    if (this.appender != null) {
-      throw new IllegalStateException("this.appender(" + this.appender + ") != " + null);
-    }
-
     this.appender = appender;
   }
 
