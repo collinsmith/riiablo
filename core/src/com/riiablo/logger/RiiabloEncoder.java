@@ -58,18 +58,31 @@ public class RiiabloEncoder extends SimpleEncoder {
     final StringMap mdc = event.mdc();
     final int depth = mdc.size();
     if (depth > 0) {
+      int startingDepth = this.depth;
       final Thread currentThread = Thread.currentThread();
       if (context != currentThread) {
         context = currentThread;
-        this.depth = 0;
+        startingDepth = 0;
       }
 
       if (!mdc.equals(this.mdc)) {
         final int dirty = mdc.getDirtyDepth();
-        if (dirty < depth && dirty < this.depth) this.depth = dirty;
-        encodeCompactMDC(mdc, buffer, depth);
+        if (dirty < depth && dirty < startingDepth) {
+          startingDepth = dirty;
+        }
+
+        if (this.mdc != null) {
+          final int diff = this.mdc.firstDifference(mdc, startingDepth);
+          if (diff >= depth) {
+            startingDepth = Math.max(depth - 1, 0);
+          } else {
+            startingDepth = diff;
+          }
+        }
+
+        encodeCompactMDC(mdc, buffer, startingDepth, depth);
+        assert this.depth == depth;
         this.mdc = mdc;
-        this.depth = depth;
       }
 
       buffer.append(spaces, 0, depth * DEPTH_STEP);
@@ -78,8 +91,8 @@ public class RiiabloEncoder extends SimpleEncoder {
     encodeMessage(event, buffer);
   }
 
-  private void encodeCompactMDC(StringMap mdc, StringBuilder buffer, int depth) {
-    for (int d = this.depth; d < depth; d++) {
+  private void encodeCompactMDC(StringMap mdc, StringBuilder buffer, int startingDepth, int depth) {
+    for (int d = startingDepth; d < depth; d++) {
       buffer.append(spaces, 0, d * DEPTH_STEP);
       buffer.append(' ');
       buffer.append('{');
@@ -87,5 +100,7 @@ public class RiiabloEncoder extends SimpleEncoder {
       buffer.append('}');
       buffer.append(lineSeparator);
     }
+
+    this.depth = depth;
   }
 }

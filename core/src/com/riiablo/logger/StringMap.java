@@ -190,6 +190,16 @@ public class StringMap {
     return buffer.append(keys[index]).append('=').append(vals[index]);
   }
 
+  int firstDifference(StringMap other, int index) {
+    for (
+        final int s = Math.min(size, other.size);
+        index < s
+            && keys[index].equals(other.keys[index])
+            && vals[index].equals(other.vals[index]);
+        index++);
+    return index;
+  }
+
   private void assertImmutable() {
     if (!immutable) {
       throw new UnsupportedOperationException("StringMap has not been frozen.");
