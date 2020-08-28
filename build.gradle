@@ -221,6 +221,10 @@ project(":core") {
     }
 
     dependencies {
+        compile "org.reflections:reflections:0.9.12"
+    }
+
+    dependencies {
         // components to expose
         compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
         compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
