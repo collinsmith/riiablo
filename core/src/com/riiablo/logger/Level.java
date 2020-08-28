@@ -34,4 +34,12 @@ public enum Level {
   public boolean isMoreSpecificThan(final Level level) {
     return this.priority <= level.priority;
   }
+
+  public static Level valueOf(String name, Level defaultValue) {
+    try {
+      return Level.valueOf(name);
+    } catch (IllegalArgumentException t) {
+      return defaultValue;
+    }
+  }
 }
