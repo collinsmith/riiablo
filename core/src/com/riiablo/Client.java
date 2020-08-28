@@ -222,7 +222,7 @@ public class Client extends Game {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
     Riiablo.logs = logs = LogManager.getRegistry();
-    logs.getRoot().level(Level.DEBUG);
+    logs.setLevel(LoggerRegistry.ROOT, Level.DEBUG, true);
     logs.setLevel("com.riiablo.save", Level.DEBUG);
     logs.setLevel("com.riiablo.item", Level.DEBUG);
     logs.setLevel("com.riiablo.engine", Level.TRACE);
