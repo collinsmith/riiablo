@@ -1,10 +1,13 @@
 package com.riiablo.logger;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class RiiabloEncoder extends SimpleEncoder {
+  private static final boolean FLUSH_COMPACT_MDCS = true;
+
   private static final int MAX_DEPTH = 256;
   private static final int DEPTH_STEP = 2;
   private final CharSequence spaces = StringUtils.repeat(' ', MAX_DEPTH * DEPTH_STEP);
@@ -28,9 +31,9 @@ public class RiiabloEncoder extends SimpleEncoder {
   public void encode(LogEvent event, OutputStream out) {
     try {
       if (fullMode) {
-        encodeFullMode(event, buffer);
+        encodeFullMode(event, out, buffer);
       } else {
-        encodeCompactMode(event, buffer);
+        encodeCompactMode(event, out, buffer);
       }
       out.write(buffer.toString().getBytes(US_ASCII));
       newLine(out);
@@ -42,19 +45,22 @@ public class RiiabloEncoder extends SimpleEncoder {
     }
   }
 
-  private void encodeFullMode(LogEvent event, StringBuilder buffer) {
+  private void encodeFullMode(LogEvent event, OutputStream out, StringBuilder buffer)
+      throws IOException {
     final StringMap mdc = event.mdc();
     encodeMessage(event, buffer);
-    encodeFullMDC(mdc, buffer);
+    encodeFullMDC(mdc, out, buffer);
   }
 
-  private void encodeFullMDC(StringMap mdc, StringBuilder buffer) {
+  private void encodeFullMDC(StringMap mdc, OutputStream out, StringBuilder buffer)
+      throws IOException {
     if (mdc.isEmpty()) return;
     buffer.append(' ');
     buffer.append(mdc.toString());
   }
 
-  private void encodeCompactMode(LogEvent event, StringBuilder buffer) {
+  private void encodeCompactMode(LogEvent event, OutputStream out, StringBuilder buffer)
+      throws IOException {
     final StringMap mdc = event.mdc();
     final int depth = mdc.size();
     if (depth > 0) {
@@ -80,7 +86,7 @@ public class RiiabloEncoder extends SimpleEncoder {
           }
         }
 
-        encodeCompactMDC(mdc, buffer, startingDepth, depth);
+        encodeCompactMDC(mdc, out, buffer, startingDepth, depth);
         assert this.depth == depth;
         this.mdc = mdc;
       }
@@ -91,14 +97,21 @@ public class RiiabloEncoder extends SimpleEncoder {
     encodeMessage(event, buffer);
   }
 
-  private void encodeCompactMDC(StringMap mdc, StringBuilder buffer, int startingDepth, int depth) {
+  private void encodeCompactMDC(StringMap mdc, OutputStream out, StringBuilder buffer, int startingDepth, int depth)
+      throws IOException {
     for (int d = startingDepth; d < depth; d++) {
       buffer.append(spaces, 0, d * DEPTH_STEP);
       buffer.append(' ');
       buffer.append('{');
       mdc.appendEntry(d, buffer);
       buffer.append('}');
-      buffer.append(lineSeparator);
+      if (FLUSH_COMPACT_MDCS) {
+        out.write(buffer.toString().getBytes(US_ASCII));
+        newLine(out);
+        buffer.setLength(0);
+      } else {
+        buffer.append(lineSeparator);
+      }
     }
 
     this.depth = depth;
