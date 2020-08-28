@@ -7,6 +7,10 @@ public class LogManager {
 
   public static final String ROOT = StringUtils.EMPTY;
 
+  public static LoggerRegistry getRegistry() {
+    return INSTANCE;
+  }
+
   public static Logger getLogger(Class<?> clazz) {
     return INSTANCE.getLogger(clazz);
   }
