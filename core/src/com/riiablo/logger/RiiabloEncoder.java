@@ -73,7 +73,7 @@ public class RiiabloEncoder extends SimpleEncoder {
 
         if (this.mdc != null) {
           final int diff = this.mdc.firstDifference(mdc, startingDepth);
-          if (diff >= depth) {
+          if (diff >= depth && this.depth != depth) {
             startingDepth = Math.max(depth - 1, 0);
           } else {
             startingDepth = diff;
