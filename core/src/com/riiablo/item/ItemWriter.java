@@ -2,7 +2,6 @@ package com.riiablo.item;
 
 import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.SetItems;
@@ -10,8 +9,9 @@ import com.riiablo.codec.excel.Sets;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.BitOutput;
 import com.riiablo.io.ByteOutput;
-import com.riiablo.log.Log;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+import com.riiablo.logger.MDC;
 
 public class ItemWriter {
   private static final Logger log = LogManager.getLogger(ItemWriter.class);
@@ -24,14 +24,14 @@ public class ItemWriter {
     if (item.socketsFilled > 0) log.trace("Writing {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
       try {
-        Log.put("socket", i);
+        MDC.put("socket", i);
         Item socket = item.sockets.get(i);
         writeSingleItem(socket, out);
       } finally {
-        Log.remove("socket");
+        MDC.remove("socket");
       }
     }
-    if (log.isDebugEnabled()) {
+    if (log.debugEnabled()) {
       final int endOffset = out.bytesWritten();
       final int itemSize = endOffset - startOffset;
       log.debug("size: {} (0x{}) (+{} .. +{})",
@@ -39,8 +39,8 @@ public class ItemWriter {
           Integer.toHexString(itemSize),
           Integer.toHexString(startOffset),
           Integer.toHexString(endOffset));
-      if (log.isTraceEnabled()) {
-        Log.tracef(log, "bytes: %n%s", ByteBufUtil.prettyHexDump(out.buffer()));
+      if (log.traceEnabled()) {
+        log.tracef("bytes: %n%s", ByteBufUtil.prettyHexDump(out.buffer()));
       } else {
         log.debug("bytes: {}", ByteBufUtil.hexDump(out.buffer()));
       }

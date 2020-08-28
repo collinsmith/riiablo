@@ -1,7 +1,6 @@
 package com.riiablo.save;
 
 import io.netty.util.ByteProcessor;
-import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.files.FileHandle;
 
@@ -9,8 +8,9 @@ import com.riiablo.io.ByteInput;
 import com.riiablo.io.InvalidFormat;
 import com.riiablo.io.UnsafeNarrowing;
 import com.riiablo.item.ItemReader;
-import com.riiablo.log.Log;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+import com.riiablo.logger.MDC;
 
 public enum D2SReader {
   INSTANCE;
@@ -58,7 +58,7 @@ public enum D2SReader {
     d2s.version = in.readSafe32u();
     log.debug("version: {} ({})", d2s.version, D2S.getVersionString(d2s.version));
     try {
-      Log.put("d2s.version", d2s.version);
+      MDC.put("d2s.version", d2s.version);
       switch (d2s.version) {
         case D2S.VERSION_110:
           return D2SReader96.readHeader(in, d2s);
@@ -71,13 +71,13 @@ public enum D2SReader {
           return d2s;
       }
     } finally {
-      Log.remove("d2s.version");
+      MDC.remove("d2s.version");
     }
   }
 
   public D2S readRemaining(D2S d2s, ByteInput in, ItemReader itemReader) {
     try {
-      Log.put("d2s.version", d2s.version);
+      MDC.put("d2s.version", d2s.version);
       switch (d2s.version) {
         case D2S.VERSION_110:
           return D2SReader96.readRemaining(d2s, in, itemReader);
@@ -90,13 +90,13 @@ public enum D2SReader {
           return d2s;
       }
     } finally {
-      Log.remove("d2s.version");
+      MDC.remove("d2s.version");
     }
   }
 
   CharData copyTo(D2S d2s, CharData data) {
     try {
-      Log.put("d2s.version", d2s.version);
+      MDC.put("d2s.version", d2s.version);
       switch (d2s.version) {
         case D2S.VERSION_110:
           return D2SReader96.copyTo(d2s, data);
@@ -109,7 +109,7 @@ public enum D2SReader {
           return data;
       }
     } finally {
-      Log.remove("d2s.version");
+      MDC.remove("d2s.version");
     }
   }
 }

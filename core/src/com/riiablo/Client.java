@@ -59,7 +59,10 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.Level;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.LoggerRegistry;
+import com.riiablo.logger.OutputStreamAppender;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
 import com.riiablo.map.DT1;
@@ -113,7 +116,7 @@ public class Client extends Game {
   private CharData              charData;
   private D2                    anim;
   private Metrics               metrics;
-  private LogManager            logs;
+  private LoggerRegistry        logs;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
@@ -216,8 +219,13 @@ public class Client extends Game {
   @Override
   public void create() {
     Riiablo.client = this;
-    Riiablo.logs = logs = LogManager.INSTANCE;
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+    Riiablo.logs = logs = LogManager.getRegistry();
+    logs.getRoot().level(Level.DEBUG);
+    logs.setLevel("com.riiablo.save", Level.DEBUG);
+    logs.setLevel("com.riiablo.item", Level.DEBUG);
+    logs.setLevel("com.riiablo.engine", Level.TRACE);
 
     // This is needed so that home is in a platform-dependent handle
     Riiablo.home = home = Gdx.files.absolute(home.path());
@@ -231,6 +239,7 @@ public class Client extends Game {
     try {
       System.setOut(console.out);
       System.setErr(console.out);
+      logs.getRoot().addAppender(new OutputStreamAppender(System.out));
     } catch (SecurityException e) {
       console.out.println("stdout could not be redirected to console: " + e.getMessage());
       throw new GdxRuntimeException("Unable to bind console out.", e);

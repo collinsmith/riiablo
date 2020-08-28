@@ -1,10 +1,9 @@
 package com.riiablo.save;
 
-import org.apache.logging.log4j.Logger;
-
 import com.riiablo.Riiablo;
 import com.riiablo.io.ByteOutput;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 public class D2SWriter96 {
   private static final Logger log = LogManager.getLogger(D2SWriter96.class);

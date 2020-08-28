@@ -1,7 +1,5 @@
 package com.riiablo.engine.client;
 
-import org.apache.logging.log4j.Logger;
-
 import com.artemis.Aspect;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
@@ -26,7 +24,8 @@ import com.riiablo.engine.server.component.Interactable;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Target;
 import com.riiablo.item.Item;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.map.Map;
 import com.riiablo.map.RenderSystem;
 import com.riiablo.profiler.ProfilerSystem;

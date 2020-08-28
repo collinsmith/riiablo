@@ -2,7 +2,6 @@ package com.riiablo.item;
 
 import com.google.common.primitives.UnsignedInts;
 import java.util.Arrays;
-import org.apache.logging.log4j.Logger;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
@@ -12,7 +11,8 @@ import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.BitOutput;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.save.CharData;
 
 @SuppressWarnings("unused")

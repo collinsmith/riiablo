@@ -2,7 +2,6 @@ package com.riiablo.item;
 
 import java.util.Comparator;
 import java.util.Iterator;
-import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -13,8 +12,9 @@ import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.codec.excel.Properties;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.BitOutput;
-import com.riiablo.log.Log;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+import com.riiablo.logger.MDC;
 
 public class PropertyList implements Iterable<Stat> {
   private static final Logger log = LogManager.getLogger(PropertyList.class);
@@ -85,12 +85,12 @@ public class PropertyList implements Iterable<Stat> {
     for (int prop; (prop = bitStream.read15u(Stat.BITS)) != Stat.NONE; ) {
       final int numEncoded = Stat.getNumEncoded(prop);
       try {
-        if (numEncoded > 1) Log.put("numEncoded", numEncoded);
+        if (numEncoded > 1) MDC.put("numEncoded", numEncoded);
         for (int j = prop, size = j + numEncoded; j < size; j++) {
           read(j, bitStream);
         }
       } finally {
-        Log.remove("numEncoded");
+        MDC.remove("numEncoded");
       }
     }
 

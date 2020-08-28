@@ -4,10 +4,10 @@ import java.util.Set;
 import java.util.SortedMap;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apache.logging.log4j.Level;
 
 import com.riiablo.console.Console;
 import com.riiablo.console.ConsoleUtils;
+import com.riiablo.logger.Level;
 import com.riiablo.util.StringUtils;
 
 public enum LoggerLevelSuggester implements Console.SuggestionProvider {

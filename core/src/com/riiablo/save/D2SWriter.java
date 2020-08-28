@@ -1,10 +1,9 @@
 package com.riiablo.save;
 
-import org.apache.logging.log4j.Logger;
-
 import com.riiablo.io.ByteOutput;
-import com.riiablo.log.Log;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+import com.riiablo.logger.MDC;
 
 public enum D2SWriter {
   INSTANCE;
@@ -24,7 +23,7 @@ public enum D2SWriter {
     out.writeBytes(SIGNATURE);
     out.write32(d2s.version);
     try {
-      Log.put("d2s.version", d2s.version);
+      MDC.put("d2s.version", d2s.version);
       switch (d2s.version) {
         case D2S.VERSION_110:
           D2SWriter96.writeHeader(d2s, out);
@@ -38,7 +37,7 @@ public enum D2SWriter {
           return;
       }
     } finally {
-      Log.remove("d2s.version");
+      MDC.remove("d2s.version");
     }
   }
 }

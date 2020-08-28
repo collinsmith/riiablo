@@ -1,8 +1,5 @@
 package com.riiablo.engine.client;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
@@ -14,6 +11,8 @@ import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.excel.Overlay;
 import com.riiablo.graphics.BlendMode;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 @All(com.riiablo.engine.client.component.Overlay.class)
 public class OverlayManager extends IteratingSystem {

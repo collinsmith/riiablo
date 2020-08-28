@@ -3,7 +3,6 @@ package com.riiablo.suggester;
 import java.util.Set;
 import java.util.SortedMap;
 
-import com.riiablo.Riiablo;
 import com.riiablo.console.Console;
 import com.riiablo.console.ConsoleUtils;
 import com.riiablo.util.StringUtils;
@@ -13,8 +12,9 @@ public enum LoggerSuggester implements Console.SuggestionProvider {
 
   @Override
   public int suggest(Console console, CharSequence buffer, String[] args, int targetArg) {
+    if (true) return 0;
     String arg = targetArg == args.length ? "" : args[targetArg];
-    SortedMap<String, ?> keys = Riiablo.logs.prefixMap(arg);
+    SortedMap<String, ?> keys = null;//Riiablo.logs.prefixMap(arg);
     switch (keys.size()) {
       case 0:
         return 0;

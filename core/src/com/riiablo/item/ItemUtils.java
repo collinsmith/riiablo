@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.excel.ItemEntry;
-import com.riiablo.log.Log;
+import com.riiablo.logger.MDC;
 
 public class ItemUtils {
   private ItemUtils() {}
@@ -31,14 +31,14 @@ public class ItemUtils {
   static PropertyList[] getGemProps(Gems.Entry gem) {
     PropertyList[] props = new PropertyList[Item.NUM_GEMPROPS];
     try {
-      Log.put("propList", "GEMPROPS_WEAPON");
+      MDC.put("propList", "GEMPROPS_WEAPON");
       props[Item.GEMPROPS_WEAPON] = PropertyList.obtain().add(gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
-      Log.put("propList", "GEMPROPS_ARMOR");
+      MDC.put("propList", "GEMPROPS_ARMOR");
       props[Item.GEMPROPS_ARMOR] = PropertyList.obtain().add(gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
-      Log.put("propList", "GEMPROPS_SHIELD");
+      MDC.put("propList", "GEMPROPS_SHIELD");
       props[Item.GEMPROPS_SHIELD] = PropertyList.obtain().add(gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
     } finally {
-      Log.remove("propList");
+      MDC.remove("propList");
     }
     return props;
   }

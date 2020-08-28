@@ -17,7 +17,7 @@ import com.riiablo.codec.D2;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.console.RenderedConsole;
 import com.riiablo.graphics.PaletteIndexedBatch;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LoggerRegistry;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.save.CharData;
 import com.riiablo.screen.GameScreen;
@@ -86,5 +86,5 @@ public class Riiablo {
   public static GameScreen            game;
   public static D2                    anim;
   public static Metrics               metrics;
-  public static LogManager            logs;
+  public static LoggerRegistry        logs;
 }

@@ -1,12 +1,12 @@
 package com.riiablo.save;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.utils.ObjectMap;
 
 import com.riiablo.io.ByteOutput;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 public class D2SWriterStub {
   private static final Logger log = LogManager.getLogger(D2SWriterStub.class);

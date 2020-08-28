@@ -1,7 +1,5 @@
 package com.riiablo.engine.client;
 
-import org.apache.logging.log4j.Logger;
-
 import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
@@ -10,7 +8,8 @@ import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 public class SkillCastHandler extends PassiveSystem {
   private static final Logger log = LogManager.getLogger(SkillCastHandler.class);

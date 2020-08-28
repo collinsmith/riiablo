@@ -2,7 +2,6 @@ package com.riiablo.save;
 
 import io.netty.buffer.ByteBufUtil;
 import java.util.Arrays;
-import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.utils.Array;
 
@@ -19,8 +18,9 @@ import com.riiablo.item.Item;
 import com.riiablo.item.ItemReader;
 import com.riiablo.item.PropertyList;
 import com.riiablo.item.Stat;
-import com.riiablo.log.Log;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+import com.riiablo.logger.MDC;
 import com.riiablo.util.DebugUtils;
 
 public class D2SReader96 {
@@ -82,11 +82,11 @@ public class D2SReader96 {
     d2s.alternate = in.readSafe32u();
     d2s.name = in.readString(Riiablo.MAX_NAME_LENGTH + 1);
     try {
-      Log.put("d2s.name", d2s.name);
+      MDC.put("d2s.name", d2s.name);
       log.debug("name: \"{}\"", d2s.name);
-      Log.tracef(log, "checksum: 0x%08X", d2s.checksum);
+      log.tracef("checksum: 0x%08X", d2s.checksum);
       d2s.flags = in.read32();
-      Log.debugf(log, "flags: 0x%08X [%s]", d2s.flags, d2s.getFlagsString());
+      log.debugf("flags: 0x%08X [%s]", d2s.flags, d2s.getFlagsString());
       d2s.charClass = in.readSafe8u();
       log.debug("charClass: {} ({})", d2s.charClass, DebugUtils.getClassString(d2s.charClass));
       in.skipBytes(2); // unknown
@@ -95,30 +95,30 @@ public class D2SReader96 {
       d2s.timestamp = in.read32();
       in.skipBytes(4); // unknown
       d2s.hotkeys = readInts(in, D2S.NUM_HOTKEYS);
-      if (log.isDebugEnabled()) log.debug("hotkeys: {}", Arrays.toString(d2s.hotkeys));
+      if (log.debugEnabled()) log.debug("hotkeys: {}", Arrays.toString(d2s.hotkeys));
       d2s.actions = new int[D2S.NUM_ACTIONS][D2S.NUM_BUTTONS];
       for (int i = 0; i < D2S.NUM_ACTIONS; i++) {
         final int[] actions = d2s.actions[i] = readInts(in, D2S.NUM_BUTTONS);
-        if (log.isDebugEnabled()) log.debug("actions[{}]: {}", i, Arrays.toString(actions));
+        if (log.debugEnabled()) log.debug("actions[{}]: {}", i, Arrays.toString(actions));
       }
       d2s.composites = in.readBytes(COF.Component.NUM_COMPONENTS);
-      if (log.isDebugEnabled()) log.debug("composites: {}", ByteBufUtil.hexDump(d2s.composites));
+      if (log.debugEnabled()) log.debug("composites: {}", ByteBufUtil.hexDump(d2s.composites));
       d2s.colors = in.readBytes(COF.Component.NUM_COMPONENTS);
-      if (log.isDebugEnabled()) log.debug("colors: {}", ByteBufUtil.hexDump(d2s.colors));
+      if (log.debugEnabled()) log.debug("colors: {}", ByteBufUtil.hexDump(d2s.colors));
       d2s.towns = in.readBytes(Riiablo.NUM_DIFFS);
-      if (log.isDebugEnabled()) log.debug("towns: {} ({})", ByteBufUtil.hexDump(d2s.towns), d2s.getTownsString());
+      if (log.debugEnabled()) log.debug("towns: {} ({})", ByteBufUtil.hexDump(d2s.towns), d2s.getTownsString());
       d2s.mapSeed = in.read32();
-      Log.debugf(log, "mapSeed: 0x%08X", d2s.mapSeed);
+      log.debugf("mapSeed: 0x%08X", d2s.mapSeed);
       try {
-        Log.put("d2s.section", "merc");
+        MDC.put("d2s.section", "merc");
         d2s.merc = readMercData(in);
       } finally {
-        Log.remove("d2s.section");
+        MDC.remove("d2s.section");
       }
       in.skipBytes(144); // realm data (unused)
       assert in.bytesRemaining() == 0 : "in.bytesRemaining(" + in.bytesRemaining() + ") > " + 0;
     } finally {
-      Log.remove("d2s.name");
+      MDC.remove("d2s.name");
     }
     return d2s;
   }
@@ -127,9 +127,9 @@ public class D2SReader96 {
     in = in.readSlice(MERC_SIZE);
     D2S.MercData merc = new D2S.MercData();
     merc.flags = in.read32();
-    Log.debugf(log, "merc.flags: 0x%08X", merc.flags);
+    log.debugf("merc.flags: 0x%08X", merc.flags);
     merc.seed = in.read32();
-    Log.debugf(log, "merc.seed: 0x%08X", merc.seed);
+    log.debugf("merc.seed: 0x%08X", merc.seed);
     merc.name = in.readSafe16u();
     log.debug("merc.name: {}", merc.name);
     merc.type = in.readSafe16u();
@@ -153,44 +153,44 @@ public class D2SReader96 {
 
   static D2S readRemaining(D2S d2s, ByteInput in, ItemReader itemReader) {
     try {
-      Log.put("d2s.name", d2s.name);
+      MDC.put("d2s.name", d2s.name);
 
-      Log.put("d2s.section", "quests");
+      MDC.put("d2s.section", "quests");
       d2s.quests = readQuestData(in);
 
-      Log.put("d2s.section", "waypoints");
+      MDC.put("d2s.section", "waypoints");
       d2s.waypoints = readWaypointData(in);
 
-      Log.put("d2s.section", "npcs");
+      MDC.put("d2s.section", "npcs");
       d2s.npcs = readNPCData(in);
 
-      Log.put("d2s.section", "stats");
+      MDC.put("d2s.section", "stats");
       d2s.stats = readStatData(in);
 
       recover(in, SKILLS_SIGNATURE, "skills");
-      Log.put("d2s.section", "skills");
+      MDC.put("d2s.section", "skills");
       d2s.skills = readSkillData(in);
 
       recover(in, ITEMS_SIGNATURE, "items");
-      Log.put("d2s.section", "items");
+      MDC.put("d2s.section", "items");
       d2s.items = readItemData(in, itemReader);
 
       recover(in, ITEMS_SIGNATURE, "corpse");
-      Log.put("d2s.section", "corpse");
+      MDC.put("d2s.section", "corpse");
       d2s.corpse = readItemData(in, itemReader);
 
       recover(in, MERC_SIGNATURE, "merc");
-      Log.put("d2s.section", "merc");
+      MDC.put("d2s.section", "merc");
       d2s.merc = readMercData(d2s.merc, in, itemReader);
 
       recover(in, GOLEM_SIGNATURE, "golem");
-      Log.put("d2s.section", "golem");
+      MDC.put("d2s.section", "golem");
       d2s.golem = readGolemData(in, itemReader);
 
       d2s.bodyRead = true;
     } finally {
-      Log.remove("d2s.section");
-      Log.remove("d2s.name");
+      MDC.remove("d2s.section");
+      MDC.remove("d2s.name");
     }
     return d2s;
   }
@@ -208,8 +208,8 @@ public class D2SReader96 {
     final byte[][] flags = quests.flags = new byte[D2S.NUM_DIFFS][];
     for (int i = 0; i < D2S.NUM_DIFFS; i++) {
       flags[i] = in.readBytes(D2S.QuestData.NUM_QUESTFLAGS);
-      if (log.isDebugEnabled()) {
-        Log.debugf(log, "quests.flags[%.4s]: %s",
+      if (log.debugEnabled()) {
+        log.debugf("quests.flags[%.4s]: %s",
             DebugUtils.getDifficultyString(i),
             ByteBufUtil.hexDump(flags[i]));
       }
@@ -231,8 +231,8 @@ public class D2SReader96 {
     final byte[][] flags = waypoints.flags = new byte[D2S.NUM_DIFFS][];
     for (int i = 0; i < D2S.NUM_DIFFS; i++) {
       flags[i] = readWaypointFlags(in);
-      if (log.isDebugEnabled()) {
-        Log.debugf(log, "waypoints.flags[%.4s]: %s",
+      if (log.debugEnabled()) {
+        log.debugf("waypoints.flags[%.4s]: %s",
             DebugUtils.getDifficultyString(i),
             ByteBufUtil.hexDump(flags[i]));
       }
@@ -261,8 +261,8 @@ public class D2SReader96 {
     for (int i = 0; i < D2S.NPCData.NUM_GREETINGS; i++) {
       for (int j = 0; j < D2S.NUM_DIFFS; j++) {
         flags[i][j] = in.readBytes(D2S.NPCData.NUM_INTROS);
-        if (log.isDebugEnabled()) {
-          Log.debugf(log, "npcs.flags[%s][%.4s]: %s",
+        if (log.debugEnabled()) {
+          log.debugf("npcs.flags[%s][%.4s]: %s",
               D2S.NPCData.getGreetingString(i),
               DebugUtils.getDifficultyString(j),
               ByteBufUtil.hexDump(flags[i][j]));
@@ -383,9 +383,11 @@ public class D2SReader96 {
     in = in.readSlice(SKILLS_SIZE - SKILLS_SIGNATURE.length);
     D2S.SkillData skills = new D2S.SkillData();
     skills.skills = in.readBytes(D2S.SkillData.NUM_TREES * D2S.SkillData.NUM_SKILLS);
-    if (log.isDebugEnabled()) {
+    if (log.debugEnabled()) {
       for (int i = 0, j = 0; i < D2S.SkillData.NUM_TREES; i++, j += D2S.SkillData.NUM_SKILLS) {
-        Log.debugf(log, "skills.skills[%d] = %s", i, ByteBufUtil.hexDump(skills.skills, j, D2S.SkillData.NUM_SKILLS));
+        log.debugf("skills.skills[%d] = %s",
+            i,
+            ByteBufUtil.hexDump(skills.skills, j, D2S.SkillData.NUM_SKILLS));
       }
     }
     assert in.bytesRemaining() == 0 : "in.bytesRemaining(" + in.bytesRemaining() + ") > " + 0;
@@ -402,20 +404,20 @@ public class D2SReader96 {
     int errors = 0;
     for (int i = 0; i < size; i++) {
       try {
-        Log.put("item", i);
+        MDC.put("item", i);
         final Item item = itemReader.readItem(in);
         log.debug("item: {}", item);
         itemList.add(item);
       } catch (SignatureMismatch t) {
-        log.warn(t);
+        log.warn(t.getMessage(), t);
         i--;
         itemReader.skipUntil(in.realign());
       } catch (InvalidFormat t) {
-        log.warn(t);
+        log.warn(t.getMessage(), t);
         errors++;
         itemReader.skipUntil(in.realign());
       } finally {
-        Log.remove("item");
+        MDC.remove("item");
       }
     }
     assert itemList.size == size : "itemList.size(" + itemList.size + ") != size(" + size + ")";

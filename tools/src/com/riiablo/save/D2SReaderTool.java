@@ -15,6 +15,8 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.io.ByteInput;
 import com.riiablo.item.ItemReader;
+import com.riiablo.logger.Level;
+import com.riiablo.logger.LogManager;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 public class D2SReaderTool extends ApplicationAdapter {
@@ -41,6 +43,9 @@ public class D2SReaderTool extends ApplicationAdapter {
     Riiablo.mpqs = new MPQFileHandleResolver();
     Riiablo.files = new Files(Riiablo.assets);
     Riiablo.string = new StringTBLs(Riiablo.mpqs);
+
+    LogManager.setLevel("com.riiablo.save", Level.ALL);
+    LogManager.setLevel("com.riiablo.item", Level.ALL);
 
     ItemReader itemReader = new ItemReader();
     D2SReader serializer = D2SReader.INSTANCE;

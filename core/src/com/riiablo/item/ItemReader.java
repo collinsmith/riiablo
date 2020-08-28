@@ -1,6 +1,5 @@
 package com.riiablo.item;
 
-import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.utils.Array;
 
@@ -9,8 +8,9 @@ import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
-import com.riiablo.log.Log;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+import com.riiablo.logger.MDC;
 
 public class ItemReader {
   private static final Logger log = LogManager.getLogger(ItemReader.class);
@@ -27,17 +27,17 @@ public class ItemReader {
     if (item.socketsFilled > 0) log.trace("Reading {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
       try {
-        Log.put("socket", i);
+        MDC.put("socket", i);
         in.skipUntil(SIGNATURE);
         item.sockets.add(readSingleItem(in));
       } finally {
-        Log.remove("socket");
+        MDC.remove("socket");
       }
     }
     final int endOffset = in.bytesRead();
     final int itemSize = endOffset - startOffset; // TODO: remove when serialization implemented
     item.data = in.duplicate(startOffset, itemSize); // TODO: remove when serialization implemented
-    if (log.isTraceEnabled()) {
+    if (log.traceEnabled()) {
       log.trace("size: {} (0x{}) (+{} .. +{})",
           itemSize,
           Integer.toHexString(itemSize),
@@ -56,7 +56,7 @@ public class ItemReader {
     Item item = new Item();
     item.reset();
     item.flags = in.read32();
-    Log.tracef(log, "flags: 0x%08X [%s]", item.flags, item.getFlagsString());
+    log.tracef("flags: 0x%08X [%s]", item.flags, item.getFlagsString());
     item.version = in.readSafe8u();
     log.trace("version: {}", item.version);
     final BitInput bits = in.unalign();
@@ -101,7 +101,7 @@ public class ItemReader {
 
   private static void readStandard(BitInput bits, Item item) {
     item.id = (int) bits.readRaw(32);
-    Log.tracef(log, "id: 0x%08X", item.id);
+    log.tracef("id: 0x%08X", item.id);
     item.ilvl = bits.read7u(7);
     item.quality = Quality.valueOf(bits.read7u(4));
     item.pictureId = bits.readBoolean() ? bits.read7u(3) : Item.NO_PICTURE_ID;
@@ -128,10 +128,10 @@ public class ItemReader {
     for (int i = 0; i < Item.NUM_PROPS; i++) {
       if (((listFlags >> i) & 1) == 1) {
         try {
-          Log.put("propList", Item.getPropListString(i));
+          MDC.put("propList", Item.getPropListString(i));
           props[i] = PropertyList.obtain().read(bits);
         } finally {
-          Log.remove("propList");
+          MDC.remove("propList");
         }
       }
     }

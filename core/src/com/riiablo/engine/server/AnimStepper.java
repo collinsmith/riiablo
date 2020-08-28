@@ -1,7 +1,5 @@
 package com.riiablo.engine.server;
 
-import org.apache.logging.log4j.Logger;
-
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IntervalIteratingSystem;
@@ -12,7 +10,8 @@ import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.AnimData;
 import com.riiablo.engine.server.event.AnimDataFinishedEvent;
 import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 @All(AnimData.class)
 public class AnimStepper extends IntervalIteratingSystem {

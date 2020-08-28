@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.spi.LoggerContext;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -28,6 +24,8 @@ import com.riiablo.command.ParameterException;
 import com.riiablo.console.Console;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.key.MappedKey;
+import com.riiablo.logger.Level;
+import com.riiablo.logger.LogManager;
 import com.riiablo.screen.SelectCharacterScreen3;
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.serializer.StringSerializer;
@@ -292,12 +290,11 @@ public class Commands {
         @Override
         public void onExecuted(Command.Instance instance) {
           String name = instance.getArg(0);
-          LoggerContext context = LogManager.getContext(false);
           Level level;
           if (name.equalsIgnoreCase("root")) {
-            level = context.getLogger(LogManager.ROOT_LOGGER_NAME).getLevel();
+            level = Riiablo.logs.getLevel(LogManager.ROOT);
           } else {
-            level = context.getLogger(name).getLevel();
+            level = Riiablo.logs.getLevel(name);
           }
           Riiablo.console.out.println(level);
         }
@@ -314,12 +311,12 @@ public class Commands {
         @Override
         public void onExecuted(Command.Instance instance) {
           String name = instance.getArg(0);
-          Level level = Level.toLevel(instance.getArg(1), null);
+          Level level = Level.valueOf(instance.getArg(1), null);
           if (level == null) {
             Riiablo.console.out.println("Unknown log level: " + instance.getArg(1));
             return;
           }
-          Configurator.setLevel(name, level);
+          Riiablo.logs.setLevel(name, level);
         }
       })
       .build();

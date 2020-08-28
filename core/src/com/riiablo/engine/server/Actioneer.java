@@ -1,7 +1,5 @@
 package com.riiablo.engine.server;
 
-import org.apache.logging.log4j.Logger;
-
 import com.artemis.ComponentMapper;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import net.mostlyoriginal.api.event.common.Subscribe;
@@ -24,7 +22,8 @@ import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
-import com.riiablo.log.LogManager;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 public class Actioneer extends PassiveSystem {
   private static final Logger log = LogManager.getLogger(Actioneer.class);
