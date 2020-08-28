@@ -132,7 +132,7 @@ public class CursorMovementSystem extends BaseSystem {
         if (interactable != null && srcPos.dst(targetPos) <= interactable.range) {
           setTarget(src, Engine.INVALID_ENTITY);
           interactable.interactor.interact(src, targetId);
-        } else {
+        } else if (interactable == null) { // TODO: change to check targetability of targetId
           setTarget(src, Engine.INVALID_ENTITY);
           actioneer.cast(src, Riiablo.charData.getAction(Input.Buttons.LEFT), targetId);
         }
