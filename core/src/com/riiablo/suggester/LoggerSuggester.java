@@ -11,6 +11,9 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+
 import com.riiablo.console.Console;
 import com.riiablo.console.ConsoleUtils;
 import com.riiablo.util.StringUtils;
@@ -23,17 +26,19 @@ public enum LoggerSuggester implements Console.SuggestionProvider {
   private static final Trie<String, String> riiabloClasspath;
   static {
     riiabloClasspath = new PatriciaTrie<>();
-    final String RIIABLO_PACKAGE = "com.riiablo";
-    ConfigurationBuilder reflectionsConfig = new ConfigurationBuilder()
-        .setUrls(ClasspathHelper.forPackage(RIIABLO_PACKAGE))
-        .setScanners(
-            new SubTypesScanner(false))
-        .filterInputsBy(new FilterBuilder().includePackage(RIIABLO_PACKAGE));
-    Reflections reflections = new Reflections(reflectionsConfig);
-    for (String str : reflections.getAllTypes()) {
-      str = org.apache.commons.lang3.StringUtils
-          .substringBefore(str, ClassUtils.INNER_CLASS_SEPARATOR);
-      riiabloClasspath.put(str, org.apache.commons.lang3.StringUtils.EMPTY);
+    if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+      final String RIIABLO_PACKAGE = "com.riiablo";
+      ConfigurationBuilder reflectionsConfig = new ConfigurationBuilder()
+          .setUrls(ClasspathHelper.forPackage(RIIABLO_PACKAGE))
+          .setScanners(
+              new SubTypesScanner(false))
+          .filterInputsBy(new FilterBuilder().includePackage(RIIABLO_PACKAGE));
+      Reflections reflections = new Reflections(reflectionsConfig);
+      for (String str : reflections.getAllTypes()) {
+        str = org.apache.commons.lang3.StringUtils
+            .substringBefore(str, ClassUtils.INNER_CLASS_SEPARATOR);
+        riiabloClasspath.put(str, org.apache.commons.lang3.StringUtils.EMPTY);
+      }
     }
   }
 
