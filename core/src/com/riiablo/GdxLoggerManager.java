@@ -1,8 +1,6 @@
 package com.riiablo;
 
 import android.support.annotation.NonNull;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.commons.collections4.Trie;
 
 import com.badlogic.gdx.Gdx;
@@ -120,20 +118,8 @@ public class GdxLoggerManager {
   }
 
   public void loadAll() {
-    log.trace("Loading existing contexts...");
-    Set<String> loaded = new HashSet<>();
-    for (String context : logs.getContexts().keySet()) {
-      try {
-        load(context);
-        loaded.add(context);
-      } catch (Throwable t) {
-        log.warn("Failed to load {}", getDebugName(context), t);
-      }
-    }
-
-    log.trace("Loading preferences...");
+    log.trace("Loading contexts...");
     for (String context : PREFERENCES.get().keySet()) {
-      if (loaded.contains(context)) continue;
       try {
         load(context);
       } catch (Throwable t) {
