@@ -140,10 +140,15 @@ public class CursorMovementSystem extends BaseSystem {
     }
   }
 
-  private boolean touchDown(int src) {
+  private int getHovered(int src) {
     IntBag hoveredEntities = hoveredSubscriber.getEntities();
-    if (hoveredEntities.size() == 0) return false;
-    int target = hoveredEntities.get(0);
+    if (hoveredEntities.size() == 0) return Engine.INVALID_ENTITY;
+    return hoveredEntities.get(0);
+  }
+
+  private boolean touchDown(int src) {
+    int target = getHovered(src);
+    if (target == Engine.INVALID_ENTITY) return false;
     setTarget(src, target);
     return true;
   }
