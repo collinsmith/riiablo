@@ -80,14 +80,14 @@ public class CursorMovementSystem extends BaseSystem {
     boolean hit = hit1 != null || hit2 != null;
     if (hit) return;
 
-    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && UIUtils.shift()) {
+    final boolean leftPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+    if ((leftPressed && UIUtils.shift()) || Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
       setTarget(renderer.getSrc(), Engine.INVALID_ENTITY);
+      final int playerId = renderer.getSrc();
+      final int skillId = Riiablo.charData.getAction(leftPressed ? Input.Buttons.LEFT : Input.Buttons.RIGHT);
       iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
-      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.LEFT), Engine.INVALID_ENTITY, tmpVec2);
-    } else if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-      setTarget(renderer.getSrc(), Engine.INVALID_ENTITY);
-      iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
-      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.RIGHT), Engine.INVALID_ENTITY, tmpVec2);
+      final int targetId = getHovered(playerId);
+      actioneer.cast(playerId, skillId, targetId, tmpVec2);
     } else {
       updateLeft();
     }
