@@ -107,7 +107,7 @@ public class GdxLoggerManager {
   }
 
   public void saveAll() {
-    for (String context : Riiablo.logs.getContexts().keySet()) {
+    for (String context : logs.getContexts().keySet()) {
       try {
         save(context);
       } catch (Throwable t) {
