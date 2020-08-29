@@ -2,6 +2,7 @@ package com.riiablo.logger;
 
 import java.util.SortedMap;
 import org.apache.commons.collections4.Trie;
+import org.apache.commons.collections4.TrieUtils;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,5 +94,13 @@ public class LoggerRegistry {
         : loggers.prefixMap(pkg).values()) {
       logger.bind(context, force);
     }
+  }
+
+  public Trie<String, Level> getContexts() {
+    return TrieUtils.unmodifiableTrie(contexts);
+  }
+
+  public Trie<String, Logger> getLoggers() {
+    return TrieUtils.unmodifiableTrie(loggers);
   }
 }
