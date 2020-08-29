@@ -47,11 +47,13 @@ public class Actioneer extends PassiveSystem {
     return true;
   }
 
-  public void cast(int entityId, int skillId, Vector2 targetVec) {
+  public void cast(int entityId, int skillId, int targetId, Vector2 targetVec) {
     if (!canCast(entityId)) return;
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
-    log.traceEntry("cast(entityId: {}, skillId: {} ({}))", entityId, skillId, skill);
+    log.traceEntry("cast(entityId: {}, skillId: {} ({}), targetId: {}, targetVec: {})",
+        entityId, skillId, skill, targetId, targetVec);
 
+    targetVec = targetVec != null ? targetVec.cpy() : Vector2.Zero;
     final Class.Type type = mClass.get(entityId).type;
     byte mode = (byte) type.getMode(skill.anim);
     log.trace("mode: {}", mode);
@@ -60,32 +62,28 @@ public class Actioneer extends PassiveSystem {
       log.trace("mode changed to {} because it was invalid", mode);
     }
 
-    if (!targetVec.isZero()) {
     Vector2 entityPos = mPosition.get(entityId).position;
     mAngle.get(entityId).target.set(targetVec).sub(entityPos).nor();
-    }
-
     mSequence.create(entityId).sequence(mode, mMovementModes.get(entityId).NU);
-    mCasting.create(entityId).set(skillId, targetVec);
-    events.dispatch(SkillCastEvent.obtain(entityId, skillId));
+    mCasting.create(entityId).set(skillId, targetId, targetVec);
+    events.dispatch(SkillCastEvent.obtain(entityId, skillId, targetId, targetVec));
 
-    srvstfunc(entityId, skill.srvstfunc, targetVec);
-    events.dispatch(SkillStartEvent.obtain(entityId, skillId, skill.srvstfunc, skill.cltstfunc));
-  }
-
-  public void cast(int entityId, int skillId, int targetId) {
-    Vector2 targetVec = mPosition.get(targetId).position;
-    cast(entityId, skillId, targetVec);
+    srvstfunc(entityId, skill.srvstfunc, targetId, targetVec);
+    events.dispatch(SkillStartEvent.obtain(entityId, skillId, targetId, targetVec, skill.srvstfunc, skill.cltstfunc));
   }
 
   @Subscribe
   public void onAnimDataKeyframe(AnimDataKeyframeEvent event) {
     if (!mCasting.has(event.entityId)) return;
-    log.traceEntry("onAnimDataKeyframe(entityId: {}, keyframe: {} ({}))", event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
+    log.traceEntry("onAnimDataKeyframe(entityId: {}, keyframe: {} ({}))",
+        event.entityId, event.keyframe, Engine.getKeyframe(event.keyframe));
     final Casting casting = mCasting.get(event.entityId);
     final Skills.Entry skill = Riiablo.files.skills.get(casting.skillId);
-    srvdofunc(event.entityId, skill.srvdofunc, casting.target);
-    events.dispatch(SkillDoEvent.obtain(event.entityId, casting.skillId, skill.srvdofunc, skill.cltdofunc));
+    srvdofunc(event.entityId, skill.srvdofunc, casting.targetId, casting.targetVec);
+    events.dispatch(SkillDoEvent.obtain(
+        event.entityId, casting.skillId,
+        casting.targetId, casting.targetVec,
+        skill.srvdofunc, skill.cltdofunc));
   }
 
   @Subscribe
@@ -95,8 +93,9 @@ public class Actioneer extends PassiveSystem {
     mCasting.remove(event.entityId);
   }
 
-  private void srvstfunc(int entityId, int srvstfunc, Vector2 target) {
-    log.traceEntry("srvstfunc(entityId: {}, srvstfunc: {})", entityId, srvstfunc);
+  private void srvstfunc(int entityId, int srvstfunc, int targetId, Vector2 targetVec) {
+    log.traceEntry("srvstfunc(entityId: {}, srvstfunc: {}, targetId: {}, targetVec: {})",
+        entityId, srvstfunc, targetId, targetVec);
     switch (srvstfunc) {
       case 0:
         break;
@@ -109,17 +108,18 @@ public class Actioneer extends PassiveSystem {
     }
   }
 
-  private void srvdofunc(int entityId, int srvdofunc, Vector2 target) {
-    log.traceEntry("srvdofunc(entityId: {}, srvdofunc: {})", entityId, srvdofunc);
+  private void srvdofunc(int entityId, int srvdofunc, int targetId, Vector2 targetVec) {
+    log.traceEntry("srvdofunc(entityId: {}, srvdofunc: {}, targetId: {}, targetVec: {})",
+        entityId, srvdofunc, targetId, targetVec);
     switch (srvdofunc) {
       case 0:
         break;
       case 1: // attack
         break;
       case 27: // teleport
-        mPosition.get(entityId).position.set(target);
+        mPosition.get(entityId).position.set(targetVec);
         Box2DBody box2dWrapper = mBox2DBody.get(entityId);
-        if (box2dWrapper != null) box2dWrapper.body.setTransform(target, 0);
+        if (box2dWrapper != null) box2dWrapper.body.setTransform(targetVec, 0);
         break;
       default:
         log.warn("Unsupported srvdofunc({}) for {}", srvdofunc, entityId);

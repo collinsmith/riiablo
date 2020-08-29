@@ -83,11 +83,11 @@ public class CursorMovementSystem extends BaseSystem {
     if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && UIUtils.shift()) {
       setTarget(renderer.getSrc(), Engine.INVALID_ENTITY);
       iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
-      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.LEFT), tmpVec2);
+      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.LEFT), Engine.INVALID_ENTITY, tmpVec2);
     } else if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
       setTarget(renderer.getSrc(), Engine.INVALID_ENTITY);
       iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
-      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.RIGHT), tmpVec2);
+      actioneer.cast(renderer.getSrc(), Riiablo.charData.getAction(Input.Buttons.RIGHT), Engine.INVALID_ENTITY, tmpVec2);
     } else {
       updateLeft();
     }
@@ -134,7 +134,7 @@ public class CursorMovementSystem extends BaseSystem {
           interactable.interactor.interact(src, targetId);
         } else if (interactable == null) { // TODO: change to check targetability of targetId
           setTarget(src, Engine.INVALID_ENTITY);
-          actioneer.cast(src, Riiablo.charData.getAction(Input.Buttons.LEFT), targetId);
+          actioneer.cast(src, Riiablo.charData.getAction(Input.Buttons.LEFT), targetId, targetPos);
         }
       }
     }

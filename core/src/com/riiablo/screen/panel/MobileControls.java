@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
+import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.event.InteractEvent;
 import com.riiablo.engine.server.Actioneer;
 import com.riiablo.widget.Button;
@@ -92,7 +93,7 @@ public class MobileControls extends WidgetGroup implements Disposable {
         HotkeyButton actor = (HotkeyButton) event.getListenerActor();
         final int skillId = actor.getSkill();
         if (skillId == -1) return;
-        actioneer.cast(Riiablo.game.player, skillId, Vector2.Zero);
+        actioneer.cast(Riiablo.game.player, skillId, Engine.INVALID_ENTITY, Vector2.Zero);
         // TODO: above target is placeholder
       }
     };

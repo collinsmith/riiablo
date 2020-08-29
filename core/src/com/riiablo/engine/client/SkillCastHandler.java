@@ -22,7 +22,8 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void srvstfunc(SkillStartEvent event) {
-    log.traceEntry("srvstfunc(entityId: {}, srvstfunc: {})", event.entityId, event.srvstfunc);
+    log.traceEntry("srvstfunc(entityId: {}, srvstfunc: {}, targetId: {}, targetVec: {})",
+        event.entityId, event.srvstfunc, event.targetId, event.targetVec);
     switch (event.srvstfunc) {
       case 0:
         break;
@@ -34,7 +35,8 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void srvdofunc(SkillDoEvent event) {
-    log.traceEntry("srvdofunc(entityId: {}, srvdofunc: {})", event.entityId, event.srvdofunc);
+    log.traceEntry("srvdofunc(entityId: {}, srvdofunc: {}, targetId: {}, targetVec: {})",
+        event.entityId, event.srvdofunc, event.targetId, event.targetVec);
     switch (event.srvdofunc) {
       case 0:
         break;
@@ -51,7 +53,8 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void cltstfunc(SkillStartEvent event) {
-    log.traceEntry("cltstfunc(entityId: {}, cltstfunc: {})", event.entityId, event.cltstfunc);
+    log.traceEntry("cltstfunc(entityId: {}, cltstfunc: {}, targetId: {}, targetVec: {})",
+        event.entityId, event.cltstfunc, event.targetId, event.targetVec);
     final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
     Riiablo.audio.play(skill.stsound, true);
 
@@ -76,7 +79,8 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void cltdofunc(SkillDoEvent event) {
-    log.traceEntry("cltdofunc(entityId: {}, cltdofunc: {})", event.entityId, event.cltdofunc);
+    log.traceEntry("cltdofunc(entityId: {}, cltdofunc: {}, targetId: {}, targetVec: {})",
+        event.entityId, event.cltdofunc, event.targetId, event.targetVec);
     final Skills.Entry skill = Riiablo.files.skills.get(event.skillId);
     Riiablo.audio.play(skill.dosound, true);
 
