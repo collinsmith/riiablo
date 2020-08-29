@@ -3,7 +3,9 @@ package com.riiablo;
 import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.Trie;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.badlogic.gdx.Gdx;
@@ -25,7 +27,8 @@ import com.riiablo.console.Console;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.key.MappedKey;
 import com.riiablo.logger.Level;
-import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+import com.riiablo.logger.LoggerRegistry;
 import com.riiablo.screen.SelectCharacterScreen3;
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.serializer.StringSerializer;
@@ -282,41 +285,77 @@ public class Commands {
       })
       .build();
 
-  public static final Command getlogger = Command.builder()
-      .alias("getlogger")
-      .description("Prints the log level for the specified logger")
-      .params(Parameter.of(String.class).suggester(LoggerSuggester.INSTANCE))
+  public static final Command loggers = Command.builder()
+      .alias("loggers")
+      .description("Prints the log level of all instanced loggers")
       .action(new Action() {
         @Override
         public void onExecuted(Command.Instance instance) {
-          String name = instance.getArg(0);
-          Level level;
-          if (name.equalsIgnoreCase("root")) {
-            level = Riiablo.logs.getLevel(LogManager.ROOT);
-          } else {
-            level = Riiablo.logs.getLevel(name);
+          Trie<String, Logger> loggers = Riiablo.logs.getLoggers();
+          for (Map.Entry<String, Logger> logger : loggers.entrySet()) {
+            Riiablo.console.out.format("%s \"%s\"%n",
+                Riiablo.logs.getDebugName(logger.getKey()),
+                logger.getValue().level());
           }
-          Riiablo.console.out.println(level);
         }
       })
       .build();
 
-  public static final Command setlogger = Command.builder()
-      .alias("setlogger")
-      .description("Sets the log level for the specified logger")
+  public static final Command levels = Command.builder()
+      .alias("levels").alias("contexts")
+      .description("Prints the log level of all logger contexts")
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          Trie<String, Level> loggers = Riiablo.logs.getContexts();
+          for (Map.Entry<String, Level> logger : loggers.entrySet()) {
+            Riiablo.console.out.format("%s \"%s\"%n",
+                Riiablo.logs.getDebugName(logger.getKey()),
+                logger.getValue());
+          }
+        }
+      })
+      .build();
+
+  public static final Command getlevel = Command.builder()
+      .alias("getlevel")
+      .description("Prints the log level of the specified logger context")
+      .params(Parameter.of(String.class).suggester(LoggerSuggester.INSTANCE))
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          String alias = instance.getArg(0);
+          if (alias.equalsIgnoreCase("root")) {
+            alias = LoggerRegistry.ROOT;
+          }
+
+          Level level = Riiablo.logs.getLevel(alias);
+          Riiablo.console.out.format("%s = %s%n", Riiablo.logs.getDebugName(alias), level);
+        }
+      })
+      .build();
+
+  public static final Command setlevel = Command.builder()
+      .alias("setlevel")
+      .description("Sets the log level of the specified logger context")
       .params(
           Parameter.of(String.class).suggester(LoggerSuggester.INSTANCE),
           Parameter.of(String.class).suggester(LoggerLevelSuggester.INSTANCE))
       .action(new Action() {
         @Override
         public void onExecuted(Command.Instance instance) {
-          String name = instance.getArg(0);
-          Level level = Level.valueOf(instance.getArg(1), null);
+          Level level = Level.valueOf(instance.getArg(1).toUpperCase(), null);
           if (level == null) {
             Riiablo.console.out.println("Unknown log level: " + instance.getArg(1));
             return;
           }
-          Riiablo.logs.setLevel(name, level);
+
+          String alias = instance.getArg(0);
+          if (alias.equalsIgnoreCase("root")) {
+            alias = LoggerRegistry.ROOT;
+          }
+
+          Riiablo.logs.setLevel(alias, level);
         }
       })
       .build();

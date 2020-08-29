@@ -116,7 +116,7 @@ public class Client extends Game {
   private CharData              charData;
   private D2                    anim;
   private Metrics               metrics;
-  private LoggerRegistry        logs;
+  private GdxLoggerManager      logs;
 
   private boolean forceWindowed;
   private boolean forceDrawFps;
@@ -221,11 +221,11 @@ public class Client extends Game {
     Riiablo.client = this;
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-    Riiablo.logs = logs = LogManager.getRegistry();
-    logs.setLevel(LoggerRegistry.ROOT, Level.DEBUG, true);
-    logs.setLevel("com.riiablo.save", Level.DEBUG);
-    logs.setLevel("com.riiablo.item", Level.DEBUG);
-    logs.setLevel("com.riiablo.engine", Level.TRACE);
+    final LoggerRegistry registry = LogManager.getRegistry();
+    registry.setLevel(LoggerRegistry.ROOT, Level.DEBUG, true); // required to init root properly
+
+    Riiablo.logs = logs = new GdxLoggerManager(registry);
+    logs.loadAll();
 
     // This is needed so that home is in a platform-dependent handle
     Riiablo.home = home = Gdx.files.absolute(home.path());
@@ -239,7 +239,7 @@ public class Client extends Game {
     try {
       System.setOut(console.out);
       System.setErr(console.out);
-      logs.getRoot().addAppender(new OutputStreamAppender(System.out));
+      registry.getRoot().addAppender(new OutputStreamAppender(System.out));
     } catch (SecurityException e) {
       console.out.println("stdout could not be redirected to console: " + e.getMessage());
       throw new GdxRuntimeException("Unable to bind console out.", e);
@@ -548,6 +548,9 @@ public class Client extends Game {
     shader.dispose();
     Gdx.app.debug(TAG, "Disposing batch...");
     batch.dispose();
+
+    Gdx.app.debug(TAG, "Saving loggers...");
+    logs.saveAll();
 
     Collection<Throwable> throwables;
     Gdx.app.debug(TAG, "Saving CVARS...");
