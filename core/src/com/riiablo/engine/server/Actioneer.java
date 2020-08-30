@@ -11,6 +11,7 @@ import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.Angle;
+import com.riiablo.engine.server.component.AttributesWrapper;
 import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.Casting;
 import com.riiablo.engine.server.component.Class;
@@ -22,6 +23,8 @@ import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
+import com.riiablo.item.Attributes;
+import com.riiablo.item.Stat;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
@@ -33,6 +36,7 @@ public class Actioneer extends PassiveSystem {
   protected ComponentMapper<MovementModes> mMovementModes;
   protected ComponentMapper<Casting> mCasting;
   protected ComponentMapper<Angle> mAngle;
+  protected ComponentMapper<AttributesWrapper> mAttributesWrapper;
 
   // teleport-specific components
   protected ComponentMapper<Position> mPosition;
@@ -115,6 +119,11 @@ public class Actioneer extends PassiveSystem {
       case 0:
         break;
       case 1: // attack
+        if (targetId == Engine.INVALID_ENTITY) return;
+        log.debug("{} attack {}", entityId, targetId);
+
+        Attributes attrs = mAttributesWrapper.get(targetId).attrs;
+        log.debug("{} {}", targetId, attrs.get(Stat.hitpoints));
         break;
       case 27: // teleport
         mPosition.get(entityId).position.set(targetVec);
