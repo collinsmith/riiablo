@@ -1,9 +1,14 @@
 package com.riiablo.engine.server;
 
+import java.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.artemis.ComponentMapper;
+
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.riiablo.save.CharData;
+
 import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
 import com.riiablo.codec.excel.Levels;
@@ -16,6 +21,7 @@ import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.component.AIWrapper;
 import com.riiablo.engine.server.component.Angle;
+import com.riiablo.engine.server.component.AttributesWrapper;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.CofAlphas;
 import com.riiablo.engine.server.component.CofComponents;
@@ -36,13 +42,12 @@ import com.riiablo.engine.server.component.Size;
 import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.engine.server.component.Warp;
 import com.riiablo.engine.server.component.ZoneAware;
+import com.riiablo.item.Attributes;
+import com.riiablo.item.PropertyList;
+import com.riiablo.item.Stat;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
+import com.riiablo.save.CharData;
 
 public class ServerEntityFactory extends EntityFactory {
   private static final String TAG = "ServerEntityFactory";
@@ -67,6 +72,7 @@ public class ServerEntityFactory extends EntityFactory {
   protected ComponentMapper<Missile> mMissile;
   protected ComponentMapper<AIWrapper> mAIWrapper;
   protected ComponentMapper<MapWrapper> mMapWrapper;
+  protected ComponentMapper<AttributesWrapper> mAttributesWrapper;
 
   protected ObjectInteractor objectInteractor;
   protected WarpInteractor warpInteractor;
@@ -76,6 +82,7 @@ public class ServerEntityFactory extends EntityFactory {
   public int createPlayer(CharData charData, Vector2 position) {
     int id = super.createEntity(Class.Type.PLR, "player");
     mPlayer.create(id).data = charData;
+    mAttributesWrapper.create(id).attrs = charData.getStats();
     mMapWrapper.create(id).set(map, map.getZone(position));
 
     mPosition.create(id).position.set(position);
@@ -144,6 +151,17 @@ public class ServerEntityFactory extends EntityFactory {
 
     int id = super.createEntity(Class.Type.MON, monstats.Id);
     mMonster.create(id).set(monstats, monstats2);
+
+    // TODO: move this somewhere else (a special class?)
+    {
+      Attributes attrs = new Attributes();
+      PropertyList base = attrs.base();
+      base.clear();
+      base.put(Stat.hitpoints, MathUtils.random(monstats.minHP[0], monstats.maxHP[0]));
+
+      attrs.reset(); // propagate base changes
+      mAttributesWrapper.create(id).attrs = attrs;
+    }
 
     mPosition.create(id).position.set(x, y);
     mVelocity.create(id).set(monstats.Velocity, monstats.Run);
