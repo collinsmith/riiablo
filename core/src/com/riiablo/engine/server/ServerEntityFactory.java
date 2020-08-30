@@ -157,7 +157,11 @@ public class ServerEntityFactory extends EntityFactory {
       Attributes attrs = new Attributes();
       PropertyList base = attrs.base();
       base.clear();
-      base.put(Stat.hitpoints, MathUtils.random(monstats.minHP[0], monstats.maxHP[0]));
+      final float hitpoints = MathUtils.random(monstats.minHP[0], monstats.maxHP[0]);
+      // FIXME: this can be more elegant -- add support for putting float or auto converting?
+      final int encodedHitpoints = Stat.encodeFloat(hitpoints, 8); // see above note, this is crude
+      base.put(Stat.hitpoints, encodedHitpoints);
+      base.put(Stat.maxhp, encodedHitpoints);
 
       attrs.reset(); // propagate base changes
       mAttributesWrapper.create(id).attrs = attrs;

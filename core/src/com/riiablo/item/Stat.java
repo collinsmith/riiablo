@@ -820,6 +820,14 @@ public class Stat implements Comparable<Stat> {
     return ((val >>> shift) + ((val & mask) / (float) pow));
   }
 
+  public void setFloat(float value) {
+    this.val = encodeFloat(value, entry.ValShift);
+  }
+
+  public static int encodeFloat(float value, int precision) {
+    return (int) (value * (1 << precision));
+  }
+
   public long toLong() {
     return UnsignedInts.toLong(val);
   }
