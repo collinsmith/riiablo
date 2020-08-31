@@ -122,6 +122,10 @@ abstract class AbstractLogger {
     logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, params));
   }
 
+  public final void tracefEntry(final String message, final Object... params) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, params));
+  }
+
   private StackTraceElement getLocation() {
     return getLocation(FQCN);
   }
