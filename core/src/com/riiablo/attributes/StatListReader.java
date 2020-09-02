@@ -10,6 +10,7 @@ public class StatListReader {
   private static final Logger log = LogManager.getLogger(StatListReader.class);
 
   public StatGetter read(StatListBuilder stats, short stat, BitInput bits) {
+    log.traceEntry("read(stats: {}, stat: {}, bits: {})", stats, stat, bits);
     final ItemStatCost.Entry entry = Stat.entry(stat);
     final int param, value;
     if (entry.Saved) {
