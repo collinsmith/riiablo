@@ -14,7 +14,7 @@ public abstract class Attributes implements Iterable<StatGetter> {
    * descriptions
    */
 
-  public static AggregateAttributes fixedAttributes() {
+  public static AggregateAttributes aggregateAttributes() {
     return new AggregateAttributes();
   }
 
