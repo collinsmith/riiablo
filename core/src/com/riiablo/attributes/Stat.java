@@ -392,7 +392,8 @@ public class Stat {
   }
 
   static boolean hasParams(short stat) {
-    return false; // TODO: determine if stat requires params
+    final ItemStatCost.Entry entry = entry(stat);
+    return entry.Encode >= 1 && entry.Encode <= 3; // TODO: determine if stat requires params
   }
 
   private Stat() {}
