@@ -23,12 +23,12 @@ public final class StatGetter {
   }
 
   /** @see StatList#param(int) */
-  int param(short stat) {
+  int param() {
     return stats.param(index);
   }
 
   /** @see StatList#value(int) */
-  int value(short stat) {
+  int value() {
     return stats.value(index);
   }
 
