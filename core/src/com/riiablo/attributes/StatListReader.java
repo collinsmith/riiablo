@@ -12,12 +12,13 @@ public class StatListReader {
   public StatGetter read(StatListBuilder stats, short stat, BitInput bits) {
     final ItemStatCost.Entry entry = Stat.entry(stat);
     final int param, value;
-    log.trace("entry.Saved: {}", entry.Saved);
     if (entry.Saved) {
+      log.trace("Reading character save stat...");
       assert !entry.CSvSigned : "entry.CSvSigned(" + entry.CSvSigned + ") unsupported";
       param = (int) bits.read63u(entry.CSvParam);
       value = (int) bits.read63u(entry.CSvBits);
     } else {
+      log.trace("Reading stat...");
       param = (int) bits.read63u(entry.Save_Param_Bits);
       value = (int) bits.read63u(entry.Save_Bits) - entry.Save_Add;
     }
@@ -27,14 +28,19 @@ public class StatListReader {
   public StatListGetter read(StatListBuilder stats, BitInput bits) {
     log.traceEntry("read(stats: {}, bits: {})", stats, bits);
     for (short stat; (stat = bits.read15u(Stat.BITS)) != Stat.NONE;) {
-      final byte numEncoded = Stat.getNumEncoded(stat);
       try {
-        if (numEncoded > 1) MDC.put("numEncoded", numEncoded);
-        for (short j = stat, s = (short) (stat + numEncoded); j < s; j++) {
-          read(stats, j, bits);
+        MDC.put("stat", stat);
+        final byte numEncoded = Stat.getNumEncoded(stat);
+        try {
+          if (numEncoded > 1) MDC.put("numEncoded", numEncoded);
+          for (short j = stat, s = (short) (stat + numEncoded); j < s; j++) {
+            read(stats, j, bits);
+          }
+        } finally {
+          MDC.remove("numEncoded");
         }
       } finally {
-        MDC.remove("numEncoded");
+        MDC.remove("stat");
       }
     }
 
