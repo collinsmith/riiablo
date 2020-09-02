@@ -73,11 +73,12 @@ public final class StatList {
     return this;
   }
 
-  public void clear() {
+  public StatList clear() {
     assertMutable();
     size = 0;
     tail = 0;
     numLists = 0;
+    return this;
   }
 
   public int size() {
