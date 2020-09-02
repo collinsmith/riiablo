@@ -10,22 +10,27 @@ public final class StatListGetter {
     this.list = list;
   }
 
+  /** @see StatList#param(int) */
   int param(short stat) {
     return stats.param(indexOf(stat));
   }
 
+  /** @see StatList#value(int) */
   int value(short stat) {
     return stats.value(indexOf(stat));
   }
 
+  /** @see StatList#indexOf(int, short) */
   int indexOf(short stat) {
     return stats.indexOf(list, stat);
   }
 
+  /** @see StatList#contains(int, short) */
   public boolean contains(short stat) {
     return stats.contains(list, stat);
   }
 
+  /** @see StatList#indexOf(int, short) */
   public StatGetter get(short stat) {
     final int index = indexOf(stat);
     if (index < 0) return null;
@@ -43,14 +48,17 @@ public final class StatListGetter {
     stats.addAll(list, src.stats, src.list);
   }
 
+  /** @see StatList#indexIterator(int) */
   public StatList.IndexIterator indexIterator() {
     return stats.indexIterator(list);
   }
 
+  /** @see StatList#statIterator(int) */
   public StatList.StatIterator statIterator() {
     return stats.statIterator(list);
   }
 
+  /** @see StatList#listDebugString(int) */
   public String debugString() {
     return stats.listDebugString(list);
   }
