@@ -47,12 +47,18 @@ public class StatListReader {
     return stats.get();
   }
 
+  /**
+   * Reads a single property list into {@link Attributes#base()}
+   */
   public StatListGetter read(Attributes attrs, BitInput bits) {
     final StatList stats = attrs.base().clear();
     final StatListBuilder builder = stats.buildList();
     return read(builder, bits);
   }
 
+  /**
+   * Reads property lists into {@link Attributes#list()}
+   */
   public StatList read(Attributes attrs, BitInput bits, int flags, int maxLists) {
     final StatList stats = attrs.list().clear();
     for (int i = 0; i < maxLists; i++) {
