@@ -1,6 +1,7 @@
 package com.riiablo.attributes;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -55,5 +56,63 @@ public class StatListReaderTest {
     final Attributes attrs = Attributes.aggregateAttributes();
     final StatListReader reader = new StatListReader();
     reader.read(attrs.base().buildList(), bits);
+  }
+
+  @Test
+  public void read_item_grief_stats() {
+    final byte[] bytes = {
+        (byte) 0x4A, (byte) 0x4D, (byte) 0x10, (byte) 0x08, (byte) 0x80,
+        (byte) 0x04, (byte) 0x64, (byte) 0x00, (byte) 0x10, (byte) 0x72,
+        (byte) 0x33, (byte) 0x26, (byte) 0x07, (byte) 0xD2, (byte) 0x0A,
+        (byte) 0x0C, (byte) 0x57, (byte) 0x3B, (byte) 0xED, (byte) 0x90,
+        (byte) 0x24, (byte) 0x28, (byte) 0x00, (byte) 0xF5, (byte) 0xDF,
+        (byte) 0xCA, (byte) 0xA2, (byte) 0xCB, (byte) 0xEC, (byte) 0x4D,
+        (byte) 0xE2, (byte) 0x39, (byte) 0x8D, (byte) 0x3D, (byte) 0x16,
+        (byte) 0x8D, (byte) 0xE6, (byte) 0x3D, (byte) 0x50, (byte) 0x2F,
+        (byte) 0xFE, (byte) 0x03, (byte) 0x4A, (byte) 0x4D, (byte) 0x10,
+        (byte) 0x00, (byte) 0xA0, (byte) 0x00, (byte) 0x64, (byte) 0x18,
+        (byte) 0x00, (byte) 0x20, (byte) 0x07, (byte) 0x53, (byte) 0x03,
+        (byte) 0x02, (byte) 0x4A, (byte) 0x4D, (byte) 0x10, (byte) 0x00,
+        (byte) 0xA0, (byte) 0x00, (byte) 0x64, (byte) 0x18, (byte) 0x02,
+        (byte) 0x20, (byte) 0x07, (byte) 0x33, (byte) 0x03, (byte) 0x02,
+        (byte) 0x4A, (byte) 0x4D, (byte) 0x10, (byte) 0x00, (byte) 0xA0,
+        (byte) 0x00, (byte) 0x64, (byte) 0x18, (byte) 0x04, (byte) 0x20,
+        (byte) 0x27, (byte) 0x83, (byte) 0x03, (byte) 0x02, (byte) 0x4A,
+        (byte) 0x4D, (byte) 0x10, (byte) 0x00, (byte) 0xA0, (byte) 0x00,
+        (byte) 0x64, (byte) 0x18, (byte) 0x06, (byte) 0x20, (byte) 0x27,
+        (byte) 0x33, (byte) 0x03, (byte) 0x02, (byte) 0x4A, (byte) 0x4D,
+        (byte) 0x10, (byte) 0x00, (byte) 0xA0, (byte) 0x00, (byte) 0x64,
+        (byte) 0x18, (byte) 0x08, (byte) 0x20, (byte) 0x07, (byte) 0x83,
+        (byte) 0x03, (byte) 0x02
+    };
+
+    final BitInput bits = ByteInput.wrap(bytes).skipBytes(24).unalign().skipBits(5);
+    final Attributes attrs = Attributes.aggregateAttributes();
+    final StatListReader reader = new StatListReader();
+    final StatListGetter stats = reader.read(attrs.base().buildList(), bits);
+    Assert.assertTrue(stats.contains(Stat.item_healafterkill));
+    Assert.assertEquals(11, stats.get(Stat.item_healafterkill).value1());
+    Assert.assertTrue(stats.contains(Stat.item_fasterattackrate));
+    Assert.assertEquals(31, stats.get(Stat.item_fasterattackrate).value1());
+    Assert.assertTrue(stats.contains(Stat.item_damage_demon_perlevel));
+    Assert.assertEquals(15, stats.get(Stat.item_damage_demon_perlevel).value1());
+
+    Assert.assertTrue(stats.contains(Stat.item_normaldamage));
+    Assert.assertEquals(373, stats.get(Stat.item_normaldamage).value1());
+
+
+    Assert.assertTrue(stats.contains(Stat.item_ignoretargetac));
+    Assert.assertEquals(1, stats.get(Stat.item_ignoretargetac).value1());
+
+    Assert.assertTrue(stats.contains(Stat.item_skillonhit));
+    Assert.assertEquals(15, stats.first(Stat.item_skillonhit).param1());
+    Assert.assertEquals(278, stats.first(Stat.item_skillonhit).param2());
+    Assert.assertEquals(35, stats.first(Stat.item_skillonhit).value1());
+
+    Assert.assertTrue(stats.contains(Stat.item_damage_demon_perlevel));
+    Assert.assertEquals(15, stats.get(Stat.item_damage_demon_perlevel).value1());
+
+    Assert.assertTrue(stats.contains(Stat.passive_pois_pierce));
+    Assert.assertEquals(23, stats.get(Stat.passive_pois_pierce).value1());
   }
 }
