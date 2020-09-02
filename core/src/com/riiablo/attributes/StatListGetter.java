@@ -67,40 +67,4 @@ public final class StatListGetter {
   public String toString() {
     return debugString();
   }
-
-//  public int asInt(short stat) {
-//    return stats.asInt(indexOf(stat));
-//  }
-
-//  public long asLong(short stat) {
-//    return stats.asLong(indexOf(stat));
-//  }
-
-//  public float asFixed(short stat) {
-//    return stats.asFixed(indexOf(stat));
-//  }
-
-//  public String asString(short stat) {
-//    return stats.asString(indexOf(stat));
-//  }
-
-//  public int value1(short stat) {
-//    return stats.value1(indexOf(stat));
-//  }
-
-//  public int value2(short stat) {
-//    return stats.value2(indexOf(stat));
-//  }
-
-//  public int value3(short stat) {
-//    return stats.value3(indexOf(stat));
-//  }
-
-//  public int param1(short stat) {
-//    return stats.param1(indexOf(stat));
-//  }
-
-//  public int param2(short stat) {
-//    return stats.param2(indexOf(stat));
-//  }
 }
