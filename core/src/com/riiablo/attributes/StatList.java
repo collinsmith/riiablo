@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
@@ -211,7 +210,7 @@ public final class StatList {
     assertMutable();
     log.traceEntry("add(index: {}, value: {})", index, value);
     final short stat = ids[index];
-    assert !hasParams(stat) : "stat(" + stat + ") requires params";
+    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert encoding(stat) <= 2 : "#add() unsupported for encoding(" + encoding(stat) + ")";
     if (log.debugEnabled()) log.debug(
         "add(stat: {} ({}), this: {}, src: {})",
@@ -230,7 +229,7 @@ public final class StatList {
   public int add(int list, short stat, StatList src, int srcList) {
     assertMutable();
     log.traceEntry("add(list: {}, stat: {}, src: {}, srcList: {})", list, stat, src, srcList);
-    assert !hasParams(stat) : "stat(" + stat + ") requires params";
+    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert encoding(stat) <= 2 : "#add() unsupported for encoding(" + encoding(stat) + ")";
     final int index = indexOf(list, stat, 0);
     final int otherIndex = src.indexOf(srcList, stat, 0);
@@ -270,7 +269,7 @@ public final class StatList {
     if (true) throw new UnsupportedOperationException();
     assertMutable();
     log.traceEntry("sub(list: {}, stat: {}, src: {}, srcList: {})", list, stat, src, srcList);
-    assert !hasParams(stat) : "stat(" + stat + ") requires params";
+    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert encoding(stat) <= 2 : "#sub() unsupported for encoding(" + encoding(stat) + ")";
     final int index = indexOf(list, stat, 0);
     final int otherIndex = src.indexOf(srcList, stat, 0);
@@ -319,18 +318,18 @@ public final class StatList {
   }
 
   public int put(int list, short stat, int value) {
-    assert !hasParams(stat) : "stat(" + stat + ") requires params";
+    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     return put(list, stat, 0, value);
   }
 
   public int put(int list, short stat, long value) {
-    assert !hasParams(stat) : "stat(" + stat + ") requires params";
+    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert value <= UINT_MAX_VALUE : "value(" + value + ") > " + UINT_MAX_VALUE;
     return put(list, stat, 0, _asInt(value));
   }
 
   public int put(int list, short stat, float value) {
-    assert !hasParams(stat) : "stat(" + stat + ") requires params";
+    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert entry(stat).ValShift == 8 : "entry.ValShift(" + entry(stat).ValShift + ") != " + 8;
     return put(list, stat, 0, _asInt(value));
   }
@@ -357,7 +356,7 @@ public final class StatList {
   }
 
   public int indexOf(int list, short stat) {
-    assert !hasParams(stat) : "stat(" + stat + ") requires params";
+    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     return indexOf(list, stat, 0);
   }
 
@@ -388,7 +387,7 @@ public final class StatList {
   }
 
   long asLong(int index) {
-    assert entry(ids[index]).Send_Bits >= Integer.SIZE : "entry.Send_Bits(" + entry(ids[index]).Send_Bits + ") < " + Integer.SIZE;
+    assert entry(index).Send_Bits >= Integer.SIZE : "entry.Send_Bits(" + entry(index).Send_Bits + ") < " + Integer.SIZE;
     return _asLong(values[index]);
   }
 
@@ -401,7 +400,7 @@ public final class StatList {
   }
 
   float asFixed(int index) {
-    assert entry(ids[index]).ValShift == 8 : "entry.ValShift(" + entry(ids[index]).ValShift + ") != " + 8;
+    assert entry(index).ValShift == 8 : "entry.ValShift(" + entry(index).ValShift + ") != " + 8;
     return _asFixed(values[index]);
   }
 
@@ -425,6 +424,14 @@ public final class StatList {
 
   public short id(int index) {
     return ids[index];
+  }
+
+  ItemStatCost.Entry entry(int index) {
+    return entry(ids[index]);
+  }
+
+  ItemStatCost.Entry entry(short stat) {
+    return Stat.entry(stat);
   }
 
   public int encoding(int index) {
@@ -564,11 +571,11 @@ public final class StatList {
     final byte flags = this.flags[index];
     switch (flags & ENCODING_MASK) {
       default: // fall-through
-      case 0: return entry(ids[index]) + "(" + ids[index] + ")=" + ((flags & FLAG_PARAMS) == 0 ? asString(index) : (asString(index) + ":" + params[index]));
-      case 1: return entry(ids[index]) + "(" + ids[index] + ")=" + param1(index) + ":" + value1(index);
-      case 2: return entry(ids[index]) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index);
-      case 3: return entry(ids[index]) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index) + ":" + value2(index);
-      case 4: return entry(ids[index]) + "(" + ids[index] + ")=" + value1(index) + ":" + value2(index) + ":" + value3(index);
+      case 0: return entry(index) + "(" + ids[index] + ")=" + ((flags & FLAG_PARAMS) == 0 ? asString(index) : (asString(index) + ":" + params[index]));
+      case 1: return entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + value1(index);
+      case 2: return entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index);
+      case 3: return entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index) + ":" + value2(index);
+      case 4: return entry(index) + "(" + ids[index] + ")=" + value1(index) + ":" + value2(index) + ":" + value3(index);
     }
   }
 
@@ -595,14 +602,6 @@ public final class StatList {
         .append("params", '{' + StringUtils.join(params, ',', 0, tail) + '}')
         .append("flags", '{' + StringUtils.join(flags, ',', 0, tail) + '}')
         .build();
-  }
-
-  private static ItemStatCost.Entry entry(short stat) {
-    return Riiablo.files.ItemStatCost.get(stat);
-  }
-
-  private static boolean hasParams(short stat) {
-    return false; // TODO: determine if stat requires params
   }
 
   public IndexIterator indexIterator(int list) {

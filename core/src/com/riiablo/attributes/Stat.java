@@ -1,5 +1,8 @@
 package com.riiablo.attributes;
 
+import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.ItemStatCost;
+
 @SuppressWarnings("unused")
 public class Stat {
   public static final short strength = 0;
@@ -382,6 +385,14 @@ public class Stat {
 
   static byte getNumEncoded(short stat) {
     return ENCODED_COUNT[stat];
+  }
+
+  static ItemStatCost.Entry entry(short stat) {
+    return Riiablo.files.ItemStatCost.get(stat);
+  }
+
+  static boolean hasParams(short stat) {
+    return false; // TODO: determine if stat requires params
   }
 
   private Stat() {}
