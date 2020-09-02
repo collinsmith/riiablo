@@ -365,6 +365,17 @@ public final class StatList {
     return indexOf(list, stat, 0);
   }
 
+  int firstIndexOf(int list, short stat) {
+    final int listStart = startingOffset(list);
+    final int listEnd = endingOffset(list);
+    final int index = Arrays.binarySearch(ids, listStart, listEnd, stat);
+    if (index >= 0) {
+      return firstIndexOf(stat, index, listStart);
+    } else {
+      return index;
+    }
+  }
+
   private int firstIndexOf(final short stat, final int startIndex, final int listStart) {
     int i = startIndex - 1;
     final short[] ids = this.ids;

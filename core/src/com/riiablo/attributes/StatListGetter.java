@@ -32,6 +32,13 @@ public final class StatListGetter {
     return tuple.set(stats, index);
   }
 
+  /** @see StatList#firstIndexOf(int, short) */
+  StatGetter first(short stat) {
+    final int index = stats.firstIndexOf(list, stat);
+    if (index < 0) return null;
+    return tuple.set(stats, index);
+  }
+
   public void addAll(StatListGetter src) {
     stats.addAll(list, src.stats, src.list);
   }
