@@ -97,6 +97,10 @@ public final class StatList {
     return numLists;
   }
 
+  public int maxLists() {
+    return maxLists;
+  }
+
   public void clearList(int list) {
     assertMutable();
     size -= size(list);
