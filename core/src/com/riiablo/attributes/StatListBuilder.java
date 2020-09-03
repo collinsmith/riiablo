@@ -37,6 +37,12 @@ public final class StatListBuilder {
     return this;
   }
 
+  /** @see StatList#put(int, short, int, int, int, int, int) */
+  public StatListBuilder put(short stat, int param1, int param2, int value1, int value2, int value3) {
+    index = stats.put(list, stat, param1, param2, value1, value2, value3);
+    return this;
+  }
+
   /** @see StatList#put(int, short, int) */
   public StatListBuilder put(short stat, int value) {
     index = stats.put(list, stat, value);

@@ -322,6 +322,16 @@ public final class StatList {
     }
   }
 
+  public int put(int list, short stat, int param1, int param2, int value1, int value2, int value3) {
+    assertMutable();
+    final int encoding = entry(stat).Encode;
+    return put(
+        list,
+        stat,
+        Stat.encodeParam(encoding, param1, param2),
+        Stat.encodeValue(encoding, value1, value2, value3));
+  }
+
   public int put(int list, short stat, int value) {
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     return put(list, stat, 0, value);
