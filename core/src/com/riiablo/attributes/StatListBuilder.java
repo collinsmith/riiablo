@@ -23,7 +23,7 @@ public final class StatListBuilder {
   /**
    * Returns the list.
    */
-  public StatList list() {
+  public StatList build() {
     return stats;
   }
 
