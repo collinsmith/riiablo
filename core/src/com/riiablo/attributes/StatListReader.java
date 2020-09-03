@@ -66,10 +66,10 @@ public class StatListReader {
       final StatListBuilder builder = stats.buildList();
       if (((flags >> i) & 1) == 1) {
         try {
-//          MDC.put("propList", Item.getPropListString(i));
+          MDC.put("propList", StatListFlags.toString(i));
           read(builder, bits);
         } finally {
-//          MDC.remove("propList");
+          MDC.remove("propList");
         }
       }
     }
