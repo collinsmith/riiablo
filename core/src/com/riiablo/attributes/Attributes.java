@@ -113,7 +113,9 @@ public abstract class Attributes implements Iterable<StatGetter> {
    * Clears {@link #remaining()} and sets {@link #aggregate()} equal to
    * {@link #base()}.
    */
-  public void resetToBase() {}
+  public Attributes resetToBase() {
+    return this;
+  }
 
   /**
    * Clears {@link #list()}

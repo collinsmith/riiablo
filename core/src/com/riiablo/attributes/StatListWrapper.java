@@ -12,7 +12,7 @@ public class StatListWrapper extends Attributes {
   }
 
   @Override
-  public void resetToBase() {
+  public Attributes resetToBase() {
     throw new UnsupportedOperationException();
   }
 }

@@ -21,12 +21,13 @@ public class AggregateAttributes extends Attributes {
   }
 
   @Override
-  public void resetToBase() {
+  public Attributes resetToBase() {
     assert base.numLists() == 1;
     agg.setAll(base);
     //mod.clear();
     rem.clear();
     super.clear();
+    return this;
   }
 
   /**
