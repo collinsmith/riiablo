@@ -86,7 +86,7 @@ public class StatListReaderTest {
         (byte) 0x03, (byte) 0x02
     };
 
-    final BitInput bits = ByteInput.wrap(bytes).skipBytes(24).unalign().skipBits(5);
+    final BitInput bits = ByteInput.wrap(bytes).unalign().skipBits(197);
     final Attributes attrs = Attributes.aggregateAttributes();
     final StatListReader reader = new StatListReader();
     final StatListGetter stats = reader.read(attrs.base().buildList(), bits);
