@@ -9,11 +9,11 @@ import com.riiablo.logger.MDC;
 public class StatListReader {
   private static final Logger log = LogManager.getLogger(StatListReader.class);
 
-  public StatGetter read(StatListBuilder stats, short stat, BitInput bits) {
+  public StatGetter read(StatListBuilder stats, short stat, BitInput bits, boolean cs) {
     log.traceEntry("read(stats: {}, stat: {}, bits: {})", stats, stat, bits);
     final ItemStatCost.Entry entry = Stat.entry(stat);
     final int param, value;
-    if (entry.Saved) {
+    if (cs) {
       log.trace("Reading character save stat...");
       assert !entry.CSvSigned : "entry.CSvSigned(" + entry.CSvSigned + ") unsupported";
       param = (int) bits.read63u(entry.CSvParam);
@@ -26,18 +26,23 @@ public class StatListReader {
     return stats.put(stat, param, value).last();
   }
 
-  public StatListGetter read(StatListBuilder stats, BitInput bits) {
+  public StatListGetter read(StatListBuilder stats, BitInput bits, boolean cs) {
     log.traceEntry("read(stats: {}, bits: {})", stats, bits);
     for (short stat; (stat = bits.read15u(Stat.BITS)) != Stat.NONE;) {
       try {
         MDC.put("stat", stat);
         final byte numEncoded = Stat.getNumEncoded(stat);
         try {
-          if (numEncoded > 1) MDC.put("numEncoded", numEncoded);
+          if (numEncoded > 1) {
+            MDC.put("numEncoded", numEncoded);
+            MDC.put("encodedStat", stat);
+          }
           for (short j = stat, s = (short) (stat + numEncoded); j < s; j++) {
-            read(stats, j, bits);
+            if (j > stat) MDC.put("encodedStat", j);
+            read(stats, j, bits, cs);
           }
         } finally {
+          MDC.remove("encodedStat");
           MDC.remove("numEncoded");
         }
       } finally {
@@ -51,10 +56,10 @@ public class StatListReader {
   /**
    * Reads a single property list into {@link Attributes#base()}
    */
-  public StatListGetter read(Attributes attrs, BitInput bits) {
+  public StatListGetter read(Attributes attrs, BitInput bits, boolean cs) {
     final StatList stats = attrs.base().clear();
     final StatListBuilder builder = stats.buildList();
-    return read(builder, bits);
+    return read(builder, bits, cs);
   }
 
   /**
@@ -67,7 +72,7 @@ public class StatListReader {
       if (((flags >> i) & 1) == 1) {
         try {
           MDC.put("propList", StatListFlags.itemToString(i));
-          read(builder, bits);
+          read(builder, bits, false);
         } finally {
           MDC.remove("propList");
         }

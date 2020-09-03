@@ -55,7 +55,7 @@ public class StatListReaderTest {
     final BitInput bits = ByteInput.wrap(bytes).unalign();
     final Attributes attrs = Attributes.aggregateAttributes();
     final StatListReader reader = new StatListReader();
-    reader.read(attrs.base().buildList(), bits);
+    reader.read(attrs.base().buildList(), bits, true);
   }
 
   @Test
@@ -89,7 +89,7 @@ public class StatListReaderTest {
     final BitInput bits = ByteInput.wrap(bytes).unalign().skipBits(197);
     final Attributes attrs = Attributes.aggregateAttributes();
     final StatListReader reader = new StatListReader();
-    final StatListGetter stats = reader.read(attrs.base().buildList(), bits);
+    final StatListGetter stats = reader.read(attrs.base().buildList(), bits, false);
     Assert.assertTrue(stats.contains(Stat.item_healafterkill));
     Assert.assertEquals(11, stats.get(Stat.item_healafterkill).value1());
 

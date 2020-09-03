@@ -11,10 +11,10 @@ import com.riiablo.logger.MDC;
 public class StatListWriter {
   private static final Logger log = LogManager.getLogger(StatListWriter.class);
 
-  public void write(StatListGetter stats, StatGetter stat, BitOutput bits) {
+  public void write(StatListGetter stats, StatGetter stat, BitOutput bits, boolean cs) {
     log.traceEntry("write(stats: {}, stat: {}, bits: {})", stats, stat, bits);
     final ItemStatCost.Entry entry = stat.entry();
-    if (entry.Saved) {
+    if (cs) {
       if (log.traceEnabled()) log.trace("Writing character save stat {}", stat.debugString());
       assert !entry.CSvSigned : "entry.CSvSigned(" + entry.CSvSigned + ") unsupported";
       bits.write63u(stat.param(), entry.CSvParam);
@@ -26,7 +26,7 @@ public class StatListWriter {
     }
   }
 
-  public void write(StatListGetter stats, BitOutput bits) {
+  public void write(StatListGetter stats, BitOutput bits, boolean cs) {
     for (Iterator<StatGetter> it = stats.iterator(); it.hasNext();) {
       final StatGetter stat = it.next();
       final short id = stat.id();
@@ -35,15 +35,20 @@ public class StatListWriter {
         bits.write15u(id, Stat.BITS);
         final byte numEncoded = Stat.getNumEncoded(id);
         try {
-          if (numEncoded > 1) MDC.put("numEncoded", numEncoded);
-          write(stats, stat, bits);
+          if (numEncoded > 1) {
+            MDC.put("numEncoded", numEncoded);
+            MDC.put("encodedStat", id);
+          }
+          write(stats, stat, bits, cs);
           for (short j = 1; j < numEncoded; j++) {
             final StatGetter next = it.next();
             assert next.id() == id + j : String.format(
                 "it.next(%s) != %d : getNumEncoded(%s)[%d..%d]", next, id + j, id + j, id, id + numEncoded - 1);
-            write(stats, stat, bits);
+            MDC.put("encodedStat", next.id());
+            write(stats, stat, bits, cs);
           }
         } finally {
+          MDC.remove("encodedStat");
           MDC.remove("numEncoded");
         }
       } finally {
@@ -52,5 +57,23 @@ public class StatListWriter {
     }
 
     bits.write15u(Stat.NONE, Stat.BITS);
+  }
+
+  public void write(Attributes attrs, BitOutput bits) {
+    throw new UnsupportedOperationException(); // TODO: character saves
+  }
+
+  public void write(Attributes attrs, BitOutput bits, int flags, int maxLists) {
+    final StatList stats = attrs.list();
+    for (int i = 0; i < maxLists; i++) {
+      if (((flags >> i) & 1) == 1) {
+        try {
+            MDC.put("propList", StatListFlags.itemToString(i));
+            write(stats.get(i), bits, false);
+        } finally {
+            MDC.remove("propList");
+        }
+      }
+    }
   }
 }
