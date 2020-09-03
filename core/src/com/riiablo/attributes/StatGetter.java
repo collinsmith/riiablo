@@ -1,5 +1,7 @@
 package com.riiablo.attributes;
 
+import com.riiablo.codec.excel.ItemStatCost;
+
 public final class StatGetter {
   StatList stats;
   int index;
@@ -35,6 +37,11 @@ public final class StatGetter {
   /** @see StatList#id(int) */
   public short id() {
     return stats.id(index);
+  }
+
+  /** @see StatList#entry(int) */
+  public ItemStatCost.Entry entry() {
+    return stats.entry(index);
   }
 
   /** @see StatList#asInt(int) */
