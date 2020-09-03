@@ -14,7 +14,7 @@ public class BitConstants {
   static final int BYTE_SHIFT = Integer.bitCount(Byte.SIZE - 1);
   static final int BYTE_MASK = (1 << Byte.SIZE) - 1;
 
-  static final long[] UNSIGNED_MASKS = new long[Long.SIZE];
+  static final long[] UNSIGNED_MASKS = new long[Long.SIZE + 1];
   static {
     for (int i = 1; i < Long.SIZE; i++) {
       UNSIGNED_MASKS[i] = (UNSIGNED_MASKS[i - 1] << 1) + 1;
