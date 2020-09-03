@@ -37,9 +37,25 @@ public final class StatListGetter implements Iterable<StatGetter> {
     return stats.contains(list, stat);
   }
 
+  /** @see StatList#contains(int, short) */
+  public boolean contains(StatGetter stat) {
+    return stats.contains(list, stat.id(), stat.param());
+  }
+
   /** @see StatList#indexOf(int, short) */
   public StatGetter get(short stat) {
     final int index = indexOf(stat);
+    if (index < 0) {
+      log.warn("stats({}) list({}) did not contain stat({})", stats, list, stat);
+      return null;
+    }
+
+    return tuple.set(stats, index);
+  }
+
+  /** @see StatList#indexOf(int, short, int) */
+  public StatGetter get(StatGetter stat) {
+    final int index = stats.indexOf(list, stat.id(), stat.param());
     if (index < 0) {
       log.warn("stats({}) list({}) did not contain stat({})", stats, list, stat);
       return null;

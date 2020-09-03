@@ -367,6 +367,10 @@ public final class StatList {
     return Arrays.binarySearch(ids, startingOffset(list), endingOffset(list), stat) >= 0;
   }
 
+  public boolean contains(int list, short stat, int param) {
+    return indexOf(list, stat, param) >= 0;
+  }
+
   public int indexOf(int list, short stat, int param) {
     final int listStart = startingOffset(list);
     final int listEnd = endingOffset(list);
