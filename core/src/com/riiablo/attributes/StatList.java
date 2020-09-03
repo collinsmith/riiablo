@@ -81,6 +81,11 @@ public final class StatList {
     return this;
   }
 
+  StatList forceClear() {
+    immutable = false;
+    return clear();
+  }
+
   public int size() {
     return size;
   }
@@ -208,7 +213,12 @@ public final class StatList {
   }
 
   public StatListGetter get(int list) {
+    if (list >= numLists) throw new IllegalStateException("list(" + list + ") >= numLists(" + numLists + ")");
     return new StatListGetter(this, list);
+  }
+
+  public StatListGetter first() {
+    return get(0);
   }
 
   public int add(int index, int value) {

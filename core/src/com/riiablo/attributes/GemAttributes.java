@@ -6,7 +6,7 @@ public class GemAttributes extends Attributes {
   }
 
   @Override
-  public Attributes resetToBase() {
+  public Attributes reset() {
     throw new UnsupportedOperationException();
   }
 }

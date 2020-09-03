@@ -110,10 +110,10 @@ public abstract class Attributes implements Iterable<StatGetter> {
   }
 
   /**
-   * Clears {@link #remaining()} and sets {@link #aggregate()} equal to
-   * {@link #base()}.
+   * Clears {@link #remaining()} and {@link #list()} and sets
+   * {@link #aggregate()} equal to {@link #base()}.
    */
-  public Attributes resetToBase() {
+  public Attributes reset() {
     return this;
   }
 
@@ -122,7 +122,7 @@ public abstract class Attributes implements Iterable<StatGetter> {
    */
   @CallSuper
   public void clear() {
-    stats.clear();
+    stats.forceClear();
   }
 
   /**
