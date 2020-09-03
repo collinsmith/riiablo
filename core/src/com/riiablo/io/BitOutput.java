@@ -58,7 +58,7 @@ public class BitOutput {
     assert bitsCached >= 0 : "bitsCached(" + bitsCached + ") < " + 0;
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
     if (bitsCached <= 0) return this;
-    byteOutput._write8(cache);
+    byteOutput._write8(cache & MASKS[bitsCached]);
     clearCache();
     return this;
   }
