@@ -1,6 +1,8 @@
 package com.riiablo.attributes;
 
-public final class StatListGetter {
+import java.util.Iterator;
+
+public final class StatListGetter implements Iterable<StatGetter> {
   final StatList stats;
   final int list;
   final StatGetter tuple = new StatGetter();
@@ -56,6 +58,12 @@ public final class StatListGetter {
   /** @see StatList#statIterator(int) */
   public StatList.StatIterator statIterator() {
     return stats.statIterator(list);
+  }
+
+  /** @see #statIterator() */
+  @Override
+  public Iterator<StatGetter> iterator() {
+    return statIterator();
   }
 
   /** @see StatList#listDebugString(int) */
