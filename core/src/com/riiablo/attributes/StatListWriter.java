@@ -75,5 +75,9 @@ public class StatListWriter {
         }
       }
     }
+
+    if (flags == StatListFlags.FLAG_NONE) {
+      bits.write15u(Stat.NONE, Stat.BITS);
+    }
   }
 }
