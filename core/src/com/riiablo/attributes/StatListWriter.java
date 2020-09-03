@@ -59,8 +59,9 @@ public class StatListWriter {
     bits.write15u(Stat.NONE, Stat.BITS);
   }
 
-  public void write(Attributes attrs, BitOutput bits) {
-    throw new UnsupportedOperationException(); // TODO: character saves
+  public void write(Attributes attrs, BitOutput bits, boolean cs) {
+    final StatList stats = attrs.base();
+    write(stats.get(0), bits, cs);
   }
 
   public void write(Attributes attrs, BitOutput bits, int flags, int maxLists) {

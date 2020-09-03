@@ -2,6 +2,7 @@ package com.riiablo.attributes;
 
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import java.util.Arrays;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -57,17 +58,22 @@ public class StatListWriterTest {
     StatListReader reader = new StatListReader();
     final Attributes attrs = Attributes.aggregateAttributes();
     reader.read(attrs, bitInput, flags, NUM_ITEM_LISTS);
-    System.out.println(ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex()));
+    final String firstHexDump = ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex());
+    System.out.println(firstHexDump);
 
     ByteOutput out = ByteOutput.wrap(Unpooled.buffer(length, length));
     BitOutput bitOutput = out.unalign().writeRaw(data[offset], bitOffset);
-    System.out.printf("cache=%02x %d%n", data[offset], bitOffset);
     StatListWriter writer = new StatListWriter();
     writer.write(attrs, bitOutput, flags, NUM_ITEM_LISTS);
     bitOutput.flush();
     System.out.println(ByteBufUtil.prettyHexDump(out.buffer()));
 
-    Assert.assertTrue(ByteBufUtil.equals(in.buffer(), 0, out.buffer(), 0, in.buffer().readerIndex()));
+    boolean equal = ByteBufUtil.equals(in.buffer(), 0, out.buffer(), 0, in.buffer().readerIndex());
+    if (!equal) {
+      System.out.println("Expected:");
+      System.out.println(firstHexDump);
+    }
+    Assert.assertTrue(equal);
   }
 
   @Test
@@ -133,5 +139,34 @@ public class StatListWriterTest {
   @Test
   public void Vampire_Gaze() {
     testItem(Gdx.files.internal("test/Vampire Gaze.d2i").readBytes(), 197, -1, FLAG_MAGIC);
+  }
+
+  private void testCharacter(byte[] data, int bytesToSkip, int length) {
+    ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, bytesToSkip, length));
+    BitInput bitInput = in.skipBytes(2).unalign(); // skip signature
+    StatListReader reader = new StatListReader();
+    final Attributes attrs = Attributes.aggregateAttributes();
+    reader.read(attrs, bitInput, true);
+    final String firstHexDump = ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex());
+    System.out.println(firstHexDump);
+
+    ByteOutput out = ByteOutput.wrap(Unpooled.buffer(length, length));
+    BitOutput bitOutput = out.writeBytes(Arrays.copyOfRange(data, bytesToSkip, bytesToSkip + 2)).unalign();
+    StatListWriter writer = new StatListWriter();
+    writer.write(attrs, bitOutput, true);
+    bitOutput.flush();
+    System.out.println(ByteBufUtil.prettyHexDump(out.buffer()));
+
+    boolean equal = ByteBufUtil.equals(in.buffer(), 0, out.buffer(), 0, in.buffer().readerIndex());
+    if (!equal) {
+      System.out.println("Expected:");
+      System.out.println(firstHexDump);
+    }
+    Assert.assertTrue(equal);
+  }
+
+  @Test
+  public void Tirant() {
+    testCharacter(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
   }
 }
