@@ -92,14 +92,15 @@ public class StatListReaderTest {
     final StatListGetter stats = reader.read(attrs.base().buildList(), bits);
     Assert.assertTrue(stats.contains(Stat.item_healafterkill));
     Assert.assertEquals(11, stats.get(Stat.item_healafterkill).value1());
+
     Assert.assertTrue(stats.contains(Stat.item_fasterattackrate));
     Assert.assertEquals(31, stats.get(Stat.item_fasterattackrate).value1());
+
     Assert.assertTrue(stats.contains(Stat.item_damage_demon_perlevel));
     Assert.assertEquals(15, stats.get(Stat.item_damage_demon_perlevel).value1());
 
     Assert.assertTrue(stats.contains(Stat.item_normaldamage));
     Assert.assertEquals(373, stats.get(Stat.item_normaldamage).value1());
-
 
     Assert.assertTrue(stats.contains(Stat.item_ignoretargetac));
     Assert.assertEquals(1, stats.get(Stat.item_ignoretargetac).value1());
