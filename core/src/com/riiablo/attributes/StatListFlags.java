@@ -38,7 +38,7 @@ public class StatListFlags {
     }
   }
 
-  public int getItemSetFlags(int numItems) {
+  static int getItemSetFlags(int numItems) {
     int flags = FLAG_NONE;
     switch (numItems) {
       case 6: flags |= FLAG_SET_6; // fall-through
