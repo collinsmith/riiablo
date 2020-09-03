@@ -2,7 +2,12 @@ package com.riiablo.attributes;
 
 import java.util.Iterator;
 
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+
 public final class StatListGetter implements Iterable<StatGetter> {
+  private static final Logger log = LogManager.getLogger(StatListGetter.class);
+
   final StatList stats;
   final int list;
   final StatGetter tuple = new StatGetter();
@@ -35,7 +40,11 @@ public final class StatListGetter implements Iterable<StatGetter> {
   /** @see StatList#indexOf(int, short) */
   public StatGetter get(short stat) {
     final int index = indexOf(stat);
-    if (index < 0) return null;
+    if (index < 0) {
+      log.warn("stats({}) list({}) did not contain stat({})", stats, list, stat);
+      return null;
+    }
+
     return tuple.set(stats, index);
   }
 
