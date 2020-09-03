@@ -66,6 +66,7 @@ public class StatListWriterTest {
     StatListWriter writer = new StatListWriter();
     writer.write(attrs, bitOutput, flags, NUM_ITEM_LISTS);
     bitOutput.flush();
+    System.out.println("Actual:");
     System.out.println(ByteBufUtil.prettyHexDump(out.buffer()));
 
     boolean equal = ByteBufUtil.equals(in.buffer(), 0, out.buffer(), 0, in.buffer().readerIndex());
@@ -155,6 +156,7 @@ public class StatListWriterTest {
     StatListWriter writer = new StatListWriter();
     writer.write(attrs, bitOutput, true);
     bitOutput.flush();
+    System.out.println("Actual:");
     System.out.println(ByteBufUtil.prettyHexDump(out.buffer()));
 
     boolean equal = ByteBufUtil.equals(in.buffer(), 0, out.buffer(), 0, in.buffer().readerIndex());
