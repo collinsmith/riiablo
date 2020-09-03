@@ -16,8 +16,15 @@ public final class StatListBuilder {
   /**
    * Returns the list index.
    */
-  public int build() {
+  public int index() {
     return list;
+  }
+
+  /**
+   * Returns the list.
+   */
+  public StatList list() {
+    return stats;
   }
 
   /** @see StatList#get(int) */

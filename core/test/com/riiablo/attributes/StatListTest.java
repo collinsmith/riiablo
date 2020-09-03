@@ -55,7 +55,7 @@ public class StatListTest {
     StatList stats = newInstance();
     final int list = stats.buildList(0)
         .put(Stat.strength, 15)
-        .build();
+        .index();
     final int index = stats.indexOf(list, Stat.strength);
     Assert.assertEquals(0, stats.param(index));
     Assert.assertEquals(15, stats.value(index));
@@ -67,7 +67,7 @@ public class StatListTest {
     StatList stats = newInstance();
     final int list = stats.buildList(0)
         .put(Stat.hitpoints, 1 << 8)
-        .build();
+        .index();
     final int index = stats.indexOf(list, Stat.hitpoints);
     Assert.assertEquals(0, stats.param(index));
     Assert.assertEquals(1 << 8, stats.value(index));
@@ -80,7 +80,7 @@ public class StatListTest {
     StatList stats = newInstance();
     final int list = stats.buildList(0)
         .put(Stat.hitpoints, 1.0f)
-        .build();
+        .index();
     final int index = stats.indexOf(list, Stat.hitpoints);
     Assert.assertEquals(0, stats.param(index));
     Assert.assertEquals(1 << 8, stats.value(index));
@@ -93,7 +93,7 @@ public class StatListTest {
     StatList stats = newInstance();
     final int list = stats.buildList(0)
         .put(Stat.experience, 0xFFFFFFFF)
-        .build();
+        .index();
     final int index = stats.indexOf(list, Stat.experience);
     Assert.assertEquals(0, stats.param(index));
     Assert.assertEquals(0xFFFFFFFF, stats.value(index));
@@ -106,7 +106,7 @@ public class StatListTest {
     StatList stats = newInstance();
     final int list = stats.buildList(0)
         .put(Stat.experience, 0xFFFFFFFFL)
-        .build();
+        .index();
     final int index = stats.indexOf(list, Stat.experience);
     Assert.assertEquals(0, stats.param(index));
     Assert.assertEquals(0xFFFFFFFF, stats.value(index));
@@ -119,13 +119,13 @@ public class StatListTest {
     StatList stats = newInstance();
     final int statsList = stats.buildList(0)
         .put(Stat.strength, 15)
-        .build();
+        .index();
     final int statsIndex = stats.indexOf(statsList, Stat.strength);
     assert stats.asInt(statsIndex) == 15;
     StatList add = newInstance();
     final int addList = add.buildList(0)
         .put(Stat.strength, 5)
-        .build();
+        .index();
     final int addIndex = stats.indexOf(addList, Stat.strength);
     assert add.asInt(addIndex) == 5;
     stats.add(statsList, Stat.strength, add, addList);
@@ -142,12 +142,12 @@ public class StatListTest {
     StatList stats = newInstance();
     final int statsList = stats.buildList(0)
         .put(Stat.strength, 15)
-        .build();
+        .index();
     final int statsIndex = stats.indexOf(statsList, Stat.strength);
     assert stats.asInt(statsIndex) == 15;
     final int addList = stats.buildList(0)
         .put(Stat.strength, 5)
-        .build();
+        .index();
     final int addIndex = stats.indexOf(addList, Stat.strength);
     assert stats.asInt(addIndex) == 5;
     stats.add(statsList, Stat.strength, stats, addList);
