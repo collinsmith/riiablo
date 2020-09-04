@@ -1,5 +1,7 @@
 package com.riiablo.attributes;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.ItemStatCost;
 
@@ -368,6 +370,15 @@ public class Stat {
   static final int BITS = 9;
   static final short NONE = (1 << BITS) - 1; // 0x1FF
 
+  private static final byte[] GROUPED_COUNT = { 1, 4, 4, };
+
+  static final int NUM_GROUPS = GROUPED_COUNT.length;
+  static final byte MAX_GROUPED = NumberUtils.max(GROUPED_COUNT);
+
+  static byte getNumGrouped(int dgrp) {
+    return GROUPED_COUNT[dgrp];
+  }
+
   private static final byte[] ENCODED_COUNT = {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, // 32
@@ -382,6 +393,8 @@ public class Stat {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 320
       1, 1, 1, 1, 1, 1, 1,                                                                            // 352
   };
+
+  static final byte MAX_ENCODED = NumberUtils.max(ENCODED_COUNT);
 
   static byte getNumEncoded(short stat) {
     return ENCODED_COUNT[stat];
