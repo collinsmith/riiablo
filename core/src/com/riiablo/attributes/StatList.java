@@ -263,6 +263,11 @@ public final class StatList {
     // max
   }
 
+  public int add(int list, StatGetter stat) {
+    final int index = indexOf(list, stat.id(), stat.param());
+    return add(index, stat.value());
+  }
+
   public void addAll(int list, StatList src, int srcList) {
     assertMutable();
     final int srcStartOffset = src.startingOffset(srcList);
