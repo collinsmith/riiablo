@@ -688,10 +688,11 @@ public final class StatList {
 
   public final class IndexIterator {
     int index;
+    int startIndex;
     int endIndex;
 
     IndexIterator reset(int list) {
-      index = startingOffset(list);
+      index = startIndex = startingOffset(list);
       endIndex = endingOffset(list);
       return this;
     }
@@ -702,6 +703,16 @@ public final class StatList {
 
     public int next() {
       return index++;
+    }
+
+    int pushback(int count) {
+      index -= count;
+      if (index < startIndex) {
+        log.warn("index({}) < startIndex({})", index, startIndex);
+        index = startIndex;
+      }
+
+      return index;
     }
   }
 
