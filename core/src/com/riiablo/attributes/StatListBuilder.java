@@ -1,5 +1,7 @@
 package com.riiablo.attributes;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public final class StatListBuilder {
   final StatList stats;
   final int list;
@@ -90,5 +92,13 @@ public final class StatListBuilder {
   public StatListBuilder addAll(StatListGetter src) {
     index = stats.addAll(list, src.stats, src.list);
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this)
+        .append("parent", stats)
+        .append("list", list)
+        .build();
   }
 }
