@@ -60,7 +60,7 @@ public class StatListWriter {
   }
 
   public void write(Attributes attrs, BitOutput bits, boolean cs) {
-    final StatList stats = attrs.base();
+    final StatList stats = attrs.base().parent();
     write(stats.get(0), bits, cs);
   }
 

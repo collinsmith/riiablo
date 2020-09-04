@@ -57,8 +57,7 @@ public class StatListReader {
    * Reads a single property list into {@link Attributes#base()}
    */
   public StatListGetter read(Attributes attrs, BitInput bits, boolean cs) {
-    final StatList stats = attrs.base().clear();
-    final StatListBuilder builder = stats.buildList();
+    final StatListBuilder builder = attrs.base().clear().builder();
     return read(builder, bits, cs);
   }
 

@@ -11,8 +11,9 @@ public class AggregateAttributes extends Attributes {
   final StatList rem = StatList.obtain(1);
 
   @Override
-  public StatList base() {
-    return base;
+  public StatListGetter base() {
+    if (!base.contains(0)) base.newList(0);
+    return base.first();
   }
 
   @Override
@@ -28,6 +29,7 @@ public class AggregateAttributes extends Attributes {
 
   @Override
   public Attributes reset() {
+    final StatList base = base().parent();
     assert base.numLists() == 1 : "base.numLists(" + base.numLists() + ") != " + 1;
     if (base.numLists() < 1) log.warn("#reset() called on Attributes with empty base!");
     agg.setAll(base);

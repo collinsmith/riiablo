@@ -56,8 +56,8 @@ public abstract class Attributes implements Iterable<StatGetter> {
    * @see #remaining()
    * @see #list()
    */
-  public StatList base() {
-    return list();
+  public StatListGetter base() {
+    return list().first();
   }
 
   /**

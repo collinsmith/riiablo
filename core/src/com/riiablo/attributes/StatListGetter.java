@@ -32,6 +32,20 @@ public final class StatListGetter implements Iterable<StatGetter> {
     return stats.indexOf(list, stat);
   }
 
+  StatList parent() {
+    return stats;
+  }
+
+  StatListBuilder builder() {
+    return new StatListBuilder(stats, list);
+  }
+
+  /** @see StatList#clearList(int) */
+  public StatListGetter clear() {
+    stats.clearList(list);
+    return this;
+  }
+
   /** @see StatList#size(int) */
   public int size() {
     return stats.size(list);
