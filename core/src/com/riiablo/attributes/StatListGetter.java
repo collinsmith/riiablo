@@ -66,6 +66,12 @@ public final class StatListGetter implements Iterable<StatGetter> {
     return stats.contains(list, stat.id(), stat.param());
   }
 
+  /** @see StatList#get(int) */
+  public StatGetter get(int index) {
+    // TODO: enforce index in [list.startIndex..list.endIndex)
+    return tuple.set(stats, index);
+  }
+
   /** @see StatList#indexOf(int, short) */
   public StatGetter get(short stat) {
     final int index = indexOf(stat);
