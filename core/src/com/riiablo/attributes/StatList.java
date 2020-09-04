@@ -91,6 +91,10 @@ public final class StatList {
     return size;
   }
 
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+
   public int size(int list) {
     return endingOffset(list) - startingOffset(list);
   }
