@@ -270,7 +270,7 @@ public final class StatList {
 
   public int add(int list, StatGetter stat) {
     final int index = indexOf(list, stat.id(), stat.param());
-    return add(index, stat.value());
+    return add(index >= 0 ? index : ~index, stat.value());
   }
 
   public int addAll(int list, StatList src, int srcList) {
