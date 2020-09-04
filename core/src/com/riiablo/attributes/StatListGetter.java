@@ -95,14 +95,6 @@ public final class StatListGetter implements Iterable<StatGetter> {
     return tuple.set(stats, index);
   }
 
-  public void add(StatGetter stat) {
-    stats.add(list, stat);
-  }
-
-  public void addAll(StatListGetter src) {
-    stats.addAll(list, src.stats, src.list);
-  }
-
   /** @see StatList#indexIterator(int) */
   public StatList.IndexIterator indexIterator() {
     return stats.indexIterator(list);

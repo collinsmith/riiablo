@@ -67,4 +67,14 @@ public final class StatListBuilder {
     index = stats.put(list, stat, value);
     return this;
   }
+
+  /** @see StatList#add(int, StatGetter) */
+  public void add(StatGetter stat) {
+    stats.add(list, stat);
+  }
+
+  /** @see StatList#addAll(int, StatList, int) */
+  public void addAll(StatListGetter src) {
+    stats.addAll(list, src.stats, src.list);
+  }
 }
