@@ -391,6 +391,10 @@ public class Stat {
     return Riiablo.files.ItemStatCost.get(stat);
   }
 
+  static short index(String stat) {
+    return (short) Riiablo.files.ItemStatCost.index(stat);
+  }
+
   static boolean hasParams(short stat) {
     final ItemStatCost.Entry entry = entry(stat);
     return entry.Encode >= 1 && entry.Encode <= 3; // TODO: determine if stat requires params
