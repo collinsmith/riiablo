@@ -17,6 +17,7 @@ public class AggregateAttributes extends Attributes {
 
   @Override
   public StatListGetter aggregate() {
+    if (!agg.contains(0)) agg.newList(0);
     return agg.first();
   }
 
