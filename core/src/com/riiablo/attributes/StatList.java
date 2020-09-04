@@ -52,6 +52,7 @@ public final class StatList {
 
   private IndexIterator INDEX_ITERATOR;
   private StatIterator STAT_ITERATOR;
+  private StatListIterator STAT_LIST_ITERATOR;
 
   StatList() {
     this(MAX_LISTS);
@@ -702,6 +703,41 @@ public final class StatList {
     @Override
     public StatGetter next() {
       return stat.update(index++);
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public StatListIterator listIterator() {
+    return STAT_LIST_ITERATOR == null
+        ? STAT_LIST_ITERATOR = new StatListIterator().reset()
+        : STAT_LIST_ITERATOR.reset();
+  }
+
+  public final class StatListIterator implements Iterator<StatListGetter>, Iterable<StatListGetter> {
+    int list = 0;
+
+    StatListIterator reset() {
+      list = 0;
+      return this;
+    }
+
+    @Override
+    public Iterator<StatListGetter> iterator() {
+      return this;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return list < numLists;
+    }
+
+    @Override
+    public StatListGetter next() {
+      return get(list++);
     }
 
     @Override
