@@ -268,9 +268,23 @@ public final class StatList {
     // max
   }
 
-  public int add(int list, StatGetter stat) {
-    final int index = indexOf(list, stat.id(), stat.param());
-    return add(index >= 0 ? index : ~index, stat.value());
+  public int add(int list, StatGetter src) {
+    final short stat = src.id();
+    final int param = src.param();
+    final int index = indexOf(list, stat, param);
+    if (log.debugEnabled()) log.debug(
+        "add(stat: {} ({}), this: {}, src: {})",
+        stat, entry(stat), index >= 0 ? asString(index) : "null", src.debugString());
+    if (index >= 0) {
+      values[index] += src.value();
+      return index;
+    } else {
+      /** TODO: possibility to speed this up with {@link #insertAt} */
+      final int putIndex = put(list, stat, param, src.value());
+      assert putIndex == ~index : "index(" + putIndex + ") != expected index(" + ~index + ")";
+      return putIndex;
+    }
+    // max
   }
 
   public int addAll(int list, StatList src, int srcList) {
