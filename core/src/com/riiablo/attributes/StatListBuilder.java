@@ -32,6 +32,18 @@ public final class StatListBuilder {
     return stats.get(list);
   }
 
+  /** @see StatList#indexOf(int, short) */
+  public StatGetter get(short stat) {
+    index = stats.indexOf(list, stat);
+    if (index < 0) return null;
+    return tuple.update(index);
+  }
+
+  /** @see StatList#contains(int, short) */
+  public boolean contains(short stat) {
+    return stats.contains(list, stat);
+  }
+
   /** @see StatList#get(int) */
   public StatGetter last() {
     if (index < 0) throw new IllegalStateException("cannot retrieve last stat when no stats have been added yet!");
