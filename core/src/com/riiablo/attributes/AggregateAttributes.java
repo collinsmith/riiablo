@@ -23,8 +23,9 @@ public class AggregateAttributes extends Attributes {
   }
 
   @Override
-  public StatList remaining() {
-    return rem;
+  public StatListGetter remaining() {
+    if (!rem.contains(0)) rem.newList(0);
+    return rem.first();
   }
 
   @Override
