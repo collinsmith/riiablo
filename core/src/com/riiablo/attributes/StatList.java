@@ -268,14 +268,17 @@ public final class StatList {
     return add(index, stat.value());
   }
 
-  public void addAll(int list, StatList src, int srcList) {
+  public int addAll(int list, StatList src, int srcList) {
     assertMutable();
     final int srcStartOffset = src.startingOffset(srcList);
     final int srcEndOffset = src.endingOffset(srcList);
+    int index = -1;
     for (int i = srcStartOffset, s = srcEndOffset; i < s; i++) {
       final short stat = src.id(i);
-      add(list, stat, src, srcList);
+      index = add(list, stat, src, srcList);
     }
+
+    return index;
   }
 
   /**
