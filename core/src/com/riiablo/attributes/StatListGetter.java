@@ -32,6 +32,16 @@ public final class StatListGetter implements Iterable<StatGetter> {
     return stats.indexOf(list, stat);
   }
 
+  /** @see StatList#size(int) */
+  public int size() {
+    return stats.size(list);
+  }
+
+  /** @see StatList#isEmpty(int) */
+  public boolean isEmpty() {
+    return stats.isEmpty(list);
+  }
+
   /** @see StatList#contains(int, short) */
   public boolean contains(short stat) {
     return stats.contains(list, stat);

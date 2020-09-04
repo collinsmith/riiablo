@@ -2,7 +2,6 @@ package com.riiablo.attributes;
 
 import android.support.annotation.CallSuper;
 import java.util.Iterator;
-import org.apache.commons.collections4.IteratorUtils;
 
 public abstract class Attributes implements Iterable<StatGetter> {
   /**
@@ -69,8 +68,8 @@ public abstract class Attributes implements Iterable<StatGetter> {
    * @see #remaining()
    * @see #list()
    */
-  public StatList aggregate() {
-    return list();
+  public StatListGetter aggregate() {
+    return list().first();
   }
 
   /**
@@ -130,9 +129,6 @@ public abstract class Attributes implements Iterable<StatGetter> {
    */
   @Override
   public Iterator<StatGetter> iterator() {
-    final StatList agg = aggregate();
-    final int numLists = agg.numLists();
-    if (numLists < 1) return IteratorUtils.emptyIterator();
-    return agg.statIterator(0);
+    return aggregate().statIterator();
   }
 }

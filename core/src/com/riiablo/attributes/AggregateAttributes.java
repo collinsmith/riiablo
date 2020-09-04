@@ -16,8 +16,8 @@ public class AggregateAttributes extends Attributes {
   }
 
   @Override
-  public StatList aggregate() {
-    return agg;
+  public StatListGetter aggregate() {
+    return agg.first();
   }
 
   @Override
