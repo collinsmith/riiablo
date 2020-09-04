@@ -114,6 +114,7 @@ public final class StatList {
   public void clearList(int list) {
     assertMutable();
     size -= size(list);
+    assert size >= 0;
     final int offset = list << 1;
     final byte[] offsets = this.offsets;
     offsets[offset + 1] = offsets[offset];
@@ -134,7 +135,7 @@ public final class StatList {
     final byte[] offsets = this.offsets;
     offsets[offset] = offsets[offset + 1] = (byte) tail;
     numLists++;
-    ensureCapacity(list, capacity);
+    ensureCapacity(list, tail, capacity);
     return list;
   }
 
@@ -147,27 +148,30 @@ public final class StatList {
     return new StatListBuilder(this, newList(capacity));
   }
 
-  public void ensureCapacity(int list, int capacity) {
+  public void ensureCapacity(int list, int index, int capacity) {
     assertMutable();
     final int startOffset = startingOffset(list);
     final int endOffset = endingOffset(list);
     final int nextStartOffset = (list + 1) < numLists ? startingOffset(list + 1) : MAX_STATS;
     if (nextStartOffset - startOffset > capacity) {
-      if (tail == endOffset) tail += capacity;
+      if (tail == endOffset) {
+        if (tail + capacity >= MAX_STATS) throw new IllegalArgumentException(
+            "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
+        tail += capacity;
+      }
       return;
     }
 
     final int additionalCapacity = capacity - (nextStartOffset - endOffset);
-    if (tail + additionalCapacity >= MAX_STATS) {
-      throw new IllegalArgumentException("capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
-    }
+    if (tail + additionalCapacity >= MAX_STATS) throw new IllegalArgumentException(
+        "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
 
-    final int dstOffset = nextStartOffset + additionalCapacity;
-    final int length = tail - nextStartOffset;
-    System.arraycopy(ids, nextStartOffset, ids, dstOffset, length);
-    System.arraycopy(params, nextStartOffset, params, dstOffset, length);
-    System.arraycopy(values, nextStartOffset, values, dstOffset, length);
-    System.arraycopy(flags, nextStartOffset, flags, dstOffset, length);
+    final int dstOffset = index + additionalCapacity;
+    final int length = tail - index;
+    System.arraycopy(ids, index, ids, dstOffset, length);
+    System.arraycopy(params, index, params, dstOffset, length);
+    System.arraycopy(values, index, values, dstOffset, length);
+    System.arraycopy(flags, index, flags, dstOffset, length);
     tail += additionalCapacity;
 
     final byte[] offsets = this.offsets;
@@ -178,11 +182,11 @@ public final class StatList {
 
   public StatList copy(int list, StatList src, int srcList) {
     assertMutable();
+    final int dstListStart = this.startingOffset(list);
     final int length = src.size(srcList);
-    ensureCapacity(list, length);
+    ensureCapacity(list, dstListStart, length);
 
     final int srcListStart = src.startingOffset(srcList);
-    final int dstListStart = this.startingOffset(list);
     System.arraycopy(src.ids, srcListStart, this.ids, dstListStart, length);
     System.arraycopy(src.params, srcListStart, this.params, dstListStart, length);
     System.arraycopy(src.values, srcListStart, this.values, dstListStart, length);
@@ -214,6 +218,8 @@ public final class StatList {
     size = src.size;
     tail = src.tail;
     numLists = src.numLists;
+    maxLists = src.maxLists;
+    if (log.debugEnabled()) log.debug(toString());
     return this;
   }
 
@@ -619,7 +625,7 @@ public final class StatList {
       return;
     }
 
-    ensureCapacity(list, 1);
+    ensureCapacity(list, index, 1);
     set(index, stat, param, value, entry);
     size++;
 
@@ -628,6 +634,7 @@ public final class StatList {
     final int listsSize = numLists << 1;
     for (int i = ((list + 1) << 1); i < listsSize; i++) offsets[i]++;
     assert isSorted(offsets, 0, listsSize) : "offsets(" + Arrays.toString(offsets) + ") contains property lists that are out of order";
+    if (log.debugEnabled()) log.debug(listDebugString(list));
   }
 
   private void assertMutable() {
@@ -651,6 +658,7 @@ public final class StatList {
     final int endIndex = endingOffset(list);
     return new ToStringBuilder(this)
         .append("immutable", immutable)
+        .append("tail", tail)
         .append("offsets", '{' + StringUtils.join(offsets, ',', (list << 1), (list << 1) + 2) + '}')
         .append("ids", '{' + StringUtils.join(ids, ',', startIndex, endIndex) + '}')
         .append("values", '{' + StringUtils.join(values, ',', startIndex, endIndex) + '}')
@@ -663,6 +671,7 @@ public final class StatList {
   public String toString() {
     return new ToStringBuilder(this)
         .append("immutable", immutable)
+        .append("tail", tail)
         .append("offsets", '{' + StringUtils.join(offsets, ',', 0, numLists << 1) + '}')
         .append("ids", '{' + StringUtils.join(ids, ',', 0, tail) + '}')
         .append("values", '{' + StringUtils.join(values, ',', 0, tail) + '}')
