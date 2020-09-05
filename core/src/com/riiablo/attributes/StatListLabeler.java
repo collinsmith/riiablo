@@ -51,7 +51,7 @@ public class StatListLabeler {
     log.traceEntry("createLabel(stats: {}, opAttrs: {})", stats, opAttrs);
 //    assert stats.parent().numLists() == 1 : "Parent StatList contains more than 1 list";
 
-    descCount = 0;
+    clear();
     for (StatList.IndexIterator it = stats.indexIterator(); it.hasNext();) {
       final int index = it.next();
       final StatGetter stat = stats.get(index);
@@ -213,6 +213,13 @@ public class StatListLabeler {
     }
 
     return true;
+  }
+
+  private void clear() {
+    descCount = 0;
+    for (int i = 0; i < Stat.NUM_GROUPS; i++) {
+      Arrays.fill(dgrpCacheSize, 0);
+    }
   }
 
   private void add(int priority, String str) {
