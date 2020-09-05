@@ -404,6 +404,10 @@ public class Stat {
     return Riiablo.files.ItemStatCost.get(stat);
   }
 
+  static ItemStatCost.Entry entry(String stat) {
+    return Riiablo.files.ItemStatCost.get(stat);
+  }
+
   static short index(String stat) {
     return (short) Riiablo.files.ItemStatCost.index(stat);
   }
