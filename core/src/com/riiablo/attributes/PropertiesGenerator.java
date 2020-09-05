@@ -19,11 +19,11 @@ public class PropertiesGenerator {
    * @param max max value
    */
   public StatListBuilder add(
-      StatListBuilder stats,
-      String[] code,
-      int[] param,
-      int[] min,
-      int[] max) {
+      final StatListBuilder stats,
+      final String[] code,
+      final int[] param,
+      final int[] min,
+      final int[] max) {
     log.traceEntry("add(stats: {}, code: {}, param: {}, min: {}, max: {})", stats, code, param, min, max);
     for (int i = 0; i < code.length; i++) {
       final String c = code[i];
