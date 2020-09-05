@@ -156,7 +156,7 @@ public class PropertiesGenerator {
       }
       case 20: { // indestruct
         // TODO: set item maxdurability to 0?
-        stats.put(Stat.item_mindamage_percent, 1);
+        stats.put(Stat.item_indesctructible, 1);
         return;
       }
       case 21: { // ama, pal, nec, etc. (item_addclassskills) and fireskill
