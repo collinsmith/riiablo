@@ -49,7 +49,7 @@ public class StatListLabeler {
 
   public CharSequence createLabel(StatListGetter stats, Attributes opAttrs) {
     log.traceEntry("createLabel(stats: {}, opAttrs: {})", stats, opAttrs);
-    assert stats.parent().numLists() == 1 : "Parent StatList contains more than 1 list";
+//    assert stats.parent().numLists() == 1 : "Parent StatList contains more than 1 list";
 
     descCount = 0;
     for (StatList.IndexIterator it = stats.indexIterator(); it.hasNext();) {
