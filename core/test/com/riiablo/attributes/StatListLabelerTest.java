@@ -41,7 +41,8 @@ public class StatListLabelerTest {
 
   @BeforeClass
   public static void before() {
-    LogManager.setLevel("com.riiablo.attributes", Level.TRACE);
+    LogManager.setLevel("com.riiablo.attributes", Level.WARN);
+    LogManager.setLevel("com.riiablo.attributes.StatListLabeler", Level.TRACE);
   }
 
   private Attributes genCharacterAttrs(byte[] data, int bytesToSkip, int length) {
