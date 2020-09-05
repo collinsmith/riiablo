@@ -73,8 +73,8 @@ public class StatListLabelerTest {
 
   private Attributes genGemAttrs(String code) {
     PropertiesGenerator properties = new PropertiesGenerator();
-    GemUtils utils = new GemUtils(properties);
-    return utils.set(Attributes.gemAttributes(), code);
+    GemGenerator gems = new GemGenerator(properties);
+    return gems.set(Attributes.gemAttributes(), code);
   }
 
   @Test

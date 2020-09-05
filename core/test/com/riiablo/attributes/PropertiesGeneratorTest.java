@@ -38,9 +38,9 @@ public class PropertiesGeneratorTest {
 
   private void test(String code) {
     PropertiesGenerator properties = new PropertiesGenerator();
-    GemUtils utils = new GemUtils(properties);
+    GemGenerator gems = new GemGenerator(properties);
     Attributes attrs = Attributes.gemAttributes();
-    utils.set(attrs, code);
+    gems.set(attrs, code);
 
     StatListLabeler labeler = new StatListLabeler(new StatFormatter());
     for (int i = 0; i < StatListFlags.NUM_GEM_LISTS; i++) {

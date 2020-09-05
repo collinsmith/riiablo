@@ -3,12 +3,12 @@ package com.riiablo.attributes;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
 
-public class GemUtils {
+public class GemGenerator {
   protected PropertiesGenerator generator;
 
-  public GemUtils() {}
+  public GemGenerator() {}
 
-  GemUtils(PropertiesGenerator generator) {
+  GemGenerator(PropertiesGenerator generator) {
     this.generator = generator;
   }
 
