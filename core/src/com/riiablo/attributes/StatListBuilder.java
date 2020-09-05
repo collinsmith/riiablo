@@ -18,7 +18,7 @@ public final class StatListBuilder {
   /**
    * Returns the list index.
    */
-  public int index() {
+  public int listIndex() {
     return list;
   }
 
