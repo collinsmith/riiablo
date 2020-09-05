@@ -224,17 +224,17 @@ public class StatListLabeler {
 
   private void add(int priority, String str) {
     final Tuple tuple = desc[descCount++];
-    tuple.descPriotity = priority;
+    tuple.descPriority = priority;
     tuple.descString = str;
   }
 
   private static final class Tuple implements Comparable<Tuple> {
-    int descPriotity;
+    int descPriority;
     String descString;
 
     @Override
     public int compareTo(Tuple other) {
-      return NumberUtils.compare(descPriotity, other.descPriotity);
+      return NumberUtils.compare(descPriority, other.descPriority);
     }
 
     @Override
