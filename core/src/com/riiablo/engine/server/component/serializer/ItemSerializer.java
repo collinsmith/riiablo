@@ -17,8 +17,8 @@ import com.riiablo.net.packet.d2gs.ItemP;
 public class ItemSerializer implements FlatBuffersSerializer<Item, ItemP> {
   public static final ItemP table = new ItemP();
 
-  protected static final ItemReader itemReader = new ItemReader();
-  protected static final ItemWriter itemWriter = new ItemWriter();
+  protected static final ItemReader itemReader = new ItemReader(); // TODO: inject
+  protected static final ItemWriter itemWriter = new ItemWriter(); // TODO: inject
 
   @Override
   public byte getDataType() {

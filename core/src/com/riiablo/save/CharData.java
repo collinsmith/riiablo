@@ -73,9 +73,8 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   final Array<Stat>          chargedSkills = new Array<>(false, 16);
   final Array<SkillListener> skillListeners = new Array<>(false, 16);
 
-  /** TODO: inject this field? */
   @Deprecated
-  private static final ItemReader ITEM_READER = new ItemReader();
+  private static final ItemReader ITEM_READER = new ItemReader(); // TODO: inject
 
   /** Constructs a managed instance. Used for local players with complete save data */
   public static CharData loadFromD2S(int diff, D2S d2s) {

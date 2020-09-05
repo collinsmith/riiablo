@@ -30,8 +30,8 @@ public class Item {
   private static final boolean SIMPLE_FLAGS = !true;
   private static final boolean ONLY_KNOWN_FLAGS = SIMPLE_FLAGS && true;
 
-  private static final ItemReader DEFAULT_SERIALIZER = new ItemReader();
-  private static final ItemLabeler DEFAULT_LABELER = new ItemLabeler();
+  private static final ItemReader DEFAULT_SERIALIZER = new ItemReader(); // TODO: inject
+  private static final ItemLabeler DEFAULT_LABELER = new ItemLabeler(); // TODO: inject
 
   /**
    * @deprecated use {@link ItemReader#readItem(ByteInput)} instead!
