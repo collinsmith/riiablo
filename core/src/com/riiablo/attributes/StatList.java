@@ -27,8 +27,8 @@ public final class StatList {
     return EMPTY_LIST;
   }
 
-  private static final int MAX_LISTS = 8;
-  private static final int MAX_STATS = 32;
+  static final int MAX_LISTS = 8;
+  static final int MAX_STATS = 32;
 
   /** @see #encodeFlags */
   private static final int ENCODING_MASK = (1 << 3) - 1;
