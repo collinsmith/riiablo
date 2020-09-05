@@ -60,4 +60,29 @@ public class PropertiesGeneratorTest {
   public void Perfect_Diamond() {
     test("gpw");
   }
+
+  @Test
+  public void Chipped_Skull() {
+    test("skc");
+  }
+
+  @Test
+  public void Ber() {
+    test("r30");
+  }
+
+  @Test
+  public void Jah() {
+    test("r31");
+  }
+
+  @Test
+  public void Cham() {
+    test("r32");
+  }
+
+  @Test
+  public void Zod() {
+    test("r33");
+  }
 }
