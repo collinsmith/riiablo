@@ -238,6 +238,11 @@ public class Item {
     return (T) base;
   }
 
+  @SuppressWarnings("unchecked")
+  public <T extends ItemEntry> T getBase(Class<T> clazz) {
+    return (T) base;
+  }
+
   public boolean isBase(Class type) {
     return base.getClass().isAssignableFrom(type);
   }
