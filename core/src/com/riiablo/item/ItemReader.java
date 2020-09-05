@@ -22,7 +22,7 @@ public class ItemReader {
   }
 
   public Item readItem(ByteInput in) {
-    final int startOffset = in.bytesRead(); // TODO: remove when serialization implemented
+    final int startOffset = in.bytesRead(); /** @see Item#data */
     Item item = readSingleItem(in);
     if (item.socketsFilled > 0) log.trace("Reading {} sockets...", item.socketsFilled);
     for (int i = 0; i < item.socketsFilled; i++) {
@@ -35,8 +35,8 @@ public class ItemReader {
       }
     }
     final int endOffset = in.bytesRead();
-    final int itemSize = endOffset - startOffset; // TODO: remove when serialization implemented
-    item.data = in.duplicate(startOffset, itemSize); // TODO: remove when serialization implemented
+    final int itemSize = endOffset - startOffset;  /** @see Item#data */
+    item.data = in.duplicate(startOffset, itemSize);  /** @see Item#data */
     if (log.traceEnabled()) {
       log.trace("size: {} (0x{}) (+{} .. +{})",
           itemSize,
@@ -49,7 +49,7 @@ public class ItemReader {
 
   public Item readSingleItem(ByteInput in) {
     /** FIXME: workaround for {@link Item#loadFromStream(BitStream)} */
-    final int itemOffset = in.bytesRead(); // TODO: remove when serialization implemented
+    final int itemOffset = in.bytesRead();  /** @see Item#data */
     log.trace("Reading item...");
     log.trace("Validating item signature");
     in.readSignature(SIGNATURE);
@@ -85,8 +85,8 @@ public class ItemReader {
     }
 
     bits.align();
-    final int itemSize = in.bytesRead() - itemOffset; // TODO: remove when serialization implemented
-    item.data = in.duplicate(itemOffset, itemSize); // TODO: remove when serialization implemented
+    final int itemSize = in.bytesRead() - itemOffset;  /** @see Item#data */
+    item.data = in.duplicate(itemOffset, itemSize);  /** @see Item#data */
     return item;
   }
 
