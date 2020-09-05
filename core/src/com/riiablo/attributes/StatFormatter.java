@@ -281,6 +281,38 @@ public class StatFormatter {
     }
   }
 
+  public String formatEncoded(
+      final StatListGetter stats,
+      final int index,
+      final int encoded,
+      final String equalsStr,
+      final String rangeStr) {
+    switch (encoded) {
+      case 2: {
+        final int value1 = stats.get(index).asInt();
+        final int value2 = stats.get(index + 1).asInt();
+        if (value1 == value2) {
+          return Riiablo.string.format(equalsStr, value2);
+        } else {
+          return Riiablo.string.format(rangeStr, value1, value2);
+        }
+      }
+      case 3: {
+        final int value1 = stats.get(index).asInt();
+        final int value2 = stats.get(index + 1).asInt();
+        final int value3 = stats.get(index + 2).asInt();
+        if (value1 == value2) {
+          return Riiablo.string.format(equalsStr, value2, value3);
+        } else {
+          return Riiablo.string.format(rangeStr, value1, value2, value3);
+        }
+      }
+      default:
+        log.warn("Unknown encoded(" + encoded + "): expected 2 or 3");
+        return "INVALID_ENCODED(" + encoded + ")";
+    }
+  }
+
   /** @see AttributesUpdater#op(CharStats.Entry, StatListBuilder, StatGetter, StatGetter, int, int, int) */
   private static int op(StatGetter stat, Attributes opAttrs) {
     final ItemStatCost.Entry entry = stat.entry();
