@@ -113,10 +113,12 @@ public final class StatList {
 
   public void clearList(int list) {
     assertMutable();
-    size -= size(list);
+    final int listSize = size(list);
+    size -= listSize;
     assert size >= 0;
     final int offset = list << 1;
     final byte[] offsets = this.offsets;
+    if (offsets[offset + 1] == tail) tail -= listSize;
     offsets[offset + 1] = offsets[offset];
   }
 
@@ -148,36 +150,61 @@ public final class StatList {
     return new StatListBuilder(this, newList(capacity));
   }
 
-  public void ensureCapacity(int list, int index, int capacity) {
+  private void arraycopy(int srcIndex, int dstIndex, int length) {
+    log.traceEntry("arraycopy(srcIndex: {}, dstIndex: {}, length: {})", srcIndex, dstIndex, length);
+    arraycopy(this, srcIndex, this, dstIndex, length);
+  }
+
+  private static void arraycopy(
+      final StatList src, final int srcIndex,
+      final StatList dst, final int dstIndex,
+      final int length) {
+    log.traceEntry(
+        "arraycopy(src: {}, srcIndex: {}, dst: {}, dstIndex: {}, length: {})",
+        src, srcIndex, dst, dstIndex, length);
+    System.arraycopy(src.ids, srcIndex, dst.ids, dstIndex, length);
+    System.arraycopy(src.params, srcIndex, dst.params, dstIndex, length);
+    System.arraycopy(src.values, srcIndex, dst.values, dstIndex, length);
+    System.arraycopy(src.flags, srcIndex, dst.flags, dstIndex, length);
+  }
+
+  public void ensureCapacity(final int list, final int index, final int capacity) {
+    log.traceEntry("ensureCapacity(list: {}, index: {}, capacity: {})", list, index, capacity);
     assertMutable();
-    final int startOffset = startingOffset(list);
     final int endOffset = endingOffset(list);
+    final int shiftLength = endOffset - index;
+    final int newEndOffset = endOffset + capacity;
     final int nextStartOffset = (list + 1) < numLists ? startingOffset(list + 1) : MAX_STATS;
-    if (nextStartOffset - startOffset > capacity) {
-      if (tail == endOffset) {
-        if (tail + capacity >= MAX_STATS) throw new IllegalArgumentException(
-            "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
-        tail += capacity;
-      }
+    final int listsSize = numLists << 1;
+    final byte[] offsets = this.offsets;
+    assert shiftLength >= 0
+          : "shiftLength(" + shiftLength + ") < " + 0 + ": cannot ensure capacity ahead of end offset";
+    if (shiftLength > 0 && newEndOffset < nextStartOffset) {
+      if (newEndOffset >= MAX_STATS) throw new IllegalArgumentException(
+          "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
+
+      arraycopy(index, index + capacity, shiftLength);
+      if (tail == endOffset) tail = newEndOffset;
+      offsets[(list << 1) + 1] = (byte) newEndOffset;
+      assert isSorted(offsets, 0, listsSize)
+          : "offsets(" + ByteBufUtil.hexDump(offsets, 0, listsSize) + ") contains property lists that are out of order";
       return;
     }
 
-    final int additionalCapacity = capacity - (nextStartOffset - endOffset);
+    final int additionalCapacity = newEndOffset - nextStartOffset;
     if (tail + additionalCapacity >= MAX_STATS) throw new IllegalArgumentException(
         "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
 
-    final int dstOffset = index + additionalCapacity;
-    final int length = tail - index;
-    System.arraycopy(ids, index, ids, dstOffset, length);
-    System.arraycopy(params, index, params, dstOffset, length);
-    System.arraycopy(values, index, values, dstOffset, length);
-    System.arraycopy(flags, index, flags, dstOffset, length);
-    tail += additionalCapacity;
-
-    final byte[] offsets = this.offsets;
-    final int listsSize = numLists << 1;
-    for (int i = ((list + 1) << 1); i < listsSize; i++) offsets[i] += additionalCapacity;
-    assert isSorted(offsets, 0, listsSize) : "offsets(" + ByteBufUtil.hexDump(offsets, 0, listsSize) + ") contains property lists that are out of order";
+    arraycopy(index, index + capacity, tail - index);
+    if (additionalCapacity > 0) {
+      tail += additionalCapacity;
+      for (int i = ((list + 1) << 1); i < listsSize; i++) {
+        offsets[i] += additionalCapacity;
+      }
+      assert isSorted(offsets, 0, listsSize) : "offsets(" + ByteBufUtil.hexDump(offsets, 0, listsSize) + ") contains property lists that are out of order";
+    } else if (tail == endOffset) {
+      tail = offsets[(list << 1) + 1] = (byte) newEndOffset;
+    }
   }
 
   public StatList copy(int list, StatList src, int srcList) {
@@ -187,15 +214,9 @@ public final class StatList {
     ensureCapacity(list, dstListStart, length);
 
     final int srcListStart = src.startingOffset(srcList);
-    System.arraycopy(src.ids, srcListStart, this.ids, dstListStart, length);
-    System.arraycopy(src.params, srcListStart, this.params, dstListStart, length);
-    System.arraycopy(src.values, srcListStart, this.values, dstListStart, length);
-    System.arraycopy(src.flags, srcListStart, this.flags, dstListStart, length);
+    arraycopy(src, srcListStart, this, dstListStart, length);
     size += length;
-
-    final byte[] offsets = this.offsets;
-    offsets[(list << 1) + 1] += length;
-    assert isSorted(offsets, 0, numLists << 1) : "offsets(" + ByteBufUtil.hexDump(offsets, 0, numLists << 1) + ") contains property lists that are out of order";
+    if (log.debugEnabled()) log.debug(listDebugString(list));
     return this;
   }
 
@@ -209,12 +230,8 @@ public final class StatList {
   public StatList setAll(StatList src) {
     assertMutable();
     clear();
-    final int length = src.tail;
     System.arraycopy(src.offsets, 0, this.offsets, 0, src.numLists() << 1);
-    System.arraycopy(src.ids, 0, this.ids, 0, length);
-    System.arraycopy(src.params, 0, this.params, 0, length);
-    System.arraycopy(src.values, 0, this.values, 0, length);
-    System.arraycopy(src.flags, 0, this.flags, 0, length);
+    arraycopy(src, 0, this, 0, src.tail);
     size = src.size;
     tail = src.tail;
     numLists = src.numLists;
@@ -262,7 +279,7 @@ public final class StatList {
     if (log.debugEnabled()) log.debug(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.asString(otherIndex));
-    if (index >= 0) {
+    if (index >= 0 && ids[index] == stat) {
       values[index] += src.values[otherIndex];
       return index;
     } else {
@@ -281,7 +298,7 @@ public final class StatList {
     if (log.debugEnabled()) log.debug(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.debugString());
-    if (index >= 0) {
+    if (index >= 0 && ids[index] == stat) {
       values[index] += src.value();
       return index;
     } else {
@@ -354,7 +371,7 @@ public final class StatList {
         "stat: {} ({}) has unsupported encoding({})", stat, entry, encoding);
 
     final int index = indexOf(list, stat, param);
-    if (index >= 0) {
+    if (index >= 0 && ids[index] == stat && params[index] == param) {
       set(index, stat, param, value, entry);
       if (log.debugEnabled()) log.debug(indexDebugString(index));
       return index;
@@ -629,11 +646,6 @@ public final class StatList {
     set(index, stat, param, value, entry);
     size++;
 
-    final byte[] offsets = this.offsets;
-    offsets[(list << 1) + 1]++;
-    final int listsSize = numLists << 1;
-    for (int i = ((list + 1) << 1); i < listsSize; i++) offsets[i]++;
-    assert isSorted(offsets, 0, listsSize) : "offsets(" + Arrays.toString(offsets) + ") contains property lists that are out of order";
     if (log.debugEnabled()) log.debug(listDebugString(list));
   }
 
