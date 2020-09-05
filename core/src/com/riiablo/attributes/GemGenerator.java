@@ -45,6 +45,7 @@ public class GemGenerator {
     } finally {
       MDC.remove("propList");
     }
+    stats.freeze();
     return attrs;
   }
 }
