@@ -39,12 +39,12 @@ public class StatFormatter {
       "ModStre9e", "ModStre9g", "ModStre9d", "ModStre9f",
   };
 
-  public CharSequence format(StatGetter stat, Attributes opAttrs) {
+  public String format(StatGetter stat, Attributes opAttrs) {
     final ItemStatCost.Entry entry = stat.entry();
     return format(stat, opAttrs, entry.descfunc, entry.descval, entry.descstrpos, entry.descstrneg, entry.descstr2);
   }
 
-  public CharSequence format(
+  public String format(
       final StatGetter stat,
       final Attributes opAttrs,
       final int func,
