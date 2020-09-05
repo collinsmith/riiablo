@@ -45,6 +45,10 @@ public class StatListLabelerTest {
     LogManager.setLevel("com.riiablo.attributes.StatListLabeler", Level.TRACE);
   }
 
+  private static StatListLabeler newInstance() {
+    return new StatListLabeler(new StatFormatter());
+  }
+
   private Attributes genCharacterAttrs(byte[] data, int bytesToSkip, int length) {
     ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, bytesToSkip, length));
     BitInput bitInput = in.skipBytes(2).unalign(); // skip signature
@@ -74,7 +78,7 @@ public class StatListLabelerTest {
     AttributesUpdater updater = new AttributesUpdater();
     updater.update(stats, attrs);
 
-    StatListLabeler labeler = new StatListLabeler();
+    StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
   }
 
@@ -86,7 +90,7 @@ public class StatListLabelerTest {
     AttributesUpdater updater = new AttributesUpdater();
     updater.update(stats, attrs);
 
-    StatListLabeler labeler = new StatListLabeler();
+    StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
   }
 
@@ -98,7 +102,7 @@ public class StatListLabelerTest {
     AttributesUpdater updater = new AttributesUpdater();
     updater.update(stats, attrs);
 
-    StatListLabeler labeler = new StatListLabeler();
+    StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
   }
 
@@ -110,7 +114,7 @@ public class StatListLabelerTest {
     AttributesUpdater updater = new AttributesUpdater();
     updater.update(stats, attrs);
 
-    StatListLabeler labeler = new StatListLabeler();
+    StatListLabeler labeler = newInstance();
     System.out.println("----------");
     System.out.println(labeler.createDebugLabel(stats.list(ITEM_MAGIC_LIST), attrs));
     System.out.println("----------");

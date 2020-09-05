@@ -28,7 +28,13 @@ public class StatListLabeler {
   }
   private int descCount;
 
-  protected StatFormatter formatter = new StatFormatter();
+  protected StatFormatter formatter;
+
+  public StatListLabeler() {}
+
+  public StatListLabeler(StatFormatter formatter) {
+    this.formatter = formatter;
+  }
 
   public CharSequence createDebugLabel(StatListGetter stats, Attributes opAttrs) {
     builder.setLength(0);
