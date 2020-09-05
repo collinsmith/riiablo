@@ -571,11 +571,13 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         ;
     if (!DEBUG_TOUCHPAD && Gdx.app.getType() == Application.ApplicationType.Desktop) {
       builder.with(new CursorMovementSystem());
-      builder.with(new Actioneer()); // TODO: move to more appropriate spot in list
-      builder.with(new SkillCastHandler()); // TODO: move to more appropriate spot in list
-      builder.with(new OverlayManager()); // TODO: move to more appropriate spot in list
-      builder.with(new OverlayStepper()); // TODO: move to more appropriate spot in list
     }
+    builder
+        .with(new Actioneer()) // TODO: move to more appropriate spot in list
+        .with(new SkillCastHandler()) // TODO: move to more appropriate spot in list
+        .with(new OverlayManager()) // TODO: move to more appropriate spot in list
+        .with(new OverlayStepper()) // TODO: move to more appropriate spot in list
+        ;
     if (socket == null) {
       builder.with(new ItemGenerator());
       builder.with(new VendorGenerator());

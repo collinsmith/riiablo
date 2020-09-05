@@ -1,5 +1,6 @@
 package com.riiablo.screen.panel;
 
+import com.artemis.ComponentMapper;
 import net.mostlyoriginal.api.event.common.EventSystem;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
@@ -19,6 +20,8 @@ import com.riiablo.codec.DC6;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.event.InteractEvent;
 import com.riiablo.engine.server.Actioneer;
+import com.riiablo.engine.server.component.Angle;
+import com.riiablo.engine.server.component.Position;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
 
@@ -28,6 +31,10 @@ public class MobileControls extends WidgetGroup implements Disposable {
 
   final AssetDescriptor<DC6> SoSkilliconDescriptor = new AssetDescriptor<>("data\\global\\ui\\SPELLS\\SoSkillicon.DC6", DC6.class);
   DC6 SoSkillicon;
+
+  protected ComponentMapper<Angle> mAngle;
+  protected ComponentMapper<Position> mPosition;
+  private final Vector2 tmpVec2 = new Vector2();
 
   protected EventSystem events;
   protected Actioneer actioneer;
@@ -93,7 +100,9 @@ public class MobileControls extends WidgetGroup implements Disposable {
         HotkeyButton actor = (HotkeyButton) event.getListenerActor();
         final int skillId = actor.getSkill();
         if (skillId == -1) return;
-        actioneer.cast(Riiablo.game.player, skillId, Engine.INVALID_ENTITY, Vector2.Zero);
+        final int player = Riiablo.game.player;
+        tmpVec2.set(mAngle.get(player).target).scl(12).add(mPosition.get(player).position);
+        actioneer.cast(player, skillId, Engine.INVALID_ENTITY, tmpVec2);
         // TODO: above target is placeholder
       }
     };
