@@ -28,6 +28,18 @@ public class AttributesUpdater {
     return attrs;
   }
 
+  public Attributes add(Attributes attrs, StatListGetter stats, Attributes opAttrs) {
+    return add(attrs, stats, opAttrs, null);
+  }
+
+  public Attributes add(Attributes attrs, StatListGetter stats, Attributes opAttrs, CharStats.Entry charStats) {
+    final StatListGetter base = attrs.base();
+    final StatListBuilder agg = attrs.aggregate().builder();
+    final StatListBuilder rem = attrs.remaining().builder();
+    update(opAttrs, charStats, stats, base, agg, rem);
+    return attrs;
+  }
+
   private static void update(
       final Attributes opAttrs,
       final CharStats.Entry charStats,

@@ -20,6 +20,7 @@ import com.riiablo.mpq.MPQFileHandleResolver;
 
 import static com.riiablo.attributes.StatListFlags.FLAG_MAGIC;
 import static com.riiablo.attributes.StatListFlags.FLAG_RUNE;
+import static com.riiablo.attributes.StatListFlags.GEM_SHIELD_LIST;
 import static com.riiablo.attributes.StatListFlags.ITEM_MAGIC_LIST;
 import static com.riiablo.attributes.StatListFlags.ITEM_RUNE_LIST;
 import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
@@ -68,6 +69,12 @@ public class StatListLabelerTest {
     final Attributes attrs = Attributes.aggregateAttributes();
     reader.read(attrs, bitInput, flags, NUM_ITEM_LISTS);
     return attrs;
+  }
+
+  private Attributes genGemAttrs(String code) {
+    PropertiesGenerator properties = new PropertiesGenerator();
+    GemUtils utils = new GemUtils(properties);
+    return utils.set(Attributes.gemAttributes(), code);
   }
 
   @Test
@@ -123,6 +130,14 @@ public class StatListLabelerTest {
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
     System.out.println("----------");
 
-//    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+    Attributes tal = genGemAttrs("r07");
+    Attributes thul = genGemAttrs("r10");
+    Attributes ort = genGemAttrs("r09");
+    Attributes amn = genGemAttrs("r11");
+    updater.add(stats, tal.list(GEM_SHIELD_LIST), attrs);
+    updater.add(stats, thul.list(GEM_SHIELD_LIST), attrs);
+    updater.add(stats, ort.list(GEM_SHIELD_LIST), attrs);
+    updater.add(stats, amn.list(GEM_SHIELD_LIST), attrs);
+    System.out.println(labeler.createLabel(stats.remaining(), attrs));
   }
 }
