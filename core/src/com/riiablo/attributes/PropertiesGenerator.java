@@ -12,7 +12,18 @@ import com.riiablo.logger.MDC;
 public class PropertiesGenerator {
   private static final Logger log = LogManager.getLogger(PropertiesGenerator.class);
 
-  public StatListBuilder add(StatListBuilder stats, String[] code, int[] param, int[] min, int[] max) {
+  /**
+   * @param code properties file keys (res-all, ac/lvl, str, etc)
+   * @param param parameter for the resulting stat (e.g., effect duration)
+   * @param min min value
+   * @param max max value
+   */
+  public StatListBuilder add(
+      StatListBuilder stats,
+      String[] code,
+      int[] param,
+      int[] min,
+      int[] max) {
     log.traceEntry("add(stats: {}, code: {}, param: {}, min: {}, max: {})", stats, code, param, min, max);
     for (int i = 0; i < code.length; i++) {
       final String c = code[i];
@@ -33,12 +44,23 @@ public class PropertiesGenerator {
     return stats;
   }
 
+  /**
+   * @param propId some properties reference siblings, this is active index
+   */
   // TODO: These might need support for assigning ranges if used when generating item stats
-  void add(StatListBuilder stats, Properties.Entry prop, int j, int param, int min, int max) {
-    log.traceEntry("add(stats: {}, prop: {}, j: {}, param: {}, min: {}, max: {})", stats, prop, j, param, min, max);
+  void add(
+      final StatListBuilder stats,
+      final Properties.Entry prop,
+      final int propId,
+      final int param,
+      final int min,
+      final int max) {
+    log.traceEntry(
+        "add(stats: {}, prop: {}, propId: {}, param: {}, min: {}, max: {})",
+        stats, prop, propId, param, min, max);
     // NOTE: some stats have a function without a stat, e.g., dmg-min -- func 5
-    ItemStatCost.Entry entry = Stat.entry(prop.stat[j]);
-    final int func = prop.func[j];
+    ItemStatCost.Entry entry = Stat.entry(prop.stat[propId]);
+    final int func = prop.func[propId];
     log.trace("func: {}", func);
     switch (func) {
       case 1: { // vit, str, hp, etc.
@@ -53,8 +75,8 @@ public class PropertiesGenerator {
       }
       case 3: { // res-all, all-stats, etc -- copy previous
         final StatGetter last = stats.last();
-        assert last.id() == Stat.entry(prop.stat[j - 1]).ID :
-            "last.id(" + last.id() + ") != prop.stat(" + prop.stat[j - 1] + ")";
+        assert last.id() == Stat.entry(prop.stat[propId - 1]).ID :
+            "last.id(" + last.id() + ") != prop.stat(" + prop.stat[propId - 1] + ")";
         stats.put((short) entry.ID, last.param(), last.value());
         return;
       }
@@ -139,7 +161,7 @@ public class PropertiesGenerator {
       }
       case 21: { // ama, pal, nec, etc. (item_addclassskills) and fireskill
         final int value = random(min, max);
-        final int _param = prop.val[j];
+        final int _param = prop.val[propId];
         stats.put((short) entry.ID, _param, value);
         return;
       }
@@ -160,7 +182,7 @@ public class PropertiesGenerator {
         return;
       }
       case 36: { // randclassskill
-        final int value = prop.val[j]; // skill levels
+        final int value = prop.val[propId]; // skill levels
         final int _param = random(min, max); // random class
         stats.put((short) entry.ID, _param, value);
         return;
