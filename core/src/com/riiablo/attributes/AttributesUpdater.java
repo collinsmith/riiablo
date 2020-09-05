@@ -16,6 +16,7 @@ public class AttributesUpdater {
 
   public Attributes update(Attributes attrs, Attributes opAttrs, CharStats.Entry charStats) {
     log.traceEntry("update(attrs: {}, opAttrs: {}, charStats: {})", attrs, opAttrs, charStats);
+    if (!(attrs instanceof AggregateAttributes)) return attrs; // no-op
     final StatList list = attrs.list();
     if (list.isEmpty()) return attrs;
     final StatListGetter base = attrs.base();
@@ -33,6 +34,7 @@ public class AttributesUpdater {
   }
 
   public Attributes add(Attributes attrs, StatListGetter stats, Attributes opAttrs, CharStats.Entry charStats) {
+    if (!(attrs instanceof AggregateAttributes)) return attrs; // no-op
     final StatListGetter base = attrs.base();
     final StatListBuilder agg = attrs.aggregate().builder();
     final StatListBuilder rem = attrs.remaining().builder();
