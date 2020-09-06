@@ -22,6 +22,16 @@ public class StatListFlags {
 
   static final int ITEM_SET_MASK = FLAG_SET_2 | FLAG_SET_3 | FLAG_SET_4 | FLAG_SET_5 | FLAG_SET_6;
 
+  /**
+   * Unsets all set item flags and sets the flag for the currently applied set
+   * item. Does not modify any other flags.
+   */
+  public static int getAggItemFlags(int flags, int numSetItemsEquipped) {
+    flags &= ~ITEM_SET_MASK;
+    flags |= getSetItemEquippedFlag(numSetItemsEquipped);
+    return flags;
+  }
+
   static String itemToString(int i) {
     switch (i) {
       case ITEM_MAGIC_LIST:
@@ -44,32 +54,26 @@ public class StatListFlags {
     return Integer.bitCount(flags & ITEM_SET_MASK);
   }
 
-  static int getSetItemEquippedFlag(int numItems) {
+  public static int getSetItemEquippedFlag(int numItems) {
     if (numItems < 0 || numItems > 6) {
-      log.warn("numItems({}) not within [0..6]", numItems);
-      return 0;
-    }
-
-    if (numItems < 2) {
-      return 0;
+      log.warn("numItems({}) not within [{}..{}]", numItems, 0, 6);
+      return FLAG_NONE;
+    } else if (numItems < 2) {
+      return FLAG_NONE;
     }
 
     return 1 << (ITEM_SET_LIST + (numItems - 2));
   }
 
-  static int getSetItemFlags(int numItems) {
-    int flags = FLAG_NONE;
-    switch (numItems) {
-      case 6: flags |= FLAG_SET_6; // fall-through
-      case 5: flags |= FLAG_SET_5; // fall-through
-      case 4: flags |= FLAG_SET_4; // fall-through
-      case 3: flags |= FLAG_SET_3; // fall-through
-      case 2: flags |= FLAG_SET_2;
-        return flags;
-      default:
-        log.warn("numItems({}) not within [2..6]", numItems);
-        return flags;
+  public static int getSetItemFlags(int numItems) {
+    if (numItems < 0 || numItems > 6) {
+      log.warn("numItems({}) not within [{}..{}]", numItems, 0, 6);
+      return FLAG_NONE;
+    } else if (numItems < 2) {
+      return FLAG_NONE;
     }
+
+    return ((1 << (numItems - 1)) - 1) << ITEM_SET_LIST;
   }
 
   static final int GEM_WEAPON_LIST = 0;
