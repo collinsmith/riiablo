@@ -75,11 +75,7 @@ public final class StatListGetter implements Iterable<StatGetter> {
   /** @see StatList#indexOf(int, short) */
   public StatGetter get(short stat) {
     final int index = indexOf(stat);
-    if (index < 0) {
-      log.warn("stats({}) list({}) did not contain stat({})", stats, list, stat);
-      return null;
-    }
-
+    if (index < 0) return null;
     return tuple.set(stats, index);
   }
 
