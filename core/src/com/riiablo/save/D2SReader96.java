@@ -7,6 +7,10 @@ import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.StatGetter;
+import com.riiablo.attributes.StatListGetter;
+import com.riiablo.attributes.StatListReader;
 import com.riiablo.codec.COF;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
@@ -151,7 +155,7 @@ public class D2SReader96 {
       }
   }
 
-  static D2S readRemaining(D2S d2s, ByteInput in, ItemReader itemReader) {
+  static D2S readRemaining(D2S d2s, ByteInput in, StatListReader statReader, ItemReader itemReader) {
     try {
       MDC.put("d2s.name", d2s.name);
 
@@ -165,7 +169,7 @@ public class D2SReader96 {
       d2s.npcs = readNPCData(in);
 
       MDC.put("d2s.section", "stats");
-      d2s.stats = readStatData(in);
+      d2s.stats = readStatData(in, statReader);
 
       recover(in, SKILLS_SIGNATURE, "skills");
       MDC.put("d2s.section", "skills");
@@ -273,82 +277,13 @@ public class D2SReader96 {
     return npcs;
   }
 
-  static D2S.StatData readStatData(ByteInput in) {
+  static D2S.StatData readStatData(ByteInput in, StatListReader statReader) {
     log.trace("Validating stats signature");
     in.readSignature(STATS_SIGNATURE);
     D2S.StatData stats = new D2S.StatData();
+    final Attributes attrs = stats.attrs = Attributes.aggregateAttributes();
     BitInput bits = in.unalign();
-    for (short id; (id = bits.read15u(9)) != Stat.NONE;) {
-      switch (id) {
-        case 0:
-          stats.strength = bits.read31u(numStatBits(id));
-          log.trace("stats.strength: {}", stats.strength);
-          break;
-        case 1:
-          stats.energy = bits.read31u(numStatBits(id));
-          log.trace("stats.energy: {}", stats.energy);
-          break;
-        case 2:
-          stats.dexterity = bits.read31u(numStatBits(id));
-          log.trace("stats.dexterity: {}", stats.dexterity);
-          break;
-        case 3:
-          stats.vitality = bits.read31u(numStatBits(id));
-          log.trace("stats.vitality: {}", stats.vitality);
-          break;
-        case 4:
-          stats.statpts = bits.read31u(numStatBits(id));
-          log.trace("stats.statpts: {}", stats.statpts);
-          break;
-        case 5:
-          stats.newskills = bits.read31u(numStatBits(id));
-          log.trace("stats.newskills: {}", stats.newskills);
-          break;
-        case 6:
-          stats.hitpoints = bits.read31u(numStatBits(id));
-          log.trace("stats.hitpoints: {}", stats.hitpoints);
-          break;
-        case 7:
-          stats.maxhp = bits.read31u(numStatBits(id));
-          log.trace("stats.maxhp: {}", stats.maxhp);
-          break;
-        case 8:
-          stats.mana = bits.read31u(numStatBits(id));
-          log.trace("stats.mana: {}", stats.mana);
-          break;
-        case 9:
-          stats.maxmana = bits.read31u(numStatBits(id));
-          log.trace("stats.maxmana: {}", stats.maxmana);
-          break;
-        case 10:
-          stats.stamina = bits.read31u(numStatBits(id));
-          log.trace("stats.stamina: {}", stats.stamina);
-          break;
-        case 11:
-          stats.maxstamina = bits.read31u(numStatBits(id));
-          log.trace("stats.maxstamina: {}", stats.maxstamina);
-          break;
-        case 12:
-          stats.level = bits.read31u(numStatBits(id));
-          log.trace("stats.level: {}", stats.level);
-          break;
-        case 13:
-          stats.experience = bits.read63u(numStatBits(id));
-          log.trace("stats.experience: {}", stats.experience);
-          break;
-        case 14:
-          stats.gold = bits.read31u(numStatBits(id));
-          log.trace("stats.gold: {}", stats.gold);
-          break;
-        case 15:
-          stats.goldbank = bits.read31u(numStatBits(id));
-          log.trace("stats.goldbank: {}", stats.goldbank);
-          break;
-        default:
-          throw new InvalidFormat(in, "Unexpected stat id: " + id);
-      }
-    }
-
+    statReader.read(attrs, bits, true);
     bits.align();
     return stats;
   }
@@ -495,22 +430,12 @@ public class D2SReader96 {
     }
 
     PropertyList base = data.statData.base();
-    base.put(Stat.strength, d2s.stats.strength);
-    base.put(Stat.energy, d2s.stats.energy);
-    base.put(Stat.dexterity, d2s.stats.dexterity);
-    base.put(Stat.vitality, d2s.stats.vitality);
-    base.put(Stat.statpts, d2s.stats.statpts);
-    base.put(Stat.newskills, d2s.stats.newskills);
-    base.put(Stat.hitpoints, d2s.stats.hitpoints);
-    base.put(Stat.maxhp, d2s.stats.maxhp);
-    base.put(Stat.mana, d2s.stats.mana);
-    base.put(Stat.maxmana, d2s.stats.maxmana);
-    base.put(Stat.stamina, d2s.stats.stamina);
-    base.put(Stat.maxstamina, d2s.stats.maxstamina);
-    base.put(Stat.level, d2s.stats.level);
-    base.put(Stat.experience, (int) d2s.stats.experience);
-    base.put(Stat.gold, d2s.stats.gold);
-    base.put(Stat.goldbank, d2s.stats.goldbank);
+    StatListGetter stats = d2s.stats.attrs.base();
+    for (int i = Stat.strength; i <= Stat.goldbank; i++) {
+      // FIXME: workaround to ensure compat -- I'm not certain if all d2s contain all these stats
+      StatGetter stat = stats.get((short) i);
+      base.put(i, stat != null ? stat.asInt() : 0);
+    }
 
     CharacterClass classId = data.classId;
     for (int spellId = classId.firstSpell, s = classId.lastSpell, i = 0; spellId < s; spellId++, i++) {

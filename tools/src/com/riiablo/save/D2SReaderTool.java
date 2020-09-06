@@ -12,6 +12,7 @@ import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.Files;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.StatListReader;
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.io.ByteInput;
 import com.riiablo.item.ItemReader;
@@ -46,14 +47,16 @@ public class D2SReaderTool extends ApplicationAdapter {
 
     LogManager.setLevel("com.riiablo.save", Level.ALL);
     LogManager.setLevel("com.riiablo.item", Level.ALL);
+    LogManager.setLevel("com.riiablo.attributes", Level.INFO);
 
     ItemReader itemReader = new ItemReader();
+    StatListReader statReader = new StatListReader();
     D2SReader serializer = D2SReader.INSTANCE;
     for (String d2ss0 : d2ss) {
       FileHandle handle = Riiablo.home.child("Save/" + d2ss0 + '.' + D2S.EXT);
       ByteInput byteInput = ByteInput.wrap(handle.readBytes());
       D2S d2s = serializer.readD2S(byteInput);
-      serializer.readRemaining(d2s, byteInput, itemReader);
+      serializer.readRemaining(d2s, byteInput, statReader, itemReader);
     }
 
     Gdx.app.exit();

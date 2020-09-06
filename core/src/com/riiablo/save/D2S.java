@@ -3,6 +3,7 @@ package com.riiablo.save;
 import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
 import com.riiablo.item.Item;
 
 public class D2S {
@@ -226,22 +227,7 @@ public class D2S {
   }
 
   public static class StatData {
-    public int strength;
-    public int energy;
-    public int dexterity;
-    public int vitality;
-    public int statpts;
-    public int newskills;
-    public int hitpoints;
-    public int maxhp;
-    public int mana;
-    public int maxmana;
-    public int stamina;
-    public int maxstamina;
-    public int level;
-    public long experience;
-    public int gold;
-    public int goldbank;
+    Attributes attrs;
   }
 
   public static class SkillData {

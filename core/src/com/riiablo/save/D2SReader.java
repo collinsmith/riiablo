@@ -4,6 +4,7 @@ import io.netty.util.ByteProcessor;
 
 import com.badlogic.gdx.files.FileHandle;
 
+import com.riiablo.attributes.StatListReader;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.InvalidFormat;
 import com.riiablo.io.UnsafeNarrowing;
@@ -75,12 +76,12 @@ public enum D2SReader {
     }
   }
 
-  public D2S readRemaining(D2S d2s, ByteInput in, ItemReader itemReader) {
+  public D2S readRemaining(D2S d2s, ByteInput in, StatListReader statReader, ItemReader itemReader) {
     try {
       MDC.put("d2s.version", d2s.version);
       switch (d2s.version) {
         case D2S.VERSION_110:
-          return D2SReader96.readRemaining(d2s, in, itemReader);
+          return D2SReader96.readRemaining(d2s, in, statReader, itemReader);
         case D2S.VERSION_100:
         case D2S.VERSION_107:
         case D2S.VERSION_108:

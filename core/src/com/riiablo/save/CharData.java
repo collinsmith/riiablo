@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Pool;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.StatListReader;
 import com.riiablo.codec.excel.DifficultyLevels;
 import com.riiablo.io.ByteInput;
 import com.riiablo.item.Attributes;
@@ -75,6 +76,8 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
 
   @Deprecated
   private static final ItemReader ITEM_READER = new ItemReader(); // TODO: inject
+  @Deprecated
+  private static final StatListReader STAT_READER = new StatListReader(); // TODO: inject
 
   /** Constructs a managed instance. Used for local players with complete save data */
   public static CharData loadFromD2S(int diff, D2S d2s) {
@@ -86,7 +89,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     byte[] bytes = BufferUtils.readRemaining(buffer);
     ByteInput in = ByteInput.wrap(bytes);
     D2S d2s = D2SReader.INSTANCE.readD2S(in);
-    D2SReader.INSTANCE.readRemaining(d2s, in, ITEM_READER);
+    D2SReader.INSTANCE.readRemaining(d2s, in, STAT_READER, ITEM_READER);
     D2SWriterStub.put(d2s, bytes);
     return new CharData().set(diff, false).load(d2s);
   }
@@ -154,7 +157,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
       assert data != null : "d2s.bodyRead(" + d2s.bodyRead() + ") but data == null";
       ByteInput in = ByteInput.wrap(data);
       in.skipBytes(D2SReader96.HEADER_SIZE);
-      D2SReader.INSTANCE.readRemaining(d2s, in, ITEM_READER);
+      D2SReader.INSTANCE.readRemaining(d2s, in, STAT_READER, ITEM_READER);
     }
     D2SReader.INSTANCE.copyTo(d2s, this);
     preprocessItems();
