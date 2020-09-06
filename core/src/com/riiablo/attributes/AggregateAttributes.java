@@ -10,6 +10,10 @@ public class AggregateAttributes extends Attributes {
   final StatList agg = StatList.obtain(1);
   final StatList rem = StatList.obtain(1);
 
+  AggregateAttributes(byte type) {
+    super(type);
+  }
+
   @Override
   public StatListGetter base() {
     if (!base.contains(0)) base.newList(0);

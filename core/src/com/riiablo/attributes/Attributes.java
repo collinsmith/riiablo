@@ -4,35 +4,58 @@ import android.support.annotation.CallSuper;
 import java.util.Iterator;
 
 public abstract class Attributes implements Iterable<StatGetter> {
-  /**
-   * an arithmetic association of StatList
-   *
-   * item property lists will be frozen after creation
-   * base stats should be mutable for players, monsters
-   *
-   * descriptions
-   */
-
   public static AggregateAttributes aggregateAttributes() {
-    return new AggregateAttributes();
+    return new AggregateAttributes(Attributes.AGGREGATE);
   }
 
-  public static GemAttributes gemAttributes() {
-    return new GemAttributes();
+  public static AggregateAttributes gemAttributes() {
+    return new AggregateAttributes(Attributes.GEM);
   }
 
   public static StatListWrapper wrappedAttributes(StatList stats) {
     return new StatListWrapper(stats);
   }
 
-  private StatList stats;
+  /**
+   * TODO: Hopefully this doesn't come back to bite me in the ass, but I
+   *       decided to go the route of using a marker to tell if the attrs
+   *       supports aggregation. By default the answer is no (i.e., an attrs
+   *       that wraps a StatList, such as a monster). It's also important to
+   *       keep track of whether or not the attrs represents a gem list,
+   *       because that subclass was removed when I realized gems have a
+   *       required level, and are aggregates. Not going to worry too much
+   *       about it now, I think this will work until it doesn't.
+   */
+  public static final byte WRAPPER = 0;
+  public static final byte AGGREGATE = 1;
+  public static final byte GEM = 2;
 
-  Attributes() {
-    this.stats = StatList.obtain();
+  private StatList stats;
+  private byte type;
+
+  Attributes(byte type) {
+    this(type, StatList.obtain());
   }
 
-  Attributes(StatList stats) {
+  Attributes(byte type, StatList stats) {
+    this.type = type;
     this.stats = stats;
+  }
+
+  void setType(byte type) {
+    this.type = type;
+  }
+
+  public byte type() {
+    return type;
+  }
+
+  public boolean isType(byte type) {
+    return this.type == type;
+  }
+
+  public boolean isSimpleType() {
+    return type <= 0;
   }
 
   /**

@@ -16,17 +16,23 @@ public class AttributesUpdater {
 
   public Attributes update(Attributes attrs, int listFlags, Attributes opAttrs, CharStats.Entry charStats) {
     log.tracefEntry("update(attrs: %s, listFlags: 0x%x, opAttrs: %s, charStats: %s)", attrs, listFlags, opAttrs, charStats);
-    if (!(attrs instanceof AggregateAttributes)) return attrs; // no-op
-    if (!(attrs instanceof GemAttributes)) {
-      final int setItemListCount = StatListFlags.countSetItemFlags(listFlags);
-      if (setItemListCount > 1) {
-        log.warnf("listFlags(0x%x) contains more than 1 set list", listFlags);
+    switch (attrs.type()) {
+      case Attributes.AGGREGATE: {
+        final int setItemListCount = StatListFlags.countSetItemFlags(listFlags);
+        if (setItemListCount > 1) {
+          log.warnf("listFlags(0x%x) contains more than 1 set list", listFlags);
+        }
+        break;
       }
-    } else {
-      final int gemListCount = StatListFlags.countGemFlags(listFlags);
-      if (gemListCount > 1) {
-        log.warnf("listFlags(0x%x) contains more than 1 gem list", listFlags);
+      case Attributes.GEM: {
+        final int gemListCount = StatListFlags.countGemFlags(listFlags);
+        if (gemListCount > 1) {
+          log.warnf("listFlags(0x%x) contains more than 1 gem list", listFlags);
+        }
+        break;
       }
+      default: // no-op
+        return attrs;
     }
 
     final StatList list = attrs.list();

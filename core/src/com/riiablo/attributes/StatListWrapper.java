@@ -2,7 +2,7 @@ package com.riiablo.attributes;
 
 public class StatListWrapper extends Attributes {
   StatListWrapper(StatList stats) {
-    super(stats);
+    super(Attributes.WRAPPER, stats);
   }
 
   @Override
