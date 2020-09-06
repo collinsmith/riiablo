@@ -492,7 +492,7 @@ public class Stat implements Comparable<Stat> {
     val      = bitStream.read31u(entry.Save_Bits) - entry.Save_Add;
     hash     = hash(stat, param);
     modified = false;
-    log.trace(toString());
+    if (log.traceEnabled()) log.trace(toString());
     return this;
   }
 
@@ -503,7 +503,7 @@ public class Stat implements Comparable<Stat> {
     entry      = Riiablo.files.ItemStatCost.get(stat);
     hash       = Stat.hash(stat, param);
     modified   = false;
-    log.trace(toString());
+    if (log.traceEnabled()) log.trace(toString());
     return this;
   }
 
