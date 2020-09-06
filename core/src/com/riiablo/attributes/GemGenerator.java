@@ -22,7 +22,7 @@ public class GemGenerator {
   }
 
   public Attributes set(Attributes attrs, Gems.Entry gem) {
-    assert attrs instanceof GemAttributes : "attrs(" + attrs + ") is not a " + GemAttributes.class;
+    assert attrs.isType(Attributes.GEM) : "attrs(" + attrs + ") is not a GEM(" + attrs.type() + ")";
     attrs.clear();
     final StatList stats = attrs.list();
     try {
