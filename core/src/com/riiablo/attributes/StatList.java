@@ -670,7 +670,7 @@ public final class StatList {
     final int endIndex = endingOffset(list);
     return new ToStringBuilder(this)
         .append("immutable", immutable)
-        .append("index", list)
+        .append("list", list)
         .append("startIndex", startIndex)
         .append("endIndex", endIndex)
         .append("offsets", '{' + StringUtils.join(offsets, ',', (list << 1), (list << 1) + 2) + '}')
