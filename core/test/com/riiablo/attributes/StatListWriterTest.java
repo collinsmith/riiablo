@@ -27,7 +27,7 @@ import static com.riiablo.attributes.StatListFlags.FLAG_MAGIC;
 import static com.riiablo.attributes.StatListFlags.FLAG_NONE;
 import static com.riiablo.attributes.StatListFlags.FLAG_RUNE;
 import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
-import static com.riiablo.attributes.StatListFlags.getItemSetFlags;
+import static com.riiablo.attributes.StatListFlags.getSetItemFlags;
 
 public class StatListWriterTest {
   @BeforeClass
@@ -129,7 +129,7 @@ public class StatListWriterTest {
 
   @Test
   public void Aldurs_Advance() {
-    testItem(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, FLAG_MAGIC | getItemSetFlags(4));
+    testItem(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, FLAG_MAGIC | getSetItemFlags(4));
   }
 
   @Test

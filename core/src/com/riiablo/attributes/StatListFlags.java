@@ -13,12 +13,14 @@ public class StatListFlags {
 
   static final int FLAG_NONE  = 0;
   static final int FLAG_MAGIC = 1 << ITEM_MAGIC_LIST;
-  static final int FLAG_SET_2 = 1 << ITEM_SET_LIST + 0;
-  static final int FLAG_SET_3 = 1 << ITEM_SET_LIST + 1;
-  static final int FLAG_SET_4 = 1 << ITEM_SET_LIST + 2;
-  static final int FLAG_SET_5 = 1 << ITEM_SET_LIST + 3;
-  static final int FLAG_SET_6 = 1 << ITEM_SET_LIST + 4;
+  static final int FLAG_SET_2 = 1 << (ITEM_SET_LIST + 0);
+  static final int FLAG_SET_3 = 1 << (ITEM_SET_LIST + 1);
+  static final int FLAG_SET_4 = 1 << (ITEM_SET_LIST + 2);
+  static final int FLAG_SET_5 = 1 << (ITEM_SET_LIST + 3);
+  static final int FLAG_SET_6 = 1 << (ITEM_SET_LIST + 4);
   static final int FLAG_RUNE  = 1 << ITEM_RUNE_LIST;
+
+  static final int ITEM_SET_MASK = FLAG_SET_2 | FLAG_SET_3 | FLAG_SET_4 | FLAG_SET_5 | FLAG_SET_6;
 
   static String itemToString(int i) {
     switch (i) {
@@ -38,7 +40,24 @@ public class StatListFlags {
     }
   }
 
-  static int getItemSetFlags(int numItems) {
+  static int countSetItemFlags(int flags) {
+    return Integer.bitCount(flags & ITEM_SET_MASK);
+  }
+
+  static int getSetItemEquippedFlag(int numItems) {
+    if (numItems < 0 || numItems > 6) {
+      log.warn("numItems({}) not within [0..6]", numItems);
+      return 0;
+    }
+
+    if (numItems < 2) {
+      return 0;
+    }
+
+    return 1 << (ITEM_SET_LIST + (numItems - 2));
+  }
+
+  static int getSetItemFlags(int numItems) {
     int flags = FLAG_NONE;
     switch (numItems) {
       case 6: flags |= FLAG_SET_6; // fall-through

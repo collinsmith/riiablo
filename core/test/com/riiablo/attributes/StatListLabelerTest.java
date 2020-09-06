@@ -21,9 +21,12 @@ import com.riiablo.mpq.MPQFileHandleResolver;
 import static com.riiablo.attributes.StatListFlags.FLAG_MAGIC;
 import static com.riiablo.attributes.StatListFlags.FLAG_RUNE;
 import static com.riiablo.attributes.StatListFlags.GEM_SHIELD_LIST;
+import static com.riiablo.attributes.StatListFlags.GEM_WEAPON_LIST;
 import static com.riiablo.attributes.StatListFlags.ITEM_MAGIC_LIST;
 import static com.riiablo.attributes.StatListFlags.ITEM_RUNE_LIST;
 import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
+import static com.riiablo.attributes.StatListFlags.getSetItemEquippedFlag;
+import static com.riiablo.attributes.StatListFlags.getSetItemFlags;
 
 public class StatListLabelerTest {
   @BeforeClass
@@ -83,9 +86,17 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Grief.d2i").readBytes(), 197, 0x12, FLAG_RUNE).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, attrs);
+    updater.update(stats, FLAG_RUNE, attrs);
 
     StatListLabeler labeler = newInstance();
+    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+    System.out.println("----------");
+
+    updater.add(stats, genGemAttrs("r05").list(GEM_WEAPON_LIST), attrs);
+    updater.add(stats, genGemAttrs("r03").list(GEM_WEAPON_LIST), attrs);
+    updater.add(stats, genGemAttrs("r28").list(GEM_WEAPON_LIST), attrs);
+    updater.add(stats, genGemAttrs("r23").list(GEM_WEAPON_LIST), attrs);
+    updater.add(stats, genGemAttrs("r08").list(GEM_WEAPON_LIST), attrs);
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
   }
 
@@ -95,7 +106,7 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Annihilus.d2i").readBytes(), 172, -1, FLAG_MAGIC).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, attrs);
+    updater.update(stats, FLAG_MAGIC, attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
@@ -107,7 +118,19 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Hunter's Bow of Blight.d2i").readBytes(), 196, -1, FLAG_MAGIC).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, attrs);
+    updater.update(stats, FLAG_MAGIC, attrs);
+
+    StatListLabeler labeler = newInstance();
+    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+  }
+
+  @Test
+  public void Tirant_Aldurs_Advance() {
+    Attributes attrs = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33).reset();
+    Attributes stats = genItemAttrs(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, FLAG_MAGIC | getSetItemFlags(4)).reset();
+
+    AttributesUpdater updater = new AttributesUpdater();
+    updater.update(stats, FLAG_MAGIC | getSetItemEquippedFlag(2), attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
@@ -119,7 +142,7 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, FLAG_MAGIC | FLAG_RUNE).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, attrs);
+    updater.update(stats, FLAG_MAGIC | FLAG_RUNE, attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println("----------");

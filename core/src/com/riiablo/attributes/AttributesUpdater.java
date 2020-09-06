@@ -9,21 +9,30 @@ import com.riiablo.logger.MDC;
 public class AttributesUpdater {
   private static final Logger log = LogManager.getLogger(AttributesUpdater.class);
 
-  public Attributes update(Attributes attrs, Attributes opAttrs) {
-    log.traceEntry("update(attrs: {}, opAttrs: {})", attrs, opAttrs);
-    return update(attrs, opAttrs, null);
+  public Attributes update(Attributes attrs, int listFlags, Attributes opAttrs) {
+    log.tracefEntry("update(attrs: %s, listFlags: 0x%x, opAttrs: %s)", attrs, listFlags, opAttrs);
+    return update(attrs, listFlags, opAttrs, null);
   }
 
-  public Attributes update(Attributes attrs, Attributes opAttrs, CharStats.Entry charStats) {
-    log.traceEntry("update(attrs: {}, opAttrs: {}, charStats: {})", attrs, opAttrs, charStats);
+  public Attributes update(Attributes attrs, int listFlags, Attributes opAttrs, CharStats.Entry charStats) {
+    log.tracefEntry("update(attrs: %s, listFlags: 0x%x, opAttrs: %s, charStats: %s)", attrs, listFlags, opAttrs, charStats);
     if (!(attrs instanceof AggregateAttributes)) return attrs; // no-op
+    if (!(attrs instanceof GemAttributes)) {
+      final int setItemListCount = StatListFlags.countSetItemFlags(listFlags);
+      if (setItemListCount > 1) {
+        log.warnf("listFlags(0x%x) contains more than 1 set list", listFlags);
+      }
+    }
+
     final StatList list = attrs.list();
     if (list.isEmpty()) return attrs;
     final StatListGetter base = attrs.base();
     final StatListBuilder agg = attrs.aggregate().builder();
     final StatListBuilder rem = attrs.remaining().builder();
-    for (StatListGetter stats : list.listIterator()) {
-      update(opAttrs, charStats, stats, base, agg, rem);
+    for (int i = 0, s = list.numLists(); i < s; i++) {
+      if (((listFlags >> i) & 1) == 1) {
+        update(opAttrs, charStats, list.get(i), base, agg, rem);
+      }
     }
 
     return attrs;
@@ -89,6 +98,7 @@ public class AttributesUpdater {
       final short statId = Stat.index(op_stat);
       final StatGetter opStat = agg.get(statId);
       if (opStat != null) {
+        log.trace("Aggregating stat({})", stat.debugString());
         final int opValue = op(charStats, agg, stat, opStat, op, op_base, op_param);
         opStat.add(opValue);
         ops++;
@@ -117,12 +127,14 @@ public class AttributesUpdater {
       case 7: return 0; // by-time percent
       case 8:
         if (charStats == null) return 0;
+        log.trace("Aggregating stat({})", stat.debugString());
         agg.add(stat);
         //mod.set(stat.id);
         return stat.value() * charStats.ManaPerMagic; // max mana
       case 9:
         if (charStats == null) return 0;
         if (opStat.id() == Stat.maxhp) { // only increment vit on maxhp op
+          log.trace("Aggregating stat({})", stat.debugString());
           agg.add(stat);
           //mod.set(stat.id);
         }
