@@ -370,6 +370,10 @@ public class Stat {
   static final int BITS = 9;
   static final short NONE = (1 << BITS) - 1; // 0x1FF
 
+  // Synthetic stats
+  public static final short reqstr = NONE - 1;
+  public static final short reqdex = NONE - 2;
+
   private static final byte[] GROUPED_COUNT = { 1, 4, 4, };
 
   static final int NUM_GROUPS = GROUPED_COUNT.length;
