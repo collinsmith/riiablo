@@ -9,13 +9,12 @@ import com.riiablo.logger.MDC;
 public class AttributesUpdater {
   private static final Logger log = LogManager.getLogger(AttributesUpdater.class);
 
-  public Attributes update(Attributes attrs, int listFlags, Attributes opAttrs) {
-    log.tracefEntry("update(attrs: %s, listFlags: 0x%x, opAttrs: %s)", attrs, listFlags, opAttrs);
-    return update(attrs, listFlags, opAttrs, null);
+  public Attributes aggregate(Attributes attrs, int listFlags, Attributes opAttrs) {
+    return aggregate(attrs, listFlags, opAttrs, null);
   }
 
-  public Attributes update(Attributes attrs, int listFlags, Attributes opAttrs, CharStats.Entry charStats) {
-    log.tracefEntry("update(attrs: %s, listFlags: 0x%x, opAttrs: %s, charStats: %s)", attrs, listFlags, opAttrs, charStats);
+  public Attributes aggregate(Attributes attrs, int listFlags, Attributes opAttrs, CharStats.Entry charStats) {
+    if (log.traceEnabled()) log.tracefEntry("aggregate(attrs: %s, listFlags: 0x%x, opAttrs: %s, charStats: %s)", attrs, listFlags, opAttrs, charStats);
     switch (attrs.type()) {
       case Attributes.AGGREGATE: {
         final int setItemListCount = StatListFlags.countSetItemFlags(listFlags);
@@ -42,7 +41,7 @@ public class AttributesUpdater {
     final StatListBuilder rem = attrs.remaining().builder();
     for (int i = 0, s = list.numLists(); i < s; i++) {
       if (((listFlags >> i) & 1) == 1) {
-        update(opAttrs, charStats, list.get(i), base, agg, rem);
+        aggregate(opAttrs, charStats, list.get(i), base, agg, rem);
       }
     }
 
@@ -54,15 +53,16 @@ public class AttributesUpdater {
   }
 
   public Attributes add(Attributes attrs, StatListGetter stats, Attributes opAttrs, CharStats.Entry charStats) {
+    if (log.traceEnabled()) log.traceEntry("add(attrs: {}, stats: {}, opAttrs: {}, charStats: {})", attrs, stats, opAttrs, charStats);
     if (attrs.isSimpleType()) return attrs; // no-op
     final StatListGetter base = attrs.base();
     final StatListBuilder agg = attrs.aggregate().builder();
     final StatListBuilder rem = attrs.remaining().builder();
-    update(opAttrs, charStats, stats, base, agg, rem);
+    aggregate(opAttrs, charStats, stats, base, agg, rem);
     return attrs;
   }
 
-  private static void update(
+  private static void aggregate(
       final Attributes opAttrs,
       final CharStats.Entry charStats,
       final StatListGetter stats,

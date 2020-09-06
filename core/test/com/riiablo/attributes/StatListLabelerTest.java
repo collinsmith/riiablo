@@ -86,7 +86,7 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Grief.d2i").readBytes(), 197, 0x12, FLAG_RUNE).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, FLAG_RUNE, attrs);
+    updater.aggregate(stats, FLAG_RUNE, attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
@@ -106,7 +106,7 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Annihilus.d2i").readBytes(), 172, -1, FLAG_MAGIC).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, FLAG_MAGIC, attrs);
+    updater.aggregate(stats, FLAG_MAGIC, attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
@@ -118,7 +118,7 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Hunter's Bow of Blight.d2i").readBytes(), 196, -1, FLAG_MAGIC).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, FLAG_MAGIC, attrs);
+    updater.aggregate(stats, FLAG_MAGIC, attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
@@ -130,7 +130,7 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, FLAG_MAGIC | getSetItemFlags(4)).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, FLAG_MAGIC | getSetItemEquippedFlag(2), attrs);
+    updater.aggregate(stats, FLAG_MAGIC | getSetItemEquippedFlag(2), attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(stats.remaining(), attrs));
@@ -142,7 +142,7 @@ public class StatListLabelerTest {
     Attributes stats = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, FLAG_MAGIC | FLAG_RUNE).reset();
 
     AttributesUpdater updater = new AttributesUpdater();
-    updater.update(stats, FLAG_MAGIC | FLAG_RUNE, attrs);
+    updater.aggregate(stats, FLAG_MAGIC | FLAG_RUNE, attrs);
 
     StatListLabeler labeler = newInstance();
     System.out.println("----------");
