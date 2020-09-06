@@ -258,7 +258,9 @@ public final class StatList {
     if (log.debugEnabled()) log.debug(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), asString(index), _asString(index, value));
-    return values[index] += value;
+    final int result = values[index] += value;
+    if (log.infoEnabled()) log.info(indexDebugString(index));
+    return result;
   }
 
   public int add(int index, long value) {
@@ -281,6 +283,7 @@ public final class StatList {
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.asString(otherIndex));
     if (index >= 0 && ids[index] == stat) {
       values[index] += src.values[otherIndex];
+      if (log.infoEnabled()) log.info(indexDebugString(index));
       return index;
     } else {
       /** TODO: possibility to speed this up with {@link #insertAt} */
@@ -300,6 +303,7 @@ public final class StatList {
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.debugString());
     if (index >= 0 && ids[index] == stat) {
       values[index] += src.value();
+      if (log.infoEnabled()) log.info(indexDebugString(index));
       return index;
     } else {
       /** TODO: possibility to speed this up with {@link #insertAt} */
@@ -344,6 +348,7 @@ public final class StatList {
     assert index >= 0 : "property list does not contain stat(" + stat + ")";
     if (index < 0) return false; // indefined behavior
     values[index] -= src.values[otherIndex];
+    if (log.infoEnabled()) log.info(indexDebugString(index));
     // TODO: if values[index] <= 0, remove it? is <= 0 appropriate
     return true;
     // min
@@ -373,11 +378,9 @@ public final class StatList {
     final int index = indexOf(list, stat, param);
     if (index >= 0 && ids[index] == stat && params[index] == param) {
       set(index, stat, param, value, entry);
-      if (log.debugEnabled()) log.debug(indexDebugString(index));
       return index;
     } else {
       insertAt(list, ~index, stat, param, value, entry);
-      if (log.debugEnabled()) log.debug(indexDebugString(~index));
       return ~index;
     }
   }
@@ -631,6 +634,7 @@ public final class StatList {
     params[index] = param;
     values[index] = value;
     flags[index] = encodeFlags(entry);
+    if (log.infoEnabled()) log.info(indexDebugString(index));
   }
 
   private void insertAt(int list, int index, short stat, int param, int value, ItemStatCost.Entry entry) {
