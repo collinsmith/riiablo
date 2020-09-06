@@ -77,6 +77,10 @@ public class StatListFlags {
   static final int GEM_SHIELD_LIST = 2;
   static final int NUM_GEM_LISTS   = 3;
 
+  static final int FLAG_WEAPON = 1 << GEM_WEAPON_LIST;
+  static final int FLAG_ARMOR  = 1 << GEM_ARMOR_LIST;
+  static final int FLAG_SHIELD = 1 << GEM_SHIELD_LIST;
+
   static String gemToString(int i) {
     switch (i) {
       case GEM_WEAPON_LIST:
