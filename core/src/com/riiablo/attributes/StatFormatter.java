@@ -308,7 +308,7 @@ public class StatFormatter {
         }
       }
       default:
-        log.warn("Unknown encoded(" + encoded + "): expected 2 or 3");
+        log.warn("Unknown encoded({}): expected 2 or 3", encoded);
         return "INVALID_ENCODED(" + encoded + ")";
     }
   }
