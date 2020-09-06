@@ -46,7 +46,7 @@ public class ItemReader {
     return item;
   }
 
-  public Item readSingleItem(ByteInput in) {
+  Item readSingleItem(ByteInput in) {
     final int itemOffset = in.bytesRead();  /** @see Item#data */
     log.trace("Reading item...");
     log.trace("Validating item signature");
