@@ -25,7 +25,9 @@ public class AttributesUpdater {
       }
       case Attributes.GEM: {
         final int gemListCount = StatListFlags.countGemFlags(listFlags);
-        if (gemListCount > 1) {
+        if (gemListCount == 0) {
+          log.warnf("listFlags(0x%x) does not have any gem list selected");
+        } else if (gemListCount > 1) {
           log.warnf("listFlags(0x%x) contains more than 1 gem list", listFlags);
         }
         break;
