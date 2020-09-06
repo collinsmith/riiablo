@@ -122,8 +122,10 @@ public class AttributesUpdater {
         "opBase(" + opBase + ") must contain entry.op_base(" + entry.op_base + ")";
     final int op_base = op_param > 0 ? opBaseStat.value() : 1;
     int ops = 0;
+    int expectedOps = 0;
     for (String op_stat : entry.op_stat) {
       if (op_stat.isEmpty()) break;
+      expectedOps++;
       final short statId = Stat.index(op_stat);
       final StatGetter opStat = agg.get(statId);
       if (opStat != null) {
@@ -139,6 +141,7 @@ public class AttributesUpdater {
       }
     }
 
+    assert ops == 0 || ops == expectedOps : "ops(" + ops + ") != expectedOps(" + expectedOps + ")";
     return ops;
   }
 
