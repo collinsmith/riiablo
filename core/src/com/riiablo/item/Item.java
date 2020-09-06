@@ -18,8 +18,6 @@ import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.codec.excel.UniqueItems;
 import com.riiablo.codec.excel.Weapons;
-import com.riiablo.codec.util.BitStream;
-import com.riiablo.io.ByteInput;
 
 public class Item {
   private static final String TAG = "Item";
@@ -30,18 +28,7 @@ public class Item {
   private static final boolean SIMPLE_FLAGS = !true;
   private static final boolean ONLY_KNOWN_FLAGS = SIMPLE_FLAGS && true;
 
-  private static final ItemReader DEFAULT_SERIALIZER = new ItemReader(); // TODO: inject
   private static final ItemLabeler DEFAULT_LABELER = new ItemLabeler(); // TODO: inject
-
-  /**
-   * @deprecated use {@link ItemReader#readItem(ByteInput)} instead!
-   */
-  @Deprecated
-  public static Item loadFromStream(BitStream bitStream) {
-    // FIXME: workaround for BitStream backcompat
-    ByteInput bitInput = ByteInput.wrap(bitStream.getBufferAtPos());
-    return DEFAULT_SERIALIZER.readSingleItem(bitInput);
-  }
 
   public static final float ETHEREAL_ALPHA = 2 / 3f;
 

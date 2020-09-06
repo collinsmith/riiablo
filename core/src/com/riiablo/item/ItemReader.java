@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Gems;
-import com.riiablo.codec.util.BitStream;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
 import com.riiablo.logger.LogManager;
@@ -48,7 +47,6 @@ public class ItemReader {
   }
 
   public Item readSingleItem(ByteInput in) {
-    /** FIXME: workaround for {@link Item#loadFromStream(BitStream)} */
     final int itemOffset = in.bytesRead();  /** @see Item#data */
     log.trace("Reading item...");
     log.trace("Validating item signature");

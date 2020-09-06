@@ -21,7 +21,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.MonStats;
-import com.riiablo.codec.util.BitStream;
 import com.riiablo.engine.Dirty;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
@@ -38,7 +37,9 @@ import com.riiablo.engine.server.component.MapWrapper;
 import com.riiablo.engine.server.component.Player;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Velocity;
+import com.riiablo.io.ByteInput;
 import com.riiablo.item.Item;
+import com.riiablo.item.ItemReader;
 import com.riiablo.map.Map;
 import com.riiablo.net.packet.d2gs.AngleP;
 import com.riiablo.net.packet.d2gs.BeltToCursor;
@@ -111,6 +112,8 @@ public class ClientNetworkReceiver extends IntervalSystem {
 
   @Wire(name = "output")
   protected TextArea output;
+
+  protected static final ItemReader itemReader = new ItemReader(); // TODO: inject
 
   private final ByteBuffer buffer = ByteBuffer.allocate(1 << 20).order(ByteOrder.LITTLE_ENDIAN);
   private final EntitySync sync = new EntitySync();
@@ -312,9 +315,8 @@ public class ClientNetworkReceiver extends IntervalSystem {
         ItemP item = findTable(sync, ComponentP.ItemP, new ItemP());
         PositionP position = findTable(sync, ComponentP.PositionP, new PositionP());
         byte[] bytes = BufferUtils.readRemaining(item.dataAsByteBuffer());
-        BitStream bitStream = new BitStream(bytes);
-//        bitStream.skip(D2S.ItemData.SECTION_HEADER_BITS);
-        Item itemObj = com.riiablo.item.Item.loadFromStream(bitStream);
+        ByteInput byteInput = ByteInput.wrap(bytes);
+        Item itemObj = itemReader.readItem(byteInput);
         return factory.createItem(itemObj, position.x(), position.y());
       }
       case WRP: {
