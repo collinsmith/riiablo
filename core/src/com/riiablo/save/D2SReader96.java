@@ -288,30 +288,6 @@ public class D2SReader96 {
     return stats;
   }
 
-  private static int numStatBits(int stat) {
-    if (Riiablo.files != null) {
-      return Riiablo.files.ItemStatCost.get(stat).CSvBits;
-    }
-
-    log.warn("Riiablo.files is null -- defaulting to internal table");
-    switch (stat) {
-      case 0: case 1: case 2: case 3: case 4:
-        return 10;
-      case 5:
-        return 8;
-      case 6: case 7: case 8: case 9: case 10: case 11:
-        return 21;
-      case 12:
-        return 7;
-      case 13:
-        return 32;
-      case 14: case 15:
-        return 25;
-      default:
-        return 0;
-    }
-  }
-
   static D2S.SkillData readSkillData(ByteInput in) {
     log.trace("Validating skills signature");
     in.readSignature(SKILLS_SIGNATURE);
