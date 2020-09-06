@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Array;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.attributes.Attributes;
-import com.riiablo.attributes.StatGetter;
 import com.riiablo.attributes.StatListGetter;
 import com.riiablo.attributes.StatListReader;
 import com.riiablo.codec.COF;
@@ -408,9 +407,7 @@ public class D2SReader96 {
     PropertyList base = data.statData.base();
     StatListGetter stats = d2s.stats.attrs.base();
     for (int i = Stat.strength; i <= Stat.goldbank; i++) {
-      // FIXME: workaround to ensure compat -- I'm not certain if all d2s contain all these stats
-      StatGetter stat = stats.get((short) i);
-      base.put(i, stat != null ? stat.asInt() : 0);
+      base.put(i, stats.getValue((short) i, 0));
     }
 
     CharacterClass classId = data.classId;

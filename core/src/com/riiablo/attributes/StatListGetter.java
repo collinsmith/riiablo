@@ -83,6 +83,12 @@ public final class StatListGetter implements Iterable<StatGetter> {
     return tuple.set(stats, index);
   }
 
+  /** @see #get(short) */
+  public int getValue(short stat, int defaultValue) {
+    final int index = indexOf(stat);
+    return index >= 0 ? tuple.set(stats, index).value() : defaultValue;
+  }
+
   /** @see StatList#indexOf(int, short, int) */
   public StatGetter get(StatGetter stat) {
     final int index = stats.indexOf(list, stat.id(), stat.param());
