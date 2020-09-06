@@ -37,7 +37,7 @@ public class StatListTest {
   }
 
   private static StatList newInstance() {
-    return new StatList();
+    return new StatList().reset(StatList.MAX_LISTS);
   }
 
   @Test

@@ -1,11 +1,9 @@
 package com.riiablo.attributes;
 
-import io.netty.buffer.ByteBufUtil;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.logger.LogManager;
@@ -15,11 +13,11 @@ public final class StatList {
   private static final Logger log = LogManager.getLogger(StatList.class);
 
   public static StatList obtain() {
-    return new StatList();
+    return obtain(MAX_LISTS);
   }
 
   public static StatList obtain(int maxLists) {
-    return new StatList(maxLists);
+    return new StatList().reset(maxLists);
   }
 
   private static final StatList EMPTY_LIST = new StatList().freeze();
@@ -38,35 +36,30 @@ public final class StatList {
 
   private static final long UINT_MAX_VALUE = (1L << Integer.SIZE) - 1;
 
-  private final byte[] offsets;
-  private final short[] ids;
-  private final int[] params;
-  private final int[] values;
-  private final byte[] flags;
+  private final byte[] offsets = new byte[MAX_LISTS << 1];
+  private final short[] ids = new short[MAX_STATS];
+  private final int[] params = new int[MAX_STATS];
+  private final int[] values = new int[MAX_STATS];
+  private final byte[] flags = new byte[MAX_STATS];
 
   private int maxLists;
+  private int numLists;
   private int size;
   private int tail;
-  private int numLists;
   private boolean immutable;
 
   private IndexIterator INDEX_ITERATOR;
   private StatIterator STAT_ITERATOR;
   private StatListIterator STAT_LIST_ITERATOR;
 
-  StatList() {
-    this(MAX_LISTS);
-  }
-
-  StatList(int maxLists) {
-    log.traceEntry("StatList(maxLists: {})", maxLists);
+  public StatList reset(final int maxLists) {
+    log.traceEntry("reset(maxLists: {})", maxLists);
+    assertMutable();
     assert maxLists > 0 : "maxLists(" + maxLists + ") <= " + 0;
+    assert maxLists <= MAX_LISTS : "maxLists(" + maxLists + ") > MAX_LISTS(" + MAX_LISTS + ")";
     this.maxLists = maxLists;
-    offsets = new byte[maxLists << 1];
-    ids = new short[MAX_STATS];
-    params = new int[MAX_STATS];
-    values = new int[MAX_STATS];
-    flags = new byte[MAX_STATS];
+    clear();
+    return this;
   }
 
   public StatList freeze() {
@@ -75,10 +68,11 @@ public final class StatList {
   }
 
   public StatList clear() {
+    log.traceEntry("clear()");
     assertMutable();
+    numLists = 0;
     size = 0;
     tail = 0;
-    numLists = 0;
     return this;
   }
 
@@ -92,15 +86,7 @@ public final class StatList {
   }
 
   public boolean isEmpty() {
-    return size() == 0;
-  }
-
-  public int size(int list) {
-    return endingOffset(list) - startingOffset(list);
-  }
-
-  public boolean isEmpty(int list) {
-    return size(list) == 0;
+    return size == 0;
   }
 
   public int numLists() {
@@ -111,32 +97,30 @@ public final class StatList {
     return maxLists;
   }
 
-  public void clearList(int list) {
+  public void clearList(final int list) {
+    log.traceEntry("clearList(list: {})", list);
     assertMutable();
-    final int listSize = size(list);
-    size -= listSize;
-    assert size >= 0;
-    final int offset = list << 1;
-    final byte[] offsets = this.offsets;
-    if (offsets[offset + 1] == tail) tail -= listSize;
-    offsets[offset + 1] = offsets[offset];
+    size -= size(list);
+    setEndingOffset(list, startingOffset(list));
   }
 
-  public int newList(int capacity) {
+  public int newList() {
+    return newList(0);
+  }
+
+  public int newList(final int capacity) {
+    log.traceEntry("newList(capacity: {})", capacity);
     assertMutable();
-    if (numLists >= maxLists) { // should never exceed maxLists
-      throw new AssertionError("numLists(" + numLists + ") >= maxLists(" + maxLists + ")");
+    if (numLists + 1 > maxLists) {
+      throw new IndexOutOfBoundsException("Max number of lists has already been created: maxLists(" + maxLists + ")");
     }
 
-    if (tail + capacity >= MAX_STATS) {
-      throw new IllegalArgumentException("capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
+    if (tail + capacity > MAX_STATS) {
+      throw new IndexOutOfBoundsException("capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
     }
 
-    final int list = numLists;
-    final int offset = list << 1;
-    final byte[] offsets = this.offsets;
-    offsets[offset] = offsets[offset + 1] = (byte) tail;
-    numLists++;
+    final int list = numLists++;
+    setEndingOffset(list, setStartingOffset(list, tail));
     ensureCapacity(list, tail, capacity);
     return list;
   }
@@ -145,13 +129,12 @@ public final class StatList {
     return buildList(0);
   }
 
-  public StatListBuilder buildList(int capacity) {
+  public StatListBuilder buildList(final int capacity) {
     assertMutable();
     return new StatListBuilder(this, newList(capacity));
   }
 
-  private void arraycopy(int srcIndex, int dstIndex, int length) {
-    log.traceEntry("arraycopy(srcIndex: {}, dstIndex: {}, length: {})", srcIndex, dstIndex, length);
+  private void arraycopy(final int srcIndex, final int dstIndex, final int length) {
     arraycopy(this, srcIndex, this, dstIndex, length);
   }
 
@@ -159,7 +142,7 @@ public final class StatList {
       final StatList src, final int srcIndex,
       final StatList dst, final int dstIndex,
       final int length) {
-    log.traceEntry(
+    if (log.traceEnabled()) log.traceEntry(
         "arraycopy(src: {}, srcIndex: {}, dst: {}, dstIndex: {}, length: {})",
         src, srcIndex, dst, dstIndex, length);
     System.arraycopy(src.ids, srcIndex, dst.ids, dstIndex, length);
@@ -168,80 +151,50 @@ public final class StatList {
     System.arraycopy(src.flags, srcIndex, dst.flags, dstIndex, length);
   }
 
-  public void ensureCapacity(final int list, final int index, final int capacity) {
+  private void ensureCapacity(final int list, final int index, final int capacity) {
     log.traceEntry("ensureCapacity(list: {}, index: {}, capacity: {})", list, index, capacity);
     assertMutable();
     final int endOffset = endingOffset(list);
+    assert index <= endOffset : "index(" + index + ") > list.endOffset(" + endOffset + ")";
     final int shiftLength = endOffset - index;
     final int newEndOffset = endOffset + capacity;
+    assert newEndOffset <= MAX_STATS : "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")";
     final int nextStartOffset = (list + 1) < numLists ? startingOffset(list + 1) : MAX_STATS;
-    final int listsSize = numLists << 1;
-    final byte[] offsets = this.offsets;
-    assert shiftLength >= 0
-          : "shiftLength(" + shiftLength + ") < " + 0 + ": cannot ensure capacity ahead of end offset";
-    if (shiftLength > 0 && newEndOffset < nextStartOffset) {
-      if (newEndOffset >= MAX_STATS) throw new IllegalArgumentException(
-          "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
-
+    if (shiftLength > 0 && newEndOffset <= nextStartOffset) {
       arraycopy(index, index + capacity, shiftLength);
-      if (tail == endOffset) tail = newEndOffset;
-      offsets[(list << 1) + 1] = (byte) newEndOffset;
-      assert isSorted(offsets, 0, listsSize)
-          : "offsets(" + ByteBufUtil.hexDump(offsets, 0, listsSize) + ") contains property lists that are out of order";
+      setEndingOffset(list, newEndOffset);
       return;
     }
 
     final int additionalCapacity = newEndOffset - nextStartOffset;
-    if (tail + additionalCapacity >= MAX_STATS) throw new IllegalArgumentException(
-        "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
-
     arraycopy(index, index + capacity, tail - index);
     if (additionalCapacity > 0) {
       tail += additionalCapacity;
-      for (int i = ((list + 1) << 1); i < listsSize; i++) {
+      final byte[] offsets = this.offsets;
+      for (int i = index(list + 1), s = index(numLists); i < s; i++) {
         offsets[i] += additionalCapacity;
       }
-      assert isSorted(offsets, 0, listsSize) : "offsets(" + ByteBufUtil.hexDump(offsets, 0, listsSize) + ") contains property lists that are out of order";
-    } else if (tail == endOffset) {
-      tail = offsets[(list << 1) + 1] = (byte) newEndOffset;
+      assertSorted();
+    } else {
+      setEndingOffset(list, newEndOffset);
     }
   }
 
-  public StatList copy(int list, StatList src, int srcList) {
-    assertMutable();
-    final int dstListStart = this.startingOffset(list);
-    final int length = src.size(srcList);
-    ensureCapacity(list, dstListStart, length);
-
-    final int srcListStart = src.startingOffset(srcList);
-    arraycopy(src, srcListStart, this, dstListStart, length);
-    size += length;
-    if (log.debugEnabled()) log.debug(listDebugString(list));
-    return this;
-  }
-
-  public StatList set(int list, StatList src, int srcList) {
-    assertMutable();
-    clearList(list);
-    copy(list, src, srcList);
-    return this;
-  }
-
-  public StatList setAll(StatList src) {
+  public StatList setAll(final StatList src) {
+    if (log.traceEnabled()) log.traceEntry("setAll(src: {})", src);
     assertMutable();
     clear();
-    System.arraycopy(src.offsets, 0, this.offsets, 0, src.numLists() << 1);
+    System.arraycopy(src.offsets, 0, this.offsets, 0, src.numLists << 1);
     arraycopy(src, 0, this, 0, src.tail);
+    maxLists = src.maxLists;
+    numLists = src.numLists;
     size = src.size;
     tail = src.tail;
-    numLists = src.numLists;
-    maxLists = src.maxLists;
-    if (log.debugEnabled()) log.debug(toString());
     return this;
   }
 
-  public StatListGetter get(int list) {
-    if (list >= numLists) throw new IllegalStateException("list(" + list + ") >= numLists(" + numLists + ")");
+  public StatListGetter get(final int list) {
+    if (list >= numLists) throw new IndexOutOfBoundsException("list(" + list + ") >= numLists(" + numLists + ")");
     return new StatListGetter(this, list);
   }
 
@@ -249,41 +202,41 @@ public final class StatList {
     return get(0);
   }
 
-  public int add(int index, int value) {
-    assertMutable();
+  public int add(final int index, final int value) {
     log.traceEntry("add(index: {}, value: {})", index, value);
+    assertMutable();
     final short stat = ids[index];
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert encoding(stat) <= 2 : "#add() unsupported for encoding(" + encoding(stat) + ")";
-    if (log.debugEnabled()) log.debug(
+    if (log.traceEnabled()) log.trace(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), asString(index), _asString(index, value));
     final int result = values[index] += value;
-    if (log.infoEnabled()) log.info(indexDebugString(index));
+    if (log.debugEnabled()) log.debug(indexDebugString(index));
     return result;
   }
 
-  public int add(int index, long value) {
+  public int add(final int index, final long value) {
     return add(index, _asInt(value));
   }
 
-  public int add(int index, float value) {
+  public int add(final int index, final float value) {
     return add(index, _asInt(value));
   }
 
-  public int add(int list, short stat, StatList src, int srcList) {
+  public int add(final int list, final short stat, final StatList src, final int srcList) {
+    if (log.traceEnabled()) log.traceEntry("add(list: {}, stat: {}, src: {}, srcList: {})", list, stat, src, srcList);
     assertMutable();
-    log.traceEntry("add(list: {}, stat: {}, src: {}, srcList: {})", list, stat, src, srcList);
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert encoding(stat) <= 2 : "#add() unsupported for encoding(" + encoding(stat) + ")";
     final int index = indexOf(list, stat, 0);
     final int otherIndex = src.indexOf(srcList, stat, 0);
-    if (log.debugEnabled()) log.debug(
+    if (log.traceEnabled()) log.trace(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.asString(otherIndex));
     if (index >= 0 && ids[index] == stat) {
       values[index] += src.values[otherIndex];
-      if (log.infoEnabled()) log.info(indexDebugString(index));
+      if (log.debugEnabled()) log.debug(indexDebugString(index));
       return index;
     } else {
       /** TODO: possibility to speed this up with {@link #insertAt} */
@@ -294,16 +247,18 @@ public final class StatList {
     // max
   }
 
-  public int add(int list, StatGetter src) {
+  public int add(final int list, final StatGetter src) {
+    if (log.traceEnabled()) log.traceEntry("add(list: {}, src: {})", list, src);
+    assertMutable();
     final short stat = src.id();
     final int param = src.param();
     final int index = indexOf(list, stat, param);
-    if (log.debugEnabled()) log.debug(
+    if (log.traceEnabled()) log.trace(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.debugString());
     if (index >= 0 && ids[index] == stat) {
       values[index] += src.value();
-      if (log.infoEnabled()) log.info(indexDebugString(index));
+      if (log.debugEnabled()) log.debug(indexDebugString(index));
       return index;
     } else {
       /** TODO: possibility to speed this up with {@link #insertAt} */
@@ -314,7 +269,8 @@ public final class StatList {
     // max
   }
 
-  public int addAll(int list, StatList src, int srcList) {
+  public int addAll(final int list, final StatList src, final int srcList) {
+    if (log.traceEnabled()) log.traceEntry("addAll(list: {}, src: {}, srcList: {})", list, src, srcList);
     assertMutable();
     final int srcStartOffset = src.startingOffset(srcList);
     final int srcEndOffset = src.endingOffset(srcList);
@@ -334,44 +290,22 @@ public final class StatList {
    *             Maybe some stats allow 0 value and nonzero param?
    */
   @Deprecated
-  public boolean sub(int list, short stat, StatList src, int srcList) {
-    if (true) throw new UnsupportedOperationException();
-    assertMutable();
-    log.traceEntry("sub(list: {}, stat: {}, src: {}, srcList: {})", list, stat, src, srcList);
-    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    assert encoding(stat) <= 2 : "#sub() unsupported for encoding(" + encoding(stat) + ")";
-    final int index = indexOf(list, stat, 0);
-    final int otherIndex = src.indexOf(srcList, stat, 0);
-    if (log.debugEnabled()) log.debug(
-        "sub(stat: {} ({}), this: {}, src: {})",
-        stat, entry(stat), index >= 0 ? asString(index) : "null", src.asString(otherIndex));
-    assert index >= 0 : "property list does not contain stat(" + stat + ")";
-    if (index < 0) return false; // indefined behavior
-    values[index] -= src.values[otherIndex];
-    if (log.infoEnabled()) log.info(indexDebugString(index));
-    // TODO: if values[index] <= 0, remove it? is <= 0 appropriate
-    return true;
-    // min
+  public boolean sub(final int list, final short stat, final StatList src, final int srcList) {
+    throw new UnsupportedOperationException();
   }
 
   /** @deprecated see {@link #sub} */
   @Deprecated
-  public void subAll(int list, StatList src, int srcList) {
-    assertMutable();
-    final int srcStartOffset = src.startingOffset(srcList);
-    final int srcEndOffset = src.endingOffset(srcList);
-    for (int i = srcStartOffset, s = srcEndOffset; i < s; i++) {
-      final short stat = src.id(i);
-      sub(list, stat, src, srcList);
-    }
+  public void subAll(final int list, final StatList src, final int srcList) {
+    throw new UnsupportedOperationException();
   }
 
-  public int put(int list, short stat, int param, int value) {
-    assertMutable();
+  public int put(final int list, final short stat, final int param, final int value) {
     final ItemStatCost.Entry entry = entry(stat);
     final int encoding = entry.Encode;
     if (log.traceEnabled()) log.tracefEntry(
         "put(stat: %d (%s), param: %d (0x%3$x), value: %d (0x%4$x))", stat, entry, param, value);
+    assertMutable();
     if (log.warnEnabled() && (encoding < 0 || encoding > 4)) log.warn(
         "stat: {} ({}) has unsupported encoding({})", stat, entry, encoding);
 
@@ -385,46 +319,49 @@ public final class StatList {
     }
   }
 
-  public int put(int list, short stat, int param1, int param2, int value1, int value2, int value3) {
+  public int put(
+      final int list,
+      final short stat,
+      final int param1, final int param2,
+      final int value1, final int value2, final int value3) {
     assertMutable();
     final int encoding = entry(stat).Encode;
     return put(
-        list,
-        stat,
+        list, stat,
         Stat.encodeParam(encoding, param1, param2),
         Stat.encodeValue(encoding, value1, value2, value3));
   }
 
-  public int put(int list, short stat, int value) {
+  public int put(final int list, final short stat, final int value) {
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     return put(list, stat, 0, value);
   }
 
-  public int put(int list, short stat, long value) {
+  public int put(final int list, final short stat, final long value) {
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert value <= UINT_MAX_VALUE : "value(" + value + ") > " + UINT_MAX_VALUE;
     return put(list, stat, 0, _asInt(value));
   }
 
-  public int put(int list, short stat, float value) {
+  public int put(final int list, final short stat, final float value) {
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     assert entry(stat).ValShift == 8 : "entry.ValShift(" + entry(stat).ValShift + ") != " + 8;
     return put(list, stat, 0, _asInt(value));
   }
 
-  public boolean contains(int list) {
+  public boolean contains(final int list) {
     return list >= 0 && list < numLists;
   }
 
-  public boolean contains(int list, short stat) {
+  public boolean contains(final int list, final short stat) {
     return Arrays.binarySearch(ids, startingOffset(list), endingOffset(list), stat) >= 0;
   }
 
-  public boolean contains(int list, short stat, int param) {
+  public boolean contains(final int list, final short stat, final int param) {
     return indexOf(list, stat, param) >= 0;
   }
 
-  public int indexOf(int list, short stat, int param) {
+  public int indexOf(final int list, final short stat, final int param) {
     final int listStart = startingOffset(list);
     final int listEnd = endingOffset(list);
     final int index = Arrays.binarySearch(ids, listStart, listEnd, stat);
@@ -437,12 +374,12 @@ public final class StatList {
     }
   }
 
-  public int indexOf(int list, short stat) {
+  public int indexOf(final int list, final short stat) {
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
     return indexOf(list, stat, 0);
   }
 
-  int firstIndexOf(int list, short stat) {
+  int firstIndexOf(final int list, final short stat) {
     final int listStart = startingOffset(list);
     final int listEnd = endingOffset(list);
     final int index = Arrays.binarySearch(ids, listStart, listEnd, stat);
@@ -467,37 +404,37 @@ public final class StatList {
     return i;
   }
 
-  int asInt(int index) {
+  int asInt(final int index) {
     return values[index];
   }
 
-  private static int _asInt(long value) {
+  private static int _asInt(final long value) {
     return (int) value;
   }
 
-  private static long _asLong(int value) {
+  private static long _asLong(final int value) {
     return value & UINT_MAX_VALUE;
   }
 
-  long asLong(int index) {
+  long asLong(final int index) {
     assert entry(index).Send_Bits >= Integer.SIZE : "entry.Send_Bits(" + entry(index).Send_Bits + ") < " + Integer.SIZE;
     return _asLong(values[index]);
   }
 
-  private static int _asInt(float value) {
+  private static int _asInt(final float value) {
     return Fixed.floatToIntBits(value, 8);
   }
 
-  private static float _asFixed(int value) {
+  private static float _asFixed(final int value) {
     return Fixed.intBitsToFloat(value, 8);
   }
 
-  float asFixed(int index) {
+  float asFixed(final int index) {
     assert entry(index).ValShift == 8 : "entry.ValShift(" + entry(index).ValShift + ") != " + 8;
     return _asFixed(values[index]);
   }
 
-  private String _asString(int index, int value) {
+  private String _asString(final int index, final int value) {
     final byte flags = this.flags[index];
     return (flags & FLAG_FIXED) == 0
         ? (flags & FLAG_LONG) == 0
@@ -506,7 +443,7 @@ public final class StatList {
         : String.valueOf(_asFixed(value));
   }
 
-  String asString(int index) {
+  String asString(final int index) {
     final byte flags = this.flags[index];
     return (flags & FLAG_FIXED) == 0
         ? (flags & FLAG_LONG) == 0
@@ -515,35 +452,35 @@ public final class StatList {
         : String.valueOf(asFixed(index));
   }
 
-  public short id(int index) {
+  public short id(final int index) {
     return ids[index];
   }
 
-  ItemStatCost.Entry entry(int index) {
+  ItemStatCost.Entry entry(final int index) {
     return entry(ids[index]);
   }
 
-  ItemStatCost.Entry entry(short stat) {
+  ItemStatCost.Entry entry(final short stat) {
     return Stat.entry(stat);
   }
 
-  public int encoding(int index) {
+  public int encoding(final int index) {
     return flags[index] & ENCODING_MASK;
   }
 
-  byte flags(int index) {
+  byte flags(final int index) {
     return flags[index];
   }
 
-  int value(int index) {
+  int value(final int index) {
     return values[index];
   }
 
-  int param(int index) {
+  int param(final int index) {
     return params[index];
   }
 
-  public int value1(int index) {
+  public int value1(final int index) {
     switch (encoding(index)) {
       default: // fall-through
       case 0: return values[index];
@@ -554,7 +491,7 @@ public final class StatList {
     }
   }
 
-  public int value2(int index) {
+  public int value2(final int index) {
     switch (encoding(index)) {
       default: // fall-through
       case 0: return 0;
@@ -565,7 +502,7 @@ public final class StatList {
     }
   }
 
-  public int value3(int index) {
+  public int value3(final int index) {
     switch (encoding(index)) {
       default: // fall-through
       case 0: return 0;
@@ -576,7 +513,7 @@ public final class StatList {
     }
   }
 
-  public int param1(int index) {
+  public int param1(final int index) {
     switch (encoding(index)) {
       default: // fall-through
       case 0: return params[index];
@@ -587,7 +524,7 @@ public final class StatList {
     }
   }
 
-  public int param2(int index) {
+  public int param2(final int index) {
     switch (encoding(index)) {
       default: // fall-through
       case 0: return 0;
@@ -598,28 +535,64 @@ public final class StatList {
     }
   }
 
-  private int startingOffset(int list) {
-    return offsets[(list << 1)] & 0xFF;
+  private static int index(final int list) {
+    return list << 1;
   }
 
-  private int endingOffset(int list) {
-    return offsets[(list << 1) + 1] & 0xFF;
+  private int startingOffset(final int list) {
+    return offsets[index(list)] & 0xFF;
   }
 
-  private static boolean isSorted(final byte[] array, final int startIndex, final int endIndex) {
-    if (endIndex - startIndex < 2) return true;
-    byte previous = array[startIndex];
-    for (int i = startIndex + 1; i < endIndex; i++) {
-      final byte current = array[i];
-      if (NumberUtils.compare(previous, current) > 0) {
-        return false;
-      }
+  private int setStartingOffset(final int list, final int index) {
+    offsets[index(list)] = (byte) index;
+    assertSorted(-1);
+    return index;
+  }
+
+  private int endingOffset(final int list) {
+    return offsets[index(list) + 1] & 0xFF;
+  }
+
+  private int setEndingOffset(final int list, final int index) {
+    offsets[index(list) + 1] = (byte) index;
+    if (list + 1 >= numLists) tail = index;
+    assertSorted();
+    return index;
+  }
+
+  public int size(final int list) {
+    final int sliceIndex = index(list);
+    return (offsets[sliceIndex + 1] - offsets[sliceIndex]) & 0xFF;
+  }
+
+  public boolean isEmpty(final int list) {
+    final int sliceIndex = index(list);
+    return (offsets[sliceIndex + 1] == offsets[sliceIndex]);
+  }
+
+  private boolean isSorted(final int offset) {
+    final int slicesLength = index(numLists) + offset;
+    final byte[] offsets = this.offsets;
+    int previous = offsets[0] & 0xFF;
+    for (int i = 1; i < slicesLength; i++) {
+      final int current = offsets[i] & 0xFF;
+      if (previous > current) return false;
       previous = current;
     }
-    return true;
+    return tail == previous;
   }
 
-  private static byte encodeFlags(ItemStatCost.Entry entry) {
+  private void assertSorted() {
+    assertSorted(0);
+  }
+
+  private void assertSorted(final int offset) {
+    assert isSorted(offset) :
+        "offsets({" + StringUtils.join(offsets, ',', 0, index(numLists) + offset) + "}) "
+            + "tail(" + tail + ") contains property lists that are out of order";
+  }
+
+  private static byte encodeFlags(final ItemStatCost.Entry entry) {
     byte flags = (byte) (entry.Encode & ENCODING_MASK);
     if (entry.Save_Param_Bits > 0) flags |= FLAG_PARAMS;
     if (entry.Send_Bits >= Integer.SIZE) flags |= FLAG_LONG;
@@ -627,20 +600,21 @@ public final class StatList {
     return flags;
   }
 
-  private void set(int index, short stat, int param, int value, ItemStatCost.Entry entry) {
+  private void set(final int index, final short stat, final int param, final int value, final ItemStatCost.Entry entry) {
     if (log.traceEnabled()) log.tracefEntry(
         "set(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))", index, stat, entry, param, value);
+    assert !immutable;
     ids[index] = stat;
     params[index] = param;
     values[index] = value;
     flags[index] = encodeFlags(entry);
-    if (log.infoEnabled()) log.info(indexDebugString(index));
+    if (log.debugEnabled()) log.debug(indexDebugString(index));
   }
 
-  private void insertAt(int list, int index, short stat, int param, int value, ItemStatCost.Entry entry) {
+  private void insertAt(final int list, final int index, final short stat, final int param, final int value, final ItemStatCost.Entry entry) {
     if (log.traceEnabled()) log.tracefEntry(
         "insertAt(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))", index, stat, entry, param, value);
-
+    assert !immutable;
     if (size >= MAX_STATS) {
       log.warn("stat({}) cannot be inserted, property list is full!", stat);
       return;
@@ -649,7 +623,6 @@ public final class StatList {
     ensureCapacity(list, index, 1);
     set(index, stat, param, value, entry);
     size++;
-
     if (log.debugEnabled()) log.debug(listDebugString(list));
   }
 
@@ -657,7 +630,7 @@ public final class StatList {
     if (immutable) throw new UnsupportedOperationException("Stat list has been frozen");
   }
 
-  public String indexDebugString(int index) {
+  public String indexDebugString(final int index) {
     final byte flags = this.flags[index];
     switch (flags & ENCODING_MASK) {
       default: // fall-through
@@ -669,7 +642,7 @@ public final class StatList {
     }
   }
 
-  public String listDebugString(int list) {
+  public String listDebugString(final int list) {
     final int startIndex = startingOffset(list);
     final int endIndex = endingOffset(list);
     return new ToStringBuilder(this)
@@ -700,7 +673,7 @@ public final class StatList {
         .build();
   }
 
-  public IndexIterator indexIterator(int list) {
+  public IndexIterator indexIterator(final int list) {
     return INDEX_ITERATOR == null
         ? INDEX_ITERATOR = new IndexIterator().reset(list)
         : INDEX_ITERATOR.reset(list);
@@ -711,7 +684,7 @@ public final class StatList {
     int startIndex;
     int endIndex;
 
-    IndexIterator reset(int list) {
+    IndexIterator reset(final int list) {
       index = startIndex = startingOffset(list);
       endIndex = endingOffset(list);
       return this;
@@ -725,7 +698,7 @@ public final class StatList {
       return index++;
     }
 
-    int pushback(int count) {
+    int pushback(final int count) {
       index -= count;
       if (index < startIndex) {
         log.warn("index({}) < startIndex({})", index, startIndex);
@@ -736,7 +709,7 @@ public final class StatList {
     }
   }
 
-  public StatIterator statIterator(int list) {
+  public StatIterator statIterator(final int list) {
     return STAT_ITERATOR == null
         ? STAT_ITERATOR = new StatIterator().reset(list)
         : STAT_ITERATOR.reset(list);
@@ -747,7 +720,7 @@ public final class StatList {
     int index;
     int endIndex;
 
-    StatIterator reset(int list) {
+    StatIterator reset(final int list) {
       index = startingOffset(list);
       endIndex = endingOffset(list);
       return this;
