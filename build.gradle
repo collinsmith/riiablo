@@ -27,7 +27,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = "diablo"
-        gdxVersion = '1.9.11-SNAPSHOT'
+        gdxVersion = '1.9.11'
         roboVMVersion = '2.3.3'
         box2DLightsVersion = '1.4'
         aiVersion = '1.8.0'
