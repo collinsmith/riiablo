@@ -623,7 +623,7 @@ public final class StatList {
     ensureCapacity(list, index, 1);
     set(index, stat, param, value, entry);
     size++;
-    if (log.debugEnabled()) log.debug(listDebugString(list));
+    if (log.traceEnabled()) log.trace(listDebugString(list));
   }
 
   private void assertMutable() {

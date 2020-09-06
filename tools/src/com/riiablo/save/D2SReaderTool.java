@@ -47,7 +47,7 @@ public class D2SReaderTool extends ApplicationAdapter {
 
     LogManager.setLevel("com.riiablo.save", Level.ALL);
     LogManager.setLevel("com.riiablo.item", Level.ALL);
-    LogManager.setLevel("com.riiablo.attributes", Level.INFO);
+    LogManager.setLevel("com.riiablo.attributes", Level.DEBUG);
 
     ItemReader itemReader = new ItemReader();
     StatListReader statReader = new StatListReader();
