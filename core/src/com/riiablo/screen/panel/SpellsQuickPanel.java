@@ -120,7 +120,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
       public void onAlternated(ItemData items, int alternate, Item LH, Item RH) {
         int skillId = Riiablo.charData.getAction(buttonId);
         HotkeyButton button = buttons.get(skillId);
-        observer.copy(button);
+        if (observer != null) observer.copy(button); // observer is null on android
       }
     });
   }
