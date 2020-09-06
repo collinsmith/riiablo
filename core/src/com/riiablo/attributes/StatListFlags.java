@@ -95,5 +95,9 @@ public class StatListFlags {
     }
   }
 
+  static int countGemFlags(int flags) {
+    return Integer.bitCount(flags);
+  }
+
   private StatListFlags() {}
 }

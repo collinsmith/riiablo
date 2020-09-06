@@ -22,6 +22,11 @@ public class AttributesUpdater {
       if (setItemListCount > 1) {
         log.warnf("listFlags(0x%x) contains more than 1 set list", listFlags);
       }
+    } else {
+      final int gemListCount = StatListFlags.countGemFlags(listFlags);
+      if (gemListCount > 1) {
+        log.warnf("listFlags(0x%x) contains more than 1 gem list", listFlags);
+      }
     }
 
     final StatList list = attrs.list();
