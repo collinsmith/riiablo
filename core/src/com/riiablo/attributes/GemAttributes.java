@@ -14,7 +14,7 @@ public class GemAttributes extends AggregateAttributes {
 
   public void select(int selected) {
     if (this.selected >= 0 && selected != this.selected) {
-      log.warn("this.selected(" + this.selected + ") already set");
+      log.warn("this.selected({}) already set", this.selected);
     }
 
     this.selected = selected;
