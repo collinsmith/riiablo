@@ -670,7 +670,9 @@ public final class StatList {
     final int endIndex = endingOffset(list);
     return new ToStringBuilder(this)
         .append("immutable", immutable)
-        .append("tail", tail)
+        .append("index", list)
+        .append("startIndex", startIndex)
+        .append("endIndex", endIndex)
         .append("offsets", '{' + StringUtils.join(offsets, ',', (list << 1), (list << 1) + 2) + '}')
         .append("ids", '{' + StringUtils.join(ids, ',', startIndex, endIndex) + '}')
         .append("values", '{' + StringUtils.join(values, ',', startIndex, endIndex) + '}')
@@ -683,6 +685,8 @@ public final class StatList {
   public String toString() {
     return new ToStringBuilder(this)
         .append("immutable", immutable)
+        .append("numLists", numLists)
+        .append("maxLists", maxLists)
         .append("tail", tail)
         .append("offsets", '{' + StringUtils.join(offsets, ',', 0, numLists << 1) + '}')
         .append("ids", '{' + StringUtils.join(ids, ',', 0, tail) + '}')
