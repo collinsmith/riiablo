@@ -36,7 +36,7 @@ public final class StatListGetter implements Iterable<StatGetter> {
     return stats;
   }
 
-  StatListBuilder builder() {
+  public StatListBuilder builder() {
     return new StatListBuilder(stats, list);
   }
 
