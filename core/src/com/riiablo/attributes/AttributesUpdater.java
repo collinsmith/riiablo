@@ -54,7 +54,7 @@ public class AttributesUpdater {
   }
 
   public Attributes add(Attributes attrs, StatListGetter stats, Attributes opAttrs, CharStats.Entry charStats) {
-    if (!(attrs instanceof AggregateAttributes)) return attrs; // no-op
+    if (attrs.isSimpleType()) return attrs; // no-op
     final StatListGetter base = attrs.base();
     final StatListBuilder agg = attrs.aggregate().builder();
     final StatListBuilder rem = attrs.remaining().builder();
