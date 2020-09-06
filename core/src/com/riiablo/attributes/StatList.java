@@ -638,7 +638,7 @@ public final class StatList {
         "insertAt(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))", index, stat, entry, param, value);
 
     if (size >= MAX_STATS) {
-      log.warn("stat(" + stat + ") cannot be inserted, property list is full!");
+      log.warn("stat({}) cannot be inserted, property list is full!", stat);
       return;
     }
 
