@@ -38,6 +38,7 @@ public final class StatList {
   private static final int FLAG_PARAMS = 1 << 3;
   private static final int FLAG_FIXED = 1 << 4;
   private static final int FLAG_LONG = 1 << 5;
+  private static final int FLAG_MODIFIED = 1 << 6;
 
   private static final long UINT_MAX_VALUE = (1L << Integer.SIZE) - 1;
 
@@ -489,6 +490,14 @@ public final class StatList {
 
   public int encoding(final int index) {
     return flags[index] & ENCODING_MASK;
+  }
+
+  public boolean modified(final int index) {
+    return (flags[index] & FLAG_MODIFIED) == FLAG_MODIFIED;
+  }
+
+  public void forceUnmodified(final int index) {
+    flags[index] &= ~FLAG_MODIFIED;
   }
 
   byte flags(final int index) {

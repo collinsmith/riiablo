@@ -48,6 +48,16 @@ public final class StatGetter {
     return stats.id(index);
   }
 
+  /** @see StatList#modified(int) */
+  public boolean modified() {
+    return stats.modified(index);
+  }
+
+  /** @see StatList#forceUnmodified(int) */
+  public void forceUnmodified() {
+    stats.forceUnmodified(index);
+  }
+
   /** @see StatList#entry(int) */
   public ItemStatCost.Entry entry() {
     return stats.entry(index);
