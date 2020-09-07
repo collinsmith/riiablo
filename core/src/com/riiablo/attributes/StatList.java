@@ -13,11 +13,15 @@ public final class StatList {
   private static final Logger log = LogManager.getLogger(StatList.class);
 
   public static StatList obtain() {
-    return obtain(MAX_LISTS);
+    return obtainUnpooled(DEFAULT_SIZE, MAX_LISTS);
   }
 
-  public static StatList obtain(int maxLists) {
-    return new StatList().reset(maxLists);
+  public static StatList obtainLarge() {
+    return obtainUnpooled(MAX_SIZE, 1);
+  }
+
+  public static StatList obtainUnpooled(int maxSize, int maxLists) {
+    return new StatList(maxSize).reset(maxLists);
   }
 
   private static final StatList EMPTY_LIST = new StatList().freeze();
@@ -26,7 +30,8 @@ public final class StatList {
   }
 
   static final int MAX_LISTS = 8;
-  static final int MAX_STATS = 32;
+  static final int DEFAULT_SIZE = 32;
+  static final int MAX_SIZE = 1 << Byte.SIZE;
 
   /** @see #encodeFlags */
   private static final int ENCODING_MASK = (1 << 3) - 1;
@@ -37,11 +42,12 @@ public final class StatList {
   private static final long UINT_MAX_VALUE = (1L << Integer.SIZE) - 1;
 
   private final byte[] offsets = new byte[MAX_LISTS << 1];
-  private final short[] ids = new short[MAX_STATS];
-  private final int[] params = new int[MAX_STATS];
-  private final int[] values = new int[MAX_STATS];
-  private final byte[] flags = new byte[MAX_STATS];
+  private final short[] ids;
+  private final int[] params;
+  private final int[] values;
+  private final byte[] flags;
 
+  private final int maxSize;
   private int maxLists;
   private int numLists;
   private int size;
@@ -51,6 +57,19 @@ public final class StatList {
   private IndexIterator INDEX_ITERATOR;
   private StatIterator STAT_ITERATOR;
   private StatListIterator STAT_LIST_ITERATOR;
+
+  StatList() {
+    this(DEFAULT_SIZE);
+  }
+
+  StatList(int maxSize) {
+    assert maxSize >= 0 && maxSize <= MAX_SIZE;
+    this.maxSize = maxSize;
+    ids = new short[maxSize];
+    params = new int[maxSize];
+    values = new int[maxSize];
+    flags = new byte[maxSize];
+  }
 
   public StatList reset(final int maxLists) {
     log.traceEntry("reset(maxLists: {})", maxLists);
@@ -115,8 +134,8 @@ public final class StatList {
       throw new IndexOutOfBoundsException("Max number of lists has already been created: maxLists(" + maxLists + ")");
     }
 
-    if (tail + capacity > MAX_STATS) {
-      throw new IndexOutOfBoundsException("capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")");
+    if (tail + capacity > maxSize) {
+      throw new IndexOutOfBoundsException("capacity(" + capacity + ") would exceed maxSize(" + maxSize + ")");
     }
 
     final int list = numLists++;
@@ -158,8 +177,8 @@ public final class StatList {
     assert index <= endOffset : "index(" + index + ") > list.endOffset(" + endOffset + ")";
     final int shiftLength = endOffset - index;
     final int newEndOffset = endOffset + capacity;
-    assert newEndOffset <= MAX_STATS : "capacity(" + capacity + ") would exceed MAX_STATS(" + MAX_STATS + ")";
-    final int nextStartOffset = (list + 1) < numLists ? startingOffset(list + 1) : MAX_STATS;
+    assert newEndOffset <= maxSize : "capacity(" + capacity + ") would exceed maxSize(" + maxSize + ")";
+    final int nextStartOffset = (list + 1) < numLists ? startingOffset(list + 1) : maxSize;
     if (shiftLength > 0 && newEndOffset <= nextStartOffset) {
       arraycopy(index, index + capacity, shiftLength);
       setEndingOffset(list, newEndOffset);
@@ -615,7 +634,7 @@ public final class StatList {
     if (log.traceEnabled()) log.tracefEntry(
         "insertAt(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))", index, stat, entry, param, value);
     assert !immutable;
-    if (size >= MAX_STATS) {
+    if (size >= maxSize) {
       log.warn("stat({}) cannot be inserted, property list is full!", stat);
       return;
     }

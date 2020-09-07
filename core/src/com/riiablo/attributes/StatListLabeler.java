@@ -21,8 +21,8 @@ public class StatListLabeler {
     }
   }
 
-  private final Tuple[] desc = new Tuple[StatList.MAX_STATS]; {
-    for (int i = 0; i < StatList.MAX_STATS; i++) {
+  private final Tuple[] desc = new Tuple[StatList.MAX_SIZE]; {
+    for (int i = 0; i < StatList.MAX_SIZE; i++) {
       desc[i] = new Tuple();
     }
   }
