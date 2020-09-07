@@ -34,6 +34,10 @@ public final class StatGetter {
     return stats.value(index);
   }
 
+  public StatGetter copy() {
+    return new StatGetter().set(stats, index);
+  }
+
   /** @see StatList#id(int) */
   public short id() {
     return stats.id(index);
