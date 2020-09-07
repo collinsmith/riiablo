@@ -6,12 +6,15 @@ import com.riiablo.logger.Logger;
 public class AggregateAttributes extends Attributes {
   private static final Logger log = LogManager.getLogger(AggregateAttributes.class);
 
-  final StatList base = StatList.obtainLarge();
-  final StatList agg = StatList.obtainLarge();
-  final StatList rem = StatList.obtainLarge();
+  final StatList base;
+  final StatList agg;
+  final StatList rem;
 
-  AggregateAttributes(byte type) {
+  AggregateAttributes(byte type, boolean large) {
     super(type);
+    base = StatList.obtain();
+    agg = large ? StatList.obtainLarge() : StatList.obtain();
+    rem = large ? StatList.obtainLarge() : StatList.obtain();
   }
 
   @Override

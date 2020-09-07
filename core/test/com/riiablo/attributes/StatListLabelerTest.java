@@ -57,7 +57,7 @@ public class StatListLabelerTest {
     ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, bytesToSkip, length));
     BitInput bitInput = in.skipBytes(2).unalign(); // skip signature
     StatListReader reader = new StatListReader();
-    final Attributes attrs = Attributes.aggregateAttributes();
+    final Attributes attrs = Attributes.aggregateAttributes(true);
     reader.read(attrs, bitInput, true);
     return attrs;
   }

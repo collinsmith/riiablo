@@ -280,7 +280,7 @@ public class D2SReader96 {
     log.trace("Validating stats signature");
     in.readSignature(STATS_SIGNATURE);
     D2S.StatData stats = new D2S.StatData();
-    final Attributes attrs = stats.attrs = Attributes.aggregateAttributes();
+    final Attributes attrs = stats.attrs = Attributes.aggregateAttributes(true);
     BitInput bits = in.unalign();
     statReader.read(attrs, bits, true);
     bits.align();

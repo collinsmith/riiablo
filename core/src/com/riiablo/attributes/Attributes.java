@@ -5,11 +5,15 @@ import java.util.Iterator;
 
 public abstract class Attributes implements Iterable<StatGetter> {
   public static AggregateAttributes aggregateAttributes() {
-    return new AggregateAttributes(Attributes.AGGREGATE);
+    return aggregateAttributes(false);
+  }
+
+  public static AggregateAttributes aggregateAttributes(boolean large) {
+    return new AggregateAttributes(Attributes.AGGREGATE, large);
   }
 
   public static AggregateAttributes gemAttributes() {
-    return new AggregateAttributes(Attributes.GEM);
+    return new AggregateAttributes(Attributes.GEM, false);
   }
 
   public static StatListWrapper wrappedAttributes(StatList stats) {
