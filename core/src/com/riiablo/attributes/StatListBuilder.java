@@ -88,6 +88,12 @@ public final class StatListBuilder {
     return this;
   }
 
+  /** @see #get(short) */
+  public StatListBuilder add(short stat, int value) {
+    get(stat).add(value);
+    return this;
+  }
+
   /** @see StatList#add(int, StatGetter) */
   public StatListBuilder add(StatGetter stat) {
     index = stats.add(list, stat);
