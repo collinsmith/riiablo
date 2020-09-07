@@ -24,7 +24,7 @@ import static com.riiablo.attributes.StatListFlags.FLAG_RUNE;
 import static com.riiablo.attributes.StatListFlags.GEM_SHIELD_LIST;
 import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
 
-public class UpdaterTest {
+public class AttributesUpdaterTest {
   @BeforeClass
   public static void setup() {
     Gdx.app = new HeadlessApplication(new ApplicationAdapter() {});
@@ -47,8 +47,8 @@ public class UpdaterTest {
     LogManager.setLevel("com.riiablo.attributes.Updater", Level.TRACE);
   }
 
-  private static Updater newInstance() {
-    return new Updater();
+  private static AttributesUpdater newInstance() {
+    return new AttributesUpdater();
   }
 
   private Attributes genCharacterAttrs(byte[] data, int bytesToSkip, int length) {
@@ -110,7 +110,7 @@ public class UpdaterTest {
   @Test
   public void Tirant() {
     Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
-    Updater updater = newInstance();
+    AttributesUpdater updater = newInstance();
     updater.update(tirant, CharacterClass.SORCERESS.entry())
         .apply();
     dump(tirant);
@@ -119,8 +119,8 @@ public class UpdaterTest {
   @Test
   public void Spirit() {
     Attributes spirit = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, FLAG_MAGIC | FLAG_RUNE);
-    Updater updater = newInstance();
-    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null).apply();
+    AttributesUpdater updater = newInstance();
+    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null, null).apply();
     dump(spirit);
   }
 
@@ -131,8 +131,8 @@ public class UpdaterTest {
     Attributes thul = genGemAttrs("r10");
     Attributes ort = genGemAttrs("r09");
     Attributes amn = genGemAttrs("r11");
-    Updater updater = newInstance();
-    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null)
+    AttributesUpdater updater = newInstance();
+    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null, null)
         .add(tal.list(GEM_SHIELD_LIST))
         .add(thul.list(GEM_SHIELD_LIST))
         .add(ort.list(GEM_SHIELD_LIST))
@@ -149,8 +149,8 @@ public class UpdaterTest {
     Attributes thul = genGemAttrs("r10");
     Attributes ort = genGemAttrs("r09");
     Attributes amn = genGemAttrs("r11");
-    Updater updater = newInstance();
-    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null)
+    AttributesUpdater updater = newInstance();
+    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null, null)
         .add(tal.list(GEM_SHIELD_LIST))
         .add(thul.list(GEM_SHIELD_LIST))
         .add(ort.list(GEM_SHIELD_LIST))
@@ -172,8 +172,8 @@ public class UpdaterTest {
     Attributes thul = genGemAttrs("r10");
     Attributes ort = genGemAttrs("r09");
     Attributes amn = genGemAttrs("r11");
-    Updater updater = newInstance();
-    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null)
+    AttributesUpdater updater = newInstance();
+    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null, null)
         .add(tal.list(GEM_SHIELD_LIST))
         .add(thul.list(GEM_SHIELD_LIST))
         .add(ort.list(GEM_SHIELD_LIST))

@@ -9,6 +9,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 
+import com.riiablo.CharacterClass;
 import com.riiablo.Files;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.StringTBLs;
@@ -21,9 +22,6 @@ import com.riiablo.mpq.MPQFileHandleResolver;
 import static com.riiablo.attributes.StatListFlags.FLAG_MAGIC;
 import static com.riiablo.attributes.StatListFlags.FLAG_RUNE;
 import static com.riiablo.attributes.StatListFlags.GEM_SHIELD_LIST;
-import static com.riiablo.attributes.StatListFlags.GEM_WEAPON_LIST;
-import static com.riiablo.attributes.StatListFlags.ITEM_MAGIC_LIST;
-import static com.riiablo.attributes.StatListFlags.ITEM_RUNE_LIST;
 import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
 import static com.riiablo.attributes.StatListFlags.getSetItemEquippedFlag;
 import static com.riiablo.attributes.StatListFlags.getSetItemFlags;
@@ -82,85 +80,86 @@ public class StatListLabelerTest {
 
   @Test
   public void Tirant_Grief() {
-    Attributes attrs = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33).reset();
-    Attributes stats = genItemAttrs(Gdx.files.internal("test/Grief.d2i").readBytes(), 197, 0x12, FLAG_RUNE).reset();
+    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    Attributes grief = genItemAttrs(Gdx.files.internal("test/Grief.d2i").readBytes(), 197, 0x12, FLAG_RUNE);
+    Attributes eth = genGemAttrs("r05");
+    Attributes tir = genGemAttrs("r03");
+    Attributes lo = genGemAttrs("r28");
+    Attributes mal = genGemAttrs("r23");
+    Attributes ral = genGemAttrs("r08");
 
+    tirant.reset(); // must be called to copy base into agg
     AttributesUpdater updater = new AttributesUpdater();
-    updater.aggregate(stats, FLAG_RUNE, attrs);
+    updater.update(grief, FLAG_RUNE, tirant, CharacterClass.SORCERESS.entry())
+        .add(eth.list(GEM_SHIELD_LIST))
+        .add(tir.list(GEM_SHIELD_LIST))
+        .add(lo.list(GEM_SHIELD_LIST))
+        .add(mal.list(GEM_SHIELD_LIST))
+        .add(ral.list(GEM_SHIELD_LIST))
+        .apply();
 
     StatListLabeler labeler = newInstance();
-    System.out.println(labeler.createLabel(stats.remaining(), attrs));
-    System.out.println("----------");
-
-    updater.add(stats, genGemAttrs("r05").list(GEM_WEAPON_LIST), attrs);
-    updater.add(stats, genGemAttrs("r03").list(GEM_WEAPON_LIST), attrs);
-    updater.add(stats, genGemAttrs("r28").list(GEM_WEAPON_LIST), attrs);
-    updater.add(stats, genGemAttrs("r23").list(GEM_WEAPON_LIST), attrs);
-    updater.add(stats, genGemAttrs("r08").list(GEM_WEAPON_LIST), attrs);
-    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+    System.out.println(labeler.createLabel(grief.remaining(), tirant));
   }
 
   @Test
   public void Tirant_Annihilus() {
-    Attributes attrs = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33).reset();
-    Attributes stats = genItemAttrs(Gdx.files.internal("test/Annihilus.d2i").readBytes(), 172, -1, FLAG_MAGIC).reset();
+    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    Attributes annihilus = genItemAttrs(Gdx.files.internal("test/Annihilus.d2i").readBytes(), 172, -1, FLAG_MAGIC);
 
+    tirant.reset(); // must be called to copy base into agg
     AttributesUpdater updater = new AttributesUpdater();
-    updater.aggregate(stats, FLAG_MAGIC, attrs);
+    updater.update(annihilus, FLAG_MAGIC, tirant, CharacterClass.SORCERESS.entry()).apply();
 
     StatListLabeler labeler = newInstance();
-    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+    System.out.println(labeler.createLabel(annihilus.remaining(), tirant));
   }
 
   @Test
   public void Tirant_Hunters_Bow_of_Blight() {
-    Attributes attrs = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33).reset();
-    Attributes stats = genItemAttrs(Gdx.files.internal("test/Hunter's Bow of Blight.d2i").readBytes(), 196, -1, FLAG_MAGIC).reset();
+    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    Attributes bow = genItemAttrs(Gdx.files.internal("test/Hunter's Bow of Blight.d2i").readBytes(), 196, -1, FLAG_MAGIC);
 
+    tirant.reset(); // must be called to copy base into agg
     AttributesUpdater updater = new AttributesUpdater();
-    updater.aggregate(stats, FLAG_MAGIC, attrs);
+    updater.update(bow, FLAG_MAGIC, tirant, CharacterClass.SORCERESS.entry()).apply();
 
     StatListLabeler labeler = newInstance();
-    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+    System.out.println(labeler.createLabel(bow.remaining(), tirant));
   }
 
   @Test
   public void Tirant_Aldurs_Advance() {
-    Attributes attrs = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33).reset();
-    Attributes stats = genItemAttrs(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, FLAG_MAGIC | getSetItemFlags(4)).reset();
+    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    Attributes aldurs = genItemAttrs(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, FLAG_MAGIC | getSetItemFlags(4));
 
+    tirant.reset(); // must be called to copy base into agg
     AttributesUpdater updater = new AttributesUpdater();
-    updater.aggregate(stats, FLAG_MAGIC | getSetItemEquippedFlag(2), attrs);
+    updater.update(aldurs, FLAG_MAGIC | getSetItemEquippedFlag(2), tirant, CharacterClass.SORCERESS.entry()).apply();
 
     StatListLabeler labeler = newInstance();
-    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+    System.out.println(labeler.createLabel(aldurs.remaining(), tirant));
   }
 
   @Test
   public void Tirant_Spirit() {
-    Attributes attrs = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33).reset();
-    Attributes stats = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, FLAG_MAGIC | FLAG_RUNE).reset();
-
-    AttributesUpdater updater = new AttributesUpdater();
-    updater.aggregate(stats, FLAG_MAGIC | FLAG_RUNE, attrs);
-
-    StatListLabeler labeler = newInstance();
-    System.out.println("----------");
-    System.out.println(labeler.createDebugLabel(stats.list(ITEM_MAGIC_LIST), attrs));
-    System.out.println("----------");
-    System.out.println(labeler.createDebugLabel(stats.list(ITEM_RUNE_LIST), attrs));
-    System.out.println("----------");
-    System.out.println(labeler.createLabel(stats.remaining(), attrs));
-    System.out.println("----------");
-
+    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    Attributes spirit = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, FLAG_MAGIC | FLAG_RUNE);
     Attributes tal = genGemAttrs("r07");
     Attributes thul = genGemAttrs("r10");
     Attributes ort = genGemAttrs("r09");
     Attributes amn = genGemAttrs("r11");
-    updater.add(stats, tal.list(GEM_SHIELD_LIST), attrs);
-    updater.add(stats, thul.list(GEM_SHIELD_LIST), attrs);
-    updater.add(stats, ort.list(GEM_SHIELD_LIST), attrs);
-    updater.add(stats, amn.list(GEM_SHIELD_LIST), attrs);
-    System.out.println(labeler.createLabel(stats.remaining(), attrs));
+
+    tirant.reset(); // must be called to copy base into agg
+    AttributesUpdater updater = new AttributesUpdater();
+    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, tirant, CharacterClass.SORCERESS.entry())
+        .add(tal.list(GEM_SHIELD_LIST))
+        .add(thul.list(GEM_SHIELD_LIST))
+        .add(ort.list(GEM_SHIELD_LIST))
+        .add(amn.list(GEM_SHIELD_LIST))
+        .apply();
+
+    StatListLabeler labeler = newInstance();
+    System.out.println(labeler.createLabel(spirit.remaining(), tirant));
   }
 }

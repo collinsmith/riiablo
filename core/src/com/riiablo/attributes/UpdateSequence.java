@@ -12,14 +12,15 @@ public class UpdateSequence {
   private static final int MAX_SEQUENCE_LENGTH = 32;
 
   private final StatListGetter[] sequence = new StatListGetter[MAX_SEQUENCE_LENGTH];
-  private final Updater updater;
+  private final AttributesUpdater updater;
   private int sequenceLength;
   private boolean sequencing;
 
   private Attributes attrs;
+  private Attributes opBase;
   private CharStats.Entry charStats;
 
-  UpdateSequence(final Updater updater) {
+  UpdateSequence(final AttributesUpdater updater) {
     this.updater = updater;
   }
 
@@ -30,16 +31,21 @@ public class UpdateSequence {
       updater.add(attrs, seq);
     }
 
-    updater.apply(attrs, charStats, attrs);
+    updater.apply(attrs, charStats, opBase);
     return clear();
   }
 
-  UpdateSequence reset(final Attributes attrs, final int listFlags, final CharStats.Entry charStats) {
+  UpdateSequence reset(
+      final Attributes attrs,
+      final int listFlags,
+      final Attributes opBase,
+      final CharStats.Entry charStats) {
     if (sequencing) {
       throw new IllegalStateException("sequence locked, must apply current sequence");
     }
 
     this.attrs = attrs.reset();
+    this.opBase = opBase;
     this.charStats = charStats;
     return addAll(attrs, listFlags);
   }
