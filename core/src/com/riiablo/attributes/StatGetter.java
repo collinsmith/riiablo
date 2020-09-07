@@ -113,4 +113,8 @@ public final class StatGetter {
   public void add(float value) {
     stats.add(index, value);
   }
+
+  public void addShifted(int value) {
+    add(value << entry().ValShift);
+  }
 }
