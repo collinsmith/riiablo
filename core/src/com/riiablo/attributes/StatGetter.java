@@ -29,6 +29,11 @@ public final class StatGetter {
     return stats.param(index);
   }
 
+  /** @see StatList#param(int) */
+  public int params() { // different name to avoid #param() misuse
+    return param();
+  }
+
   /** @see StatList#value(int) */
   int value() {
     return stats.value(index);
