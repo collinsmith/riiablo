@@ -186,4 +186,31 @@ public class AttributesUpdaterTest {
         .apply();
     dump(parent);
   }
+
+  @Test
+  public void Tirant_Spirit_3() {
+    AttributesUpdater updater = newInstance();
+    Attributes parent = Attributes.aggregateAttributes();
+    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    UpdateSequence playerSequence = updater.update(parent, CharacterClass.SORCERESS.entry()).add(tirant.base());
+    Attributes spirit = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, FLAG_MAGIC | FLAG_RUNE);
+    Attributes tal = genGemAttrs("r07");
+    Attributes thul = genGemAttrs("r10");
+    Attributes ort = genGemAttrs("r09");
+    Attributes amn = genGemAttrs("r11");
+    UpdateSequence itemSequence = updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, null, null);
+    updater.update(tal, 1 << GEM_SHIELD_LIST, null, null).apply();
+    itemSequence.add(tal.remaining());
+    updater.update(thul, 1 << GEM_SHIELD_LIST, null, null).apply();
+    itemSequence.add(thul.remaining());
+    updater.update(ort, 1 << GEM_SHIELD_LIST, null, null).apply();
+    itemSequence.add(ort.remaining());
+    updater.update(amn, 1 << GEM_SHIELD_LIST, null, null).apply();
+    itemSequence.add(amn.remaining());
+    itemSequence.apply();
+//    dump(spirit);
+
+    playerSequence.add(spirit.remaining()).apply();
+    dump(parent);
+  }
 }
