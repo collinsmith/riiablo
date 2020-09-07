@@ -368,6 +368,10 @@ public final class StatList {
     return put(list, stat, 0, _asInt(value));
   }
 
+  public int put(final int list, final short stat, final StatGetter src) {
+    return put(list, stat, src.param(), src.value());
+  }
+
   public boolean contains(final int list) {
     return list >= 0 && list < numLists;
   }
