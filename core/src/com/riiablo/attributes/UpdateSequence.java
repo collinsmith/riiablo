@@ -2,6 +2,9 @@ package com.riiablo.attributes;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
+
 import com.riiablo.codec.excel.CharStats;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
@@ -9,20 +12,21 @@ import com.riiablo.logger.Logger;
 public class UpdateSequence {
   private static final Logger log = LogManager.getLogger(UpdateSequence.class);
 
+  private static final Pool<UpdateSequence> POOL = Pools.get(UpdateSequence.class, 16);
+  static UpdateSequence obtain() {
+    return POOL.obtain();
+  }
+
   private static final int MAX_SEQUENCE_LENGTH = 32;
 
   private final StatListGetter[] sequence = new StatListGetter[MAX_SEQUENCE_LENGTH];
-  private final AttributesUpdater updater;
+  private AttributesUpdater updater;
   private int sequenceLength;
   private boolean sequencing;
 
   private Attributes attrs;
   private Attributes opBase;
   private CharStats.Entry charStats;
-
-  UpdateSequence(final AttributesUpdater updater) {
-    this.updater = updater;
-  }
 
   public Attributes apply() {
     final StatListGetter[] sequence = this.sequence;
@@ -32,10 +36,14 @@ public class UpdateSequence {
     }
 
     updater.apply(attrs, charStats, opBase);
-    return clear();
+    final Attributes attrs = this.attrs;
+    clear();
+    POOL.free(this);
+    return attrs;
   }
 
   UpdateSequence reset(
+      final AttributesUpdater updater,
       final Attributes attrs,
       final int listFlags,
       final Attributes opBase,
@@ -44,20 +52,20 @@ public class UpdateSequence {
       throw new IllegalStateException("sequence locked, must apply current sequence");
     }
 
+    this.updater = updater;
     this.attrs = attrs.reset();
     this.opBase = opBase;
     this.charStats = charStats;
     return addAll(attrs, listFlags);
   }
 
-  Attributes clear() {
+  void clear() {
     sequencing = false;
     Arrays.fill(sequence, 0, sequenceLength, null);
     sequenceLength = 0;
-    final Attributes attrs = this.attrs;
     this.attrs = null;
     this.charStats = null;
-    return attrs;
+    this.updater = null;
   }
 
   public UpdateSequence add(StatListGetter stats) {

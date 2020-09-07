@@ -9,8 +9,6 @@ import com.riiablo.logger.MDC;
 public final class AttributesUpdater {
   private static final Logger log = LogManager.getLogger(AttributesUpdater.class);
 
-  private final UpdateSequence SEQUENCER = new UpdateSequence(this);
-
   public UpdateSequence update(final Attributes attrs, final CharStats.Entry charStats) {
     return update(attrs, attrs, charStats);
   }
@@ -27,7 +25,7 @@ public final class AttributesUpdater {
       final int listFlags,
       final Attributes opBase,
       final CharStats.Entry charStats) {
-    return SEQUENCER.reset(attrs, listFlags, opBase, charStats);
+    return UpdateSequence.obtain().reset(this, attrs, listFlags, opBase, charStats);
   }
 
   void add(
