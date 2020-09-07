@@ -736,11 +736,14 @@ public final class StatList {
 
   public final class StatIterator implements Iterator<StatGetter> {
     final StatGetter stat = new StatGetter(StatList.this);
+    int list; /** used for {@link #pushback} */
+    int head; /** used for {@link #pushback} */
     int index;
     int endIndex;
 
     StatIterator reset(final int list) {
-      index = startingOffset(list);
+      this.list = list;
+      head = index = startingOffset(list);
       endIndex = endingOffset(list);
       return this;
     }
@@ -753,6 +756,18 @@ public final class StatList {
     @Override
     public StatGetter next() {
       return stat.update(index++);
+    }
+
+    /**
+     * Recycles the previously read stat by re-adding it onto a new list being
+     * formed at the start of this list while iteration is occurring. This
+     * method effectively breaks the old list and shrinks it to a subset of
+     * entries.
+     */
+    void pushback() {
+      assert head < index : "head(" + head + ") cannot pass index(" + index + ")";
+      StatList.this.set(head++, stat.id(), stat.param(), stat.value(), stat.entry());
+      setEndingOffset(list, head);
     }
 
     @Override

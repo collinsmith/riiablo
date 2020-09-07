@@ -10,7 +10,6 @@ public final class AttributesUpdater {
   private static final Logger log = LogManager.getLogger(AttributesUpdater.class);
 
   private final UpdateSequence SEQUENCER = new UpdateSequence(this);
-  private final StatList cache = StatList.obtainLarge(); // easier than implementing StatList#remove
 
   public UpdateSequence update(final Attributes attrs, final CharStats.Entry charStats) {
     return update(attrs, attrs, charStats);
@@ -76,34 +75,31 @@ public final class AttributesUpdater {
       final StatListGetter rem,
       final Attributes opBase,
       final CharStats.Entry charStats) {
-    // should pass values from rem to agg if applicable
-    final StatListBuilder cache = this.cache.clear().buildList();
-    for (StatGetter stat : rem) {
+    for (final StatList.StatIterator it = rem.statIterator(); it.hasNext();) {
+      final StatGetter stat = it.next();
       final ItemStatCost.Entry entry = stat.entry();
       try {
         MDC.put("applyStat", stat.id());
         final int op = entry.op;
         if (op > 0) {
           if (log.traceEnabled()) log.trace("Applying stat({}) op({})", stat.debugString(), op);
-          op(agg, cache, opBase, charStats, stat);
+          op(agg, it, opBase, charStats, stat);
         } else if (base.contains(stat)) {
           if (log.traceEnabled()) log.trace("Aggregating stat({})", stat.debugString());
           agg.add(stat);
         } else {
           if (log.traceEnabled()) log.trace("Propagating stat({})", stat.debugString());
-          cache.add(stat);
+          it.pushback();
         }
       } finally {
         MDC.remove("applyStat");
       }
     }
-
-    rem.parent().setAll(cache.build());
   }
 
   static void op(
       final StatListBuilder agg,
-      final StatListBuilder rem,
+      final StatList.StatIterator it,
       final Attributes opBase,
       final CharStats.Entry charStats,
       final StatGetter stat) {
@@ -133,7 +129,7 @@ public final class AttributesUpdater {
     }
 
     if (ops == 0) {
-      rem.add(stat);
+      it.pushback();
     } else if (ops < expectedOps) {
       log.warn("{} stats were not op'd", ops);
     }
