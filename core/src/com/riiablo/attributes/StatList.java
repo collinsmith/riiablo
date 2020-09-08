@@ -231,6 +231,7 @@ public final class StatList {
     if (log.traceEnabled()) log.trace(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), asString(index), _asString(index, value));
+    flags[index] |= FLAG_MODIFIED;
     final int result = values[index] += value;
     if (log.debugEnabled()) log.debug(indexDebugString(index));
     return result;
@@ -256,6 +257,7 @@ public final class StatList {
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.asString(otherIndex));
     if (index >= 0 && ids[index] == stat) {
       values[index] += src.values[otherIndex];
+      flags[index] |= FLAG_MODIFIED;
       if (log.debugEnabled()) log.debug(indexDebugString(index));
       return index;
     } else {
@@ -278,6 +280,7 @@ public final class StatList {
         stat, entry(stat), index >= 0 ? asString(index) : "null", src.debugString());
     if (index >= 0 && ids[index] == stat) {
       values[index] += src.value();
+      flags[index] |= FLAG_MODIFIED;
       if (log.debugEnabled()) log.debug(indexDebugString(index));
       return index;
     } else {
@@ -666,11 +669,11 @@ public final class StatList {
     final byte flags = this.flags[index];
     switch (flags & ENCODING_MASK) {
       default: // fall-through
-      case 0: return entry(index) + "(" + ids[index] + ")=" + ((flags & FLAG_PARAMS) == 0 ? asString(index) : (asString(index) + ":" + params[index]));
-      case 1: return entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + value1(index);
-      case 2: return entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index);
-      case 3: return entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index) + ":" + value2(index);
-      case 4: return entry(index) + "(" + ids[index] + ")=" + value1(index) + ":" + value2(index) + ":" + value3(index);
+      case 0: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + ((flags & FLAG_PARAMS) == 0 ? asString(index) : (asString(index) + ":" + params[index]));
+      case 1: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + value1(index);
+      case 2: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index);
+      case 3: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index) + ":" + value2(index);
+      case 4: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + value1(index) + ":" + value2(index) + ":" + value3(index);
     }
   }
 
