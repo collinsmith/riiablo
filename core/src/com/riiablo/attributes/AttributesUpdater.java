@@ -82,6 +82,7 @@ public final class AttributesUpdater {
         if (op > 0) {
           if (log.traceEnabled()) log.trace("Applying stat({}) op({})", stat.debugString(), op);
           op(agg, it, opBase, charStats, stat);
+          agg.add(stat);
         } else if (base.contains(stat)) {
           if (log.traceEnabled()) log.trace("Aggregating stat({})", stat.debugString());
           agg.add(stat);
