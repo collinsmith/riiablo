@@ -21,7 +21,7 @@ public class StatListReader {
     } else {
       log.trace("Reading stat...");
       param = (int) bits.read63u(entry.Save_Param_Bits);
-      value = (int) bits.read63u(entry.Save_Bits) - entry.Save_Add;
+      value = (int) (bits.read63u(entry.Save_Bits) - entry.Save_Add) << entry.ValShift;
     }
     return stats.put(stat, param, value).last();
   }
