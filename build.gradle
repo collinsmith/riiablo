@@ -199,7 +199,7 @@ project(":core") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-ai:1.8.+"
+        compile "com.badlogicgames.gdx:gdx-ai:1.8.2"
         compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
     }
 
