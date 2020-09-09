@@ -227,7 +227,7 @@ public final class StatList {
     assertMutable();
     final short stat = ids[index];
     assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    assert encoding(stat) <= 2 : "#add() unsupported for encoding(" + encoding(stat) + ")";
+    assert encoding(index) <= 2 : "#add() unsupported for encoding(" + encoding(index) + ")";
     if (log.traceEnabled()) log.trace(
         "add(stat: {} ({}), this: {}, src: {})",
         stat, entry(stat), asString(index), _asString(index, value));
