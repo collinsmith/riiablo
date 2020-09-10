@@ -1525,7 +1525,7 @@ public class RenderSystem extends BaseEntitySystem {
               if (attrs != null && attrs.contains(Stat.hitpoints)) {
                 float hitpoints = attrs.get(Stat.hitpoints).asFixed();
                 float maxhp = attrs.get(Stat.maxhp).asFixed();
-                if (maxhp > 0) {
+                if (maxhp > 0f && hitpoints > 0f) {
 //                  batch.setColor(Riiablo.colors.black);
 //                  batch.draw(Riiablo.textures.white, tmp.x - 50, tmp.y - Tile.SUBTILE_HEIGHT50, 100, 5);
                   batch.setColor(Riiablo.colors.darkRed);
