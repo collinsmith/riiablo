@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.math.Fixed;
 
 public final class StatList {
   private static final Logger log = LogManager.getLogger(StatList.class);
@@ -449,7 +450,7 @@ public final class StatList {
   }
 
   private static int _asInt(final float value) {
-    return Fixed.floatToIntBits(value, 8);
+    return com.riiablo.math.Fixed.floatToIntBits(value, 8);
   }
 
   private static float _asFixed(final int value) {

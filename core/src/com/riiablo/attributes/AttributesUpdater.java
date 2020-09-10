@@ -5,6 +5,7 @@ import com.riiablo.codec.excel.ItemStatCost;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 import com.riiablo.logger.MDC;
+import com.riiablo.math.Fixed;
 
 public final class AttributesUpdater {
   private static final Logger log = LogManager.getLogger(AttributesUpdater.class);
@@ -144,9 +145,9 @@ public final class AttributesUpdater {
       final int op_base) {
     switch (op) {
       case 1: return (stat.value() * opStat.value()) / 100;
-      case 2: return Fixed.intBitsToFloatFloor(stat.value() * op_base, op_param);
-      case 3: return Fixed.intBitsToFloatFloor(stat.value() * op_base, op_param) * opStat.value() / 100;
-      case 4: return Fixed.intBitsToFloatFloor(stat.value() * op_base, op_param);
+      case 2: return com.riiablo.math.Fixed.intBitsToFloatFloor(stat.value() * op_base, op_param);
+      case 3: return com.riiablo.math.Fixed.intBitsToFloatFloor(stat.value() * op_base, op_param) * opStat.value() / 100;
+      case 4: return com.riiablo.math.Fixed.intBitsToFloatFloor(stat.value() * op_base, op_param);
       case 5: return Fixed.intBitsToFloatFloor(stat.value() * op_base, op_param) * opStat.value() / 100;
       case 6: return 0; // by-time
       case 7: return 0; // by-time percent

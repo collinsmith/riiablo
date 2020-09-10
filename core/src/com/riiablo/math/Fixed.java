@@ -1,4 +1,4 @@
-package com.riiablo.attributes;
+package com.riiablo.math;
 
 public final class Fixed {
   private static final int[] DIVISOR = new int[Integer.SIZE];

@@ -8,6 +8,7 @@ import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.math.Fixed;
 
 public class StatFormatter {
   private static final Logger log = LogManager.getLogger(StatFormatter.class);
@@ -83,7 +84,7 @@ public class StatFormatter {
         return builder.toString();
       }
       case 5: { // %d%% %s1
-        final int value = Fixed.intBitsToFloatFloor(stat.value1() * 100, 7);
+        final int value = com.riiablo.math.Fixed.intBitsToFloatFloor(stat.value1() * 100, 7);
         if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
         builder.append(Riiablo.string.lookup(value < 0 ? strneg : strpos));
         if (valmode == 2) builder.append(SPACE).append(value).append(PERCENT);
@@ -130,7 +131,7 @@ public class StatFormatter {
         return builder.toString();
       }
       case 10: { // %d%% %s1 %s2
-        final int value = Fixed.intBitsToFloatFloor(stat.value1() * 100, 7);
+        final int value = com.riiablo.math.Fixed.intBitsToFloatFloor(stat.value1() * 100, 7);
         if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
         builder
             .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -324,9 +325,9 @@ public class StatFormatter {
     switch (entry.op) {
       default: log.warn("entry.op({}) unknown for stat({})", entry.op, stat.debugString()); // fall-through
       case 1: return value;
-      case 2: return Fixed.intBitsToFloatFloor(value * op_base, op_param);
+      case 2: return com.riiablo.math.Fixed.intBitsToFloatFloor(value * op_base, op_param);
       case 3: return value;
-      case 4: return Fixed.intBitsToFloatFloor(value * op_base, op_param);
+      case 4: return com.riiablo.math.Fixed.intBitsToFloatFloor(value * op_base, op_param);
       case 5: return Fixed.intBitsToFloatFloor(value * op_base, op_param);
       case 6: return value; // Unsupported -- time of day
       case 7: return value; // Unsupported -- time of day %
