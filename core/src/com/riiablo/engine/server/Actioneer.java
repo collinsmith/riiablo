@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.riiablo.Riiablo;
 import com.riiablo.attributes.Attributes;
 import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.Angle;
@@ -27,6 +28,7 @@ import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.math.Fixed;
 
 public class Actioneer extends PassiveSystem {
   private static final Logger log = LogManager.getLogger(Actioneer.class);
@@ -123,11 +125,19 @@ public class Actioneer extends PassiveSystem {
         log.debug("{} attack {}", entityId, targetId);
 
         Attributes attrs = mAttributesWrapper.get(targetId).attrs;
-        log.debug("{} {}", targetId, attrs.get(Stat.hitpoints).asFixed());
+        StatRef hitpoints = attrs.get(Stat.hitpoints);
+        log.debug("{} {}", targetId, hitpoints.asFixed());
 
-        attrs.get(Stat.hitpoints).sub(10f);
-        log.debug("{} {}", targetId, attrs.get(Stat.hitpoints).asFixed());
+        hitpoints.sub(10f);
+        log.debug("{} {}", targetId, hitpoints.asFixed());
 
+        if (Fixed.isNegative(hitpoints.encodedValues())) {
+          hitpoints.set(0f);
+        }
+
+        if (hitpoints.asFixed() <= 0f) {
+          log.debug("{} is dead!", targetId);
+        }
         break;
       case 27: // teleport
         mPosition.get(entityId).position.set(targetVec);

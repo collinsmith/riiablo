@@ -22,5 +22,10 @@ public final class Fixed {
     return value >>> precision;
   }
 
+  @Deprecated
+  public static boolean isNegative(final int value) {
+    return value >> 31 != 0; // TODO: add negative encoding support to above functions
+  }
+
   private Fixed() {}
 }
