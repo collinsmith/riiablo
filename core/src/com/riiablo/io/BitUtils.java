@@ -6,7 +6,7 @@ public class BitUtils {
   public static boolean isUnsigned(long value, int bits) {
     assert 0 < bits : "bits(" + bits + ") < " + 0;
     assert bits <= Long.SIZE : "bits(" + bits + ") > " + Long.SIZE;
-    return (value & (1 << (bits - 1))) == 0;
+    return (value & (1L << (bits - 1))) == 0;
   }
 
   public static boolean isUnsigned(byte value) {
