@@ -497,6 +497,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
     SHADOW_TRANSFORM.scale(1, 0.5f);
 
     if (layer.regions[d] == null) layer.load(d);
+    if (f >= layer.regions[d].length) return; // FIXME: see #113
     TextureRegion region = layer.regions[d][f];
     if (region.getTexture().getTextureObjectHandle() == 0) return;
     batch.draw(region, region.getRegionWidth(), region.getRegionHeight(), SHADOW_TRANSFORM);
@@ -647,6 +648,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
       x += box.xMin;
       y -= box.yMax;
       if (regions[d] == null) load(d);
+      if (f >= regions[d].length) return; // FIXME: see #113
       TextureRegion region = regions[d][f];
       if (region.getTexture().getTextureObjectHandle() == 0) return;
       PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
