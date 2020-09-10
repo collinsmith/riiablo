@@ -29,7 +29,6 @@ import com.badlogic.gdx.utils.Pools;
 import com.riiablo.Riiablo;
 import com.riiablo.attributes.Attributes;
 import com.riiablo.attributes.Stat;
-import com.riiablo.attributes.StatRef;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.util.BBox;
@@ -1519,22 +1518,26 @@ public class RenderSystem extends BaseEntitySystem {
               builder.append(aiComponent.ai.getState()).append('\n');
             }
             Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
-            GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50 - 4, 0, Align.center, false);
-            Pools.free(layout);
 
             AttributesWrapper attributesWrapper = mAttributesWrapper.get(id);
             if (attributesWrapper != null) {
               Attributes attrs = attributesWrapper.attrs;
               if (attrs != null && attrs.contains(Stat.hitpoints)) {
-                StatRef hitpoints = attrs.get(Stat.hitpoints);
-                StatRef maxhp = attrs.get(Stat.maxhp);
-                batch.setColor(Riiablo.colors.black);
-                batch.draw(Riiablo.textures.white, tmp.x - 50, tmp.y - Tile.SUBTILE_HEIGHT50, 100, 5);
-                batch.setColor(Riiablo.colors.darkRed);
-                batch.draw(Riiablo.textures.white, tmp.x - 50, tmp.y - Tile.SUBTILE_HEIGHT50, hitpoints.asFixed() / maxhp.asFixed() * 100, 5);
-                batch.resetColor();
+                float hitpoints = attrs.get(Stat.hitpoints).asFixed();
+                float maxhp = attrs.get(Stat.maxhp).asFixed();
+                if (maxhp > 0) {
+                  batch.setColor(Riiablo.colors.black);
+                  batch.draw(Riiablo.textures.white, tmp.x - 50, tmp.y - Tile.SUBTILE_HEIGHT50, 100, 5);
+                  batch.setColor(Riiablo.colors.darkRed);
+                  batch.draw(Riiablo.textures.white, tmp.x - 50, tmp.y - Tile.SUBTILE_HEIGHT50, hitpoints / maxhp * 100, 5);
+                  batch.resetColor();
+                  builder.append("hitpoints: ").append((int) hitpoints).append('/').append((int) maxhp).append('\n');
+                }
               }
             }
+
+            GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50 - 4, 0, Align.center, false);
+            Pools.free(layout);
           }
         }
 
