@@ -138,6 +138,22 @@ public final class StatRef {
     stats.add(list, index, value);
   }
 
+  public void subEncoded(final int encodedValues) {
+    stats.subEncoded(list, index, encodedValues);
+  }
+
+  public void sub(final int value) {
+    stats.sub(list, index, value);
+  }
+
+  public void sub(final long value) {
+    stats.sub(list, index, value);
+  }
+
+  public void sub(final float value) {
+    stats.sub(list, index, value);
+  }
+
   public String asString() {
     return stats.asString(index);
   }

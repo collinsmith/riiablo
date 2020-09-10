@@ -194,6 +194,30 @@ public final class StatListRef implements Iterable<StatRef> {
     }
   }
 
+  public StatRef subEncoded(final short stat, final int encodedValues) {
+    assert containsAny(stat);
+    final int index = stats.subEncoded(list, indexOf(stat), encodedValues);
+    return tuple.update(index);
+  }
+
+  public StatRef sub(final short stat, final int value) {
+    assert containsAny(stat);
+    final int index = stats.sub(list, indexOf(stat), value);
+    return tuple.update(index);
+  }
+
+  public StatRef sub(final short stat, final long value) {
+    assert containsAny(stat);
+    final int index = stats.sub(list, indexOf(stat), value);
+    return tuple.update(index);
+  }
+
+  public StatRef sub(final short stat, final float value) {
+    assert containsAny(stat);
+    final int index = stats.sub(list, indexOf(stat), value);
+    return tuple.update(index);
+  }
+
   public StatListRef addAll(final StatListRef src) {
     int index = tuple.index;
     for (StatRef stat : src) {

@@ -329,7 +329,7 @@ public final class StatList {
 
   int addEncoded(final int list, final int index, final int encodedValues) {
     assert contains(list, index);
-    assert encoding(index) <= 2 : "#add() unsupported for encoding(" + encoding(index) + ")";
+    assert encoding(index) <= 2 : "#addEncoded() unsupported for encoding(" + encoding(index) + ")";
     final short stat = ids[index];
     assertSimple(stat);
     assert equalsEncoded(index, stat, 0);
@@ -352,6 +352,32 @@ public final class StatList {
 
   int add(final int list, final int index, final float value) {
     return addEncoded(list, index, asInt(ids[index], value));
+  }
+
+  int subEncoded(final int list, final int index, final int encodedValues) {
+    assert contains(list, index);
+    assert encoding(index) <= 2 : "#subEncoded() unsupported for encoding(" + encoding(index) + ")";
+    final short stat = ids[index];
+    assertSimple(stat);
+    assert equalsEncoded(index, stat, 0);
+    if (log.traceEnabled()) log.tracefEntry(
+        "subEncoded(stat: %d (%s), encodedValues: %d (0x%3$x))",
+        stat, entry(index), encodedValues);
+    values[index] -= encodedValues;
+    if (log.debugEnabled()) log.debug(indexDebugString(index));
+    return index;
+  }
+
+  int sub(final int list, final int index, final int value) {
+    return subEncoded(list, index, Stat.encode(ids[index], value));
+  }
+
+  int sub(final int list, final int index, final long value) {
+    return subEncoded(list, index, asInt(value));
+  }
+
+  int sub(final int list, final int index, final float value) {
+    return subEncoded(list, index, asInt(ids[index], value));
   }
 
   private static int asInt(final long value) {
