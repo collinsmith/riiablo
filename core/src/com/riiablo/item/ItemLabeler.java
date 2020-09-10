@@ -269,8 +269,9 @@ public class ItemLabeler {
 
     if ((item.flags & Item.ITEMFLAG_COMPACT) == 0) {
       StatListRef temp = StatList.obtain();
-      temp.addAll(attrs.list(StatListFlags.ITEM_MAGIC_LIST));
-      temp.addAll(attrs.list(StatListFlags.ITEM_RUNE_LIST));
+      final StatList lists = attrs.list();
+      if (lists.contains(StatListFlags.ITEM_MAGIC_LIST)) temp.addAll(lists.get(StatListFlags.ITEM_MAGIC_LIST));
+      if (lists.contains(StatListFlags.ITEM_RUNE_LIST)) temp.addAll(lists.get(StatListFlags.ITEM_RUNE_LIST));
       for (Item socket : item.sockets) {
         temp.addAll(socket.attrs.remaining());
       }
