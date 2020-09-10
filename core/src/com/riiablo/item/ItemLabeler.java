@@ -197,6 +197,7 @@ public class ItemLabeler {
     }
 
     final Attributes attrs = item.attrs;
+    final StatRef tmp = StatRef.obtain();
     //if ((flags & COMPACT) == 0) {
       StatRef prop;
       if ((prop = attrs.get(Stat.armorclass)) != null) {
@@ -219,21 +220,21 @@ public class ItemLabeler {
         if ((i & 1) != 0 && (prop = attrs.get(Stat.maxdamage)) != null) {
           Table t = new Table();
           t.add(new Label(Riiablo.string.lookup("ItemStats1l") + " ", font));
-          t.add(new Label(attrs.get(Stat.mindamage).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
+          t.add(new Label(attrs.get(Stat.mindamage, tmp).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
           t.pack();
           table.add(t).space(SPACING).row();
         }
         if ((i & 2) != 0 && (prop = attrs.get(Stat.secondary_maxdamage)) != null) {
           Table t = new Table();
           t.add(new Label(Riiablo.string.lookup("ItemStats1m") + " ", font));
-          t.add(new Label(attrs.get(Stat.secondary_mindamage).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
+          t.add(new Label(attrs.get(Stat.secondary_mindamage, tmp).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
           t.pack();
           table.add(t).space(SPACING).row();
         }
         if (item.typeEntry.Throwable && (prop = attrs.get(Stat.item_throw_maxdamage)) != null) {
           Table t = new Table();
           t.add(new Label(Riiablo.string.lookup("ItemStats1n") + " ", font));
-          t.add(new Label(attrs.get(Stat.item_throw_mindamage).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
+          t.add(new Label(attrs.get(Stat.item_throw_mindamage, tmp).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
           t.pack();
           table.add(t).space(SPACING).row();
         }
@@ -247,10 +248,10 @@ public class ItemLabeler {
           table.add(t).space(SPACING).row();
         }
         if (Riiablo.charData.classId == CharacterClass.PALADIN && (prop = attrs.get(Stat.maxdamage)) != null && prop.asInt() > 0)
-          table.add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + attrs.get(Stat.mindamage).asString() + " to " + prop.asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
+          table.add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + attrs.get(Stat.mindamage, tmp).asString() + " to " + prop.asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
       }
       if (!item.base.nodurability && (prop = attrs.get(Stat.durability)) != null)
-        table.add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.asString() + " " + Riiablo.string.lookup("ItemStats1j") + " " + attrs.get(Stat.maxdurability).asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
+        table.add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.asString() + " " + Riiablo.string.lookup("ItemStats1j") + " " + attrs.get(Stat.maxdurability, tmp).asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
       if (item.type.is(Type.CLAS)) {
         table.add(new Label(Riiablo.string.lookup(CharacterClass.get(item.typeEntry.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
       }
