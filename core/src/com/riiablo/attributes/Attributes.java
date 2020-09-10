@@ -224,13 +224,23 @@ public final class Attributes implements Iterable<StatRef> {
     return agg.containsAny(stat);
   }
 
+  /**
+   * NOTE: This method returns a reused StatRef tuple which should not be
+   * saved. Consecutive calls to this method will change the state of the
+   * tuple, so only use this if you want to retrieve the value as a temp
+   * cache. If you want to retrieve multiple stats,
+   * {@link #get(short, StatRef)} should be used instead.
+   */
   public StatRef get(final short stat) {
     return agg.get(stat);
   }
 
-  public StatRef getCopy(final short stat) {
-    final StatRef ref = agg.get(stat);
-    return ref != null ? ref.copy() : null;
+  /**
+   * @see #get(short)
+   */
+  public StatRef get(final short stat, final StatRef dst) {
+    assert dst != null : "dst is null when it is asserted that you should have created one to reuse!";
+    return agg.get(stat, dst);
   }
 
   public StatRef set(final short stat, final short srcStat) {

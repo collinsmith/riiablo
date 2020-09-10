@@ -3,6 +3,10 @@ package com.riiablo.attributes;
 import com.riiablo.codec.excel.ItemStatCost;
 
 public final class StatRef {
+  public static StatRef obtain() {
+    return new StatRef();
+  }
+
   StatList stats;
   int list;
   int index;

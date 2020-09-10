@@ -90,6 +90,12 @@ public final class StatListRef implements Iterable<StatRef> {
     return tuple.update(index);
   }
 
+  public StatRef get(final short stat, final StatRef dst) {
+    final int index = indexOf(stat);
+    if (index < 0) return null;
+    return dst.update(stats, list, index);
+  }
+
   StatRef first(final short stat) {
     final int index = stats.firstIndexOf(list, stat);
     if (index < 0) return null;
