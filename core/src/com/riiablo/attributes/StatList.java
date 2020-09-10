@@ -140,11 +140,11 @@ public final class StatList {
     return size(list) == 0;
   }
 
-  int numLists() {
+  public int numLists() {
     return numLists;
   }
 
-  int maxLists() {
+  public int maxLists() {
     return maxLists;
   }
 
@@ -186,12 +186,12 @@ public final class StatList {
     return get(0);
   }
 
-  StatListRef get(final int list) {
+  public StatListRef get(final int list) {
     if (!contains(list)) throw new IndexOutOfBoundsException("StatList does not contain list(" + list + "): numLists(" + numLists + ")");
     return new StatListRef(this, list);
   }
 
-  boolean contains(final int list) {
+  public boolean contains(final int list) {
     return list >= 0 && list < numLists;
   }
 
