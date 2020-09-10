@@ -27,6 +27,9 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pools;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.util.BBox;
@@ -39,6 +42,7 @@ import com.riiablo.engine.client.component.Selectable;
 import com.riiablo.engine.server.component.AIWrapper;
 import com.riiablo.engine.server.component.Angle;
 import com.riiablo.engine.server.component.AnimData;
+import com.riiablo.engine.server.component.AttributesWrapper;
 import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.Classname;
 import com.riiablo.engine.server.component.CofReference;
@@ -121,6 +125,7 @@ public class RenderSystem extends BaseEntitySystem {
   protected ComponentMapper<Hovered> mHovered;
   protected ComponentMapper<AIWrapper> mAIWrapper;
   protected ComponentMapper<AnimData> mAnimData;
+  protected ComponentMapper<AttributesWrapper> mAttributesWrapper;
   protected EntitySubscription debugEntitites;
 
   private final Vector2 tmpVec2 = new Vector2();
@@ -1516,6 +1521,20 @@ public class RenderSystem extends BaseEntitySystem {
             Vector2 tmp = iso.agg(tmpVec2.set(position)).toScreen().ret();
             GlyphLayout layout = Riiablo.fonts.consolas12.draw(batch, builder.toString(), tmp.x, tmp.y - Tile.SUBTILE_HEIGHT50 - 4, 0, Align.center, false);
             Pools.free(layout);
+
+            AttributesWrapper attributesWrapper = mAttributesWrapper.get(id);
+            if (attributesWrapper != null) {
+              Attributes attrs = attributesWrapper.attrs;
+              if (attrs != null && attrs.contains(Stat.hitpoints)) {
+                StatRef hitpoints = attrs.get(Stat.hitpoints);
+                StatRef maxhp = attrs.get(Stat.maxhp);
+                batch.setColor(Riiablo.colors.black);
+                batch.draw(Riiablo.textures.white, tmp.x - 50, tmp.y - Tile.SUBTILE_HEIGHT50, 100, 5);
+                batch.setColor(Riiablo.colors.darkRed);
+                batch.draw(Riiablo.textures.white, tmp.x - 50, tmp.y - Tile.SUBTILE_HEIGHT50, hitpoints.asFixed() / maxhp.asFixed() * 100, 5);
+                batch.resetColor();
+              }
+            }
           }
         }
 
