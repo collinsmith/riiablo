@@ -1,161 +1,186 @@
 package com.riiablo.attributes;
 
-import android.support.annotation.CallSuper;
 import java.util.Iterator;
 
-public abstract class Attributes implements Iterable<StatGetter> {
-  public static AggregateAttributes aggregateAttributes() {
-    return aggregateAttributes(false);
-  }
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
-  public static AggregateAttributes aggregateAttributes(boolean large) {
-    return new AggregateAttributes(Attributes.AGGREGATE, large);
-  }
+public final class Attributes implements Iterable<StatRef> {
+  private static final Logger log = LogManager.getLogger(Attributes.class);
 
-  public static AggregateAttributes gemAttributes() {
-    return new AggregateAttributes(Attributes.GEM, false);
-  }
-
-  public static StatListWrapper wrappedAttributes(StatList stats) {
-    return new StatListWrapper(stats);
+  private static Attributes obtain() {
+    return new Attributes();
   }
 
   /**
-   * TODO: Hopefully this doesn't come back to bite me in the ass, but I
-   *       decided to go the route of using a marker to tell if the attrs
-   *       supports aggregation. By default the answer is no (i.e., an attrs
-   *       that wraps a StatList, such as a monster). It's also important to
-   *       keep track of whether or not the attrs represents a gem list,
-   *       because that subclass was removed when I realized gems have a
-   *       required level, and are aggregates. Not going to worry too much
-   *       about it now, I think this will work until it doesn't.
+   * Returns an attributes capable of holding a large number of aggregated
+   * stats. This is intended for players, mercenaries, and any other entities
+   * which may have a potential large number/variety of stats aggregated onto
+   * them.
    */
-  public static final byte WRAPPER = 0;
-  public static final byte AGGREGATE = 1;
-  public static final byte GEM = 2;
-
-  private StatList stats;
-  private byte type;
-
-  Attributes(byte type) {
-    this(type, StatList.obtain());
+  public static Attributes obtainLarge() {
+    final Attributes attributes = obtain();
+    attributes.reset(Type.LARGE);
+    attributes.list = new com.riiablo.attributes.StatList().reset(com.riiablo.attributes.StatList.MAX_LISTS);
+    attributes.base = new com.riiablo.attributes.StatList().reset(1).buildList();
+    attributes.agg = new com.riiablo.attributes.StatList(com.riiablo.attributes.StatList.MAX_SIZE).reset(1).buildList();
+    attributes.rem = new com.riiablo.attributes.StatList(com.riiablo.attributes.StatList.MAX_SIZE).reset(1).buildList();
+    return attributes;
   }
 
-  Attributes(byte type, StatList stats) {
+  /**
+   * Returns an attributes capable of holding a standard number of aggregated
+   * stats. This is intended for standard items or other entities which may
+   * have relatively few stats aggregated onto them.
+   */
+  public static Attributes obtainStandard() {
+    final Attributes attributes = obtain();
+    attributes.reset(Type.STANDARD);
+    attributes.list = new com.riiablo.attributes.StatList().reset(com.riiablo.attributes.StatList.MAX_LISTS);
+    attributes.base = new com.riiablo.attributes.StatList().reset(1).buildList();
+    attributes.agg = new com.riiablo.attributes.StatList().reset(1).buildList();
+    attributes.rem = new com.riiablo.attributes.StatList().reset(1).buildList();
+    return attributes;
+  }
+
+  /**
+   * Returns an attributes capable of holding a small number of aggregated
+   * stats. This is intended for compact items or other entities which may
+   * have only a couple stats aggregated onto them.
+   */
+  public static Attributes obtainCompact() {
+    final Attributes attributes = obtain();
+    attributes.reset(Type.COMPACT);
+    attributes.list = new com.riiablo.attributes.StatList().reset(com.riiablo.attributes.StatList.MAX_LISTS);
+    attributes.base = new com.riiablo.attributes.StatList().reset(1).buildList(); // TODO: create rem as list(4)
+    attributes.agg = new com.riiablo.attributes.StatList().reset(1).buildList(); // TODO: set agg as rem or list(6)
+    attributes.rem = new com.riiablo.attributes.StatList().reset(1).buildList(); // TODO: create rem as list(5)
+    return attributes;
+  }
+
+  /**
+   * Wraps the specified stat list in an attributes.
+   */
+  public static Attributes wrap(com.riiablo.attributes.StatList stats) {
+    throw new UnsupportedOperationException();
+  }
+
+  public enum Type {
+    /** (for entities with equippables) standard base with large agg and rem */
+    LARGE,
+    /** (for items) standard base, agg and rem */
+    STANDARD {
+      @Override
+      boolean isValid(final int listFlags) {
+        final int setItemListCount = StatListFlags.countSetItemFlags(listFlags);
+        if (setItemListCount > 1) log.warnf("listFlags(0x%x) contains more than 1 set", listFlags);
+        return super.isValid(listFlags);
+      }
+    },
+    /** (for gems) standard base with agg and rem included within it */
+    COMPACT {
+      @Override
+      boolean isValid(final int listFlags) {
+        final int gemListCount = StatListFlags.countGemFlags(listFlags);
+        if (gemListCount == 0) {
+          log.warnf("listFlags(0x%x) does not have any gem apply type selected", listFlags);
+        } else if (gemListCount > 1) {
+          log.warnf("listFlags(0x%x) contains more than 1 gem apply type", listFlags);
+        }
+        return super.isValid(listFlags);
+      }
+    },
+    /** (for monsters) wraps the specified stat list */
+    WRAPPER(false);
+
+    private final boolean updatable;
+
+    Type() {
+      this(true);
+    }
+
+    Type(boolean updatable) {
+      this.updatable = updatable;
+    }
+
+    boolean isValid(int listFlags) {
+      return updatable;
+    }
+
+    boolean updatable() {
+      return updatable;
+    }
+  }
+
+  private Type type;
+  private com.riiablo.attributes.StatList list;
+  private StatListRef base;
+  private StatListRef agg;
+  private StatListRef rem;
+
+  Attributes() {}
+
+  Attributes reset(Type type) {
     this.type = type;
-    this.stats = stats;
-  }
-
-  void setType(byte type) {
-    this.type = type;
-  }
-
-  public byte type() {
-    return type;
-  }
-
-  public boolean isType(byte type) {
-    return this.type == type;
-  }
-
-  public boolean isSimpleType() {
-    return type <= 0;
-  }
-
-  /**
-   * Returns the number of properties contained within {@link #aggregate()}.
-   */
-  public int size() {
-    return aggregate().size();
-  }
-
-  /**
-   * Returns the whether or not {@link #aggregate()} contains any properties.
-   */
-  public boolean isEmpty() {
-    return size() == 0;
-  }
-
-  /**
-   * Returns the property list containing intrinsic traits of the attributes.
-   *
-   * @see #aggregate()
-   * @see #remaining()
-   * @see #list()
-   */
-  public StatListGetter base() {
-    return list().first();
-  }
-
-  /**
-   * Returns the property list containing properties from {@link #list() list}
-   * that were applied onto {@link #base() base}.
-   *
-   * @see #base()
-   * @see #remaining()
-   * @see #list()
-   */
-  public StatListGetter aggregate() {
-    return list().first();
-  }
-
-  /**
-   * Returns the property list containing properties from {@link #list() list}
-   * that were applied onto {@link #base() base}, but could not be
-   * {@link #aggregate() aggregated}.
-   *
-   * @see #base()
-   * @see #aggregate()
-   * @see #list()
-   */
-  public StatListGetter remaining() {
-    return list().first();
-  }
-
-  /**
-   * Returns the property list associated with this attributes. These
-   * properties will be applied onto {@link #base() base} and the result will
-   * be {@link #aggregate() aggregated}, with any unused properties being
-   * {@link #remaining() remaining}.
-   *
-   * @see #base()
-   * @see #aggregate()
-   * @see #remaining()
-   */
-  public StatList list() {
-    return stats;
-  }
-
-  /**
-   * Returns the <i>nth</i> list within {@link #list()}.
-   */
-  public StatListGetter list(int list) {
-    final StatList stats = list();
-    assert stats.contains(list) : "list(" + list + ") does not exist: numLists(" + stats.numLists() + ")";
-    return stats.get(list);
-  }
-
-  /**
-   * Clears {@link #remaining()} and {@link #list()} and sets
-   * {@link #aggregate()} equal to {@link #base()}.
-   */
-  public Attributes reset() {
+    list = null;
+    base = null;
+    agg = null;
+    rem = null;
     return this;
   }
 
-  /**
-   * Clears {@link #list()}
-   */
-  @CallSuper
-  public void clear() {
-    stats.forceClear();
+  public boolean isType(Type type) {
+    return this.type == type;
   }
 
-  /**
-   * Returns an iterator over the {@link #aggregate() aggregate} properties.
-   */
+  public Type type() {
+    return type;
+  }
+
+  public int size() {
+    return agg.size();
+  }
+
+  public boolean isEmpty() {
+    return agg.isEmpty();
+  }
+
+  public StatListRef base() {
+    return base;
+  }
+
+  public StatListRef aggregate() {
+    return agg;
+  }
+
+  public StatListRef remaining() {
+    return rem;
+  }
+
+  public com.riiablo.attributes.StatList list() {
+    return list;
+  }
+
+  public StatListRef list(int list) {
+    return this.list.get(list);
+  }
+
+  public Attributes reset() {
+    if (base.isEmpty()) log.warn("#reset() called on attributes with an empty base");
+    agg.setAll(base);
+    rem.clear();
+    return this;
+  }
+
+  public void clear()  {
+    list.forceClear();
+    base.clear();
+    agg.clear();
+    rem.clear();
+  }
+
   @Override
-  public Iterator<StatGetter> iterator() {
-    return aggregate().statIterator();
+  public Iterator<StatRef> iterator() {
+    return agg.statIterator();
   }
 }

@@ -3,25 +3,19 @@ package com.riiablo.attributes;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.headless.HeadlessApplication;
 
-import com.riiablo.Files;
-import com.riiablo.Riiablo;
-import com.riiablo.codec.StringTBLs;
+import com.riiablo.RiiabloTest;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.BitOutput;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.ByteOutput;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
-import com.riiablo.mpq.MPQFileHandleResolver;
 
 import static com.riiablo.attributes.StatListFlags.FLAG_MAGIC;
 import static com.riiablo.attributes.StatListFlags.FLAG_NONE;
@@ -29,42 +23,55 @@ import static com.riiablo.attributes.StatListFlags.FLAG_RUNE;
 import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
 import static com.riiablo.attributes.StatListFlags.getSetItemFlags;
 
-public class StatListWriterTest {
-  @BeforeClass
-  public static void setup() {
-    Gdx.app = new HeadlessApplication(new ApplicationAdapter() {});
-    Riiablo.home = Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II");
-    Riiablo.mpqs = new MPQFileHandleResolver();
-    Riiablo.string = new StringTBLs(Riiablo.mpqs);
-    Riiablo.files = new Files();
-  }
-
-  @AfterClass
-  public static void teardown() {
-    Gdx.app.exit();
-  }
-
+public class StatListWriterTest extends RiiabloTest {
   @BeforeClass
   public static void before() {
-    LogManager.setLevel("com.riiablo.attributes", Level.TRACE);
+    LogManager.setLevel("com.riiablo.attrs", Level.TRACE);
   }
 
-  private void testItem(byte[] data, long bitsToSkip, int length, int flags) {
+  private static void testCharacter(byte[] data, int bytesToSkip, int length) {
+    ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, bytesToSkip, length));
+    BitInput bitInput = in.skipBytes(2).unalign(); // skip signature
+    com.riiablo.attributes.StatListReader reader = new com.riiablo.attributes.StatListReader();
+    com.riiablo.attributes.StatListRef stats = new com.riiablo.attributes.StatList().reset(1).buildList();
+    reader.read(stats, bitInput, true);
+    final String firstHexDump = ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex());
+
+    ByteOutput out = ByteOutput.wrap(Unpooled.buffer(length, length));
+    BitOutput bitOutput = out.writeBytes(Arrays.copyOfRange(data, bytesToSkip, bytesToSkip + 2)).unalign();
+    StatListWriter writer = new StatListWriter();
+    writer.write(stats, bitOutput, true);
+    bitOutput.flush();
+    System.out.println("Actual:");
+    System.out.println(ByteBufUtil.prettyHexDump(out.buffer()));
+
+    boolean equal = ByteBufUtil.equals(in.buffer(), 0, out.buffer(), 0, in.buffer().readerIndex());
+    if (!equal) {
+      System.out.println("Expected:");
+      System.out.println(firstHexDump);
+    }
+    Assert.assertTrue(equal);
+  }
+
+  @Test
+  public void Tirant() {
+    testCharacter(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+  }
+
+  private static void testItem(byte[] data, long bitsToSkip, int length, int flags) {
     final int offset = (int) (bitsToSkip >> 3);
     final int bitOffset = (int) (bitsToSkip & 0x7);
     if (length < 0) length = data.length - offset;
     ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, offset, length));
     BitInput bitInput = in.unalign().skipBits(bitOffset);
-    StatListReader reader = new StatListReader();
-    final Attributes attrs = Attributes.aggregateAttributes();
-    reader.read(attrs, bitInput, flags, NUM_ITEM_LISTS);
+    com.riiablo.attributes.StatListReader reader = new com.riiablo.attributes.StatListReader();
+    com.riiablo.attributes.StatList stats = reader.read(new com.riiablo.attributes.StatList().reset(NUM_ITEM_LISTS), bitInput, flags);
     final String firstHexDump = ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex());
-    System.out.println(firstHexDump);
 
     ByteOutput out = ByteOutput.wrap(Unpooled.buffer(length, length));
     BitOutput bitOutput = out.unalign().writeRaw(data[offset], bitOffset);
     StatListWriter writer = new StatListWriter();
-    writer.write(attrs, bitOutput, flags, NUM_ITEM_LISTS);
+    writer.write(stats, bitOutput, flags);
     bitOutput.flush();
     System.out.println("Actual:");
     System.out.println(ByteBufUtil.prettyHexDump(out.buffer()));
@@ -140,35 +147,5 @@ public class StatListWriterTest {
   @Test
   public void Vampire_Gaze() {
     testItem(Gdx.files.internal("test/Vampire Gaze.d2i").readBytes(), 197, -1, FLAG_MAGIC);
-  }
-
-  private void testCharacter(byte[] data, int bytesToSkip, int length) {
-    ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, bytesToSkip, length));
-    BitInput bitInput = in.skipBytes(2).unalign(); // skip signature
-    StatListReader reader = new StatListReader();
-    final Attributes attrs = Attributes.aggregateAttributes(true);
-    reader.read(attrs, bitInput, true);
-    final String firstHexDump = ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex());
-    System.out.println(firstHexDump);
-
-    ByteOutput out = ByteOutput.wrap(Unpooled.buffer(length, length));
-    BitOutput bitOutput = out.writeBytes(Arrays.copyOfRange(data, bytesToSkip, bytesToSkip + 2)).unalign();
-    StatListWriter writer = new StatListWriter();
-    writer.write(attrs, bitOutput, true);
-    bitOutput.flush();
-    System.out.println("Actual:");
-    System.out.println(ByteBufUtil.prettyHexDump(out.buffer()));
-
-    boolean equal = ByteBufUtil.equals(in.buffer(), 0, out.buffer(), 0, in.buffer().readerIndex());
-    if (!equal) {
-      System.out.println("Expected:");
-      System.out.println(firstHexDump);
-    }
-    Assert.assertTrue(equal);
-  }
-
-  @Test
-  public void Tirant() {
-    testCharacter(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
   }
 }

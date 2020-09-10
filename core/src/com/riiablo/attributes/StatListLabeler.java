@@ -14,31 +14,31 @@ public class StatListLabeler {
 
   private final StringBuilder builder = new StringBuilder(256);
 
-  private final int[] dgrpCacheSize = new int[Stat.NUM_GROUPS];
-  private final int[][] dgrpCache = new int[Stat.NUM_GROUPS][]; {
-    for (int i = 0, s = Stat.NUM_GROUPS; i < s; i++) {
-      dgrpCache[i] = new int[Stat.getNumGrouped(i)];
+  private final int[] dgrpCacheSize = new int[com.riiablo.attributes.Stat.NUM_GROUPS];
+  private final int[][] dgrpCache = new int[com.riiablo.attributes.Stat.NUM_GROUPS][]; {
+    for (int i = 0, s = com.riiablo.attributes.Stat.NUM_GROUPS; i < s; i++) {
+      dgrpCache[i] = new int[com.riiablo.attributes.Stat.getNumGrouped(i)];
     }
   }
 
-  private final Tuple[] desc = new Tuple[StatList.MAX_SIZE]; {
-    for (int i = 0; i < StatList.MAX_SIZE; i++) {
+  private final Tuple[] desc = new Tuple[com.riiablo.attributes.StatList.MAX_SIZE]; {
+    for (int i = 0; i < com.riiablo.attributes.StatList.MAX_SIZE; i++) {
       desc[i] = new Tuple();
     }
   }
   private int descCount;
 
-  protected StatFormatter formatter;
+  protected com.riiablo.attributes.StatFormatter formatter;
 
   public StatListLabeler() {}
 
-  public StatListLabeler(StatFormatter formatter) {
+  public StatListLabeler(com.riiablo.attributes.StatFormatter formatter) {
     this.formatter = formatter;
   }
 
-  public CharSequence createDebugLabel(StatListGetter stats, Attributes opAttrs) {
+  public CharSequence createDebugLabel(StatListRef stats, com.riiablo.attributes.Attributes opAttrs) {
     builder.setLength(0);
-    for (StatGetter stat : stats) {
+    for (com.riiablo.attributes.StatRef stat : stats) {
       CharSequence line = formatter.format(stat, opAttrs);
       builder.append(line).append('\n');
     }
@@ -47,14 +47,14 @@ public class StatListLabeler {
     return builder.toString();
   }
 
-  public CharSequence createLabel(StatListGetter stats, Attributes opAttrs) {
+  public CharSequence createLabel(StatListRef stats, com.riiablo.attributes.Attributes opAttrs) {
     log.traceEntry("createLabel(stats: {}, opAttrs: {})", stats, opAttrs);
 //    assert stats.parent().numLists() == 1 : "Parent StatList contains more than 1 list";
 
     clear();
-    for (StatList.IndexIterator it = stats.indexIterator(); it.hasNext();) {
+    for (com.riiablo.attributes.StatList.IndexIterator it = stats.indexIterator(); it.hasNext();) {
       final int index = it.next();
-      final StatGetter stat = stats.get(index);
+      final com.riiablo.attributes.StatRef stat = stats.get(index);
       final short statId = stat.id();
       final ItemStatCost.Entry entry = stat.entry();
       try {
@@ -69,7 +69,7 @@ public class StatListLabeler {
           continue;
         }
 
-        final int expectedEncoded = Stat.getNumEncoded(statId);
+        final int expectedEncoded = com.riiablo.attributes.Stat.getNumEncoded(statId);
         if (expectedEncoded > 1) {
           int encoded = 1;
           for (int nextIndex = index + encoded, nextStat = statId + encoded;
@@ -82,7 +82,7 @@ public class StatListLabeler {
 
           if (encoded == expectedEncoded) {
             switch (statId) {
-              case Stat.mindamage: {
+              case com.riiablo.attributes.Stat.mindamage: {
                 if (log.debugEnabled()) log.debug(
                     "appending {}, {}",
                     stat.debugString(),
@@ -91,7 +91,7 @@ public class StatListLabeler {
                     "strModMinDamage", "strModMinDamageRange"));
                 continue;
               }
-              case Stat.firemindam: {
+              case com.riiablo.attributes.Stat.firemindam: {
                 if (log.debugEnabled()) log.debug(
                     "appending {}, {}",
                     stat.debugString(),
@@ -100,7 +100,7 @@ public class StatListLabeler {
                     "strModFireDamage", "strModFireDamageRange"));
                 continue;
               }
-              case Stat.lightmindam: {
+              case com.riiablo.attributes.Stat.lightmindam: {
                 if (log.debugEnabled()) log.debug(
                     "appending {}, {}",
                     stat.debugString(),
@@ -109,7 +109,7 @@ public class StatListLabeler {
                     "strModLightningDamage", "strModLightningDamageRange"));
                 continue;
               }
-              case Stat.magicmindam: {
+              case com.riiablo.attributes.Stat.magicmindam: {
                 if (log.debugEnabled()) log.debug(
                     "appending {}, {}",
                     stat.debugString(),
@@ -118,7 +118,7 @@ public class StatListLabeler {
                     "strModMagicDamage", "strModMagicDamageRange"));
                 continue;
               }
-              case Stat.coldmindam: {
+              case com.riiablo.attributes.Stat.coldmindam: {
                 if (log.debugEnabled()) log.debug(
                     "appending {}, {}, {}",
                     stat.debugString(),
@@ -128,7 +128,7 @@ public class StatListLabeler {
                     "strModColdDamage", "strModColdDamageRange"));
                 continue;
               }
-              case Stat.poisonmindam: {
+              case com.riiablo.attributes.Stat.poisonmindam: {
                 if (log.debugEnabled()) log.debug(
                     "appending {}, {}, {}",
                     stat.debugString(),
@@ -162,13 +162,13 @@ public class StatListLabeler {
     }
 
     log.trace("groups: {}", Arrays.toString(dgrpCacheSize));
-    for (int i = 1; i < Stat.NUM_GROUPS; i++) {
+    for (int i = 1; i < com.riiablo.attributes.Stat.NUM_GROUPS; i++) {
       final int cacheSize = this.dgrpCacheSize[i];
       if (cacheSize == 0) continue;
       final int[] cache = this.dgrpCache[i];
       if (cacheSize < cache.length || !allEqual(stats, cache, cacheSize)) {
         for (int j = 0; j < cacheSize; j++) {
-          final StatGetter cachedStat = stats.get(cache[j]);
+          final com.riiablo.attributes.StatRef cachedStat = stats.get(cache[j]);
           if (log.traceEnabled()) log.trace("pushback dgrp {}[{}]: {}", i, j, cachedStat.debugString());
           if (log.debugEnabled()) log.debug("appending {}", cachedStat.debugString());
           add(cachedStat.entry().descpriority, formatter.format(cachedStat, opAttrs));
@@ -178,7 +178,7 @@ public class StatListLabeler {
       }
 
       log.trace("combining dgrp {}: {{}}", i, StringUtils.join(cache, ',', 0, cacheSize));
-      final StatGetter cachedStat = stats.get(cache[0]);
+      final com.riiablo.attributes.StatRef cachedStat = stats.get(cache[0]);
       final ItemStatCost.Entry entry = cachedStat.entry();
       add(entry.descpriority,
           formatter.format(
@@ -200,14 +200,14 @@ public class StatListLabeler {
     return builder.toString();
   }
 
-  private static boolean allEqual(StatListGetter stats, int[] dgrpCache, int dgrpCacheSize) {
-    final StatList parent = stats.parent();
+  private static boolean allEqual(StatListRef stats, int[] dgrpCache, int dgrpCacheSize) {
+    final com.riiablo.attributes.StatList parent = stats.parent();
     final int index0 = dgrpCache[0];
-    final int value0 = parent.value(index0);
-    final int param0 = parent.param(index0);
+    final int value0 = parent.encodedValues(index0);
+    final int param0 = parent.encodedParams(index0);
     for (int i = 1; i < dgrpCacheSize; i++) {
-      final StatGetter sibling = stats.get(dgrpCache[i]);
-      if (sibling.value() != value0 || sibling.param() != param0) {
+      final com.riiablo.attributes.StatRef sibling = stats.get(dgrpCache[i]);
+      if (sibling.encodedValues() != value0 || sibling.encodedParams() != param0) {
         return false;
       }
     }
@@ -217,7 +217,7 @@ public class StatListLabeler {
 
   private void clear() {
     descCount = 0;
-    for (int i = 0; i < Stat.NUM_GROUPS; i++) {
+    for (int i = 0; i < com.riiablo.attributes.Stat.NUM_GROUPS; i++) {
       Arrays.fill(dgrpCacheSize, 0);
     }
   }

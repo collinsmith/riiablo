@@ -1,19 +1,19 @@
-package com.riiablo.attrs;
+package com.riiablo.attributes;
 
 import com.riiablo.codec.excel.ItemStatCost;
 
 public final class StatRef {
-  StatList stats;
+  com.riiablo.attributes.StatList stats;
   int list;
   int index;
 
   StatRef() {}
 
-  StatRef(final StatList stats) {
+  StatRef(final com.riiablo.attributes.StatList stats) {
     this.stats = stats;
   }
 
-  StatRef(final StatList stats, final int list) {
+  StatRef(final com.riiablo.attributes.StatList stats, final int list) {
     this(stats);
     this.list = list;
   }
@@ -24,7 +24,7 @@ public final class StatRef {
     return this;
   }
 
-  StatRef update(final StatList stats, final int list, final int index) {
+  StatRef update(final com.riiablo.attributes.StatList stats, final int list, final int index) {
     this.stats = stats;
     this.list = list;
     this.index = index;

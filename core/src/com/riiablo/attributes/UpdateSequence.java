@@ -19,7 +19,7 @@ public class UpdateSequence {
 
   private static final int MAX_SEQUENCE_LENGTH = 32;
 
-  private final StatListGetter[] sequence = new StatListGetter[MAX_SEQUENCE_LENGTH];
+  private final StatListRef[] sequence = new StatListRef[MAX_SEQUENCE_LENGTH];
   private AttributesUpdater updater;
   private int sequenceLength;
   private boolean sequencing;
@@ -29,9 +29,9 @@ public class UpdateSequence {
   private CharStats.Entry charStats;
 
   public Attributes apply() {
-    final StatListGetter[] sequence = this.sequence;
+    final StatListRef[] sequence = this.sequence;
     for (int i = 0; i < sequenceLength; i++) {
-      final StatListGetter seq = sequence[i];
+      final StatListRef seq = sequence[i];
       updater.add(attrs, seq);
     }
 
@@ -68,7 +68,7 @@ public class UpdateSequence {
     this.updater = null;
   }
 
-  public UpdateSequence add(StatListGetter stats) {
+  public UpdateSequence add(StatListRef stats) {
     if (log.traceEnabled()) log.traceEntry("add(stats: {})", stats);
     if (sequenceLength >= MAX_SEQUENCE_LENGTH) {
       throw new IndexOutOfBoundsException(
@@ -81,29 +81,10 @@ public class UpdateSequence {
 
   public UpdateSequence addAll(Attributes attrs, final int listFlags) {
     if (log.traceEnabled()) log.traceEntry("addAll(attrs: {}, listFlags: {})", attrs, listFlags);
-    switch (attrs.type()) {
-      case Attributes.AGGREGATE: {
-        final int setItemListCount = StatListFlags.countSetItemFlags(listFlags);
-        if (setItemListCount > 1) {
-          log.warnf("listFlags(0x%x) contains more than 1 set list", listFlags);
-        }
-        break;
-      }
-      case Attributes.GEM: {
-        final int gemListCount = StatListFlags.countGemFlags(listFlags);
-        if (gemListCount == 0) {
-          log.warnf("listFlags(0x%x) does not have any gem list selected");
-        } else if (gemListCount > 1) {
-          log.warnf("listFlags(0x%x) contains more than 1 gem list", listFlags);
-        }
-        break;
-      }
-      default: // no-op
-        return this;
-    }
+    if (!attrs.type().updatable()) return this;
+    if (!attrs.type().isValid(listFlags)) return this;
 
-    final StatList list = attrs.list();
-    if (list.isEmpty()) return this;
+    final com.riiablo.attributes.StatList list = attrs.list();
     for (int i = 0, s = list.numLists(); i < s; i++) {
       if (((listFlags >> i) & 1) == 1) {
         add(list.get(i));

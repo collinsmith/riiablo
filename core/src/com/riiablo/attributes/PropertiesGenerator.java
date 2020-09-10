@@ -18,8 +18,8 @@ public class PropertiesGenerator {
    * @param min min value
    * @param max max value
    */
-  public StatListBuilder add(
-      final StatListBuilder stats,
+  public StatListRef add(
+      final StatListRef stats,
       final String[] code,
       final int[] param,
       final int[] min,
@@ -49,7 +49,7 @@ public class PropertiesGenerator {
    */
   // TODO: These might need support for assigning ranges if used when generating item stats
   void add(
-      final StatListBuilder stats,
+      final StatListRef stats,
       final Properties.Entry prop,
       final int propId,
       final int param,
@@ -74,10 +74,10 @@ public class PropertiesGenerator {
         return;
       }
       case 3: { // res-all, all-stats, etc -- copy previous
-        final StatGetter last = stats.last();
+        final StatRef last = stats.last();
         assert last.id() == Stat.entry(prop.stat[propId - 1]).ID :
             "last.id(" + last.id() + ") != prop.stat(" + prop.stat[propId - 1] + ")";
-        stats.put((short) entry.ID, last.param(), last.value());
+        stats.putEncoded((short) entry.ID, last.encodedParams(), last.encodedValues());
         return;
       }
       case 5: { // dmg-min
@@ -103,19 +103,20 @@ public class PropertiesGenerator {
       }
       case 10: { // skilltab
         final int value = random(min, max);
-        stats.put((short) entry.ID, param, value);
+        final int encodedParams = Stat.encodeParams(entry.Encode, param, 0);
+        stats.putEncoded((short) entry.ID, encodedParams, value);
         return;
       }
       case 11: { // att-skill, hit-skill, gethit-skill, kill-skill, death-skill, levelup-skill
         final int value = min; // skill
-        final int _param = Stat.encodeParam(entry.Encode, max, param); // %, level
-        stats.put((short) entry.ID, _param, value);
+        final int encodedParams = Stat.encodeParams(entry.Encode, max, param); // %, level
+        stats.putEncoded((short) entry.ID, encodedParams, value);
         return;
       }
       case 12: { // skill-rand (Ormus' Robes)
         final int value = param; // skill level
-        final int _param = random(min, max); // random skill
-        stats.put((short) entry.ID, _param, value);
+        final int encodedParams = random(min, max); // random skill
+        stats.putEncoded((short) entry.ID, encodedParams, value);
         return;
       }
       case 13: { // dur%
@@ -149,9 +150,9 @@ public class PropertiesGenerator {
         return;
       }
       case 19: { // charged (skill)
-        final int value = Stat.encodeValue(3, min, min, 0); // charges
-        final int _param = Stat.encodeParam(3, max, param); // level, skill
-        stats.put((short) entry.ID, _param, value);
+        final int encodedValues = Stat.encodeValues(entry.Encode, min, min, 0); // charges
+        final int encodedParams = Stat.encodeParams(entry.Encode, max, param); // level, skill
+        stats.putEncoded((short) entry.ID, encodedParams, encodedValues);
         return;
       }
       case 20: { // indestruct
@@ -161,14 +162,14 @@ public class PropertiesGenerator {
       }
       case 21: { // ama, pal, nec, etc. (item_addclassskills) and fireskill
         final int value = random(min, max);
-        final int _param = prop.val[propId];
-        stats.put((short) entry.ID, _param, value);
+        final int encodedParams = prop.val[propId];
+        stats.putEncoded((short) entry.ID, encodedParams, value);
         return;
       }
       case 22: { // skill, aura, oskill
         final int value = random(min, max);
-        final int _param = param;
-        stats.put((short) entry.ID, _param, value);
+        final int encodedParams = param;
+        stats.putEncoded((short) entry.ID, encodedParams, value);
         return;
       }
       case 23: { // ethereal
@@ -177,14 +178,14 @@ public class PropertiesGenerator {
       }
       case 24: { // reanimate, att-mon%, dmg-mon%, state
         final int value = random(min, max);
-        final int _param = param;
-        stats.put((short) entry.ID, _param, value);
+        final int encodedParams = param;
+        stats.putEncoded((short) entry.ID, encodedParams, value);
         return;
       }
       case 36: { // randclassskill
         final int value = prop.val[propId]; // skill levels
-        final int _param = random(min, max); // random class
-        stats.put((short) entry.ID, _param, value);
+        final int encodedParams = random(min, max); // random class
+        stats.putEncoded((short) entry.ID, encodedParams, value);
         return;
       }
       case 4: // fall-through

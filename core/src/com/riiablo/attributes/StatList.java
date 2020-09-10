@@ -13,24 +13,7 @@ import com.riiablo.math.Fixed;
 public final class StatList {
   private static final Logger log = LogManager.getLogger(StatList.class);
 
-  public static StatList obtain() {
-    return obtainUnpooled(DEFAULT_SIZE, MAX_LISTS);
-  }
-
-  public static StatList obtainLarge() {
-    return obtainUnpooled(MAX_SIZE, 1);
-  }
-
-  public static StatList obtainUnpooled(int maxSize, int maxLists) {
-    return new StatList(maxSize).reset(maxLists);
-  }
-
-  private static final StatList EMPTY_LIST = new StatList().freeze();
-  public static StatList emptyList() {
-    return EMPTY_LIST;
-  }
-
-  static final int MAX_LISTS = 8;
+  static final int MAX_LISTS = Byte.SIZE;
   static final int DEFAULT_SIZE = 32;
   static final int MAX_SIZE = 1 << Byte.SIZE;
 
@@ -43,7 +26,7 @@ public final class StatList {
 
   private static final long UINT_MAX_VALUE = (1L << Integer.SIZE) - 1;
 
-  private final byte[] offsets = new byte[MAX_LISTS << 1];
+  private final byte[] offsets = new byte[index(MAX_LISTS)];
   private final short[] ids;
   private final int[] params;
   private final int[] values;
@@ -52,9 +35,9 @@ public final class StatList {
   private final int maxSize;
   private int maxLists;
   private int numLists;
-  private int size;
   private int tail;
-  private boolean immutable;
+  private byte immutable;
+  private int listsMask;
 
   private IndexIterator INDEX_ITERATOR;
   private StatIterator STAT_ITERATOR;
@@ -73,66 +56,106 @@ public final class StatList {
     flags = new byte[maxSize];
   }
 
-  public StatList reset(final int maxLists) {
+  StatList reset(final int maxLists) {
     log.traceEntry("reset(maxLists: {})", maxLists);
     assertMutable();
     assert maxLists > 0 : "maxLists(" + maxLists + ") <= " + 0;
     assert maxLists <= MAX_LISTS : "maxLists(" + maxLists + ") > MAX_LISTS(" + MAX_LISTS + ")";
     this.maxLists = maxLists;
+    listsMask = index(maxLists) - 1;
     clear();
     return this;
   }
 
-  public StatList freeze() {
-    immutable = true;
+  StatList truncate(final int maxLists) {
+    log.traceEntry("truncate(maxLists: {})", maxLists);
+    assert maxLists > 0 : "maxLists(" + maxLists + ") <= " + 0;
+    assert maxLists <= this.maxLists : "maxLists(" + maxLists + ") > this.maxLists(" + this.maxLists + ")";
+    for (int i = maxLists, s = this.maxLists; i < s; i++) {
+      assertMutable(i); // TODO: replace with bitmask check
+    }
+
+    immutable &= (listsMask = index(maxLists) - 1);
+    if (tail >= index(maxLists)) {
+      tail = endingOffset(maxLists);
+    }
     return this;
   }
 
-  public StatList clear() {
+  StatList freeze() {
+    immutable = (byte) listsMask;
+    return this;
+  }
+
+  StatList freeze(final int list) {
+    immutable |= index(list);
+    return this;
+  }
+
+  private boolean isMutable(final int list) {
+    return (immutable & index(list)) == 0;
+  }
+
+  private void assertMutable() {
+    if (!isMutable(listsMask)) {
+      throw new UnsupportedOperationException("Stat list has been frozen");
+    }
+  }
+
+  private void assertMutable(final int list) {
+    if (!isMutable(list)) {
+      throw new UnsupportedOperationException("Stat list(" + list + ") has been frozen");
+    }
+  }
+
+  StatList forceClear() {
+    immutable = 0;
+    return clear();
+  }
+
+  StatList clear() {
     log.traceEntry("clear()");
     assertMutable();
     numLists = 0;
-    size = 0;
     tail = 0;
     return this;
   }
 
-  StatList forceClear() {
-    immutable = false;
-    return clear();
+  StatList clear(final int list) {
+    log.traceEntry("clear(list: {})", list);
+    assertMutable(list);
+    setEndingOffset(list, startingOffset(list));
+    return this;
   }
 
-  public int size() {
-    return size;
+  int size(final int list) {
+    return endingOffset(list) - startingOffset(list);
   }
 
-  public boolean isEmpty() {
-    return size == 0;
+  boolean isEmpty(final int list) {
+    return size(list) == 0;
   }
 
-  public int numLists() {
+  int numLists() {
     return numLists;
   }
 
-  public int maxLists() {
+  int maxLists() {
     return maxLists;
   }
 
-  public void clearList(final int list) {
-    log.traceEntry("clearList(list: {})", list);
-    assertMutable();
-    size -= size(list);
-    setEndingOffset(list, startingOffset(list));
+  int maxSize() {
+    return maxSize;
   }
 
-  public int newList() {
+  int newList() {
     return newList(0);
   }
 
-  public int newList(final int capacity) {
+  int newList(final int capacity) {
     log.traceEntry("newList(capacity: {})", capacity);
-    assertMutable();
-    if (numLists + 1 > maxLists) {
+    assertMutable(numLists);
+    if (numLists >= maxLists) {
       throw new IndexOutOfBoundsException("Max number of lists has already been created: maxLists(" + maxLists + ")");
     }
 
@@ -146,13 +169,382 @@ public final class StatList {
     return list;
   }
 
-  public StatListBuilder buildList() {
+  StatListRef buildList() {
     return buildList(0);
   }
 
-  public StatListBuilder buildList(final int capacity) {
+  StatListRef buildList(final int capacity) {
+    assertMutable(numLists + 1);
+    return new StatListRef(this, newList(capacity));
+  }
+
+  StatListRef first() {
+    return get(0);
+  }
+
+  StatListRef get(final int list) {
+    if (!contains(list)) throw new IndexOutOfBoundsException("StatList does not contain list(" + list + "): numLists(" + numLists + ")");
+    return new StatListRef(this, list);
+  }
+
+  boolean contains(final int list) {
+    return list >= 0 && list < numLists;
+  }
+
+  boolean contains(final int list, final int index) {
+    return contains(list) && index >= startingOffset(list) && index < endingOffset(list);
+  }
+
+  boolean containsAny(final int list, final short stat) {
+    return contains(list) && Arrays.binarySearch(ids, startingOffset(list), endingOffset(list), stat) >= 0;
+  }
+
+  boolean containsEncoded(final int list, final short stat, final int encodedParams) {
+    return contains(list) && indexOfEncoded(list, stat, encodedParams) >= 0;
+  }
+
+  boolean contains(final int list, final StatRef ref) {
+    return containsEncoded(list, ref.id(), ref.encodedParams());
+  }
+
+  int putEncoded(final int list, final short stat, final int encodedParams, final int encodedValues) {
+    final ItemStatCost.Entry entry = entry(stat);
+    if (log.traceEnabled()) log.tracefEntry(
+        "putEncoded(stat: %d (%s), encodedParams: %d (0x%3$x), encodedValues: %d (0x%4$x))",
+        stat, entry, encodedParams, encodedValues);
+    assertMutable(list);
+
+    final int encoding = entry.Encode;
+    if (log.warnEnabled() && !Stat.encodingSupported(encoding)) log.warn(
+        "stat: {} ({}) has unsupported encoding({})", stat, entry, encoding);
+
+    final int index = indexOfEncoded(list, stat, encodedParams);
+    if (index >= 0 && equalsEncoded(index, stat, encodedParams)) {
+      return setEncoded(list, index, stat, entry, encodedParams, encodedValues);
+    } else {
+      return insertEncodedAt(list, ~index, stat, entry, encodedParams, encodedValues);
+    }
+  }
+
+  int putEncoded(final int list, final short stat, final int encodedValues) {
+    assertSimple(stat);
+    return putEncoded(list, stat, 0, encodedValues);
+  }
+
+  int put(
+      final int list, final short stat,
+      final int param0, final int param1,
+      final int value0, final int value1, final int value2) {
+    final ItemStatCost.Entry entry = entry(stat);
+    if (log.traceEnabled()) log.traceEntry(
+        "put(list: {}, stat: {}, param0: {}, param1: {}, value0: {}, value1: {}, value2: {})",
+        list, stat, param0, param1, value0, value1, value2);
+    final int encoding = entry.Encode;
+    return putEncoded(list, stat,
+        Stat.encodeParams(encoding, param0, param1),
+        Stat.encodeValues(encoding, value0, value1, value2));
+  }
+
+  int put(final int list, final short stat, final int value) {
+    assertSimple(stat);
+    return putEncoded(list, stat, 0, Stat.encode(stat, value));
+  }
+
+  int put(final int list, final short stat, final long value) {
+    assertSimple(stat);
+    assert value <= UINT_MAX_VALUE : "value(" + value + ") > " + UINT_MAX_VALUE;
+    return putEncoded(list, stat, 0, asInt(value));
+  }
+
+  int put(final int list, final short stat, final float value) {
+    assertSimple(stat);
+    return putEncoded(list, stat, 0, asInt(stat, value));
+  }
+
+  int setEncoded(final int list, final int index, final int encodedValues) {
+    final short stat = ids[index];
+    assertSimple(stat);
+    assert equalsEncoded(index, stat, 0);
+    return setEncoded(list, index, stat, entry(stat), 0, encodedValues);
+  }
+
+  int set(final int list, final int index, final int value) {
+    final short stat = ids[index];
+    assertSimple(stat);
+    assert equalsEncoded(index, stat, 0);
+    return setEncoded(list, index, stat, entry(stat), 0, Stat.encode(stat, value));
+  }
+
+  int set(final int list, final int index, final long value) {
+    final short stat = ids[index];
+    assertSimple(stat);
+    assert value <= UINT_MAX_VALUE : "value(" + value + ") > " + UINT_MAX_VALUE;
+    return setEncoded(list, index, stat, entry(stat), 0, asInt(value));
+  }
+
+  int set(final int list, final int index, final float value) {
+    final short stat = ids[index];
+    assertSimple(stat);
+    return setEncoded(list, index, stat, entry(stat), 0, asInt(stat, value));
+  }
+
+  void setAll(final StatList src) {
+    if (log.traceEnabled()) log.traceEntry("setAll(src: {})", src);
+    if (maxSize < src.tail) {
+      throw new IndexOutOfBoundsException("maxSize(" + maxSize + ") cannot fit src.tail(" + src.tail + ")");
+    }
+
     assertMutable();
-    return new StatListBuilder(this, newList(capacity));
+    clear();
+    System.arraycopy(src.offsets, 0, this.offsets, 0, index(src.numLists));
+    arraycopy(src, 0, this, 0, src.tail);
+    maxLists = src.maxLists;
+    numLists = src.numLists;
+    tail = src.tail;
+  }
+
+  void setAll(final int list, final StatListRef src) {
+    if (log.traceEnabled()) log.traceEntry("setAll(list: {}, src: {})", list, src);
+    final int srcSize = src.size();
+    if (maxSize < srcSize) {
+      throw new IndexOutOfBoundsException("maxSize(" + maxSize + ") cannot fit src.size(" + srcSize + ")");
+    }
+
+    assertMutable(list);
+    clear(list);
+    final int startOffset = startingOffset(list);
+    ensureCapacity(list, startOffset, src.size());
+    final StatList srcParent = src.parent();
+    arraycopy(srcParent, srcParent.startingOffset(src.list), this, startOffset, srcSize);
+  }
+
+  int addEncoded(final int list, final int index, final int encodedValues) {
+    assert contains(list, index);
+    assert encoding(index) <= 2 : "#add() unsupported for encoding(" + encoding(index) + ")";
+    final short stat = ids[index];
+    assertSimple(stat);
+    assert equalsEncoded(index, stat, 0);
+    if (log.traceEnabled()) log.tracefEntry(
+        "addEncoded(stat: %d (%s), encodedValues: %d (0x%3$x))",
+        stat, entry(index), encodedValues);
+    values[index] += encodedValues;
+    flags[index] |= FLAG_MODIFIED;
+    if (log.debugEnabled()) log.debug(indexDebugString(index));
+    return index;
+  }
+
+  int add(final int list, final int index, final int value) {
+    return addEncoded(list, index, Stat.encode(ids[index], value));
+  }
+
+  int add(final int list, final int index, final long value) {
+    return addEncoded(list, index, asInt(value));
+  }
+
+  int add(final int list, final int index, final float value) {
+    return addEncoded(list, index, asInt(ids[index], value));
+  }
+
+  private static int asInt(final long value) {
+    return (int) value;
+  }
+
+  private static int asInt(final short stat, final float value) {
+    assert entry(stat).ValShift == 8 : "entry.ValShift(" + entry(stat).ValShift + ") != " + 8;
+    return Fixed.floatToIntBits(value, 8);
+  }
+
+  int asInt(final int index) {
+    assert Stat.numEncodedValues(encoding(index)) == 1;
+    return (flags[index] & FLAG_FIXED) == FLAG_FIXED
+        ? encodedValues(index) >> entry(index).ValShift
+        : encodedValues(index);
+  }
+
+  long asLong(final int index) {
+    assert Stat.numEncodedValues(encoding(index)) == 1;
+    return (flags[index] & FLAG_FIXED) == FLAG_FIXED
+        ? encodedValues(index) >> entry(index).ValShift
+        : encodedValues(index);
+  }
+
+  float asFixed(final int index) {
+    assert Stat.numEncodedValues(encoding(index)) == 1;
+    assert entry(ids[index]).ValShift == 8 : "entry.ValShift(" + entry(ids[index]).ValShift + ") != " + 8;
+    return Fixed.intBitsToFloat(encodedValues(index), 8);
+  }
+
+  String asString(final int index) {
+    final byte flags = this.flags[index];
+    return (flags & FLAG_FIXED) == 0
+        ? (flags & FLAG_LONG) == 0
+            ? String.valueOf(asLong(index))
+            : String.valueOf(asInt(index))
+        : String.valueOf(asFixed(index));
+  }
+
+  int value0(final int index) {
+    switch (encoding(index)) {
+      default: // fall-through
+      case 0: return values[index];
+      case 1: return values[index];
+      case 2: return values[index];
+      case 3: return values[index] & 0xFF;
+      case 4: return values[index] & 0x3;
+    }
+  }
+
+  int value1(final int index) {
+    switch (encoding(index)) {
+      default: // fall-through
+      case 0: return 0;
+      case 1: return 0;
+      case 2: return 0;
+      case 3: return (values[index] >>> 8) & 0xFF;
+      case 4: return (values[index] >>> 2) & 0x3FF;
+    }
+  }
+
+  int value2(final int index) {
+    switch (encoding(index)) {
+      default: // fall-through
+      case 0: return 0;
+      case 1: return 0;
+      case 2: return 0;
+      case 3: return 0;
+      case 4: return (values[index] >>> 12) & 0x3FF;
+    }
+  }
+
+  int param0(final int index) {
+    switch (encoding(index)) {
+      default: // fall-through
+      case 0: return params[index];
+      case 1: return params[index];
+      case 2: return params[index] & 0x3F;
+      case 3: return params[index] & 0x3F;
+      case 4: return params[index];
+    }
+  }
+
+  int param1(final int index) {
+    switch (encoding(index)) {
+      default: // fall-through
+      case 0: return 0;
+      case 1: return 0;
+      case 2: return (params[index] >>> 6) & 0x3FF;
+      case 3: return (params[index] >>> 6) & 0x3FF;
+      case 4: return 0;
+    }
+  }
+
+  String indexDebugString(final int index) {
+    final byte flags = this.flags[index];
+    final StringBuilder sb = new StringBuilder(32);
+    if ((flags & FLAG_MODIFIED) == FLAG_MODIFIED) {
+      sb.append('*');
+    }
+
+    sb.append(entry(index))
+        .append('(')
+        .append(ids[index])
+        .append(")=");
+
+    final int encoding = flags & ENCODING_MASK;
+    switch (Stat.numEncodedParams(encoding)) {
+      case 2:
+        sb.append(param0(index)).append(':').append(param1(index)).append(':');
+        break;
+      case 1:
+        sb.append(param0(index)).append(':');
+        break;
+    }
+
+    switch (Stat.numEncodedValues(encoding)) {
+      case 3:
+        sb.append(value0(index)).append(':').append(value1(index)).append(':').append(value2(index));
+        break;
+      case 2:
+        sb.append(value0(index)).append(':').append(value1(index));
+        break;
+      case 1:
+        sb.append(asString(index));
+        break;
+    }
+
+    return sb.toString();
+  }
+
+  String listDebugString(final int list) {
+    final int startIndex = startingOffset(list);
+    final int endIndex = endingOffset(list);
+    return new ToStringBuilder(this)
+        .append("list", list)
+        .append("immutable", !isMutable(list))
+        .append("size", endIndex - startIndex)
+        .append("ids", '{' + StringUtils.join(ids, ',', startIndex, endIndex) + '}')
+        .append("values", '{' + StringUtils.join(values, ',', startIndex, endIndex) + '}')
+        .append("params", '{' + StringUtils.join(params, ',', startIndex, endIndex) + '}')
+        .append("flags", '{' + StringUtils.join(flags, ',', startIndex, endIndex) + '}')
+        .build();
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this)
+        .append("numLists", numLists)
+        .append("maxLists", maxLists)
+        .append("immutable", StringUtils.leftPad(String.valueOf(immutable), 8, '0'))
+        .append("tail", tail)
+        .append("maxSize", maxSize)
+        .append("offsets", '{' + StringUtils.join(offsets, ',', 0, index(numLists)) + '}')
+        .append("ids", '{' + StringUtils.join(ids, ',', 0, tail) + '}')
+        .append("values", '{' + StringUtils.join(values, ',', 0, tail) + '}')
+        .append("params", '{' + StringUtils.join(params, ',', 0, tail) + '}')
+        .append("flags", '{' + StringUtils.join(flags, ',', 0, tail) + '}')
+        .build();
+  }
+
+  boolean equalsEncoded(final int index, final short stat, final int encodedParams) {
+    return ids[index] == stat && params[index] == encodedParams;
+  }
+
+  short id(final int index) {
+    return ids[index];
+  }
+
+  ItemStatCost.Entry entry(final int index) {
+    return entry(ids[index]);
+  }
+
+  static ItemStatCost.Entry entry(final short stat) {
+    return Stat.entry(stat);
+  }
+
+  int encoding(final int index) {
+    return flags[index] & ENCODING_MASK;
+  }
+
+  boolean modified(final int index) {
+    return (flags[index] & FLAG_MODIFIED) == FLAG_MODIFIED;
+  }
+
+  void forceUnmodified(final int index) {
+    flags[index] &= ~FLAG_MODIFIED;
+  }
+
+  int encodedValues(final int index) {
+    return values[index];
+  }
+
+  int encodedParams(final int index) {
+    return params[index];
+  }
+
+  private final void assertSimple(final short stat) {
+    final int encoding = entry(stat).Encode;
+    assert Stat.numEncodedParams(encoding) == 0 && Stat.numEncodedValues(encoding) == 1
+        : "stat(" + stat + ") requires " + Stat.numEncodedParams(encoding) + " params and " + Stat.numEncodedValues(encoding) + " values";
   }
 
   private void arraycopy(final int srcIndex, final int dstIndex, final int length) {
@@ -163,6 +555,7 @@ public final class StatList {
       final StatList src, final int srcIndex,
       final StatList dst, final int dstIndex,
       final int length) {
+    if (length <= 0) return;
     if (log.traceEnabled()) log.traceEntry(
         "arraycopy(src: {}, srcIndex: {}, dst: {}, dstIndex: {}, length: {})",
         src, srcIndex, dst, dstIndex, length);
@@ -188,7 +581,8 @@ public final class StatList {
     }
 
     final int additionalCapacity = newEndOffset - nextStartOffset;
-    arraycopy(index, index + capacity, tail - index);
+    final int copyLength = tail - index;
+    if (copyLength > 0) arraycopy(index, index + capacity, copyLength);
     if (additionalCapacity > 0) {
       tail += additionalCapacity;
       final byte[] offsets = this.offsets;
@@ -201,221 +595,76 @@ public final class StatList {
     }
   }
 
-  public StatList setAll(final StatList src) {
-    if (log.traceEnabled()) log.traceEntry("setAll(src: {})", src);
-    assertMutable();
-    clear();
-    System.arraycopy(src.offsets, 0, this.offsets, 0, src.numLists << 1);
-    arraycopy(src, 0, this, 0, src.tail);
-    maxLists = src.maxLists;
-    numLists = src.numLists;
-    size = src.size;
-    tail = src.tail;
-    return this;
-  }
-
-  public StatListGetter get(final int list) {
-    if (list >= numLists) throw new IndexOutOfBoundsException("list(" + list + ") >= numLists(" + numLists + ")");
-    return new StatListGetter(this, list);
-  }
-
-  public StatListGetter first() {
-    return get(0);
-  }
-
-  public int add(final int index, final int value) {
-    log.traceEntry("add(index: {}, value: {})", index, value);
-    assertMutable();
-    final short stat = ids[index];
-    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    assert encoding(index) <= 2 : "#add() unsupported for encoding(" + encoding(index) + ")";
-    if (log.traceEnabled()) log.trace(
-        "add(stat: {} ({}), this: {}, src: {})",
-        stat, entry(stat), asString(index), _asString(index, value));
-    flags[index] |= FLAG_MODIFIED;
-    final int result = values[index] += value;
+  private int setEncoded(
+      final int list,
+      final int index,
+      final short stat,
+      final ItemStatCost.Entry entry,
+      final int encodedParams,
+      final int encodedValue) {
+    if (log.traceEnabled()) log.tracefEntry(
+        "setEncoded(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))",
+        index, stat, entry, encodedParams, encodedValue);
+    assert isMutable(list);
+    ids[index] = stat;
+    params[index] = encodedParams;
+    values[index] = encodedValue;
+    flags[index] = encodeFlags(entry);
     if (log.debugEnabled()) log.debug(indexDebugString(index));
-    return result;
-  }
-
-  public int add(final int index, final long value) {
-    return add(index, _asInt(value));
-  }
-
-  public int add(final int index, final float value) {
-    return add(index, _asInt(value));
-  }
-
-  public int add(final int list, final short stat, final StatList src, final int srcList) {
-    if (log.traceEnabled()) log.traceEntry("add(list: {}, stat: {}, src: {}, srcList: {})", list, stat, src, srcList);
-    assertMutable();
-    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    assert encoding(stat) <= 2 : "#add() unsupported for encoding(" + encoding(stat) + ")";
-    final int index = indexOf(list, stat, 0);
-    final int otherIndex = src.indexOf(srcList, stat, 0);
-    if (log.traceEnabled()) log.trace(
-        "add(stat: {} ({}), this: {}, src: {})",
-        stat, entry(stat), index >= 0 ? asString(index) : "null", src.asString(otherIndex));
-    if (index >= 0 && ids[index] == stat) {
-      values[index] += src.values[otherIndex];
-      flags[index] |= FLAG_MODIFIED;
-      if (log.debugEnabled()) log.debug(indexDebugString(index));
-      return index;
-    } else {
-      /** TODO: possibility to speed this up with {@link #insertAt} */
-      final int putIndex = put(list, stat, src.values[otherIndex]);
-      assert putIndex == ~index : "index(" + putIndex + ") != expected index(" + ~index + ")";
-      return putIndex;
-    }
-    // max
-  }
-
-  public int add(final int list, final StatGetter src) {
-    if (log.traceEnabled()) log.traceEntry("add(list: {}, src: {})", list, src);
-    assertMutable();
-    final short stat = src.id();
-    final int param = src.param();
-    final int index = indexOf(list, stat, param);
-    if (log.traceEnabled()) log.trace(
-        "add(stat: {} ({}), this: {}, src: {})",
-        stat, entry(stat), index >= 0 ? asString(index) : "null", src.debugString());
-    if (index >= 0 && ids[index] == stat) {
-      values[index] += src.value();
-      flags[index] |= FLAG_MODIFIED;
-      if (log.debugEnabled()) log.debug(indexDebugString(index));
-      return index;
-    } else {
-      /** TODO: possibility to speed this up with {@link #insertAt} */
-      final int putIndex = put(list, stat, param, src.value());
-      assert putIndex == ~index : "index(" + putIndex + ") != expected index(" + ~index + ")";
-      return putIndex;
-    }
-    // max
-  }
-
-  public int addAll(final int list, final StatList src, final int srcList) {
-    if (log.traceEnabled()) log.traceEntry("addAll(list: {}, src: {}, srcList: {})", list, src, srcList);
-    assertMutable();
-    final int srcStartOffset = src.startingOffset(srcList);
-    final int srcEndOffset = src.endingOffset(srcList);
-    int index = -1;
-    for (int i = srcStartOffset, s = srcEndOffset; i < s; i++) {
-      final short stat = src.id(i);
-      index = add(list, stat, src, srcList);
-    }
-
     return index;
   }
 
-  /**
-   * @deprecated undefined behavior -- stat operations should be reversible,
-   *             i.e., subtracting a stat to it's default should remove it.
-   *             Validate that a value of 0 indicates default for all stats.
-   *             Maybe some stats allow 0 value and nonzero param?
-   */
-  @Deprecated
-  public boolean sub(final int list, final short stat, final StatList src, final int srcList) {
-    throw new UnsupportedOperationException();
-  }
-
-  /** @deprecated see {@link #sub} */
-  @Deprecated
-  public void subAll(final int list, final StatList src, final int srcList) {
-    throw new UnsupportedOperationException();
-  }
-
-  public int put(final int list, final short stat, final int param, final int value) {
-    final ItemStatCost.Entry entry = entry(stat);
-    final int encoding = entry.Encode;
-    if (log.traceEnabled()) log.tracefEntry(
-        "put(stat: %d (%s), param: %d (0x%3$x), value: %d (0x%4$x))", stat, entry, param, value);
-    assertMutable();
-    if (log.warnEnabled() && (encoding < 0 || encoding > 4)) log.warn(
-        "stat: {} ({}) has unsupported encoding({})", stat, entry, encoding);
-
-    final int index = indexOf(list, stat, param);
-    if (index >= 0 && ids[index] == stat && params[index] == param) {
-      set(index, stat, param, value, entry);
-      return index;
-    } else {
-      insertAt(list, ~index, stat, param, value, entry);
-      return ~index;
-    }
-  }
-
-  public int put(
+  private int insertEncodedAt(
       final int list,
+      final int index,
       final short stat,
-      final int param1, final int param2,
-      final int value1, final int value2, final int value3) {
-    assertMutable();
-    final int encoding = entry(stat).Encode;
-    return put(
-        list, stat,
-        Stat.encodeParam(encoding, param1, param2),
-        Stat.encodeValue(encoding, value1, value2, value3));
+      final ItemStatCost.Entry entry,
+      final int encodedParams,
+      final int encodedValue) {
+    if (log.traceEnabled()) log.tracefEntry(
+        "insertEncodedAt(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))",
+        index, stat, entry, encodedParams, encodedValue);
+    assert isMutable(list);
+    ensureCapacity(list, index, 1);
+    setEncoded(list, index, stat, entry, encodedParams, encodedValue);
+    if (log.traceEnabled()) log.trace(listDebugString(list));
+    return index;
   }
 
-  public int put(final int list, final short stat, final int value) {
-    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    return put(list, stat, 0, value);
+  private static byte encodeFlags(final ItemStatCost.Entry entry) {
+    byte flags = (byte) (entry.Encode & ENCODING_MASK);
+    if (entry.Save_Param_Bits > 0) flags |= FLAG_PARAMS;
+    if (Stat.numEncodedParams(entry.Encode) > 0) flags |= FLAG_PARAMS;
+    if (entry.Send_Bits >= Integer.SIZE) flags |= FLAG_LONG;
+    if (entry.ValShift > 0) flags |= FLAG_FIXED;
+    return flags;
   }
 
-  public int put(final int list, final short stat, final long value) {
-    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    assert value <= UINT_MAX_VALUE : "value(" + value + ") > " + UINT_MAX_VALUE;
-    return put(list, stat, 0, _asInt(value));
+  int indexOfEncoded(final int list, final short stat, final int encodedParams) {
+    return indexOfEncoded(list, stat, encodedParams, false);
   }
 
-  public int put(final int list, final short stat, final float value) {
-    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    assert entry(stat).ValShift == 8 : "entry.ValShift(" + entry(stat).ValShift + ") != " + 8;
-    return put(list, stat, 0, _asInt(value));
-  }
-
-  public int put(final int list, final short stat, final StatGetter src) {
-    return put(list, stat, src.param(), src.value());
-  }
-
-  public boolean contains(final int list) {
-    return list >= 0 && list < numLists;
-  }
-
-  public boolean contains(final int list, final short stat) {
-    return Arrays.binarySearch(ids, startingOffset(list), endingOffset(list), stat) >= 0;
-  }
-
-  public boolean contains(final int list, final short stat, final int param) {
-    return indexOf(list, stat, param) >= 0;
-  }
-
-  public int indexOf(final int list, final short stat, final int param) {
+  int indexOfEncoded(final int list, final short stat, final int encodedParams, boolean first) {
     final int listStart = startingOffset(list);
     final int listEnd = endingOffset(list);
     final int index = Arrays.binarySearch(ids, listStart, listEnd, stat);
     if (index >= 0) {
       final int startIndex = firstIndexOf(stat, index, listStart);
+      if (first) return startIndex;
       final int endIndex = lastIndexOf(stat, index, listEnd);
-      return Arrays.binarySearch(params, startIndex, endIndex, param);
+      return Arrays.binarySearch(params, startIndex, endIndex, encodedParams);
     } else {
       return index;
     }
   }
 
-  public int indexOf(final int list, final short stat) {
-    assert !Stat.hasParams(stat) : "stat(" + stat + ") requires params";
-    return indexOf(list, stat, 0);
+  int indexOf(final int list, final short stat) {
+    assertSimple(stat);
+    return indexOfEncoded(list, stat, 0);
   }
 
-  int firstIndexOf(final int list, final short stat) {
-    final int listStart = startingOffset(list);
-    final int listEnd = endingOffset(list);
-    final int index = Arrays.binarySearch(ids, listStart, listEnd, stat);
-    if (index >= 0) {
-      return firstIndexOf(stat, index, listStart);
-    } else {
-      return index;
-    }
+  int indexOf(final int list, final StatRef ref) {
+    return indexOfEncoded(list, ref.id(), ref.encodedParams());
   }
 
   private int firstIndexOf(final short stat, final int startIndex, final int listStart) {
@@ -432,143 +681,8 @@ public final class StatList {
     return i;
   }
 
-  int asInt(final int index) {
-    return values[index];
-  }
-
-  private static int _asInt(final long value) {
-    return (int) value;
-  }
-
-  private static long _asLong(final int value) {
-    return value & UINT_MAX_VALUE;
-  }
-
-  long asLong(final int index) {
-    assert entry(index).Send_Bits >= Integer.SIZE : "entry.Send_Bits(" + entry(index).Send_Bits + ") < " + Integer.SIZE;
-    return _asLong(values[index]);
-  }
-
-  private static int _asInt(final float value) {
-    return com.riiablo.math.Fixed.floatToIntBits(value, 8);
-  }
-
-  private static float _asFixed(final int value) {
-    return Fixed.intBitsToFloat(value, 8);
-  }
-
-  float asFixed(final int index) {
-    assert entry(index).ValShift == 8 : "entry.ValShift(" + entry(index).ValShift + ") != " + 8;
-    return _asFixed(values[index]);
-  }
-
-  private String _asString(final int index, final int value) {
-    final byte flags = this.flags[index];
-    return (flags & FLAG_FIXED) == 0
-        ? (flags & FLAG_LONG) == 0
-            ? String.valueOf(value)
-            : String.valueOf(_asLong(value))
-        : String.valueOf(_asFixed(value));
-  }
-
-  String asString(final int index) {
-    final byte flags = this.flags[index];
-    return (flags & FLAG_FIXED) == 0
-        ? (flags & FLAG_LONG) == 0
-            ? String.valueOf(asInt(index))
-            : String.valueOf(asLong(index))
-        : String.valueOf(asFixed(index));
-  }
-
-  public short id(final int index) {
-    return ids[index];
-  }
-
-  ItemStatCost.Entry entry(final int index) {
-    return entry(ids[index]);
-  }
-
-  ItemStatCost.Entry entry(final short stat) {
-    return Stat.entry(stat);
-  }
-
-  public int encoding(final int index) {
-    return flags[index] & ENCODING_MASK;
-  }
-
-  public boolean modified(final int index) {
-    return (flags[index] & FLAG_MODIFIED) == FLAG_MODIFIED;
-  }
-
-  public void forceUnmodified(final int index) {
-    flags[index] &= ~FLAG_MODIFIED;
-  }
-
-  byte flags(final int index) {
-    return flags[index];
-  }
-
-  int value(final int index) {
-    return values[index];
-  }
-
-  int param(final int index) {
-    return params[index];
-  }
-
-  public int value1(final int index) {
-    switch (encoding(index)) {
-      default: // fall-through
-      case 0: return values[index];
-      case 1: return values[index];
-      case 2: return values[index];
-      case 3: return values[index] & 0xFF;
-      case 4: return values[index] & 0x3;
-    }
-  }
-
-  public int value2(final int index) {
-    switch (encoding(index)) {
-      default: // fall-through
-      case 0: return 0;
-      case 1: return 0;
-      case 2: return 0;
-      case 3: return (values[index] >>> 8) & 0xFF;
-      case 4: return (values[index] >>> 2) & 0x3FF;
-    }
-  }
-
-  public int value3(final int index) {
-    switch (encoding(index)) {
-      default: // fall-through
-      case 0: return 0;
-      case 1: return 0;
-      case 2: return 0;
-      case 3: return 0;
-      case 4: return (values[index] >>> 12) & 0x3FF;
-    }
-  }
-
-  public int param1(final int index) {
-    switch (encoding(index)) {
-      default: // fall-through
-      case 0: return params[index];
-      case 1: return params[index];
-      case 2: return params[index] & 0x3F;
-      case 3: return params[index] & 0x3F;
-      case 4: return params[index];
-    }
-  }
-
-  public int param2(final int index) {
-    switch (encoding(index)) {
-      default: // fall-through
-      case 0: return 0;
-      case 1: return 0;
-      case 2: return (params[index] >>> 6) & 0x3FF;
-      case 3: return (params[index] >>> 6) & 0x3FF;
-      case 4: return 0;
-    }
+  int firstIndexOf(final int list, final short stat) {
+    return indexOfEncoded(list, stat, 0, true);
   }
 
   private static int index(final int list) {
@@ -596,14 +710,14 @@ public final class StatList {
     return index;
   }
 
-  public int size(final int list) {
-    final int sliceIndex = index(list);
-    return (offsets[sliceIndex + 1] - offsets[sliceIndex]) & 0xFF;
+  private void assertSorted() {
+    assertSorted(0);
   }
 
-  public boolean isEmpty(final int list) {
-    final int sliceIndex = index(list);
-    return (offsets[sliceIndex + 1] == offsets[sliceIndex]);
+  private void assertSorted(final int offset) {
+    assert isSorted(offset) :
+        "offsets({" + StringUtils.join(offsets, ',', 0, index(numLists) + offset) + "}) "
+            + "tail(" + tail + ") contains property lists that are out of order";
   }
 
   private boolean isSorted(final int offset) {
@@ -616,97 +730,6 @@ public final class StatList {
       previous = current;
     }
     return tail == previous;
-  }
-
-  private void assertSorted() {
-    assertSorted(0);
-  }
-
-  private void assertSorted(final int offset) {
-    assert isSorted(offset) :
-        "offsets({" + StringUtils.join(offsets, ',', 0, index(numLists) + offset) + "}) "
-            + "tail(" + tail + ") contains property lists that are out of order";
-  }
-
-  private static byte encodeFlags(final ItemStatCost.Entry entry) {
-    byte flags = (byte) (entry.Encode & ENCODING_MASK);
-    if (entry.Save_Param_Bits > 0) flags |= FLAG_PARAMS;
-    if (entry.Send_Bits >= Integer.SIZE) flags |= FLAG_LONG;
-    if (entry.ValShift > 0) flags |= FLAG_FIXED;
-    return flags;
-  }
-
-  private void set(final int index, final short stat, final int param, final int value, final ItemStatCost.Entry entry) {
-    if (log.traceEnabled()) log.tracefEntry(
-        "set(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))", index, stat, entry, param, value);
-    assert !immutable;
-    ids[index] = stat;
-    params[index] = param;
-    values[index] = value;
-    flags[index] = encodeFlags(entry);
-    if (log.debugEnabled()) log.debug(indexDebugString(index));
-  }
-
-  private void insertAt(final int list, final int index, final short stat, final int param, final int value, final ItemStatCost.Entry entry) {
-    if (log.traceEnabled()) log.tracefEntry(
-        "insertAt(index: %d, stat: %d (%s), param: %d (0x%4$x), value: %d (0x%5$x))", index, stat, entry, param, value);
-    assert !immutable;
-    if (size >= maxSize) {
-      log.warn("stat({}) cannot be inserted, property list is full!", stat);
-      return;
-    }
-
-    ensureCapacity(list, index, 1);
-    set(index, stat, param, value, entry);
-    size++;
-    if (log.traceEnabled()) log.trace(listDebugString(list));
-  }
-
-  private void assertMutable() {
-    if (immutable) throw new UnsupportedOperationException("Stat list has been frozen");
-  }
-
-  public String indexDebugString(final int index) {
-    final byte flags = this.flags[index];
-    switch (flags & ENCODING_MASK) {
-      default: // fall-through
-      case 0: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + ((flags & FLAG_PARAMS) == 0 ? asString(index) : (asString(index) + ":" + params[index]));
-      case 1: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + value1(index);
-      case 2: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index);
-      case 3: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + param1(index) + ":" + param2(index) + ":" + value1(index) + ":" + value2(index);
-      case 4: return ((flags & FLAG_MODIFIED) == FLAG_MODIFIED ? "*" : "") + entry(index) + "(" + ids[index] + ")=" + value1(index) + ":" + value2(index) + ":" + value3(index);
-    }
-  }
-
-  public String listDebugString(final int list) {
-    final int startIndex = startingOffset(list);
-    final int endIndex = endingOffset(list);
-    return new ToStringBuilder(this)
-        .append("immutable", immutable)
-        .append("list", list)
-        .append("startIndex", startIndex)
-        .append("endIndex", endIndex)
-        .append("offsets", '{' + StringUtils.join(offsets, ',', (list << 1), (list << 1) + 2) + '}')
-        .append("ids", '{' + StringUtils.join(ids, ',', startIndex, endIndex) + '}')
-        .append("values", '{' + StringUtils.join(values, ',', startIndex, endIndex) + '}')
-        .append("params", '{' + StringUtils.join(params, ',', startIndex, endIndex) + '}')
-        .append("flags", '{' + StringUtils.join(flags, ',', startIndex, endIndex) + '}')
-        .build();
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("immutable", immutable)
-        .append("numLists", numLists)
-        .append("maxLists", maxLists)
-        .append("tail", tail)
-        .append("offsets", '{' + StringUtils.join(offsets, ',', 0, numLists << 1) + '}')
-        .append("ids", '{' + StringUtils.join(ids, ',', 0, tail) + '}')
-        .append("values", '{' + StringUtils.join(values, ',', 0, tail) + '}')
-        .append("params", '{' + StringUtils.join(params, ',', 0, tail) + '}')
-        .append("flags", '{' + StringUtils.join(flags, ',', 0, tail) + '}')
-        .build();
   }
 
   public IndexIterator indexIterator(final int list) {
@@ -751,8 +774,8 @@ public final class StatList {
         : STAT_ITERATOR.reset(list);
   }
 
-  public final class StatIterator implements Iterator<StatGetter> {
-    final StatGetter stat = new StatGetter(StatList.this);
+  public final class StatIterator implements Iterator<StatRef> {
+    final StatRef stat = new StatRef(StatList.this);
     int list; /** used for {@link #pushback} */
     int head; /** used for {@link #pushback} */
     int index;
@@ -760,6 +783,7 @@ public final class StatList {
 
     StatIterator reset(final int list) {
       this.list = list;
+      stat.reset(list);
       head = index = startingOffset(list);
       endIndex = endingOffset(list);
       return this;
@@ -771,7 +795,7 @@ public final class StatList {
     }
 
     @Override
-    public StatGetter next() {
+    public StatRef next() {
       return stat.update(index++);
     }
 
@@ -783,7 +807,7 @@ public final class StatList {
      */
     void pushback() {
       assert head < index : "head(" + head + ") cannot pass index(" + index + ")";
-      StatList.this.set(head++, stat.id(), stat.param(), stat.value(), stat.entry());
+      StatList.this.setEncoded(list, head++, stat.id(), stat.entry(), stat.encodedParams(), stat.encodedValues());
       setEndingOffset(list, head);
     }
 
@@ -799,7 +823,7 @@ public final class StatList {
         : STAT_LIST_ITERATOR.reset();
   }
 
-  public final class StatListIterator implements Iterator<StatListGetter>, Iterable<StatListGetter> {
+  public final class StatListIterator implements Iterator<StatListRef>, Iterable<StatListRef> {
     int list = 0;
 
     StatListIterator reset() {
@@ -808,7 +832,7 @@ public final class StatList {
     }
 
     @Override
-    public Iterator<StatListGetter> iterator() {
+    public Iterator<StatListRef> iterator() {
       return this;
     }
 
@@ -818,7 +842,7 @@ public final class StatList {
     }
 
     @Override
-    public StatListGetter next() {
+    public StatListRef next() {
       return get(list++);
     }
 

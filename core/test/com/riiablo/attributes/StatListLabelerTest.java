@@ -1,46 +1,19 @@
 package com.riiablo.attributes;
 
 import io.netty.buffer.Unpooled;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.headless.HeadlessApplication;
 
 import com.riiablo.CharacterClass;
-import com.riiablo.Files;
-import com.riiablo.Riiablo;
-import com.riiablo.codec.StringTBLs;
+import com.riiablo.RiiabloTest;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
-import com.riiablo.mpq.MPQFileHandleResolver;
 
-import static com.riiablo.attributes.StatListFlags.FLAG_MAGIC;
-import static com.riiablo.attributes.StatListFlags.FLAG_RUNE;
-import static com.riiablo.attributes.StatListFlags.GEM_SHIELD_LIST;
-import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
-import static com.riiablo.attributes.StatListFlags.getSetItemEquippedFlag;
-import static com.riiablo.attributes.StatListFlags.getSetItemFlags;
-
-public class StatListLabelerTest {
-  @BeforeClass
-  public static void setup() {
-    Gdx.app = new HeadlessApplication(new ApplicationAdapter() {});
-    Riiablo.home = Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II");
-    Riiablo.mpqs = new MPQFileHandleResolver();
-    Riiablo.string = new StringTBLs(Riiablo.mpqs);
-    Riiablo.files = new Files();
-  }
-
-  @AfterClass
-  public static void teardown() {
-    Gdx.app.exit();
-  }
-
+public class StatListLabelerTest extends RiiabloTest {
   @BeforeClass
   public static void before() {
     LogManager.setLevel("com.riiablo.attributes", Level.WARN);
@@ -48,54 +21,54 @@ public class StatListLabelerTest {
   }
 
   private static StatListLabeler newInstance() {
-    return new StatListLabeler(new StatFormatter());
+    return new StatListLabeler(new com.riiablo.attributes.StatFormatter());
   }
 
-  private Attributes genCharacterAttrs(byte[] data, int bytesToSkip, int length) {
+  private static com.riiablo.attributes.Attributes genCharacterAttrs(byte[] data, int bytesToSkip, int length) {
     ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, bytesToSkip, length));
     BitInput bitInput = in.skipBytes(2).unalign(); // skip signature
     StatListReader reader = new StatListReader();
-    final Attributes attrs = Attributes.aggregateAttributes(true);
-    reader.read(attrs, bitInput, true);
+    com.riiablo.attributes.Attributes attrs = com.riiablo.attributes.Attributes.obtainLarge();
+    reader.read(attrs.base(), bitInput, true);
     return attrs;
   }
 
-  private Attributes genItemAttrs(byte[] data, long bitsToSkip, int length, int flags) {
+  private static com.riiablo.attributes.Attributes genItemAttrs(byte[] data, long bitsToSkip, int length, int flags) {
     final int offset = (int) (bitsToSkip >> 3);
     final int bitOffset = (int) (bitsToSkip & 0x7);
     if (length < 0) length = data.length - offset;
     ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, offset, length));
     BitInput bitInput = in.unalign().skipBits(bitOffset);
     StatListReader reader = new StatListReader();
-    final Attributes attrs = Attributes.aggregateAttributes();
-    reader.read(attrs, bitInput, flags, NUM_ITEM_LISTS);
+    com.riiablo.attributes.Attributes attrs = com.riiablo.attributes.Attributes.obtainStandard();
+    reader.read(attrs.list(), bitInput, flags);
     return attrs;
   }
 
-  private Attributes genGemAttrs(String code) {
-    PropertiesGenerator properties = new PropertiesGenerator();
-    GemGenerator gems = new GemGenerator(properties);
-    return gems.set(Attributes.gemAttributes(), code);
+  private com.riiablo.attributes.Attributes genGemAttrs(String code) {
+    com.riiablo.attributes.PropertiesGenerator properties = new com.riiablo.attributes.PropertiesGenerator();
+    com.riiablo.attributes.GemGenerator gems = new com.riiablo.attributes.GemGenerator(properties);
+    return gems.set(com.riiablo.attributes.Attributes.obtainCompact(), code);
   }
 
   @Test
   public void Tirant_Grief() {
-    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
-    Attributes grief = genItemAttrs(Gdx.files.internal("test/Grief.d2i").readBytes(), 197, 0x12, FLAG_RUNE);
-    Attributes eth = genGemAttrs("r05");
-    Attributes tir = genGemAttrs("r03");
-    Attributes lo = genGemAttrs("r28");
-    Attributes mal = genGemAttrs("r23");
-    Attributes ral = genGemAttrs("r08");
+    com.riiablo.attributes.Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    com.riiablo.attributes.Attributes grief = genItemAttrs(Gdx.files.internal("test/Grief.d2i").readBytes(), 197, 0x12, StatListFlags.FLAG_RUNE);
+    com.riiablo.attributes.Attributes eth = genGemAttrs("r05");
+    com.riiablo.attributes.Attributes tir = genGemAttrs("r03");
+    com.riiablo.attributes.Attributes lo = genGemAttrs("r28");
+    com.riiablo.attributes.Attributes mal = genGemAttrs("r23");
+    com.riiablo.attributes.Attributes ral = genGemAttrs("r08");
 
     tirant.reset(); // must be called to copy base into agg
-    AttributesUpdater updater = new AttributesUpdater();
-    updater.update(grief, FLAG_RUNE, tirant, CharacterClass.SORCERESS.entry())
-        .add(eth.list(GEM_SHIELD_LIST))
-        .add(tir.list(GEM_SHIELD_LIST))
-        .add(lo.list(GEM_SHIELD_LIST))
-        .add(mal.list(GEM_SHIELD_LIST))
-        .add(ral.list(GEM_SHIELD_LIST))
+    com.riiablo.attributes.AttributesUpdater updater = new com.riiablo.attributes.AttributesUpdater();
+    updater.update(grief, StatListFlags.FLAG_RUNE, tirant, CharacterClass.SORCERESS.entry())
+        .add(eth.list(StatListFlags.GEM_SHIELD_LIST))
+        .add(tir.list(StatListFlags.GEM_SHIELD_LIST))
+        .add(lo.list(StatListFlags.GEM_SHIELD_LIST))
+        .add(mal.list(StatListFlags.GEM_SHIELD_LIST))
+        .add(ral.list(StatListFlags.GEM_SHIELD_LIST))
         .apply();
 
     StatListLabeler labeler = newInstance();
@@ -104,12 +77,12 @@ public class StatListLabelerTest {
 
   @Test
   public void Tirant_Annihilus() {
-    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
-    Attributes annihilus = genItemAttrs(Gdx.files.internal("test/Annihilus.d2i").readBytes(), 172, -1, FLAG_MAGIC);
+    com.riiablo.attributes.Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    com.riiablo.attributes.Attributes annihilus = genItemAttrs(Gdx.files.internal("test/Annihilus.d2i").readBytes(), 172, -1, StatListFlags.FLAG_MAGIC);
 
     tirant.reset(); // must be called to copy base into agg
-    AttributesUpdater updater = new AttributesUpdater();
-    updater.update(annihilus, FLAG_MAGIC, tirant, CharacterClass.SORCERESS.entry()).apply();
+    com.riiablo.attributes.AttributesUpdater updater = new com.riiablo.attributes.AttributesUpdater();
+    updater.update(annihilus, StatListFlags.FLAG_MAGIC, tirant, CharacterClass.SORCERESS.entry()).apply();
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(annihilus.remaining(), tirant));
@@ -117,12 +90,12 @@ public class StatListLabelerTest {
 
   @Test
   public void Tirant_Hunters_Bow_of_Blight() {
-    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
-    Attributes bow = genItemAttrs(Gdx.files.internal("test/Hunter's Bow of Blight.d2i").readBytes(), 196, -1, FLAG_MAGIC);
+    com.riiablo.attributes.Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    com.riiablo.attributes.Attributes bow = genItemAttrs(Gdx.files.internal("test/Hunter's Bow of Blight.d2i").readBytes(), 196, -1, StatListFlags.FLAG_MAGIC);
 
     tirant.reset(); // must be called to copy base into agg
-    AttributesUpdater updater = new AttributesUpdater();
-    updater.update(bow, FLAG_MAGIC, tirant, CharacterClass.SORCERESS.entry()).apply();
+    com.riiablo.attributes.AttributesUpdater updater = new com.riiablo.attributes.AttributesUpdater();
+    updater.update(bow, StatListFlags.FLAG_MAGIC, tirant, CharacterClass.SORCERESS.entry()).apply();
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(bow.remaining(), tirant));
@@ -130,12 +103,12 @@ public class StatListLabelerTest {
 
   @Test
   public void Tirant_Aldurs_Advance() {
-    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
-    Attributes aldurs = genItemAttrs(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, FLAG_MAGIC | getSetItemFlags(4));
+    com.riiablo.attributes.Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    com.riiablo.attributes.Attributes aldurs = genItemAttrs(Gdx.files.internal("test/Aldur's Advance.d2i").readBytes(), 202, -1, StatListFlags.FLAG_MAGIC | StatListFlags.getSetItemFlags(4));
 
     tirant.reset(); // must be called to copy base into agg
-    AttributesUpdater updater = new AttributesUpdater();
-    updater.update(aldurs, FLAG_MAGIC | getSetItemEquippedFlag(2), tirant, CharacterClass.SORCERESS.entry()).apply();
+    com.riiablo.attributes.AttributesUpdater updater = new com.riiablo.attributes.AttributesUpdater();
+    updater.update(aldurs, StatListFlags.FLAG_MAGIC | StatListFlags.getSetItemEquippedFlag(2), tirant, CharacterClass.SORCERESS.entry()).apply();
 
     StatListLabeler labeler = newInstance();
     System.out.println(labeler.createLabel(aldurs.remaining(), tirant));
@@ -143,20 +116,20 @@ public class StatListLabelerTest {
 
   @Test
   public void Tirant_Spirit() {
-    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
-    Attributes spirit = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, FLAG_MAGIC | FLAG_RUNE);
-    Attributes tal = genGemAttrs("r07");
-    Attributes thul = genGemAttrs("r10");
-    Attributes ort = genGemAttrs("r09");
-    Attributes amn = genGemAttrs("r11");
+    com.riiablo.attributes.Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    com.riiablo.attributes.Attributes spirit = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, StatListFlags.FLAG_MAGIC | StatListFlags.FLAG_RUNE);
+    com.riiablo.attributes.Attributes tal = genGemAttrs("r07");
+    com.riiablo.attributes.Attributes thul = genGemAttrs("r10");
+    com.riiablo.attributes.Attributes ort = genGemAttrs("r09");
+    com.riiablo.attributes.Attributes amn = genGemAttrs("r11");
 
     tirant.reset(); // must be called to copy base into agg
-    AttributesUpdater updater = new AttributesUpdater();
-    updater.update(spirit, FLAG_MAGIC | FLAG_RUNE, tirant, CharacterClass.SORCERESS.entry())
-        .add(tal.list(GEM_SHIELD_LIST))
-        .add(thul.list(GEM_SHIELD_LIST))
-        .add(ort.list(GEM_SHIELD_LIST))
-        .add(amn.list(GEM_SHIELD_LIST))
+    com.riiablo.attributes.AttributesUpdater updater = new com.riiablo.attributes.AttributesUpdater();
+    updater.update(spirit, StatListFlags.FLAG_MAGIC | StatListFlags.FLAG_RUNE, tirant, CharacterClass.SORCERESS.entry())
+        .add(tal.list(StatListFlags.GEM_SHIELD_LIST))
+        .add(thul.list(StatListFlags.GEM_SHIELD_LIST))
+        .add(ort.list(StatListFlags.GEM_SHIELD_LIST))
+        .add(amn.list(StatListFlags.GEM_SHIELD_LIST))
         .apply();
 
     StatListLabeler labeler = newInstance();

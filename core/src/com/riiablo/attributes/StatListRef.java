@@ -1,24 +1,24 @@
-package com.riiablo.attrs;
+package com.riiablo.attributes;
 
 import java.util.Iterator;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
-public final class StatListRef implements Iterable<StatRef> {
+public final class StatListRef implements Iterable<com.riiablo.attributes.StatRef> {
   private static final Logger log = LogManager.getLogger(StatListRef.class);
 
-  final StatRef tuple;
-  final StatList stats;
+  final com.riiablo.attributes.StatRef tuple;
+  final com.riiablo.attributes.StatList stats;
   final int list;
 
-  StatListRef(final StatList stats, final int list) {
+  StatListRef(final com.riiablo.attributes.StatList stats, final int list) {
     this.stats = stats;
     this.list = list;
-    this.tuple = new StatRef(stats, list);
+    this.tuple = new com.riiablo.attributes.StatRef(stats, list);
   }
 
-  StatList parent() {
+  com.riiablo.attributes.StatList parent() {
     return stats;
   }
 
@@ -51,7 +51,7 @@ public final class StatListRef implements Iterable<StatRef> {
     return stats.containsEncoded(list, stat, encodedParams);
   }
 
-  public boolean contains(final StatRef src) {
+  public boolean contains(final com.riiablo.attributes.StatRef src) {
     return stats.contains(list, src);
   }
 
@@ -63,40 +63,40 @@ public final class StatListRef implements Iterable<StatRef> {
     return stats.indexOfEncoded(list, stat, encodedParams);
   }
 
-  int indexOf(final StatRef src) {
+  int indexOf(final com.riiablo.attributes.StatRef src) {
     return stats.indexOf(list, src);
   }
 
-  StatRef get(final int index) {
+  com.riiablo.attributes.StatRef get(final int index) {
     assert stats.contains(list, index);
     return tuple.update(index);
   }
 
-  public StatRef get(final short stat) {
+  public com.riiablo.attributes.StatRef get(final short stat) {
     final int index = indexOf(stat);
     if (index < 0) return null;
     return tuple.update(index);
   }
 
-  public StatRef get(final short stat, final int encodedParams) {
+  public com.riiablo.attributes.StatRef get(final short stat, final int encodedParams) {
     final int index = indexOfEncoded(stat, encodedParams);
     if (index < 0) return null;
     return tuple.update(index);
   }
 
-  public StatRef get(final StatRef src) {
+  public com.riiablo.attributes.StatRef get(final com.riiablo.attributes.StatRef src) {
     final int index = indexOf(src);
     if (index < 0) return null;
     return tuple.update(index);
   }
 
-  StatRef first(final short stat) {
+  com.riiablo.attributes.StatRef first(final short stat) {
     final int index = stats.firstIndexOf(list, stat);
     if (index < 0) return null;
     return tuple.update(index);
   }
 
-  StatRef last() {
+  com.riiablo.attributes.StatRef last() {
     return tuple; // TODO: validate index / state -- must be called after an operation is performed
   }
 
@@ -108,7 +108,7 @@ public final class StatListRef implements Iterable<StatRef> {
 
   public int getValue(final short stat, final int defaultValue) {
     final int index = indexOf(stat);
-    if (index < 0) return Stat.encode(stat, defaultValue);
+    if (index < 0) return com.riiablo.attributes.Stat.encode(stat, defaultValue);
     return get(index).asInt();
   }
 
@@ -124,32 +124,32 @@ public final class StatListRef implements Iterable<StatRef> {
     return get(index).asFixed();
   }
 
-  public StatRef putEncoded(final short stat, final int encodedParams, final int encodedValues) {
+  public com.riiablo.attributes.StatRef putEncoded(final short stat, final int encodedParams, final int encodedValues) {
     final int index = stats.putEncoded(list, stat, encodedParams, encodedValues);
     return tuple.update(index);
   }
 
-  public StatRef putEncoded(final short stat, final int encodedValues) {
+  public com.riiablo.attributes.StatRef putEncoded(final short stat, final int encodedValues) {
     final int index = stats.putEncoded(list, stat, encodedValues);
     return tuple.update(index);
   }
 
-  public StatRef put(final short stat, final int value) {
+  public com.riiablo.attributes.StatRef put(final short stat, final int value) {
     final int index = stats.put(list, stat, value);
     return tuple.update(index);
   }
 
-  public StatRef put(final short stat, final long value) {
+  public com.riiablo.attributes.StatRef put(final short stat, final long value) {
     final int index = stats.put(list, stat, value);
     return tuple.update(index);
   }
 
-  public StatRef put(final short stat, final float value) {
+  public com.riiablo.attributes.StatRef put(final short stat, final float value) {
     final int index = stats.put(list, stat, value);
     return tuple.update(index);
   }
 
-  public StatRef addEncoded(final short stat, final int encodedValues) {
+  public com.riiablo.attributes.StatRef addEncoded(final short stat, final int encodedValues) {
     if (containsAny(stat)) {
       final int index = stats.addEncoded(list, indexOf(stat), encodedValues);
       return tuple.update(index);
@@ -158,7 +158,7 @@ public final class StatListRef implements Iterable<StatRef> {
     }
   }
 
-  public StatRef add(final short stat, final int value) {
+  public com.riiablo.attributes.StatRef add(final short stat, final int value) {
     if (containsAny(stat)) {
       final int index = stats.add(list, indexOf(stat), value);
       return tuple.update(index);
@@ -167,7 +167,7 @@ public final class StatListRef implements Iterable<StatRef> {
     }
   }
 
-  public StatRef add(final short stat, final long value) {
+  public com.riiablo.attributes.StatRef add(final short stat, final long value) {
     if (containsAny(stat)) {
       final int index = stats.add(list, indexOf(stat), value);
       return tuple.update(index);
@@ -176,7 +176,7 @@ public final class StatListRef implements Iterable<StatRef> {
     }
   }
 
-  public StatRef add(final short stat, final float value) {
+  public com.riiablo.attributes.StatRef add(final short stat, final float value) {
     if (containsAny(stat)) {
       final int index = stats.add(list, indexOf(stat), value);
       return tuple.update(index);
@@ -185,7 +185,7 @@ public final class StatListRef implements Iterable<StatRef> {
     }
   }
 
-  public StatRef add(final StatRef src) {
+  public com.riiablo.attributes.StatRef add(final com.riiablo.attributes.StatRef src) {
     if (contains(src)) {
       final int index = stats.addEncoded(list, indexOf(src), src.encodedValues());
       return tuple.update(index);
@@ -199,16 +199,16 @@ public final class StatListRef implements Iterable<StatRef> {
     return this;
   }
 
-  public StatList.IndexIterator indexIterator() {
+  public com.riiablo.attributes.StatList.IndexIterator indexIterator() {
     return stats.indexIterator(list);
   }
 
-  public StatList.StatIterator statIterator() {
+  public com.riiablo.attributes.StatList.StatIterator statIterator() {
     return stats.statIterator(list);
   }
 
   @Override
-  public Iterator<StatRef> iterator() {
+  public Iterator<com.riiablo.attributes.StatRef> iterator() {
     return statIterator();
   }
 }

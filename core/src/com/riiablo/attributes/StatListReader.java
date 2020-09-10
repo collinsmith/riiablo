@@ -9,29 +9,28 @@ import com.riiablo.logger.MDC;
 public class StatListReader {
   private static final Logger log = LogManager.getLogger(StatListReader.class);
 
-  public StatGetter read(StatListBuilder stats, short stat, BitInput bits, boolean cs) {
-    log.traceEntry("read(stats: {}, stat: {}, bits: {})", stats, stat, bits);
-    final ItemStatCost.Entry entry = Stat.entry(stat);
-    final int param, value;
+  public com.riiablo.attributes.StatRef read(com.riiablo.attributes.StatListRef stats, short stat, BitInput bits, boolean cs) {
+    final ItemStatCost.Entry entry = com.riiablo.attributes.Stat.entry(stat);
+    log.traceEntry("read(stats: {}, stat: {} ({}), bits: {}, cs: {})", stats, stat, entry, bits, cs);
+    final int encodedParams, encodedValues;
     if (cs) {
-      log.trace("Reading character save stat...");
-      assert !entry.CSvSigned : "entry.CSvSigned(" + entry.CSvSigned + ") unsupported";
-      param = (int) bits.read63u(entry.CSvParam);
-      value = (int) bits.read63u(entry.CSvBits);
+      log.trace("Reading as character stat...");
+      encodedParams = (int) bits.read63u(entry.CSvParam);
+      encodedValues = (int) bits.read63u(entry.CSvBits);
     } else {
-      log.trace("Reading stat...");
-      param = (int) bits.read63u(entry.Save_Param_Bits);
-      value = (int) (bits.read63u(entry.Save_Bits) - entry.Save_Add) << entry.ValShift;
+      log.trace("Reading as standard stat...");
+      encodedParams = (int) bits.read63u(entry.Save_Param_Bits);
+      encodedValues = (int) (bits.read63u(entry.Save_Bits) - entry.Save_Add) << entry.ValShift;
     }
-    return stats.put(stat, param, value).last();
+    return stats.putEncoded(stat, encodedParams, encodedValues);
   }
 
-  public StatListGetter read(StatListBuilder stats, BitInput bits, boolean cs) {
-    log.traceEntry("read(stats: {}, bits: {})", stats, bits);
-    for (short stat; (stat = bits.read15u(Stat.BITS)) != Stat.NONE;) {
+  public com.riiablo.attributes.StatListRef read(com.riiablo.attributes.StatListRef stats, BitInput bits, boolean cs) {
+    log.traceEntry("read(stats: {}, bits: {}, cs: {})", stats, bits, cs);
+    for (short stat; (stat = bits.read15u(com.riiablo.attributes.Stat.BITS)) != com.riiablo.attributes.Stat.NONE;) {
       try {
         MDC.put("stat", stat);
-        final byte numEncoded = Stat.getNumEncoded(stat);
+        final byte numEncoded = com.riiablo.attributes.Stat.getNumEncoded(stat);
         try {
           if (numEncoded > 1) {
             MDC.put("numEncoded", numEncoded);
@@ -50,28 +49,17 @@ public class StatListReader {
       }
     }
 
-    return stats.get();
+    return stats;
   }
 
-  /**
-   * Reads a single property list into {@link Attributes#base()}
-   */
-  public StatListGetter read(Attributes attrs, BitInput bits, boolean cs) {
-    final StatListBuilder builder = attrs.base().clear().builder();
-    return read(builder, bits, cs);
-  }
-
-  /**
-   * Reads property lists into {@link Attributes#list()}
-   */
-  public StatList read(Attributes attrs, BitInput bits, int flags, int maxLists) {
-    final StatList stats = attrs.list().clear();
+  public com.riiablo.attributes.StatList read(com.riiablo.attributes.StatList stats, BitInput bits, int flags) {
+    final int maxLists = stats.maxLists();
     for (int i = 0; i < maxLists; i++) {
-      final StatListBuilder builder = stats.buildList();
+      final com.riiablo.attributes.StatListRef list = stats.buildList(); // must be called to init list (even empty)
       if (((flags >> i) & 1) == 1) {
         try {
-          MDC.put("propList", StatListFlags.itemToString(i));
-          read(builder, bits, false);
+          MDC.put("propList", StatListFlags.itemToString(i)); // assert only items will be serialized
+          read(list, bits, false);
         } finally {
           MDC.remove("propList");
         }

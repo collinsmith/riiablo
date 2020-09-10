@@ -8,8 +8,8 @@ import com.badlogic.gdx.utils.Array;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.attributes.Attributes;
-import com.riiablo.attributes.StatListGetter;
 import com.riiablo.attributes.StatListReader;
+import com.riiablo.attributes.StatListRef;
 import com.riiablo.codec.COF;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
@@ -280,9 +280,9 @@ public class D2SReader96 {
     log.trace("Validating stats signature");
     in.readSignature(STATS_SIGNATURE);
     D2S.StatData stats = new D2S.StatData();
-    final Attributes attrs = stats.attrs = Attributes.aggregateAttributes(true);
+    final Attributes attrs = stats.attrs = Attributes.obtainLarge();
     BitInput bits = in.unalign();
-    statReader.read(attrs, bits, true);
+    statReader.read(attrs.base(), bits, true);
     bits.align();
     return stats;
   }
@@ -405,7 +405,7 @@ public class D2SReader96 {
     }
 
     PropertyList base = data.statData.base();
-    StatListGetter stats = d2s.stats.attrs.base();
+    StatListRef stats = d2s.stats.attrs.base();
     for (int i = Stat.strength; i <= Stat.goldbank; i++) {
       base.put(i, stats.getValue((short) i, 0));
     }

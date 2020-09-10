@@ -416,12 +416,43 @@ public class Stat {
     return (short) Riiablo.files.ItemStatCost.index(stat);
   }
 
-  static boolean hasParams(short stat) {
-    final ItemStatCost.Entry entry = entry(stat);
-    return entry.Encode >= 1 && entry.Encode <= 3; // TODO: determine if stat requires params
+  static boolean encodingSupported(final int encoding) {
+    return encoding >= 0 && encoding <= 4;
   }
 
-  static int encodeValue(int encoding, int value1, int value2, int value3) {
+  static final int[] ENCODED_PARAMS = {0, 1, 2, 2, 0};
+
+  static int numEncodedParams(final int encoding) {
+    return ENCODED_PARAMS[encoding];
+  }
+
+  static final int[] ENCODED_VALUES = {1, 1, 1, 2, 3};
+
+  static int numEncodedValues(final int encoding) {
+    return ENCODED_VALUES[encoding];
+  }
+
+  static int encode(final short stat, final int value) {
+    return value << entry(stat).ValShift;
+  }
+
+  static int encodeParams(final int encoding, int param1, int param2) {
+    switch (encoding) {
+      default:
+      case 0: // fall-through
+      case 1: // fall-through
+      case 4:
+        assert param2 == 0 : "param2(" + param2 + ") != " + 0;
+        return param1;
+      case 2: // fall-through
+      case 3:
+        param1 = Math.min(param1, (1 <<  6) - 1);
+        param2 = Math.min(param2, (1 << 10) - 1);
+        return (param2 << 6) | param1;
+    }
+  }
+
+  static int encodeValues(final int encoding, int value1, int value2, int value3) {
     switch (encoding) {
       default: // fall-through
       case 0: // fall-through
@@ -439,22 +470,6 @@ public class Stat {
         value2 = Math.min(value2, (1 << 10) - 1);
         value3 = Math.min(value3, (1 << 10) - 1);
         return (value3 << 12) | (value2 << 2) | (value1 & 0x3);
-    }
-  }
-
-  static int encodeParam(int encoding, int param1, int param2) {
-    switch (encoding) {
-      default:
-      case 0: // fall-through
-      case 1: // fall-through
-      case 4:
-        assert param2 == 0 : "param2(" + param2 + ") != " + 0;
-        return param1;
-      case 2: // fall-through
-      case 3:
-        param1 = Math.min(param1, (1 <<  6) - 1);
-        param2 = Math.min(param2, (1 << 10) - 1);
-        return (param2 << 6) | param1;
     }
   }
 
