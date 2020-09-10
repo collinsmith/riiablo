@@ -124,6 +124,15 @@ public final class StatListRef implements Iterable<StatRef> {
     return get(index).asFixed();
   }
 
+  public StatRef set(final short stat, final short srcStat) {
+    final StatRef src = get(srcStat);
+    if (src == null) {
+      throw new IndexOutOfBoundsException("list(" + list + ") does not contain any srcStat(" + srcStat + ")");
+    }
+
+    return putEncoded(stat, src.encodedParams(), src.encodedValues());
+  }
+
   public StatRef putEncoded(final short stat, final int encodedParams, final int encodedValues) {
     final int index = stats.putEncoded(list, stat, encodedParams, encodedValues);
     return tuple.update(index);

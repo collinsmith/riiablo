@@ -228,6 +228,10 @@ public final class Attributes implements Iterable<StatRef> {
     return agg.get(stat);
   }
 
+  public StatRef set(final short stat, final short srcStat) {
+    return agg.set(stat, srcStat);
+  }
+
   public int getValue(final short stat, final int value) {
     return agg.getValue(stat, value);
   }
