@@ -15,16 +15,17 @@ import com.badlogic.gdx.utils.Pool;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.Stat;
 import com.riiablo.attributes.StatListReader;
+import com.riiablo.attributes.StatListRef;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.codec.excel.DifficultyLevels;
 import com.riiablo.io.ByteInput;
-import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.item.ItemReader;
 import com.riiablo.item.Location;
-import com.riiablo.item.PropertyList;
-import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.item.Type;
 import com.riiablo.skill.SkillCodes;
@@ -61,7 +62,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   final int        waypointData[][] = new int[Riiablo.NUM_DIFFS][Riiablo.NUM_ACTS];
   final long       npcIntroData[] = new long[Riiablo.NUM_DIFFS];
   final long       npcReturnData[] = new long[Riiablo.NUM_DIFFS];
-  final Attributes statData = new Attributes();
+  final Attributes statData = Attributes.obtainLarge();
   final IntIntMap  skillData = new IntIntMap();
   final ItemData   itemData = new ItemData(statData, null);
         Item       golemItemData;
@@ -71,7 +72,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   public CharacterClass classId;
 
   final IntIntMap            skills = new IntIntMap();
-  final Array<Stat>          chargedSkills = new Array<>(false, 16);
+  final Array<StatRef>       chargedSkills = new Array<>(false, 16);
   final Array<SkillListener> skillListeners = new Array<>(false, 16);
 
   @Deprecated
@@ -213,17 +214,33 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     skillListeners.clear();
 
     DifficultyLevels.Entry diff = Riiablo.files.DifficultyLevels.get(this.diff);
-    PropertyList base = statData.base();
-    base.put(Stat.armorclass,      0);
-    base.put(Stat.damageresist,    0);
-    base.put(Stat.magicresist,     0);
-    base.put(Stat.fireresist,      diff.ResistPenalty);
-    base.put(Stat.lightresist,     diff.ResistPenalty);
-    base.put(Stat.coldresist,      diff.ResistPenalty);
-    base.put(Stat.poisonresist,    diff.ResistPenalty);
-    base.put(Stat.maxfireresist,   75);
-    base.put(Stat.maxlightresist,  75);
-    base.put(Stat.maxcoldresist,   75);
+    StatListRef base = statData.base();
+    base.put(Stat.strength, 0);
+    base.put(Stat.energy, 0);
+    base.put(Stat.dexterity, 0);
+    base.put(Stat.vitality, 0);
+    base.put(Stat.statpts, 0);
+    base.put(Stat.newskills, 0);
+    base.put(Stat.hitpoints, 0);
+    base.put(Stat.maxhp, 0);
+    base.put(Stat.mana, 0);
+    base.put(Stat.maxmana, 0);
+    base.put(Stat.stamina, 0);
+    base.put(Stat.maxstamina, 0);
+    base.put(Stat.level, 0);
+    base.put(Stat.experience, 0);
+    base.put(Stat.gold, 0);
+    base.put(Stat.goldbank, 0);
+    base.put(Stat.armorclass, 0);
+    base.put(Stat.damageresist, 0);
+    base.put(Stat.magicresist, 0);
+    base.put(Stat.fireresist, diff.ResistPenalty);
+    base.put(Stat.lightresist, diff.ResistPenalty);
+    base.put(Stat.coldresist, diff.ResistPenalty);
+    base.put(Stat.poisonresist, diff.ResistPenalty);
+    base.put(Stat.maxfireresist, 75);
+    base.put(Stat.maxlightresist, 75);
+    base.put(Stat.maxcoldresist, 75);
     base.put(Stat.maxpoisonresist, 75);
 
     // TODO: set base merc stats based on hireling tables and level
@@ -244,16 +261,16 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     base.put(Stat.experience, 0);
     base.put(Stat.gold, 0);
     base.put(Stat.goldbank, 0);
-    base.put(Stat.armorclass,      0);
-    base.put(Stat.damageresist,    0);
-    base.put(Stat.magicresist,     0);
-    base.put(Stat.fireresist,      diff.ResistPenalty);
-    base.put(Stat.lightresist,     diff.ResistPenalty);
-    base.put(Stat.coldresist,      diff.ResistPenalty);
-    base.put(Stat.poisonresist,    diff.ResistPenalty);
-    base.put(Stat.maxfireresist,   75);
-    base.put(Stat.maxlightresist,  75);
-    base.put(Stat.maxcoldresist,   75);
+    base.put(Stat.armorclass, 0);
+    base.put(Stat.damageresist, 0);
+    base.put(Stat.magicresist, 0);
+    base.put(Stat.fireresist, diff.ResistPenalty);
+    base.put(Stat.lightresist, diff.ResistPenalty);
+    base.put(Stat.coldresist, diff.ResistPenalty);
+    base.put(Stat.poisonresist, diff.ResistPenalty);
+    base.put(Stat.maxfireresist, 75);
+    base.put(Stat.maxlightresist, 75);
+    base.put(Stat.maxcoldresist, 75);
     base.put(Stat.maxpoisonresist, 75);
   }
 
@@ -346,10 +363,10 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     statData.get(Stat.maxmana).set(statData.get(Stat.mana));
 
     // This appears to be hard-coded in the original client
-    int dex = statData.get(Stat.dexterity).value();
-    Stat armorclass = statData.get(Stat.armorclass);
+    int dex = statData.get(Stat.dexterity).asInt();
+    StatRef armorclass = statData.get(Stat.armorclass);
     armorclass.add(dex / 4);
-    armorclass.modified = false;
+    armorclass.forceUnmodified();
 
     skills.clear();
     skills.putAll(skillData);
@@ -370,11 +387,11 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
       Item item = itemData.getItem(j);
       if (item.type.is(Type.BOOK) || item.type.is(Type.SCRO)) {
         if (item.base.code.equalsIgnoreCase("ibk")) {
-          skills.getAndIncrement(SkillCodes.book_of_identify, 0, item.props.get(Stat.quantity).value());
+          skills.getAndIncrement(SkillCodes.book_of_identify, 0, item.attrs.get(Stat.quantity).asInt());
         } else if (item.base.code.equalsIgnoreCase("isc")) {
           skills.getAndIncrement(SkillCodes.scroll_of_identify, 0, 1);
         } else if (item.base.code.equalsIgnoreCase("tbk")) {
-          skills.getAndIncrement(SkillCodes.book_of_townportal, 0, item.props.get(Stat.quantity).value());
+          skills.getAndIncrement(SkillCodes.book_of_townportal, 0, item.attrs.get(Stat.quantity).asInt());
         } else if (item.base.code.equalsIgnoreCase("tsc")) {
           skills.getAndIncrement(SkillCodes.scroll_of_townportal, 0, 1);
         }
@@ -382,13 +399,13 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     }
 
     chargedSkills.clear();
-    for (Stat stat : statData.remaining()) {
-      switch (stat.id) {
+    for (StatRef stat : statData.remaining()) {
+      switch (stat.id()) {
         case Stat.item_nonclassskill:
-          skills.getAndIncrement(stat.param(), 0, stat.value());
+          skills.getAndIncrement(stat.encodedParams(), 0, stat.asInt());
           break;
         case Stat.item_charged_skill:
-          chargedSkills.add(stat);
+          chargedSkills.add(stat.copy());
           break;
         default:
           // do nothing
@@ -567,7 +584,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     public short type;
     public long  xp;
 
-    final Attributes statData = new Attributes();
+    final Attributes statData = Attributes.obtainLarge();
     final ItemData   itemData = new ItemData(statData, null);
 
     public Attributes getStats() {
@@ -596,11 +613,11 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
     return true;
   }
 
-  private void notifySkillChanged(IntIntMap skills, Array<Stat> chargedSkills) {
+  private void notifySkillChanged(IntIntMap skills, Array<StatRef> chargedSkills) {
     for (SkillListener l : skillListeners) l.onChanged(this, skills, chargedSkills);
   }
 
   public interface SkillListener {
-    void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills);
+    void onChanged(CharData client, IntIntMap skills, Array<StatRef> chargedSkills);
   }
 }

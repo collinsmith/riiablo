@@ -10,23 +10,23 @@ import com.riiablo.math.Fixed;
 public final class AttributesUpdater {
   private static final Logger log = LogManager.getLogger(AttributesUpdater.class);
 
-  public com.riiablo.attributes.UpdateSequence update(final Attributes attrs, final CharStats.Entry charStats) {
+  public UpdateSequence update(final Attributes attrs, final CharStats.Entry charStats) {
     return update(attrs, attrs, charStats);
   }
 
-  public com.riiablo.attributes.UpdateSequence update(
+  public UpdateSequence update(
       final Attributes attrs,
       final Attributes opBase,
       final CharStats.Entry charStats) {
     return update(attrs, StatListFlags.FLAG_NONE, opBase, charStats);
   }
 
-  public com.riiablo.attributes.UpdateSequence update(
+  public UpdateSequence update(
       final Attributes attrs,
       final int listFlags,
       final Attributes opBase,
       final CharStats.Entry charStats) {
-    return com.riiablo.attributes.UpdateSequence.obtain().reset(this, attrs, listFlags, opBase, charStats);
+    return UpdateSequence.obtain().reset(this, attrs, listFlags, opBase, charStats);
   }
 
   void add(
@@ -74,7 +74,7 @@ public final class AttributesUpdater {
       final StatListRef rem,
       final Attributes opBase,
       final CharStats.Entry charStats) {
-    for (final com.riiablo.attributes.StatList.StatIterator it = rem.statIterator(); it.hasNext();) {
+    for (final StatList.StatIterator it = rem.statIterator(); it.hasNext();) {
       final StatRef stat = it.next();
       final ItemStatCost.Entry entry = stat.entry();
       try {
@@ -112,7 +112,7 @@ public final class AttributesUpdater {
     final int op = entry.op;
     final int op_param = entry.op_param;
     assert op_param == 0 || !entry.op_base.isEmpty();
-    final short opBaseStatId = com.riiablo.attributes.Stat.index(entry.op_base);
+    final short opBaseStatId = Stat.index(entry.op_base);
     assert op_param == 0 || opBase.aggregate().contains(opBaseStatId) : "entry.op_base " + entry.op_base;
     final int op_base = op_param > 0 ? opBase.aggregate().getValue(opBaseStatId, 1) : 1;
 
@@ -121,7 +121,7 @@ public final class AttributesUpdater {
       if (op_stat.isEmpty()) break;
       expectedOps++;
 
-      final short opStatId = com.riiablo.attributes.Stat.index(op_stat);
+      final short opStatId = Stat.index(op_stat);
       final StatRef opStat = agg.get(opStatId);
       if (opStat != null) {
         if (log.traceEnabled()) log.trace("Op stat({}) with opStat({})", stat.debugString(), opStat.debugString());
@@ -129,18 +129,18 @@ public final class AttributesUpdater {
         opStat.addEncoded(value);
         ops++;
       } else {
-        log.warn("stat({}) modifies opStat({}) but agg({}) does not contain it", stat.debugString(), com.riiablo.attributes.Stat.entry(opStatId), agg);
+        log.debug("stat({}) modifies opStat({}) but agg({}) does not contain it", stat.debugString(), Stat.entry(opStatId), agg);
       }
     }
 
     if (ops < expectedOps) {
-      log.warn("{} stats were modified by stat({}) op({})", ops, stat.debugString(), op);
+      log.debug("{} stats were modified by stat({}) op({})", ops, stat.debugString(), op);
     }
 
     return ops;
   }
 
-  /** @see com.riiablo.attributes.StatFormatter#op(StatRef, Attributes) */
+  /** @see StatFormatter#op(StatRef, Attributes) */
   static int op(
       final StatRef stat,
       final StatRef opStat,
@@ -157,14 +157,12 @@ public final class AttributesUpdater {
       case 6: return 0; // by-time
       case 7: return 0; // by-time percent
       case 8: // energy
-        assert charStats != null;
         if (charStats == null) return 0;
         return (stat.encodedValues() * charStats.ManaPerMagic) >>> 2; // in quarters
       case 9: // vitality
-        assert charStats != null;
         if (charStats == null) return 0;
         return (stat.encodedValues() *
-            (opStat.id() == com.riiablo.attributes.Stat.maxhp
+            (opStat.id() == Stat.maxhp
                 ? charStats.LifePerVitality
                 : charStats.StaminaPerVitality)) >>> 2; // in quarters
       case 10: return 0; // no-op

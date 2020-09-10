@@ -8,6 +8,15 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.PropertiesGenerator;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatFormatter;
+import com.riiablo.attributes.StatList;
+import com.riiablo.attributes.StatListFlags;
+import com.riiablo.attributes.StatListLabeler;
+import com.riiablo.attributes.StatListRef;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.codec.StringTBL;
 import com.riiablo.codec.excel.Misc;
 import com.riiablo.codec.excel.SetItems;
@@ -95,6 +104,10 @@ public class ItemLabeler {
     }
   }
 
+  protected StatFormatter statFormatter = new StatFormatter(); // TODO: inject
+  protected StatListLabeler labelFormatter = new StatListLabeler(statFormatter); // TODO: inject
+  protected PropertiesGenerator propertiesGenerator = new PropertiesGenerator(); // TODO: inject
+
   public Table updateHeader(Item item, Table table) {
     BitmapFont font = Riiablo.fonts.font16;
     Label name = new Label(item.getNameString(), font);
@@ -152,13 +165,12 @@ public class ItemLabeler {
     }
 
     if (item.type.is(Type.GEM) || item.type.is(Type.RUNE)) {
-      assert item.stats.length == Item.NUM_GEMPROPS;
       table.add().height(font.getLineHeight()).space(SPACING).row();
-      table.add(new Label(Riiablo.string.lookup("GemXp3") + " " + item.stats[Item.GEMPROPS_WEAPON].copy().reduce().get().format(Riiablo.charData), font, Riiablo.colors.white)).center().space(SPACING).row();
-      String tmp = item.stats[Item.GEMPROPS_ARMOR].copy().reduce().get().format(Riiablo.charData);
+      table.add(new Label(Riiablo.string.lookup("GemXp3") + " " + labelFormatter.createLabel(item.attrs.list(StatListFlags.GEM_WEAPON_LIST), null), font, Riiablo.colors.white)).center().space(SPACING).row();
+      CharSequence tmp = labelFormatter.createLabel(item.attrs.list(StatListFlags.GEM_ARMOR_LIST), null);
       table.add(new Label(Riiablo.string.lookup("GemXp4") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
       table.add(new Label(Riiablo.string.lookup("GemXp1") + " " + tmp, font, Riiablo.colors.white)).center().space(SPACING).row();
-      table.add(new Label(Riiablo.string.lookup("GemXp2") + " " + item.stats[Item.GEMPROPS_SHIELD].copy().reduce().get().format(Riiablo.charData), font, Riiablo.colors.white)).center().space(SPACING).row();
+      table.add(new Label(Riiablo.string.lookup("GemXp2") + " " + labelFormatter.createLabel(item.attrs.list(StatListFlags.GEM_SHIELD_LIST), null), font, Riiablo.colors.white)).center().space(SPACING).row();
       table.add().height(font.getLineHeight()).space(SPACING).row();
     }
 
@@ -184,12 +196,13 @@ public class ItemLabeler {
       table.add(usable).center().space(SPACING).row();
     }
 
+    final Attributes attrs = item.attrs;
     //if ((flags & COMPACT) == 0) {
-      Stat prop;
-      if ((prop = item.props.agg.get(Stat.armorclass)) != null) {
+      StatRef prop;
+      if ((prop = attrs.get(Stat.armorclass)) != null) {
         Table t = new Table();
         t.add(new Label(Riiablo.string.lookup("ItemStats1h") + " ", font));
-        t.add(new Label(Integer.toString(prop.val), font, item.props.get(Stat.armorclass).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
+        t.add(new Label(prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
         t.pack();
         table.add(t).space(SPACING).row();
       }
@@ -203,80 +216,68 @@ public class ItemLabeler {
         } else {
           i = 1;
         }
-        if ((i & 1) != 0 && (prop = item.props.agg.get(Stat.maxdamage)) != null) {
+        if ((i & 1) != 0 && (prop = attrs.get(Stat.maxdamage)) != null) {
           Table t = new Table();
           t.add(new Label(Riiablo.string.lookup("ItemStats1l") + " ", font));
-          t.add(new Label(item.props.get(Stat.mindamage).val + " to " + prop.val, font, item.props.get(Stat.maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
+          t.add(new Label(attrs.get(Stat.mindamage).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
           t.pack();
           table.add(t).space(SPACING).row();
         }
-        if ((i & 2) != 0 && (prop = item.props.agg.get(Stat.secondary_maxdamage)) != null) {
+        if ((i & 2) != 0 && (prop = attrs.get(Stat.secondary_maxdamage)) != null) {
           Table t = new Table();
           t.add(new Label(Riiablo.string.lookup("ItemStats1m") + " ", font));
-          t.add(new Label(item.props.get(Stat.secondary_mindamage).val + " to " + prop.val, font, item.props.get(Stat.secondary_maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
+          t.add(new Label(attrs.get(Stat.secondary_mindamage).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
           t.pack();
           table.add(t).space(SPACING).row();
         }
-        if (item.typeEntry.Throwable && (prop = item.props.agg.get(Stat.item_throw_maxdamage)) != null) {
+        if (item.typeEntry.Throwable && (prop = attrs.get(Stat.item_throw_maxdamage)) != null) {
           Table t = new Table();
           t.add(new Label(Riiablo.string.lookup("ItemStats1n") + " ", font));
-          t.add(new Label(item.props.get(Stat.item_throw_mindamage).val + " to " + prop.val, font, item.props.get(Stat.item_throw_maxdamage).isModified() ? Riiablo.colors.blue : Riiablo.colors.white));
+          t.add(new Label(attrs.get(Stat.item_throw_mindamage).asString() + " to " + prop.asString(), font, prop.modified() ? Riiablo.colors.blue : Riiablo.colors.white));
           t.pack();
           table.add(t).space(SPACING).row();
         }
       }
       if (item.type.is(Type.SHLD)) {
-        if ((prop = item.props.agg.get(Stat.toblock)) != null) {
+        if ((prop = attrs.get(Stat.toblock)) != null) {
           Table t = new Table();
           t.add(new Label(Riiablo.string.lookup("ItemStats1r"), font));
-          t.add(new Label(prop.val + "%", font, Riiablo.colors.blue));
+          t.add(new Label(prop.asString() + "%", font, Riiablo.colors.blue));
           t.pack();
           table.add(t).space(SPACING).row();
         }
-        if (Riiablo.charData.classId == CharacterClass.PALADIN && (prop = item.props.agg.get(Stat.maxdamage)) != null && prop.val > 0)
-          table.add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + item.props.agg.get(Stat.mindamage).val + " to " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
+        if (Riiablo.charData.classId == CharacterClass.PALADIN && (prop = attrs.get(Stat.maxdamage)) != null && prop.asInt() > 0)
+          table.add(new Label(Riiablo.string.lookup("ItemStats1o") + " " + attrs.get(Stat.mindamage).asString() + " to " + prop.asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
       }
-      if (!item.base.nodurability && (prop = item.props.agg.get(Stat.durability)) != null)
-        table.add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.val + " " + Riiablo.string.lookup("ItemStats1j") + " " + item.props.agg.get(Stat.maxdurability).val, font, Riiablo.colors.white)).center().space(SPACING).row();
+      if (!item.base.nodurability && (prop = attrs.get(Stat.durability)) != null)
+        table.add(new Label(Riiablo.string.lookup("ItemStats1d") + " " + prop.asString() + " " + Riiablo.string.lookup("ItemStats1j") + " " + attrs.get(Stat.maxdurability).asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
       if (item.type.is(Type.CLAS)) {
         table.add(new Label(Riiablo.string.lookup(CharacterClass.get(item.typeEntry.Class).entry().StrClassOnly), font, Riiablo.colors.white)).center().space(SPACING).row();
       }
-      if ((prop = item.props.agg.get(Stat.reqdex)) != null && prop.val > 0)
-        table.add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-      if ((prop = item.props.agg.get(Stat.reqstr)) != null && prop.val > 0)
-        table.add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-      if ((prop = item.props.agg.get(Stat.item_levelreq)) != null && prop.val > 0)
-        table.add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
-      if ((prop = item.props.agg.get(Stat.quantity)) != null)
-        table.add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.val, font, Riiablo.colors.white)).center().space(SPACING).row();
+      if ((prop = attrs.get(Stat.reqdex)) != null && prop.asInt() > 0)
+        table.add(new Label(Riiablo.string.lookup("ItemStats1f") + " " + prop.asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
+      if ((prop = attrs.get(Stat.reqstr)) != null && prop.asInt() > 0)
+        table.add(new Label(Riiablo.string.lookup("ItemStats1e") + " " + prop.asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
+      if ((prop = attrs.get(Stat.item_levelreq)) != null && prop.asInt() > 0)
+        table.add(new Label(Riiablo.string.lookup("ItemStats1p") + " " + prop.asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
+      if ((prop = attrs.get(Stat.quantity)) != null)
+        table.add(new Label(Riiablo.string.lookup("ItemStats1i") + " " + prop.asString(), font, Riiablo.colors.white)).center().space(SPACING).row();
       if (item.type.is(Type.WEAP)) {
         table.add(new Label(Riiablo.string.lookup(WEAPON_DESC.get(item.base.type)) + " - " + 0, font, Riiablo.colors.white)).center().space(SPACING).row();
       }
     //}
 
-    // magic props
     if ((item.flags & Item.ITEMFLAG_COMPACT) == 0) {
-      PropertyList magicProps = item.stats[Item.MAGIC_PROPS];
-      PropertyList runeProps = item.stats[Item.RUNE_PROPS];
-      if (magicProps != null) {
-        PropertyList magicPropsAggregate = magicProps.copy();
-        for (Item socket : item.sockets) {
-          if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
-            magicPropsAggregate.addAll(socket.stats[item.base.gemapplytype]);
-          } else {
-            magicPropsAggregate.addAll(socket.stats[Item.MAGIC_PROPS]);
-          }
-        }
-        if (runeProps != null) magicPropsAggregate.addAll(runeProps);
-        magicPropsAggregate.reduce();
+      StatListRef temp = StatList.obtain();
+      temp.addAll(attrs.list(StatListFlags.ITEM_MAGIC_LIST));
+      temp.addAll(attrs.list(StatListFlags.ITEM_RUNE_LIST));
+      for (Item socket : item.sockets) {
+        temp.addAll(socket.attrs.remaining());
+      }
 
-        Array<Stat> aggregate = magicPropsAggregate.toArray();
-        aggregate.sort();
-        for (Stat stat : aggregate) {
-          String text = stat.format(Riiablo.charData);
-          if (text == null) continue;
-          table.add(new Label(text, font, Riiablo.colors.blue)).center().space(SPACING).row();
-        }
+      Iterable<String> labels = labelFormatter.createLabels(temp, Riiablo.charData.getStats());
+      for (String label : labels) {
+        table.add(new Label(label, font, Riiablo.colors.blue)).center().space(SPACING).row();
       }
     }
 
@@ -288,9 +289,9 @@ public class ItemLabeler {
     if ((item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED) {
       if (itemFlags != null) itemFlags.append(',').append(' ');
       else itemFlags = new StringBuilder(16);
-      Stat stat = item.props.get(Stat.item_numsockets);
+      StatRef stat = attrs.get(Stat.item_numsockets);
       if (stat != null) {
-        itemFlags.append(Riiablo.string.lookup("Socketable")).append(' ').append('(').append(stat.val).append(')');
+        itemFlags.append(Riiablo.string.lookup("Socketable")).append(' ').append('(').append(stat.asInt()).append(')');
       } else {
         if (itemFlags.length() == 0) itemFlags = null;
         Gdx.app.error(TAG, "Item marked socketed, but missing item_numsockets: " + item.getNameString());
@@ -305,44 +306,28 @@ public class ItemLabeler {
       int setId = Riiablo.files.Sets.index(setItem.set);
       int numEquipped = Riiablo.charData.getItems().getEquippedSets().get(setId, 0); // TODO: use parent itemdata instead
       if (numEquipped >= 2) {
-        PropertyList setPropsAggregate = null;
-        for (int i = 0; i < numEquipped; i++) {
-          PropertyList setProps = item.stats[Item.SET_PROPS + i];
-          if (setProps == null) continue; // It might be the case that gaps exist
-          if (setPropsAggregate == null) {
-            setPropsAggregate = setProps.copy();
-          } else {
-            setPropsAggregate.addAll(setProps);
-          }
-        }
-
-        Array<Stat> aggregate = setPropsAggregate != null
-            ? setPropsAggregate.reduce().toArray()
-            : EMPTY_STAT_ARRAY;
-        aggregate.sort();
-        for (Stat stat : aggregate) {
-          String text = stat.format(Riiablo.charData);
-          if (text == null) continue;
-          table.add(new Label(text, font, Riiablo.colors.green)).center().space(SPACING).row();
+        Iterable<String> labels = labelFormatter.createLabels(attrs.list(numEquipped), Riiablo.charData.getStats());
+        for (String label : labels) {
+          table.add(new Label(label, font, Riiablo.colors.green)).center().space(SPACING).row();
         }
 
         Sets.Entry set = setItem.getSet();
-        PropertyList setBonus = null;
+        StatListRef setBonus = null;
         if (numEquipped == set.getItems().size) { // full set bonus
-          setBonus = PropertyList.obtain().add(set.FCode, set.FParam, set.FMin, set.FMax);
+          setBonus = propertiesGenerator.add(StatList.obtain(), set.FCode, set.FParam, set.FMin, set.FMax);
         } else { // partial set bonus
           switch (numEquipped) {
             case 2:
-              setBonus = PropertyList.obtain().add(set.PCode2, set.PParam2, set.PMin2, set.PMax2);
+              setBonus = propertiesGenerator.add(StatList.obtain(), set.PCode2, set.PParam2, set.PMin2, set.PMax2);
               break;
             case 3:
-              setBonus = PropertyList.obtain().add(set.PCode3, set.PParam3, set.PMin3, set.PMax3);
+              setBonus = propertiesGenerator.add(StatList.obtain(), set.PCode3, set.PParam3, set.PMin3, set.PMax3);
               break;
             case 4:
-              setBonus = PropertyList.obtain().add(set.PCode4, set.PParam4, set.PMin4, set.PMax4);
+              setBonus = propertiesGenerator.add(StatList.obtain(), set.PCode4, set.PParam4, set.PMin4, set.PMax4);
               break;
             case 5:
-              setBonus = PropertyList.obtain().add(set.PCode5, set.PParam5, set.PMin5, set.PMax5);
+              setBonus = propertiesGenerator.add(StatList.obtain(), set.PCode5, set.PParam5, set.PMin5, set.PMax5);
               break;
             default:
               // do nothing
@@ -351,13 +336,9 @@ public class ItemLabeler {
 
         if (setBonus != null && setBonus.size() > 0) {
           table.add().height(font.getLineHeight()).space(SPACING).row();
-          setBonus.reduce().toArray();
-          aggregate = setBonus.toArray();
-          aggregate.sort();
-          for (Stat stat : aggregate) {
-            String text = stat.format(Riiablo.charData);
-            if (text == null) continue;
-            table.add(new Label(text, font, Riiablo.colors.gold)).center().space(SPACING).row();
+          labels = labelFormatter.createLabels(setBonus, Riiablo.charData.getStats());
+          for (String label : labels) {
+            table.add(new Label(label, font, Riiablo.colors.gold)).center().space(SPACING).row();
           }
         }
       }

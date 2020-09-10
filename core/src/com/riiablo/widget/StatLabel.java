@@ -3,21 +3,22 @@ package com.riiablo.widget;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Align;
+
 import com.riiablo.Riiablo;
-import com.riiablo.item.Attributes;
-import com.riiablo.item.Stat;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.StatRef;
 
 public class StatLabel extends Label {
   Attributes attrs;
-  int stat;
+  short stat;
   int value;
   Colorizer colorizer;
 
-  public StatLabel(Attributes attrs, int stat) {
+  public StatLabel(Attributes attrs, short stat) {
     this(attrs, stat, Colorizer.DEFAULT);
   }
 
-  public StatLabel(Attributes attrs, int stat, Colorizer colorizer) {
+  public StatLabel(Attributes attrs, short stat, Colorizer colorizer) {
     super(Riiablo.fonts.font16);
     this.attrs = attrs;
     this.stat = stat;
@@ -32,11 +33,10 @@ public class StatLabel extends Label {
   }
 
   private void updateValue() {
-    Stat s = attrs.get(stat);
-    int curValue = s.value();
+    StatRef s = attrs.get(stat);
+    int curValue = s.asInt();
     if (value != curValue) {
       value = curValue;
-      if (s.entry.ValShift > 0) value = (int) s.toFloat();
       setAlignment(Align.center);
       setText(Integer.toString(value));
       setColor(colorizer.getColor(attrs.get(stat)));
@@ -67,16 +67,16 @@ public class StatLabel extends Label {
   public enum Colorizer {
     DEFAULT {
       @Override
-      Color getColor(Stat stat) {
-        return stat.isModified()
+      Color getColor(StatRef stat) {
+        return stat.modified()
             ? Riiablo.colors.blue
             : Riiablo.colors.white;
       }
     },
     RESISTANCE {
       @Override
-      Color getColor(Stat stat) {
-        int value = stat.value();
+      Color getColor(StatRef stat) {
+        int value = stat.asInt();
         if (value < 0) {
           return Riiablo.colors.red;
         } else if (value < 75) {
@@ -91,6 +91,6 @@ public class StatLabel extends Label {
       }
     };
 
-    abstract Color getColor(Stat stat);
+    abstract Color getColor(StatRef stat);
   }
 }

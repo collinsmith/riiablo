@@ -1,6 +1,9 @@
 package com.riiablo.screen.panel;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -21,9 +24,11 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
+
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Stat;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
@@ -31,7 +36,6 @@ import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
-import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.ItemController;
@@ -39,8 +43,6 @@ import com.riiablo.save.ItemData;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.HotkeyButton;
 import com.riiablo.widget.Label;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 public class ControlPanel extends Table implements Disposable, EscapeController {
   private static final String TAG = "ControlPanel";
@@ -270,8 +272,8 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
       if (label.isVisible()) {
         label.setX(getX());
         label.setText(Riiablo.string.format("panelhealth",
-            (int) Riiablo.charData.getStats().get(Stat.hitpoints).toFloat(),
-            (int) Riiablo.charData.getStats().get(Stat.maxhp).toFloat()));
+            (int) Riiablo.charData.getStats().get(Stat.hitpoints).asFixed(),
+            (int) Riiablo.charData.getStats().get(Stat.maxhp).asFixed()));
         label.draw(batch, a);
       }
     }
@@ -305,8 +307,8 @@ public class ControlPanel extends Table implements Disposable, EscapeController 
       if (label.isVisible()) {
         label.setX(getX() - 32);
         label.setText(Riiablo.string.format("panelmana",
-            (int) Riiablo.charData.getStats().get(Stat.mana).toFloat(),
-            (int) Riiablo.charData.getStats().get(Stat.maxmana).toFloat()));
+            (int) Riiablo.charData.getStats().get(Stat.mana).asFixed(),
+            (int) Riiablo.charData.getStats().get(Stat.maxmana).asFixed()));
         label.draw(batch, a);
       }
     }

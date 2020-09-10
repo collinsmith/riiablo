@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Stat;
 import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.ItemEntry;
 import com.riiablo.codec.excel.Misc;
@@ -50,7 +51,7 @@ public class ItemGenerator extends PassiveSystem {
       int maxSockets = Math.min(item.base.gemsockets, item.typeEntry.MaxSock[diff]);
       int numSockets = MathUtils.random(1, maxSockets);
       Gdx.app.debug(TAG, "Setting sockets to: " + numSockets);
-      item.props.base.put(Stat.item_numsockets, numSockets);
+      item.attrs.base().put(Stat.item_numsockets, numSockets);
       item.sockets = new Array<>(numSockets);
     }
   }
@@ -64,7 +65,7 @@ public class ItemGenerator extends PassiveSystem {
 
   private static void durability(Item item) {
     if (item.base.nodurability) {
-      item.props.base.put(Stat.maxdurability, 0);
+      item.attrs.base().put(Stat.maxdurability, 0);
     } else {
       // TODO: assign random int up to item.base.durability
     }

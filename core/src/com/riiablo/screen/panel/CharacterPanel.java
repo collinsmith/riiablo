@@ -1,5 +1,7 @@
 package com.riiablo.screen.panel;
 
+import java.text.NumberFormat;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -13,17 +15,17 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+
 import com.riiablo.Cvars;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.codec.DC6;
-import com.riiablo.item.Attributes;
-import com.riiablo.item.Stat;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
 import com.riiablo.widget.StatLabel;
-
-import java.text.NumberFormat;
 
 public class CharacterPanel extends WidgetGroup implements Disposable {
 
@@ -66,14 +68,14 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     level.setPosition(12, getHeight() - 65);
     level.setSize(42, 33);
     level.add(new Label(4057, Riiablo.fonts.ReallyTheLastSucker)).row();
-    level.add(new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.level).value()), Riiablo.fonts.font16)).growY().row();
+    level.add(new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.level).asInt()), Riiablo.fonts.font16)).growY().row();
     addActor(level);
 
     Table exp = new Table();
     exp.setPosition(66, getHeight() - 65);
     exp.setSize(114, 33);
     exp.add(new Label(4058, Riiablo.fonts.ReallyTheLastSucker)).row();
-    exp.add(new Label(NumberFormat.getInstance(Cvars.Client.Locale.get()).format(Riiablo.charData.getStats().get(Stat.experience).toLong()), Riiablo.fonts.font16)).growY().row();
+    exp.add(new Label(NumberFormat.getInstance(Cvars.Client.Locale.get()).format(Riiablo.charData.getStats().get(Stat.experience).asLong()), Riiablo.fonts.font16)).growY().row();
     addActor(exp);
 
     Label clazz = new Label(Riiablo.charData.classId.name, Riiablo.fonts.font16);
@@ -239,11 +241,11 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     //setDebug(true, true);
   }
 
-  private Label createStatLabel(int statId) {
+  private Label createStatLabel(short statId) {
     return createStatLabel(statId, StatLabel.Colorizer.DEFAULT);
   }
 
-  private Label createStatLabel(int statId, StatLabel.Colorizer colorizer) {
+  private Label createStatLabel(short statId, StatLabel.Colorizer colorizer) {
     Attributes attrs = Riiablo.charData.getStats();
     return new StatLabel(attrs, statId, colorizer);
   }
@@ -258,20 +260,20 @@ public class CharacterPanel extends WidgetGroup implements Disposable {
     }
   }
 
-  private Color getColor(boolean mod, Stat stat, int value) {
+  private Color getColor(boolean mod, StatRef stat, int value) {
     if (value < 0) {
       return Riiablo.colors.red;
     }
 
-    if (!stat.entry.maxstat.isEmpty()) {
-      int id = Riiablo.files.ItemStatCost.index(stat.entry.maxstat);
-      Stat maxstat = Riiablo.charData.getStats().get(id);
-      if (maxstat != null && value >= maxstat.value()) {
+    if (!stat.entry().maxstat.isEmpty()) {
+      short id = Stat.index(stat.entry().maxstat);
+      StatRef maxstat = Riiablo.charData.getStats().get(id);
+      if (maxstat != null && value >= maxstat.asInt()) {
         return Riiablo.colors.gold;
       }
     }
 
-    if (mod && Riiablo.charData.getStats().get(stat.id).isModified()) {
+    if (mod && Riiablo.charData.getStats().get(stat.id()).modified()) {
       return Riiablo.colors.blue;
     }
 

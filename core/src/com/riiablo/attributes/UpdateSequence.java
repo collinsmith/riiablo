@@ -84,7 +84,7 @@ public class UpdateSequence {
     if (!attrs.type().updatable()) return this;
     if (!attrs.type().isValid(listFlags)) return this;
 
-    final com.riiablo.attributes.StatList list = attrs.list();
+    final StatList list = attrs.list();
     for (int i = 0, s = list.numLists(); i < s; i++) {
       if (((listFlags >> i) & 1) == 1) {
         add(list.get(i));

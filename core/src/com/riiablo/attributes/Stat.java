@@ -404,15 +404,15 @@ public class Stat {
     return ENCODED_COUNT[stat];
   }
 
-  static ItemStatCost.Entry entry(short stat) {
+  public static ItemStatCost.Entry entry(short stat) {
     return Riiablo.files.ItemStatCost.get(stat);
   }
 
-  static ItemStatCost.Entry entry(String stat) {
+  public static ItemStatCost.Entry entry(String stat) {
     return Riiablo.files.ItemStatCost.get(stat);
   }
 
-  static short index(String stat) {
+  public static short index(String stat) {
     return (short) Riiablo.files.ItemStatCost.index(stat);
   }
 

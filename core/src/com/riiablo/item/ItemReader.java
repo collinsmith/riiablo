@@ -4,7 +4,11 @@ package com.riiablo.item;
 import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.Riiablo;
-import com.riiablo.codec.excel.Gems;
+import com.riiablo.attributes.GemGenerator;
+import com.riiablo.attributes.PropertiesGenerator;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatListFlags;
+import com.riiablo.attributes.StatListReader;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
 import com.riiablo.logger.LogManager;
@@ -15,6 +19,10 @@ public class ItemReader {
   private static final Logger log = LogManager.getLogger(ItemReader.class);
 
   private static final byte[] SIGNATURE = {0x4A, 0x4D};
+
+  protected StatListReader statListReader = new StatListReader(); // TODO: inject
+  protected PropertiesGenerator propertiesGenerator = new PropertiesGenerator(); // TODO: inject
+  protected GemGenerator gems = new GemGenerator(propertiesGenerator); // TODO: inject
 
   public void skipUntil(ByteInput in) {
     in.skipUntil(SIGNATURE);
@@ -88,16 +96,15 @@ public class ItemReader {
     return item;
   }
 
-  private static void readCompact(Item item) {
+  private void readCompact(Item item) {
     if (item.type.is(Type.GEM) || item.type.is(Type.RUNE)) {
-      Gems.Entry gem = Riiablo.files.Gems.get(item.code);
-      item.stats = ItemUtils.getGemProps(gem);
+      gems.set(item.attrs, item.code);
     } else {
-      item.stats = Item.EMPTY_PROPERTY_ARRAY;
+      assert item.attrs.isEmpty();
     }
   }
 
-  private static void readStandard(BitInput bits, Item item) {
+  private void readStandard(BitInput bits, Item item) {
     item.id = (int) bits.readRaw(32);
     log.tracef("id: 0x%08X", item.id);
     item.ilvl = bits.read7u(7);
@@ -106,8 +113,8 @@ public class ItemReader {
     item.classOnly = bits.readBoolean() ? bits.read15u(11) : Item.NO_CLASS_ONLY;
     readQualityData(bits, item);
 
-    int listFlags = Item.MAGIC_PROPS_FLAG;
-    if (readRunewordData(bits, item)) listFlags |= Item.RUNE_PROPS_FLAG;
+    int listFlags = StatListFlags.FLAG_MAGIC;
+    if (readRunewordData(bits, item)) listFlags |= StatListFlags.FLAG_RUNE;
 
     item.inscription = (item.flags & Item.ITEMFLAG_INSCRIBED) == Item.ITEMFLAG_INSCRIBED
         ? bits.readString(Riiablo.MAX_NAME_LENGTH + 1, 7, true)
@@ -121,18 +128,8 @@ public class ItemReader {
     readBook(bits, item);
     readQuantity(bits, item);
 
-    listFlags |= (readSetFlags(bits, item) << Item.SET_PROPS);
-    PropertyList[] props = item.stats = new PropertyList[Item.NUM_PROPS];
-    for (int i = 0; i < Item.NUM_PROPS; i++) {
-      if (((listFlags >> i) & 1) == 1) {
-        try {
-          MDC.put("propList", Item.getPropListString(i));
-          props[i] = PropertyList.obtain().read(bits);
-        } finally {
-          MDC.remove("propList");
-        }
-      }
-    }
+    item.aggFlags = listFlags |= (readSetFlags(bits, item) << StatListFlags.ITEM_SET_LIST);
+    statListReader.read(item.attrs.list(), bits, listFlags);
   }
 
   private static boolean readQualityData(BitInput bits, Item item) {
@@ -201,25 +198,25 @@ public class ItemReader {
     return hasRunewordData;
   }
 
-  private static boolean readArmorClass(BitInput bits, Item item) {
+  private boolean readArmorClass(BitInput bits, Item item) {
     boolean hasAC = item.type.is(Type.ARMO);
-    if (hasAC) item.props.base().read(Stat.armorclass, bits);
+    if (hasAC) statListReader.read(item.attrs.base(), Stat.armorclass, bits, false);
     return hasAC;
   }
 
-  private static boolean readDurability(BitInput bits, Item item) {
+  private boolean readDurability(BitInput bits, Item item) {
     boolean hasDurability = item.type.is(Type.ARMO) || item.type.is(Type.WEAP);
     if (hasDurability) {
-      int maxdurability = item.props.base().read(Stat.maxdurability, bits);
-      if (maxdurability > 0) item.props.base().read(Stat.durability, bits);
+      int maxdurability = statListReader.read(item.attrs.base(), Stat.maxdurability, bits, false).asInt();
+      if (maxdurability > 0) statListReader.read(item.attrs.base(), Stat.durability, bits, false);
     }
     return hasDurability;
   }
 
-  private static boolean readSockets(BitInput bits, Item item) {
+  private boolean readSockets(BitInput bits, Item item) {
     boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED;
     if (hasSockets) {
-      int item_numsockets = item.props.base().read(Stat.item_numsockets, bits);
+      int item_numsockets = statListReader.read(item.attrs.base(), Stat.item_numsockets, bits, false).asInt();
       item.sockets = new Array<>(item_numsockets);
     }
     return hasSockets;
@@ -235,7 +232,7 @@ public class ItemReader {
     boolean hasQuantity = item.base.stackable;
     if (hasQuantity) {
       int quantity = bits.read15u(9);
-      item.props.base().put(Stat.quantity, quantity);
+      item.attrs.base().put(Stat.quantity, quantity);
     }
     return hasQuantity;
   }

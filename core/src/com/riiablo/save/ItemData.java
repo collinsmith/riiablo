@@ -5,14 +5,17 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.AttributesUpdater;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatRef;
+import com.riiablo.attributes.UpdateSequence;
 import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.SetItems;
-import com.riiablo.item.Attributes;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
 import com.riiablo.item.Location;
 import com.riiablo.item.Quality;
-import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.item.Type;
 import com.riiablo.util.EnumIntMap;
@@ -40,6 +43,8 @@ public class ItemData {
   final IntIntMap setItemsOwned = new IntIntMap(); // Indexed using set item id
 
   final Array<UpdateListener> updateListeners = new Array<>(false, 16);
+
+  private static final AttributesUpdater updater = new AttributesUpdater(); // TODO: inject
 
   ItemData(Attributes stats, CharStats.Entry charStats) {
     this.stats = stats;
@@ -268,18 +273,18 @@ public class ItemData {
   }
 
   void updateStats() {
-    Stat stat;
-    stats.reset();
+    StatRef stat;
+    final UpdateSequence update = updater.update(stats, charStats);
     int[] cache = equipped.values();
     for (int i = 0, s = cache.length, j; i < s; i++) {
       j = cache[i];
       if (j == INVALID_ITEM) continue;
       Item item = itemData.get(j);
       if (isActive(item)) {
-        item.update(stats, charStats, equippedSets);
-        stats.add(item.props.remaining());
-        if ((stat = item.props.get(Stat.armorclass)) != null) {
-          stats.aggregate().addCopy(stat);
+        item.update(updater, stats, charStats, equippedSets);
+        update.add(item.attrs.remaining());
+        if ((stat = item.attrs.get(Stat.armorclass)) != null) {
+          stats.aggregate().add(stat); // TODO: necessary anymore?
         }
       }
     }
@@ -291,13 +296,13 @@ public class ItemData {
       if (j == INVALID_ITEM) continue;
       Item item = itemData.get(j);
       if (item.type.is(Type.CHAR)) {
-        item.update(stats, charStats, equippedSets);
-        stats.add(item.props.remaining());
+        item.update(updater, stats, charStats, equippedSets);
+        update.add(item.attrs.remaining());
       } else if (item.type.is(Type.BOOK)) { // TODO: may not be needed since not stat -- calculate elsewhere?
-        item.update(stats, charStats, equippedSets);
+        item.update(updater, stats, charStats, equippedSets);
       }
     }
-    stats.update(stats, charStats);
+    update.apply();
     notifyUpdated();
   }
 

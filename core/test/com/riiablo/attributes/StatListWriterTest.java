@@ -26,14 +26,14 @@ import static com.riiablo.attributes.StatListFlags.getSetItemFlags;
 public class StatListWriterTest extends RiiabloTest {
   @BeforeClass
   public static void before() {
-    LogManager.setLevel("com.riiablo.attrs", Level.TRACE);
+    LogManager.setLevel("com.riiablo.attributes", Level.TRACE);
   }
 
   private static void testCharacter(byte[] data, int bytesToSkip, int length) {
     ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, bytesToSkip, length));
     BitInput bitInput = in.skipBytes(2).unalign(); // skip signature
-    com.riiablo.attributes.StatListReader reader = new com.riiablo.attributes.StatListReader();
-    com.riiablo.attributes.StatListRef stats = new com.riiablo.attributes.StatList().reset(1).buildList();
+    StatListReader reader = new StatListReader();
+    StatListRef stats = new StatList().reset(1).buildList();
     reader.read(stats, bitInput, true);
     final String firstHexDump = ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex());
 
@@ -64,8 +64,8 @@ public class StatListWriterTest extends RiiabloTest {
     if (length < 0) length = data.length - offset;
     ByteInput in = ByteInput.wrap(Unpooled.wrappedBuffer(data, offset, length));
     BitInput bitInput = in.unalign().skipBits(bitOffset);
-    com.riiablo.attributes.StatListReader reader = new com.riiablo.attributes.StatListReader();
-    com.riiablo.attributes.StatList stats = reader.read(new com.riiablo.attributes.StatList().reset(NUM_ITEM_LISTS), bitInput, flags);
+    StatListReader reader = new StatListReader();
+    StatList stats = reader.read(new StatList().reset(NUM_ITEM_LISTS), bitInput, flags);
     final String firstHexDump = ByteBufUtil.prettyHexDump(in.buffer(), 0, in.buffer().readerIndex());
 
     ByteOutput out = ByteOutput.wrap(Unpooled.buffer(length, length));

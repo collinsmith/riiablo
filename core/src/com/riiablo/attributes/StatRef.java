@@ -3,19 +3,24 @@ package com.riiablo.attributes;
 import com.riiablo.codec.excel.ItemStatCost;
 
 public final class StatRef {
-  com.riiablo.attributes.StatList stats;
+  StatList stats;
   int list;
   int index;
 
   StatRef() {}
 
-  StatRef(final com.riiablo.attributes.StatList stats) {
-    this.stats = stats;
+  StatRef(final StatList stats) {
+    this(stats, 0, 0);
   }
 
-  StatRef(final com.riiablo.attributes.StatList stats, final int list) {
-    this(stats);
+  StatRef(final StatList stats, final int list) {
+    this(stats, list, 0);
+  }
+
+  StatRef(final StatList stats, final int list, final int index) {
+    this.stats = stats;
     this.list = list;
+    this.index = index;
   }
 
   StatRef reset(final int list) {
@@ -24,7 +29,7 @@ public final class StatRef {
     return this;
   }
 
-  StatRef update(final com.riiablo.attributes.StatList stats, final int list, final int index) {
+  StatRef update(final StatList stats, final int list, final int index) {
     this.stats = stats;
     this.list = list;
     this.index = index;
@@ -37,12 +42,24 @@ public final class StatRef {
     return this;
   }
 
+  public StatRef copy() {
+    return new StatRef(stats, list, index);
+  }
+
   public short id() {
     return stats.id(index);
   }
 
   public ItemStatCost.Entry entry() {
     return stats.entry(index);
+  }
+
+  public boolean modified() {
+    return stats.modified(index);
+  }
+
+  public void forceUnmodified() {
+    stats.forceUnmodified(index);
   }
 
   public int encodedValues() {
@@ -99,6 +116,10 @@ public final class StatRef {
 
   public void set(final float value) {
     stats.set(list, index, value);
+  }
+
+  public void set(final StatRef src) {
+    stats.set(list, index, src);
   }
 
   public void addEncoded(final int encodedValues) {

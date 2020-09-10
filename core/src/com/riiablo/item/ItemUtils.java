@@ -3,9 +3,7 @@ package com.riiablo.item;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import com.riiablo.Riiablo;
-import com.riiablo.codec.excel.Gems;
 import com.riiablo.codec.excel.ItemEntry;
-import com.riiablo.logger.MDC;
 
 public class ItemUtils {
   private ItemUtils() {}
@@ -25,21 +23,5 @@ public class ItemUtils {
     if ((entry = Riiablo.files.weapons.get(code)) != null) return Riiablo.files.weapons.index(entry.code);
     if ((entry = Riiablo.files.misc   .get(code)) != null) return Riiablo.files.misc   .index(entry.code);
     throw new GdxRuntimeException("Unable to locate entry for code: " + code);
-  }
-
-  // TODO: basic optimization to have a pre-prepared immutable prop list for each gem type
-  static PropertyList[] getGemProps(Gems.Entry gem) {
-    PropertyList[] props = new PropertyList[Item.NUM_GEMPROPS];
-    try {
-      MDC.put("propList", "GEMPROPS_WEAPON");
-      props[Item.GEMPROPS_WEAPON] = PropertyList.obtain().add(gem.weaponModCode, gem.weaponModParam, gem.weaponModMin, gem.weaponModMax);
-      MDC.put("propList", "GEMPROPS_ARMOR");
-      props[Item.GEMPROPS_ARMOR] = PropertyList.obtain().add(gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax);
-      MDC.put("propList", "GEMPROPS_SHIELD");
-      props[Item.GEMPROPS_SHIELD] = PropertyList.obtain().add(gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax);
-    } finally {
-      MDC.remove("propList");
-    }
-    return props;
   }
 }

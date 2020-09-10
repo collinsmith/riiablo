@@ -22,12 +22,12 @@ import com.badlogic.gdx.utils.IntIntMap;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.PaletteIndexedColorDrawable;
-import com.riiablo.item.Stat;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.CharData;
 import com.riiablo.widget.Button;
@@ -162,7 +162,7 @@ public class SpellsPanel extends WidgetGroup implements Disposable, CharData.Ski
   }
 
   @Override
-  public void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills) {
+  public void onChanged(CharData client, IntIntMap skills, Array<StatRef> chargedSkills) {
     for (int i = client.classId.firstSpell; i < client.classId.lastSpell; i++) {
       SkillButton button = buttons[i - client.classId.firstSpell];
       button.update(skills.get(i, 0));

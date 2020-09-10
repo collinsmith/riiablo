@@ -13,6 +13,10 @@ import com.riiablo.math.Fixed;
 public final class StatList {
   private static final Logger log = LogManager.getLogger(StatList.class);
 
+  public static StatListRef obtain() {
+    return new StatList().reset(1).buildList();
+  }
+
   static final int MAX_LISTS = Byte.SIZE;
   static final int DEFAULT_SIZE = 32;
   static final int MAX_SIZE = 1 << Byte.SIZE;
@@ -286,6 +290,11 @@ public final class StatList {
     final short stat = ids[index];
     assertSimple(stat);
     return setEncoded(list, index, stat, entry(stat), 0, asInt(stat, value));
+  }
+
+  int set(final int list, final int index, final StatRef src) {
+    assert equalsEncoded(index, src.id(), src.encodedParams());
+    return setEncoded(list, index, src.id(), src.entry(), src.encodedParams(), src.encodedValues());
   }
 
   void setAll(final StatList src) {

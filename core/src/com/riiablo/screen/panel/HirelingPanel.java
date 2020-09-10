@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.AttributesUpdater;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
 import com.riiablo.codec.excel.Inventory;
@@ -58,6 +59,8 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
 
   @Wire(name = "itemController")
   protected ItemController itemController;
+
+  protected AttributesUpdater updater = new AttributesUpdater(); // TODO: inject
 
   public HirelingPanel() {
     Riiablo.assets.load(NpcInvDescriptor);
@@ -385,7 +388,7 @@ public class HirelingPanel extends WidgetGroup implements Disposable {
       }
 
       if (isOver && item != null && cursorItem == null) {
-        Riiablo.game.setDetails(item.details(), item, HirelingPanel.this, this);
+        Riiablo.game.setDetails(item.details(updater), item, HirelingPanel.this, this);
       }
     }
   }

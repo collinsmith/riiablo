@@ -22,6 +22,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.AttributesUpdater;
+import com.riiablo.attributes.Stat;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.BodyLocs;
 import com.riiablo.codec.excel.Inventory;
@@ -30,7 +32,6 @@ import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.item.BodyLoc;
 import com.riiablo.item.Item;
-import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.ItemController;
@@ -70,6 +71,8 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
 
   @Wire(name = "itemController")
   protected ItemController itemController;
+
+  protected AttributesUpdater updater = new AttributesUpdater(); // TODO: inject
 
   public InventoryPanel() {
     Riiablo.assets.load(invcharDescriptor);
@@ -278,7 +281,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
         getHeight() - inventory.gridTop - grid.getHeight());
     addActor(grid);
 
-    Label invgold = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.gold).value()), Riiablo.fonts.font16);
+    Label invgold = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.gold).asInt()), Riiablo.fonts.font16);
     invgold.setSize(88, 16);
     invgold.setPosition(109, 24);
     addActor(invgold);
@@ -430,7 +433,7 @@ public class InventoryPanel extends WidgetGroup implements Disposable, ItemGrid.
       }
 
       if (isOver && item != null && cursorItem == null) {
-        Riiablo.game.setDetails(item.details(), item, InventoryPanel.this, this);
+        Riiablo.game.setDetails(item.details(updater), item, InventoryPanel.this, this);
       }
     }
   }

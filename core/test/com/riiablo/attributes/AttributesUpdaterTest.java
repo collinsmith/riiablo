@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 
 import com.riiablo.CharacterClass;
 import com.riiablo.RiiabloTest;
+import com.riiablo.codec.excel.CharStats;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
 import com.riiablo.logger.Level;
@@ -48,38 +49,9 @@ public class AttributesUpdaterTest extends RiiabloTest {
   }
 
   private Attributes genGemAttrs(String code) {
-    com.riiablo.attributes.PropertiesGenerator properties = new com.riiablo.attributes.PropertiesGenerator();
-    com.riiablo.attributes.GemGenerator gems = new com.riiablo.attributes.GemGenerator(properties);
+    PropertiesGenerator properties = new PropertiesGenerator();
+    GemGenerator gems = new GemGenerator(properties);
     return gems.set(Attributes.obtainCompact(), code);
-  }
-
-  private static void dump(Attributes attrs) {
-    System.out.println("--------------------------------------------------------------------------------");
-    System.out.println("base:");
-    for (StatRef stat : attrs.base()) {
-      System.out.println(stat.debugString());
-    }
-
-    System.out.println("--------------------------------------------------------------------------------");
-    System.out.println("lists:");
-    for (StatListRef list : attrs.list().listIterator()) {
-      System.out.println("list:");
-      for (StatRef stat : list) {
-        System.out.println("  " + stat.debugString());
-      }
-    }
-
-    System.out.println("--------------------------------------------------------------------------------");
-    System.out.println("aggregate:");
-    for (StatRef stat : attrs.aggregate()) {
-      System.out.println(stat.debugString());
-    }
-
-    System.out.println("--------------------------------------------------------------------------------");
-    System.out.println("remaining:");
-    for (StatRef stat : attrs.remaining()) {
-      System.out.println(stat.debugString());
-    }
   }
 
   @Test
@@ -88,7 +60,7 @@ public class AttributesUpdaterTest extends RiiabloTest {
     AttributesUpdater updater = newInstance();
     updater.update(tirant, CharacterClass.SORCERESS.entry())
         .apply();
-    dump(tirant);
+    System.out.println(tirant.dump());
   }
 
   @Test
@@ -96,7 +68,7 @@ public class AttributesUpdaterTest extends RiiabloTest {
     Attributes spirit = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, StatListFlags.FLAG_MAGIC | StatListFlags.FLAG_RUNE);
     AttributesUpdater updater = newInstance();
     updater.update(spirit, StatListFlags.FLAG_MAGIC | StatListFlags.FLAG_RUNE, null, null).apply();
-    dump(spirit);
+    System.out.println(spirit.dump());
   }
 
   @Test
@@ -113,7 +85,7 @@ public class AttributesUpdaterTest extends RiiabloTest {
         .add(ort.list(StatListFlags.GEM_SHIELD_LIST))
         .add(amn.list(StatListFlags.GEM_SHIELD_LIST))
         .apply();
-    dump(spirit);
+    System.out.println(spirit.dump());
   }
 
   @Test
@@ -135,6 +107,39 @@ public class AttributesUpdaterTest extends RiiabloTest {
     updater.update(tirant, CharacterClass.SORCERESS.entry())
         .add(spirit.remaining())
         .apply();
-    dump(tirant);
+    System.out.println(tirant.dump());
+  }
+
+  @Test
+  public void Tirant_Spirit_Tal_Thul_Ort_Amn_2() {
+    Attributes tirant = genCharacterAttrs(Gdx.files.internal("test/Tirant.d2s").readBytes(), 0x2fd, 0x33);
+    Attributes spirit = genItemAttrs(Gdx.files.internal("test/Spirit.d2i").readBytes(), 216, 0x19, StatListFlags.FLAG_MAGIC | StatListFlags.FLAG_RUNE);
+    Attributes tal = genGemAttrs("r07");
+    Attributes thul = genGemAttrs("r10");
+    Attributes ort = genGemAttrs("r09");
+    Attributes amn = genGemAttrs("r11");
+    AttributesUpdater updater = newInstance();
+
+    final CharStats.Entry sorc = CharacterClass.SORCERESS.entry();
+    UpdateSequence tirantUpdate = updater.update(tirant, sorc);
+
+    UpdateSequence spiritUpdate = updater.update(spirit, StatListFlags.FLAG_MAGIC | StatListFlags.FLAG_RUNE, tirant, sorc);
+
+    updater.update(tal, StatListFlags.GEM_SHIELD_LIST, tirant, sorc).apply();
+    spiritUpdate.add(tal.remaining());
+
+    updater.update(thul, StatListFlags.GEM_SHIELD_LIST, tirant, sorc).apply();
+    spiritUpdate.add(thul.remaining());
+
+    updater.update(ort, StatListFlags.GEM_SHIELD_LIST, tirant, sorc).apply();
+    spiritUpdate.add(ort.remaining());
+
+    updater.update(amn, StatListFlags.GEM_SHIELD_LIST, tirant, sorc).apply();
+    spiritUpdate.add(amn.remaining());
+
+    spiritUpdate.apply();
+
+    tirantUpdate.add(spirit.remaining()).apply();
+    System.out.println(spirit.dump());
   }
 }

@@ -1,6 +1,5 @@
 package com.riiablo.item;
 
-import java.util.Arrays;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -9,6 +8,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.AttributesUpdater;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatListFlags;
+import com.riiablo.attributes.StatListRef;
+import com.riiablo.attributes.UpdateSequence;
 import com.riiablo.codec.excel.Armor;
 import com.riiablo.codec.excel.CharStats;
 import com.riiablo.codec.excel.ItemEntry;
@@ -92,43 +97,6 @@ public class Item {
   static final int SET_ID_SIZE      = 12;
   static final int UNIQUE_ID_SIZE   = 12;
 
-  static final int MAGIC_PROPS = 0;
-  static final int SET_PROPS   = 1;
-  static final int RUNE_PROPS  = 6;
-  static final int NUM_PROPS   = 7;
-
-  static final int MAGIC_PROPS_FLAG = 1 << MAGIC_PROPS;
-  static final int SET_2_PROPS_FLAG = 1 << SET_PROPS + 0;
-  static final int SET_3_PROPS_FLAG = 1 << SET_PROPS + 1;
-  static final int SET_4_PROPS_FLAG = 1 << SET_PROPS + 2;
-  static final int SET_5_PROPS_FLAG = 1 << SET_PROPS + 3;
-  static final int SET_6_PROPS_FLAG = 1 << SET_PROPS + 4;
-  static final int RUNE_PROPS_FLAG  = 1 << RUNE_PROPS;
-
-  static String getPropListString(int i) {
-    switch (i) {
-      case MAGIC_PROPS: return "MAGIC_PROPS";
-      case SET_PROPS:
-      case SET_PROPS + 1:
-      case SET_PROPS + 2:
-      case SET_PROPS + 3:
-      case SET_PROPS + 4:
-        return "SET_PROPS (" + (i + 1) + " items)";
-      case RUNE_PROPS:
-        return "RUNE_PROPS";
-      default:
-        assert false : "i(" + i + ") is not a valid prop list id!";
-        return String.valueOf(i);
-    }
-  }
-
-  static final int GEMPROPS_WEAPON  = 0;
-  static final int GEMPROPS_ARMOR   = 1;
-  static final int GEMPROPS_SHIELD  = 2;
-  static final int NUM_GEMPROPS     = 3;
-
-  static final PropertyList[] EMPTY_PROPERTY_ARRAY = new PropertyList[NUM_PROPS];
-
   static final Array<Item> EMPTY_SOCKETS_ARRAY = new Array<Item>(0) {
     @Override
     public void add(Item value) {
@@ -165,8 +133,8 @@ public class Item {
   public int     runewordData;
   public String  inscription;
 
-  public Attributes   props;
-  public PropertyList stats[];
+  public Attributes attrs;
+  public int aggFlags;
 
   @Deprecated
   byte data[]; // TODO: refactor to act as a cache for serialized item data
@@ -211,8 +179,8 @@ public class Item {
     runewordData  = 0;
     inscription   = null;
 
-    props = null;
-    stats = EMPTY_PROPERTY_ARRAY;
+    attrs = null;
+    aggFlags = 0;
 
     name = null;
     details = null;
@@ -250,8 +218,10 @@ public class Item {
         typeEntry  = Riiablo.files.ItemTypes.get(base.type),
         type2Entry = Riiablo.files.ItemTypes.get(base.type2));
 
-    this.props = new Attributes();
-    PropertyList baseProps = props.base();
+    attrs = (flags & ITEMFLAG_COMPACT) == ITEMFLAG_COMPACT
+        ? Attributes.obtainCompact()
+        : Attributes.obtainStandard();
+    StatListRef baseProps = attrs.base();
     baseProps.put(Stat.item_levelreq, base.levelreq);
     switch (getBaseType()) {
       case WEAPON: {
@@ -627,29 +597,38 @@ public class Item {
         && 0 <= y && y < base.invheight;
   }
 
-  public void update(Attributes attrs, CharStats.Entry charStats, IntIntMap equippedSets) {
-    if ((flags & ITEMFLAG_COMPACT) == ITEMFLAG_COMPACT) return;
-    props.reset();
-    if (stats[MAGIC_PROPS] != null) props.add(stats[MAGIC_PROPS]);
-    if (stats[RUNE_PROPS ] != null) props.add(stats[RUNE_PROPS ]);
-    for (Item socket : sockets) {
-      if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
-        props.add(socket.stats[base.gemapplytype]);
-      } else {
-        props.add(socket.stats[MAGIC_PROPS]);
-      }
+  public void update(AttributesUpdater updater, Attributes opBase, CharStats.Entry charStats, IntIntMap equippedSets) {
+    if (type.is(Type.GEM) || type.is(Type.RUNE)) {
+      updater.update(attrs, aggFlags, opBase, charStats).apply();
+      return;
+    } else if ((flags & ITEMFLAG_COMPACT) == ITEMFLAG_COMPACT) {
+      return;
     }
+
+    final int numEquippedSets;
     if (quality == Quality.SET && location == Location.EQUIPPED) {
       SetItems.Entry setItem = (SetItems.Entry) qualityData;
       int setId = Riiablo.files.Sets.index(setItem.set);
-      int numEquipped = equippedSets.get(setId, 0);
-      if (numEquipped >= 2) {
-        for (int i = 0; i < numEquipped; i++) {
-          props.add(stats[SET_PROPS + i]);
-        }
-      }
+      numEquippedSets = equippedSets.get(setId, 0);
+    } else {
+      numEquippedSets = 0;
     }
-    props.update(attrs, charStats);
+
+    aggFlags = StatListFlags.getAggItemFlags(aggFlags, numEquippedSets);
+    final UpdateSequence update = updater.update(attrs, aggFlags, opBase, charStats);
+
+    for (Item socket : sockets) {
+      if (socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) {
+        socket.aggFlags = (1 << base.gemapplytype); // TODO: set this when loaded or (un)socketed and leave below assertion
+      }
+
+      assert !(socket.type.is(Type.GEM) || socket.type.is(Type.RUNE)) || socket.aggFlags == (1 << base.gemapplytype)
+          : "socket.aggFlags(" + socket.aggFlags + ") does not match base.gemApplyType(" + base.gemapplytype + ")";
+      socket.update(updater, attrs, charStats, equippedSets);
+      update.add(socket.attrs.remaining());
+    }
+
+    update.apply();
   }
 
   // loads client-side resources
@@ -702,7 +681,7 @@ public class Item {
           .append("runewordData", String.format("0x%04X", runewordData))
           .append("inscription", inscription)
           .append("sockets", sockets)
-          .append("attrs", Arrays.toString(stats))
+          .append("attrs", attrs)
           ;
     } else {
       builder.append("location", location);
@@ -775,16 +754,16 @@ public class Item {
           builder.append("sockets", sockets);
         }
 
-        builder.append("attrs", Arrays.toString(stats));
+        builder.append("attrs", attrs);
       }
     }
     return builder.build();
   }
 
-  public Table details() {
+  public Table details(AttributesUpdater updater) {
     if (details == null) {
       // TODO: use item parent itemdata for equipped set counter
-      update(Riiablo.charData.getStats(), Riiablo.charData.classId.entry(), Riiablo.charData.getItems().getEquippedSets());
+      update(updater, Riiablo.charData.getStats(), Riiablo.charData.classId.entry(), Riiablo.charData.getItems().getEquippedSets());
       details = DEFAULT_LABELER.updateLabel(this, new Table(), 0);
     }
 

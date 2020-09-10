@@ -9,7 +9,7 @@ public class GemGenerator {
 
   public GemGenerator() {}
 
-  GemGenerator(PropertiesGenerator generator) {
+  public GemGenerator(PropertiesGenerator generator) {
     this.generator = generator;
   }
 
@@ -19,7 +19,6 @@ public class GemGenerator {
 
   public Attributes set(Attributes attrs, Gems.Entry gem) {
     assert attrs.isType(Attributes.Type.COMPACT) : "attrs(" + attrs + ") is not COMPACT(" + attrs.type() + ")";
-    attrs.clear();
     final StatList stats = attrs.list();
     try {
       int list;
@@ -32,12 +31,12 @@ public class GemGenerator {
       list = generator
           .add(stats.buildList(), gem.helmModCode, gem.helmModParam, gem.helmModMin, gem.helmModMax)
           .listIndex();
-      assert list == StatListFlags.GEM_ARMOR_LIST : "list(" + list + ") != GEM_WEAPON_LIST(" + StatListFlags.GEM_WEAPON_LIST + ")";
+      assert list == StatListFlags.GEM_ARMOR_LIST : "list(" + list + ") != GEM_ARMOR_LIST(" + StatListFlags.GEM_ARMOR_LIST + ")";
       MDC.put("propList", StatListFlags.gemToString(StatListFlags.GEM_SHIELD_LIST));
       list = generator
           .add(stats.buildList(), gem.shieldModCode, gem.shieldModParam, gem.shieldModMin, gem.shieldModMax)
           .listIndex();
-      assert list == StatListFlags.GEM_SHIELD_LIST : "list(" + list + ") != GEM_WEAPON_LIST(" + StatListFlags.GEM_WEAPON_LIST + ")";
+      assert list == StatListFlags.GEM_SHIELD_LIST : "list(" + list + ") != GEM_SHIELD_LIST(" + StatListFlags.GEM_SHIELD_LIST + ")";
     } finally {
       MDC.remove("propList");
     }

@@ -20,13 +20,13 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.CharacterClass;
 import com.riiablo.Keys;
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.SkillDesc;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.item.Item;
-import com.riiablo.item.Stat;
 import com.riiablo.key.MappedKey;
 import com.riiablo.key.MappedKeyStateAdapter;
 import com.riiablo.loader.DC6Loader;
@@ -126,17 +126,17 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
   }
 
   @Override
-  public void onChanged(CharData client, IntIntMap skills, Array<Stat> chargedSkills) {
+  public void onChanged(CharData client, IntIntMap skills, Array<StatRef> chargedSkills) {
     buttons.clear();
     keyMappings.clear();
     for (Table table : tables) {
       for (Actor child : table.getChildren()) child.clear();
       table.clear();
     }
-    for (Stat chargedSkill : chargedSkills) {
-      if (chargedSkill.param1() <= 0) continue; // level <= 0
+    for (StatRef chargedSkill : chargedSkills) {
+      if (chargedSkill.param0() <= 0) continue; // level <= 0
 
-      final Skills.Entry skill = Riiablo.files.skills.get(chargedSkill.param2());
+      final Skills.Entry skill = Riiablo.files.skills.get(chargedSkill.param1());
       if (leftSkills && !skill.leftskill) continue;
       if (skill.passive) continue;
 
@@ -156,7 +156,7 @@ public class SpellsQuickPanel extends Table implements Disposable, CharData.Skil
         button.setBlendMode(BlendMode.DARKEN, Riiablo.colors.darkenGold);
       }
 
-      int index = Riiablo.charData.getHotkey(buttonId, chargedSkill.param2());
+      int index = Riiablo.charData.getHotkey(buttonId, chargedSkill.param1());
       if (index != ArrayUtils.INDEX_NOT_FOUND) {
         MappedKey mapping = Keys.Skill[index];
         button.map(mapping);

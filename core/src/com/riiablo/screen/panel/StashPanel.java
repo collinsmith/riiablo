@@ -1,6 +1,7 @@
 package com.riiablo.screen.panel;
 
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,11 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
+
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Stat;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.item.Item;
-import com.riiablo.item.Stat;
 import com.riiablo.item.StoreLoc;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.ItemController;
@@ -76,7 +78,7 @@ public class StashPanel extends WidgetGroup implements Disposable, ItemGrid.Grid
         getHeight() - inventory.gridTop - grid.getHeight());
     addActor(grid);
 
-    Label stashgold = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.goldbank).value()), Riiablo.fonts.font16);
+    Label stashgold = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.goldbank).asInt()), Riiablo.fonts.font16);
     stashgold.setSize(150, 16);
     stashgold.setPosition(98, 393);
     addActor(stashgold);

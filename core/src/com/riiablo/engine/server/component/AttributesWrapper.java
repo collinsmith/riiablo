@@ -4,7 +4,7 @@ import com.artemis.Component;
 import com.artemis.annotations.PooledWeaver;
 import com.artemis.annotations.Transient;
 
-import com.riiablo.item.Attributes;
+import com.riiablo.attributes.Attributes;
 
 @Transient
 @PooledWeaver

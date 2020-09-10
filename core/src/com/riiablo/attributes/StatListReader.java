@@ -9,8 +9,8 @@ import com.riiablo.logger.MDC;
 public class StatListReader {
   private static final Logger log = LogManager.getLogger(StatListReader.class);
 
-  public com.riiablo.attributes.StatRef read(com.riiablo.attributes.StatListRef stats, short stat, BitInput bits, boolean cs) {
-    final ItemStatCost.Entry entry = com.riiablo.attributes.Stat.entry(stat);
+  public StatRef read(StatListRef stats, short stat, BitInput bits, boolean cs) {
+    final ItemStatCost.Entry entry = Stat.entry(stat);
     log.traceEntry("read(stats: {}, stat: {} ({}), bits: {}, cs: {})", stats, stat, entry, bits, cs);
     final int encodedParams, encodedValues;
     if (cs) {
@@ -25,12 +25,12 @@ public class StatListReader {
     return stats.putEncoded(stat, encodedParams, encodedValues);
   }
 
-  public com.riiablo.attributes.StatListRef read(com.riiablo.attributes.StatListRef stats, BitInput bits, boolean cs) {
+  public StatListRef read(StatListRef stats, BitInput bits, boolean cs) {
     log.traceEntry("read(stats: {}, bits: {}, cs: {})", stats, bits, cs);
-    for (short stat; (stat = bits.read15u(com.riiablo.attributes.Stat.BITS)) != com.riiablo.attributes.Stat.NONE;) {
+    for (short stat; (stat = bits.read15u(Stat.BITS)) != Stat.NONE;) {
       try {
         MDC.put("stat", stat);
-        final byte numEncoded = com.riiablo.attributes.Stat.getNumEncoded(stat);
+        final byte numEncoded = Stat.getNumEncoded(stat);
         try {
           if (numEncoded > 1) {
             MDC.put("numEncoded", numEncoded);
@@ -52,10 +52,10 @@ public class StatListReader {
     return stats;
   }
 
-  public com.riiablo.attributes.StatList read(com.riiablo.attributes.StatList stats, BitInput bits, int flags) {
+  public StatList read(StatList stats, BitInput bits, int flags) {
     final int maxLists = stats.maxLists();
     for (int i = 0; i < maxLists; i++) {
-      final com.riiablo.attributes.StatListRef list = stats.buildList(); // must be called to init list (even empty)
+      final StatListRef list = stats.buildList(); // must be called to init list (even empty)
       if (((flags >> i) & 1) == 1) {
         try {
           MDC.put("propList", StatListFlags.itemToString(i)); // assert only items will be serialized

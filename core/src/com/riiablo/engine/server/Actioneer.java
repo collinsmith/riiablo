@@ -8,6 +8,8 @@ import net.mostlyoriginal.api.system.core.PassiveSystem;
 import com.badlogic.gdx.math.Vector2;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.Stat;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.Angle;
@@ -23,8 +25,6 @@ import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
-import com.riiablo.item.Attributes;
-import com.riiablo.item.Stat;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
@@ -123,7 +123,7 @@ public class Actioneer extends PassiveSystem {
         log.debug("{} attack {}", entityId, targetId);
 
         Attributes attrs = mAttributesWrapper.get(targetId).attrs;
-        log.debug("{} {}", targetId, attrs.get(Stat.hitpoints).toFloat());
+        log.debug("{} {}", targetId, attrs.get(Stat.hitpoints).asFixed());
         break;
       case 27: // teleport
         mPosition.get(entityId).position.set(targetVec);

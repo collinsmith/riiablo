@@ -11,7 +11,7 @@ import com.riiablo.logger.MDC;
 public class StatListWriter {
   private static final Logger log = LogManager.getLogger(StatListWriter.class);
 
-  public void write(com.riiablo.attributes.StatListRef stats, com.riiablo.attributes.StatRef stat, BitOutput bits, boolean cs) {
+  public StatRef write(StatListRef stats, StatRef stat, BitOutput bits, boolean cs) {
     final ItemStatCost.Entry entry = stat.entry();
     if (log.traceEnabled()) log.traceEntry("write(stats: {}, stat: {} ({}), bits: {}, cs: {})", stats, stat, entry, bits, cs);
     if (cs) {
@@ -23,16 +23,21 @@ public class StatListWriter {
       bits.write63u(stat.encodedParams(), entry.Save_Param_Bits);
       bits.write63u((stat.encodedValues() >> entry.ValShift) + entry.Save_Add, entry.Save_Bits);
     }
+    return stat;
   }
 
-  public void write(com.riiablo.attributes.StatListRef stats, BitOutput bits, boolean cs) {
-    for (Iterator<com.riiablo.attributes.StatRef> it = stats.iterator(); it.hasNext();) {
-      final com.riiablo.attributes.StatRef stat = it.next();
+  public StatRef write(StatListRef stats, short stat, BitOutput bits, boolean cs) {
+    return write(stats, stats.get(stat), bits, cs);
+  }
+
+  public void write(StatListRef stats, BitOutput bits, boolean cs) {
+    for (Iterator<StatRef> it = stats.iterator(); it.hasNext();) {
+      final StatRef stat = it.next();
       final short id = stat.id();
       try {
         MDC.put("stat", id);
-        bits.write15u(id, com.riiablo.attributes.Stat.BITS);
-        final byte numEncoded = com.riiablo.attributes.Stat.getNumEncoded(id);
+        bits.write15u(id, Stat.BITS);
+        final byte numEncoded = Stat.getNumEncoded(id);
         try {
           if (numEncoded > 1) {
             MDC.put("numEncoded", numEncoded);
@@ -40,7 +45,7 @@ public class StatListWriter {
           }
           write(stats, stat, bits, cs);
           for (short j = 1; j < numEncoded; j++) {
-            final com.riiablo.attributes.StatRef next = it.next();
+            final StatRef next = it.next();
             assert next.id() == id + j : String.format(
                 "it.next(%s) != %d : getNumEncoded(%s)[%d..%d]", next, id + j, id + j, id, id + numEncoded - 1);
             MDC.put("encodedStat", next.id());
@@ -55,15 +60,15 @@ public class StatListWriter {
       }
     }
 
-    bits.write15u(com.riiablo.attributes.Stat.NONE, com.riiablo.attributes.Stat.BITS);
+    bits.write15u(Stat.NONE, Stat.BITS);
   }
 
-  public void write(com.riiablo.attributes.StatList stats, BitOutput bits, int flags) {
+  public void write(StatList stats, BitOutput bits, int flags) {
     final int numLists = stats.numLists();
     for (int i = 0; i < numLists; i++) {
       if (((flags >> i) & 1) == 1) {
         try {
-          MDC.put("propList", com.riiablo.attributes.StatListFlags.itemToString(i)); // assert only items will be serialized
+          MDC.put("propList", StatListFlags.itemToString(i)); // assert only items will be serialized
           write(stats.get(i), bits, false);
         } finally {
           MDC.remove("propList");
@@ -71,8 +76,8 @@ public class StatListWriter {
       }
     }
 
-    if (flags == com.riiablo.attributes.StatListFlags.FLAG_NONE) {
-      bits.write15u(com.riiablo.attributes.Stat.NONE, com.riiablo.attributes.Stat.BITS);
+    if (flags == StatListFlags.FLAG_NONE) {
+      bits.write15u(Stat.NONE, Stat.BITS);
     }
   }
 

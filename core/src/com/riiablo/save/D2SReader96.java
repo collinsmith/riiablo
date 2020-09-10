@@ -9,7 +9,6 @@ import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.attributes.Attributes;
 import com.riiablo.attributes.StatListReader;
-import com.riiablo.attributes.StatListRef;
 import com.riiablo.codec.COF;
 import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
@@ -19,8 +18,6 @@ import com.riiablo.io.SignatureMismatch;
 import com.riiablo.io.UnsafeNarrowing;
 import com.riiablo.item.Item;
 import com.riiablo.item.ItemReader;
-import com.riiablo.item.PropertyList;
-import com.riiablo.item.Stat;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 import com.riiablo.logger.MDC;
@@ -404,11 +401,7 @@ public class D2SReader96 {
       data.npcReturnData[i] = bits.readRaw(64);
     }
 
-    PropertyList base = data.statData.base();
-    StatListRef stats = d2s.stats.attrs.base();
-    for (int i = Stat.strength; i <= Stat.goldbank; i++) {
-      base.put(i, stats.getValue((short) i, 0));
-    }
+    data.statData.base().addAll(d2s.stats.attrs.base());
 
     CharacterClass classId = data.classId;
     for (int spellId = classId.firstSpell, s = classId.lastSpell, i = 0; spellId < s; spellId++, i++) {

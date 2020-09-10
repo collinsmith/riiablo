@@ -15,12 +15,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Stat;
 import com.riiablo.codec.DC;
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.item.Item;
-import com.riiablo.item.Stat;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.widget.Button;
 import com.riiablo.widget.Label;
@@ -224,7 +224,7 @@ public class VendorPanel extends WidgetGroup implements Disposable {
     goldbankLabel.setPosition(20, 57);
     addActor(goldbankLabel);
 
-    Label goldbank = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.goldbank).value()), Riiablo.fonts.font16);
+    Label goldbank = new Label(Integer.toString(Riiablo.charData.getStats().get(Stat.goldbank).asInt()), Riiablo.fonts.font16);
     goldbank.setSize(goldbankLabel.getWidth(), goldbankLabel.getHeight());
     goldbank.setPosition(goldbankLabel.getX(), goldbankLabel.getY());
     goldbank.setAlignment(Align.right);

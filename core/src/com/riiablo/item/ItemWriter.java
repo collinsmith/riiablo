@@ -4,6 +4,10 @@ import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatListFlags;
+import com.riiablo.attributes.StatListWriter;
+import com.riiablo.attributes.StatRef;
 import com.riiablo.codec.excel.SetItems;
 import com.riiablo.codec.excel.Sets;
 import com.riiablo.io.BitInput;
@@ -17,6 +21,8 @@ public class ItemWriter {
   private static final Logger log = LogManager.getLogger(ItemWriter.class);
 
   private static final byte[] SIGNATURE = {0x4A, 0x4D};
+
+  protected StatListWriter statListWriter = new StatListWriter(); // TODO: inject
 
   public ByteOutput writeItem(Item item, ByteOutput out) {
     final int startOffset = out.bytesWritten();
@@ -80,11 +86,11 @@ public class ItemWriter {
     return bits.align();
   }
 
-  private static void writeCompact(Item item, BitOutput bits) {
+  private void writeCompact(Item item, BitOutput bits) {
     // no-op
   }
 
-  private static void writeStandard(Item item, BitOutput bits) {
+  private void writeStandard(Item item, BitOutput bits) {
     bits.write32(item.id);
     bits.write7u(item.ilvl, 7);
     bits.write7u(item.quality.ordinal(), 4);
@@ -96,8 +102,8 @@ public class ItemWriter {
     if (hasClassOnly) bits.write15u(item.classOnly, 11);
     writeQualityData(item, bits);
 
-    int listFlags = Item.MAGIC_PROPS_FLAG;
-    if (writeRunewordData(item, bits)) listFlags |= Item.RUNE_PROPS_FLAG;
+    int listFlags = StatListFlags.FLAG_MAGIC;
+    if (writeRunewordData(item, bits)) listFlags |= StatListFlags.FLAG_RUNE;
 
     if ((item.flags & Item.ITEMFLAG_INSCRIBED) == Item.ITEMFLAG_INSCRIBED) {
       bits.writeString(item.inscription, 7, true);
@@ -116,13 +122,8 @@ public class ItemWriter {
     writeBook(item, bits);
     writeQuantity(item, bits);
 
-    listFlags |= (writeSetFlags(item, bits) << Item.SET_PROPS);
-    PropertyList[] props = item.stats;
-    for (int i = 0; i < Item.NUM_PROPS; i++) {
-      if (((listFlags >> i) & 1) == 1) {
-        props[i].write(bits);
-      }
-    }
+    listFlags |= (writeSetFlags(item, bits) << StatListFlags.ITEM_SET_LIST);
+    statListWriter.write(item.attrs.list(), bits, listFlags);
   }
 
   private static void writeQualityData(Item item, BitOutput bits) {
@@ -164,27 +165,27 @@ public class ItemWriter {
     return hasRunewordData;
   }
 
-  private static boolean writeArmorClass(Item item, BitOutput bits) {
+  private boolean writeArmorClass(Item item, BitOutput bits) {
     boolean hasAC = item.type.is(Type.ARMO);
     if (hasAC) {
-      item.props.base().write(Stat.armorclass, bits);
+      statListWriter.write(item.attrs.base(), Stat.armorclass, bits, false);
     }
     return hasAC;
   }
 
-  private static boolean writeDurability(Item item, BitOutput bits) {
+  private boolean writeDurability(Item item, BitOutput bits) {
     boolean hasDurability = item.type.is(Type.ARMO) || item.type.is(Type.WEAP);
     if (hasDurability) {
-      int maxdurability = item.props.base().write(Stat.maxdurability, bits);
-      if (maxdurability > 0) item.props.base().write(Stat.durability, bits);
+      int maxdurability = statListWriter.write(item.attrs.base(), Stat.maxdurability, bits, false).asInt();
+      if (maxdurability > 0) statListWriter.write(item.attrs.base(), Stat.durability, bits, false);
     }
     return hasDurability;
   }
 
-  private static boolean writeSockets(Item item, BitOutput bits) {
+  private boolean writeSockets(Item item, BitOutput bits) {
     boolean hasSockets = (item.flags & Item.ITEMFLAG_SOCKETED) == Item.ITEMFLAG_SOCKETED;
     if (hasSockets) {
-      item.props.base().write(Stat.item_numsockets, bits);
+      statListWriter.write(item.attrs.base(), Stat.item_numsockets, bits, false);
     }
     return hasSockets;
   }
@@ -198,8 +199,8 @@ public class ItemWriter {
   private static boolean writeQuantity(Item item, BitOutput bits) {
     boolean hasQuantity = item.base.stackable;
     if (hasQuantity) {
-      Stat quantity = item.props.base().get(Stat.quantity);
-      bits.write15u(quantity.value(), 9);
+      StatRef quantity = item.attrs.base().get(Stat.quantity);
+      bits.write15u(quantity.asInt(), 9);
     }
     return hasQuantity;
   }

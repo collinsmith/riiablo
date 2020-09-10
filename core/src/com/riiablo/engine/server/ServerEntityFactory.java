@@ -11,6 +11,9 @@ import com.badlogic.gdx.math.Vector2;
 
 import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.Stat;
+import com.riiablo.attributes.StatListRef;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlWarp;
 import com.riiablo.codec.excel.Missiles;
@@ -42,9 +45,6 @@ import com.riiablo.engine.server.component.Size;
 import com.riiablo.engine.server.component.Velocity;
 import com.riiablo.engine.server.component.Warp;
 import com.riiablo.engine.server.component.ZoneAware;
-import com.riiablo.item.Attributes;
-import com.riiablo.item.PropertyList;
-import com.riiablo.item.Stat;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
 import com.riiablo.save.CharData;
@@ -154,14 +154,12 @@ public class ServerEntityFactory extends EntityFactory {
 
     // TODO: move this somewhere else (a special class?)
     {
-      Attributes attrs = new Attributes();
-      PropertyList base = attrs.base();
+      Attributes attrs = Attributes.obtainStandard();
+      StatListRef base = attrs.base();
       base.clear();
       final float hitpoints = MathUtils.random(monstats.minHP[0], monstats.maxHP[0]);
-      // FIXME: this can be more elegant -- add support for putting float or auto converting?
-      final int encodedHitpoints = Stat.encodeFloat(hitpoints, 8); // see above note, this is crude
-      base.put(Stat.hitpoints, encodedHitpoints);
-      base.put(Stat.maxhp, encodedHitpoints);
+      base.put(Stat.hitpoints, hitpoints);
+      base.put(Stat.maxhp, hitpoints);
 
       attrs.reset(); // propagate base changes
       mAttributesWrapper.create(id).attrs = attrs;

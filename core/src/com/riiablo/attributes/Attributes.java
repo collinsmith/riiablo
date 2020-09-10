@@ -1,6 +1,9 @@
 package com.riiablo.attributes;
 
+import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.Iterator;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
@@ -21,10 +24,10 @@ public final class Attributes implements Iterable<StatRef> {
   public static Attributes obtainLarge() {
     final Attributes attributes = obtain();
     attributes.reset(Type.LARGE);
-    attributes.list = new com.riiablo.attributes.StatList().reset(com.riiablo.attributes.StatList.MAX_LISTS);
-    attributes.base = new com.riiablo.attributes.StatList().reset(1).buildList();
-    attributes.agg = new com.riiablo.attributes.StatList(com.riiablo.attributes.StatList.MAX_SIZE).reset(1).buildList();
-    attributes.rem = new com.riiablo.attributes.StatList(com.riiablo.attributes.StatList.MAX_SIZE).reset(1).buildList();
+    attributes.list = new StatList().reset(StatList.MAX_LISTS);
+    attributes.base = new StatList().reset(1).buildList();
+    attributes.agg = new StatList(StatList.MAX_SIZE).reset(1).buildList();
+    attributes.rem = new StatList(StatList.MAX_SIZE).reset(1).buildList();
     return attributes;
   }
 
@@ -36,10 +39,10 @@ public final class Attributes implements Iterable<StatRef> {
   public static Attributes obtainStandard() {
     final Attributes attributes = obtain();
     attributes.reset(Type.STANDARD);
-    attributes.list = new com.riiablo.attributes.StatList().reset(com.riiablo.attributes.StatList.MAX_LISTS);
-    attributes.base = new com.riiablo.attributes.StatList().reset(1).buildList();
-    attributes.agg = new com.riiablo.attributes.StatList().reset(1).buildList();
-    attributes.rem = new com.riiablo.attributes.StatList().reset(1).buildList();
+    attributes.list = new StatList().reset(StatList.MAX_LISTS);
+    attributes.base = new StatList().reset(1).buildList();
+    attributes.agg = new StatList().reset(1).buildList();
+    attributes.rem = new StatList().reset(1).buildList();
     return attributes;
   }
 
@@ -51,17 +54,17 @@ public final class Attributes implements Iterable<StatRef> {
   public static Attributes obtainCompact() {
     final Attributes attributes = obtain();
     attributes.reset(Type.COMPACT);
-    attributes.list = new com.riiablo.attributes.StatList().reset(com.riiablo.attributes.StatList.MAX_LISTS);
-    attributes.base = new com.riiablo.attributes.StatList().reset(1).buildList(); // TODO: create rem as list(4)
-    attributes.agg = new com.riiablo.attributes.StatList().reset(1).buildList(); // TODO: set agg as rem or list(6)
-    attributes.rem = new com.riiablo.attributes.StatList().reset(1).buildList(); // TODO: create rem as list(5)
+    attributes.list = new StatList().reset(StatList.MAX_LISTS);
+    attributes.base = new StatList().reset(1).buildList(); // TODO: create rem as list(4)
+    attributes.agg = new StatList().reset(1).buildList(); // TODO: set agg as rem or list(6)
+    attributes.rem = new StatList().reset(1).buildList(); // TODO: create rem as list(5)
     return attributes;
   }
 
   /**
    * Wraps the specified stat list in an attributes.
    */
-  public static Attributes wrap(com.riiablo.attributes.StatList stats) {
+  public static Attributes wrap(StatList stats) {
     throw new UnsupportedOperationException();
   }
 
@@ -113,7 +116,7 @@ public final class Attributes implements Iterable<StatRef> {
   }
 
   private Type type;
-  private com.riiablo.attributes.StatList list;
+  private StatList list;
   private StatListRef base;
   private StatListRef agg;
   private StatListRef rem;
@@ -157,7 +160,7 @@ public final class Attributes implements Iterable<StatRef> {
     return rem;
   }
 
-  public com.riiablo.attributes.StatList list() {
+  public StatList list() {
     return list;
   }
 
@@ -182,5 +185,54 @@ public final class Attributes implements Iterable<StatRef> {
   @Override
   public Iterator<StatRef> iterator() {
     return agg.statIterator();
+  }
+
+  public String dump() {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PrintStream out = new PrintStream(outputStream);
+    out.println("--------------------------------------------------------------------------------");
+    out.println("base:");
+    for (StatRef stat : base()) {
+      out.println(stat.debugString());
+    }
+
+    out.println("--------------------------------------------------------------------------------");
+    out.println("lists:");
+    for (StatListRef list : list().listIterator()) {
+      out.println("list:");
+      for (StatRef stat : list) {
+        out.println("  " + stat.debugString());
+      }
+    }
+
+    out.println("--------------------------------------------------------------------------------");
+    out.println("aggregate:");
+    for (StatRef stat : aggregate()) {
+      out.println(stat.debugString());
+    }
+
+    out.println("--------------------------------------------------------------------------------");
+    out.println("remaining:");
+    for (StatRef stat : remaining()) {
+      out.println(stat.debugString());
+    }
+
+    return outputStream.toString(Charset.forName("US-ASCII"));
+  }
+
+  public StatRef get(final short stat) {
+    return agg.get(stat);
+  }
+
+  public int getValue(final short stat, final int value) {
+    return agg.getValue(stat, value);
+  }
+
+  public long getValue(final short stat, final long value) {
+    return agg.getValue(stat, value);
+  }
+
+  public float getValue(final short stat, final float value) {
+    return agg.getValue(stat, value);
   }
 }

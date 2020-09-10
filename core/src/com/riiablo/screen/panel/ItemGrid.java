@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.AttributesUpdater;
 import com.riiablo.codec.excel.Inventory;
 import com.riiablo.codec.excel.ItemEntry;
 import com.riiablo.codec.excel.Misc;
@@ -51,6 +52,8 @@ public class ItemGrid extends Group {
   Vector2 coords = new Vector2();
   Vector2 grid = new Vector2();
   Vector2 itemSize = new Vector2();
+
+  protected AttributesUpdater updater = new AttributesUpdater(); // TODO: inject
 
   public ItemGrid(Inventory.Entry inv) {
     this(inv, null);
@@ -355,7 +358,7 @@ public class ItemGrid extends Group {
       b.resetBlendMode();
       item.draw(b, 1);
       if (clickListener.isOver() && itemData.getCursor() == null) {
-        Riiablo.game.setDetails(item.details(), item, ItemGrid.this, item.wrapper);
+        Riiablo.game.setDetails(item.details(updater), item, ItemGrid.this, item.wrapper);
       }
     }
   }
