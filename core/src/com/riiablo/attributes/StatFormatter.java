@@ -94,7 +94,7 @@ public class StatFormatter {
         return builder.toString();
       }
       case 6: { // +%d %s1 %s2
-        final int value = op(stat, opBase) >> stat.entry().ValShift;
+        final int value = Stat.decode(stat.id(), op(stat, opBase));
         if (valmode == 1) builder.append(PLUS).append(value).append(SPACE);
         builder
             .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -104,7 +104,7 @@ public class StatFormatter {
         return builder.toString();
       }
       case 7: { // %d%% %s1 %s2
-        final int value = op(stat, opBase) >> stat.entry().ValShift;
+        final int value = Stat.decode(stat.id(), op(stat, opBase));
         if (valmode == 1) builder.append(value).append(PERCENT).append(SPACE);
         builder
             .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -114,7 +114,7 @@ public class StatFormatter {
         return builder.toString();
       }
       case 8: { // +%d%% %s1 %s2
-        final int value = op(stat, opBase) >> stat.entry().ValShift;
+        final int value = Stat.decode(stat.id(), op(stat, opBase));
         if (valmode == 1) builder.append(PLUS).append(value).append(PERCENT).append(SPACE);
         builder
             .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))
@@ -124,7 +124,7 @@ public class StatFormatter {
         return builder.toString();
       }
       case 9: { // %d %s1 %s2
-        final int value = op(stat, opBase) >> stat.entry().ValShift;
+        final int value = Stat.decode(stat.id(), op(stat, opBase));
         if (valmode == 1) builder.append(value).append(SPACE);
         builder
             .append(Riiablo.string.lookup(value < 0 ? strneg : strpos))

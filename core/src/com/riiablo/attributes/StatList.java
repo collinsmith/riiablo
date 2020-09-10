@@ -392,14 +392,14 @@ public final class StatList {
   int asInt(final int index) {
     assert Stat.numEncodedValues(encoding(index)) == 1;
     return (flags[index] & FLAG_FIXED) == FLAG_FIXED
-        ? encodedValues(index) >> entry(index).ValShift
+        ? Stat.decode(ids[index], encodedValues(index))
         : encodedValues(index);
   }
 
   long asLong(final int index) {
     assert Stat.numEncodedValues(encoding(index)) == 1;
     return (flags[index] & FLAG_FIXED) == FLAG_FIXED
-        ? encodedValues(index) >> entry(index).ValShift
+        ? Stat.decode(ids[index], encodedValues(index))
         : encodedValues(index);
   }
 

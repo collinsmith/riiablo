@@ -20,7 +20,7 @@ public class StatListReader {
     } else {
       log.trace("Reading as standard stat...");
       encodedParams = (int) bits.read63u(entry.Save_Param_Bits);
-      encodedValues = (int) (bits.read63u(entry.Save_Bits) - entry.Save_Add) << entry.ValShift;
+      encodedValues = Stat.encode(stat, (int) (bits.read63u(entry.Save_Bits) - entry.Save_Add));
     }
     return stats.putEncoded(stat, encodedParams, encodedValues);
   }

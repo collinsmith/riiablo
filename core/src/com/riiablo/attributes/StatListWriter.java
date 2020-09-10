@@ -21,7 +21,7 @@ public class StatListWriter {
     } else {
       log.trace("Writing as standard stat {}", stat.debugString());
       bits.write63u(stat.encodedParams(), entry.Save_Param_Bits);
-      bits.write63u((stat.encodedValues() >> entry.ValShift) + entry.Save_Add, entry.Save_Bits);
+      bits.write63u(Stat.decode(stat.id(), stat.encodedValues()) + entry.Save_Add, entry.Save_Bits);
     }
     return stat;
   }

@@ -436,6 +436,10 @@ public class Stat {
     return value << entry(stat).ValShift;
   }
 
+  static int decode(final short stat, final int value) {
+    return value >>> entry(stat).ValShift;
+  }
+
   static int encodeParams(final int encoding, int param1, int param2) {
     switch (encoding) {
       default:
