@@ -220,6 +220,10 @@ public final class Attributes implements Iterable<StatRef> {
     return outputStream.toString(Charset.forName("US-ASCII"));
   }
 
+  public boolean contains(final short stat) {
+    return agg.containsAny(stat);
+  }
+
   public StatRef get(final short stat) {
     return agg.get(stat);
   }
