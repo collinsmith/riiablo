@@ -124,6 +124,10 @@ public class Actioneer extends PassiveSystem {
 
         Attributes attrs = mAttributesWrapper.get(targetId).attrs;
         log.debug("{} {}", targetId, attrs.get(Stat.hitpoints).asFixed());
+
+        attrs.get(Stat.hitpoints).sub(10f);
+        log.debug("{} {}", targetId, attrs.get(Stat.hitpoints).asFixed());
+
         break;
       case 27: // teleport
         mPosition.get(entityId).position.set(targetVec);
