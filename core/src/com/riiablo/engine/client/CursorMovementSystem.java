@@ -126,7 +126,10 @@ public class CursorMovementSystem extends BaseSystem {
       if (target != null) {
         int targetId = target.target;
         Vector2 srcPos = mPosition.get(src).position;
-        if (!mPosition.has(targetId)) mTarget.remove(src);
+        if (mPosition.has(targetId)) {
+          setTarget(src, Engine.INVALID_ENTITY);
+          return;
+        }
         Vector2 targetPos = mPosition.get(targetId).position;
         // not interactable -> attacking? check weapon range to auto attack or cast spell
         Interactable interactable = mInteractable.get(targetId);
