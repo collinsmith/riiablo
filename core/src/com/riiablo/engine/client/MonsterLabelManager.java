@@ -62,9 +62,13 @@ public class MonsterLabelManager extends BaseEntitySystem {
   protected void processSystem() {
     IntBag entities = getEntityIds();
     if (entities.size() > 0) {
-      int firstId = entities.get(0);
-      final float percent = monsterLabel.set(firstId);
-      monsterLabel.setVisible(percent > 0f);
+      for (int i = 0, s = entities.size(); i < s; i++) {
+        final int entityId = entities.get(i);
+        final float percent = monsterLabel.set(entityId);
+        final boolean visible = percent > 0f;
+        monsterLabel.setVisible(visible);
+        if (visible) break;
+      }
     }
   }
 
