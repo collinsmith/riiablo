@@ -1,9 +1,11 @@
 package com.riiablo.map;
 
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.net.Socket;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Levels;
 import com.riiablo.codec.excel.LvlPrest;
@@ -118,8 +120,8 @@ public enum Act1MapBuilder implements MapBuilder {
                   ? monster.MaxGrp
                   : MathUtils.random(monster.MinGrp, monster.MaxGrp);
               for (i = 0; i < count; i++) {
-                int px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE);
-                int py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE);
+                float px = zone.getGlobalX(tx * DT1.Tile.SUBTILE_SIZE) + MathUtils.random(-2f, 2f);
+                float py = zone.getGlobalY(ty * DT1.Tile.SUBTILE_SIZE) + MathUtils.random(-2f, 2f);
                 factory.createMonster(monster, px, py);
               }
             }
