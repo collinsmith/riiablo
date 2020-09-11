@@ -23,6 +23,7 @@ import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Sequence;
 import com.riiablo.engine.server.event.AnimDataFinishedEvent;
 import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
+import com.riiablo.engine.server.event.DamageEvent;
 import com.riiablo.engine.server.event.DeathEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.engine.server.event.SkillDoEvent;
@@ -130,7 +131,9 @@ public class Actioneer extends PassiveSystem {
         StatRef hitpoints = attrs.get(Stat.hitpoints);
         log.debug("{} {}", targetId, hitpoints.asFixed());
 
-        hitpoints.sub(50f);
+        DamageEvent event = DamageEvent.obtain(entityId, targetId, 50f);
+        events.dispatch(event);
+        hitpoints.sub(event.damage);
         log.debug("{} {}", targetId, hitpoints.asFixed());
 
         if (Fixed.isNegative(hitpoints.encodedValues())) {
