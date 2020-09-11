@@ -63,8 +63,8 @@ public class MonsterLabelManager extends BaseEntitySystem {
     IntBag entities = getEntityIds();
     if (entities.size() > 0) {
       int firstId = entities.get(0);
-      monsterLabel.set(firstId);
-      monsterLabel.setVisible(true);
+      final float percent = monsterLabel.set(firstId);
+      monsterLabel.setVisible(percent > 0f);
     }
   }
 
@@ -95,7 +95,7 @@ public class MonsterLabelManager extends BaseEntitySystem {
       pack();
     }
 
-    void set(int entityId) {
+    float set(int entityId) {
       MonStats.Entry monstats = mMonster.get(entityId).monstats;
       name.setText(Riiablo.string.lookup(monstats.NameStr));
       typeBuilder.setLength(0);
@@ -116,7 +116,7 @@ public class MonsterLabelManager extends BaseEntitySystem {
       Attributes attrs = mAttributesWrapper.get(entityId).attrs;
       final float hitpoints = attrs.get(Stat.hitpoints).asFixed();
       final float maxhp = attrs.get(Stat.maxhp).asFixed();
-      background.percent = hitpoints / maxhp;
+      return background.percent = hitpoints / maxhp;
     }
   }
 }
