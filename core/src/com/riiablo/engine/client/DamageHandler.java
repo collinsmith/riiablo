@@ -4,6 +4,7 @@ import com.artemis.ComponentMapper;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
+import com.riiablo.Riiablo;
 import com.riiablo.engine.server.component.AIWrapper;
 import com.riiablo.engine.server.event.DamageEvent;
 import com.riiablo.logger.LogManager;
@@ -18,5 +19,6 @@ public class DamageHandler extends PassiveSystem {
   public void onDamageEvent(DamageEvent event) {
     log.traceEntry("onDamageEvent(attacker: {}, victim: {}, damage: {})", event.attacker, event.victim, event.damage);
     mAIWrapper.get(event.victim).ai.hit();
+    Riiablo.audio.play("impact_blunt_1", true);
   }
 }
