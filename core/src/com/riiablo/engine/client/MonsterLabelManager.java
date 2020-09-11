@@ -13,9 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 
 import com.riiablo.Riiablo;
+import com.riiablo.attributes.Attributes;
+import com.riiablo.attributes.Stat;
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.excel.MonStats;
 import com.riiablo.engine.client.component.Hovered;
+import com.riiablo.engine.server.component.AttributesWrapper;
 import com.riiablo.engine.server.component.Monster;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -28,6 +31,7 @@ import com.riiablo.widget.Label;
 @Exclude(com.riiablo.engine.client.component.Label.class)
 public class MonsterLabelManager extends BaseEntitySystem {
   protected ComponentMapper<Monster> mMonster;
+  protected ComponentMapper<AttributesWrapper> mAttributesWrapper;
 
   @Wire(name = "iso")
   protected IsometricCamera iso;
@@ -72,10 +76,12 @@ public class MonsterLabelManager extends BaseEntitySystem {
     Label name;
     Label type;
     StringBuilder typeBuilder = new StringBuilder(32);
+    PaletteIndexedColorDrawable background;
 
     MonsterLabel() {
       label = new Table();
-      label.setBackground(new PaletteIndexedColorDrawable(Riiablo.colors.darkRed) {{
+      label.setBackground(background = new PaletteIndexedColorDrawable(
+          Riiablo.colors.darkRed, Riiablo.colors.modal50) {{
         setTopHeight(VERTICAL_PADDING);
         setBottomHeight(VERTICAL_PADDING);
         setLeftWidth(HORIZONTAL_PADDING);
@@ -106,6 +112,11 @@ public class MonsterLabelManager extends BaseEntitySystem {
       if (typeBuilder.length() > 0) typeBuilder.setLength(typeBuilder.length() - 1);
       type.setText(typeBuilder);
       //pack();
+
+      Attributes attrs = mAttributesWrapper.get(entityId).attrs;
+      final float hitpoints = attrs.get(Stat.hitpoints).asFixed();
+      final float maxhp = attrs.get(Stat.maxhp).asFixed();
+      background.percent = hitpoints / maxhp;
     }
   }
 }

@@ -3,6 +3,7 @@ package com.riiablo.graphics;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
 import com.riiablo.Riiablo;
 
 public class PaletteIndexedColorDrawable extends TextureRegionDrawable {
@@ -15,10 +16,26 @@ public class PaletteIndexedColorDrawable extends TextureRegionDrawable {
   }};
 
   public Color tint;
+  public Color modal;
+  public float percent = 1f;
 
   public PaletteIndexedColorDrawable(Color color) {
+    this(color, null);
+  }
+
+  public PaletteIndexedColorDrawable(Color color, Color modal) {
     super(Riiablo.textures.white);
     this.tint = color;
+    this.modal = modal;
+    percent = 1f;
+  }
+
+  public void setPercent(float percent) {
+    this.percent = percent;
+  }
+
+  public float percent() {
+    return percent;
   }
 
   @Override
@@ -54,8 +71,12 @@ public class PaletteIndexedColorDrawable extends TextureRegionDrawable {
     }
 
     PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
+    if (modal != null) {
+      b.setBlendMode(BlendMode.SOLID, modal);
+      super.draw(batch, x, y, width, height);
+    }
     b.setBlendMode(BlendMode.SOLID, tint);
-    super.draw(batch, x, y, width, height);
+    super.draw(batch, x, y, width * percent, height);
     b.resetBlendMode();
   }
 
@@ -69,8 +90,12 @@ public class PaletteIndexedColorDrawable extends TextureRegionDrawable {
     }
 
     PaletteIndexedBatch b = (PaletteIndexedBatch) batch;
+    if (modal != null) {
+      b.setBlendMode(BlendMode.SOLID, modal);
+      super.draw(batch, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
+    }
     b.setBlendMode(BlendMode.SOLID, tint);
-    super.draw(batch, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
+    super.draw(batch, x, y, originX, originY, width * percent, height, scaleX, scaleY, rotation);
     b.resetBlendMode();
   }
 }
