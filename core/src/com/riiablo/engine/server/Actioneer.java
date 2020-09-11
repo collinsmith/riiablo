@@ -30,7 +30,6 @@ import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
-import com.riiablo.math.Fixed;
 
 public class Actioneer extends PassiveSystem {
   private static final Logger log = LogManager.getLogger(Actioneer.class);
@@ -135,10 +134,6 @@ public class Actioneer extends PassiveSystem {
         events.dispatch(event);
         hitpoints.sub(event.damage);
         log.debug("{} {}", targetId, hitpoints.asFixed());
-
-        if (Fixed.isNegative(hitpoints.encodedValues())) {
-          hitpoints.set(0f);
-        }
 
         if (hitpoints.asFixed() <= 0f) {
           log.debug("{} is dead!", targetId);
