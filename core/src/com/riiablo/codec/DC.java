@@ -9,8 +9,12 @@ import com.badlogic.gdx.utils.Disposable;
 
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 public abstract class DC implements Disposable {
+  private static final Logger log = LogManager.getLogger(DC.class);
+
   public static final String[] EXTS = {DC6.EXT, DCC.EXT }; // I think uncompressed first is better
 
   public static DC loadFromFile(FileHandle handle) {
@@ -96,7 +100,9 @@ public abstract class DC implements Disposable {
         case 8:  return toRealDir8(d);
         case 16: return toRealDir16(d);
         case 32: return toRealDir32(d);
-        default: throw new AssertionError();
+        default: // FIXME: see #113
+          log.error("numDirs({}) invalid: should be one of {1,2,4,8,16,32}", numDirs);
+          return 0;
       }
     }
 
@@ -112,7 +118,9 @@ public abstract class DC implements Disposable {
         case 6: return 4;
         case 7: return 6;
 
-        default: throw new AssertionError();
+        default: // FIXME: see #113
+          log.error("d({}) invalid: should be in [{}..{})", d, 0, 8);
+          return 0;
       }
     }
 
@@ -137,7 +145,9 @@ public abstract class DC implements Disposable {
         case 14: return 13;
         case 15: return 15;
 
-        default: throw new AssertionError();
+        default: // FIXME: see #113
+          log.error("d({}) invalid: should be in [{}..{})", d, 0, 16);
+          return 0;
       }
     }
 
@@ -179,7 +189,9 @@ public abstract class DC implements Disposable {
         case 30: return 29;
         case 31: return 31;
 
-        default: throw new AssertionError();
+        default: // FIXME: see #113
+          log.error("d({}) invalid: should be in [{}..{})", d, 0, 32);
+          return 0;
       }
     }
   }
