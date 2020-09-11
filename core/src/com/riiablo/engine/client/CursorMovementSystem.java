@@ -126,7 +126,7 @@ public class CursorMovementSystem extends BaseSystem {
       if (target != null) {
         int targetId = target.target;
         Vector2 srcPos = mPosition.get(src).position;
-        if (mPosition.has(targetId)) {
+        if (mPosition.get(targetId) == null) {
           setTarget(src, Engine.INVALID_ENTITY);
           return;
         }
