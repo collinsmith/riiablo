@@ -10,6 +10,7 @@ import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
+import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonStats;
@@ -101,6 +102,10 @@ public abstract class AI implements Interactable.Interactor {
 
   public String getState() {
     return "";
+  }
+
+  public void hit() {
+    Riiablo.audio.play(monsound + "_hit_1", true);
   }
 
   public void kill() {}

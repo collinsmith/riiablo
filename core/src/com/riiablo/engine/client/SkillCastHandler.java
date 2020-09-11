@@ -3,6 +3,8 @@ package com.riiablo.engine.client;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
+import com.badlogic.gdx.utils.ObjectMap;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.excel.Skills;
 import com.riiablo.engine.server.event.SkillCastEvent;
@@ -18,6 +20,14 @@ public class SkillCastHandler extends PassiveSystem {
 
   @Subscribe
   public void onSkillCast(SkillCastEvent event) {
+  }
+
+  private static final ObjectMap<String, String> HITCLASS = new ObjectMap<>();
+  static {
+    HITCLASS.put("1hss", "weapon_1hs_small_1");
+    HITCLASS.put("1hsl", "weapon_1hs_large_1");
+    HITCLASS.put("2hss", "weapon_2hs_small_1");
+    HITCLASS.put("2hsl", "weapon_2hs_large_1");
   }
 
   @Subscribe
@@ -88,6 +98,7 @@ public class SkillCastHandler extends PassiveSystem {
       case 0:
         break;
       case 1: // attack
+        Riiablo.audio.play("weapon_1hs_large_1", true); // TODO: hclass of swung weapon
         break;
       case 25: // shouts / novas
         break;

@@ -57,6 +57,7 @@ import com.riiablo.engine.client.CofResolver;
 import com.riiablo.engine.client.CofTransformHandler;
 import com.riiablo.engine.client.CofUnloader;
 import com.riiablo.engine.client.CursorMovementSystem;
+import com.riiablo.engine.client.DamageHandler;
 import com.riiablo.engine.client.DeathHandler;
 import com.riiablo.engine.client.DialogManager;
 import com.riiablo.engine.client.DirectionResolver;
@@ -578,6 +579,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new SkillCastHandler()) // TODO: move to more appropriate spot in list
         .with(new OverlayManager()) // TODO: move to more appropriate spot in list
         .with(new OverlayStepper()) // TODO: move to more appropriate spot in list
+        .with(new DamageHandler()) // TODO: move to more appropriate spot in list
         .with(new DeathHandler()) // TODO: move to more appropriate spot in list
         ;
     if (socket == null) {
