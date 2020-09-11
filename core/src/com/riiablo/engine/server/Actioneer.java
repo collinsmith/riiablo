@@ -123,6 +123,7 @@ public class Actioneer extends PassiveSystem {
         break;
       case 1: // attack
         if (targetId == Engine.INVALID_ENTITY) return;
+        if (!mAttributesWrapper.has(targetId)) return;
         log.debug("{} attack {}", entityId, targetId);
 
         Attributes attrs = mAttributesWrapper.get(targetId).attrs;
