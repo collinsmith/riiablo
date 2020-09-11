@@ -4,11 +4,13 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.EntitySubscription;
 import com.artemis.utils.IntBag;
+
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+
 import com.riiablo.Riiablo;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.server.component.Class;
@@ -19,7 +21,8 @@ public class Zombie extends AI {
     IDLE,
     WANDER,
     APPROACH,
-    ATTACK;
+    ATTACK,
+    DEAD;
 
     @Override public void enter(Integer entityId) {}
     @Override public void update(Integer entityId) {}
@@ -55,8 +58,21 @@ public class Zombie extends AI {
   }
 
   @Override
+  public void kill() {
+    if (stateMachine.getCurrentState() == State.DEAD) return;
+    pathfinder.findPath(entityId, null);
+    stateMachine.changeState(State.DEAD);
+    mSequence.create(entityId).sequence(Engine.Monster.MODE_DT, Engine.Monster.MODE_DD);
+    Riiablo.audio.play(monsound + "_death_1", true);
+  }
+
+  @Override
   public void update(float delta) {
     stateMachine.update();
+    if (stateMachine.getCurrentState() == State.DEAD) {
+      return;
+    }
+
     nextAction -= delta;
     time -= delta;
     if (time > 0) {

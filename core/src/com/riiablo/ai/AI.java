@@ -1,10 +1,15 @@
 package com.riiablo.ai;
 
+import java.lang.reflect.Constructor;
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.EntityId;
 import com.artemis.annotations.Wire;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.MonStats;
@@ -21,10 +26,6 @@ import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Sequence;
 import com.riiablo.engine.server.component.Size;
 import com.riiablo.engine.server.component.Velocity;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.lang.reflect.Constructor;
 
 public abstract class AI implements Interactable.Interactor {
   private static final String TAG = "AI";
@@ -101,6 +102,8 @@ public abstract class AI implements Interactable.Interactor {
   public String getState() {
     return "";
   }
+
+  public void kill() {}
 
   protected Angle lookAt(int target) {
     Vector2 targetPos = mPosition.get(target).position;
