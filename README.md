@@ -70,11 +70,14 @@ java -jar desktop/build/libs/desktop-1.0.jar -home "C:\diablo"
 Sometimes it may be necessary to also run `gradlew --refresh-dependencies`
 
 #### Linux / MacOS
-I have not tested support on any Linux distros yet -- but it should work. Since
-this project is developed using the MPQ format from the Windows installation,
-it's likely that only the Windows MPQs will work. If there are any additional
-steps required, let me know and I can add them until I get a chance to test
-this myself.
+You'll need a JDK 8 in order to build this. JDK >14 doesn't work at the moment.
+```shell script
+git clone https://github.com/collinsmith/riiablo.git
+cd riiablo
+./gradlew desktop:dist
+# Replace `"~/Games/diablo"` by the path of your Diablo 2 folder
+java -jar desktop/build/libs/desktop-1.0.jar -home "~/Games/diablo"
+```
 
 #### Android
 Steps will be provided when the project is further along and the configuration
