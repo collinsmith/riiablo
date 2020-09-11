@@ -11,6 +11,7 @@ import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.component.AIWrapper;
 import com.riiablo.engine.server.component.Box2DBody;
 import com.riiablo.engine.server.component.Monster;
+import com.riiablo.engine.server.component.Target;
 import com.riiablo.engine.server.event.DeathEvent;
 import com.riiablo.engine.server.event.ModeChangeEvent;
 import com.riiablo.logger.LogManager;
@@ -22,6 +23,7 @@ public class DeathHandler extends PassiveSystem {
 
   protected ComponentMapper<AIWrapper> mAIWrapper;
   protected ComponentMapper<Monster> mMonster;
+  protected ComponentMapper<Target> mTarget;
 
   protected CofManager cofs;
 
@@ -32,6 +34,9 @@ public class DeathHandler extends PassiveSystem {
   public void onDeathEvent(DeathEvent event) {
     log.traceEntry("onDeathEvent(killer: {}, victim: {})", event.killer, event.victim);
     mAIWrapper.get(event.victim).ai.kill();
+    if (mTarget.has(event.killer) && mTarget.get(event.killer).target == event.victim) {
+      mTarget.remove(event.killer);
+    }
   }
 
   @Subscribe
