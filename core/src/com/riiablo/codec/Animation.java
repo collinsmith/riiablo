@@ -340,7 +340,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
         box.max(layer.dc.getBox(direction));
       }
     } else if (frame < numFrames) { // TODO: else assign box to cof.box for dir
-      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+      int d = DC.Direction.toRealDir(direction, cof.getNumDirections());
       int f = frame;
       box.reset();
       for (int l = 0; l < cof.getNumLayers(); l++) {
@@ -404,7 +404,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
       shapes.rect(x + box.xMin, y - box.yMax, box.width, box.height);
       if (reset) shapes.end();
     } else if (DEBUG_MODE == 2 && frame < numFrames) {
-      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+      int d = DC.Direction.toRealDir(direction, cof.getNumDirections());
       int f = frame;
       for (int l = 0; l < cof.getNumLayers(); l++) {
         int component = cof.getLayerOrder(d, f, l);
@@ -431,7 +431,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
         drawLayer(batch, layer, x, y);
       }
     } else {
-      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+      int d = DC.Direction.toRealDir(direction, cof.getNumDirections());
       int f = frame;
       // TODO: Layer blend modes should correspond with the cof trans levels
       for (int l = 0, numLayers = cof.getNumLayers(); l < numLayers; l++) {
@@ -463,7 +463,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
         drawShadow(batch, layer, x, y);
       }
     } else if (frame < numFrames) {
-      int d = DC.Direction.toReadDir(direction, cof.getNumDirections());
+      int d = DC.Direction.toRealDir(direction, cof.getNumDirections());
       int f = frame;
       for (int l = 0; l < cof.getNumLayers(); l++) {
         int component = cof.getLayerOrder(d, f, l);

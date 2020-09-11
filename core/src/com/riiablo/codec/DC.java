@@ -1,5 +1,7 @@
 package com.riiablo.codec;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -7,8 +9,6 @@ import com.badlogic.gdx.utils.Disposable;
 
 import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedBatch;
-
-import java.util.Arrays;
 
 public abstract class DC implements Disposable {
   public static final String[] EXTS = {DC6.EXT, DCC.EXT }; // I think uncompressed first is better
@@ -88,7 +88,7 @@ public abstract class DC implements Disposable {
   public static abstract class Direction {
     BBox box;
 
-    public static int toReadDir(int d, int numDirs) {
+    public static int toRealDir(int d, int numDirs) {
       switch (numDirs) {
         case 1:
         case 2:
