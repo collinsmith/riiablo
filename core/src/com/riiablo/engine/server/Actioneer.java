@@ -23,6 +23,7 @@ import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Sequence;
 import com.riiablo.engine.server.event.AnimDataFinishedEvent;
 import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
+import com.riiablo.engine.server.event.DeathEvent;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
@@ -128,7 +129,7 @@ public class Actioneer extends PassiveSystem {
         StatRef hitpoints = attrs.get(Stat.hitpoints);
         log.debug("{} {}", targetId, hitpoints.asFixed());
 
-        hitpoints.sub(10f);
+        hitpoints.sub(50f);
         log.debug("{} {}", targetId, hitpoints.asFixed());
 
         if (Fixed.isNegative(hitpoints.encodedValues())) {
@@ -137,6 +138,7 @@ public class Actioneer extends PassiveSystem {
 
         if (hitpoints.asFixed() <= 0f) {
           log.debug("{} is dead!", targetId);
+          events.dispatch(DeathEvent.obtain(entityId, targetId));
         }
         break;
       case 27: // teleport
