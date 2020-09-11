@@ -126,13 +126,15 @@ public class CursorMovementSystem extends BaseSystem {
       if (target != null) {
         int targetId = target.target;
         Vector2 srcPos = mPosition.get(src).position;
+        if (!mPosition.has(targetId)) mTarget.remove(src);
         Vector2 targetPos = mPosition.get(targetId).position;
         // not interactable -> attacking? check weapon range to auto attack or cast spell
         Interactable interactable = mInteractable.get(targetId);
-        if (interactable != null && srcPos.dst(targetPos) <= interactable.range) {
+        final float dst = srcPos.dst(targetPos);
+        if (interactable != null && dst <= interactable.range) {
           setTarget(src, Engine.INVALID_ENTITY);
           interactable.interactor.interact(src, targetId);
-        } else if (interactable == null) { // TODO: change to check targetability of targetId
+        } else if (interactable == null && dst <= 2) { // TODO: change to check targetability of targetId
           setTarget(src, Engine.INVALID_ENTITY);
           actioneer.cast(src, Riiablo.charData.getAction(Input.Buttons.LEFT), targetId, targetPos);
         }
