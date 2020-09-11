@@ -1,11 +1,15 @@
 package com.riiablo.map;
 
+import java.util.Arrays;
+import org.apache.commons.lang3.Validate;
+
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
 import com.artemis.utils.IntBag;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -18,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+
 import com.riiablo.camera.IsometricCamera;
 import com.riiablo.codec.excel.Objects;
 import com.riiablo.engine.server.component.Box2DBody;
@@ -26,10 +31,6 @@ import com.riiablo.engine.server.component.Interactable;
 import com.riiablo.engine.server.component.Object;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Size;
-
-import org.apache.commons.lang3.Validate;
-
-import java.util.Arrays;
 
 @All({Class.class, Position.class, Size.class, Box2DBody.class})
 public class Box2DPhysics extends IntervalSystem {
@@ -64,6 +65,10 @@ public class Box2DPhysics extends IntervalSystem {
     fixedRotation = true;
   }};
   private final BodyDef monsterBodyDef = new BodyDef() {{
+    type = BodyDef.BodyType.DynamicBody;
+    fixedRotation = true;
+  }};
+  private final BodyDef missileBodyDef = new BodyDef() {{
     type = BodyDef.BodyType.DynamicBody;
     fixedRotation = true;
   }};
@@ -143,6 +148,16 @@ public class Box2DPhysics extends IntervalSystem {
       case MON: {
           monsterBodyDef.position.set(position);
           body = box2d.createBody(monsterBodyDef);
+          CircleShape shape = new CircleShape(); {
+            shape.setRadius(size / 2f);
+            Fixture fixture = body.createFixture(shape, 1f);
+            //fixture.setSensor(true);
+          } shape.dispose();
+        }
+        break;
+      case MIS: {
+          missileBodyDef.position.set(position);
+          body = box2d.createBody(missileBodyDef);
           CircleShape shape = new CircleShape(); {
             shape.setRadius(size / 2f);
             Fixture fixture = body.createFixture(shape, 1f);

@@ -1,11 +1,12 @@
 package com.riiablo.engine.client;
 
 import com.artemis.ComponentMapper;
+
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
-import com.riiablo.save.CharData;
+
 import com.riiablo.Riiablo;
 import com.riiablo.ai.AI;
 import com.riiablo.ai.Npc;
@@ -30,6 +31,7 @@ import com.riiablo.engine.server.component.SoundEmitter;
 import com.riiablo.engine.server.component.Warp;
 import com.riiablo.map.DT1;
 import com.riiablo.map.Map;
+import com.riiablo.save.CharData;
 
 public class ClientEntityFactory extends ServerEntityFactory {
   private static final String TAG = "ClientEntityFactory";
@@ -202,6 +204,7 @@ public class ClientEntityFactory extends ServerEntityFactory {
     int id = super.createMissile(missileId, angle, position);
     Missile missileWrapper = mMissile.get(id);
     Riiablo.assets.load(missileWrapper.missileDescriptor);
+    mBox2DBody.create(id);
 
     Missiles.Entry missile = mMissile.get(id).missile;
     if (!missile.TravelSound.isEmpty()) {

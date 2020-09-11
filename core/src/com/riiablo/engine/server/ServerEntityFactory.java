@@ -247,6 +247,7 @@ public class ServerEntityFactory extends EntityFactory {
     mPosition.create(id).position.set(position);
     mVelocity.create(id).velocity.set(angle).setLength(missile.Vel);
     mAngle.create(id).set(angle);
+    mSize.create(id).size = Size.SMALL;
     return id;
   }
 }
