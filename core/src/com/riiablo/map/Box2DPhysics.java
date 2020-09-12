@@ -71,6 +71,7 @@ public class Box2DPhysics extends IntervalSystem {
   private final BodyDef missileBodyDef = new BodyDef() {{
     type = BodyDef.BodyType.DynamicBody;
     fixedRotation = true;
+    bullet = true;
   }};
   private final BodyDef playerBodyDef = monsterBodyDef;
 
@@ -161,7 +162,7 @@ public class Box2DPhysics extends IntervalSystem {
           CircleShape shape = new CircleShape(); {
             shape.setRadius(size / 2f);
             Fixture fixture = body.createFixture(shape, 1f);
-            //fixture.setSensor(true);
+            fixture.setSensor(true);
           } shape.dispose();
         }
         break;
