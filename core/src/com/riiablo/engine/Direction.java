@@ -1,8 +1,8 @@
 package com.riiablo.engine;
 
-import com.badlogic.gdx.math.MathUtils;
-
 import org.apache.commons.lang3.ArrayUtils;
+
+import com.badlogic.gdx.math.MathUtils;
 
 public class Direction {
   private Direction() {}
@@ -30,16 +30,14 @@ public class Direction {
        MathUtils.PI * 3 / 4,
   };
 
-  static final float RADIANS_8[] = {
-      RADIANS_4[0],
-      RADIANS_4M[0],
-      RADIANS_4[1],
-      RADIANS_4M[1],
-      RADIANS_4[2],
-      RADIANS_4M[2],
-      RADIANS_4[3],
-      RADIANS_4M[3],
-  };
+  static final float RADIANS_8[];
+  static {
+    RADIANS_8 = new float[8];
+    for (int i = 0, j = 0; i < 4; i++) {
+      RADIANS_8[j++] = RADIANS_4[i];
+      RADIANS_8[j++] = RADIANS_4M[i];
+    }
+  }
   static final int   DIRS_8M[] = {1, 6, 2, 7, 3, 4, 0, 5};
   static final float RADIANS_8M[];
   static {
@@ -51,24 +49,14 @@ public class Direction {
     }
   }
 
-  static final float RADIANS_16[] = {
-      RADIANS_8[0],
-      RADIANS_8M[0],
-      RADIANS_8[1],
-      RADIANS_8M[1],
-      RADIANS_8[2],
-      RADIANS_8M[2],
-      RADIANS_8[3],
-      RADIANS_8M[3],
-      RADIANS_8[4],
-      RADIANS_8M[4],
-      RADIANS_8[5],
-      RADIANS_8M[5],
-      RADIANS_8[6],
-      RADIANS_8M[6],
-      RADIANS_8[7],
-      RADIANS_8M[7],
-  };
+  static final float RADIANS_16[];
+  static {
+    RADIANS_16 = new float[16];
+    for (int i = 0, j = 0; i < 8; i++) {
+      RADIANS_16[j++] = RADIANS_8[i];
+      RADIANS_16[j++] = RADIANS_8M[i];
+    }
+  }
   static final int   DIRS_16M[] = {1, 11, 6, 12, 2, 13, 7, 14, 3, 15, 4, 8, 0, 9, 5, 10};
   static final float RADIANS_16M[];
   static {
@@ -80,40 +68,14 @@ public class Direction {
     }
   }
 
-  static final float RADIANS_32[] = {
-      RADIANS_16[0],
-      RADIANS_16M[0],
-      RADIANS_16[1],
-      RADIANS_16M[1],
-      RADIANS_16[2],
-      RADIANS_16M[2],
-      RADIANS_16[3],
-      RADIANS_16M[3],
-      RADIANS_16[4],
-      RADIANS_16M[4],
-      RADIANS_16[5],
-      RADIANS_16M[5],
-      RADIANS_16[6],
-      RADIANS_16M[6],
-      RADIANS_16[7],
-      RADIANS_16M[7],
-      RADIANS_16[8],
-      RADIANS_16M[8],
-      RADIANS_16[9],
-      RADIANS_16M[9],
-      RADIANS_16[10],
-      RADIANS_16M[10],
-      RADIANS_16[11],
-      RADIANS_16M[11],
-      RADIANS_16[12],
-      RADIANS_16M[12],
-      RADIANS_16[13],
-      RADIANS_16M[13],
-      RADIANS_16[14],
-      RADIANS_16M[14],
-      RADIANS_16[15],
-      RADIANS_16M[15],
-  };
+  static final float RADIANS_32[];
+  static {
+    RADIANS_32 = new float[32];
+    for (int i = 0, j = 0; i < 16; i++) {
+      RADIANS_32[j++] = RADIANS_16[i];
+      RADIANS_32[j++] = RADIANS_16M[i];
+    }
+  }
   static final int   DIRS_32M[] = {1, 22, 11, 23, 6, 24, 12, 25, 2, 26, 13, 27, 7, 28, 14, 29, 3, 30, 15, 31, 4, 16, 8, 17, 0, 18, 9, 19, 5, 20, 10, 21};
   static final float RADIANS_32M[];
   static {
@@ -122,6 +84,15 @@ public class Direction {
     for (int i = 31; i >= 0; i--) {
       RADIANS_32M[i] = (max + RADIANS_32[i]) / 2;
       max = RADIANS_32[i];
+    }
+  }
+
+  static final float RADIANS_64[];
+  static {
+    RADIANS_64 = new float[64];
+    for (int i = 0, j = 0; i < 32; i++) {
+      RADIANS_64[j++] = RADIANS_32[i];
+      RADIANS_64[j++] = RADIANS_32M[i];
     }
   }
 
@@ -236,5 +207,37 @@ public class Direction {
     int i = ArrayUtils.indexOf(DIRS_8M, direction);
     if (i == ArrayUtils.INDEX_NOT_FOUND) return 0;
     return RADIANS_8[i];
+  }
+
+  public static float directionToRadians(int direction, int directions) {
+    switch (directions) {
+      case 1:  return 0;
+      case 4:  return directionToRadians4(direction);
+      case 8:  return directionToRadians8(direction);
+      case 16: return directionToRadians16(direction);
+      case 32: return directionToRadians32(direction);
+      case 64: return directionToRadians64(direction);
+      default: return 0;
+    }
+  }
+
+  static float directionToRadians4(int direction) {
+    return RADIANS_4[direction];
+  }
+
+  static float directionToRadians8(int direction) {
+    return RADIANS_8[direction];
+  }
+
+  static float directionToRadians16(int direction) {
+    return RADIANS_16[direction];
+  }
+
+  static float directionToRadians32(int direction) {
+    return RADIANS_32[direction];
+  }
+
+  static float directionToRadians64(int direction) {
+    return RADIANS_64[direction];
   }
 }
