@@ -94,6 +94,7 @@ import com.riiablo.engine.server.Box2DSynchronizerPre;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ItemInteractor;
 import com.riiablo.engine.server.ItemManager;
+import com.riiablo.engine.server.MissileHandler;
 import com.riiablo.engine.server.ObjectCollisionUpdater;
 import com.riiablo.engine.server.ObjectInitializer;
 import com.riiablo.engine.server.ObjectInteractor;
@@ -616,6 +617,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
         .with(new Box2DSynchronizerPre())
         .with(new Box2DPhysics(1 / 60f))
         .with(new Box2DSynchronizerPost())
+
+        .with(new MissileHandler()) // TODO: move to more appropriate spot in list
 
         .with(new ZoneChangeTracker())
         .with(new ZoneMovementModesChanger())

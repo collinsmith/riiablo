@@ -4,6 +4,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
+
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DCC;
@@ -42,6 +43,7 @@ public class MissileLoader extends IteratingSystem {
     animation.setMode(entry.LoopAnim > 0 ? Animation.Mode.LOOP : Animation.Mode.CLAMP); // TODO: Some are 2 -- special case?
     animation.setFrame(entry.RandStart);
     animation.setFrameDelta(entry.animrate);
+    animation.setDirection(0);
 
     mBBoxWrapper.create(entityId).box = animation.getBox();
   }
