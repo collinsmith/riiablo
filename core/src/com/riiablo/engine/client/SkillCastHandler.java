@@ -1,12 +1,19 @@
 package com.riiablo.engine.client;
 
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.system.core.PassiveSystem;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import com.riiablo.Riiablo;
+import com.riiablo.codec.excel.Missiles;
 import com.riiablo.codec.excel.Skills;
+import com.riiablo.engine.Direction;
+import com.riiablo.engine.EntityFactory;
+import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.event.SkillCastEvent;
 import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
@@ -16,7 +23,12 @@ import com.riiablo.logger.Logger;
 public class SkillCastHandler extends PassiveSystem {
   private static final Logger log = LogManager.getLogger(SkillCastHandler.class);
 
+  protected ComponentMapper<Position> mPosition;
+
   protected OverlayManager overlays;
+
+  @Wire(name = "factory")
+  protected EntityFactory factory;
 
   @Subscribe
   public void onSkillCast(SkillCastEvent event) {
@@ -101,6 +113,13 @@ public class SkillCastHandler extends PassiveSystem {
         Riiablo.audio.play("weapon_1hs_large_1", true); // TODO: hclass of swung weapon
         break;
       case 25: // shouts / novas
+        Missiles.Entry missile = Riiablo.files.Missiles.get(skill.cltmissilea);
+        Vector2 position = mPosition.get(event.entityId).position;
+        final Vector2 angle = new Vector2(Vector2.X);
+        for (int i = 0, s = missile.NumDirections * 2; i < s; i++) {
+          angle.setAngleRad(Direction.directionToRadians(i, s));
+          factory.createMissile(missile, angle, position);
+        }
         break;
       default:
         log.warn("Unsupported cltdofunc({}) for {} casting {}", event.cltdofunc, event.entityId, event.skillId);

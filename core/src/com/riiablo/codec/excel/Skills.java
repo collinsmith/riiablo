@@ -58,5 +58,9 @@ public class Skills extends Excel<Skills.Entry> {
     @Column public int     srvdofunc;
     @Column public int     cltstfunc;
     @Column public int     cltdofunc;
+    @Column public String  cltmissilea;
+    @Column public String  cltmissileb;
+    @Column public String  cltmissilec;
+    @Column public String  cltmissiled;
   }
 }

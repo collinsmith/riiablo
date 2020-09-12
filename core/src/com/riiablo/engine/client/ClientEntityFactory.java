@@ -2,7 +2,6 @@ package com.riiablo.engine.client;
 
 import com.artemis.ComponentMapper;
 
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -207,8 +206,8 @@ public class ClientEntityFactory extends ServerEntityFactory {
     mBox2DBody.create(id);
 
     Missiles.Entry missile = mMissile.get(id).missile;
-    if (!missile.TravelSound.isEmpty()) {
-      mSoundEmitter.create(id).set(Riiablo.audio.play(missile.TravelSound, true), Interpolation.pow2OutInverse);
+    if (!missile.TravelSound.isEmpty()) { // FIXME: how to handle this audio for aoe spell effects?
+//      mSoundEmitter.create(id).set(Riiablo.audio.play(missile.TravelSound, true), Interpolation.pow2OutInverse);
     }
 
     return id;

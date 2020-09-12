@@ -42,7 +42,7 @@ public class MissileLoader extends IteratingSystem {
         .build();
     animation.setMode(entry.LoopAnim > 0 ? Animation.Mode.LOOP : Animation.Mode.CLAMP); // TODO: Some are 2 -- special case?
     animation.setFrame(entry.RandStart);
-    animation.setFrameDelta(entry.animrate);
+    animation.setFrameDelta(256); // FIXME: entry.animrate was too fast
     animation.setDirection(0);
 
     mBBoxWrapper.create(entityId).box = animation.getBox();
