@@ -459,7 +459,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
     if (handleBlends) batch.setBlendMode(BlendMode.SOLID, SHADOW_TINT);
     if (cof == null) {
       for (Layer layer : layers) {
-        if (layer == null) continue;
+        if (layer == null || !layer.shadow) continue;
         drawShadow(batch, layer, x, y);
       }
     } else if (frame < numFrames) {
@@ -558,6 +558,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
     Color tint;
     Index transform;
     int   transformColor;
+    boolean shadow;
 
     TextureRegion regions[][];
 
@@ -588,6 +589,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
       numFrames      = dc.getNumFramesPerDir();
       transform      = null;
       transformColor = 0;
+      shadow         = (blendMode != BlendMode.LUMINOSITY && blendMode != BlendMode.LUMINOSITY_TINT);
       return this;
     }
 
