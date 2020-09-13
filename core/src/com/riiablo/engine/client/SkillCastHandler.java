@@ -116,7 +116,7 @@ public class SkillCastHandler extends PassiveSystem {
         Missiles.Entry missile = Riiablo.files.Missiles.get(skill.cltmissilea);
         Vector2 position = mPosition.get(event.entityId).position;
         final Vector2 angle = new Vector2(Vector2.X);
-        for (int i = 0, s = missile.NumDirections * 2; i < s; i++) {
+        for (int i = 0, s = 64; i < s; i++) {
           angle.setAngleRad(Direction.directionToRadians(i, s));
           factory.createMissile(missile, angle, position);
         }
