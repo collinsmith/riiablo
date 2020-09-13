@@ -75,6 +75,7 @@ public class Animation extends BaseDrawable implements Pool.Poolable {
 
   @Override
   public void reset() {
+    cof           = null;
     numFrames     = 0;
     numDirections = 0;
     frame         = 0;
