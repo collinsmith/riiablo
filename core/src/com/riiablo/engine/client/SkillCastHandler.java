@@ -82,7 +82,8 @@ public class SkillCastHandler extends PassiveSystem {
 
 //    // get event.entityId charclass (component does not exist yet) and compare
 //    if (!skill.charclass.isEmpty()) {
-//      if (CharacterClass.get(skill.charclass) == )
+//
+//      if (CharacterClass.get(skill.charclass) == mPlayer.get(event.entityId).data.classId)
 //      Riiablo.audio.play(skill.stsoundclass, true);
 //    }
 
