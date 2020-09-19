@@ -3,6 +3,8 @@ package com.riiablo.mpq.util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.badlogic.gdx.utils.Pool;
+
 public class ADPCM {
   private ADPCM() {}
 
@@ -37,14 +39,25 @@ public class ADPCM {
     byte  stepIndex;
   }
 
-  private static final Channel[] state = new Channel[2];
-  static {
-    for (int i = 0; i < CHANNELS; i++) {
-      state[i] = new Channel();
+  private static final Pool<Channel[]> POOL = new Pool<Channel[]>(8, 64, true) {
+    @Override
+    protected Channel[] newObject() {
+      final Channel[] channels = new Channel[CHANNELS];
+      for (int i = 0; i < CHANNELS; i++) channels[i] = new Channel();
+      return channels;
+    }
+  };
+
+  public static void decompress(ByteBuffer in, ByteBuffer out, int numChannels) {
+    Channel[] channels = POOL.obtain();
+    try {
+      decompress(in, out, numChannels, channels);
+    } finally {
+      POOL.free(channels);
     }
   }
 
-  public static void decompress(ByteBuffer in, ByteBuffer out, int numChannels) {
+  public static void decompress(ByteBuffer in, ByteBuffer out, int numChannels, Channel[] state) {
     assert in.order() == ByteOrder.LITTLE_ENDIAN && out.order() == ByteOrder.LITTLE_ENDIAN : "in.order() = " + in.order() + "; out.order() = " + out.order();
 
     byte stepshift = (byte) (in.getShort() >>> Byte.SIZE);
