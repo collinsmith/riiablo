@@ -24,6 +24,9 @@ public class FormattedMessage implements Message {
   }
 
   @Override
+  public void release() {}
+
+  @Override
   public String format() {
     return formattedMessage == null
         ? formattedMessage = format(locale, pattern, args)

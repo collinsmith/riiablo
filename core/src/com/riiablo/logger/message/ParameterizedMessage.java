@@ -48,6 +48,9 @@ public class ParameterizedMessage implements Message {
   }
 
   @Override
+  public void release() {}
+
+  @Override
   public String format() {
     if (formattedMessage == null) {
       init();
