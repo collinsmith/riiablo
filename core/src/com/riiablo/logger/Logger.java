@@ -775,8 +775,88 @@ public final class Logger {
     logIfEnabled(Level.TRACE, defaultFactory(), message, params);
   }
 
+  public final void traceEntry(String message, Object arg0) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2, arg3);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2, arg3, arg4);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+  }
+
+  public final void traceEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.TRACE, defaultFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+  }
+
   public final void tracefEntry(final String message, final Object... params) {
     logIfEnabled(Level.TRACE, formattedFactory(), message, params);
+  }
+
+  public final void tracefEntry(String message, Object arg0) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2, arg3);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2, arg3, arg4);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+  }
+
+  public final void tracefEntry(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.TRACE, formattedFactory(), message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
   }
 
   private StackTraceElement getLocation() {
