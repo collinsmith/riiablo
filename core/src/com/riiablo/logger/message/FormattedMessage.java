@@ -50,6 +50,11 @@ public class FormattedMessage implements Message {
   }
 
   @Override
+  public int numParameters() {
+    return args.length;
+  }
+
+  @Override
   public Throwable throwable() {
     return throwable;
   }

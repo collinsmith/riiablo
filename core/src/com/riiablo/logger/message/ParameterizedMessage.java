@@ -81,6 +81,11 @@ public class ParameterizedMessage implements Message {
   }
 
   @Override
+  public int numParameters() {
+    return argc;
+  }
+
+  @Override
   public Throwable throwable() {
     return throwable;
   }
