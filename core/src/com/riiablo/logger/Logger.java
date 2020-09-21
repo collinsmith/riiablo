@@ -1,5 +1,7 @@
 package com.riiablo.logger;
 
+import com.badlogic.gdx.utils.Pool;
+
 import com.riiablo.logger.message.FormattedMessageFactory;
 import com.riiablo.logger.message.Message;
 import com.riiablo.logger.message.MessageFactory;
@@ -7,6 +9,13 @@ import com.riiablo.logger.message.ParameterizedMessageFactory;
 
 public final class Logger {
   private static final String FQCN = Logger.class.getName();
+
+  private static final Pool<LogEvent> POOL = new Pool<LogEvent>() {
+    @Override
+    protected LogEvent newObject() {
+      return new LogEvent();
+    }
+  };
 
   protected final String name;
   protected final MessageFactory defaultFactory;
@@ -88,7 +97,11 @@ public final class Logger {
       final Level level,
       final Message message,
       final StackTraceElement location) {
-    final LogEvent event = new LogEvent(level, message, location, MDC.freeze());
+    final LogEvent event = POOL.obtain();
+    event.level = level;
+    event.message = message;
+    event.source = location;
+    event.mdc = MDC.freeze();
     appender.append(event);
   }
 

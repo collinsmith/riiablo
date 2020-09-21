@@ -2,11 +2,13 @@ package com.riiablo.logger;
 
 import com.riiablo.logger.message.Message;
 
-public class LogEvent {
-  private final Level level;
-  private final Message message;
-  private final StackTraceElement source;
-  private final StringMap mdc;
+public final class LogEvent {
+  Level level;
+  Message message;
+  StackTraceElement source;
+  StringMap mdc;
+
+  LogEvent() {}
 
   LogEvent(
       Level level,
@@ -17,6 +19,10 @@ public class LogEvent {
     this.message = message;
     this.source = source;
     this.mdc = mdc;
+  }
+
+  public void release() {
+    message.release();
   }
 
   public Level level() {

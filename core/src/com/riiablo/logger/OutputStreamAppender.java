@@ -18,5 +18,6 @@ public class OutputStreamAppender implements Appender {
   @Override
   public void append(LogEvent event) {
     encoder.encode(event, out);
+    event.release();
   }
 }
