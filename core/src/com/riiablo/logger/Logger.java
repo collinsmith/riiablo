@@ -104,8 +104,88 @@ public final class Logger {
     logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, params));
   }
 
+  public final void trace(String message, Object arg0) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void trace(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.TRACE, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
+  }
+
   public final void tracef(final String message, final Object... params) {
     logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, params));
+  }
+
+  public final void tracef(String message, Object arg0) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void tracef(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.TRACE, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
   }
 
   public final boolean debugEnabled() {
@@ -116,8 +196,88 @@ public final class Logger {
     logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, params));
   }
 
+  public final void debug(String message, Object arg0) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void debug(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.DEBUG, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
+  }
+
   public final void debugf(final String message, final Object... params) {
     logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, params));
+  }
+
+  public final void debugf(String message, Object arg0) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void debugf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.DEBUG, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
   }
 
   public final boolean infoEnabled() {
@@ -128,8 +288,88 @@ public final class Logger {
     logIfEnabled(Level.INFO, defaultFactory().newMessage(message, params));
   }
 
+  public final void info(String message, Object arg0) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0));
+  }
+
+  public final void info(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void info(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.INFO, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
+  }
+
   public final void infof(final String message, final Object... params) {
     logIfEnabled(Level.INFO, formattedFactory().newMessage(message, params));
+  }
+
+  public final void infof(String message, Object arg0) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void infof(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.INFO, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
   }
 
   public final boolean warnEnabled() {
@@ -140,8 +380,88 @@ public final class Logger {
     logIfEnabled(Level.WARN, defaultFactory().newMessage(message, params));
   }
 
+  public final void warn(String message, Object arg0) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void warn(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.WARN, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
+  }
+
   public final void warnf(final String message, final Object... params) {
     logIfEnabled(Level.WARN, formattedFactory().newMessage(message, params));
+  }
+
+  public final void warnf(String message, Object arg0) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void warnf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.WARN, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
   }
 
   public final boolean errorEnabled() {
@@ -152,8 +472,88 @@ public final class Logger {
     logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, params));
   }
 
+  public final void error(String message, Object arg0) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0));
+  }
+
+  public final void error(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void error(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.ERROR, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
+  }
+
   public final void errorf(final String message, final Object... params) {
     logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, params));
+  }
+
+  public final void errorf(String message, Object arg0) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void errorf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.ERROR, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
   }
 
   public final boolean fatalEnabled() {
@@ -164,8 +564,88 @@ public final class Logger {
     logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, params));
   }
 
+  public final void fatal(String message, Object arg0) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void fatal(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.FATAL, defaultFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
+  }
+
   public final void fatalf(final String message, final Object... params) {
     logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, params));
+  }
+
+  public final void fatalf(String message, Object arg0) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+  }
+
+  public final void fatalf(String message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) {
+    logIfEnabled(Level.FATAL, formattedFactory().newMessage(message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
   }
 
   public final void traceEntry() {
