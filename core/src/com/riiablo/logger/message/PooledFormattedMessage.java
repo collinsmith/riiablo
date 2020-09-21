@@ -7,10 +7,17 @@ import java.util.Locale;
 import com.badlogic.gdx.utils.Pool;
 
 public class PooledFormattedMessage implements Message {
-  static final Pool<PooledFormattedMessage> POOL = new Pool<PooledFormattedMessage>() {
+  static final Pool<PooledFormattedMessage> POOL = new Pool<PooledFormattedMessage>(256, Integer.MAX_VALUE, true) {
     @Override
     protected PooledFormattedMessage newObject() {
       return new PooledFormattedMessage();
+    }
+
+    @Override
+    public PooledFormattedMessage obtain() {
+      PooledFormattedMessage obj;
+      while ((obj = super.obtain()) == null);
+      return obj;
     }
   };
 

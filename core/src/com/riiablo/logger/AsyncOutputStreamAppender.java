@@ -9,7 +9,7 @@ public class AsyncOutputStreamAppender implements Appender, Runnable {
   private final Encoder encoder = new RiiabloEncoder();
 
   private final Thread thread;
-  private final BlockingQueue<LogEvent> queue = new ArrayBlockingQueue<>(1024);
+  private final BlockingQueue<LogEvent> queue = new ArrayBlockingQueue<>(65536);
 
   public AsyncOutputStreamAppender(OutputStream out) {
     this.out = out;
@@ -32,12 +32,18 @@ public class AsyncOutputStreamAppender implements Appender, Runnable {
 
   @Override
   public void run() {
+    LogEvent event = null;
     for (;;) {
       try {
-        final LogEvent event = queue.take();
+        event = queue.take();
         encoder.encode(event, out);
-        event.release();
-      } catch (InterruptedException ignored) {}
+      } catch (InterruptedException ignored) {
+      } finally {
+        if (event != null) {
+          event.release();
+          event = null;
+        }
+      }
     }
   }
 }

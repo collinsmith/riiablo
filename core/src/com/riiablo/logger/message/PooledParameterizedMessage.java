@@ -26,10 +26,17 @@ public class PooledParameterizedMessage implements Message {
     BUFFER_POOL.free(buffer);
   }
 
-  static final Pool<PooledParameterizedMessage> POOL = new Pool<PooledParameterizedMessage>() {
+  static final Pool<PooledParameterizedMessage> POOL = new Pool<PooledParameterizedMessage>(256, Integer.MAX_VALUE, true) {
     @Override
     protected PooledParameterizedMessage newObject() {
       return new PooledParameterizedMessage();
+    }
+
+    @Override
+    public PooledParameterizedMessage obtain() {
+      PooledParameterizedMessage obj;
+      while ((obj = super.obtain()) == null);
+      return obj;
     }
   };
 
