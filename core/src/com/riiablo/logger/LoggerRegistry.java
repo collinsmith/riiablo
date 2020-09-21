@@ -21,7 +21,7 @@ public class LoggerRegistry {
   private Logger createRootLogger() {
     final Logger root = new Logger(ROOT);
     root.level(Level.WARN);
-    root.addAppender(new OutputStreamAppender(System.out));
+    root.addAppender(new AsyncOutputStreamAppender(System.out));
     loggers.put(ROOT, root);
     contexts.put(ROOT, root.level());
     return root;

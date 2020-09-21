@@ -59,10 +59,10 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
+import com.riiablo.logger.AsyncOutputStreamAppender;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.LoggerRegistry;
-import com.riiablo.logger.OutputStreamAppender;
 import com.riiablo.map.DS1;
 import com.riiablo.map.DS1Loader;
 import com.riiablo.map.DT1;
@@ -239,7 +239,7 @@ public class Client extends Game {
     try {
       System.setOut(console.out);
       System.setErr(console.out);
-      registry.getRoot().addAppender(new OutputStreamAppender(System.out));
+      registry.getRoot().addAppender(new AsyncOutputStreamAppender(System.out));
     } catch (SecurityException e) {
       console.out.println("stdout could not be redirected to console: " + e.getMessage());
       throw new GdxRuntimeException("Unable to bind console out.", e);
