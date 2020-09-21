@@ -54,6 +54,10 @@ public class Actioneer extends PassiveSystem {
     return true;
   }
 
+  public boolean canInterrupt(int entityId) {
+    return !mCasting.has(entityId);
+  }
+
   public void cast(int entityId, int skillId, int targetId, Vector2 targetVec) {
     if (!canCast(entityId)) return;
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);

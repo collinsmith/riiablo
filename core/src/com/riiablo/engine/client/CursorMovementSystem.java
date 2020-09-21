@@ -115,11 +115,11 @@ public class CursorMovementSystem extends BaseSystem {
 
       // set target entity -- unsets and interacts when within range
       boolean touched = touchDown(src);
-      if (!touched) {
+      if (!touched && actioneer.canInterrupt(src)) {
         iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
         setTarget(src, tmpVec2);
       }
-    } else if (!pressed) {
+    } else if (!pressed && actioneer.canInterrupt(src)) {
       //pathfinder.findPath(src, null);
       requireRelease = false;
       Target target = mTarget.get(src);
