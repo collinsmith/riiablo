@@ -30,7 +30,7 @@ public class FormattedMessage implements Message {
         : formattedMessage;
   }
 
-  protected static String format(final Locale locale, final String pattern, final Object... args) {
+  protected static String format(final Locale locale, final String pattern, final Object[] args) {
     try {
       return String.format(locale, pattern, args);
     } catch (final IllegalFormatException t) {
