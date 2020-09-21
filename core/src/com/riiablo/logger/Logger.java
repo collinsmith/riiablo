@@ -2,10 +2,10 @@ package com.riiablo.logger;
 
 import com.badlogic.gdx.utils.Pool;
 
-import com.riiablo.logger.message.FormattedMessageFactory;
 import com.riiablo.logger.message.Message;
 import com.riiablo.logger.message.MessageFactory;
-import com.riiablo.logger.message.ParameterizedMessageFactory;
+import com.riiablo.logger.message.PooledFormattedMessageFactory;
+import com.riiablo.logger.message.PooledParameterizedMessageFactory;
 
 public final class Logger {
   private static final String FQCN = Logger.class.getName();
@@ -26,7 +26,7 @@ public final class Logger {
   private boolean deferred;
 
   Logger(final String name) {
-    this(name, ParameterizedMessageFactory.INSTANCE, FormattedMessageFactory.INSTANCE);
+    this(name, PooledParameterizedMessageFactory.INSTANCE, PooledFormattedMessageFactory.INSTANCE);
   }
 
   Logger(
