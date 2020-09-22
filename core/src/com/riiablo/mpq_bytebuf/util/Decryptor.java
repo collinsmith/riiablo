@@ -2,6 +2,7 @@ package com.riiablo.mpq_bytebuf.util;
 
 import io.netty.buffer.ByteBuf;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.EndianUtils;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
@@ -233,27 +234,40 @@ public final class Decryptor {
   public static final int HASH_TABLE_KEY  = 0xC3AF3770; // HASH_ENCRYPTION_KEY.hash("(hash table)");
   public static final int BLOCK_TABLE_KEY = 0xEC83B3A3; // HASH_ENCRYPTION_KEY.hash("(block table)");
 
-  private static final int SEED1 = 0x7FED7FED;
-  private static final int SEED2 = 0xEEEEEEEE;
+  public static final int SEED1 = 0x7FED7FED;
+  public static final int SEED2 = 0xEEEEEEEE;
 
-  public static int decrypt(final int key, final ByteBuf src) {
-    return decrypt(key, src.resetReaderIndex().duplicate(), src.resetWriterIndex());
+  public static long decrypt(final int key, final ByteBuf inout) {
+    return decrypt(key, SEED2, inout);
   }
 
-  public static int decrypt(int key, final ByteBuf src, final ByteBuf dst) {
-    log.traceEntry("decrypt(key: {}, src: {}, dst: {})", key, src, dst);
-    final int length = src.readableBytes();
-    int seed = SEED2;
-    for (int blocks = length >> 2; blocks > 0; blocks--) {
+  public static long decrypt(final int key, final int seed, final ByteBuf inout) {
+    return decrypt(key, seed, inout.array(), inout.arrayOffset(), inout.readableBytes());
+  }
+
+  public static long decrypt(final int key, final int seed, final byte[] inout, final int inoutOffset, final int inoutLen) {
+    return decrypt(key, seed, inout, inout, inoutOffset, inoutLen);
+  }
+
+  public static long decrypt(int key, int seed, final byte[] in, final byte[] out, final int offset, final int length) {
+    if (log.traceEnabled()) log.traceEntry(
+        "decrypt(key: {}, seed: {}, in: {}, out: {}, length: {})",
+        Integer.toHexString(key), Integer.toHexString(seed), in.toString(), out.toString(), length);
+    int i = offset;
+    for (int blocks = length >> 2; blocks > 0; blocks--, i += 4) {
       seed += ENCRYPTION.get(key & 0xFF);
-      final int block = src.readIntLE() ^ (key + seed);
+      final int block = EndianUtils.readSwappedInteger(in, i) ^ (key + seed);
+      EndianUtils.writeSwappedInteger(out, i, block);
       seed += block + (seed << 5) + 3;
       key = (~key << 0x15) + 0x11111111 | key >>> 0x0B;
-      dst.writeIntLE(block);
     }
 
-    dst.writeBytes(src);
-    return length;
+    if (in != out && i < length) {
+      System.arraycopy(in, i, out, i, length - i);
+      assert false;
+    }
+
+    return ((long) seed << Integer.SIZE) | (key & 0xFFFFFFFFL);
   }
 
   public static final class LookupTable {

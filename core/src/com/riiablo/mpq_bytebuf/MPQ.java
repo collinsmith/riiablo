@@ -5,9 +5,9 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import org.apache.commons.io.FileUtils;
@@ -35,7 +35,23 @@ public final class MPQ {
   public static final short DEFAULT_LOCALE = 0x0000;
   public static final short DEFAULT_PLATFORM = 0x0000;
 
-  private static final ByteBufAllocator ALLOC = PooledByteBufAllocator.DEFAULT;
+  private static final ByteBufAllocator ALLOC = new PooledByteBufAllocator(
+      PooledByteBufAllocator.defaultNumHeapArena(),
+      PooledByteBufAllocator.defaultNumDirectArena(),
+      4096,
+      PooledByteBufAllocator.defaultMaxOrder());
+
+  ByteBufAllocator alloc() {
+    return ALLOC;
+  }
+
+  public ByteBuf obtainHeapBuffer() {
+    return obtainHeapBuffer(DISK_SECTOR_SIZE);
+  }
+
+  public ByteBuf obtainHeapBuffer(final int capacity) {
+    return ALLOC.heapBuffer(capacity, sectorSize);
+  }
 
   final FileHandle file;
   final MappedByteBuffer map;
@@ -55,13 +71,14 @@ public final class MPQ {
   int searches;
   int misses;
 
-  public static MPQ load(final FileHandle file) {
+  public static MPQ load(FileHandle file) {
     log.info("Loading {}...", file.name());
 
     RandomAccessFile raf = null;
     try {
       raf = new RandomAccessFile(file.file(), "r");
-      return new MPQ(file, raf);
+      FileChannel fc = raf.getChannel();
+      return new MPQ(file, fc);
     } catch (IOException t) {
       log.error("Failed to load {}", file, t);
       throw new RuntimeException(t); // TODO: gracefully handle this error -- some mpqs may be allowed missing
@@ -70,23 +87,29 @@ public final class MPQ {
     }
   }
 
-  static int readSafeUnsignedIntLE(ByteBuf bb) {
-    final long value = bb.readUnsignedIntLE();
+  static int readSafeUnsignedIntLE(ByteBuf buffer) {
+    final long value = buffer.readUnsignedIntLE();
     assert value <= Integer.MAX_VALUE : "value(" + value + ") > " + Integer.MAX_VALUE;
     return (int) value;
   }
 
-  private MPQ(final FileHandle handle, final RandomAccessFile raf) throws IOException {
-    this.file = handle;
-    this.map = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
-    this.buffer = Unpooled.wrappedBuffer(map).asReadOnly();
+  private MPQ(FileHandle file, FileChannel fc) throws IOException {
+    assert file.length() == fc.size() : "file.length(" + file.length() + ") != fileChannel.length(" + fc.size() + ")";
+    this.file = file;
+    this.map = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+    map.order(ByteOrder.nativeOrder());
+    this.buffer = Unpooled.wrappedBuffer(map);
 
     try {
-      MDC.put("mpq", handle.name());
+      MDC.put("mpq", file.name());
+      buffer.readerIndex(0);
+
       CharSequence signature = buffer.readCharSequence(4, CharsetUtil.US_ASCII);
-      log.debug("signature: {}", StringEscapeUtils.escapeJava(signature.toString()));
+      if (log.debugEnabled()) log.debug("signature: {}", StringEscapeUtils.escapeJava(signature.toString()));
       if (!StringUtils.equals(signature, HEADER)) {
-        throw new InvalidFormat("Invalid format: actual " + signature + ", expected " + HEADER);
+        throw new InvalidFormat(
+            "Invalid format: actual " + StringEscapeUtils.escapeJava(signature.toString())
+                + ", expected " + StringEscapeUtils.escapeJava(HEADER));
       }
 
       archiveOffset = readSafeUnsignedIntLE(buffer);
@@ -98,99 +121,131 @@ public final class MPQ {
       log.debug("version: {}", version);
       if (version != 0) log.warn("version({}) != {}", version, 0);
       blockSize = buffer.readUnsignedShortLE();
-      log.debug("blockSize: {}", blockSize);
       sectorSize = DISK_SECTOR_SIZE << blockSize;
-      log.debug("sectorSize: {}", FileUtils.byteCountToDisplaySize(sectorSize));
+      log.debug("sectorSize: {} ({})", blockSize, FileUtils.byteCountToDisplaySize(sectorSize));
       hashTableOffset = readSafeUnsignedIntLE(buffer);
       log.debugf("hashTableOffset: 0x%08x", hashTableOffset);
       blockTableOffset = readSafeUnsignedIntLE(buffer);
       log.debugf("blockTableOffset: 0x%08x", blockTableOffset);
       hashTableSize = readSafeUnsignedIntLE(buffer);
-      log.debug("hashTableSize: {}", FileUtils.byteCountToDisplaySize(hashTableSize));
+      log.debug("hashTableSize: {} ({})", hashTableSize, FileUtils.byteCountToDisplaySize(hashTableSize * Entry.SIZE));
       blockTableSize = readSafeUnsignedIntLE(buffer);
-      log.debug("blockTableSize: {}", FileUtils.byteCountToDisplaySize(blockTableSize));
+      log.debug("blockTableSize: {} ({})", blockTableSize, FileUtils.byteCountToDisplaySize(blockTableSize * Block.SIZE));
 
       table = new Entry[hashTableSize];
-      populateHashTable(buffer);
+      populateHashTable(buffer.readerIndex(hashTableOffset));
 
       blocks = new Block[blockTableSize];
-      populateBlockTable(buffer);
+      populateBlockTable(buffer.readerIndex(blockTableOffset));
     } finally {
       MDC.remove("mpq");
     }
   }
 
-  private void populateHashTable(final ByteBuf bb) {
+  private void populateHashTable(ByteBuf map) {
     log.debugf("reading hash table...");
-    log.trace("decrypting hash table...");
-    bb.readerIndex(hashTableOffset);
-    final ByteBuf hashTable = ALLOC.heapBuffer(hashTableSize * Entry.SIZE);
-    try {
-      bb.readBytes(hashTable);
-      Decryptor.decrypt(Decryptor.HASH_TABLE_KEY, hashTable);
-      int entries = 0;
-      final Entry[] table = this.table;
-      for (int i = 0, s = hashTableSize; i < s; i++) {
-        final long key = hashTable.readLongLE();
-        final int locale = hashTable.readUnsignedShortLE();
-        final int platform = hashTable.readUnsignedShortLE();
-        final long block = hashTable.readUnsignedIntLE();
-        if (DEBUG_MODE) log.tracef("%08x %016x %04x %04x %08x", i, key, locale, platform, block);
 
-        if (block >= archiveSize) {
-          if (DEBUG_MODE && key != Entry.NULL_KEY) log.warnf(
-              "bad hash table entry %08x %016x %04x %04x %08x",
-              i, key, locale, platform, block);
-          table[i] = block == Entry.BLOCK_UNUSED ? Entry.UNUSED : Entry.DELETED;
-        } else {
-          if (DEBUG_MODE) assert key != Entry.NULL_KEY : "key(" + key + ") != " + Entry.NULL_KEY;
-          if (DEBUG_MODE) assert locale <= Short.MAX_VALUE : "locale(" + locale + ") > " + Short.MAX_VALUE;
-          if (DEBUG_MODE) assert platform <= Short.MAX_VALUE : "platform(" + platform + ") > " + Short.MAX_VALUE;
-          if (DEBUG_MODE) assert block <= Integer.MAX_VALUE : "block(" + block + ") > " + Integer.MAX_VALUE + ": key(" + key + ")";
-          table[i] = new Entry(key, (short) locale, (short) platform, (int) block);
-          if (DEBUG_MODE) log.debug(table[i].toString());
-          entries++;
+    int i = 0;
+    int files = 0;
+    long encryption = ((long) Decryptor.SEED2 << Integer.SIZE) | (Decryptor.HASH_TABLE_KEY & 0xFFFFFFFFL);
+    final Entry[] table = this.table;
+
+    final ByteBuf buffer = obtainHeapBuffer(sectorSize);
+    try {
+      final int bufferSize = buffer.capacity();
+      final int hashTableBytes = hashTableSize * Entry.SIZE;
+      for (int remainingBytes = hashTableBytes; remainingBytes > 0; remainingBytes -= bufferSize) {
+        final int bufferBytes = Math.min(remainingBytes, bufferSize);
+        assert bufferBytes % Entry.SIZE == 0 : "bufferBytes(" + bufferBytes + ") does not evenly divide Entry.SIZE(" + Entry.SIZE + ")";
+        int numEntries = bufferBytes / Entry.SIZE;
+        assert map.readerIndex() == hashTableOffset + hashTableBytes - remainingBytes;
+        map.readBytes(buffer.setIndex(0, 0), bufferBytes);
+        log.tracef(
+            "decrypting hash table block %x+%x (%x)",
+            hashTableOffset,
+            hashTableBytes - remainingBytes,
+            bufferBytes);
+        final int encryptionKey = (int) (encryption & 0xFFFFFFFFL);
+        final int encryptionSeed = (int) (encryption >>> Integer.SIZE);
+        encryption = Decryptor.decrypt(encryptionKey, encryptionSeed, buffer);
+        for (; --numEntries >= 0; i++) {
+          final long key = buffer.readLongLE();
+          final int locale = buffer.readUnsignedShortLE();
+          final int platform = buffer.readUnsignedShortLE();
+          final long block = buffer.readUnsignedIntLE();
+          if (DEBUG_MODE) log.tracef("%04x %016x %04x %04x %08x", i, key, locale, platform, block);
+
+          if (block >= archiveSize) {
+            if (DEBUG_MODE && key != Entry.NULL_KEY) log.warnf(
+                "bad hash table entry %08x %016x %04x %04x %08x",
+                i, key, locale, platform, block);
+            table[i] = block == Entry.BLOCK_UNUSED ? Entry.UNUSED : Entry.DELETED;
+          } else {
+            if (DEBUG_MODE) assert key != Entry.NULL_KEY : "key(" + key + ") != " + Entry.NULL_KEY;
+            if (DEBUG_MODE) assert locale <= Short.MAX_VALUE : "locale(" + locale + ") > " + Short.MAX_VALUE;
+            if (DEBUG_MODE) assert platform <= Short.MAX_VALUE : "platform(" + platform + ") > " + Short.MAX_VALUE;
+            if (DEBUG_MODE) assert block <= Integer.MAX_VALUE : "block(" + block + ") > " + Integer.MAX_VALUE + ": key(" + key + ")";
+            table[i] = new Entry(key, (short) locale, (short) platform, (int) block);
+            if (DEBUG_MODE) log.debug(table[i].toString());
+            files++;
+          }
         }
       }
-
-      log.debug("hash table: {} entries", entries);
     } finally {
-      hashTable.release();
+      buffer.release();
     }
+
+    log.debug("hash table: {} files in {} entries", files, i);
   }
 
-  private void populateBlockTable(final ByteBuf bb) {
+  private void populateBlockTable(ByteBuf map) {
     log.debugf("reading block table...");
-    log.trace("decrypting block table...");
-    bb.readerIndex(blockTableOffset);
-    final ByteBuf blockTable = ALLOC.heapBuffer(blockTableSize * Block.SIZE);
-    try {
-      bb.readBytes(blockTable);
-      Decryptor.decrypt(Decryptor.BLOCK_TABLE_KEY, blockTable);
-      int entries = 0;
-      final Block[] blocks = this.blocks;
-      for (int i = 0, s = blockTableSize; i < s; i++) {
-        final long offset = blockTable.readUnsignedIntLE();
-        if (DEBUG_MODE) assert offset <= Integer.MAX_VALUE : "offset(" + offset + ") > " + Integer.MAX_VALUE;
-        final long CSize = blockTable.readUnsignedIntLE();
-        if (DEBUG_MODE) assert CSize <= Integer.MAX_VALUE : "CSize(" + CSize + ") > " + Integer.MAX_VALUE;
-        final long FSize = blockTable.readUnsignedIntLE();
-        if (DEBUG_MODE) assert FSize <= Integer.MAX_VALUE : "FSize(" + FSize + ") > " + Integer.MAX_VALUE;
-        final int flags = blockTable.readIntLE();
-        final Block block = blocks[i] = new Block((int) offset, (int) CSize, (int) FSize, flags);
-        if (DEBUG_MODE) log.trace(block.toString());
-        entries++;
-      }
 
-      log.debug("block table: {} entries", entries);
+    int i = 0;
+    long encryption = ((long) Decryptor.SEED2 << Integer.SIZE) | (Decryptor.BLOCK_TABLE_KEY & 0xFFFFFFFFL);
+    final Block[] blocks = this.blocks;
+
+    final ByteBuf buffer = obtainHeapBuffer(sectorSize);
+    try {
+      final int bufferSize = buffer.capacity();
+      final int blockTableBytes = blockTableSize * Block.SIZE;
+      for (int remainingBytes = blockTableBytes; remainingBytes > 0; remainingBytes -= bufferSize) {
+        final int bufferBytes = Math.min(remainingBytes, bufferSize);
+        assert bufferBytes % Block.SIZE == 0 : "bufferBytes(" + bufferBytes + ") does not evenly divide Block.SIZE(" + Block.SIZE + ")";
+        int numBlocks = bufferBytes / Block.SIZE;
+        assert map.readerIndex() == blockTableOffset + blockTableBytes - remainingBytes;
+        map.readBytes(buffer.setIndex(0, 0), bufferBytes);
+        log.tracef(
+            "decrypting block table block %x+%x (%x)",
+            blockTableOffset,
+            blockTableBytes - remainingBytes,
+            bufferBytes);
+        final int encryptionKey = (int) (encryption & 0xFFFFFFFFL);
+        final int encryptionSeed = (int) (encryption >>> Integer.SIZE);
+        encryption = Decryptor.decrypt(encryptionKey, encryptionSeed, buffer);
+        for (; --numBlocks >= 0; i++) {
+          final long offset = buffer.readUnsignedIntLE();
+          if (DEBUG_MODE) assert offset <= Integer.MAX_VALUE : "offset(" + offset + ") > " + Integer.MAX_VALUE;
+          final long CSize = buffer.readUnsignedIntLE();
+          if (DEBUG_MODE) assert CSize <= Integer.MAX_VALUE : "CSize(" + CSize + ") > " + Integer.MAX_VALUE;
+          final long FSize = buffer.readUnsignedIntLE();
+          if (DEBUG_MODE) assert FSize <= Integer.MAX_VALUE : "FSize(" + FSize + ") > " + Integer.MAX_VALUE;
+          final int flags = buffer.readIntLE();
+          if (DEBUG_MODE) log.tracef("%04x %08x %08x %08x %08x", i, offset, CSize, FSize, flags);
+          final Block block = blocks[i] = new Block((int) offset, (int) CSize, (int) FSize, flags);
+          if (DEBUG_MODE) log.trace(block.toString());
+        }
+      }
     } finally {
-      blockTable.release();
+      buffer.release();
     }
+
+    log.debug("block table: {} blocks", i);
   }
 
   @Override
   public String toString() {
-    return file.toString();
+    return file.name();
   }
 
   public FileHandle file() {
@@ -201,38 +256,19 @@ public final class MPQ {
     return map;
   }
 
-  ByteBuf buffer() {
-    return buffer;
+  ByteBuf buffer(int offset) {
+    return buffer.readerIndex(offset);
   }
 
-  public boolean contains(final long key, final int offset, final short locale) {
+  boolean contains(final long key, final int offset, final short locale) {
     return getIndex(key, offset, locale) >= 0;
-  }
-
-  public int length(final long key, final int offset, final short locale) throws FileNotFoundException {
-    final Entry entry = getEntry(key, offset, locale);
-    if (entry == null) throw new FileNotFoundException();
-    return blocks[entry.block].FSize;
-  }
-
-  public ByteBuf readByteBuf(final String filename, final long key, final int offset, final short locale) throws FileNotFoundException {
-    assert !StringUtils.contains(filename, '/');
-    log.debug("Reading {}...", filename);
-    final Entry entry = getEntry(key, offset, locale);
-    if (entry == null) throw new FileNotFoundException();
-    final Block block = blocks[entry.block];
-    log.tracef("Accessing %s+%x...", file, block.offset);
-    return MPQInputStream.readByteBuf(this, filename, block);
   }
 
   int getIndex(final long key, final int offset, final short locale) {
     searches++;
-    final int mask = table.length - 1;
-    final int start = offset & mask;
     int bestId = -1;
-
     final Entry[] table = this.table;
-    for (int i = start;; i++, misses++) {
+    for (int i = offset & (table.length - 1);; i++, misses++) {
       final Entry entry = table[i];
       if (entry.block == Entry.BLOCK_UNUSED) {
         return bestId;
@@ -251,6 +287,11 @@ public final class MPQ {
   Entry getEntry(final long key, final int offset, final short locale) {
     final int index = getIndex(key, offset, locale);
     return index >= 0 ? table[index] : null;
+  }
+
+  Block getBlock(final Entry entry) {
+    if (entry == null) return null;
+    return blocks[entry.block];
   }
 
   static final class File {

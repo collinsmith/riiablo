@@ -159,10 +159,6 @@ public final class Exploder {
     }
   }
 
-  private static int TRUNCATE(final int value, final int bits) {
-    return value & BIT_MASKS[bits];
-  }
-
   private static final Pool<byte[]> BYTES = new Pool<byte[]>(1, 8, true) {
     @Override
     protected byte[] newObject() {
@@ -230,11 +226,11 @@ public final class Exploder {
           bitsCached--;
 
           // Find the base value for the copy length
-          for (i = 0; i <= 0x0F && TRUNCATE(cache, LenBits[i]) != LenCode[i]; i++);
+          for (i = 0; i <= 0x0F && (cache & BIT_MASKS[LenBits[i]]) != LenCode[i]; i++);
           cache >>= LenBits[i];
           bitsCached -= LenBits[i];
 
-          copyLen = LenBase[i] + TRUNCATE(cache, ExLenBits[i]);
+          copyLen = LenBase[i] + (cache & BIT_MASKS[ExLenBits[i]]);
           cache >>= ExLenBits[i];
           bitsCached -= ExLenBits[i];
           if (copyLen == 519) break; // indicates end of the stream has been reached
@@ -250,7 +246,7 @@ public final class Exploder {
           }
 
           // Find most significant 6 bits of offset into the dictionary
-          for (i = 0; i <= 0x3F && TRUNCATE(cache, OffsBits[i]) != OffsCode[i]; i++);
+          for (i = 0; i <= 0x3F && (cache & BIT_MASKS[OffsBits[i]]) != OffsCode[i]; i++);
           cache >>= OffsBits[i];
           bitsCached -= OffsBits[i];
 
@@ -259,11 +255,11 @@ public final class Exploder {
           // the dictionary size is
           int copyOffset;
           if (copyLen == 2) {
-            copyOffset = dictPos - 1 - (i << 2) - TRUNCATE(cache, 0x03);
+            copyOffset = dictPos - 1 - (i << 2) - (cache & BIT_MASKS[0x03]);
             cache >>= 2;
             bitsCached -= 2;
           } else {
-            copyOffset = dictPos - 1 - (i << dictShift) - TRUNCATE(cache, dictShift);
+            copyOffset = dictPos - 1 - (i << dictShift) - (cache & BIT_MASKS[dictShift]);
             cache >>= dictShift;
             bitsCached -= dictShift;
           }
@@ -292,7 +288,7 @@ public final class Exploder {
             bitsCached -= 1;
 
             // Find the actual byte from the bit sequence
-            for (i = 0; i <= 0xFF && TRUNCATE(cache, ChBits[i]) != ChCode[i]; i++);
+            for (i = 0; i <= 0xFF && (cache & BIT_MASKS[ChBits[i]]) != ChCode[i]; i++);
             Dict[dictPos++] = Out[outPos++] = (byte) i;
             cache >>= ChBits[i];
             bitsCached -= ChBits[i];
