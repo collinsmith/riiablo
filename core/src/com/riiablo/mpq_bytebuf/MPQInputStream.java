@@ -27,7 +27,7 @@ import static com.riiablo.mpq_bytebuf.MPQ.Block.FLAG_IMPLODE;
 public class MPQInputStream extends InputStream {
   private static final Logger log = LogManager.getLogger(MPQInputStream.class);
 
-  private static final boolean DEBUG_MODE = true;
+  private static final boolean DEBUG_MODE = !true;
 
   private static final int COMPRESSED_OR_IMPLODE = FLAG_COMPRESSED | FLAG_IMPLODE;
 

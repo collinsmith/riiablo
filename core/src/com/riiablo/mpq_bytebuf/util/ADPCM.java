@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 
-import com.badlogic.gdx.utils.Pool;
+import com.riiablo.util.Pool;
 
 public final class ADPCM {
   private ADPCM() {}
@@ -42,9 +42,9 @@ public final class ADPCM {
     byte stepIndex;
   }
 
-  private static final Pool<Channel[]> POOL = new Pool<Channel[]>(8, 64, true) {
+  private static final Pool<Channel[]> POOL = new Pool<Channel[]>(true, false, 8, 64) {
     @Override
-    protected Channel[] newObject() {
+    protected Channel[] newInstance() {
       final Channel[] channels = new Channel[CHANNELS];
       for (int i = 0; i < CHANNELS; i++) channels[i] = new Channel();
       return channels;
@@ -69,7 +69,7 @@ public final class ADPCM {
     try {
       return decompress(in, out, numChannels, channels);
     } finally {
-      POOL.free(channels);
+      POOL.release(channels);
     }
   }
 

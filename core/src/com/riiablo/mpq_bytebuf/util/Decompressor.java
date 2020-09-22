@@ -3,10 +3,9 @@ package com.riiablo.mpq_bytebuf.util;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.StringUtils;
 
-import com.badlogic.gdx.utils.Pool;
-
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.util.Pool;
 
 public final class Decompressor {
   private Decompressor() {}
@@ -49,9 +48,9 @@ public final class Decompressor {
     return builder.toString();
   }
 
-  private static final Pool<Huffman> HUFFMAN = new Pool<Huffman>(8, 32, true) {
+  private static final Pool<Huffman> HUFFMAN = new Pool<Huffman>(true, false, 8, 32) {
     @Override
-    protected Huffman newObject() {
+    protected Huffman newInstance() {
       return new Huffman();
     }
   };
@@ -82,7 +81,7 @@ public final class Decompressor {
         log.trace("Huffman decompressed {} bytes", inout.writerIndex());
         inout.readerIndex(0).markReaderIndex();
       } finally {
-        HUFFMAN.free(huffman);
+        HUFFMAN.release(huffman);
       }
     }
 
