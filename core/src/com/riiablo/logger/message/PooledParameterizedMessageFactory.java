@@ -1,6 +1,6 @@
 package com.riiablo.logger.message;
 
-import com.badlogic.gdx.utils.Pool;
+import com.riiablo.util.Pool;
 
 public enum PooledParameterizedMessageFactory implements MessageFactory {
   INSTANCE;

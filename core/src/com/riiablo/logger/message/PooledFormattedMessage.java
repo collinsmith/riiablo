@@ -4,20 +4,13 @@ import java.util.Arrays;
 import java.util.IllegalFormatException;
 import java.util.Locale;
 
-import com.badlogic.gdx.utils.Pool;
+import com.riiablo.util.Pool;
 
 public class PooledFormattedMessage implements Message {
-  static final Pool<PooledFormattedMessage> POOL = new Pool<PooledFormattedMessage>(256, Integer.MAX_VALUE, true) {
+  static final Pool<PooledFormattedMessage> POOL = new Pool<PooledFormattedMessage>(true, true) {
     @Override
-    protected PooledFormattedMessage newObject() {
+    protected PooledFormattedMessage newInstance() {
       return new PooledFormattedMessage();
-    }
-
-    @Override
-    public PooledFormattedMessage obtain() {
-      PooledFormattedMessage obj;
-      while ((obj = super.obtain()) == null);
-      return obj;
     }
   };
 
@@ -35,7 +28,7 @@ public class PooledFormattedMessage implements Message {
   public void release() {
     formattedMessage = null;
     Arrays.fill(args, 0, numArgs, null);
-    POOL.free(this);
+    POOL.release(this);
   }
 
   @Override

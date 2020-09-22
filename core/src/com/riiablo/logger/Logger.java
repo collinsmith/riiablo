@@ -1,18 +1,17 @@
 package com.riiablo.logger;
 
-import com.badlogic.gdx.utils.Pool;
-
 import com.riiablo.logger.message.Message;
 import com.riiablo.logger.message.MessageFactory;
 import com.riiablo.logger.message.PooledFormattedMessageFactory;
 import com.riiablo.logger.message.PooledParameterizedMessageFactory;
+import com.riiablo.util.Pool;
 
 public final class Logger {
   private static final String FQCN = Logger.class.getName();
 
-  private static final Pool<LogEvent> POOL = new Pool<LogEvent>() {
+  private static final Pool<LogEvent> POOL = new Pool<LogEvent>(true, true) {
     @Override
-    protected LogEvent newObject() {
+    protected LogEvent newInstance() {
       return new LogEvent();
     }
   };

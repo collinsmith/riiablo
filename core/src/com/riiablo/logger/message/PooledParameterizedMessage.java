@@ -2,13 +2,13 @@ package com.riiablo.logger.message;
 
 import java.util.Arrays;
 
-import com.badlogic.gdx.utils.Pool;
+import com.riiablo.util.Pool;
 
 public class PooledParameterizedMessage implements Message {
   private static final int MAX_BUFFER_SIZE = 255;
-  private static final Pool<StringBuilder> BUFFER_POOL = new Pool<StringBuilder>() {
+  private static final Pool<StringBuilder> BUFFER_POOL = new Pool<StringBuilder>(true, true) {
     @Override
-    protected StringBuilder newObject() {
+    protected StringBuilder newInstance() {
       return new StringBuilder(MAX_BUFFER_SIZE);
     }
   };
@@ -23,20 +23,13 @@ public class PooledParameterizedMessage implements Message {
     if (buffer == null) return;
     buffer.setLength(MAX_BUFFER_SIZE);
     buffer.trimToSize();
-    BUFFER_POOL.free(buffer);
+    BUFFER_POOL.release(buffer);
   }
 
-  static final Pool<PooledParameterizedMessage> POOL = new Pool<PooledParameterizedMessage>(256, Integer.MAX_VALUE, true) {
+  static final Pool<PooledParameterizedMessage> POOL = new Pool<PooledParameterizedMessage>(true, true) {
     @Override
-    protected PooledParameterizedMessage newObject() {
+    protected PooledParameterizedMessage newInstance() {
       return new PooledParameterizedMessage();
-    }
-
-    @Override
-    public PooledParameterizedMessage obtain() {
-      PooledParameterizedMessage obj;
-      while ((obj = super.obtain()) == null);
-      return obj;
     }
   };
 
@@ -66,7 +59,7 @@ public class PooledParameterizedMessage implements Message {
   public void release() {
     formattedMessage = null;
     Arrays.fill(args, 0, numArgs, null);
-    POOL.free(this);
+    POOL.release(this);
   }
 
   @Override

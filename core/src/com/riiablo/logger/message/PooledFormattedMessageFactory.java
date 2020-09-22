@@ -2,7 +2,7 @@ package com.riiablo.logger.message;
 
 import java.util.Locale;
 
-import com.badlogic.gdx.utils.Pool;
+import com.riiablo.util.Pool;
 
 public enum PooledFormattedMessageFactory implements MessageFactory {
   INSTANCE;
