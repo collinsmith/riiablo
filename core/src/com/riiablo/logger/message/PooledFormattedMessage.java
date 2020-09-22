@@ -7,7 +7,7 @@ import java.util.Locale;
 import com.riiablo.util.Pool;
 
 public class PooledFormattedMessage implements Message {
-  static final Pool<PooledFormattedMessage> POOL = new Pool<PooledFormattedMessage>(true, true) {
+  static final Pool<PooledFormattedMessage> POOL = new Pool<PooledFormattedMessage>(true, true, 256, Integer.MAX_VALUE) {
     @Override
     protected PooledFormattedMessage newInstance() {
       return new PooledFormattedMessage();

@@ -19,8 +19,16 @@ public abstract class Pool<T> {
     this(threadSafe, softReferences, Integer.MAX_VALUE);
   }
 
-  @SuppressWarnings("unchecked")
   public Pool(boolean threadSafe, boolean softReferences, final int maxCapacity) {
+    this(threadSafe, softReferences, maxCapacity, 0);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Pool(boolean threadSafe, boolean softReferences, final int initialCapacity, final int maxCapacity) {
+    if (initialCapacity >= maxCapacity) {
+      throw new IllegalArgumentException("initialCapacity(" + initialCapacity + ") >= maxCapacity(" + maxCapacity + ")");
+    }
+
     final Queue<T> queue;
     if (threadSafe) {
       queue = new LinkedBlockingQueue<T>(maxCapacity) {
@@ -54,6 +62,12 @@ public abstract class Pool<T> {
     freeObjects = softReferences
         ? new SoftReferenceQueue<>((Queue<SoftReference<T>>) queue)
         : queue;
+
+    if (initialCapacity > 0) {
+      for (int i = 0; i < initialCapacity; i++) {
+        release(newInstance());
+      }
+    }
   }
 
   protected abstract T newInstance();

@@ -9,7 +9,7 @@ import com.riiablo.util.Pool;
 public final class Logger {
   private static final String FQCN = Logger.class.getName();
 
-  private static final Pool<LogEvent> POOL = new Pool<LogEvent>(true, true) {
+  private static final Pool<LogEvent> POOL = new Pool<LogEvent>(true, true, 512, Integer.MAX_VALUE) {
     @Override
     protected LogEvent newInstance() {
       return new LogEvent();

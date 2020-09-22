@@ -6,7 +6,7 @@ import com.riiablo.util.Pool;
 
 public class PooledParameterizedMessage implements Message {
   private static final int MAX_BUFFER_SIZE = 255;
-  private static final Pool<StringBuilder> BUFFER_POOL = new Pool<StringBuilder>(true, true) {
+  private static final Pool<StringBuilder> BUFFER_POOL = new Pool<StringBuilder>(true, true, 256, Integer.MAX_VALUE) {
     @Override
     protected StringBuilder newInstance() {
       return new StringBuilder(MAX_BUFFER_SIZE);
@@ -26,7 +26,7 @@ public class PooledParameterizedMessage implements Message {
     BUFFER_POOL.release(buffer);
   }
 
-  static final Pool<PooledParameterizedMessage> POOL = new Pool<PooledParameterizedMessage>(true, true) {
+  static final Pool<PooledParameterizedMessage> POOL = new Pool<PooledParameterizedMessage>(true, true, 256, Integer.MAX_VALUE) {
     @Override
     protected PooledParameterizedMessage newInstance() {
       return new PooledParameterizedMessage();
