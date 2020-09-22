@@ -136,12 +136,12 @@ public class MPQInputStream extends InputStream {
   }
 
   @Override
-  public int available() throws IOException {
+  public int available() {
     return FSize - bytesRead;
   }
 
   @Override
-  public int read() throws IOException {
+  public int read() {
     if (available() <= 0) {
       return -1;
     }
@@ -156,12 +156,12 @@ public class MPQInputStream extends InputStream {
   }
 
   @Override
-  public int read(byte[] b) throws IOException {
+  public int read(byte[] b) {
     return read(b, 0, b.length);
   }
 
   @Override
-  public int read(byte[] b, int off, int len) throws IOException {
+  public int read(byte[] b, int off, int len) {
     if (available() <= 0) {
       return -1;
     }
