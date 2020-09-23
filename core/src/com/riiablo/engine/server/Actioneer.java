@@ -21,6 +21,7 @@ import com.riiablo.engine.server.component.Class;
 import com.riiablo.engine.server.component.MovementModes;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Sequence;
+import com.riiablo.engine.server.component.Target;
 import com.riiablo.engine.server.event.AnimDataFinishedEvent;
 import com.riiablo.engine.server.event.AnimDataKeyframeEvent;
 import com.riiablo.engine.server.event.DamageEvent;
@@ -40,12 +41,28 @@ public class Actioneer extends PassiveSystem {
   protected ComponentMapper<Casting> mCasting;
   protected ComponentMapper<Angle> mAngle;
   protected ComponentMapper<AttributesWrapper> mAttributesWrapper;
+  protected ComponentMapper<Target> mTarget;
 
   // teleport-specific components
   protected ComponentMapper<Position> mPosition;
   protected ComponentMapper<Box2DBody> mBox2DBody;
 
   protected EventSystem events;
+  protected Pathfinder pathfinder;
+
+  public void moveTo(int entityId, Vector2 targetVec) {
+    pathfinder.findPath(entityId, targetVec, true);
+  }
+
+  public void moveTo(int entityId, int targetId) {
+    if (targetId == Engine.INVALID_ENTITY) {
+      mTarget.remove(entityId);
+      moveTo(entityId, null);
+    } else {
+      mTarget.create(entityId).target = targetId;
+      moveTo(entityId, mPosition.get(targetId).position);
+    }
+  }
 
   private boolean canCast(int entityId) {
     if (mCasting.has(entityId)) return false;
@@ -60,6 +77,7 @@ public class Actioneer extends PassiveSystem {
 
   public void cast(int entityId, int skillId, int targetId, Vector2 targetVec) {
     if (!canCast(entityId)) return;
+    moveTo(entityId, Engine.INVALID_ENTITY);
     final Skills.Entry skill = Riiablo.files.skills.get(skillId);
     log.traceEntry("cast(entityId: {}, skillId: {} ({}), targetId: {}, targetVec: {})",
         entityId, skillId, skill, targetId, targetVec);

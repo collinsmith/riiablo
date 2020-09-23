@@ -82,7 +82,6 @@ public class CursorMovementSystem extends BaseSystem {
 
     final boolean leftPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
     if ((leftPressed && UIUtils.shift()) || Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-      setTarget(renderer.getSrc(), Engine.INVALID_ENTITY);
       final int playerId = renderer.getSrc();
       final int skillId = Riiablo.charData.getAction(leftPressed ? Input.Buttons.LEFT : Input.Buttons.RIGHT);
       iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
@@ -117,7 +116,7 @@ public class CursorMovementSystem extends BaseSystem {
       boolean touched = touchDown(src);
       if (!touched && actioneer.canInterrupt(src)) {
         iso.agg(tmpVec2.set(Gdx.input.getX(), Gdx.input.getY())).unproject().toWorld();
-        setTarget(src, tmpVec2);
+        actioneer.moveTo(src, tmpVec2);
       }
     } else if (!pressed && actioneer.canInterrupt(src)) {
       //pathfinder.findPath(src, null);
@@ -127,7 +126,7 @@ public class CursorMovementSystem extends BaseSystem {
         int targetId = target.target;
         Vector2 srcPos = mPosition.get(src).position;
         if (mPosition.get(targetId) == null) {
-          setTarget(src, Engine.INVALID_ENTITY);
+          actioneer.moveTo(src, Engine.INVALID_ENTITY);
           return;
         }
         Vector2 targetPos = mPosition.get(targetId).position;
@@ -135,10 +134,9 @@ public class CursorMovementSystem extends BaseSystem {
         Interactable interactable = mInteractable.get(targetId);
         final float dst = srcPos.dst(targetPos);
         if (interactable != null && dst <= interactable.range) {
-          setTarget(src, Engine.INVALID_ENTITY);
+          actioneer.moveTo(src, Engine.INVALID_ENTITY);
           interactable.interactor.interact(src, targetId);
         } else if (interactable == null && dst <= 3) { // TODO: change to check targetability of targetId
-          setTarget(src, Engine.INVALID_ENTITY);
           actioneer.cast(src, Riiablo.charData.getAction(Input.Buttons.LEFT), targetId, targetPos);
         }
       }
@@ -154,21 +152,7 @@ public class CursorMovementSystem extends BaseSystem {
   private boolean touchDown(int src) {
     int target = getHovered(src);
     if (target == Engine.INVALID_ENTITY) return false;
-    setTarget(src, target);
+    actioneer.moveTo(src, target);
     return true;
-  }
-
-  private void setTarget(int src, int target) {
-    if (target == Engine.INVALID_ENTITY) {
-      mTarget.remove(src);
-      setTarget(src, null);
-    } else {
-      mTarget.create(src).target = target;
-      setTarget(src, mPosition.get(target).position);
-    }
-  }
-
-  private void setTarget(int src, Vector2 target) {
-    pathfinder.findPath(src, target, true);
   }
 }
