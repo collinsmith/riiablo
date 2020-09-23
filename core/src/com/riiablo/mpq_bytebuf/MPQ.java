@@ -268,7 +268,7 @@ public final class MPQ {
     searches++;
     int bestId = -1;
     final Entry[] table = this.table;
-    for (int i = offset & (table.length - 1);; i++, misses++) {
+    for (int i = offset & (table.length - 1), s = table.length; i < s; i++, misses++) {
       final Entry entry = table[i];
       if (entry.block == Entry.BLOCK_UNUSED) {
         return bestId;
@@ -282,6 +282,8 @@ public final class MPQ {
         }
       }
     }
+
+    return bestId;
   }
 
   Entry getEntry(final long key, final int offset, final short locale) {
