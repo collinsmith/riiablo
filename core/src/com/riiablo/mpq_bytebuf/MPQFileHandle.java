@@ -2,7 +2,6 @@ package com.riiablo.mpq_bytebuf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,11 +69,7 @@ public final class MPQFileHandle extends FileHandle {
     return block.FSize;
   }
 
-  /**
-   * @deprecated use {@link #readByteBuf()} instead
-   */
   @Override
-  @Deprecated
   public byte[] readBytes() {
     ByteBuf bb = null;
     try {
@@ -95,11 +90,7 @@ public final class MPQFileHandle extends FileHandle {
 
   @Override
   public InputStream read() {
-    try {
-      return MPQInputStream.open(this, true, true);
-    } catch (IOException t) {
-      throw new RuntimeException(t);
-    }
+    return read(true);
   }
 
   public InputStream read(boolean releaseOnClose) {
@@ -108,15 +99,6 @@ public final class MPQFileHandle extends FileHandle {
     } catch (IOException t) {
       throw new RuntimeException(t);
     }
-  }
-
-  /**
-   * @deprecated use {@link #read()} instead
-   */
-  @Override
-  @Deprecated
-  public BufferedInputStream read(int bufferSize) {
-    return super.read(bufferSize);
   }
 
   @Override

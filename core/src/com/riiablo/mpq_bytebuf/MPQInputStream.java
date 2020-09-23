@@ -140,6 +140,10 @@ public class MPQInputStream extends InputStream {
     return FSize - bytesRead;
   }
 
+  public int cachedBytes() {
+    return buffer.readableBytes();
+  }
+
   @Override
   public int read() {
     if (available() <= 0) {
@@ -184,7 +188,7 @@ public class MPQInputStream extends InputStream {
     return bytesRead;
   }
 
-  private void readSector() {
+  void readSector() {
     log.tracefEntry("readSector(%s+%x:%s)", handle.mpq, sectorOffsets[curSector], handle.name());
     if (curSector >= sectorCount) {
       throw new IllegalStateException(
