@@ -31,7 +31,7 @@ public class MPQInputStream extends InputStream {
 
   private static final int COMPRESSED_OR_IMPLODE = FLAG_COMPRESSED | FLAG_IMPLODE;
 
-  private static final int MAX_SECTORS = 64;
+  private static final int MAX_SECTORS = 16384;
   private static final Pool<int[]> INTS = new Pool<int[]>(8, 32, true) {
     @Override
     protected int[] newObject() {
