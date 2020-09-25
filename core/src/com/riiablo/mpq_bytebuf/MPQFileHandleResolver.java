@@ -58,6 +58,7 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   }
 
   public boolean contains(String filename, short locale) {
+    filename = filename.replace('/', '\\');
     final long key = MPQ.File.key(filename);
     final int offset = MPQ.File.offset(filename);
     for (MPQ mpq : mpqs) {
@@ -75,6 +76,7 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   }
 
   public MPQFileHandle resolve(String filename, short locale) {
+    filename = filename.replace('/', '\\');
     log.debug("Resolving {}:{}...", filename, locale);
     if (filename == null) return null;
 

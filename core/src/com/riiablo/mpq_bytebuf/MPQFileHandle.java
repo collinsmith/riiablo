@@ -2,9 +2,11 @@ package com.riiablo.mpq_bytebuf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.badlogic.gdx.files.FileHandle;
@@ -102,7 +104,32 @@ public final class MPQFileHandle extends FileHandle {
   }
 
   @Override
+  public File file() {
+    throw new UnsupportedOperationException("Not supported by MPQFileHandle.");
+  }
+
+  @Override
   public String name() {
     return filename;
+  }
+
+  @Override
+  public String extension() {
+    return FilenameUtils.getExtension(filename);
+  }
+
+  @Override
+  public String path() {
+    return FilenameUtils.getFullPath(filename);
+  }
+
+  @Override
+  public String pathWithoutExtension() {
+    int index = FilenameUtils.indexOfExtension(filename);
+    if (index == -1) {
+      return filename;
+    }
+
+    return filename.substring(0, index);
   }
 }

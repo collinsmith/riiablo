@@ -199,13 +199,13 @@ public class MPQInputStream extends InputStream {
         if (DEBUG_MODE) log.trace("Decrypted {} bytes", buffer.writerIndex());
       }
 
-      if ((flags & FLAG_COMPRESSED) == FLAG_COMPRESSED && sectorCSize != sectorSize) {
+      if ((flags & FLAG_COMPRESSED) == FLAG_COMPRESSED && sectorCSize != sectorFSize) {
         if (DEBUG_MODE) log.trace("Decompressing sector...");
         Decompressor.decompress(buffer, sectorCSize, sectorFSize);
         if (DEBUG_MODE) log.trace("Decompressed {} bytes", buffer.writerIndex());
       }
 
-      if ((flags & FLAG_IMPLODE) == FLAG_IMPLODE && sectorCSize != sectorSize) {
+      if ((flags & FLAG_IMPLODE) == FLAG_IMPLODE && sectorCSize != sectorFSize) {
         if (DEBUG_MODE) log.trace("Exploding sector...");
         Exploder.pkexplode(buffer);
         if (DEBUG_MODE) log.trace("Exploded {} bytes", buffer.writerIndex());
@@ -299,13 +299,13 @@ public class MPQInputStream extends InputStream {
             if (DEBUG_MODE) log.trace("Decrypted {} bytes", sector.writerIndex());
           }
 
-          if ((flags & FLAG_COMPRESSED) == FLAG_COMPRESSED && sectorCSize != sectorSize) {
+          if ((flags & FLAG_COMPRESSED) == FLAG_COMPRESSED && sectorCSize != sectorFSize) {
             if (DEBUG_MODE) log.trace("Decompressing sector...");
             Decompressor.decompress(sector, sectorCSize, sectorFSize);
             if (DEBUG_MODE) log.trace("Decompressed {} bytes", sector.writerIndex());
           }
 
-          if ((flags & FLAG_IMPLODE) == FLAG_IMPLODE && sectorCSize != sectorSize) {
+          if ((flags & FLAG_IMPLODE) == FLAG_IMPLODE && sectorCSize != sectorFSize) {
             if (DEBUG_MODE) log.trace("Exploding sector...");
             Exploder.pkexplode(sector);
             if (DEBUG_MODE) log.trace("Exploded {} bytes", sector.writerIndex());
