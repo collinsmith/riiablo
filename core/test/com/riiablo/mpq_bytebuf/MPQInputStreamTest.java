@@ -94,6 +94,12 @@ public class MPQInputStreamTest extends RiiabloTest {
   }
 
   @Test
+  public void readBytes_COMPRESSED() {
+    final MPQ d2data = load("d2data");
+    test(d2data, "data\\local\\lng\\eng\\string.tbl");
+  }
+
+  @Test
   public void read() throws IOException {
     final MPQ d2data = load("d2data");
     testStream(d2data, "data\\global\\missiles\\blessedhammer.dcc");

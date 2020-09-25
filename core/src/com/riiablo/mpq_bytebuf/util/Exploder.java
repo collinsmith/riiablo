@@ -126,7 +126,7 @@ public final class Exploder {
   };
 
   // Base values used for the copy length
-  private static final short[] LenBase = {
+  private static final int[] LenBase = {
       0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009,
       0x000A, 0x000C, 0x0010, 0x0018, 0x0028, 0x0048, 0x0088, 0x0108
   };
@@ -167,7 +167,7 @@ public final class Exploder {
   };
 
   public static ByteBuf pkexplode(final ByteBuf inout) {
-    return pkexplode(inout.resetReaderIndex().duplicate(), inout.clear());
+    return pkexplode(inout.resetReaderIndex().slice(), inout.clear());
   }
 
   public static ByteBuf pkexplode(final ByteBuf in, final ByteBuf out) {
@@ -190,7 +190,7 @@ public final class Exploder {
     final int[] ChBits = Exploder.ChBits;
     final int[] LenCode = Exploder.LenCode;
     final int[] LenBits = Exploder.LenBits;
-    final short[] LenBase = Exploder.LenBase;
+    final int[] LenBase = Exploder.LenBase;
     final int[] ExLenBits = Exploder.ExLenBits;
     final int[] OffsCode = Exploder.OffsCode;
     final int[] OffsBits = Exploder.OffsBits;
@@ -212,11 +212,11 @@ public final class Exploder {
       int copyLen;
       while (outPos < outSize) {
         while (bitsCached < Short.SIZE) {
-            if (!in.isReadable()) {
-              // Store the current size of output
-              // nOutSize = pOutPos - pOutBuffer;
-              throw new InvalidFormat("PK_ERR_INCOMPLETE_INPUT: Incomplete input");
-            }
+          if (!in.isReadable()) {
+            // Store the current size of output
+            // nOutSize = pOutPos - pOutBuffer;
+            throw new InvalidFormat("PK_ERR_INCOMPLETE_INPUT: Incomplete input");
+          }
           cache |= (in.readUnsignedByte() << bitsCached);
           bitsCached += Byte.SIZE;
         }
@@ -255,9 +255,9 @@ public final class Exploder {
           // the dictionary size is
           int copyOffset;
           if (copyLen == 2) {
-            copyOffset = dictPos - 1 - (i << 2) - (cache & BIT_MASKS[0x03]);
-            cache >>= 2;
-            bitsCached -= 2;
+            copyOffset = dictPos - 1 - (i << copyLen) - (cache & BIT_MASKS[copyLen]);
+            cache >>= copyLen;
+            bitsCached -= copyLen;
           } else {
             copyOffset = dictPos - 1 - (i << dictShift) - (cache & BIT_MASKS[dictShift]);
             cache >>= dictShift;
