@@ -284,6 +284,17 @@ public final class Decryptor {
       byteMap['/'] = '\\';
     }
 
+    public static String fix(String str) {
+      final byte[] byteMap = LookupTable.byteMap;
+      final byte[] bytes = getBytes(str);
+      for (int i = 0, s = bytes.length; i < s; i++) bytes[i] = byteMap[bytes[i]];
+      return new String(bytes, StandardCharsets.US_ASCII);
+    }
+
+    static byte[] getBytes(String str) {
+      return str.getBytes(StandardCharsets.US_ASCII);
+    }
+
     final int[] table;
 
     LookupTable(int table) {
@@ -295,7 +306,7 @@ public final class Decryptor {
     }
 
     public int hash(String str) {
-      return hash(str.getBytes(StandardCharsets.US_ASCII));
+      return hash(getBytes(str));
     }
 
     public int hash(byte[] bytes) {
@@ -309,13 +320,6 @@ public final class Decryptor {
       }
 
       return seed1;
-    }
-
-    public static String fix(String str) {
-      final byte[] byteMap = LookupTable.byteMap;
-      final byte[] bytes = str.getBytes(StandardCharsets.US_ASCII);
-      for (int i = 0, s = bytes.length; i < s; i++) bytes[i] = byteMap[bytes[i]];
-      return new String(bytes, StandardCharsets.US_ASCII);
     }
   }
 }

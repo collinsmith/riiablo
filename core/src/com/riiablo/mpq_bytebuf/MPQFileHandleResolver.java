@@ -8,6 +8,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.riiablo.Riiablo;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.mpq_bytebuf.util.Decryptor;
 
 public class MPQFileHandleResolver implements FileHandleResolver {
   private static final Logger log = LogManager.getLogger(MPQFileHandleResolver.class);
@@ -58,7 +59,7 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   }
 
   public boolean contains(String filename, short locale) {
-    filename = filename.replace('/', '\\');
+    filename = Decryptor.LookupTable.fix(filename);
     final long key = MPQ.File.key(filename);
     final int offset = MPQ.File.offset(filename);
     for (MPQ mpq : mpqs) {
@@ -76,7 +77,7 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   }
 
   public MPQFileHandle resolve(String filename, short locale) {
-    filename = filename.replace('/', '\\');
+    filename = Decryptor.LookupTable.fix(filename);
     log.debug("Resolving {}:{}...", filename, locale);
     if (filename == null) return null;
 
