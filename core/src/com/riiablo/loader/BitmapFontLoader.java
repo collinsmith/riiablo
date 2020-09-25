@@ -24,7 +24,7 @@ public class BitmapFontLoader extends AsynchronousAssetLoader<FontTBL.BitmapFont
 
   @Override
   public void loadAsync(AssetManager assets, String fileName, FileHandle file, Params params) {
-    dc6 = assets.get(name + ".DC6", DC6.class);
+    dc6 = assets.get(name.replace('\\', '/') + ".DC6", DC6.class); // workaround for libgdx path delimiter constraint
     FontTBL tbl = FontTBL.loadFromFile(resolve(name + ".TBL"));
     data = tbl.data(dc6);
     data.blendMode = params != null ? params.blendMode : BlendMode.LUMINOSITY_TINT;
