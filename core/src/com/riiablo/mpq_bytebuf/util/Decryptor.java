@@ -310,5 +310,12 @@ public final class Decryptor {
 
       return seed1;
     }
+
+    public static String fix(String str) {
+      final byte[] byteMap = LookupTable.byteMap;
+      final byte[] bytes = str.getBytes(StandardCharsets.US_ASCII);
+      for (int i = 0, s = bytes.length; i < s; i++) bytes[i] = byteMap[bytes[i]];
+      return new String(bytes, StandardCharsets.US_ASCII);
+    }
   }
 }

@@ -7,9 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.badlogic.gdx.files.FileHandle;
+
+import com.riiablo.mpq_bytebuf.util.Decryptor;
 
 public final class MPQFileHandle extends FileHandle {
   public final MPQ mpq;
@@ -34,9 +35,8 @@ public final class MPQFileHandle extends FileHandle {
   }
 
   MPQFileHandle(MPQ mpq, String filename, long key, int offset, short locale, MPQ.Entry entry) {
-    assert !StringUtils.contains(filename, '/');
     this.mpq = mpq;
-    this.filename = filename;
+    this.filename = Decryptor.LookupTable.fix(filename);
     this.key = key;
     this.offset = offset;
     this.locale = locale;
