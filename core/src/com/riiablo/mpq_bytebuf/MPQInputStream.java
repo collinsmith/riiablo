@@ -7,9 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.badlogic.gdx.utils.Pool;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
@@ -31,25 +28,17 @@ public class MPQInputStream extends InputStream {
 
   private static final int COMPRESSED_OR_IMPLODE = FLAG_COMPRESSED | FLAG_IMPLODE;
 
-  private static final int MAX_SECTORS = 16384;
-  private static final Pool<int[]> INTS = new Pool<int[]>(8, 32, true) {
-    @Override
-    protected int[] newObject() {
-      return new int[MAX_SECTORS];
-    }
-  };
-
-  private static final int[] EMPTY_INT_ARRAY = ArrayUtils.EMPTY_INT_ARRAY;
-
   final MPQFileHandle handle;
   final MPQ.Block block;
   final ByteBuf buffer;
+  final int blockOffset;
   final int sectorSize;
   final int sectorCount;
-  final int[] sectorOffsets;
+  final ByteBuf sectorOffsets;
   final int encryptionKey;
   final int FSize;
   int curSector;
+  int nextSectorOffset;
   int bytesRead;
   int decompressedBytes;
 
@@ -85,7 +74,7 @@ public class MPQInputStream extends InputStream {
     final MPQ mpq = handle.mpq;
     assert (block.flags & FLAG_EXISTS) == FLAG_EXISTS : "file(" + handle + ") does not exist!";
     final int flags = block.flags;
-    final int offset = block.offset;
+    final int offset = blockOffset = block.offset;
     final int CSize = block.CSize;
     FSize = block.FSize;
 
@@ -95,7 +84,7 @@ public class MPQInputStream extends InputStream {
       assert CSize == FSize : "file(" + handle + ") block(" + block + ") CSize(" + CSize + ") != FSize(" + FSize + ")";
       sectorSize = FSize;
       sectorCount = 1;
-      sectorOffsets = EMPTY_INT_ARRAY; // TODO: 1 element = max length?
+      sectorOffsets = Unpooled.EMPTY_BUFFER; // TODO: 1 element = max length?
       encryptionKey = 0;
       buffer = archive.readRetainedSlice(FSize);
       return;
@@ -103,36 +92,30 @@ public class MPQInputStream extends InputStream {
 
     sectorSize = mpq.sectorSize;
     sectorCount = (FSize + sectorSize - 1) / sectorSize;
-    sectorOffsets = new int[sectorCount + 1];
+    sectorOffsets = mpq.alloc().heapBuffer(sectorCount << 2);
     encryptionKey = getEncryptionKey(handle.filename, flags, offset, FSize);
     buffer = mpq.obtainHeapBuffer(sectorSize);
 
     log.trace("Populating sector offsets...");
-    buffer.writeBytes(archive, sectorCount << 2);
+    archive.readBytes(sectorOffsets);
     if ((flags & FLAG_ENCRYPTED) == FLAG_ENCRYPTED) {
       log.trace("Decrypting sector offsets...");
-      Decryptor.decrypt(encryptionKey - 1, buffer);
+      Decryptor.decrypt(encryptionKey - 1, sectorOffsets);
     }
 
-    for (int i = 0, s = sectorCount; i < s; i++) {
-      sectorOffsets[i] = MPQ.readSafeUnsignedIntLE(buffer);
-    }
-
-    sectorOffsets[sectorCount] = CSize;
-    buffer.clear();
+    sectorOffsets.writeIntLE(CSize);
 
     if (log.traceEnabled()) {
       final StringBuilder builder = new StringBuilder(256);
       for (int i = 0, s = sectorCount; i <= s; i++) {
-        builder.append(Integer.toHexString(sectorOffsets[i])).append(',');
+        builder.append(Integer.toHexString(MPQ.readSafeUnsignedIntLE(sectorOffsets))).append(',');
       }
       if (builder.length() > 0) builder.setLength(builder.length() - 1);
       log.trace("sector offsets: {}+[{}]", Integer.toHexString(offset), builder);
+      sectorOffsets.resetReaderIndex();
     }
 
-    for (int i = 0, s = sectorCount; i <= s; i++) {
-      sectorOffsets[i] += offset;
-    }
+    nextSectorOffset = MPQ.readSafeUnsignedIntLE(sectorOffsets);
   }
 
   @Override
@@ -189,7 +172,7 @@ public class MPQInputStream extends InputStream {
   }
 
   void readSector() {
-    log.tracefEntry("readSector(%s+%x:%s)", handle.mpq, sectorOffsets[curSector], handle.name());
+    log.tracefEntry("readSector(%s+%x:%s)", handle.mpq, nextSectorOffset, handle.name());
     if (curSector >= sectorCount) {
       throw new IllegalStateException(
           "curSector(" + curSector + ") >= sectorCount(" + sectorCount + ")");
@@ -201,11 +184,13 @@ public class MPQInputStream extends InputStream {
     try {
       MDC.put("sector", curSector);
       if (log.traceEnabled()) log.trace("flags={}", block.getFlagsString());
-      final int sectorCSize = sectorOffsets[curSector + 1] - sectorOffsets[curSector];
+      final int sectorOffset = nextSectorOffset;
+      nextSectorOffset = MPQ.readSafeUnsignedIntLE(sectorOffsets);
+      final int sectorCSize = nextSectorOffset - sectorOffset;
       final int sectorFSize = Math.min(FSize - decompressedBytes, sectorSize);
       log.debug("Reading sector {} / {} ({} bytes)", curSector, sectorCount - 1, sectorCSize);
 
-      handle.mpq.buffer(sectorOffsets[curSector]).readBytes(buffer.setIndex(0, 0), sectorCSize);
+      handle.mpq.buffer(blockOffset + sectorOffset).readBytes(buffer.setIndex(0, 0), sectorCSize);
       if (DEBUG_MODE) log.trace("sector: {}", buffer);
 
       if ((flags & FLAG_ENCRYPTED) == FLAG_ENCRYPTED) {
@@ -238,6 +223,7 @@ public class MPQInputStream extends InputStream {
     try {
       super.close();
     } finally {
+      if (!closed) sectorOffsets.release();
       if (releaseOnClose && !closed) {
         closed = true;
         buffer.release();
@@ -269,43 +255,38 @@ public class MPQInputStream extends InputStream {
     assert (flags & COMPRESSED_OR_IMPLODE) != 0 : "block(" + block + ") is neither compressed or imploded";
 
     log.trace("Populating sector offsets...");
-    final int[] sectorOffsets = INTS.obtain();
+    final ByteBuf sectorOffsets = mpq.alloc().heapBuffer(sectorCount << 2);
     try {
       final int encryptionKey = getEncryptionKey(handle.filename, flags, offset, FSize);
-      buffer.writeBytes(archive, sectorCount << 2);
+      archive.readBytes(sectorOffsets);
       if ((flags & FLAG_ENCRYPTED) == FLAG_ENCRYPTED) {
         log.trace("Decrypting sector offsets...");
-        Decryptor.decrypt(encryptionKey - 1, buffer);
+        Decryptor.decrypt(encryptionKey - 1, sectorOffsets);
       }
 
-      for (int i = 0, s = sectorCount; i < s; i++) {
-        sectorOffsets[i] = MPQ.readSafeUnsignedIntLE(buffer);
-      }
-
-      sectorOffsets[sectorCount] = CSize;
-      buffer.clear();
+      sectorOffsets.writeIntLE(CSize);
 
       if (log.traceEnabled()) {
         final StringBuilder builder = new StringBuilder(256);
         for (int i = 0, s = sectorCount; i <= s; i++) {
-          builder.append(Integer.toHexString(sectorOffsets[i])).append(',');
+          builder.append(Integer.toHexString(MPQ.readSafeUnsignedIntLE(sectorOffsets))).append(',');
         }
         if (builder.length() > 0) builder.setLength(builder.length() - 1);
         log.trace("sector offsets: {}+[{}]", Integer.toHexString(offset), builder);
-      }
-
-      for (int i = 0, s = sectorCount; i <= s; i++) {
-        sectorOffsets[i] += offset;
+        sectorOffsets.resetReaderIndex();
       }
 
       int decompressedBytes = 0;
+      int nextSectorOffset = MPQ.readSafeUnsignedIntLE(sectorOffsets);
       for (int curSector = 0, s = sectorCount; curSector < s; curSector++) {
         try {
           MDC.put("sector", curSector);
-          final int sectorCSize = sectorOffsets[curSector + 1] - sectorOffsets[curSector];
+          final int sectorOffset = nextSectorOffset;
+          nextSectorOffset = MPQ.readSafeUnsignedIntLE(sectorOffsets);
+          final int sectorCSize = nextSectorOffset - sectorOffset;
           final int sectorFSize = Math.min(FSize - decompressedBytes, sectorSize);
           log.debug("Reading sector {} / {} ({} bytes)", curSector, s - 1, sectorCSize);
-          archive.readerIndex(sectorOffsets[curSector]);
+          archive.readerIndex(offset + sectorOffset);
 
           final ByteBuf sector = buffer.slice(buffer.writerIndex(), sectorFSize);
           buffer.writerIndex(buffer.writerIndex() + sectorFSize);
@@ -336,7 +317,7 @@ public class MPQInputStream extends InputStream {
         }
       }
     } finally {
-      INTS.free(sectorOffsets);
+      sectorOffsets.release();
     }
 
     return buffer;
