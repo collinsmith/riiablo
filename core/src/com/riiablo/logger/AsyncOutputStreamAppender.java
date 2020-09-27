@@ -16,6 +16,7 @@ public class AsyncOutputStreamAppender implements Appender, Runnable {
 
     thread = new Thread(this);
     thread.setName("AsyncOutputStreamAppender-Worker");
+    thread.setDaemon(true);
     thread.start();
   }
 
