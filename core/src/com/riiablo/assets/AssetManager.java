@@ -34,7 +34,7 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
   final ArrayBlockingQueue<LoadTask> completedTasks = new ArrayBlockingQueue<>(256);
   final ArrayList<LoadTask> drain = new ArrayList<>(256);
 
-  final Map<Class, SyncReader> readers = new ConcurrentHashMap<>();
+  final Map<Class, FileHandleAdapter> readers = new ConcurrentHashMap<>();
 
   final ExecutorService io;
   final ExecutorService async;
@@ -94,21 +94,21 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
     loaders.put(type, loader);
   }
 
-  public SyncReader getReader(Class type) {
+  public FileHandleAdapter getAdapter(Class type) {
     return readers.get(type);
   }
 
-  SyncReader findReader(Class type) {
-    final SyncReader reader = getReader(type);
-    if (reader == null) throw new ReaderNotFound(type);
+  FileHandleAdapter findAdapter(Class type) {
+    final FileHandleAdapter reader = getAdapter(type);
+    if (reader == null) throw new AdapterNotFound(type);
     return reader;
   }
 
-  public <F extends FileHandle, B> void setReader(Class<F> type, SyncReader<B> reader) {
+  public <F extends FileHandle> void setAdapter(Class<F> type, FileHandleAdapter<F> adapter) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
-    if (reader == null) throw new IllegalArgumentException("reader cannot be null");
-    log.debug("Reader set {} -> {}", type.getSimpleName(), reader.getClass());
-    readers.put(type, reader);
+    if (adapter == null) throw new IllegalArgumentException("adapter cannot be null");
+    log.debug("Adapter set {} -> {}", type.getSimpleName(), adapter.getClass());
+    readers.put(type, adapter);
   }
 
   public void clear() {
@@ -160,10 +160,13 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
     }
 
     final AssetLoader loader = findLoader(asset.type);
+    if (loader instanceof AsyncAssetLoader) {
+      //...
+    }
     final FileHandle handle = loader.resolver().resolve(asset);
-    final SyncReader reader = findReader(handle.getClass());
-    if (reader instanceof AsyncReader) {
-      io.submit(((AsyncReader) reader).readFuture(asset, this));
+    final FileHandleAdapter adapter = findAdapter(handle.getClass());
+    if (adapter instanceof AsyncAdapter) {
+//      io.submit(((AsyncReader) reader).readFuture(asset, this));
     } else {
 //    io.submit(reader.create(asset));
     }

@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.RiiabloTest;
@@ -23,8 +22,8 @@ public class AssetManagerTest extends RiiabloTest {
   public void init() {
     AssetManager assets = new AssetManager(1);
     MPQFileHandleResolver resolver = new MPQFileHandleResolver(Gdx.files.absolute("C:\\diablo"));
-    assets.setReader(FileHandle.class, new FileHandleReader(new InternalFileHandleResolver()));
-    assets.setReader(MPQFileHandle.class, new MPQFileHandleReader(resolver));
+    assets.setAdapter(FileHandle.class, new GdxFileHandleAdapter());
+    assets.setAdapter(MPQFileHandle.class, new MPQFileHandleAdapter());
     assets.dispose();
   }
 }
