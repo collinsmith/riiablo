@@ -1,6 +1,5 @@
 package com.riiablo.assets;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.util.AsciiString;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -24,7 +24,7 @@ import com.riiablo.logger.Logger;
  * n async threads perform async loading of ByteBuf to data
  * sync thread created stuff on GL thread
  */
-public class AssetManager implements Disposable, LoadTask.Callback, CatchableCallable.ExceptionHandler {
+public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.AsyncHandler {
   private static final Logger log = LogManager.getLogger(AssetManager.class);
 
   final Map<AsciiString, AssetContainer> assets = new ConcurrentHashMap<>();
@@ -34,7 +34,7 @@ public class AssetManager implements Disposable, LoadTask.Callback, CatchableCal
   final ArrayBlockingQueue<LoadTask> completedTasks = new ArrayBlockingQueue<>(256);
   final ArrayList<LoadTask> drain = new ArrayList<>(256);
 
-  final Map<Class, AsyncReader> readers = new ConcurrentHashMap<>();
+  final Map<Class, SyncReader> readers = new ConcurrentHashMap<>();
 
   final ExecutorService io;
   final ExecutorService async;
@@ -94,17 +94,17 @@ public class AssetManager implements Disposable, LoadTask.Callback, CatchableCal
     loaders.put(type, loader);
   }
 
-  public AsyncReader getReader(Class type) {
+  public SyncReader getReader(Class type) {
     return readers.get(type);
   }
 
-  AsyncReader findReader(Class type) {
-    final AsyncReader reader = getReader(type);
+  SyncReader findReader(Class type) {
+    final SyncReader reader = getReader(type);
     if (reader == null) throw new ReaderNotFound(type);
     return reader;
   }
 
-  public <B> void setReader(Class<B> type, AsyncReader<B> reader) {
+  public <F extends FileHandle, B> void setReader(Class<F> type, SyncReader<B> reader) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
     if (reader == null) throw new IllegalArgumentException("reader cannot be null");
     log.debug("Reader set {} -> {}", type.getSimpleName(), reader.getClass());
@@ -159,9 +159,14 @@ public class AssetManager implements Disposable, LoadTask.Callback, CatchableCal
       return;
     }
 
-    final AsyncReader reader = findReader(asset.type);
-    io.submit(reader.readFuture(asset, this));
+    final AssetLoader loader = findLoader(asset.type);
+    final FileHandle handle = loader.resolver().resolve(asset);
+    final SyncReader reader = findReader(handle.getClass());
+    if (reader instanceof AsyncReader) {
+      io.submit(((AsyncReader) reader).readFuture(asset, this));
+    } else {
 //    io.submit(reader.create(asset));
+    }
   }
 
   @Override
@@ -169,8 +174,8 @@ public class AssetManager implements Disposable, LoadTask.Callback, CatchableCal
     log.error("{} threw {}", thread.getName(), t.getMessage(), t);
   }
 
-  //  @Override
-  public void onFinishedReading(Asset asset, ByteBuf handle) {
+  @Override
+  public void onFinishedLoading(Asset asset, Object data) {
     async.submit(new LoadTask(asset, this));
   }
 
