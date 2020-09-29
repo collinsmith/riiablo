@@ -1,6 +1,12 @@
 package com.riiablo.assets;
 
-import io.netty.util.AsciiString;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,13 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-
-import com.riiablo.logger.LogManager;
-import com.riiablo.logger.Logger;
+import io.netty.util.AsciiString;
 
 /**
  * n io threads perform async io to retrieve ByteBuf or MPQInputStream
@@ -34,7 +34,7 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
   final ArrayBlockingQueue<LoadTask> completedTasks = new ArrayBlockingQueue<>(256);
   final ArrayList<LoadTask> drain = new ArrayList<>(256);
 
-  final Map<Class, FileHandleAdapter> readers = new ConcurrentHashMap<>();
+  final Map<Class, FileHandleAdapter> adapters = new ConcurrentHashMap<>();
 
   final ExecutorService io;
   final ExecutorService async;
@@ -87,7 +87,7 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
     return loader;
   }
 
-  public <T> void setLoader(Class<T> type, AssetLoader<T> loader) {
+  public <T> void setLoader(Class<T> type, AssetLoader<T, ?> loader) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
     if (loader == null) throw new IllegalArgumentException("loader cannot be null");
     log.debug("Loader set {} -> {}", type.getSimpleName(), loader.getClass());
@@ -95,7 +95,7 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
   }
 
   public FileHandleAdapter getAdapter(Class type) {
-    return readers.get(type);
+    return adapters.get(type);
   }
 
   FileHandleAdapter findAdapter(Class type) {
@@ -108,7 +108,7 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
     if (type == null) throw new IllegalArgumentException("type cannot be null");
     if (adapter == null) throw new IllegalArgumentException("adapter cannot be null");
     log.debug("Adapter set {} -> {}", type.getSimpleName(), adapter.getClass());
-    readers.put(type, adapter);
+    adapters.put(type, adapter);
   }
 
   public void clear() {
@@ -166,7 +166,7 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
       if (adapter instanceof AsyncAdapter) {
 //      io.submit(((AsyncReader) reader).readFuture(asset, this));
       } else {
-        ((AsyncAssetLoader) loader).loadAsync(this, asset, adapter, handle);
+        ((AsyncAssetLoader) loader).loadAsync(this, asset, adapter.adapt(handle, loader.type()));
       }
     } else {
 //    io.submit(reader.create(asset));

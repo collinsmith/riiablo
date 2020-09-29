@@ -1,11 +1,16 @@
 package com.riiablo.assets;
 
-import io.netty.buffer.ByteBuf;
-import java.io.InputStream;
-
 import com.riiablo.mpq_bytebuf.MPQFileHandle;
 
-public class MPQFileHandleAdapter implements FileHandleAdapter<MPQFileHandle>, AsyncAdapter {
+import java.io.InputStream;
+
+import io.netty.buffer.ByteBuf;
+
+public final class MPQFileHandleAdapter extends FileHandleAdapter<MPQFileHandle> implements AsyncAdapter {
+  public MPQFileHandleAdapter() {
+    super(MPQFileHandle.class);
+  }
+
   @Override
   public byte[] readBytes(MPQFileHandle handle) {
     throw new UnsupportedOperationException();

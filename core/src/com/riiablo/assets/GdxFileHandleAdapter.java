@@ -1,11 +1,16 @@
 package com.riiablo.assets;
 
-import io.netty.buffer.ByteBuf;
-import java.io.InputStream;
-
 import com.badlogic.gdx.files.FileHandle;
 
-public class GdxFileHandleAdapter implements FileHandleAdapter<FileHandle> {
+import java.io.InputStream;
+
+import io.netty.buffer.ByteBuf;
+
+public final class GdxFileHandleAdapter extends FileHandleAdapter<FileHandle> {
+  public GdxFileHandleAdapter() {
+    super(FileHandle.class);
+  }
+
   @Override
   public byte[] readBytes(FileHandle handle) {
     return handle.readBytes();

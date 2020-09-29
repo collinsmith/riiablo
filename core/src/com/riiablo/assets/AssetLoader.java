@@ -2,7 +2,24 @@ package com.riiablo.assets;
 
 import com.badlogic.gdx.utils.Array;
 
-public interface AssetLoader<T> {
-  FileHandleResolver resolver();
-  Array<Asset> getDependencies(Asset<T> asset);
+public class AssetLoader<T, V> {
+  final FileHandleResolver resolver;
+  final Class<V> type;
+
+  protected AssetLoader(FileHandleResolver resolver, Class<V> type) {
+    this.resolver = resolver;
+    this.type = type;
+  }
+
+  public final Class<V> type() {
+    return type;
+  }
+
+  public final FileHandleResolver resolver() {
+    return resolver;
+  }
+
+  public Array<Asset> getDependencies(Asset<T> asset) {
+    return null;
+  }
 }

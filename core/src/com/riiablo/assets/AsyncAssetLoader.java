@@ -1,31 +1,14 @@
 package com.riiablo.assets;
 
-import io.netty.buffer.ByteBuf;
-import java.io.InputStream;
-
 import com.badlogic.gdx.files.FileHandle;
 
-public abstract class AsyncAssetLoader<T, F extends FileHandle, V> implements AssetLoader<T> {
-  final Reader<F, V> reader;
+import java.io.InputStream;
 
-  public AsyncAssetLoader(Reader<F, V> reader) {
-    this.reader = reader;
-  }
+import io.netty.buffer.ByteBuf;
 
-  protected Reader<F, V> reader() {
-    return reader;
-  }
-
-  void loadAsync(AssetManager assets, Asset<T> asset, FileHandleAdapter<F> adapter, F handle) {
-    loadAsync(assets, asset, reader.get(adapter, handle));
-  }
-
-  void unloadAsync(AssetManager assets, Asset<T> asset, FileHandleAdapter<F> adapter, F handle) {
-    unloadAsync(assets, asset, reader.get(adapter, handle));
-  }
-
-  T loadSync(AssetManager assets, Asset<T> asset, FileHandleAdapter<F> adapter, F handle) {
-    return loadSync(assets, asset, reader.get(adapter, handle));
+public abstract class AsyncAssetLoader<T, V> extends AssetLoader<T, V> {
+  public AsyncAssetLoader(FileHandleResolver resolver, Class<V> type) {
+    super(resolver, type);
   }
 
   protected abstract void loadAsync(AssetManager assets, Asset<T> asset, V data);
