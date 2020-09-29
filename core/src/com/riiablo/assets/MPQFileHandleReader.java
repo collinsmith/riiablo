@@ -15,7 +15,7 @@ public class MPQFileHandleReader implements AsyncReader<ByteBuf> {
   @Override
   public Callable<ByteBuf> readFuture(
       final Asset asset,
-      final CatchableCallable.ExceptionHandler exceptionHandler) {
+      final AsyncHandler exceptionHandler) {
     return CatchableCallable.wrap(new Callable<ByteBuf>() {
       @Override
       public ByteBuf call() {
