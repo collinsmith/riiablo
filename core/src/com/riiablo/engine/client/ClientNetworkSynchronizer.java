@@ -41,7 +41,7 @@ import com.riiablo.save.CharData;
 import com.riiablo.util.ArrayUtils;
 
 @All
-public class ClientNetworkSyncronizer extends IntervalSystem {
+public class ClientNetworkSynchronizer extends IntervalSystem {
   private static final String TAG = "ClientNetworkSyncronizer";
   private static final boolean DEBUG         = true;
   private static final boolean DEBUG_PACKET  = DEBUG && !true;
@@ -61,7 +61,7 @@ public class ClientNetworkSyncronizer extends IntervalSystem {
   boolean init = false;
   @Wire(name="client.socket") Socket socket;
 
-  public ClientNetworkSyncronizer() {
+  public ClientNetworkSynchronizer() {
     super(null, 1 / 60f);
   }
 
