@@ -160,13 +160,14 @@ public class AssetManager implements Disposable, LoadTask.Callback, AsyncReader.
     }
 
     final AssetLoader loader = findLoader(asset.type);
-    if (loader instanceof AsyncAssetLoader) {
-      //...
-    }
     final FileHandle handle = loader.resolver().resolve(asset);
     final FileHandleAdapter adapter = findAdapter(handle.getClass());
-    if (adapter instanceof AsyncAdapter) {
+    if (loader instanceof AsyncAssetLoader) {
+      if (adapter instanceof AsyncAdapter) {
 //      io.submit(((AsyncReader) reader).readFuture(asset, this));
+      } else {
+        ((AsyncAssetLoader) loader).loadAsync(this, asset, adapter, handle);
+      }
     } else {
 //    io.submit(reader.create(asset));
     }
