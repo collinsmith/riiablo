@@ -10,8 +10,13 @@ import com.riiablo.assets.AsyncAssetLoader;
 import com.riiablo.assets.FileHandleResolver;
 import com.riiablo.assets.MPQFileHandleResolver;
 import com.riiablo.codec.DCC;
+import com.riiablo.mpq.MPQFileHandle;
 
-public class DCCLoader implements AsyncAssetLoader<DCC, ByteBuf> {
+public class DCCLoader extends AsyncAssetLoader<DCC, MPQFileHandle, ByteBuf> {
+  DCCLoader() {
+    super(new ByteBufReader<MPQFileHandle>());
+  }
+
   @Override
   public FileHandleResolver resolver() {
     return new MPQFileHandleResolver();

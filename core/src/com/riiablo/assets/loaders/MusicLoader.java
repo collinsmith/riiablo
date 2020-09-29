@@ -12,7 +12,11 @@ import com.riiablo.assets.AsyncAssetLoader;
 import com.riiablo.assets.DelimiterPathTransformer;
 import com.riiablo.assets.FileHandleResolver;
 
-public class MusicLoader implements AsyncAssetLoader<Music, FileHandle> {
+public class MusicLoader extends AsyncAssetLoader<Music, FileHandle, FileHandle> {
+  MusicLoader() {
+    super(new ReflectiveReader<>());
+  }
+
   @Override
   public FileHandleResolver resolver() {
     return new FileHandleResolver(DelimiterPathTransformer.INSTANCE) {
