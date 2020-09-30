@@ -275,4 +275,74 @@ public class BitInputTest {
     Assert.assertEquals(0x1ff, b.read15u(9)); // stat list finished
     Assert.assertEquals(5, b.bitsRemaining()); // tail end of stream
   }
+
+  @Test
+  public void readSlice_aligned_to_aligned() {
+    BitInput b = newInstance();
+    assert b.aligned();
+    BitInput slice = b.readSlice(Byte.SIZE);
+    Assert.assertTrue(b.aligned());
+    Assert.assertEquals(Byte.SIZE, b.bitsRead());
+    Assert.assertEquals(0, b.bitsCached());
+    Assert.assertEquals(0, b.cache());
+
+    Assert.assertTrue(slice.aligned());
+    Assert.assertEquals(Byte.SIZE, slice.numBits());
+    Assert.assertEquals(0, slice.bitsRead());
+    Assert.assertEquals(0, slice.bitsCached());
+    Assert.assertEquals(0, slice.cache());
+  }
+
+  @Test
+  public void readSlice_aligned_to_unaligned() {
+    BitInput b = newInstance();
+    assert b.aligned();
+    BitInput slice = b.readSlice(Byte.SIZE - 1);
+    Assert.assertFalse(b.aligned());
+    Assert.assertEquals(Byte.SIZE - 1, b.bitsRead());
+    Assert.assertEquals(1, b.bitsCached());
+    Assert.assertEquals(0b1, b.cache());
+
+    Assert.assertTrue(slice.aligned());
+    Assert.assertEquals(Byte.SIZE - 1, slice.numBits());
+    Assert.assertEquals(0, slice.bitsRead());
+    Assert.assertEquals(0, slice.bitsCached());
+    Assert.assertEquals(0, slice.cache());
+  }
+
+  @Test
+  public void readSlice_unaligned_to_aligned() {
+    BitInput b = newInstance();
+    b.skipBits(Byte.SIZE - 1);
+    assert !b.aligned();
+    BitInput slice = b.readSlice(1);
+    Assert.assertTrue(b.aligned());
+    Assert.assertEquals(Byte.SIZE, b.bitsRead());
+    Assert.assertEquals(0, b.bitsCached());
+    Assert.assertEquals(0, b.cache());
+
+    Assert.assertFalse(slice.aligned());
+    Assert.assertEquals(1, slice.numBits());
+    Assert.assertEquals(0, slice.bitsRead());
+    Assert.assertEquals(1, slice.bitsCached());
+    Assert.assertEquals(0b1, slice.cache());
+  }
+
+  @Test
+  public void readSlice_unaligned_to_unaligned() {
+    BitInput b = newInstance();
+    b.skipBits(1);
+    assert !b.aligned();
+    BitInput slice = b.readSlice(Byte.SIZE - 2);
+    Assert.assertTrue(!b.aligned());
+    Assert.assertEquals(Byte.SIZE - 1, b.bitsRead());
+    Assert.assertEquals(1, b.bitsCached());
+    Assert.assertEquals(0b1, b.cache());
+
+    Assert.assertFalse(slice.aligned());
+    Assert.assertEquals(Byte.SIZE - 2, slice.numBits());
+    Assert.assertEquals(0, slice.bitsRead());
+    Assert.assertEquals(Byte.SIZE - 1, slice.bitsCached());
+    Assert.assertEquals(0b1110111, slice.cache());
+  }
 }

@@ -132,13 +132,14 @@ public class BitInput {
           "bitsRead(" + bitsRead + ") + sliceBits(" + numBits + ") > numBits(" + this.numBits + ")");
     }
 
-
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
 
     // length should include the last byte that bits belong (round to ceil)
     final long numBytes = (numBits - bitsCached + Byte.SIZE - 1) / Byte.SIZE;
-    final ByteInput byteInput = this.byteInput.readSlice(numBytes);
-    return byteInput.bitInput(new BitInput(byteInput, bitsCached, cache, numBits));
+    final ByteInput byteInput = this.byteInput.slice(numBytes);
+    final BitInput bitInput = byteInput.bitInput(new BitInput(byteInput, bitsCached, cache, numBits));
+    skipBits(numBits);
+    return bitInput;
   }
 
   /**

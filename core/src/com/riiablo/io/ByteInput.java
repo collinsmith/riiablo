@@ -1,15 +1,13 @@
 package com.riiablo.io;
 
-import com.riiablo.util.DebugUtils;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.nio.charset.Charset;
-import java.util.Arrays;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
+
+import com.riiablo.util.DebugUtils;
 
 /**
  * Wraps a {@link ByteBuf} to support reading sequences of bytes and supporting
@@ -232,11 +230,19 @@ public class ByteInput {
     return new ByteInput(slice, mark);
   }
 
-  ByteInput readUnalignedSlice(long numBytes) {
-    if (aligned()) return readSlice(numBytes);
+  /**
+   * Returns a slice of this buffer's sub-region starting at the current
+   * position with the specified size (= numBytes). This function does not
+   * modify the current position and does not validate if this buffer is
+   * {@link #aligned() aligned}.
+   *
+   * @see ByteBuf#slice()
+   */
+  public ByteInput slice(long numBytes) {
     assert numBytes <= Integer.MAX_VALUE : "ByteBuf only supports int length";
+    final int mark = updateMark(); // updates mark to start offset of slice
     final ByteBuf slice = buffer.slice(mark, (int) numBytes);
-    throw null;
+    return new ByteInput(slice, mark);
   }
 
   /**
