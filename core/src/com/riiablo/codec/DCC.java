@@ -1,14 +1,5 @@
 package com.riiablo.codec;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -17,11 +8,25 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
-
 import com.riiablo.codec.util.BBox;
 import com.riiablo.codec.util.BitStream;
 import com.riiablo.graphics.PaletteIndexedPixmap;
+import com.riiablo.io.BitUtils;
+import com.riiablo.io.ByteInput;
 import com.riiablo.util.BufferUtils;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public class DCC extends com.riiablo.codec.DC {
   private static final String TAG = "DCC";
@@ -287,6 +292,46 @@ public class DCC extends com.riiablo.codec.DC {
   public Animation.Layer getLayer(int blendMode) {
     return new Animation.Layer(this, blendMode);
   }*/
+
+  public static DCC loadFromArray(byte[] bytes) {
+    return loadFromBuffer(Unpooled.wrappedBuffer(bytes));
+  }
+
+  public static DCC loadFromBuffer(ByteBuf buffer) {
+    ByteInput in = ByteInput.wrap(buffer);
+    final int fileSize = in.bytesRemaining();
+
+    Header header = Header.obtain(in);
+    if (DEBUG) Gdx.app.debug(TAG, header.toString());
+
+    final int numDirections = header.directions;
+    final int numFrames = header.framesPerDir;
+
+    int[] dirOffsets = new int[numDirections + 1];
+    BitUtils.readSafe32u(in, dirOffsets, 0, numDirections);
+    dirOffsets[numDirections] = fileSize;
+    if (DEBUG) Gdx.app.debug(TAG, "direction offsets = " + Arrays.toString(dirOffsets));
+
+    BBox box = new BBox();
+    box.xMin = box.yMin = Integer.MAX_VALUE;
+    box.xMax = box.yMax = Integer.MIN_VALUE;
+
+    Direction[] directions = new Direction[numDirections];
+    Frame[][] frames = new Frame[numDirections][numFrames];
+    int start = dirOffsets[0], end;
+    for (int d = 0; d < numDirections; d++) {
+      end = dirOffsets[d + 1];
+//      final Direction dir = directions[d] = Direction.obtain(in, end - start, frames[d]);
+
+//      assert dir.equalCellBitStream.bitsRemaining() == 0;
+//      assert dir.pixelMaskBitStream.bitsRemaining() == 0;
+//      assert dir.encodingTypeBitStream.bitsRemaining() == 0;
+//      assert dir.rawPixelCodesBitStream.bitsRemaining() == 0;
+//      assert dir.pixelCodeAndDisplacementBitStream.bytesRemaining() == 0;
+    }
+
+    throw new UnsupportedOperationException();
+  }
 
   public static DCC loadFromFile(FileHandle handle) {
     return loadFromStream(handle.read());
@@ -693,6 +738,10 @@ public class DCC extends com.riiablo.codec.DC {
       return new Header().read(in);
     }
 
+    static Header obtain(ByteInput in) {
+      return new Header().read(in);
+    }
+
     Header read(InputStream in) throws IOException {
       ByteBuffer buffer = ByteBuffer.wrap(IOUtils.readFully(in, SIZE)).order(ByteOrder.LITTLE_ENDIAN);
       signature    = BufferUtils.readUnsignedByte(buffer);
@@ -702,6 +751,18 @@ public class DCC extends com.riiablo.codec.DC {
       tag          = buffer.getInt();
       finalDC6Size = buffer.getInt();
       assert !buffer.hasRemaining();
+      return this;
+    }
+
+    Header read(ByteInput in) {
+      in = in.readSlice(SIZE);
+      signature = in.read8();
+      version = in.readSafe8u();
+      directions = in.readSafe8u();
+      framesPerDir = in.readSafe32u();
+      tag = in.readSafe32u();
+      finalDC6Size = in.readSafe32u();
+      assert in.bytesRemaining() == 0 : "in.bytesRemaining(" + in.bytesRemaining() + ") > " + 0;
       return this;
     }
 
