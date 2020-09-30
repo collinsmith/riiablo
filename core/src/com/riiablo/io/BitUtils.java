@@ -24,4 +24,13 @@ public class BitUtils {
   public static boolean isUnsigned(long value) {
     return isUnsigned(value, Long.SIZE);
   }
+
+  public static int[] readSafe32u(ByteInput in, int len) {
+    return readSafe32u(in, new int[len], 0, len);
+  }
+
+  public static int[] readSafe32u(final ByteInput in, final int[] dst, final int offset, final int len) {
+    for (int i = offset; i < len; i++) dst[i] = in.readSafe32u();
+    return dst;
+  }
 }
