@@ -241,7 +241,7 @@ public class ByteInput {
   public ByteInput slice(long numBytes) {
     assert numBytes <= Integer.MAX_VALUE : "ByteBuf only supports int length";
     final int mark = updateMark(); // updates mark to start offset of slice
-    final ByteBuf slice = buffer.slice(mark, (int) numBytes);
+    final ByteBuf slice = buffer.slice(buffer.readerIndex(), (int) numBytes);
     return new ByteInput(slice, mark);
   }
 

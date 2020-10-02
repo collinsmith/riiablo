@@ -23,6 +23,8 @@ public class BitInput {
 
   private final ByteInput byteInput;
   private final long numBits;
+  private final long maxBit; // logical max bit that can be read
+  private final long maxBitByteOffset; // distance from maxBit to maxByte (< {@value Byte#SIZE})
   private long bitsRead;
   private int bitsCached;
   private long cache;
@@ -32,18 +34,22 @@ public class BitInput {
    * {@code numBits} including all bits within {@code byteInput}.
    */
   BitInput(ByteInput byteInput) {
-    this(byteInput, 0, 0L, (long) byteInput.bytesRemaining() * Byte.SIZE);
+    this(byteInput, 0, 0L, (long) byteInput.bytesRead() * Byte.SIZE, (long) byteInput.bytesRemaining() * Byte.SIZE);
   }
 
   /**
    * Constructs a BitInput instance with an initial state. This is typically
    * done when the BitInput is created as the child of another BitInput.
    */
-  private BitInput(ByteInput byteInput, int bitsCached, long cache, long numBits) {
+  private BitInput(ByteInput byteInput, int bitsCached, long cache, long bitsRead, long numBits) {
     this.byteInput = byteInput;
     this.bitsCached = bitsCached;
     this.cache = cache;
+    this.bitsRead = bitsRead;
     this.numBits = numBits;
+    this.maxBit = bitsRead + numBits;
+    final long maxByte = (maxBit + Byte.SIZE - 1) / Byte.SIZE;
+    this.maxBitByteOffset = (maxByte * Byte.SIZE) - maxBit;
   }
 
   ByteInput byteInput() {
@@ -80,9 +86,9 @@ public class BitInput {
   }
 
   public long bitsRemaining() {
-    assert (numBits - bitsRead) == (bitsCached + ((long) bytesRemaining() * Byte.SIZE))
-        : "actual(" + (numBits - bitsRead) + ") != expected(" + (bitsCached + ((long) bytesRemaining() * Byte.SIZE)) + ")";
-    return numBits - bitsRead;
+    assert (maxBit - bitsRead) == (bitsCached + ((long) bytesRemaining() * Byte.SIZE) - maxBitByteOffset)
+        : "actual(" + (maxBit - bitsRead) + ") != expected(" + (bitsCached + ((long) bytesRemaining() * Byte.SIZE) - maxBitByteOffset) + ")";
+    return maxBit - bitsRead;
   }
 
   public long numBits() {
@@ -110,11 +116,11 @@ public class BitInput {
     // consume cache if bits remaining
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
     if (bitsCached > 0) {
-      bitsRead = Math.min(numBits, bitsRead + bitsCached);
+      bitsRead = Math.min(maxBit, bitsRead + bitsCached);
       clearCache();
     }
 
-    assert bitsRead <= numBits : "bitsRead(" + bitsRead + ") > numBits(" + numBits + ")";
+    assert bitsRead <= maxBit : "bitsRead(" + bitsRead + ") > maxBit(" + maxBit + ")";
     return byteInput;
   }
 
@@ -127,9 +133,9 @@ public class BitInput {
     // ByteInput with a new BitInput if allowing align
     if (numBits == 0) return ByteInput.emptyByteInput().unalign();
     if (numBits < 0) throw new IllegalArgumentException("numBits(" + numBits + ") < " + 0);
-    if (bitsRead + numBits > this.numBits) {
+    if (bitsRead + numBits > maxBit) {
       throw new IllegalArgumentException(
-          "bitsRead(" + bitsRead + ") + sliceBits(" + numBits + ") > numBits(" + this.numBits + ")");
+          "bitsRead(" + bitsRead + ") + sliceBits(" + numBits + ") > maxBit(" + maxBit + ")");
     }
 
     assert bitsCached < Byte.SIZE : "bitsCached(" + bitsCached + ") > " + (Byte.SIZE - 1);
@@ -137,7 +143,7 @@ public class BitInput {
     // length should include the last byte that bits belong (round to ceil)
     final long numBytes = (numBits - bitsCached + Byte.SIZE - 1) / Byte.SIZE;
     final ByteInput byteInput = this.byteInput.slice(numBytes);
-    final BitInput bitInput = byteInput.bitInput(new BitInput(byteInput, bitsCached, cache, numBits));
+    final BitInput bitInput = byteInput.bitInput(new BitInput(byteInput, bitsCached, cache, bitsRead, numBits));
     skipBits(numBits);
     return bitInput;
   }
@@ -174,8 +180,8 @@ public class BitInput {
 
   long incrementBitsRead(long bits) {
     byteInput.updateMark();
-    if ((bitsRead += bits) > numBits) {
-      bitsRead = numBits;
+    if ((bitsRead += bits) > maxBit) {
+      bitsRead = maxBit;
       throw new EndOfInput();
     }
 
