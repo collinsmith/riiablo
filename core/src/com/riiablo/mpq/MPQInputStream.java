@@ -1,16 +1,5 @@
 package com.riiablo.mpq;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.StreamUtils;
-import com.riiablo.mpq.util.Decompressor;
-import com.riiablo.mpq.util.Decryptor;
-import com.riiablo.mpq.util.Exploder;
-import com.riiablo.util.BufferUtils;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -18,6 +7,17 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.StreamUtils;
+
+import com.riiablo.mpq.util.Decompressor;
+import com.riiablo.mpq.util.Decryptor;
+import com.riiablo.mpq.util.Exploder;
+import com.riiablo.util.BufferUtils;
 
 public class MPQInputStream extends InputStream {
   private static final String TAG = "MPQInputStream";
@@ -275,6 +275,14 @@ public class MPQInputStream extends InputStream {
       raf = new RandomAccessFile(mpq.file.file(), "r");
       FileChannel fc = raf.getChannel();
       fc.position(block.filePos);
+
+      if ((block.flags & ~MPQ.BlockTable.Block.FLAG_EXISTS) == 0) {
+        assert block.CSize == block.FSize : "file(" + fileName + ") block(" + block + ") CSize(" + block.CSize + ") != FSize(" + block.FSize + ")";
+        final ByteBuffer out = ByteBuffer.allocate(block.FSize);
+        final int bytesRead = fc.read(out);
+        assert bytesRead == block.FSize;
+        return out.array();
+      }
 
       final int sectorSize = mpq.header.sectorSize;
       final int sectorCount = (block.FSize + sectorSize - 1) / sectorSize;

@@ -1,32 +1,30 @@
 package com.riiablo.codec;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.StreamUtils;
+
 import com.riiablo.codec.util.BBox;
-import com.riiablo.codec.util.BitStream;
 import com.riiablo.graphics.PaletteIndexedPixmap;
+import com.riiablo.io.BitInput;
 import com.riiablo.io.BitUtils;
 import com.riiablo.io.ByteInput;
+import com.riiablo.mpq.MPQFileHandle;
 import com.riiablo.util.BufferUtils;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 public class DCC extends com.riiablo.codec.DC {
   private static final String TAG = "DCC";
@@ -294,10 +292,10 @@ public class DCC extends com.riiablo.codec.DC {
   }*/
 
   public static DCC loadFromArray(byte[] bytes) {
-    return loadFromBuffer(Unpooled.wrappedBuffer(bytes));
+    return loadFromByteBuf(Unpooled.wrappedBuffer(bytes));
   }
 
-  public static DCC loadFromBuffer(ByteBuf buffer) {
+  public static DCC loadFromByteBuf(ByteBuf buffer) {
     ByteInput in = ByteInput.wrap(buffer);
     final int fileSize = in.bytesRemaining();
 
@@ -321,82 +319,105 @@ public class DCC extends com.riiablo.codec.DC {
     int start = dirOffsets[0], end;
     for (int d = 0; d < numDirections; d++) {
       end = dirOffsets[d + 1];
-//      final Direction dir = directions[d] = Direction.obtain(in, end - start, frames[d]);
+      final Direction dir = directions[d] = Direction.obtain(in, end - start, frames[d]);
+      if (DEBUG_DIRECTIONS) Gdx.app.debug(TAG, dir.toString());
+      if (DEBUG_FRAMES) for (Frame frame : frames[d]) Gdx.app.debug(TAG, frame.toString());
 
-//      assert dir.equalCellBitStream.bitsRemaining() == 0;
-//      assert dir.pixelMaskBitStream.bitsRemaining() == 0;
-//      assert dir.encodingTypeBitStream.bitsRemaining() == 0;
-//      assert dir.rawPixelCodesBitStream.bitsRemaining() == 0;
-//      assert dir.pixelCodeAndDisplacementBitStream.bytesRemaining() == 0;
+      Cache cache = new Cache(header);
+      fillPixelBuffer(cache, dir, frames[d]);
+      makeFrames(cache, dir, frames[d]);
+      if (DEBUG_PB_SIZE) Gdx.app.debug(TAG, "pixelBuffer.size = " + cache.numEntries);
+
+      start = end;
+
+      assert dir.equalCellBitStream.bitsRemaining() == 0;
+      assert dir.pixelMaskBitStream.bitsRemaining() == 0;
+      assert dir.encodingTypeBitStream.bitsRemaining() == 0;
+      assert dir.rawPixelCodesBitStream.bitsRemaining() == 0;
+      assert dir.pixelCodeAndDisplacementBitStream.bytesRemaining() == 0;
+
+      if (dir.box.xMin < box.xMin) box.xMin = dir.box.xMin;
+      if (dir.box.yMin < box.yMin) box.yMin = dir.box.yMin;
+      if (dir.box.xMax > box.xMax) box.xMax = dir.box.xMax;
+      if (dir.box.yMax > box.yMax) box.yMax = dir.box.yMax;
     }
 
-    throw new UnsupportedOperationException();
+    box.width  = box.xMax - box.xMin + 1;
+    box.height = box.yMax - box.yMin + 1;
+
+    return new DCC(header, directions, frames, box);
   }
 
   public static DCC loadFromFile(FileHandle handle) {
-    return loadFromStream(handle.read());
-  }
-
-  public static DCC loadFromStream(InputStream in) {
-    try {
-      final int fileSize = in.available();
-
-      Header header = Header.obtain(in);
-      if (DEBUG) Gdx.app.debug(TAG, header.toString());
-
-      final int numDirections = header.directions;
-      final int numFrames = header.framesPerDir;
-
-      int[] dirOffsets = new int[numDirections + 1];
-      ByteBuffer.wrap(IOUtils.readFully(in, numDirections << 2))
-          .order(ByteOrder.LITTLE_ENDIAN)
-          .asIntBuffer()
-          .get(dirOffsets, 0, numDirections);
-      dirOffsets[numDirections] = fileSize;
-      if (DEBUG) Gdx.app.debug(TAG, "direction offsets = " + Arrays.toString(dirOffsets));
-
-      BBox box = new BBox();
-      box.xMin = box.yMin = Integer.MAX_VALUE;
-      box.xMax = box.yMax = Integer.MIN_VALUE;
-
-      Direction[] directions = new Direction[numDirections];
-      Frame[][]   frames     = new Frame    [numDirections][numFrames];
-      int start = dirOffsets[0], end;
-      for (int d = 0; d < numDirections; d++) {
-        end = dirOffsets[d + 1];
-        Direction dir = directions[d] = Direction.obtain(in, end - start, frames[d]);
-        if (DEBUG_DIRECTIONS) Gdx.app.debug(TAG, dir.toString());
-        if (DEBUG_FRAMES) for (Frame frame : frames[d]) Gdx.app.debug(TAG, frame.toString());
-
-        Cache cache = new Cache(header);
-        fillPixelBuffer(cache, dir, frames[d]);
-        makeFrames(cache, dir, frames[d]);
-        if (DEBUG_PB_SIZE) Gdx.app.debug(TAG, "pixelBuffer.size = " + cache.numEntries);
-
-        start = end;
-
-        assert dir.equalCellBitStream.tell() == dir.equalCellBitStream.sizeInBits();
-        assert dir.pixelMaskBitStream.tell() == dir.pixelMaskBitStream.sizeInBits();
-        assert dir.encodingTypeBitStream.tell() == dir.encodingTypeBitStream.sizeInBits();
-        assert dir.rawPixelCodesBitStream.tell() == dir.rawPixelCodesBitStream.sizeInBits();
-        assert dir.pixelCodeAndDisplacementBitStream.tell() + 7 >= dir.pixelCodeAndDisplacementBitStream.sizeInBits();
-
-        if (dir.box.xMin < box.xMin) box.xMin = dir.box.xMin;
-        if (dir.box.yMin < box.yMin) box.yMin = dir.box.yMin;
-        if (dir.box.xMax > box.xMax) box.xMax = dir.box.xMax;
-        if (dir.box.yMax > box.yMax) box.yMax = dir.box.yMax;
-      }
-
-      box.width  = box.xMax - box.xMin + 1;
-      box.height = box.yMax - box.yMin + 1;
-
-      return new DCC(header, directions, frames, box);
-    } catch (Throwable t) {
-      throw new GdxRuntimeException("Couldn't load DCC from stream.", t);
-    } finally {
-      StreamUtils.closeQuietly(in);
+    if (handle instanceof MPQFileHandle) {
+      return loadFromArray(handle.readBytes());
+    } else if (handle instanceof com.riiablo.mpq_bytebuf.MPQFileHandle) {
+      return loadFromByteBuf(((com.riiablo.mpq_bytebuf.MPQFileHandle) handle).readByteBuf());
     }
+
+    return loadFromArray(handle.readBytes());
   }
+
+//  public static DCC loadFromStream(InputStream in) {
+//    try {
+//      final int fileSize = in.available();
+//
+//      Header header = Header.obtain(in);
+//      if (DEBUG) Gdx.app.debug(TAG, header.toString());
+//
+//      final int numDirections = header.directions;
+//      final int numFrames = header.framesPerDir;
+//
+//      int[] dirOffsets = new int[numDirections + 1];
+//      ByteBuffer.wrap(IOUtils.readFully(in, numDirections << 2))
+//          .order(ByteOrder.LITTLE_ENDIAN)
+//          .asIntBuffer()
+//          .get(dirOffsets, 0, numDirections);
+//      dirOffsets[numDirections] = fileSize;
+//      if (DEBUG) Gdx.app.debug(TAG, "direction offsets = " + Arrays.toString(dirOffsets));
+//
+//      BBox box = new BBox();
+//      box.xMin = box.yMin = Integer.MAX_VALUE;
+//      box.xMax = box.yMax = Integer.MIN_VALUE;
+//
+//      Direction[] directions = new Direction[numDirections];
+//      Frame[][]   frames     = new Frame    [numDirections][numFrames];
+//      int start = dirOffsets[0], end;
+//      for (int d = 0; d < numDirections; d++) {
+//        end = dirOffsets[d + 1];
+//        Direction dir = directions[d] = Direction.obtain(in, end - start, frames[d]);
+//        if (DEBUG_DIRECTIONS) Gdx.app.debug(TAG, dir.toString());
+//        if (DEBUG_FRAMES) for (Frame frame : frames[d]) Gdx.app.debug(TAG, frame.toString());
+//
+//        Cache cache = new Cache(header);
+//        fillPixelBuffer(cache, dir, frames[d]);
+//        makeFrames(cache, dir, frames[d]);
+//        if (DEBUG_PB_SIZE) Gdx.app.debug(TAG, "pixelBuffer.size = " + cache.numEntries);
+//
+//        start = end;
+//
+//        assert dir.equalCellBitStream.tell() == dir.equalCellBitStream.sizeInBits();
+//        assert dir.pixelMaskBitStream.tell() == dir.pixelMaskBitStream.sizeInBits();
+//        assert dir.encodingTypeBitStream.tell() == dir.encodingTypeBitStream.sizeInBits();
+//        assert dir.rawPixelCodesBitStream.tell() == dir.rawPixelCodesBitStream.sizeInBits();
+//        assert dir.pixelCodeAndDisplacementBitStream.tell() + 7 >= dir.pixelCodeAndDisplacementBitStream.sizeInBits();
+//
+//        if (dir.box.xMin < box.xMin) box.xMin = dir.box.xMin;
+//        if (dir.box.yMin < box.yMin) box.yMin = dir.box.yMin;
+//        if (dir.box.xMax > box.xMax) box.xMax = dir.box.xMax;
+//        if (dir.box.yMax > box.yMax) box.yMax = dir.box.yMax;
+//      }
+//
+//      box.width  = box.xMax - box.xMin + 1;
+//      box.height = box.yMax - box.yMin + 1;
+//
+//      return new DCC(header, directions, frames, box);
+//    } catch (Throwable t) {
+//      throw new GdxRuntimeException("Couldn't load DCC from stream.", t);
+//    } finally {
+//      StreamUtils.closeQuietly(in);
+//    }
+//  }
 
   private static void fillPixelBuffer(Cache cache, Direction dir, Frame[] frames) {
     cache.pixelBuffer = new PixelBuffer[PixelBuffer.MAX_VALUE];
@@ -440,13 +461,13 @@ public class DCC extends com.riiablo.codec.DC {
           boolean nextCell = false;
           if (cellBuffer[curCell] != null) {
             if (dir.equalCellBitStreamSize > 0) {
-              tmp = dir.equalCellBitStream.readBit();
+              tmp = dir.equalCellBitStream.read1();
             } else {
               tmp = 0;
             }
 
             if (tmp == 0) {
-              pixelMask = dir.pixelMaskBitStream.readU7(4);
+              pixelMask = dir.pixelMaskBitStream.read7u(4);
               assert pixelMask >= 0;
             } else {
               nextCell = true;
@@ -459,7 +480,7 @@ public class DCC extends com.riiablo.codec.DC {
             Arrays.fill(readPixel, 0);
             pixels = PixelBuffer.PIXEL_TABLE[pixelMask];
             if (pixels > 0 && dir.encodingTypeBitStreamSize > 0) {
-              encodingType = dir.encodingTypeBitStream.readBit();
+              encodingType = dir.encodingTypeBitStream.read1();
               assert encodingType >= 0;
             } else {
               encodingType = 0;
@@ -469,11 +490,11 @@ public class DCC extends com.riiablo.codec.DC {
             decodedPixels = 0;
             for (int i = 0; i < pixels; i++) {
               if (encodingType > 0) {
-                readPixel[i] = dir.rawPixelCodesBitStream.readU31(8);
+                readPixel[i] = dir.rawPixelCodesBitStream.read15u(8);
               } else {
                 readPixel[i] = lastPixel;
                 do {
-                  pixelDisplacement = dir.pixelCodeAndDisplacementBitStream.readU7(4);
+                  pixelDisplacement = dir.pixelCodeAndDisplacementBitStream.read7u(4);
                   readPixel[i] += pixelDisplacement;
                 } while (pixelDisplacement == 0xF);
               }
@@ -696,7 +717,7 @@ public class DCC extends com.riiablo.codec.DC {
 
             for (int y = 0; y < cell.h; y++) {
               for (int x = 0; x < cell.w; x++) {
-                int pix = dir.pixelCodeAndDisplacementBitStream.readU7(bits);
+                int pix = dir.pixelCodeAndDisplacementBitStream.read7u(bits);
                 cell.bmp.setPixel(x, y, pbe.val[pix]);
               }
             }
@@ -799,31 +820,33 @@ public class DCC extends com.riiablo.codec.DC {
     long encodingTypeBitStreamSize;
     long rawPixelCodesBitStreamSize;
 
-    BitStream equalCellBitStream;
-    BitStream pixelMaskBitStream;
-    BitStream encodingTypeBitStream;
-    BitStream rawPixelCodesBitStream;
-    BitStream pixelCodeAndDisplacementBitStream;
+    BitInput equalCellBitStream;
+    BitInput pixelMaskBitStream;
+    BitInput encodingTypeBitStream;
+    BitInput rawPixelCodesBitStream;
+    BitInput pixelCodeAndDisplacementBitStream;
 
     byte pixelValues[]; // unsigned
 
     //BBox  box; // inherited
 
-    static Direction obtain(InputStream in, int size, Frame[] frames) throws IOException {
+    static Direction obtain(ByteInput in, int size, Frame[] frames) {
       return new Direction().read(in, size, frames);
     }
 
-    Direction read(InputStream in, int size, Frame[] frames) throws IOException {
-      BitStream bitStream = new BitStream(IOUtils.readFully(in, size), size * Byte.SIZE);
-      outsizeCoded      =        bitStream.readUnsigned(32);
+    Direction read(ByteInput in, int size, Frame[] frames) {
+//      BitStream bitStream = new BitStream(IOUtils.readFully(in, size), size * Byte.SIZE);
+      in = in.readSlice(size);
+      outsizeCoded      =        in.readSafe32u();
+      BitInput bitStream = in.unalign();
       compressionFlags  = (byte) bitStream.readRaw(2);
-      variable0Bits     =        bitStream.readU7(4);
-      widthBits         =        bitStream.readU7(4);
-      heightBits        =        bitStream.readU7(4);
-      xOffsetBits       =        bitStream.readU7(4);
-      yOffsetBits       =        bitStream.readU7(4);
-      optionalBytesBits =        bitStream.readU7(4);
-      codedBytesBits    =        bitStream.readU7(4);
+      variable0Bits     =        bitStream.read7u(4);
+      widthBits         =        bitStream.read7u(4);
+      heightBits        =        bitStream.read7u(4);
+      xOffsetBits       =        bitStream.read7u(4);
+      yOffsetBits       =        bitStream.read7u(4);
+      optionalBytesBits =        bitStream.read7u(4);
+      codedBytesBits    =        bitStream.read7u(4);
 
       box = new BBox();
       box.xMin = box.yMin = Integer.MAX_VALUE;
@@ -849,34 +872,34 @@ public class DCC extends com.riiablo.codec.DC {
       return this;
     }
 
-    private void readOptionalBytes(BitStream bitStream, Frame[] frames) {
-      bitStream.alignToByte();
+    private void readOptionalBytes(BitInput bitStream, Frame[] frames) {
+      ByteInput in = bitStream.align();
       for (Frame frame : frames) {
         if (frame.optionalBytes > 0) {
-          frame.optionalBytesData = bitStream.readFully(frame.optionalBytes);
+          frame.optionalBytesData = in.readBytes(frame.optionalBytes);
         }
       }
     }
 
-    private void readBitStreamSizes(BitStream bitStream) {
+    private void readBitStreamSizes(BitInput bitStream) {
       equalCellBitStreamSize = 0;
       pixelMaskBitStreamSize = 0;
       encodingTypeBitStreamSize = 0;
       rawPixelCodesBitStreamSize = 0;
 
       if ((compressionFlags & CompressEqualCells) == CompressEqualCells) {
-        equalCellBitStreamSize = bitStream.readUnsigned(20);
+        equalCellBitStreamSize = bitStream.read31u(20);
       }
 
-      pixelMaskBitStreamSize = bitStream.readUnsigned(20);
+      pixelMaskBitStreamSize = bitStream.read31u(20);
 
       if ((compressionFlags & HasRawPixelEncoding) == HasRawPixelEncoding) {
-        encodingTypeBitStreamSize = bitStream.readUnsigned(20);
-        rawPixelCodesBitStreamSize = bitStream.readUnsigned(20);
+        encodingTypeBitStreamSize = bitStream.read31u(20);
+        rawPixelCodesBitStreamSize = bitStream.read31u(20);
       }
     }
 
-    private void readPixelValues(BitStream bitStream) {
+    private void readPixelValues(BitInput bitStream) {
       int index = 0;
       pixelValues = new byte[Palette.COLORS];
       for (int i = 0; i < Palette.COLORS; i++) {
@@ -884,22 +907,15 @@ public class DCC extends com.riiablo.codec.DC {
       }
     }
 
-    private void initDirBitStreams(BitStream bitStream) {
+    private void initDirBitStreams(BitInput bitStream) {
       assert (compressionFlags & CompressEqualCells) != CompressEqualCells || equalCellBitStreamSize > 0;
-      equalCellBitStream = bitStream.createSubView(equalCellBitStreamSize);
-      bitStream.skip(equalCellBitStreamSize);
-
-      pixelMaskBitStream = bitStream.createSubView(pixelMaskBitStreamSize);
-      bitStream.skip(pixelMaskBitStreamSize);
-
+      equalCellBitStream = bitStream.readSlice(equalCellBitStreamSize);
+      pixelMaskBitStream = bitStream.readSlice(pixelMaskBitStreamSize);
       assert (compressionFlags & HasRawPixelEncoding) != HasRawPixelEncoding
           || (encodingTypeBitStreamSize > 0 && rawPixelCodesBitStreamSize > 0);
-      encodingTypeBitStream = bitStream.createSubView(encodingTypeBitStreamSize);
-      bitStream.skip(encodingTypeBitStreamSize);
-      rawPixelCodesBitStream = bitStream.createSubView(rawPixelCodesBitStreamSize);
-      bitStream.skip(rawPixelCodesBitStreamSize);
-
-      pixelCodeAndDisplacementBitStream = bitStream.createSubView(bitStream.sizeInBits() - bitStream.tell());
+      encodingTypeBitStream = bitStream.readSlice(encodingTypeBitStreamSize);
+      rawPixelCodesBitStream = bitStream.readSlice(rawPixelCodesBitStreamSize);
+      pixelCodeAndDisplacementBitStream = bitStream.readSlice(bitStream.bitsRemaining());
     }
 
     public String getFlags() {
@@ -959,19 +975,19 @@ public class DCC extends com.riiablo.codec.DC {
     //BBox   box; // inherited
     Pixmap pixmap;
 
-    static Frame obtain(BitStream bitStream, Direction direction) throws IOException {
+    static Frame obtain(BitInput bitStream, Direction direction) {
       return new Frame().read(bitStream, direction);
     }
 
-    Frame read(BitStream bitStream, Direction d) throws IOException {
-      variable0     = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.variable0Bits]);
-      width         = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.widthBits]);
-      height        = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.heightBits]);
-      xOffset       = (int) bitStream.readSigned  (BITS_WIDTH_TABLE[d.xOffsetBits]);
-      yOffset       = (int) bitStream.readSigned  (BITS_WIDTH_TABLE[d.yOffsetBits]);
-      optionalBytes = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.optionalBytesBits]);
-      codedBytes    = (int) bitStream.readUnsigned(BITS_WIDTH_TABLE[d.codedBytesBits]);
-      flip          =       bitStream.readBit();
+    Frame read(BitInput bitStream, Direction d) {
+      variable0     = (int) bitStream.read63u(BITS_WIDTH_TABLE[d.variable0Bits]);
+      width         = (int) bitStream.read63u(BITS_WIDTH_TABLE[d.widthBits]);
+      height        = (int) bitStream.read63u(BITS_WIDTH_TABLE[d.heightBits]);
+      xOffset       = (int) bitStream.read32 (BITS_WIDTH_TABLE[d.xOffsetBits]);
+      yOffset       = (int) bitStream.read32 (BITS_WIDTH_TABLE[d.yOffsetBits]);
+      optionalBytes = (int) bitStream.read63u(BITS_WIDTH_TABLE[d.optionalBytesBits]);
+      codedBytes    = (int) bitStream.read63u(BITS_WIDTH_TABLE[d.codedBytesBits]);
+      flip          =       bitStream.read1();
 
       optionalBytesData = ArrayUtils.EMPTY_BYTE_ARRAY;
 
