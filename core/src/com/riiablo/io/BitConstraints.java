@@ -1,6 +1,6 @@
 package com.riiablo.io;
 
-class BitConstraints {
+public class BitConstraints {
   private BitConstraints() {}
 
   private static int _validateSize(int min, int max, int bits) {
@@ -60,33 +60,65 @@ class BitConstraints {
     return _validateSize(Byte.SIZE - 1, Byte.SIZE, bits);
   }
 
-  public static byte safe8u(short i) {
+  public static byte safe8u(ByteInput byteInput, short i) {
     if (!BitUtils.isUnsigned(i, Byte.SIZE)) {
-      throw new UnsafeNarrowing(i);
+      throw new UnsafeNarrowing(byteInput, i);
     }
 
     return (byte) i;
   }
 
-  public static short safe16u(int i) {
+  public static short safe16u(ByteInput byteInput, int i) {
     if (!BitUtils.isUnsigned(i, Short.SIZE)) {
-      throw new UnsafeNarrowing(i);
+      throw new UnsafeNarrowing(byteInput, i);
     }
 
     return (short) i;
   }
 
-  public static int safe32u(long i) {
+  public static int safe32u(ByteInput byteInput, long i) {
     if (!BitUtils.isUnsigned(i, Integer.SIZE)) {
-      throw new UnsafeNarrowing(i);
+      throw new UnsafeNarrowing(byteInput, i);
     }
 
     return (int) i;
   }
 
-  public static long safe64u(long i) {
+  public static long safe64u(ByteInput byteInput, long i) {
     if (!BitUtils.isUnsigned(i, Long.SIZE)) {
-      throw new UnsafeNarrowing(i);
+      throw new UnsafeNarrowing(byteInput, i);
+    }
+
+    return (long) i;
+  }
+
+  public static byte safe8u(BitInput bitInput, short i) {
+    if (!BitUtils.isUnsigned(i, Byte.SIZE)) {
+      throw new UnsafeNarrowing(bitInput.byteInput(), i);
+    }
+
+    return (byte) i;
+  }
+
+  public static short safe16u(BitInput bitInput, int i) {
+    if (!BitUtils.isUnsigned(i, Short.SIZE)) {
+      throw new UnsafeNarrowing(bitInput.byteInput(), i);
+    }
+
+    return (short) i;
+  }
+
+  public static int safe32u(BitInput bitInput, long i) {
+    if (!BitUtils.isUnsigned(i, Integer.SIZE)) {
+      throw new UnsafeNarrowing(bitInput.byteInput(), i);
+    }
+
+    return (int) i;
+  }
+
+  public static long safe64u(BitInput bitInput, long i) {
+    if (!BitUtils.isUnsigned(i, Long.SIZE)) {
+      throw new UnsafeNarrowing(bitInput.byteInput(), i);
     }
 
     return (long) i;
