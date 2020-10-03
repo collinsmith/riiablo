@@ -449,6 +449,70 @@ public class BitInput {
     return read64(Long.SIZE);
   }
 
+  /**
+   * Reads an unsigned byte as a {@code byte}.
+   *
+   * @throws UnsafeNarrowing if the read value is larger than 7 bits.
+   *
+   * @see #read8u()
+   */
+  public byte readSafe8u() {
+    try {
+      final short value = read8u();
+      return BitConstraints.safe8u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
+  /**
+   * Reads an unsigned 16-bit short integer as a {@code short}.
+   *
+   * @throws UnsafeNarrowing if the read value is larger than 15 bits.
+   *
+   * @see #read16u()
+   */
+  public short readSafe16u() {
+    try {
+      final int value = read16u();
+      return BitConstraints.safe16u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
+  /**
+   * Reads an unsigned 32-bit integer as an {@code int}.
+   *
+   * @throws UnsafeNarrowing if the read value is larger than 31 bits.
+   *
+   * @see #read32u()
+   */
+  public int readSafe32u() {
+    try {
+      final long value = read32u();
+      return BitConstraints.safe32u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
+  /**
+   * Reads an unsigned 64-bit long integer as a {@code long}.
+   *
+   * @throws UnsafeNarrowing if the read value is larger than 63 bits.
+   *
+   * @see #read64()
+   */
+  public long readSafe64u() {
+    try {
+      final long value = read64();
+      return BitConstraints.safe64u(value);
+    } catch (IndexOutOfBoundsException t) {
+      throw new EndOfInput(t);
+    }
+  }
+
 //  /**
 //   * @deprecated unaligned reads not supported!
 //   *    use {@code align().readBytes(int)} instead!
