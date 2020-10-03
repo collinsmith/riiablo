@@ -68,6 +68,10 @@ public class BitInput {
     return byteInput.numBytes();
   }
 
+  public int byteMark() {
+    return byteInput.mark();
+  }
+
   public int bitsCached() {
     return bitsCached;
   }
@@ -459,7 +463,7 @@ public class BitInput {
   public byte readSafe8u() {
     try {
       final short value = read8u();
-      return BitConstraints.safe8u(byteInput, value);
+      return BitConstraints.safe8u(byteMark(), value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
     }
@@ -475,7 +479,7 @@ public class BitInput {
   public short readSafe16u() {
     try {
       final int value = read16u();
-      return BitConstraints.safe16u(byteInput, value);
+      return BitConstraints.safe16u(byteMark(), value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
     }
@@ -491,7 +495,7 @@ public class BitInput {
   public int readSafe32u() {
     try {
       final long value = read32u();
-      return BitConstraints.safe32u(byteInput, value);
+      return BitConstraints.safe32u(byteMark(), value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
     }
@@ -507,7 +511,7 @@ public class BitInput {
   public long readSafe64u() {
     try {
       final long value = read64();
-      return BitConstraints.safe64u(byteInput, value);
+      return BitConstraints.safe64u(byteMark(), value);
     } catch (IndexOutOfBoundsException t) {
       throw new EndOfInput(t);
     }

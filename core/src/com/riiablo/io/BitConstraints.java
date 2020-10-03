@@ -60,65 +60,65 @@ public class BitConstraints {
     return _validateSize(Byte.SIZE - 1, Byte.SIZE, bits);
   }
 
-  public static byte safe8u(ByteInput byteInput, short i) {
+  public static byte safe8u(short i) {
     if (!BitUtils.isUnsigned(i, Byte.SIZE)) {
-      throw new UnsafeNarrowing(byteInput, i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (byte) i;
   }
 
-  public static short safe16u(ByteInput byteInput, int i) {
+  public static short safe16u(int i) {
     if (!BitUtils.isUnsigned(i, Short.SIZE)) {
-      throw new UnsafeNarrowing(byteInput, i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (short) i;
   }
 
-  public static int safe32u(ByteInput byteInput, long i) {
+  public static int safe32u(long i) {
     if (!BitUtils.isUnsigned(i, Integer.SIZE)) {
-      throw new UnsafeNarrowing(byteInput, i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (int) i;
   }
 
-  public static long safe64u(ByteInput byteInput, long i) {
+  public static long safe64u(long i) {
     if (!BitUtils.isUnsigned(i, Long.SIZE)) {
-      throw new UnsafeNarrowing(byteInput, i);
+      throw new UnsafeNarrowing(i);
     }
 
     return (long) i;
   }
 
-  public static byte safe8u(BitInput bitInput, short i) {
+  public static byte safe8u(long offset, short i) {
     if (!BitUtils.isUnsigned(i, Byte.SIZE)) {
-      throw new UnsafeNarrowing(bitInput.byteInput(), i);
+      throw new UnsafeNarrowing(offset, i);
     }
 
     return (byte) i;
   }
 
-  public static short safe16u(BitInput bitInput, int i) {
+  public static short safe16u(long offset, int i) {
     if (!BitUtils.isUnsigned(i, Short.SIZE)) {
-      throw new UnsafeNarrowing(bitInput.byteInput(), i);
+      throw new UnsafeNarrowing(offset, i);
     }
 
     return (short) i;
   }
 
-  public static int safe32u(BitInput bitInput, long i) {
+  public static int safe32u(long offset, long i) {
     if (!BitUtils.isUnsigned(i, Integer.SIZE)) {
-      throw new UnsafeNarrowing(bitInput.byteInput(), i);
+      throw new UnsafeNarrowing(offset, i);
     }
 
     return (int) i;
   }
 
-  public static long safe64u(BitInput bitInput, long i) {
+  public static long safe64u(long offset, long i) {
     if (!BitUtils.isUnsigned(i, Long.SIZE)) {
-      throw new UnsafeNarrowing(bitInput.byteInput(), i);
+      throw new UnsafeNarrowing(offset, i);
     }
 
     return (long) i;
