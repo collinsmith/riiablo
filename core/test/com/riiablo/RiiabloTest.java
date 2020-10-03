@@ -8,6 +8,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 
 import com.riiablo.codec.StringTBLs;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.OutputStreamAppender;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 public class RiiabloTest {
@@ -18,6 +20,8 @@ public class RiiabloTest {
     Riiablo.mpqs = new MPQFileHandleResolver();
     Riiablo.string = new StringTBLs(Riiablo.mpqs);
     Riiablo.files = new Files();
+    Riiablo.logs = new GdxLoggerManager(LogManager.getRegistry());
+    Riiablo.logs.getRootLogger().addAppender(new OutputStreamAppender(System.out));
   }
 
   @AfterClass
