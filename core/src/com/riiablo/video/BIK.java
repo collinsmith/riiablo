@@ -119,6 +119,13 @@ public class BIK {
     video = new BinkVideo();
 
     offsets = BitUtils.readSafe32u(in, numFrames + 1);
+    for (int i = 0; i <= numFrames; i++) {
+      boolean keyframe = (offsets[i] & 1) == 1;
+      if (keyframe) {
+        offsets[i] &= ~1;
+      }
+    }
+
     if (log.traceEnabled()) {
       StringBuilder builder = new StringBuilder(256);
       builder.append('[');
