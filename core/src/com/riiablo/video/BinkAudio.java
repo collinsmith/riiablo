@@ -1,5 +1,9 @@
 package com.riiablo.video;
 
+import java.util.Arrays;
+import org.apache.commons.math3.util.FastMath;
+
+import com.riiablo.io.BitInput;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.InvalidFormat;
 import com.riiablo.logger.LogManager;
@@ -10,12 +14,13 @@ public class BinkAudio {
 
   static final int SIZE = 0x0C;
   static final int MAX_CHANNELS = 2;
+  static final int BLOCK_MAX_SIZE = MAX_CHANNELS << 11;
 
   static final int FLAG_AUDIO_16BITS = 0x4000;
   static final int FLAG_AUDIO_STEREO = 0x2000;
   static final int FLAG_AUDIO_DCT    = 0x1000;
 
-  private static final int[] BANDS = {
+  private static final int[] CRIT_FREQ = {
       100, 200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000,
       2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700, 9500, 12000, 15500,
       24500
@@ -24,6 +29,10 @@ public class BinkAudio {
   private static final int[] RLE = {
       2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 32, 64
   };
+
+  private final float[] QUANTS;
+  private final int[] BANDS;
+  private final float[][] PREVIOUS = new float[MAX_CHANNELS][BLOCK_MAX_SIZE >>> 4];
 
   final short numChannels;
   final int sampleRate;
@@ -34,6 +43,10 @@ public class BinkAudio {
   final int overlapLen;
   final int blockSize;
   final int halfSampleRate;
+  final int numBands;
+  final float root;
+
+  boolean first;
 
   BinkAudio(ByteInput in) {
     log.trace("slicing {} bytes", SIZE);
@@ -69,6 +82,31 @@ public class BinkAudio {
     overlapLen = frameLen >> 4;
     blockSize = (frameLen - overlapLen) * numChannels;
     halfSampleRate = (sampleRate + 1) / 2;
+    root = frameLen / ((float) FastMath.sqrt(frameLen) * 32768f);
+    // if coded->id == RDFT then frameLen becomes 2f
+
+    QUANTS = new float[96];
+    for (int i = 0; i < 96; i++) {
+      /* constant is result of 0.066399999/log10(M_E) */
+      QUANTS[i] = (float) FastMath.exp(i * 0.15289164787221953823f) * root;
+    }
+
+    int numBands;
+    for (numBands = 1; numBands < 25 && halfSampleRate > CRIT_FREQ[numBands - 1]; numBands++);
+    this.numBands = numBands;
+
+    BANDS = new int[numBands + 1];
+    BANDS[0] = 2;
+    for (int i = 1; i < numBands; i++) {
+      BANDS[i] = (CRIT_FREQ[i - 1] * frameLen / halfSampleRate) & ~1;
+    }
+    BANDS[numBands] = frameLen;
+
+    first = true;
+  }
+
+  public float[][] createOut() {
+    return new float[MAX_CHANNELS][BLOCK_MAX_SIZE];
   }
 
   public String getFlagsString() {
@@ -82,5 +120,92 @@ public class BinkAudio {
 
   public boolean isMono() {
     return (flags & FLAG_AUDIO_STEREO) == 0;
+  }
+
+  void decode(BitInput bits, float[][] out) {
+    int ch, i, j, k;
+    float q;
+    float[] quant = new float[25];
+    int width, coeff;
+    for (ch = 0; ch < numChannels; ch++) {
+      final float[] coeffs = out[ch];
+      coeffs[0] = readFloat29(bits) * root;
+      coeffs[1] = readFloat29(bits) * root;
+
+      for (i = 0; i < numBands; i++) {
+        final short value = bits.read8u();
+        quant[i] = QUANTS[Math.min(value, 95)];
+      }
+
+      k = 0;
+      q = quant[0];
+
+      // parse coefficients
+      i = 2;
+      while (i < frameLen) {
+        {
+          int v = bits.read1();
+          if (v != 0) {
+            v = bits.read7u(4);
+            j = i + RLE[v] << 3;
+          } else {
+            j = i + 8;
+          }
+        }
+
+        j = Math.min(j, frameLen);
+
+        width = bits.read7u(4);
+        if (width == 0) {
+          Arrays.fill(coeffs, i, coeffs.length, 0);
+          i = j;
+          while (BANDS[k] < i) {
+            q = quant[k++];
+          }
+        } else {
+          while (i < j) {
+            if (BANDS[k] == i) {
+              q = quant[k++];
+            }
+            coeff = bits.read31u(width);
+            if (coeff != 0) {
+              final int v = bits.read1();
+              coeffs[i] = (v != 0 ? -q : q) * coeff;
+            } else {
+              coeffs[i] = 0f;
+            }
+            i++;
+          }
+        }
+      }
+
+      if (false) { // dct stuff
+        coeffs[0] /= 0.5f;
+        //dct calc stuff
+      } else if (false) { // rdft decoder stuff
+
+      }
+    }
+
+    for (ch = 0; ch < numChannels; ch++) {
+      final float[] current = out[ch];
+      final float[] previous = PREVIOUS[ch];
+      int count = overlapLen * numChannels;
+      if (!first) {
+        j = ch;
+        for (i = 0; i < overlapLen; i++, j += numChannels) {
+          out[ch][i] = (previous[i] * (count - j) + current[i] * j) / count;
+        }
+      }
+      System.arraycopy(previous, 0, current, frameLen - overlapLen, overlapLen);
+    }
+
+    first = false;
+  }
+
+  static float readFloat29(BitInput bits) {
+    int power = bits.read32(5);
+    float f = FastMath.scalb(bits.read32(23), power - 23);
+    return bits.readBoolean() ? f : -f;
   }
 }

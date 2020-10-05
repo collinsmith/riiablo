@@ -3,6 +3,8 @@ package com.riiablo.video;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.io.FileUtils;
 
+import com.badlogic.gdx.audio.AudioDevice;
+
 import com.riiablo.io.BitUtils;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.InvalidFormat;
@@ -145,7 +147,7 @@ public class BIK {
     return numTracks;
   }
 
-  void decode(int frame) {
+  void decode(int frame, AudioDevice[] audio, float[][] out) {
     final int offset = offsets[frame];
     log.tracef("offset: +%x", offset);
     final ByteBuf slice = buffer.slice(offset, offsets[frame + 1] - offset);
@@ -157,9 +159,14 @@ public class BIK {
         final int packetSize = in.readSafe32u();
         log.trace("packetSize: {} bytes", packetSize);
 
-        final ByteInput audioPacket = in.readSlice(packetSize);
+//        final ByteInput audioPacket = in.readSlice(packetSize);
+        final ByteInput audioPacket = in;
         final int numSamples = audioPacket.readSafe32u();
         log.trace("numSamples: {}", numSamples);
+
+        BinkAudio track = tracks[i];
+        track.decode(audioPacket.unalign(), out);
+        audio[i].writeSamples(out[0], 0, numSamples);
 
         log.trace("bytesRemaining: {} bytes", audioPacket.bytesRemaining());
       } finally {
