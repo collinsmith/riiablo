@@ -164,9 +164,9 @@ public class BIK {
         final int numSamples = audioPacket.readSafe32u();
         log.trace("numSamples: {}", numSamples);
 
-        BinkAudio track = tracks[i];
-        track.decode(audioPacket.unalign(), out);
-        audio[i].writeSamples(out[0], 0, numSamples);
+//        BinkAudio track = tracks[i];
+//        track.decode(audioPacket.unalign(), out);
+//        audio[i].writeSamples(out[0], 0, numSamples);
 
         log.trace("bytesRemaining: {} bytes", audioPacket.bytesRemaining());
       } finally {

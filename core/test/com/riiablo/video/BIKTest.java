@@ -38,7 +38,7 @@ public class BIKTest extends RiiabloTest {
     FileHandle handle = Gdx.files.internal("test\\New_Bliz640x480.bik");
     ByteBuf buffer = Unpooled.wrappedBuffer(handle.readBytes());
     BIK bik = BIK.loadFromByteBuf(buffer);
-//    bik.decode(0, null, null);
+    bik.decode(0, null, null);
 
     AudioDevice audio = Gdx.audio.newAudioDevice(44100, false);
     // TODO: create video tool
