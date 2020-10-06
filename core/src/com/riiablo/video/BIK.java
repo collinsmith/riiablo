@@ -170,7 +170,7 @@ public class BIK {
 
         final ByteInput audioPacket = in.readSlice(packetSize);
         System.out.println(ByteBufUtil.prettyHexDump(audioPacket.buffer()));
-        final AudioPacket packet = new AudioPacket(track, in, device, out);
+        final AudioPacket packet = new AudioPacket(track, audioPacket, device, out);
         audioPackets.add(packet);
 
         log.trace("bytesRemaining: {} bytes", audioPacket.bytesRemaining());
