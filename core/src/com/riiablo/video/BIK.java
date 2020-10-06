@@ -2,6 +2,7 @@ package com.riiablo.video;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import com.badlogic.gdx.audio.AudioDevice;
@@ -152,7 +153,8 @@ public class BIK {
     return numTracks;
   }
 
-  void decode(int frame, AudioDevice[] audio, float[][] out) {
+  void decode(int frame, List<AudioPacket> audioPackets, AudioDevice device, float[][] out) {
+    audioPackets.clear();
     final boolean keyframe = (offsets[frame] & 1) == 1;
     final int offset = offsets[frame] & ~1;
     log.tracef("offset: +%x, keyframe: %s", offset, keyframe);
@@ -162,17 +164,14 @@ public class BIK {
     for (int i = 0, s = numTracks; i < s; i++) {
       try {
         MDC.put("track", i);
+        final BinkAudio track = tracks[i];
         final int packetSize = in.readSafe32u();
         log.trace("packetSize: {} bytes", packetSize);
 
         final ByteInput audioPacket = in.readSlice(packetSize);
         System.out.println(ByteBufUtil.prettyHexDump(audioPacket.buffer()));
-        final int numSamples = audioPacket.readSafe32u();
-        log.trace("numSamples: {}", numSamples);
-
-//        BinkAudio track = tracks[i];
-//        track.decode(audioPacket.unalign(), out);
-//        audio[i].writeSamples(out[0], 0, numSamples);
+        final AudioPacket packet = new AudioPacket(track, in, device, out);
+        audioPackets.add(packet);
 
         log.trace("bytesRemaining: {} bytes", audioPacket.bytesRemaining());
       } finally {
