@@ -157,8 +157,9 @@ public class BIK {
     audioPackets.clear();
     final boolean keyframe = (offsets[frame] & 1) == 1;
     final int offset = offsets[frame] & ~1;
-    log.tracef("offset: +%x, keyframe: %s", offset, keyframe);
-    final ByteBuf slice = buffer.slice(offset, offsets[frame + 1] - offset);
+    final int size = offsets[frame + 1] - offset;
+    log.tracef("offset: +%x, keyframe: %s (%d bytes)", offset, keyframe, size);
+    final ByteBuf slice = buffer.slice(offset, size);
     final ByteInput in = ByteInput.wrap(slice);
 
     for (int i = 0, s = numTracks; i < s; i++) {

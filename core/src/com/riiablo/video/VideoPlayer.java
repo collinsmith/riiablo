@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.AudioDevice;
@@ -40,6 +41,7 @@ public class VideoPlayer implements Disposable {
       public Thread newThread(Runnable r) {
         final Thread t = new Thread(r);
         t.setName("VideoPlayer-" + i++);
+        t.setDaemon(true);
         return t;
       }
     });
@@ -73,6 +75,11 @@ public class VideoPlayer implements Disposable {
 
   @Override
   public void dispose() {
-
+    audioStreams.shutdown();
+    try {
+      audioStreams.awaitTermination(5L, TimeUnit.SECONDS);
+    } catch (InterruptedException t) {
+      audioStreams.shutdownNow();
+    }
   }
 }
