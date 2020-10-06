@@ -120,18 +120,13 @@ public class BIK {
     video = new BinkVideo();
 
     offsets = BitUtils.readSafe32u(in, numFrames + 1);
-    for (int i = 0; i <= numFrames; i++) {
-      boolean keyframe = (offsets[i] & 1) == 1;
-      if (keyframe) {
-        offsets[i] &= ~1;
-      }
-    }
-
     if (log.traceEnabled()) {
       StringBuilder builder = new StringBuilder(256);
       builder.append('[');
       for (int offset : offsets) {
-        builder.append(Integer.toHexString(offset)).append(',');
+        builder.append(Integer.toHexString(offset & ~1));
+        if ((offset & 1) == 1) builder.append('*');
+        builder.append(',');
       }
       builder.setCharAt(builder.length() - 1, ']');
       log.trace("offsets: {}", builder);
@@ -156,8 +151,9 @@ public class BIK {
   }
 
   void decode(int frame, AudioDevice[] audio, float[][] out) {
-    final int offset = offsets[frame];
-    log.tracef("offset: +%x", offset);
+    final boolean keyframe = (offsets[frame] & 1) == 1;
+    final int offset = offsets[frame] & ~1;
+    log.tracef("offset: +%x, keyframe: %s", offset, keyframe);
     final ByteBuf slice = buffer.slice(offset, offsets[frame + 1] - offset);
     final ByteInput in = ByteInput.wrap(slice);
 
