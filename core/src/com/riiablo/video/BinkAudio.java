@@ -34,6 +34,7 @@ public class BinkAudio {
   private final int[] BANDS;
   private final float[][] PREVIOUS = new float[MAX_CHANNELS][BLOCK_MAX_SIZE >>> 4];
 
+  final BIK bik;
   final short numChannels;
   final int sampleRate;
   final int flags;
@@ -48,7 +49,9 @@ public class BinkAudio {
 
   boolean first;
 
-  BinkAudio(ByteInput in) {
+  BinkAudio(BIK bik, ByteInput in) {
+    this.bik = bik;
+
     log.trace("slicing {} bytes", SIZE);
     in = in.readSlice(SIZE);
 
@@ -122,6 +125,12 @@ public class BinkAudio {
     return (flags & FLAG_AUDIO_STEREO) == 0;
   }
 
+  static float readFloat29(BitInput bits) {
+    int power = bits.read31u(5);
+    float f = FastMath.scalb(bits.read31u(23), power - 23);
+    return bits.readBoolean() ? -f : f;
+  }
+
   void decode(BitInput bits, float[][] out) {
     int ch, i, j, k;
     float q;
@@ -143,11 +152,12 @@ public class BinkAudio {
       // parse coefficients
       i = 2;
       while (i < frameLen) {
+        assert bik.version == 'i';
         {
           int v = bits.read1();
           if (v != 0) {
             v = bits.read7u(4);
-            j = i + RLE[v] << 3;
+            j = i + RLE[v] * 8;
           } else {
             j = i + 8;
           }
@@ -201,11 +211,5 @@ public class BinkAudio {
     }
 
     first = false;
-  }
-
-  static float readFloat29(BitInput bits) {
-    int power = bits.read32(5);
-    float f = FastMath.scalb(bits.read32(23), power - 23);
-    return bits.readBoolean() ? f : -f;
   }
 }

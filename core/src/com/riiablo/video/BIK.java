@@ -114,7 +114,7 @@ public class BIK {
     for (int i = 0, s = numTracks; i < s; i++) {
       try {
         MDC.put("track", i);
-        tracks[i] = new BinkAudio(in);
+        tracks[i] = new BinkAudio(this, in);
       } finally {
         MDC.remove("track");
       }

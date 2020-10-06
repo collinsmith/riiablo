@@ -20,6 +20,7 @@ public class VideoPlayer implements Disposable {
   private int frame;
   private float time, nextFrame;
   private ExecutorService audioStreams;
+  // FIXME: child threads should throw an error to parent?
 
   public VideoPlayer() {
     
