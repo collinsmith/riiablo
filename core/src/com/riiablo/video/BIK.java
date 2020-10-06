@@ -158,7 +158,7 @@ public class BIK {
     final boolean keyframe = (offsets[frame] & 1) == 1;
     final int offset = offsets[frame] & ~1;
     final int size = offsets[frame + 1] - offset;
-    log.tracef("offset: +%x, keyframe: %s (%d bytes)", offset, keyframe, size);
+    log.tracef("offset: +%x (%d bytes), keyframe: %s", offset, size, keyframe);
     final ByteBuf slice = buffer.slice(offset, size);
     final ByteInput in = ByteInput.wrap(slice);
 
