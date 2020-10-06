@@ -10,6 +10,9 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 
+import com.riiablo.logger.Level;
+import com.riiablo.logger.LogManager;
+
 public class VideoTool extends ApplicationAdapter {
   private static final String TAG = "VideoTool";
 
@@ -30,6 +33,8 @@ public class VideoTool extends ApplicationAdapter {
 
   @Override
   public void create() {
+    LogManager.setLevel("com.riiablo.video", Level.TRACE);
+
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

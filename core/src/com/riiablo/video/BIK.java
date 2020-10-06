@@ -35,6 +35,7 @@ public class BIK {
   final int width;
   final int height;
   final float fps;
+  final float delta;
   final int flags;
   final int numTracks;
   final BinkAudio[] tracks;
@@ -96,7 +97,8 @@ public class BIK {
     }
 
     fps = (float) fpsDividend / fpsDivisor;
-    log.trace("fps: {} fps", fps);
+    delta = 1 / fps;
+    log.trace("fps: {} fps ({}s)", fps, delta);
 
     flags = in.read32();
     if (log.traceEnabled()) log.tracef("flags: 0x%08x (%s)", flags, getFlagsString());

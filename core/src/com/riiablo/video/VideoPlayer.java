@@ -9,6 +9,8 @@ public class VideoPlayer implements Disposable {
   private BIK bik;
   private AudioDevice[] audio;
   private float[][][] out;
+  private int frame;
+  private float time, nextFrame;
 
   public VideoPlayer() {
     
@@ -35,9 +37,12 @@ public class VideoPlayer implements Disposable {
 
   }
 
-  int f = 0;
   public void update(float delta) {
-    bik.decode(f++, audio, out[0]);
+    time += delta;
+    if (time > nextFrame) {
+      nextFrame += bik.delta;
+      bik.decode(frame++, audio, out[0]);
+    }
   }
 
   public void draw(Batch batch) {
