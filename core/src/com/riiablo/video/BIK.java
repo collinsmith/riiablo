@@ -1,6 +1,7 @@
 package com.riiablo.video;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.io.FileUtils;
 
 import com.badlogic.gdx.audio.AudioDevice;
@@ -166,8 +167,8 @@ public class BIK {
         final int packetSize = in.readSafe32u();
         log.trace("packetSize: {} bytes", packetSize);
 
-//        final ByteInput audioPacket = in.readSlice(packetSize);
-        final ByteInput audioPacket = in;
+        final ByteInput audioPacket = in.readSlice(packetSize);
+        System.out.println(ByteBufUtil.prettyHexDump(audioPacket.buffer()));
         final int numSamples = audioPacket.readSafe32u();
         log.trace("numSamples: {}", numSamples);
 
@@ -181,6 +182,9 @@ public class BIK {
       }
     }
 
-    log.trace("videoPacket.bytesRemaining: {} bytes", in.bytesRemaining());
+    final int packetSize = in.bytesRemaining();
+    log.trace("packetSize: {} bytes", packetSize);
+    final ByteInput videoPacket = in;
+    System.out.println(ByteBufUtil.prettyHexDump(videoPacket.buffer()));
   }
 }
