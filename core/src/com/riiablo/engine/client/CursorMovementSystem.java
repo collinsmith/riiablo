@@ -19,7 +19,6 @@ import com.riiablo.camera.IsometricCamera;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.client.component.Hovered;
 import com.riiablo.engine.server.Actioneer;
-import com.riiablo.engine.server.Pathfinder;
 import com.riiablo.engine.server.component.Interactable;
 import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Target;
@@ -39,7 +38,6 @@ public class CursorMovementSystem extends BaseSystem {
   protected ComponentMapper<Interactable> mInteractable;
 
   protected RenderSystem renderer;
-  protected Pathfinder pathfinder;
   protected MenuManager menuManager;
   protected DialogManager dialogManager;
   protected ProfilerSystem profiler;
