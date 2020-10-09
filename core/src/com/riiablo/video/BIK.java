@@ -120,7 +120,7 @@ public class BIK {
       }
     }
 
-    video = new BinkVideo();
+    video = new BinkVideo(this, in);
 
     offsets = BitUtils.readSafe32u(in, numFrames + 1);
     if (log.traceEnabled()) {
@@ -183,6 +183,7 @@ public class BIK {
     final int packetSize = in.bytesRemaining();
     log.trace("packetSize: {} bytes", packetSize);
     final ByteInput videoPacket = in;
+    final VideoPacket packet = new VideoPacket(videoPacket);
     System.out.println(ByteBufUtil.prettyHexDump(videoPacket.buffer()));
   }
 }

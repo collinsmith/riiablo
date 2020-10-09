@@ -93,10 +93,12 @@ public class BinkAudio {
       /* constant is result of 0.066399999/log10(M_E) */
       QUANTS[i] = (float) FastMath.exp(i * 0.15289164787221953823f) * root;
     }
+    if (log.traceEnabled()) log.trace("QUANTS: {}", QUANTS);
 
     int numBands;
     for (numBands = 1; numBands < 25 && halfSampleRate > CRIT_FREQ[numBands - 1]; numBands++);
     this.numBands = numBands;
+    log.trace("numBands: {}", numBands);
 
     BANDS = new int[numBands + 1];
     BANDS[0] = 2;
@@ -104,6 +106,7 @@ public class BinkAudio {
       BANDS[i] = (CRIT_FREQ[i - 1] * frameLen / halfSampleRate) & ~1;
     }
     BANDS[numBands] = frameLen;
+    if (log.traceEnabled()) log.trace("BANDS: {}", BANDS);
 
     first = true;
   }
@@ -127,11 +130,12 @@ public class BinkAudio {
 
   static float readFloat29(BitInput bits) {
     int power = bits.read31u(5);
-    float f = FastMath.scalb(bits.read31u(23), power - 23);
+    float f = FastMath.scalb((float) bits.read31u(23), power - 23);
     return bits.readBoolean() ? -f : f;
   }
 
   void decode(BitInput bits, float[][] out) {
+    assert bik.version == 'i';
     int ch, i, j, k;
     float q;
     float[] quant = new float[25];
@@ -145,6 +149,7 @@ public class BinkAudio {
         final short value = bits.read8u();
         quant[i] = QUANTS[Math.min(value, 95)];
       }
+      if (log.traceEnabled()) log.trace("quant: {}", quant);
 
       k = 0;
       q = quant[0];
@@ -152,14 +157,12 @@ public class BinkAudio {
       // parse coefficients
       i = 2;
       while (i < frameLen) {
-        assert bik.version == 'i';
         {
           int v = bits.read1();
           if (v != 0) {
-            v = bits.read7u(4);
-            j = i + RLE[v] * 8;
+            j = i + RLE[bits.read7u(4)] * Byte.SIZE;
           } else {
-            j = i + 8;
+            j = i + Byte.SIZE;
           }
         }
 
@@ -167,7 +170,7 @@ public class BinkAudio {
 
         width = bits.read7u(4);
         if (width == 0) {
-          Arrays.fill(coeffs, i, coeffs.length, 0);
+          Arrays.fill(coeffs, i, j, 0);
           i = j;
           while (BANDS[k] < i) {
             q = quant[k++];
@@ -204,12 +207,13 @@ public class BinkAudio {
       if (!first) {
         j = ch;
         for (i = 0; i < overlapLen; i++, j += numChannels) {
-          out[ch][i] = (previous[i] * (count - j) + current[i] * j) / count;
+          current[i] = (previous[i] * (count - j) + current[i] * j) / count;
         }
       }
-      System.arraycopy(previous, 0, current, frameLen - overlapLen, overlapLen);
+      System.arraycopy(current, frameLen - overlapLen, previous, 0, overlapLen);
     }
 
     first = false;
+    assert bits.align().bytesRemaining() == 0 : "bits.bitsRemaining(" + bits.bitsRemaining() + ") > " + 0;
   }
 }
