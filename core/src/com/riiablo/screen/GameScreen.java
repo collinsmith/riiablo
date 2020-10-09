@@ -43,6 +43,7 @@ import com.riiablo.codec.excel.Sounds;
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
 import com.riiablo.engine.Engine;
+import com.riiablo.engine.EngineConfig;
 import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.client.AnimationStepper;
 import com.riiablo.engine.client.AutoInteracter;
@@ -207,6 +208,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
   CharData charData;
   Socket socket;
 
+  EngineConfig config;
   Map map;
   MapManager mapManager;
   IsometricCamera iso;
@@ -501,7 +503,8 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
       }
     };
 
-    map = new Map(0, 0);
+    config = new EngineConfig(0, 0);
+    map = new Map(config.seed(), config.diff());
     mapManager = new MapManager();
     renderer = new RenderSystem(Riiablo.batch, map);
     iso = renderer.iso();
@@ -512,6 +515,7 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
     WorldConfiguration config = getWorldConfiguration();
     config
         .register("iso", iso)
+        .register("config", config)
         .register("map", map)
         .register("factory", factory)
         .register("itemController", itemController)
