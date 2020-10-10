@@ -27,6 +27,7 @@ www-test/
 .idea/*
 !.idea/runConfigurations
 !.idea/runConfigurations/*
+!.idea/codeStyles/Project.xml
 *.ipr
 *.iws
 *.iml
