@@ -28,7 +28,7 @@ public final class AssetManager implements Disposable {
   final Map<Class, AssetLoader> loaders = new ConcurrentHashMap<>();
   final Map<Class, FileHandleAdapter> adapters = new ConcurrentHashMap<>();
 
-  final Array<FileHandleResolver> resolvers = new Array<>();
+  final Array<PriorityContainer<FileHandleResolver>> resolvers = new Array<>();
 
   public AssetManager() {
     this(2);
@@ -76,9 +76,20 @@ public final class AssetManager implements Disposable {
     adapters.put(type, adapter);
   }
 
+  public void addResolver(FileHandleResolver resolver) {
+    addResolver(resolver, Integer.MIN_VALUE);
+  }
+
+  public void addResolver(FileHandleResolver resolver, int priority) {
+    if (resolver == null) throw new IllegalArgumentException("resolver cannot be null");
+    log.debug("Resolver set {}", resolver);
+    resolvers.add(PriorityContainer.wrap(priority, resolver));
+    resolvers.sort();
+  }
+
   public FileHandle resolve(AsciiString path) {
-    for (FileHandleResolver resolver : resolvers) {
-      final FileHandle handle = resolver.resolve(path);
+    for (PriorityContainer<FileHandleResolver> container : resolvers) {
+      final FileHandle handle = container.ref.resolve(path);
       if (handle != null) {
         return handle;
       }
