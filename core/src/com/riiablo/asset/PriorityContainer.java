@@ -1,18 +1,23 @@
 package com.riiablo.asset;
 
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.Transformer;
+
 public class PriorityContainer<T> implements Comparable<PriorityContainer<T>> {
   public static <T> PriorityContainer<T> wrap(int priority, T ref) {
     return new PriorityContainer<>(priority, ref);
   }
 
-//  public static <T> Iterable<T> unwrap(Iterable<PriorityContainer<T>> it) {
-//    return IteratorUtils.transformedIterator(it, new Transformer<PriorityContainer<T>, T>() {
-//      @Override
-//      public T transform(PriorityContainer<T> input) {
-//        return input.ref;
-//      }
-//    });
-//  }
+  public static <T> Iterable<T> unwrap(Iterable<? extends PriorityContainer<T>> it) {
+    return IteratorUtils.asIterable(IteratorUtils.transformedIterator(
+        it.iterator(),
+        new Transformer<PriorityContainer<T>, T>() {
+      @Override
+      public T transform(PriorityContainer<T> input) {
+        return input.ref;
+      }
+    }));
+  }
 
   final int priority;
   final T ref;

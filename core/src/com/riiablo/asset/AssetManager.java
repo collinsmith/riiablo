@@ -88,8 +88,8 @@ public final class AssetManager implements Disposable {
   }
 
   public FileHandle resolve(AsciiString path) {
-    for (PriorityContainer<FileHandleResolver> container : resolvers) {
-      final FileHandle handle = container.ref.resolve(path);
+    for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
+      final FileHandle handle = resolver.resolve(path);
       if (handle != null) {
         return handle;
       }
