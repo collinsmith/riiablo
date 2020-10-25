@@ -1,20 +1,18 @@
 package com.riiablo.asset;
 
-import io.netty.util.AsciiString;
-
 public class ResolverNotFound extends RuntimeException {
-  final AsciiString path;
+  final CharSequence path;
 
-  ResolverNotFound(AsciiString path) {
+  ResolverNotFound(CharSequence path) {
     this(path, null);
   }
 
-  ResolverNotFound(AsciiString path, Throwable cause) {
+  ResolverNotFound(CharSequence path, Throwable cause) {
     super("Resolver not found for " + path, cause);
     this.path = path;
   }
 
-  public AsciiString path() {
+  public CharSequence path() {
     return path;
   }
 }

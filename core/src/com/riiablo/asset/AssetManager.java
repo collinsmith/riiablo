@@ -1,6 +1,5 @@
 package com.riiablo.asset;
 
-import io.netty.util.AsciiString;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -87,7 +86,7 @@ public final class AssetManager implements Disposable {
     resolvers.sort();
   }
 
-  public FileHandle resolve(AsciiString path) {
+  public FileHandle resolve(MutableString path) {
     for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
       final FileHandle handle = resolver.resolve(path);
       if (handle != null) {

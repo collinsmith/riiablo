@@ -1,12 +1,12 @@
 package com.riiablo.asset.path;
 
-import io.netty.util.AsciiString;
+import com.riiablo.asset.MutableString;
 
 public enum GdxPathTransformer implements PathTransformer {
   INSTANCE;
 
   @Override
-  public AsciiString transform(AsciiString path) {
+  public MutableString transform(MutableString path) {
     return path.replace('\\', '/');
   }
 }

@@ -1,7 +1,5 @@
 package com.riiablo.asset;
 
-import io.netty.util.AsciiString;
-
 import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.asset.path.PathTransformer;
@@ -17,7 +15,7 @@ public abstract class FileHandleResolver {
     return transformer;
   }
 
-  public FileHandle resolve(AsciiString path) {
+  public FileHandle resolve(MutableString path) {
     return resolveTransformed(transformer.transform(path));
   }
 
@@ -25,5 +23,5 @@ public abstract class FileHandleResolver {
     return resolve(asset.path);
   }
 
-  protected abstract FileHandle resolveTransformed(AsciiString path);
+  protected abstract FileHandle resolveTransformed(MutableString path);
 }

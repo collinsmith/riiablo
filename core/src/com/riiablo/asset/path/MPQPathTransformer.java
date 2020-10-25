@@ -1,6 +1,6 @@
 package com.riiablo.asset.path;
 
-import io.netty.util.AsciiString;
+import com.riiablo.asset.MutableString;
 
 public enum MPQPathTransformer implements PathTransformer {
   INSTANCE;
@@ -19,16 +19,7 @@ public enum MPQPathTransformer implements PathTransformer {
   }
 
   @Override
-  public AsciiString transform(AsciiString path) {
-    boolean changed = false;
-    final byte[] transform = MPQPathTransformer.transform;
-    final byte[] array = path.array();
-    for (int i = path.arrayOffset(), s = i + path.length(); i < s; i++) {
-      final byte b = array[i];
-      changed |= b != (array[i] = transform[b]);
-    }
-
-    if (changed) path.arrayChanged();
-    return path;
+  public MutableString transform(MutableString path) {
+    return path.transform(transform);
   }
 }

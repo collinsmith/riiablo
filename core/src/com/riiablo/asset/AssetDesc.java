@@ -1,6 +1,5 @@
 package com.riiablo.asset;
 
-import io.netty.util.AsciiString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class AssetDesc<T> {
@@ -9,14 +8,14 @@ public class AssetDesc<T> {
   }
 
   public static <T> AssetDesc<T> of(CharSequence path, Class<T> type, AssetParams<T> params) {
-    return new AssetDesc<>(new AsciiString(path), type, params);
+    return new AssetDesc<>(MutableString.wrap(path), type, params);
   }
 
-  final AsciiString path;
+  final MutableString path;
   final Class<T> type;
   final AssetParams<T> params;
 
-  AssetDesc(AsciiString path, Class<T> type, AssetParams<T> params) {
+  AssetDesc(MutableString path, Class<T> type, AssetParams<T> params) {
     this.path = path;
     this.type = type;
     this.params = params;

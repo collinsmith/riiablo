@@ -1,7 +1,7 @@
 package com.riiablo.asset.path;
 
-import io.netty.util.AsciiString;
+import com.riiablo.asset.MutableString;
 
 public interface PathTransformer {
-  AsciiString transform(AsciiString path);
+  MutableString transform(MutableString path);
 }
