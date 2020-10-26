@@ -23,6 +23,9 @@ public final class AssetManager implements Disposable {
   final ExecutorService io;
   final ExecutorService async;
 
+  // TODO: queued assets
+  // TODO: loaded assets (updated after async callback)
+
   final Map<String, AssetContainer> assets = new ConcurrentHashMap<>();
   final Map<Class, AssetLoader> loaders = new ConcurrentHashMap<>();
   final Map<Class, FileHandleAdapter> adapters = new ConcurrentHashMap<>();
