@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +13,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import com.riiablo.asset.adapter.GdxFileHandleAdapter;
 import com.riiablo.logger.LogManager;
@@ -23,10 +25,11 @@ public final class AssetManager implements Disposable {
   final ExecutorService io;
   final ExecutorService async;
 
-  // TODO: queued assets
-  // TODO: loaded assets (updated after async callback)
+  /** Updated after each sync {@link #update} or sync {@link #load(AssetDesc)} */
+  final ObjectMap<String, AssetContainer> loadedAssets = new ObjectMap<>();
+  /** Queue of assets which need to be loaded */
+  final PriorityBlockingQueue<AssetDesc> queuedAssets = new PriorityBlockingQueue<>();
 
-  final Map<String, AssetContainer> assets = new ConcurrentHashMap<>();
   final Map<Class, AssetLoader> loaders = new ConcurrentHashMap<>();
   final Map<Class, FileHandleAdapter> adapters = new ConcurrentHashMap<>();
 
@@ -101,7 +104,7 @@ public final class AssetManager implements Disposable {
   }
 
   public <T> T get(AssetDesc<T> asset) {
-    final AssetContainer container = assets.get(asset.path());
+    final AssetContainer container = loadedAssets.get(asset.path());
     if (container == null) return null;
     return container.get(asset.type);
   }
@@ -109,7 +112,7 @@ public final class AssetManager implements Disposable {
   public <T> T load(AssetDesc<T> asset) {
     log.traceEntry("load(asset: {})", asset);
 
-    final AssetContainer container = assets.get(asset.path());
+    final AssetContainer container = loadedAssets.get(asset.path());
     if (container != null) {
       log.debug("Asset already loaded: {}", container);
       return container.get(asset.type);
@@ -138,6 +141,10 @@ public final class AssetManager implements Disposable {
   public void dispose() {
     shutdown(io, "io");
     shutdown(async, "async");
+  }
+
+  public void update() {
+
   }
 
   private static void shutdown(ExecutorService executor, String name) {
