@@ -104,7 +104,10 @@ public class Actioneer extends PassiveSystem {
   int getMode(Skills.Entry skill, Class.Type type) {
     switch (type) {
       case MON: return type.getMode(skill.monanim);
-      default: return type.getMode(skill.anim);
+      case PLR: return type.getMode(skill.anim);
+      default:
+        log.error("Unsupported mode translation for class type: " + type);
+        return type.getMode(skill.anim);
     }
   }
 
