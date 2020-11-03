@@ -84,7 +84,7 @@ public class Actioneer extends PassiveSystem {
 
     targetVec = targetVec != null ? targetVec.cpy() : Vector2.Zero;
     final Class.Type type = mClass.get(entityId).type;
-    byte mode = (byte) type.getMode(skill.anim);
+    byte mode = (byte) getMode(skill, type);
     log.trace("mode: {}", mode);
     if (mode == Engine.INVALID_MODE) {
       mode = (byte) type.getMode("SC");
@@ -99,6 +99,13 @@ public class Actioneer extends PassiveSystem {
 
     srvstfunc(entityId, skill.srvstfunc, targetId, targetVec);
     events.dispatch(SkillStartEvent.obtain(entityId, skillId, targetId, targetVec, skill.srvstfunc, skill.cltstfunc));
+  }
+
+  int getMode(Skills.Entry skill, Class.Type type) {
+    switch (type) {
+      case MON: return type.getMode(skill.monanim);
+      default: return type.getMode(skill.anim);
+    }
   }
 
   @Subscribe
