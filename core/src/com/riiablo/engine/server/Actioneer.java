@@ -111,6 +111,14 @@ public class Actioneer extends PassiveSystem {
     }
   }
 
+  /**
+   * @param seq specific sequence or {@code -1} to use default sequence
+   * @param mode specific mode or {@link Engine#INVALID_MODE} to use default mode
+   */
+  public void cast(int entityId, int skillId, byte seq, byte mode, int targetId, Vector2 targetVec) {
+    cast(entityId, skillId, targetId, targetVec);
+  }
+
   @Subscribe
   public void onAnimDataKeyframe(AnimDataKeyframeEvent event) {
     if (!mCasting.has(event.entityId)) return;
