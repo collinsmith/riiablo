@@ -2,12 +2,12 @@ package com.riiablo.ai;
 
 import java.lang.reflect.Constructor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.EntityId;
 import com.artemis.annotations.Wire;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
 import com.riiablo.Riiablo;
@@ -27,9 +27,12 @@ import com.riiablo.engine.server.component.Position;
 import com.riiablo.engine.server.component.Sequence;
 import com.riiablo.engine.server.component.Size;
 import com.riiablo.engine.server.component.Velocity;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 public abstract class AI implements Interactable.Interactor {
-  private static final String TAG = "AI";
+  private static final Logger log = LogManager.getLogger(AI.class);
+
   public static final AI IDLE = new Idle();
 
   public static AI findAI(int entityId, String ai) {
@@ -39,7 +42,7 @@ public abstract class AI implements Interactable.Interactor {
       Constructor constructor = clazz.getConstructor(int.class);
       return (AI) constructor.newInstance(entityId);
     } catch (Throwable t) {
-      Gdx.app.error(TAG, t.getMessage(), t);
+      log.error(ExceptionUtils.getRootCauseMessage(t), t);
       return AI.IDLE;
     }
   }

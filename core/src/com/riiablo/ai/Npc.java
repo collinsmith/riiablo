@@ -2,11 +2,11 @@ package com.riiablo.ai;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.artemis.ComponentMapper;
 import net.mostlyoriginal.api.event.common.EventSystem;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -26,13 +26,15 @@ import com.riiablo.engine.server.component.Pathfind;
 import com.riiablo.engine.server.event.NpcInteractionEvent;
 import com.riiablo.item.Item;
 import com.riiablo.item.VendorGenerator;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.map.DS1;
 import com.riiablo.screen.panel.VendorPanel;
 import com.riiablo.widget.NpcDialogBox;
 import com.riiablo.widget.NpcMenu;
 
 public class Npc extends AI {
-  private static final String TAG = "Npc";
+  private static final Logger log = LogManager.getLogger(Npc.class);
 
   static final IntSet TALKERS    = new IntSet();
   static final IntSet REPAIRERS  = new IntSet();
@@ -156,7 +158,7 @@ public class Npc extends AI {
             items = vendors.generate(monstats.Id);
           } catch (Throwable t) {
             items = new Array<>(false, 0, Item.class);
-            Gdx.app.error(TAG, t.getMessage(), t);
+            log.error(ExceptionUtils.getRootCauseMessage(t), t);
           }
           Riiablo.game.vendorPanel.config(VendorPanel.SMITHY, items);
           Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
@@ -172,7 +174,7 @@ public class Npc extends AI {
             items = vendors.generate(monstats.Id);
           } catch (Throwable t) {
             items = new Array<>(false, 0, Item.class);
-            Gdx.app.error(TAG, t.getMessage(), t);
+            log.error(ExceptionUtils.getRootCauseMessage(t), t);
           }
           Riiablo.game.vendorPanel.config(VendorPanel.TRADER, items);
           Riiablo.game.setLeftPanel(Riiablo.game.vendorPanel);
@@ -303,7 +305,7 @@ public class Npc extends AI {
         state = "S2";
         return 10f;
       default:
-        Gdx.app.error(TAG, "Unknown action index: " + actionId);
+        log.error("Unknown action index: " + actionId);
         state = "ERROR - WAITING";
         return 4f;
     }
