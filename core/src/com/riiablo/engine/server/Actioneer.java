@@ -31,6 +31,7 @@ import com.riiablo.engine.server.event.SkillDoEvent;
 import com.riiablo.engine.server.event.SkillStartEvent;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.skill.SkillCodes;
 
 public class Actioneer extends PassiveSystem {
   private static final Logger log = LogManager.getLogger(Actioneer.class);
@@ -117,6 +118,10 @@ public class Actioneer extends PassiveSystem {
    */
   public void cast(int entityId, int skillId, byte seq, byte mode, int targetId, Vector2 targetVec) {
     cast(entityId, skillId, targetId, targetVec);
+  }
+
+  public void attack(int entityId, byte seq, byte mode, int targetId, Vector2 targetVec) {
+    cast(entityId, SkillCodes.attack, seq, mode, targetId, targetVec);
   }
 
   @Subscribe
