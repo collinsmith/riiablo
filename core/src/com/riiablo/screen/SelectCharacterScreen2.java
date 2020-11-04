@@ -110,7 +110,8 @@ public class SelectCharacterScreen2 extends ScreenAdapter {
     btnOK.setDisabled(true);
     stage.addActor(btnOK);
 
-    FileHandle savesLocation = Riiablo.home.child("Save");
+    FileHandle savesLocation = Riiablo.saves;
+    Gdx.app.debug(TAG, "Accessing saves within " + savesLocation.toString());
     FileHandle[] saves = savesLocation.list(D2S.EXT);
     characters = new Array<>();
     for (FileHandle save : saves) {

@@ -1,24 +1,25 @@
 package com.riiablo;
 
 import android.support.annotation.NonNull;
-
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.Files;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.riiablo.cvar.Cvar;
-import com.riiablo.cvar.CvarStateAdapter;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+
+import com.riiablo.cvar.Cvar;
+import com.riiablo.cvar.CvarStateAdapter;
 
 public class DesktopLauncher {
   public static void main(String[] args) {
@@ -38,7 +39,10 @@ public class DesktopLauncher {
         .addOption("allowSoftwareMode", false,
             "allows software OpenGL rendering if hardware acceleration is not available")
         .addOption("home", true,
-            "directory containing D2 MPQ files (defaults to user home directory)");
+            "directory containing D2 MPQ files (defaults to user home directory)")
+        .addOption("saves", true,
+            "directory containing D2 Character save files (defaults to D2 home directory)")
+        ;
 
     CommandLine cmd = null;
     try {
@@ -69,6 +73,27 @@ public class DesktopLauncher {
       home.mkdirs();
     }
 
+    FileHandle saves = null;
+    if (cmd != null && cmd.hasOption("saves")) {
+      saves = new FileHandle(cmd.getOptionValue("saves"));
+    } else if (SystemUtils.IS_OS_WINDOWS) {
+      FileHandle savedGames = new FileHandle(System.getProperty("user.home")).child("Saved Games\\Diablo II");
+      if (savedGames.exists()) {
+        saves = savedGames;
+      } else {
+        saves = home.child("Save");
+        if (!saves.exists()) {
+          saves = home;
+        }
+
+        System.out.println("Saves not specified, using " + saves);
+      }
+    } else {
+      saves = home.child("Save");
+      System.out.println("Saves not specified, using " + saves);
+      saves.mkdirs();
+    }
+
     final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
     config.title = "Riiablo";
     config.addIcon("ic_launcher_128.png", Files.FileType.Internal);
@@ -83,7 +108,7 @@ public class DesktopLauncher {
     int height = NumberUtils.toInt(cmd.getOptionValue('o', "480"));
     config.width = width;
     config.height = height;
-    final Client client = new Client(home, height);
+    final Client client = new Client(home, saves, height);
     if (cmd != null) {
       client.setWindowedForced(cmd.hasOption("w"));
       client.setDrawFPSForced(cmd.hasOption("fps"));

@@ -87,6 +87,7 @@ public class Client extends Game {
   private final SnapshotArray<ScreenBoundsListener> screenBoundsListeners = new SnapshotArray<>(ScreenBoundsListener.class);
 
   private FileHandle            home;
+  private FileHandle            saves;
   private Viewport              viewport;
   private Viewport              defaultViewport;
   private ScalingViewport       scalingViewport;
@@ -137,7 +138,12 @@ public class Client extends Game {
   }
 
   public Client(FileHandle home, int viewportHeight) {
+    this(home, home.child("Save"), viewportHeight);
+  }
+
+  public Client(FileHandle home, FileHandle saves, int viewportHeight) {
     this.home = home;
+    this.saves = saves;
     this.viewportHeight = viewportHeight;
   }
 
@@ -229,6 +235,7 @@ public class Client extends Game {
 
     // This is needed so that home is in a platform-dependent handle
     Riiablo.home = home = Gdx.files.absolute(home.path());
+    Riiablo.saves = saves = Gdx.files.absolute(saves.path());
 
     boolean usesStdOut = true;
     final OutputStream consoleOut = usesStdOut
@@ -255,6 +262,10 @@ public class Client extends Game {
 
     if (!home.exists() || !home.child("d2data.mpq").exists()) {
       throw new GdxRuntimeException("home does not refer to a valid D2 installation. Copy MPQs to " + home);
+    }
+
+    if (!saves.exists()) {
+      throw new GdxRuntimeException("saves folder does not exist. Copy saves to " + saves);
     }
 
     Riiablo.mpqs = mpqs = new MPQFileHandleResolver();
@@ -507,6 +518,7 @@ public class Client extends Game {
     Riiablo.client = this;
     Riiablo.logs = logs;
     Riiablo.home = home;
+    Riiablo.saves = saves;
     Riiablo.viewport = viewport;
     Riiablo.defaultViewport = defaultViewport;
     Riiablo.scalingViewport = scalingViewport;

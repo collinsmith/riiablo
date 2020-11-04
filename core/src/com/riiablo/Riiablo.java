@@ -54,6 +54,7 @@ public class Riiablo {
 
   public static Client                client;
   public static FileHandle            home;
+  public static FileHandle            saves;
   public static Viewport              viewport;
   public static Viewport              defaultViewport;
   public static ScalingViewport       scalingViewport; // 480p -> 360p for mobile
