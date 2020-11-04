@@ -113,6 +113,17 @@ public class Commands {
       })
       .build();
 
+  public static final Command saves = Command.builder()
+      .alias("saves")
+      .description("Prints the current saves directory")
+      .action(new Action() {
+        @Override
+        public void onExecuted(Command.Instance instance) {
+          Riiablo.console.out.println(Riiablo.saves);
+        }
+      })
+      .build();
+
   public static final Command cvars = Command.builder()
       .alias("cvars")
       .description("Prints the descriptions of all cvars")
