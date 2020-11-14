@@ -58,15 +58,15 @@ project(":tester") {
     }
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        compile "com.kotcrab.vis:vis-ui:$visuiVersion"
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
     }
 }
 
@@ -78,22 +78,22 @@ project(":tools") {
     }
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
 
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        compile "com.kotcrab.vis:vis-ui:$visuiVersion"
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
     }
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-        compile "com.badlogicgames.box2dlights:box2dlights:1.4"
+        implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.box2dlights:box2dlights:1.4"
     }
 }
 
@@ -105,15 +105,15 @@ project(":ds1viewer") {
     }
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        compile "com.kotcrab.vis:vis-ui:$visuiVersion"
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
     }
 }
 
@@ -125,15 +125,15 @@ project(":mpqviewer") {
     }
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        compile "com.kotcrab.vis:vis-ui:$visuiVersion"
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
     }
 }
 
@@ -141,19 +141,19 @@ project(":desktop") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        compile "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
     }
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
     }
 }
 
@@ -175,7 +175,7 @@ project(":android") {
     }
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi"
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
@@ -193,64 +193,64 @@ project(":android") {
 }
 
 project(":core") {
-    apply plugin: "java"
+    apply plugin: "java-library"
     apply plugin: "artemis"
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-ai:1.8.2"
-        compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-ai:1.8.2"
+        api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
     }
 
     dependencies {
-        compile group: 'com.google.guava', name: 'guava', version: '20.0'
-        compile group: 'com.android.support', name: 'support-annotations', version: '27.1.1'
-        compile group: 'commons-io', name: 'commons-io', version: '2.5'
-        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
-        compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
-        compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-        compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
-        compile group: 'com.jcraft', name: 'jzlib', version: '1.1.3'
-        compile group: 'com.google.flatbuffers', name: 'flatbuffers-java', version: '1.11.0'
+        api group: 'com.google.guava', name: 'guava', version: '20.0'
+        api group: 'com.android.support', name: 'support-annotations', version: '27.1.1'
+        api group: 'commons-io', name: 'commons-io', version: '2.5'
+        api group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+        api group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+        api group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+        api group: 'org.apache.commons', name: 'commons-text', version: '1.8'
+        api group: 'com.jcraft', name: 'jzlib', version: '1.1.3'
+        api group: 'com.google.flatbuffers', name: 'flatbuffers-java', version: '1.11.0'
     }
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        compile "com.badlogicgames.box2dlights:box2dlights:1.4"
+        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        api "com.badlogicgames.box2dlights:box2dlights:1.4"
     }
 
     dependencies {
-        compile "org.reflections:reflections:0.9.12"
+        api "org.reflections:reflections:0.9.12"
     }
 
     dependencies {
         // components to expose
-        compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-        compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
-        //compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
+        api "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+        api "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
+        //api "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
 
         // Artemis-odb
-        compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-        compile "net.onedaybeard.artemis:artemis-odb-serializer-json-libgdx:$artemisVersion"
+        api "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+        api "net.onedaybeard.artemis:artemis-odb-serializer-json-libgdx:$artemisVersion"
 
         // Artemis-odb bonus functionality (systems, events, components).
-        compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
-        //compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
-        compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
-        //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
-        //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
-//        compile "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$artemisContribVersion" // TODO: when added
+        api "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
+        //api "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
+        api "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
+        //api "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
+        //api "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
+        //api "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$artemisContribVersion" // TODO: when added
     }
 
     dependencies {
-        compile group: 'io.netty', name: 'netty-all', version: nettyVersion
+        api group: 'io.netty', name: 'netty-all', version: nettyVersion
     }
 
     dependencies {
-        testCompile 'junit:junit:4.12'
-        testCompile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        testImplementation 'junit:junit:4.12'
+        testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }
 
@@ -258,17 +258,17 @@ project(":server:bnls") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
     }
 
     dependencies {
-        testCompile 'junit:junit:4.12'
+        testImplementation 'junit:junit:4.12'
     }
 }
 
@@ -276,17 +276,17 @@ project(":server:bncs") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
     }
 
     dependencies {
-        testCompile 'junit:junit:4.12'
+        testImplementation 'junit:junit:4.12'
     }
 }
 
@@ -294,17 +294,17 @@ project(":server:mcp") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
     }
 
     dependencies {
-        testCompile 'junit:junit:4.12'
+        testImplementation 'junit:junit:4.12'
     }
 }
 
@@ -312,17 +312,17 @@ project(":server:d2gs") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
     }
 
     dependencies {
-        testCompile 'junit:junit:4.12'
+        testImplementation 'junit:junit:4.12'
     }
 }
 
@@ -330,17 +330,17 @@ project(":server:netty") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 
     dependencies {
-        compile group: 'commons-cli', name: 'commons-cli', version: cliVersion
+        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
     }
 
     dependencies {
-        testCompile 'junit:junit:4.12'
+        testImplementation 'junit:junit:4.12'
     }
 }
 
@@ -348,7 +348,7 @@ project(":mpqlib") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-jnigen:$gdxVersion"
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-jnigen:$gdxVersion"
     }
 }
