@@ -98,7 +98,7 @@ public class MPQViewer {
 
   private static final String TAG = "MPQViewer";
   private static final String TITLE = "Riiablo MPQ Viewer";
-  private static final String ASSETS = "mpqviewer/assets/";
+  private static final String ASSETS = "";//"mpqviewer/assets/";
   private static final String EXCEL_PATH = "C:\\Program Files (x86)\\OpenOffice\\program\\scalc.exe";
 
   public static void main(String[] args) {

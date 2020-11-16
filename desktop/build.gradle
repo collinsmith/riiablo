@@ -3,7 +3,6 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: "java"
 
 sourceCompatibility = 1.6
-sourceSets.main.java.srcDirs = [ "src/" ]
 
 project.ext.mainClassName = "com.riiablo.DesktopLauncher"
 project.ext.assetsDir = new File("../android/assets");
@@ -14,7 +13,7 @@ task run(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     workingDir = project.assetsDir
     ignoreExitValue = true
-    
+
     if(Os.isFamily(Os.FAMILY_MAC))
         jvmArgs += "-XstartOnFirstThread"
 }
@@ -33,7 +32,7 @@ task dist(type: Jar) {
     from files(sourceSets.main.output.resourcesDir)
     from {configurations.compile.collect {zipTree(it)}}
     from files(project.assetsDir);
- 
+
     manifest {
         attributes 'Main-Class': project.mainClassName
     }

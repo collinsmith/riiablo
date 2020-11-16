@@ -190,6 +190,11 @@ project(":android") {
     dependencies {
         implementation "org.sufficientlysecure:openpgp-api:12.0"
     }
+
+    // build complains this dependency is not found otherwise
+    dependencies {
+        compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    }
 }
 
 project(":core") {

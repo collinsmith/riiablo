@@ -7,10 +7,7 @@ apply plugin: "io.netifi.flatbuffers"
 sourceCompatibility = 1.7
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = [ "src/" ]
-sourceSets.test.java.srcDirs = [ "test/" ]
-
-sourceSets.main.java.srcDir file('gen/')
+sourceSets.main.java.srcDirs += file('gen/')
 idea {
     module {
         generatedSourceDirs += file('gen/')
@@ -18,7 +15,7 @@ idea {
 }
 
 task createFlatBuffers(type: FlatBuffers) {
-    inputDir = file("src/com/riiablo/net/")
-    outputDir = file("gen/")
+    inputDir = file('src/main/java/com/riiablo/net/')
+    outputDir = file('gen/main/java/')
     language = 'java'
 }

@@ -1,10 +1,9 @@
 apply plugin: "java"
 
 sourceCompatibility = 1.7
-sourceSets.main.java.srcDirs = [ "src/" ]
 
 project.ext.mainClassName = "com.riiablo.mpq.MPQViewer"
-project.ext.assetsDir = new File("../android/assets");
+project.ext.assetsDir = new File("assets");
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
@@ -19,7 +18,7 @@ task dist(type: Jar) {
     from files(sourceSets.main.output.resourcesDir)
     from {configurations.compile.collect {zipTree(it)}}
     from files(project.assetsDir);
- 
+
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
