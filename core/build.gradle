@@ -6,8 +6,8 @@ import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs += file('gen/')
-idea.module.generatedSourceDirs += file('gen/')
+sourceSets.main.java.srcDirs += file('gen/main/java/')
+idea.module.generatedSourceDirs += file('gen/main/java/')
 
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
