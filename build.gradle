@@ -1,359 +1,56 @@
 buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.3'
-        classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:1.0.5"
-    }
-    dependencies {
-        // lib for artemis-odb weaving.
-        // see https://github.com/junkdog/artemis-odb/wiki/Bytecode-weaving
-        classpath "net.onedaybeard.artemis:artemis-odb-gradle-plugin:2.2.0"
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://plugins.gradle.org/m2/" }
+    jcenter()
+    google()
+  }
 
-        // lib for artemis-odb fluid.
-        classpath "net.onedaybeard.artemis:artemis-fluid-gradle-plugin:2.2.0"
-    }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.1.3'
+    classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:1.0.5"
+  }
+
+  dependencies {
+    // lib for artemis-odb weaving.
+    // see https://github.com/junkdog/artemis-odb/wiki/Bytecode-weaving
+    classpath "net.onedaybeard.artemis:artemis-odb-gradle-plugin:2.2.0"
+
+    // lib for artemis-odb fluid.
+    classpath "net.onedaybeard.artemis:artemis-fluid-gradle-plugin:2.2.0"
+  }
 }
 
 allprojects {
-    apply plugin: "idea"
+  apply plugin: "idea"
 
-    version = '1.0'
-    ext {
-        appName = "diablo"
-        gdxVersion = '1.9.11'
-        roboVMVersion = '2.3.3'
-        box2DLightsVersion = '1.4'
-        aiVersion = '1.8.0'
-        artemisVersion = '2.3.0'
-        artemisContribVersion = '2.4.0'
-        nettyVersion = '4.1.50.Final'
-    }
+  version = '1.0'
+  ext {
+    appName = "diablo"
+    roboVMVersion = '2.3.3'
+    box2DLightsVersion = '1.4'
+    aiVersion = '1.8.0'
+    artemisVersion = '2.3.0'
+    artemisContribVersion = '2.4.0'
+    nettyVersion = '4.1.50.Final'
+  }
 
-    ext {
-        cliVersion = '1.4'
-    }
-
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        maven { url 'https://jitpack.io' }
-    }
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    google()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
+    maven { url 'https://jitpack.io' }
+  }
 }
 
-project(":tester") {
-    apply plugin: "java"
-
-    ext {
-        visuiVersion = '1.4.0'
-    }
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
-    }
-}
-
-project(":tools") {
-    apply plugin: "java"
-
-    ext {
-        visuiVersion = '1.4.0'
-    }
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
-    }
-
-    dependencies {
-        implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-        implementation "com.badlogicgames.box2dlights:box2dlights:1.4"
-    }
-}
-
-project(":ds1viewer") {
-    apply plugin: "java"
-
-    ext {
-        visuiVersion = '1.4.0'
-    }
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
-    }
-}
-
-project(":mpqviewer") {
-    apply plugin: "java"
-
-    ext {
-        visuiVersion = '1.4.2'
-    }
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
-    }
-}
-
-project(":desktop") {
-    apply plugin: "java"
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        implementation "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
-    }
-
-    dependencies {
-        implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-    }
-}
-
-project(":android") {
-    apply plugin: "android"
-
-    configurations { natives }
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
-        implementation "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-controllers-android:$gdxVersion"
-    }
-
-    dependencies {
-        implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
-    }
-
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        implementation "org.sufficientlysecure:openpgp-api:12.0"
-    }
-
-    // build complains this dependency is not found otherwise
-    dependencies {
-        compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-    }
-}
-
-project(":core") {
-    apply plugin: "java-library"
-    apply plugin: "artemis"
-
-    dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-ai:1.8.2"
-        api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
-    }
-
-    dependencies {
-        api group: 'com.google.guava', name: 'guava', version: '20.0'
-        api group: 'com.android.support', name: 'support-annotations', version: '27.1.1'
-        api group: 'commons-io', name: 'commons-io', version: '2.5'
-        api group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
-        api group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
-        api group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-        api group: 'org.apache.commons', name: 'commons-text', version: '1.8'
-        api group: 'com.jcraft', name: 'jzlib', version: '1.1.3'
-        api group: 'com.google.flatbuffers', name: 'flatbuffers-java', version: '1.11.0'
-    }
-
-    dependencies {
-        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        api "com.badlogicgames.box2dlights:box2dlights:1.4"
-    }
-
-    dependencies {
-        api "org.reflections:reflections:0.9.12"
-    }
-
-    dependencies {
-        // components to expose
-        api "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-        api "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
-        //api "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
-
-        // Artemis-odb
-        api "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-        api "net.onedaybeard.artemis:artemis-odb-serializer-json-libgdx:$artemisVersion"
-
-        // Artemis-odb bonus functionality (systems, events, components).
-        api "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
-        //api "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
-        api "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
-        //api "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
-        //api "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
-        //api "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$artemisContribVersion" // TODO: when added
-    }
-
-    dependencies {
-        api group: 'io.netty', name: 'netty-all', version: nettyVersion
-    }
-
-    dependencies {
-        testImplementation 'junit:junit:4.12'
-        testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    }
-}
-
-project(":server:bnls") {
-    apply plugin: "java"
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-    }
-
-    dependencies {
-        testImplementation 'junit:junit:4.12'
-    }
-}
-
-project(":server:bncs") {
-    apply plugin: "java"
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-    }
-
-    dependencies {
-        testImplementation 'junit:junit:4.12'
-    }
-}
-
-project(":server:mcp") {
-    apply plugin: "java"
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-    }
-
-    dependencies {
-        testImplementation 'junit:junit:4.12'
-    }
-}
-
-project(":server:d2gs") {
-    apply plugin: "java"
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-    }
-
-    dependencies {
-        testImplementation 'junit:junit:4.12'
-    }
-}
-
-project(":server:netty") {
-    apply plugin: "java"
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    }
-
-    dependencies {
-        implementation group: 'commons-cli', name: 'commons-cli', version: cliVersion
-    }
-
-    dependencies {
-        testImplementation 'junit:junit:4.12'
-    }
-}
-
-project(":mpqlib") {
-    apply plugin: "java"
-
-    dependencies {
-        implementation project(":core")
-        implementation "com.badlogicgames.gdx:gdx-jnigen:$gdxVersion"
-    }
+configure(subprojects - project(':android')) {
+  apply plugin: 'java-library'
+	sourceCompatibility = 7.0
+	compileJava {
+		options.incremental = true
+	}
 }

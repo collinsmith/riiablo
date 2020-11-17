@@ -1,3 +1,19 @@
-apply plugin: "java"
+apply plugin: 'java'
 
-sourceCompatibility = 1.7
+project.ext.visuiVersion = '1.4.0'
+
+dependencies {
+  implementation project(':core')
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+
+  implementation "commons-cli:commons-cli:$cliVersion"
+  implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
+}
+
+dependencies {
+  implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.box2dlights:box2dlights:1.4"
+}

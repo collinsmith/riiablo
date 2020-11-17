@@ -1,28 +1,30 @@
-apply plugin: "java"
+apply plugin: 'java'
 
-sourceCompatibility = 1.7
+import org.apache.tools.ant.taskdefs.condition.Os
 
-project.ext.mainClassName = "com.riiablo.server.d2gs.D2GS"
-project.ext.assetsDir = new File("../../android/assets");
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+project.ext.mainClassName = 'com.riiablo.server.d2gs.D2GS'
+project.ext.assetsDir = new File('../../android/assets');
 
 task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    workingDir = project.assetsDir
-    ignoreExitValue = true
+  main = project.mainClassName
+  classpath = sourceSets.main.runtimeClasspath
+  standardInput = System.in
+  workingDir = project.assetsDir
+  ignoreExitValue = true
+
+  if(Os.isFamily(Os.FAMILY_MAC))
+    jvmArgs += "-XstartOnFirstThread"
 }
 
-task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDirs)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir);
+task dist(dependsOn: classes, type: Jar) {
+  from files(sourceSets.main.output.classesDirs)
+  from files(sourceSets.main.output.resourcesDir)
+  from {configurations.compile.collect {zipTree(it)}}
+  from files(project.assetsDir);
 
-    manifest {
-        attributes 'Server-Class': project.mainClassName
-        attributes 'Main-Class': project.mainClassName // TODO: not needed in production?
-    }
+  manifest {
+    attributes 'Main-Class': project.mainClassName
+  }
 }
-
-dist.dependsOn classes

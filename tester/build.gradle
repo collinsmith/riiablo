@@ -1,28 +1,13 @@
-apply plugin: "java"
+apply plugin: 'java'
 
-sourceCompatibility = 1.7
-sourceSets.main.java.srcDirs = [ "src/" ]
+project.ext.visuiVersion = '1.4.0'
 
-project.ext.mainClassName = "com.riiablo.tester.Tester"
-project.ext.assetsDir = new File("../android/assets");
+dependencies {
+  implementation project(':core')
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
 
-task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    workingDir = project.assetsDir
-    ignoreExitValue = true
+  implementation "commons-cli:commons-cli:$cliVersion"
+  implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
 }
-
-task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDirs)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir);
- 
-    manifest {
-        attributes 'Main-Class': project.mainClassName
-    }
-}
-
-dist.dependsOn classes

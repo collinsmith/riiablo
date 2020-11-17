@@ -1,0 +1,15 @@
+subprojects {
+  apply plugin: 'java'
+
+  dependencies {
+    implementation project(':core')
+    implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+    implementation "commons-cli:commons-cli:$cliVersion"
+  }
+
+  dependencies {
+    testImplementation 'junit:junit:4.12'
+  }
+}

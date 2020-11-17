@@ -1,41 +1,50 @@
+apply plugin: 'java'
+
 import org.apache.tools.ant.taskdefs.condition.Os
 
-apply plugin: "java"
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceCompatibility = 1.6
+project.ext.mainClassName = 'com.riiablo.DesktopLauncher'
+project.ext.assetsDir = new File('../android/assets');
 
-project.ext.mainClassName = "com.riiablo.DesktopLauncher"
-project.ext.assetsDir = new File("../android/assets");
+dependencies {
+  implementation project(':core')
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+
+  implementation "commons-cli:commons-cli:$cliVersion"
+}
 
 task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    workingDir = project.assetsDir
-    ignoreExitValue = true
+  main = project.mainClassName
+  classpath = sourceSets.main.runtimeClasspath
+  standardInput = System.in
+  workingDir = project.assetsDir
+  ignoreExitValue = true
 
-    if(Os.isFamily(Os.FAMILY_MAC))
-        jvmArgs += "-XstartOnFirstThread"
+  if(Os.isFamily(Os.FAMILY_MAC))
+    jvmArgs += "-XstartOnFirstThread"
 }
 
 task debug(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    workingDir = project.assetsDir
-    ignoreExitValue = true
-    debug = true
+  main = project.mainClassName
+  classpath = sourceSets.main.runtimeClasspath
+  standardInput = System.in
+  workingDir = project.assetsDir
+  ignoreExitValue = true
+  debug = true
 }
 
-task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDirs)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir);
+task dist(dependsOn: classes, type: Jar) {
+  from files(sourceSets.main.output.classesDirs)
+  from files(sourceSets.main.output.resourcesDir)
+  from {configurations.compile.collect {zipTree(it)}}
+  from files(project.assetsDir);
 
-    manifest {
-        attributes 'Main-Class': project.mainClassName
-    }
+  manifest {
+    attributes 'Main-Class': project.mainClassName
+  }
 }
-
-dist.dependsOn classes
