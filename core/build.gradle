@@ -6,6 +6,9 @@ import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+sourceSets.main.resources.srcDirs += rootProject.file('assets')
+idea.module.resourceDirs += rootProject.file('assets')
+
 sourceSets.main.java.srcDirs += file('gen/main/java/')
 idea.module.generatedSourceDirs += file('gen/main/java/')
 
