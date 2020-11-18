@@ -29,7 +29,6 @@ allprojects {
   version = '1.0'
   ext {
     appName = "riiablo"
-    roboVMVersion = '2.3.3'
     box2DLightsVersion = '1.4'
     aiVersion = '1.8.0'
     artemisVersion = '2.3.0'
