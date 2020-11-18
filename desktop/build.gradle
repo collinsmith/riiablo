@@ -1,11 +1,11 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
-import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.internal.os.OperatingSystem
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-project.ext.mainClassName = 'com.riiablo.DesktopLauncher'
-project.ext.assetsDir = new File('../android/assets');
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 
 dependencies {
   implementation project(':core')
@@ -18,33 +18,35 @@ dependencies {
   implementation "commons-cli:commons-cli:$cliVersion"
 }
 
-task run(dependsOn: classes, type: JavaExec) {
-  main = project.mainClassName
-  classpath = sourceSets.main.runtimeClasspath
-  standardInput = System.in
-  workingDir = project.assetsDir
-  ignoreExitValue = true
-
-  if(Os.isFamily(Os.FAMILY_MAC))
-    jvmArgs += "-XstartOnFirstThread"
+application {
+  mainClass = 'com.riiablo.DesktopLauncher'
 }
 
-task debug(dependsOn: classes, type: JavaExec) {
-  main = project.mainClassName
-  classpath = sourceSets.main.runtimeClasspath
-  standardInput = System.in
-  workingDir = project.assetsDir
-  ignoreExitValue = true
-  debug = true
+run {
+  workingDir = rootProject.file('assets').path
+  setIgnoreExitValue(true)
+
+  // Required to run LWJGL3 java apps on MacOS
+	if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
+		jvmArgs += "-XstartOnFirstThread"
+	}
 }
 
-task dist(dependsOn: classes, type: Jar) {
-  from files(sourceSets.main.output.classesDirs)
-  from files(sourceSets.main.output.resourcesDir)
-  from {configurations.compile.collect {zipTree(it)}}
-  from files(project.assetsDir);
+jar {
+  archiveBaseName = appName
+	// These can be excluded because they add to the jar size but libGDX 1.9.11 can't use them.
+	// If your libGDX version is 1.9.10 or earlier, or is 1.9.12-SNAPSHOT or later, you can leave
+	// the following line commented; if you use 1.9.11 exactly, or if you use 1.9.12-SNAPSHOT but
+	// don't need ARM Linux support, you can uncomment it safely.
+	// It's always safe to keep that line commented out; it only affects JAR size.
+	// exclude('linux/arm32/**', 'linux/arm64/**')
+	dependsOn configurations.runtimeClasspath
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	manifest {
+		attributes 'Main-Class': application.mainClass
+	}
 
-  manifest {
-    attributes 'Main-Class': project.mainClassName
-  }
+	doLast {
+		file(archivePath).setExecutable(true, false)
+	}
 }

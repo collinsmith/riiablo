@@ -45,7 +45,7 @@ public class BinGenerationTool extends ApplicationAdapter {
       FileHandle src = home.child("core/src").child(pkgPath);
       Gdx.app.log(TAG, "src=" + src);
 
-      FileHandle dst = home.child("android/assets").child(args[1]);
+      FileHandle dst = home.child("assets").child(args[1]);
       Gdx.app.log(TAG, "dst=" + dst);
 
       FileHandle mpqPath = Gdx.files.absolute(args[2]);
@@ -65,7 +65,7 @@ public class BinGenerationTool extends ApplicationAdapter {
 
         FileHandle txt = mpqs.resolve("data\\global\\excel\\" + name + ".txt");
         if (txt == null) { // attempt to resolve one of my own txts
-          txt = home.child("android/assets/data").child(name + ".txt");
+          txt = home.child("assets/data").child(name + ".txt");
           if (!txt.exists()) continue;
         }
         FileHandle bin = dst.child(name + ".bin");
