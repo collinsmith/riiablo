@@ -24,11 +24,11 @@ buildscript {
 }
 
 allprojects {
-  apply plugin: "idea"
+  apply plugin: 'idea'
 
   version = '1.0'
   ext {
-    appName = "riiablo"
+    appName = 'riiablo'
     box2DLightsVersion = '1.4'
     aiVersion = '1.8.0'
     artemisVersion = '2.3.0'
