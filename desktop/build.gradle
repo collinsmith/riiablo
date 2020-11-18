@@ -4,8 +4,9 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+
 project.ext.mainClassName = 'com.riiablo.DesktopLauncher'
-project.ext.assetsDir = new File('../assets');
 
 dependencies {
   implementation project(':core')
@@ -22,27 +23,18 @@ task run(dependsOn: classes, type: JavaExec) {
   main = project.mainClassName
   classpath = sourceSets.main.runtimeClasspath
   standardInput = System.in
-  workingDir = project.assetsDir
+  workingDir = rootProject.file('assets').path
   ignoreExitValue = true
 
   if(Os.isFamily(Os.FAMILY_MAC))
     jvmArgs += "-XstartOnFirstThread"
 }
 
-task debug(dependsOn: classes, type: JavaExec) {
-  main = project.mainClassName
-  classpath = sourceSets.main.runtimeClasspath
-  standardInput = System.in
-  workingDir = project.assetsDir
-  ignoreExitValue = true
-  debug = true
-}
-
 task dist(dependsOn: classes, type: Jar) {
   from files(sourceSets.main.output.classesDirs)
   from files(sourceSets.main.output.resourcesDir)
   from {configurations.compile.collect {zipTree(it)}}
-  from files(project.assetsDir);
+  from files(rootProject.file('assets').path);
 
   manifest {
     attributes 'Main-Class': project.mainClassName
