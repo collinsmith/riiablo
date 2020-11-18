@@ -5,7 +5,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 project.ext.mainClassName = 'com.riiablo.server.d2gs.Main'
-project.ext.assetsDir = new File("../../android/assets");
+project.ext.assetsDir = new File("../../assets");
 
 task run(dependsOn: classes, type: JavaExec) {
   main = project.mainClassName

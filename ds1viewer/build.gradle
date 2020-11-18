@@ -5,7 +5,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 project.ext.mainClassName = 'com.riiablo.map.DS1Viewer'
-project.ext.assetsDir = new File('../android/assets');
+project.ext.assetsDir = new File('../assets');
 project.ext.visuiVersion = '1.4.0'
 
 dependencies {
