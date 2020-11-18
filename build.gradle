@@ -9,7 +9,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.1.3'
+    classpath "com.android.tools.build:gradle:$androidBuildToolsVersion"
     classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:1.0.5"
   }
 
