@@ -15,11 +15,6 @@ run {
   workingDir = rootProject.file('assets').path
   standardInput = System.in
   setIgnoreExitValue(true)
-
-  // Required to run LWJGL3 java apps on MacOS
-	if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
-		jvmArgs += "-XstartOnFirstThread"
-	}
 }
 
 jar {
