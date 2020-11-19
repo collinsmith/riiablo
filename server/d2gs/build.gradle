@@ -13,7 +13,7 @@ application {
 
 run {
   workingDir = rootProject.file('assets').path
-  standardInput = System.in
+  setStandardInput(System.in)
   setIgnoreExitValue(true)
 }
 
