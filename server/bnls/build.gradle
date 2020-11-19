@@ -1,27 +1,32 @@
 apply plugin: 'java'
-
-import org.apache.tools.ant.taskdefs.condition.Os
+apply plugin: 'application'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-project.ext.mainClassName = 'com.riiablo.server.bnls.BNLS'
-
-task run(dependsOn: classes, type: JavaExec) {
-  main = project.mainClassName
-  classpath = sourceSets.main.runtimeClasspath
-  standardInput = System.in
-  ignoreExitValue = true
-
-  if(Os.isFamily(Os.FAMILY_MAC))
-    jvmArgs += "-XstartOnFirstThread"
+application {
+  mainClass = 'com.riiablo.server.bnls.BNLS'
 }
 
-task dist(dependsOn: classes, type: Jar) {
-  from files(sourceSets.main.output.classesDirs)
-  from files(sourceSets.main.output.resourcesDir)
-  from {configurations.compile.collect {zipTree(it)}}
+run {
+  setStandardInput(System.in)
+  setIgnoreExitValue(true)
+}
 
-  manifest {
-    attributes 'Main-Class': project.mainClassName
-  }
+jar {
+  archiveBaseName = project.name
+	// These can be excluded because they add to the jar size but libGDX 1.9.11 can't use them.
+	// If your libGDX version is 1.9.10 or earlier, or is 1.9.12-SNAPSHOT or later, you can leave
+	// the following line commented; if you use 1.9.11 exactly, or if you use 1.9.12-SNAPSHOT but
+	// don't need ARM Linux support, you can uncomment it safely.
+	// It's always safe to keep that line commented out; it only affects JAR size.
+	// exclude('linux/arm32/**', 'linux/arm64/**')
+	dependsOn configurations.runtimeClasspath
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	manifest {
+		attributes 'Main-Class': application.mainClass
+	}
+
+	doLast {
+		file(archivePath).setExecutable(true, false)
+	}
 }
