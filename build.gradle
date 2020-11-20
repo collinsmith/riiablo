@@ -16,10 +16,10 @@ buildscript {
   dependencies {
     // lib for artemis-odb weaving.
     // see https://github.com/junkdog/artemis-odb/wiki/Bytecode-weaving
-    classpath "net.onedaybeard.artemis:artemis-odb-gradle-plugin:2.2.0"
+    classpath "net.onedaybeard.artemis:artemis-odb-gradle-plugin:$artemisOdbVersion"
 
     // lib for artemis-odb fluid.
-    classpath "net.onedaybeard.artemis:artemis-fluid-gradle-plugin:2.2.0"
+    // classpath "net.onedaybeard.artemis:artemis-fluid-gradle-plugin:$artemisOdbVersion"
   }
 }
 
@@ -29,11 +29,6 @@ allprojects {
   version = '1.0'
   ext {
     appName = 'riiablo'
-    box2DLightsVersion = '1.4'
-    aiVersion = '1.8.0'
-    artemisVersion = '2.3.0'
-    artemisContribVersion = '2.4.0'
-    nettyVersion = '4.1.50.Final'
   }
 
   repositories {

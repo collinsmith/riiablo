@@ -15,5 +15,5 @@ dependencies {
 dependencies {
   implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-  implementation "com.badlogicgames.box2dlights:box2dlights:1.4"
+  implementation "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
 }

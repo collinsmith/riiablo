@@ -15,7 +15,7 @@ idea.module.generatedSourceDirs += file('gen/main/java/')
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-  api "com.badlogicgames.gdx:gdx-ai:1.8.2"
+  api "com.badlogicgames.gdx:gdx-ai:$gdxAiVersion"
   api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
 }
 
@@ -33,7 +33,7 @@ dependencies {
 
 dependencies {
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-  api "com.badlogicgames.box2dlights:box2dlights:1.4"
+  api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
 }
 
 dependencies {
@@ -42,13 +42,13 @@ dependencies {
 
 dependencies {
   // components to expose
-  api "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+  api "net.onedaybeard.artemis:artemis-odb:$artemisOdbVersion"
   api "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
   //api "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
 
   // Artemis-odb
-  api "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-  api "net.onedaybeard.artemis:artemis-odb-serializer-json-libgdx:$artemisVersion"
+  api "net.onedaybeard.artemis:artemis-odb:$artemisOdbVersion"
+  // api "net.onedaybeard.artemis:artemis-odb-serializer-json-libgdx:$artemisOdbVersion"
 
   // Artemis-odb bonus functionality (systems, events, components).
   api "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
@@ -68,6 +68,17 @@ dependencies {
   testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
   testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
+
+// TODO: configure atemis weave and debug unknown primitive type [B error
+// weave {
+//   classesDir = sourceSets.main.java.outputDir
+//   enableArtemisPlugin = true
+//   enablePooledWeaving = true
+//   generateLinkMutators = true
+//   optimizeEntitySystems = true
+// }
+//
+// classes.finalizedBy weave
 
 task createFlatBuffers(type: FlatBuffers) {
   inputDir = file('src/main/java/com/riiablo/net/')
