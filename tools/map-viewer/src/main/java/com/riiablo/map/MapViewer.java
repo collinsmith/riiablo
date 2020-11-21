@@ -1,5 +1,11 @@
 package com.riiablo.map;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.artemis.BaseSystem;
@@ -25,6 +31,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -86,23 +93,103 @@ import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.DCCLoader;
 import com.riiablo.loader.PaletteLoader;
+import com.riiablo.logger.Level;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.mpq.MPQFileHandleResolver;
 import com.riiablo.util.DebugUtils;
 
 public class MapViewer extends ApplicationAdapter {
-  private static final String TAG = "MapViewer";
+  private static final Logger log = LogManager.getLogger(MapViewer.class);
 
   public static void main(String[] args) {
+    Options options = new Options()
+        .addOption("h", "help", false,
+            "prints this message")
+        .addOption("d2", "home", true,
+            "directory containing D2 MPQ files")
+        .addOption("s", "seed", true,
+            "seed used for generation (-1 for random)")
+        .addOption("a", "act", true,
+            "act to generate [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")")
+        .addOption("d", "diff", true,
+            "difficulty to generate [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")")
+        ;
+
+    CommandLine cmd = null;
+    try {
+      CommandLineParser parser = new DefaultParser();
+      cmd = parser.parse(options, args);
+    } catch (ParseException e) {
+      System.err.println(e.getMessage());
+      System.err.println("For usage, use -help option");
+    } finally {
+      if (cmd != null) {
+        if (cmd.hasOption("help")) {
+          HelpFormatter formatter = new HelpFormatter();
+          formatter.printHelp("map-viewer", options);
+          System.exit(0);
+        }
+      }
+    }
+
+    final FileHandle home;
+    if (cmd != null && cmd.hasOption("home")) {
+      home = new FileHandle(cmd.getOptionValue("home"));
+      if (!home.child("d2data.mpq").exists()) {
+        throw new GdxRuntimeException("home does not refer to a valid D2 installation");
+      }
+    } else {
+      home = new FileHandle(System.getProperty("user.home")).child("diablo");
+      System.out.println("Home not specified, using " + home);
+      home.mkdirs();
+    }
+
+    int seed = -1;
+    if (cmd != null && cmd.hasOption("seed")) {
+      seed = NumberUtils.toInt(cmd.getOptionValue("seed"), -1);
+    }
+
+    int act = Riiablo.ACT1;
+    if (cmd != null && cmd.hasOption("act")) {
+      final String strValue = cmd.getOptionValue("act");
+      if (strValue == null) {
+        System.err.println("'act' not specified -- defaulting to " + act);
+      }
+
+      act = NumberUtils.toInt(strValue, Riiablo.ACT1);
+      if (act < Riiablo.ACT1 || act >= Riiablo.NUM_ACTS) {
+        System.err.println("Invalid option 'act': " + strValue);
+        System.err.println("'act' must be in range [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")");
+        System.exit(0);
+      }
+    }
+
+    int diff = Riiablo.NORMAL;
+    if (cmd != null && cmd.hasOption("diff")) {
+      final String strValue = cmd.getOptionValue("diff");
+      if (strValue == null) {
+        System.err.println("'diff' not specified -- defaulting to " + diff);
+      }
+
+      diff = NumberUtils.toInt(strValue, Riiablo.NORMAL);
+      if (diff < Riiablo.NORMAL || diff >= Riiablo.NUM_DIFFS) {
+        System.err.println("Invalid option 'diff': " + strValue);
+        System.err.println("'diff' must be in range [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")");
+        System.exit(0);
+      }
+    }
+
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = TAG;
+    config.title = "Map Viewer";
     config.resizable = true;
     config.vSyncEnabled = false;
     config.width = 1280; // 1280
     config.height = 720;
     config.foregroundFPS = config.backgroundFPS = 300;
-    MapViewer client = new MapViewer(args);
+    MapViewer client = new MapViewer(home, seed, act, diff);
     new LwjglApplication(client, config);
   }
 
@@ -144,12 +231,18 @@ public class MapViewer extends ApplicationAdapter {
   int act;
   int diff;
 
+  @Deprecated
   MapViewer(String[] args) {
     this(args[0], NumberUtils.toInt(args[1]), NumberUtils.toInt(args[2]), NumberUtils.toInt(args[3]));
   }
 
+  @Deprecated
   MapViewer(String home, int seed, int act, int diff) {
-    this.home = new FileHandle(home);
+    this(new FileHandle(home), seed, act, diff);
+  }
+
+  MapViewer(FileHandle home, int seed, int act, int diff) {
+    this.home = home;
     this.seed = seed;
     this.act = act;
     this.diff = diff;
@@ -158,9 +251,13 @@ public class MapViewer extends ApplicationAdapter {
   @Override
   public void create() {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
+    LogManager.setLevel(MapViewer.class.getName(), Level.DEBUG);
 
     Riiablo.home = home = Gdx.files.absolute(home.path());
     MPQFileHandleResolver resolver = Riiablo.mpqs = new MPQFileHandleResolver();
+
+    if (seed == -1) seed = MathUtils.random.nextInt();
+    log.infof("seed: %08x", seed);
 
     AssetManager assets = Riiablo.assets = new AssetManager();
     assets.setLoader(DS1.class, new DS1Loader(resolver));
@@ -502,10 +599,10 @@ public class MapViewer extends ApplicationAdapter {
     mapRenderer.updatePosition(true);
 
     for (String asset : Riiablo.assets.getAssetNames()) {
-      Gdx.app.debug(TAG, Riiablo.assets.getReferenceCount(asset) + " : " + asset);
+      log.debug("{} : {}", Riiablo.assets.getReferenceCount(asset), asset);
     }
 
-    Gdx.app.debug(TAG, "JAVA: " + Gdx.app.getJavaHeap() + " Bytes; NATIVE: " + Gdx.app.getNativeHeap() + " Bytes");
+    log.debug("JAVA: {} Bytes; NATIVE: {} Bytes", Gdx.app.getJavaHeap(), Gdx.app.getNativeHeap());
     Riiablo.batch.setGamma(1.2f);
   }
 
