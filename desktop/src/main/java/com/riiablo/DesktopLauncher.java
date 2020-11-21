@@ -16,10 +16,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
+import com.riiablo.util.InstallationFinder;
 
 public class DesktopLauncher {
   public static void main(String[] args) {
@@ -61,37 +63,30 @@ public class DesktopLauncher {
       }
     }
 
-    FileHandle home = null;
+    final InstallationFinder finder = InstallationFinder.getInstance();
+    final FileHandle home;
     if (cmd != null && cmd.hasOption("home")) {
       home = new FileHandle(cmd.getOptionValue("home"));
-      if (!home.child("d2data.mpq").exists()) {
+      if (!InstallationFinder.isD2Home(home)) {
         throw new GdxRuntimeException("home does not refer to a valid D2 installation");
       }
     } else {
-      home = new FileHandle(System.getProperty("user.home")).child("diablo");
-      System.out.println("Home not specified, using " + home);
-      home.mkdirs();
+      final Array<FileHandle> homeDirs = finder.getHomeDirs();
+      if (homeDirs.size > 0) {
+        home = homeDirs.first();
+      } else {
+        home = new FileHandle(SystemUtils.USER_HOME).child("riiablo");
+        home.mkdirs();
+        System.out.println("Created home directory " + home);
+      }
     }
 
-    FileHandle saves = null;
+    final FileHandle saves;
     if (cmd != null && cmd.hasOption("saves")) {
       saves = new FileHandle(cmd.getOptionValue("saves"));
-    } else if (SystemUtils.IS_OS_WINDOWS) {
-      FileHandle savedGames = new FileHandle(System.getProperty("user.home")).child("Saved Games\\Diablo II");
-      if (savedGames.exists()) {
-        saves = savedGames;
-      } else {
-        saves = home.child("Save");
-        if (!saves.exists()) {
-          saves = home;
-        }
-
-        System.out.println("Saves not specified, using " + saves);
-      }
     } else {
-      saves = home.child("Save");
-      System.out.println("Saves not specified, using " + saves);
-      saves.mkdirs();
+      final Array<FileHandle> saveDirs = finder.getSaveDirs(home);
+      saves = saveDirs.first();
     }
 
     final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();

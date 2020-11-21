@@ -258,6 +258,7 @@ public class Client extends Game {
       DateFormat format = DateFormat.getDateTimeInstance();
       console.out.println(format.format(calendar.getTime()));
       console.out.println(home.path());
+      console.out.println(saves.path());
     }
 
     if (!home.exists() || !home.child("d2data.mpq").exists()) {

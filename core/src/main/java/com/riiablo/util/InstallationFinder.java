@@ -3,7 +3,6 @@ package com.riiablo.util;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 
@@ -94,7 +93,7 @@ public abstract class InstallationFinder {
       log.traceEntry("resolve() paths: {}", homeDirs);
       Array<FileHandle> result = null;
       for (String path : homeDirs) {
-        FileHandle handle = Gdx.files.absolute(path);
+        FileHandle handle = new FileHandle(path);
         log.trace("Trying {}", handle);
         if (isD2Home(handle)) {
           if (result == null) result = new Array<>();
@@ -125,9 +124,12 @@ public abstract class InstallationFinder {
       final FileHandle homeSaves = home == null ? null : home.child(SAVE);
       log.trace("homeSaves: {}", homeSaves);
 
-      if (D2_SAVE != null) saveDirs.add(Gdx.files.absolute(D2_SAVE));
-      if (NewSavePath != null) saveDirs.add(Gdx.files.absolute(NewSavePath));
-      if (home != null) saveDirs.add(homeSaves);
+      if (D2_SAVE != null) saveDirs.add(new FileHandle(D2_SAVE));
+      if (NewSavePath != null) saveDirs.add(new FileHandle(NewSavePath));
+      if (home != null) {
+        homeSaves.mkdirs();
+        saveDirs.add(homeSaves);
+      }
       return saveDirs;
     }
   }
