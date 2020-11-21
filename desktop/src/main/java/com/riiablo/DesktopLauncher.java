@@ -55,7 +55,7 @@ public class DesktopLauncher {
       if (cmd != null) {
         if (cmd.hasOption("help")) {
           HelpFormatter formatter = new HelpFormatter();
-          formatter.printHelp("diablo", options);
+          formatter.printHelp("riiablo", options);
           System.exit(0);
         }
       }
