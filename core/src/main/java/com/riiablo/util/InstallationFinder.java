@@ -14,7 +14,7 @@ public abstract class InstallationFinder {
   private static final Logger log = LogManager.getLogger(InstallationFinder.class);
 
   private static final String SAVE = "Save";
-  private static final Array EMPTY_ARRAY = new Array(0);
+  private static final Array<FileHandle> EMPTY_ARRAY = new Array<>(0);
 
   private InstallationFinder() {}
 
@@ -51,20 +51,18 @@ public abstract class InstallationFinder {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   public Array<FileHandle> getHomeDirs() {
-    return (Array<FileHandle>) EMPTY_ARRAY;
+    return EMPTY_ARRAY;
   }
 
-  @SuppressWarnings("unchecked")
   public Array<FileHandle> getSaveDirs(FileHandle home) {
-    return (Array<FileHandle>) EMPTY_ARRAY;
+    return EMPTY_ARRAY;
   }
 
   public static final class WindowsInstallationFinder extends InstallationFinder {
     private static final String D2_REG_KEY = "Software\\Blizzard Entertainment\\Diablo II";
 
-    private static final String getD2RegKey(String valueName, String defaultValue) {
+    private static String getD2RegKey(String valueName, String defaultValue) {
       try {
          return WinRegistry.readString(WinRegistry.HKEY_CURRENT_USER, D2_REG_KEY, valueName);
       } catch (Throwable t) {
