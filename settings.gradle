@@ -1,3 +1,5 @@
+rootProject.name = 'riiablo'
+
 include 'core'
 include 'desktop'
 include 'android'

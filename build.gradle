@@ -27,9 +27,7 @@ allprojects {
   apply plugin: 'idea'
 
   version = '1.0'
-  ext {
-    appName = 'riiablo'
-  }
+  ext.appName = 'riiablo'
 
   repositories {
     mavenLocal()
