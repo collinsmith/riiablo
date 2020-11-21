@@ -42,7 +42,7 @@ public class BinGenerationTool extends ApplicationAdapter {
 
       Gdx.app.log(TAG, "home=" + Gdx.files.getLocalStoragePath());
       FileHandle home = new FileHandle(Gdx.files.getLocalStoragePath());
-      FileHandle src = home.child("core/src").child(pkgPath);
+      FileHandle src = home.child("core/src/main/java").child(pkgPath);
       Gdx.app.log(TAG, "src=" + src);
 
       FileHandle dst = home.child("assets").child(args[1]);
