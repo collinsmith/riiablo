@@ -17,3 +17,22 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
 }
+
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'application'
+
+  dependencies {
+    implementation project(':core')
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+    implementation "commons-cli:commons-cli:$cliVersion"
+    implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
+  }
+
+  dependencies {
+    testImplementation 'junit:junit:4.12'
+  }
+}
