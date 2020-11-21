@@ -1,10 +1,12 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="desktop (debug)" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.riiablo.DesktopLauncher" />
-    <module name="desktop" />
+    <module name="riiablo.desktop" />
     <option name="PROGRAM_PARAMETERS" value="-fps -w -logLevel debug -home &quot;C:\Program Files (x86)/steam/steamapps/common/Diablo II&quot;" />
     <option name="VM_PARAMETERS" value="-ea" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/assets" />
-    <method />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/assets" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
   </configuration>
 </component>

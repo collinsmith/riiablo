@@ -1,9 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MPQ Viewer" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.riiablo.mpq.MPQViewer" />
-    <module name="mpqviewer" />
+    <module name="riiablo.mpqviewer" />
     <option name="VM_PARAMETERS" value="-ea" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
-    <method />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
   </configuration>
 </component>
