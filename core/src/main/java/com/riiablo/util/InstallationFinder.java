@@ -48,7 +48,7 @@ public abstract class InstallationFinder {
       return new MacInstallationFinder();
     }
 
-    return null;
+    return new StubbedInstallationFinder();
   }
 
   public Array<FileHandle> getHomeDirs() {
@@ -57,6 +57,9 @@ public abstract class InstallationFinder {
 
   public Array<FileHandle> getSaveDirs(FileHandle home) {
     return EMPTY_ARRAY;
+  }
+
+  public static final class StubbedInstallationFinder extends InstallationFinder {
   }
 
   public static final class WindowsInstallationFinder extends InstallationFinder {
@@ -133,7 +136,53 @@ public abstract class InstallationFinder {
   }
 
   public static final class LinuxInstallationFinder extends InstallationFinder {
+    @Override
+    public Array<FileHandle> getHomeDirs() {
+      final String D2_HOME = SystemUtils.getEnvironmentVariable("D2_HOME", null);
 
+      final Array<String> homeDirs = new Array<>();
+      if (D2_HOME != null) homeDirs.add(D2_HOME);
+      homeDirs.add(SystemUtils.USER_HOME);
+      homeDirs.add(SystemUtils.USER_DIR);
+
+      log.traceEntry("resolve() paths: {}", homeDirs);
+      Array<FileHandle> result = null;
+      for (String path : homeDirs) {
+        FileHandle handle = new FileHandle(path);
+        log.trace("Trying {}", handle);
+        if (isD2Home(handle)) {
+          if (result == null) result = new Array<>();
+          result.add(handle);
+        } else {
+          for (String folder : FOLDERS) {
+            FileHandle child = handle.child(folder);
+            if (InstallationFinder.isD2Home(child)) {
+              if (result == null) result = new Array<>();
+              result.add(child);
+            }
+          }
+        }
+      }
+
+      return result == null ? super.getHomeDirs() : result;
+    }
+
+    @Override
+    public Array<FileHandle> getSaveDirs(FileHandle home) {
+      final Array<FileHandle> saveDirs = new Array<>();
+      final String D2_SAVE = SystemUtils.getEnvironmentVariable("D2_SAVE", null);
+      log.trace("D2_SAVE: {}", D2_SAVE);
+
+      final FileHandle homeSaves = home == null ? null : home.child(SAVE);
+      log.trace("homeSaves: {}", homeSaves);
+
+      if (D2_SAVE != null) saveDirs.add(new FileHandle(D2_SAVE));
+      if (home != null) {
+        homeSaves.mkdirs();
+        saveDirs.add(homeSaves);
+      }
+      return saveDirs;
+    }
   }
 
   public static final class MacInstallationFinder extends InstallationFinder {
