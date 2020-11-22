@@ -32,10 +32,6 @@ public class DesktopLauncher {
   private static final Logger log = LogManager.getLogger(DesktopLauncher.class);
 
   public static void main(String[] args) {
-    // TODO: fix requiring bootstrapping this logger here
-    //       loggers don't load contexts until client init (at the end of #main())
-    LogManager.setLevel(DesktopLauncher.class.getName(), Level.DEBUG);
-
     Options options = new Options()
         .addOption(Option
             .builder("h")
@@ -92,42 +88,74 @@ public class DesktopLauncher {
       CommandLineParser parser = new DefaultParser();
       cmd = parser.parse(options, args);
     } catch (ParseException e) {
+      log.error(e.getMessage(), e);
       System.err.println(e.getMessage());
       System.out.println("For usage, use -help option");
     } finally {
       if (cmd != null) {
         if (cmd.hasOption("help")) {
+          log.debug("--help");
           HelpFormatter formatter = new HelpFormatter();
           formatter.printHelp("riiablo", options);
           System.exit(0);
+          return;
         }
       }
     }
 
-    final InstallationFinder finder = InstallationFinder.getInstance();
-    final FileHandle home;
-    if (cmd != null && cmd.hasOption("home")) {
-      home = new FileHandle(cmd.getOptionValue("home"));
-      if (!InstallationFinder.isD2Home(home)) {
-        throw new GdxRuntimeException("home does not refer to a valid D2 installation");
-      }
-    } else {
-      final Array<FileHandle> homeDirs = finder.getHomeDirs();
-      if (homeDirs.size > 0) {
-        home = homeDirs.first();
-      } else {
-        home = new FileHandle(SystemUtils.USER_HOME).child("riiablo");
-        home.mkdirs();
-      }
-    }
+    // TODO: fix requiring bootstrapping this logger here
+    //       loggers don't load contexts until client init (at the end of #main())
+    LogManager.setLevel(DesktopLauncher.class.getName(), Level.DEBUG);
 
-    final FileHandle saves;
-    if (cmd != null && cmd.hasOption("saves")) {
-      saves = new FileHandle(cmd.getOptionValue("saves"));
+    final Level logLevel;
+    if (cmd != null && cmd.hasOption("log-level")) {
+      String optionValue = cmd.getOptionValue("log-level");
+      log.debug("--log-level={}", optionValue);
+      logLevel = Level.valueOf(optionValue, Level.WARN);
     } else {
-      final Array<FileHandle> saveDirs = finder.getSaveDirs(home);
-      saves = saveDirs.first();
+      logLevel = Level.WARN;
     }
+    log.debug("logLevel: {}", logLevel);
+    LogManager.setLevel(DesktopLauncher.class.getName(), logLevel);
+
+    final InstallationFinder finder = InstallationFinder.getInstance();
+
+    final FileHandle d2Home;
+    if (cmd != null && cmd.hasOption("d2")) {
+      String optionValue = cmd.getOptionValue("d2");
+      log.debug("--d2={}", optionValue);
+      d2Home = new FileHandle(optionValue);
+      if (!InstallationFinder.isD2Home(d2Home)) {
+        throw new GdxRuntimeException("'d2' does not refer to a valid D2 installation: " + d2Home);
+      }
+    } else {
+      log.trace("Locating D2 installations...");
+      Array<FileHandle> homeDirs = finder.getHomeDirs();
+      log.trace("D2 installations: {}", homeDirs);
+      if (homeDirs.size > 0) {
+        d2Home = homeDirs.first();
+      } else {
+        d2Home = new FileHandle(SystemUtils.USER_HOME).child("riiablo");
+        d2Home.mkdirs();
+      }
+    }
+    log.debug("d2Home: {}", d2Home);
+
+    final FileHandle d2Saves;
+    if (cmd != null && cmd.hasOption("saves")) {
+      String optionValue = cmd.getOptionValue("saves");
+      log.debug("--saves={}", optionValue);
+      d2Saves = new FileHandle(optionValue);
+      if (!InstallationFinder.containsSaves(d2Saves)) {
+        log.warn("'saves' does not contain any save files: " + d2Saves);
+      }
+    } else {
+      log.trace("Locating D2 saves...");
+      Array<FileHandle> saveDirs = finder.getSaveDirs(d2Home);
+      log.trace("D2 saves: {}", saveDirs);
+      d2Saves = saveDirs.first();
+    }
+    log.debug("d2Saves: {}", d2Saves);
 
     final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
     config.title = "Riiablo";
@@ -135,11 +163,12 @@ public class DesktopLauncher {
     config.addIcon("ic_launcher_32.png",  Files.FileType.Internal);
     config.addIcon("ic_launcher_16.png",  Files.FileType.Internal);
     config.resizable = false;
-    config.allowSoftwareMode = cmd != null && cmd.hasOption("allowSoftwareMode");
+    config.allowSoftwareMode = cmd != null && cmd.hasOption("allow-software-mode");
 
     int width = 854, height = 480;
     if (cmd != null && cmd.hasOption("viewport")) {
       String optionValue = cmd.getOptionValue("viewport");
+      log.debug("--viewport={}", optionValue);
       String[] optionValues = StringUtils.split(optionValue, 'x');
       if (optionValues.length != 2) {
         System.err.println("'viewport' should be formatted like 854x480");
@@ -150,28 +179,38 @@ public class DesktopLauncher {
       width = NumberUtils.toInt(optionValues[0], width);
       height = NumberUtils.toInt(optionValues[1], height);
     }
-
     log.debug("viewport: {}x{}", width, height);
+
     config.width = width;
     config.height = height;
-    final Client client = new Client(home, saves, height);
+    final Client client = new Client(d2Home, d2Saves, height);
     if (cmd != null) {
-      client.setWindowedForced(cmd.hasOption("w"));
+      client.setWindowedForced(cmd.hasOption("windowed"));
       client.setDrawFPSForced(cmd.hasOption("fps"));
     }
 
     new LwjglApplication(client, config);
     if (cmd != null) {
-      String logLevel = cmd.getOptionValue("logLevel", "info");
-      if (logLevel.equalsIgnoreCase("none")) {
-        Gdx.app.setLogLevel(Application.LOG_NONE);
-      } else if (logLevel.equalsIgnoreCase("debug")) {
-        Gdx.app.setLogLevel(Application.LOG_DEBUG);
-      } else if (logLevel.equalsIgnoreCase("info")) {
-        Gdx.app.setLogLevel(Application.LOG_INFO);
-      } else if (logLevel.equalsIgnoreCase("error")) {
-        Gdx.app.setLogLevel(Application.LOG_ERROR);
+      final int gdxLogLevel;
+      switch (logLevel) {
+        case DEBUG:
+          gdxLogLevel = Application.LOG_DEBUG;
+          break;
+        case INFO:
+        case WARN:
+          gdxLogLevel = Application.LOG_INFO;
+          break;
+        case ERROR:
+        case FATAL:
+          gdxLogLevel = Application.LOG_ERROR;
+          break;
+        case OFF:
+        case TRACE:
+        default:
+          gdxLogLevel = Application.LOG_NONE;
       }
+
+      Gdx.app.setLogLevel(gdxLogLevel);
     }
 
     Cvars.Client.Windowed.addStateListener(new CvarStateAdapter<Boolean>() {

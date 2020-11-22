@@ -2,7 +2,7 @@
   <configuration default="false" name="desktop (debug) (840x360)" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.riiablo.DesktopLauncher" />
     <module name="riiablo.desktop" />
-    <option name="PROGRAM_PARAMETERS" value="-v 840x360 -fps -w -logLevel debug -home &quot;C:\Program Files (x86)\Steam\steamapps\common\Diablo II&quot;" />
+    <option name="PROGRAM_PARAMETERS" value="-v 840x360 -f -w -l debug" />
     <option name="VM_PARAMETERS" value="-ea" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/assets" />
     <method v="2">
