@@ -49,8 +49,11 @@ public class DesktopLauncher {
             .hasArg()
             .argName("size")
             .build())
-        .addOption("w", "windowed", false,
-            "forces windowed mode")
+        .addOption(Option
+            .builder("w")
+            .longOpt("windowed")
+            .desc("forces windowed mode")
+            .build())
         .addOption("fps", "drawFps", false,
             "force draws an FPS counter")
         .addOption("logLevel", true,
