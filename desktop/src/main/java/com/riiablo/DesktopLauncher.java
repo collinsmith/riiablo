@@ -71,8 +71,13 @@ public class DesktopLauncher {
             .longOpt("allow-software-mode")
             .desc("allows software OpenGL rendering if hardware acceleration is not available")
             .build())
-        .addOption("home", true,
-            "directory containing D2 MPQ files (defaults to user home directory)")
+        .addOption(Option
+            .builder("d")
+            .longOpt("d2")
+            .desc("directory containing D2 MPQ files")
+            .hasArg()
+            .argName("path")
+            .build())
         .addOption("saves", true,
             "directory containing D2 Character save files (defaults to D2 home directory)")
         ;
