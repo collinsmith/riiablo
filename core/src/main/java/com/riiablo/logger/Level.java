@@ -36,6 +36,7 @@ public enum Level {
   }
 
   public static Level valueOf(String name, Level defaultValue) {
+    if (name == null) return defaultValue;
     try {
       return Level.valueOf(name);
     } catch (IllegalArgumentException t) {
