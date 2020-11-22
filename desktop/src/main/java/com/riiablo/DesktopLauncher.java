@@ -37,8 +37,11 @@ public class DesktopLauncher {
     LogManager.setLevel(DesktopLauncher.class.getName(), Level.DEBUG);
 
     Options options = new Options()
-        .addOption("help", false,
-            "prints this message")
+        .addOption(Option
+            .builder("h")
+            .longOpt("help")
+            .desc("prints this message")
+            .build())
         .addOption(Option
             .builder("v")
             .longOpt("viewport")
