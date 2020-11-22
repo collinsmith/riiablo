@@ -54,8 +54,11 @@ public class DesktopLauncher {
             .longOpt("windowed")
             .desc("forces windowed mode")
             .build())
-        .addOption("fps", "drawFps", false,
-            "force draws an FPS counter")
+        .addOption(Option
+            .builder("f")
+            .longOpt("fps")
+            .desc("force enables fps counter")
+            .build())
         .addOption("logLevel", true,
             "log verbosity for debugging purposes")
         .addOption("allowSoftwareMode", false,
