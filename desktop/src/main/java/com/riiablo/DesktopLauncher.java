@@ -78,8 +78,13 @@ public class DesktopLauncher {
             .hasArg()
             .argName("path")
             .build())
-        .addOption("saves", true,
-            "directory containing D2 Character save files (defaults to D2 home directory)")
+        .addOption(Option
+            .builder("s")
+            .longOpt("saves")
+            .desc("directory containing D2 character save files (*.d2s)")
+            .hasArg()
+            .argName("path")
+            .build())
         ;
 
     CommandLine cmd = null;
