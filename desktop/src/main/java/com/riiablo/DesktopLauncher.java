@@ -5,8 +5,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -21,17 +23,29 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import com.riiablo.cvar.Cvar;
 import com.riiablo.cvar.CvarStateAdapter;
+import com.riiablo.logger.Level;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.util.InstallationFinder;
 
 public class DesktopLauncher {
+  private static final Logger log = LogManager.getLogger(DesktopLauncher.class);
+
   public static void main(String[] args) {
+    // TODO: fix requiring bootstrapping this logger here
+    //       loggers don't load contexts until client init (at the end of #main())
+    LogManager.setLevel(DesktopLauncher.class.getName(), Level.DEBUG);
+
     Options options = new Options()
         .addOption("help", false,
             "prints this message")
-        .addOption("i", true,
-            "width")
-        .addOption("o", true,
-            "height")
+        .addOption(Option
+            .builder("v")
+            .longOpt("viewport")
+            .desc("viewport size (default 854x480)")
+            .hasArg()
+            .argName("size")
+            .build())
         .addOption("w", "windowed", false,
             "forces windowed mode")
         .addOption("fps", "drawFps", false,
@@ -94,12 +108,23 @@ public class DesktopLauncher {
     config.addIcon("ic_launcher_32.png",  Files.FileType.Internal);
     config.addIcon("ic_launcher_16.png",  Files.FileType.Internal);
     config.resizable = false;
-    //config.width  = 1280;//853;
-    //config.height = 720;//480;
     config.allowSoftwareMode = cmd != null && cmd.hasOption("allowSoftwareMode");
 
-    int width  = NumberUtils.toInt(cmd.getOptionValue('i', "854"));
-    int height = NumberUtils.toInt(cmd.getOptionValue('o', "480"));
+    int width = 854, height = 480;
+    if (cmd != null && cmd.hasOption("viewport")) {
+      String optionValue = cmd.getOptionValue("viewport");
+      String[] optionValues = StringUtils.split(optionValue, 'x');
+      if (optionValues.length != 2) {
+        System.err.println("'viewport' should be formatted like 854x480");
+        System.exit(0);
+        return;
+      }
+
+      width = NumberUtils.toInt(optionValues[0], width);
+      height = NumberUtils.toInt(optionValues[1], height);
+    }
+
+    log.debug("viewport: {}x{}", width, height);
     config.width = width;
     config.height = height;
     final Client client = new Client(home, saves, height);
