@@ -77,7 +77,6 @@ public class DesktopLauncher {
       } else {
         home = new FileHandle(SystemUtils.USER_HOME).child("riiablo");
         home.mkdirs();
-        System.out.println("Created home directory " + home);
       }
     }
 
