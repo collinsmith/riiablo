@@ -66,8 +66,11 @@ public class DesktopLauncher {
             .hasArg()
             .argName("level")
             .build())
-        .addOption("allowSoftwareMode", false,
-            "allows software OpenGL rendering if hardware acceleration is not available")
+        .addOption(Option
+            .builder("g") // for graphics
+            .longOpt("allow-software-mode")
+            .desc("allows software OpenGL rendering if hardware acceleration is not available")
+            .build())
         .addOption("home", true,
             "directory containing D2 MPQ files (defaults to user home directory)")
         .addOption("saves", true,
