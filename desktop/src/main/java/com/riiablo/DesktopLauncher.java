@@ -59,8 +59,13 @@ public class DesktopLauncher {
             .longOpt("fps")
             .desc("force enables fps counter")
             .build())
-        .addOption("logLevel", true,
-            "log verbosity for debugging purposes")
+        .addOption(Option
+            .builder("l")
+            .longOpt("log-level")
+            .desc("log verbosity for debugging purposes")
+            .hasArg()
+            .argName("level")
+            .build())
         .addOption("allowSoftwareMode", false,
             "allows software OpenGL rendering if hardware acceleration is not available")
         .addOption("home", true,
