@@ -10,7 +10,7 @@ buildscript {
 
   dependencies {
     classpath "com.android.tools.build:gradle:$androidBuildToolsPluginVersion"
-    classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:1.0.5"
+    classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:$flatbuffersPluginVersion"
   }
 
   dependencies {
