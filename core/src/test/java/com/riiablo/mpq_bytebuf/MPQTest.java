@@ -44,7 +44,7 @@ public class MPQTest extends RiiabloTest {
     MPQ.load(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\d2video.mpq"));
   }
 
-  @Test
+  // @Test
   public void yloadAll_old() {
     for (int i = 0; i < 1000; i++) {
     com.riiablo.mpq.MPQ.loadFromFile(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\patch_d2.mpq"));
@@ -100,7 +100,7 @@ public class MPQTest extends RiiabloTest {
     System.out.println(System.currentTimeMillis() - start);
   }
 
-  @Test
+  // @Test
   public void zloadAll_new() {
     for (int i = 0; i < 1000; i++) {
     MPQ.load(Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II\\patch_d2.mpq"));
