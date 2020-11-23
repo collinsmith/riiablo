@@ -1,5 +1,11 @@
 package com.riiablo;
 
+import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.VisCheckBox;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel;
+import com.kotcrab.vis.ui.widget.spinner.Spinner;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -20,14 +26,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.VisCheckBox;
-import com.kotcrab.vis.ui.widget.VisTable;
-import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel;
-import com.kotcrab.vis.ui.widget.spinner.Spinner;
+
 import com.riiablo.codec.DC6;
 import com.riiablo.codec.FontTBL;
 import com.riiablo.codec.Index;
@@ -38,18 +41,23 @@ import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.util.InstallationFinder;
 
 public class FontMetricsTool extends ApplicationAdapter {
   private static final String TAG = "FontMetricsTool";
 
   public static void main(String[] args) {
+    InstallationFinder finder = InstallationFinder.getInstance();
+    Array<FileHandle> homeDirs = finder.getHomeDirs();
+    FileHandle d2Home = homeDirs.first();
+
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
     config.title = TAG;
     config.resizable = true;
     config.width = 800;
     config.height = 600;
     config.foregroundFPS = config.backgroundFPS = 144;
-    new LwjglApplication(new FontMetricsTool(args[0], args[1]), config);
+    new LwjglApplication(new FontMetricsTool(d2Home, args[0]), config);
   }
 
   private static final String STRING = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
@@ -64,10 +72,15 @@ public class FontMetricsTool extends ApplicationAdapter {
   boolean debug = true;
   boolean center = false;
   FontTBL.BitmapFont active;
-  FontTBL.BitmapFont.BitmapFontData data;
+  BitmapFont.BitmapFontData data;
 
+  @Deprecated
   FontMetricsTool(String home, String font) {
-    this.home = new FileHandle(home);
+    this(new FileHandle(home), font);
+  }
+
+  FontMetricsTool(FileHandle home, String font) {
+    this.home = home;
     this.font = font;
   }
 
