@@ -1,11 +1,8 @@
 package com.riiablo.map;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.artemis.BaseSystem;
@@ -17,15 +14,11 @@ import com.artemis.managers.TagManager;
 import net.mostlyoriginal.api.event.common.EventSystem;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -35,6 +28,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import com.riiablo.COFs;
@@ -100,101 +94,19 @@ import com.riiablo.logger.Logger;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.tool.BaseTool;
+import com.riiablo.tool.LwjglTool;
 import com.riiablo.util.DebugUtils;
+import com.riiablo.util.InstallationFinder;
 
-public class MapViewer extends ApplicationAdapter {
+public class MapViewer extends BaseTool {
   private static final Logger log = LogManager.getLogger(MapViewer.class);
 
   public static void main(String[] args) {
-    Options options = new Options()
-        .addOption("h", "help", false,
-            "prints this message")
-        .addOption("d2", "home", true,
-            "directory containing D2 MPQ files")
-        .addOption("s", "seed", true,
-            "seed used for generation (-1 for random)")
-        .addOption("a", "act", true,
-            "act to generate [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")")
-        .addOption("d", "diff", true,
-            "difficulty to generate [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")")
-        ;
-
-    CommandLine cmd = null;
-    try {
-      CommandLineParser parser = new DefaultParser();
-      cmd = parser.parse(options, args);
-    } catch (ParseException e) {
-      System.err.println(e.getMessage());
-      System.err.println("For usage, use -help option");
-    } finally {
-      if (cmd != null) {
-        if (cmd.hasOption("help")) {
-          HelpFormatter formatter = new HelpFormatter();
-          formatter.printHelp("map-viewer", options);
-          System.exit(0);
-        }
-      }
-    }
-
-    final FileHandle home;
-    if (cmd != null && cmd.hasOption("home")) {
-      home = new FileHandle(cmd.getOptionValue("home"));
-      if (!home.child("d2data.mpq").exists()) {
-        throw new GdxRuntimeException("home does not refer to a valid D2 installation");
-      }
-    } else {
-      home = new FileHandle(System.getProperty("user.home")).child("diablo");
-      System.out.println("Home not specified, using " + home);
-      home.mkdirs();
-    }
-
-    int seed = -1;
-    if (cmd != null && cmd.hasOption("seed")) {
-      seed = NumberUtils.toInt(cmd.getOptionValue("seed"), -1);
-    }
-
-    int act = Riiablo.ACT1;
-    if (cmd != null && cmd.hasOption("act")) {
-      final String strValue = cmd.getOptionValue("act");
-      if (strValue == null) {
-        System.err.println("'act' not specified -- defaulting to " + act);
-      }
-
-      act = NumberUtils.toInt(strValue, Riiablo.ACT1);
-      if (act < Riiablo.ACT1 || act >= Riiablo.NUM_ACTS) {
-        System.err.println("Invalid option 'act': " + strValue);
-        System.err.println("'act' must be in range [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")");
-        System.exit(0);
-      }
-    }
-
-    int diff = Riiablo.NORMAL;
-    if (cmd != null && cmd.hasOption("diff")) {
-      final String strValue = cmd.getOptionValue("diff");
-      if (strValue == null) {
-        System.err.println("'diff' not specified -- defaulting to " + diff);
-      }
-
-      diff = NumberUtils.toInt(strValue, Riiablo.NORMAL);
-      if (diff < Riiablo.NORMAL || diff >= Riiablo.NUM_DIFFS) {
-        System.err.println("Invalid option 'diff': " + strValue);
-        System.err.println("'diff' must be in range [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")");
-        System.exit(0);
-      }
-    }
-
-    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = "Map Viewer";
-    config.addIcon("ic_launcher_16.png", FileType.Internal);
-    config.addIcon("ic_launcher_32.png", FileType.Internal);
-    config.addIcon("ic_launcher_128.png", FileType.Internal);
-    config.resizable = true;
-    config.vSyncEnabled = false;
-    config.width = 1280; // 1280
-    config.height = 720;
-    config.foregroundFPS = config.backgroundFPS = 300;
-    MapViewer client = new MapViewer(home, seed, act, diff);
-    new LwjglApplication(client, config);
+    LwjglTool.create(MapViewer.class, "map-viewer", args)
+        .title("Map Viewer")
+        .size(1280, 720)
+        .start();
   }
 
   ShapeRenderer shapes;
@@ -235,21 +147,95 @@ public class MapViewer extends ApplicationAdapter {
   int act;
   int diff;
 
-  @Deprecated
-  MapViewer(String[] args) {
-    this(args[0], NumberUtils.toInt(args[1]), NumberUtils.toInt(args[2]), NumberUtils.toInt(args[3]));
+  @Override
+  protected void createCliOptions(Options options) {
+    super.createCliOptions(options);
+
+    options.addOption(Option
+            .builder("d")
+            .longOpt("d2")
+            .desc("directory containing D2 MPQ files")
+            .hasArg()
+            .argName("path")
+            .build());
+
+    options.addOption(Option
+            .builder("s")
+            .longOpt("seed")
+            .desc("seed used for generation (-1 for random)")
+            .hasArg()
+            .argName(int.class.getName())
+            .build());
+
+    options.addOption(Option
+            .builder("a")
+            .longOpt("act")
+            .desc("act to generate [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")")
+            .hasArg()
+            .argName(int.class.getName())
+            .build());
+
+    options.addOption(Option
+            .builder("d")
+            .longOpt("diff")
+            .desc("difficulty to generate [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")")
+            .hasArg()
+            .argName(int.class.getName())
+            .build());
   }
 
-  @Deprecated
-  MapViewer(String home, int seed, int act, int diff) {
-    this(new FileHandle(home), seed, act, diff);
-  }
+  @Override
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+    super.handleCliOptions(cmd, options, cli);
 
-  MapViewer(FileHandle home, int seed, int act, int diff) {
-    this.home = home;
-    this.seed = seed;
-    this.act = act;
-    this.diff = diff;
+    if (cli.hasOption("d2")) {
+      home = new FileHandle(cli.getOptionValue("d2"));
+      if (!home.child("d2data.mpq").exists()) {
+        throw new GdxRuntimeException("'d2' does not refer to a valid D2 installation: " + home);
+      }
+    } else {
+      InstallationFinder finder = InstallationFinder.getInstance();
+      Array<FileHandle> homeDirs = finder.getHomeDirs();
+      home = homeDirs.first();
+    }
+
+    if (cli.hasOption("seed")) {
+      seed = NumberUtils.toInt(cli.getOptionValue("seed"), -1);
+    } else {
+      seed = -1;
+    }
+
+    if (cli.hasOption("act")) {
+      String strValue = cli.getOptionValue("act");
+      if (strValue == null) {
+        System.out.println("'act' not specified -- defaulting to " + act);
+      }
+
+      act = NumberUtils.toInt(strValue, Riiablo.ACT1);
+      if (act < Riiablo.ACT1 || act >= Riiablo.NUM_ACTS) {
+        System.err.println("Invalid option 'act': " + strValue);
+        System.err.println("'act' must be in range [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")");
+        System.exit(0);
+      }
+    } else {
+      act = Riiablo.ACT1;
+    }
+
+    if (cli.hasOption("diff")) {
+      String strValue = cli.getOptionValue("diff");
+      if (strValue == null) {
+        System.out.println("'diff' not specified -- defaulting to " + diff);
+      }
+
+      diff = NumberUtils.toInt(strValue, Riiablo.NORMAL);
+      if (diff < Riiablo.NORMAL || diff >= Riiablo.NUM_DIFFS) {
+        System.err.println("Invalid option 'diff': " + strValue);
+        System.err.println("'diff' must be in range [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")");
+        System.exit(0);
+      }
+    } else {
+      diff = Riiablo.NORMAL;
+    }
   }
 
   @Override
@@ -260,7 +246,10 @@ public class MapViewer extends ApplicationAdapter {
     Riiablo.home = home = Gdx.files.absolute(home.path());
     MPQFileHandleResolver resolver = Riiablo.mpqs = new MPQFileHandleResolver();
 
-    if (seed == -1) seed = MathUtils.random.nextInt();
+    if (seed == -1) {
+      log.info("generating random seed...");
+      seed = MathUtils.random.nextInt();
+    }
     log.infof("seed: %08x", seed);
 
     AssetManager assets = Riiablo.assets = new AssetManager();

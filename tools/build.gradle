@@ -27,6 +27,7 @@ subprojects {
 
   dependencies {
     implementation project(':core')
+    implementation project(':tools')
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"

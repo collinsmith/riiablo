@@ -5,14 +5,14 @@ import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel;
 import com.kotcrab.vis.ui.widget.spinner.Spinner;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.io.FilenameUtils;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -41,27 +41,20 @@ import com.riiablo.loader.BitmapFontLoader;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.loader.IndexLoader;
 import com.riiablo.loader.PaletteLoader;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.tool.BaseTool;
+import com.riiablo.tool.LwjglTool;
 import com.riiablo.util.InstallationFinder;
 
-public class FontMetricsTool extends ApplicationAdapter {
-  private static final String TAG = "FontMetricsTool";
+public class FontMetricsTool extends BaseTool {
+  private static final Logger log = LogManager.getLogger(FontMetricsTool.class);
 
   public static void main(String[] args) {
-    InstallationFinder finder = InstallationFinder.getInstance();
-    Array<FileHandle> homeDirs = finder.getHomeDirs();
-    FileHandle d2Home = homeDirs.first();
-
-    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.addIcon("ic_launcher_16.png", FileType.Internal);
-    config.addIcon("ic_launcher_32.png", FileType.Internal);
-    config.addIcon("ic_launcher_128.png", FileType.Internal);
-    config.title = TAG;
-    config.resizable = true;
-    config.width = 800;
-    config.height = 600;
-    config.foregroundFPS = config.backgroundFPS = 144;
-    new LwjglApplication(new FontMetricsTool(d2Home, args[0]), config);
+    LwjglTool.create(FontMetricsTool.class, "font-metrics", args)
+        .title("Font Metrics Tool")
+        .start();
   }
 
   private static final String STRING = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
@@ -78,14 +71,29 @@ public class FontMetricsTool extends ApplicationAdapter {
   FontTBL.BitmapFont active;
   BitmapFont.BitmapFontData data;
 
-  @Deprecated
-  FontMetricsTool(String home, String font) {
-    this(new FileHandle(home), font);
+  @Override
+  protected void createCliOptions(Options options) {
+    super.createCliOptions(options);
+    options.addOption(Option
+        .builder("f")
+        .longOpt("font")
+        .desc("name of the font to modify")
+        .required()
+        .hasArg()
+        .argName("font-name")
+        .build());
   }
 
-  FontMetricsTool(FileHandle home, String font) {
-    this.home = home;
-    this.font = font;
+  @Override
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+    super.handleCliOptions(cmd, options, cli);
+
+    InstallationFinder finder = InstallationFinder.getInstance();
+    Array<FileHandle> homeDirs = finder.getHomeDirs();
+    home = homeDirs.first();
+
+    String fontOptionValue = cli.getOptionValue("font");
+    font = FilenameUtils.getBaseName(fontOptionValue);
   }
 
   @Override
@@ -108,7 +116,7 @@ public class FontMetricsTool extends ApplicationAdapter {
       active = (FontTBL.BitmapFont) ClassReflection.getField(Fonts.class, font).get(Riiablo.fonts);
     } catch (ReflectionException e) {
       active = Riiablo.fonts.font16;
-      Gdx.app.error(TAG, e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     data = active.getData();
 
