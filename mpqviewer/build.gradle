@@ -5,11 +5,7 @@ import org.gradle.internal.os.OperatingSystem
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.resources.srcDirs += [ file('assets').path ]
-
-project.ext {
-  visuiVersion = '1.4.2'
-}
+project.ext.visuiVersion = '1.4.2'
 
 dependencies {
   implementation project(':core')
@@ -25,30 +21,30 @@ application {
 }
 
 run {
-  workingDir = rootProject.file('assets').path
   setIgnoreExitValue(true)
 
   // Required to run LWJGL3 java apps on MacOS
-	if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
-		jvmArgs += "-XstartOnFirstThread"
-	}
+  if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
+    jvmArgs += "-XstartOnFirstThread"
+  }
 }
 
 jar {
   archiveBaseName = project.name
-	// These can be excluded because they add to the jar size but libGDX 1.9.11 can't use them.
-	// If your libGDX version is 1.9.10 or earlier, or is 1.9.12-SNAPSHOT or later, you can leave
-	// the following line commented; if you use 1.9.11 exactly, or if you use 1.9.12-SNAPSHOT but
-	// don't need ARM Linux support, you can uncomment it safely.
-	// It's always safe to keep that line commented out; it only affects JAR size.
-	// exclude('linux/arm32/**', 'linux/arm64/**')
-	dependsOn configurations.runtimeClasspath
-	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-	manifest {
-		attributes 'Main-Class': application.mainClass
-	}
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  // These can be excluded because they add to the jar size but libGDX 1.9.11 can't use them.
+  // If your libGDX version is 1.9.10 or earlier, or is 1.9.12-SNAPSHOT or later, you can leave
+  // the following line commented; if you use 1.9.11 exactly, or if you use 1.9.12-SNAPSHOT but
+  // don't need ARM Linux support, you can uncomment it safely.
+  // It's always safe to keep that line commented out; it only affects JAR size.
+  // exclude('linux/arm32/**', 'linux/arm64/**')
+  dependsOn configurations.runtimeClasspath
+  from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+  manifest {
+    attributes 'Main-Class': application.mainClass
+  }
 
-	doLast {
-		file(archiveFile).setExecutable(true, false)
-	}
+  doLast {
+    file(archiveFile).setExecutable(true, false)
+  }
 }
