@@ -22,6 +22,9 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'application'
 
+  sourceSets.main.resources.srcDirs += project(':tools').file('assets')
+  idea.module.resourceDirs += project(':tools').file('assets')
+
   dependencies {
     implementation project(':core')
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
@@ -34,5 +37,28 @@ subprojects {
 
   dependencies {
     testImplementation 'junit:junit:4.12'
+  }
+
+  run {
+    ignoreExitValue true
+
+    // Required to run LWJGL3 java apps on MacOS
+    if (org.gradle.internal.os.OperatingSystem.current() == org.gradle.internal.os.OperatingSystem.MAC_OS) {
+      jvmArgs += "-XstartOnFirstThread"
+    }
+  }
+
+  jar {
+    archiveBaseName = project.name
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    dependsOn configurations.runtimeClasspath
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest {
+      attributes 'Main-Class': application.mainClass
+    }
+
+    doLast {
+      file(archiveFile).setExecutable(true, false)
+    }
   }
 }

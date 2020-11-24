@@ -18,6 +18,7 @@ import net.mostlyoriginal.api.event.common.EventSystem;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -184,6 +185,9 @@ public class MapViewer extends ApplicationAdapter {
 
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
     config.title = "Map Viewer";
+    config.addIcon("ic_launcher_16.png", FileType.Internal);
+    config.addIcon("ic_launcher_32.png", FileType.Internal);
+    config.addIcon("ic_launcher_128.png", FileType.Internal);
     config.resizable = true;
     config.vSyncEnabled = false;
     config.width = 1280; // 1280

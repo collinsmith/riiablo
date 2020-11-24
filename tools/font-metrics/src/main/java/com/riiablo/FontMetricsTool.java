@@ -8,6 +8,7 @@ import com.kotcrab.vis.ui.widget.spinner.Spinner;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -52,6 +53,9 @@ public class FontMetricsTool extends ApplicationAdapter {
     FileHandle d2Home = homeDirs.first();
 
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+    config.addIcon("ic_launcher_16.png", FileType.Internal);
+    config.addIcon("ic_launcher_32.png", FileType.Internal);
+    config.addIcon("ic_launcher_128.png", FileType.Internal);
     config.title = TAG;
     config.resizable = true;
     config.width = 800;
