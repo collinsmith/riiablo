@@ -45,8 +45,19 @@ public class BaseTool implements ApplicationListener {
   }
 
   private void printHelp(String cmd, Options options) {
+    String header = getHelpHeader();
+    if (header != null) {
+      header = header.replace("{cmd}", cmd).trim();
+      header = String.format("%n%s%n%n", header);
+    }
+
+    String footer = getHelpFooter();
+    if (footer != null) {
+      footer = footer.replace("{cmd}", cmd).trim();
+    }
+
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(cmd, getHelpHeader(), options, getHelpFooter(), true);
+    formatter.printHelp(cmd, header, options, footer, true);
   }
 
   @Override

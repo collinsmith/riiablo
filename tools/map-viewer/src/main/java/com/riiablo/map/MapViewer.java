@@ -3,6 +3,8 @@ package com.riiablo.map;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.artemis.BaseSystem;
@@ -148,40 +150,52 @@ public class MapViewer extends BaseTool {
   int diff;
 
   @Override
+  protected String getHelpHeader() {
+    return "View generated maps.\n" +
+        "E.g., {cmd} --seed 0xdeadbeef --act 0 --diff 0";
+  }
+
+  @Override
   protected void createCliOptions(Options options) {
     super.createCliOptions(options);
 
     options.addOption(Option
-            .builder("d")
-            .longOpt("d2")
-            .desc("directory containing D2 MPQ files")
-            .hasArg()
-            .argName("path")
-            .build());
+        .builder("d")
+        .longOpt("d2")
+        .desc("directory containing D2 MPQ files")
+        .hasArg()
+        .argName("path")
+        .build());
 
     options.addOption(Option
-            .builder("s")
-            .longOpt("seed")
-            .desc("seed used for generation (-1 for random)")
-            .hasArg()
-            .argName(int.class.getName())
-            .build());
+        .builder("s")
+        .longOpt("seed")
+        .desc("seed used for generation (hex)")
+        .hasArg()
+        .argName(int.class.getName())
+        .build());
 
     options.addOption(Option
-            .builder("a")
-            .longOpt("act")
-            .desc("act to generate [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")")
-            .hasArg()
-            .argName(int.class.getName())
-            .build());
+        .builder("r")
+        .longOpt("random")
+        .desc("generate a random seed")
+        .build());
 
     options.addOption(Option
-            .builder("d")
-            .longOpt("diff")
-            .desc("difficulty to generate [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")")
-            .hasArg()
-            .argName(int.class.getName())
-            .build());
+        .builder("a")
+        .longOpt("act")
+        .desc("act to generate [" + Riiablo.ACT1 + ".." + Riiablo.NUM_ACTS + ")")
+        .hasArg()
+        .argName(int.class.getName())
+        .build());
+
+    options.addOption(Option
+        .builder("d")
+        .longOpt("diff")
+        .desc("difficulty to generate [" + Riiablo.NORMAL + ".." + Riiablo.NUM_DIFFS + ")")
+        .hasArg()
+        .argName(int.class.getName())
+        .build());
   }
 
   @Override
@@ -199,8 +213,18 @@ public class MapViewer extends BaseTool {
       home = homeDirs.first();
     }
 
-    if (cli.hasOption("seed")) {
-      seed = NumberUtils.toInt(cli.getOptionValue("seed"), -1);
+    if (cli.hasOption("random")) {
+      seed = -1;
+    } else if (cli.hasOption("seed")) {
+      try {
+        String seedOptionValue = cli.getOptionValue("seed");
+        seedOptionValue = StringUtils.removeStartIgnoreCase(seedOptionValue, "0x");
+        seed = (int) Long.parseLong(seedOptionValue, 16);
+      } catch (NumberFormatException t) {
+        log.warn(ExceptionUtils.getRootCauseMessage(t), t);
+        ExceptionUtils.wrapAndThrow(t);
+        return;
+      }
     } else {
       seed = -1;
     }

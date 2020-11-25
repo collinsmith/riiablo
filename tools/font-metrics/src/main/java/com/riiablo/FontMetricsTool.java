@@ -72,6 +72,12 @@ public class FontMetricsTool extends BaseTool {
   BitmapFont.BitmapFontData data;
 
   @Override
+  protected String getHelpHeader() {
+    return "Configures font metrics for D2 font files.\n" +
+        "E.g., {cmd} --font font8";
+  }
+
+  @Override
   protected void createCliOptions(Options options) {
     super.createCliOptions(options);
     options.addOption(Option
