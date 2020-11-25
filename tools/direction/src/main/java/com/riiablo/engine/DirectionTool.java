@@ -1,11 +1,10 @@
 package com.riiablo.engine;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -14,23 +13,24 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.StringBuilder;
+
 import com.riiablo.camera.IsometricCamera;
+import com.riiablo.logger.Level;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.map.DT1;
+import com.riiablo.tool.LwjglTool;
+import com.riiablo.tool.Tool;
 
-import java.util.Arrays;
-
-public class DirectionTool extends ApplicationAdapter {
-  private static final String TAG = "DirectionTool";
+public class DirectionTool extends Tool {
+  private static final Logger log = LogManager.getLogger(DirectionTool.class);
 
   public static void main(String[] args) {
-    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = TAG;
-    config.resizable = false;
-    config.width = 256;
-    config.height = 256;
-    config.vSyncEnabled = false;
-    config.foregroundFPS = config.backgroundFPS = 144;
-    new LwjglApplication(new DirectionTool(), config);
+    LogManager.setLevel(DirectionTool.class.getCanonicalName(), Level.INFO);
+    LwjglTool.create(DirectionTool.class, "direction", args)
+        .title("Direction Tool")
+        .size(256, 256, false)
+        .start();
   }
 
   Batch batch;
@@ -91,7 +91,7 @@ public class DirectionTool extends ApplicationAdapter {
   }
 
   void print(float[] a) {
-    Gdx.app.log(TAG, Arrays.toString(a));
+    log.info(Arrays.toString(a));
   }
 
   @Override
