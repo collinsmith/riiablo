@@ -22,9 +22,6 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'application'
 
-  sourceSets.main.resources.srcDirs += project(':tools').file('assets')
-  idea.module.resourceDirs += project(':tools').file('assets')
-
   dependencies {
     implementation project(':core')
     implementation project(':tools')
