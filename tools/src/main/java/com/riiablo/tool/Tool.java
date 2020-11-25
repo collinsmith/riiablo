@@ -7,10 +7,16 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.badlogic.gdx.ApplicationListener;
 
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
+
 public class Tool implements ApplicationListener {
+  private static final Logger log = LogManager.getLogger(Tool.class);
+
   protected void createCliOptions(Options options) {
     options.addOption(Option.builder("h")
         .longOpt("help")
@@ -24,7 +30,8 @@ public class Tool implements ApplicationListener {
   }
 
   protected void handleCliError(String cmd, Options options, Throwable t) {
-    System.err.println(t.getMessage());
+    log.error(t.getMessage(), t);
+    System.out.println(ExceptionUtils.getRootCauseMessage(t));
     printHelp(cmd, options);
     System.exit(0);
   }
@@ -44,7 +51,7 @@ public class Tool implements ApplicationListener {
     return null;
   }
 
-  private void printHelp(String cmd, Options options) {
+  protected void printHelp(String cmd, Options options) {
     String header = getHelpHeader();
     if (header != null) {
       header = header.replace("{cmd}", cmd).trim();
