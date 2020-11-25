@@ -55,6 +55,7 @@ import com.riiablo.codec.StringTBLs;
 import com.riiablo.engine.Engine;
 import com.riiablo.engine.EntityFactory;
 import com.riiablo.engine.server.AIStepper;
+import com.riiablo.engine.server.Actioneer;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.CofManager;
 import com.riiablo.engine.server.ItemInteractor;
@@ -266,6 +267,8 @@ public class D2GS extends ApplicationAdapter {
         .with(new CofManager())
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
+
+        .with(new Actioneer())
 
         .with(new VendorGenerator())
         .with(new AIStepper())

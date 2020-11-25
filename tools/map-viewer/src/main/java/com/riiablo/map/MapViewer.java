@@ -69,6 +69,7 @@ import com.riiablo.engine.client.debug.Box2DDebugger;
 import com.riiablo.engine.client.debug.PathDebugger;
 import com.riiablo.engine.client.debug.PathfindDebugger;
 import com.riiablo.engine.client.debug.RenderSystemDebugger;
+import com.riiablo.engine.server.Actioneer;
 import com.riiablo.engine.server.AnimDataResolver;
 import com.riiablo.engine.server.AnimStepper;
 import com.riiablo.engine.server.CofManager;
@@ -329,6 +330,8 @@ public class MapViewer extends Tool {
         .with(new ObjectInitializer())
         .with(new ObjectInteractor(), new WarpInteractor(), new ItemInteractor())
         .with(new MenuManager(), new DialogManager())
+
+        .with(new Actioneer())
 
         .with(box2DPhysics = new Box2DPhysics(1 / 60f))
         .with(new Pathfinder())
