@@ -3,12 +3,21 @@ rootProject.name = 'riiablo'
 include 'core'
 include 'desktop'
 include 'android'
-include 'tools', 'ds1viewer', 'mpqviewer'
-include 'tester'
-include 'server:bnls', 'server:bncs', 'server:mcp', 'server:d2gs'
+
+include 'mpqviewer'
+include 'ds1viewer' // deprecated
+
+include 'server:bnls'
+include 'server:bncs'
+include 'server:mcp'
+include 'server:d2gs'
 include 'server:netty'
+
+include 'tools'
 include 'tools:map-viewer'
 include 'tools:font-metrics'
 include 'tools:d2s-reader'
 include 'tools:camera'
 include 'tools:direction'
+
+include 'tester' // deprecated
