@@ -44,11 +44,11 @@ import com.riiablo.loader.PaletteLoader;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 import com.riiablo.mpq.MPQFileHandleResolver;
-import com.riiablo.tool.BaseTool;
 import com.riiablo.tool.LwjglTool;
+import com.riiablo.tool.Tool;
 import com.riiablo.util.InstallationFinder;
 
-public class FontMetricsTool extends BaseTool {
+public class FontMetricsTool extends Tool {
   private static final Logger log = LogManager.getLogger(FontMetricsTool.class);
 
   public static void main(String[] args) {

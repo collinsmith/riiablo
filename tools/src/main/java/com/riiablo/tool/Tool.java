@@ -10,7 +10,7 @@ import org.apache.commons.cli.ParseException;
 
 import com.badlogic.gdx.ApplicationListener;
 
-public class BaseTool implements ApplicationListener {
+public class Tool implements ApplicationListener {
   protected void createCliOptions(Options options) {
     options.addOption(Option.builder("h")
         .longOpt("help")

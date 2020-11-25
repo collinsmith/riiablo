@@ -96,12 +96,12 @@ import com.riiablo.logger.Logger;
 import com.riiablo.map.DT1.Tile;
 import com.riiablo.map.pfa.GraphPath;
 import com.riiablo.mpq.MPQFileHandleResolver;
-import com.riiablo.tool.BaseTool;
 import com.riiablo.tool.LwjglTool;
+import com.riiablo.tool.Tool;
 import com.riiablo.util.DebugUtils;
 import com.riiablo.util.InstallationFinder;
 
-public class MapViewer extends BaseTool {
+public class MapViewer extends Tool {
   private static final Logger log = LogManager.getLogger(MapViewer.class);
 
   public static void main(String[] args) {
