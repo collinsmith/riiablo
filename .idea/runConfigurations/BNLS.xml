@@ -1,8 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="BNLS" type="Application" factoryName="Application" folderName="server" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.riiablo.server.bnls.BNLS" />
-    <module name="bnls" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
-    <method />
+    <module name="riiablo.server.bnls" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/assets" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
   </configuration>
 </component>

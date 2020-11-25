@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="D2GS" type="Application" factoryName="Application" folderName="server">
+    <option name="MAIN_CLASS_NAME" value="com.riiablo.server.d2gs.D2GS" />
+    <module name="riiablo.server.d2gs" />
+    <option name="PROGRAM_PARAMETERS" value="-seed 0 -diff 0 -home C:\diablo" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/assets" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
