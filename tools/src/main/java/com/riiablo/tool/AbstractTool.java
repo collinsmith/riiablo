@@ -13,7 +13,7 @@ public abstract class AbstractTool<A extends Application> {
       T extends Tool,
       C,
       B extends ToolBuilder<A, T, C, B>
-      > {
+  > {
     protected final Class<T> toolClass;
     protected final String cmd;
     protected final String[] args;
@@ -26,10 +26,12 @@ public abstract class AbstractTool<A extends Application> {
       this.config = config;
     }
 
+    @SuppressWarnings("unchecked")
     public B defaults() {
       return (B) this;
     }
 
+    @SuppressWarnings("unchecked")
     public B config(ToolConfigurator<C> configurator) {
       configurator.config(config);
       return (B) this;
