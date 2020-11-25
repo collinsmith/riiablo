@@ -1,11 +1,8 @@
 package com.riiablo.camera;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -16,22 +13,23 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+
 import com.riiablo.codec.Animation;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.map.DT1.Tile;
+import com.riiablo.tool.LwjglTool;
+import com.riiablo.tool.Tool;
 import com.riiablo.util.DebugUtils;
 
-public class CameraTool extends ApplicationAdapter {
-  private static final String TAG = "CameraTool";
+public class CameraTool extends Tool {
+  private static final Logger log = LogManager.getLogger(CameraTool.class);
 
   public static void main(String[] args) {
-    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = TAG;
-    config.resizable = false;
-    config.width = 1280;
-    config.height = 720;
-    config.vSyncEnabled = false;
-    config.foregroundFPS = config.backgroundFPS = 144;
-    new LwjglApplication(new CameraTool(), config);
+    LwjglTool.create(CameraTool.class, "camera", args)
+        .title("Camera Tool")
+        .size(1280, 720, false)
+        .start();
   }
 
   Batch batch;

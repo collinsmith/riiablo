@@ -69,8 +69,13 @@ public class LwjglTool extends AbstractTool<LwjglApplication> {
     }
 
     public LwjglToolBuilder<T> size(int width, int height) {
+      return size(width, height, true);
+    }
+
+    public LwjglToolBuilder<T> size(int width, int height, boolean resizable) {
       config.width = width;
       config.height = height;
+      config.resizable = resizable;
       return this;
     }
   }
