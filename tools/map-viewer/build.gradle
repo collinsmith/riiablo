@@ -1,1 +1,1 @@
-application.mainClassName = 'com.riiablo.map.MapViewer'
+application.mainClass = 'com.riiablo.map.MapViewer'
