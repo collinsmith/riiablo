@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="desktop (resolution)" type="CompoundRunConfigurationType">
+    <toRun name="desktop (debug) (720x360)" type="Application" />
+    <toRun name="desktop (debug) (800x600)" type="Application" />
+    <toRun name="desktop (debug) (640x480)" type="Application" />
+    <toRun name="desktop (debug) (1280x720)" type="Application" />
+    <toRun name="desktop (debug) (854x480)" type="Application" />
+    <toRun name="desktop (debug) (840x360)" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>
