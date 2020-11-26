@@ -18,6 +18,7 @@ dependencies {
   implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
 }
 
+description = 'View and debug DS1 prefabs.'
 application {
   mainClass = 'com.riiablo.map.DS1Viewer'
 }

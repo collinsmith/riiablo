@@ -5,7 +5,6 @@ include 'desktop'
 include 'android'
 
 include 'mpqviewer'
-include 'ds1viewer' // deprecated
 
 include 'server:bnls'
 include 'server:bncs'
@@ -19,6 +18,7 @@ include 'tools:font-metrics'
 include 'tools:d2s-reader'
 include 'tools:camera'
 include 'tools:direction'
+include 'tools:ds1-viewer' // deprecated
 include 'tools:mpq-viewer'
 project(':tools:mpq-viewer').projectDir = project(':mpqviewer').projectDir
 
