@@ -1,6 +1,5 @@
 package com.riiablo.map;
 
-import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -174,7 +173,7 @@ public class DS1 {
       files[i] = BufferUtils.readString(in);
       if (DEBUG_FILES) Gdx.app.debug(TAG, "file[" + i + "] = " + files[i]);
     }
-    if (9 <= version && version <= 13) IOUtils.skipFully(in, 2 * Ints.BYTES);
+    if (9 <= version && version <= 13) IOUtils.skipFully(in, 2 * PrimitiveUtils.INT_BYTES);
     if (version < 4) {
       numWalls   = 1;
       numFloors  = 1;
@@ -393,7 +392,7 @@ public class DS1 {
 
   private void readGroups(InputStream in) throws IOException {
     if (version >= 12 && (tagType == 1 || tagType == 2)) {
-      if (version >= 18) IOUtils.skip(in, Ints.BYTES);
+      if (version >= 18) IOUtils.skip(in, PrimitiveUtils.INT_BYTES);
       numGroups = EndianUtils.readSwappedInteger(in);
       groups = numGroups == 0 ? Group.EMPTY_GROUP_ARRAY : new Group[numGroups];
       for (int i = 0; i < numGroups; i++) {
@@ -407,7 +406,7 @@ public class DS1 {
   }
 
   private void readPaths(InputStream in) throws IOException {
-    if (version >= 14 && in.available() >= Ints.BYTES) {
+    if (version >= 14 && in.available() >= PrimitiveUtils.INT_BYTES) {
       numPaths = EndianUtils.readSwappedInteger(in);
       paths = numPaths == 0 ? Path.EMPTY_PATH_ARRAY : new Path[numPaths];
       for (int i = 0; i < numPaths; i++) {
@@ -583,7 +582,7 @@ public class DS1 {
 
       if (object == null) {
         Gdx.app.error(TAG, "No object associated with path: " + this);
-        int skip = (version >= 15 ? 3 : 2) * Ints.BYTES;
+        int skip = (version >= 15 ? 3 : 2) * PrimitiveUtils.INT_BYTES;
         for (int p = 0; p < numPoints; p++) {
           in.skip(skip);
         }
