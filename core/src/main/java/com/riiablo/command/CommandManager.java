@@ -1,23 +1,21 @@
 package com.riiablo.command;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableSet;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.SortedMap;
 import org.apache.commons.collections4.OrderedMapIterator;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-
-import java.util.Collection;
-import java.util.SortedMap;
 
 public class CommandManager implements Command.AssignmentListener {
   private final Trie<String, Command> COMMANDS = new PatriciaTrie<>();
 
   public Collection<Command> getCommands() {
-    return ImmutableSet.copyOf(COMMANDS.values());
+    return SetUtils.unmodifiableSet(new HashSet<>(COMMANDS.values()));
   }
 
   public OrderedMapIterator<String, Command> mapIterator() {
@@ -26,7 +24,7 @@ public class CommandManager implements Command.AssignmentListener {
 
   public boolean add(Command command) {
     final Command queriedCommand = COMMANDS.get(command.ALIAS);
-    if (Objects.equal(command, queriedCommand)) {
+    if (Objects.equals(command, queriedCommand)) {
       return false;
     } else if (queriedCommand != null) {
       throw new IllegalArgumentException(String.format(
@@ -61,7 +59,7 @@ public class CommandManager implements Command.AssignmentListener {
 
   private boolean unassign(Command command, String alias) {
     Command queriedCommand = COMMANDS.get(alias);
-    if (Objects.equal(queriedCommand, command)) {
+    if (Objects.equals(queriedCommand, command)) {
       COMMANDS.remove(alias);
     }
 

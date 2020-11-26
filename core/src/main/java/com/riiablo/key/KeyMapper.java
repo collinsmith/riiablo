@@ -1,18 +1,17 @@
 package com.riiablo.key;
 
-import com.google.common.collect.ImmutableSet;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.ObjectSet;
-
-import org.apache.commons.lang3.Validate;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.collections4.set.PredicatedSet;
+import org.apache.commons.lang3.Validate;
+
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.ObjectSet;
 
 public class KeyMapper implements MappedKey.AssignmentListener, Iterable<MappedKey> {
 
@@ -49,7 +48,11 @@ public class KeyMapper implements MappedKey.AssignmentListener, Iterable<MappedK
       return Collections.emptySet();
     }
 
-    return ImmutableSet.copyOf(keys);
+    return SetUtils.unmodifiableSet(PredicatedSet
+        .<MappedKey>notNullBuilder()
+        .addAll(IteratorUtils
+            .toList(new ObjectSet.ObjectSetIterator<>(keys)))
+        .createPredicatedSet());
   }
 
   @Nullable

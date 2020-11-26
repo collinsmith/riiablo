@@ -1,7 +1,7 @@
 package com.riiablo.console;
 
-import com.google.common.base.Strings;
 import java.util.Iterator;
+import org.apache.commons.lang3.StringUtils;
 
 public class ConsoleUtils {
   public static void printList(Console console, Iterable<String> it, int columns, int width) {
@@ -18,7 +18,7 @@ public class ConsoleUtils {
         console.out.println(sb.toString());
         sb.setLength(0);
       } else if (it.hasNext()) {
-        String padded = Strings.padEnd(text, width, ' ');
+        String padded = StringUtils.rightPad(text, width, ' ');
         sb.append(padded);
         if (text.equals(padded)) sb.append(' ');
       } else {

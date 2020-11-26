@@ -1,6 +1,13 @@
 package com.riiablo.map;
 
 import com.google.common.primitives.Ints;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import org.apache.commons.io.EndianUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -8,17 +15,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.StreamUtils;
+
 import com.riiablo.util.BufferUtils;
 import com.riiablo.util.DebugUtils;
-
-import org.apache.commons.io.EndianUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
+import com.riiablo.util.PrimitiveUtils;
 
 public class DS1 {
   private static final String TAG = "DS1";
@@ -535,12 +535,12 @@ public class DS1 {
     int unk;
 
     Group read(int version, InputStream in) throws IOException {
-      if (in.available() >= Ints.BYTES) x      = EndianUtils.readSwappedInteger(in);
-      if (in.available() >= Ints.BYTES) y      = EndianUtils.readSwappedInteger(in);
-      if (in.available() >= Ints.BYTES) width  = EndianUtils.readSwappedInteger(in);
-      if (in.available() >= Ints.BYTES) height = EndianUtils.readSwappedInteger(in);
+      if (in.available() >= PrimitiveUtils.INT_BYTES) x      = EndianUtils.readSwappedInteger(in);
+      if (in.available() >= PrimitiveUtils.INT_BYTES) y      = EndianUtils.readSwappedInteger(in);
+      if (in.available() >= PrimitiveUtils.INT_BYTES) width  = EndianUtils.readSwappedInteger(in);
+      if (in.available() >= PrimitiveUtils.INT_BYTES) height = EndianUtils.readSwappedInteger(in);
       if (version >= 13) {
-        if (in.available() >= Ints.BYTES) unk  = EndianUtils.readSwappedInteger(in);
+        if (in.available() >= PrimitiveUtils.INT_BYTES) unk  = EndianUtils.readSwappedInteger(in);
       }
       return this;
     }

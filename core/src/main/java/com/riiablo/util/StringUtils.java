@@ -1,9 +1,6 @@
 package com.riiablo.util;
 
-import com.google.common.base.Strings;
-
 import android.support.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -50,10 +47,12 @@ public class StringUtils {
       } else if (commonPrefix.isEmpty()) {
         break;
       } else {
-        commonPrefix = Strings.commonPrefix(commonPrefix, it.next());
+        commonPrefix = org.apache.commons.lang3.StringUtils
+            .getCommonPrefix(commonPrefix, it.next());
       }
     }
 
-    return Strings.nullToEmpty(commonPrefix);
+    return org.apache.commons.lang3.StringUtils
+        .defaultString(commonPrefix);
   }
 }

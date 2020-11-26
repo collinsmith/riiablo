@@ -1,25 +1,22 @@
 package com.riiablo.command;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableSet;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.collections4.collection.PredicatedCollection;
+import org.apache.commons.collections4.iterators.ArrayIterator;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.validator.ValidationException;
 import com.riiablo.validator.Validator;
-
-import org.apache.commons.collections4.iterators.ArrayIterator;
-import org.apache.commons.lang3.Validate;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Command implements Validator {
 
@@ -40,9 +37,9 @@ public class Command implements Validator {
   Command(Builder builder) {
     Validate.isTrue(builder.alias != null, "Commands must have at least one alias");
     ALIAS        = builder.alias;
-    DESCRIPTION  = Strings.nullToEmpty(builder.description);
-    PARAMS       = MoreObjects.firstNonNull(builder.params, EMPTY_PARAMS);
-    ACTION       = MoreObjects.firstNonNull(builder.action, Action.DO_NOTHING);
+    DESCRIPTION  = StringUtils.defaultString(builder.description);
+    PARAMS       = ObjectUtils.firstNonNull(builder.params, EMPTY_PARAMS);
+    ACTION       = ObjectUtils.firstNonNull(builder.action, Action.DO_NOTHING);
     MINIMUM_ARGS = PARAMS == EMPTY_PARAMS ? 0 : calculateMinimumArgs(PARAMS);
     aliases      = builder.aliases;
   }
@@ -76,7 +73,11 @@ public class Command implements Validator {
       return Collections.emptySet();
     }
 
-    return ImmutableSet.<String>builder().add(ALIAS).addAll(aliases).build();
+    return SetUtils.unmodifiableSet(PredicatedCollection
+        .<String>notNullBuilder()
+        .add(ALIAS)
+        .addAll(aliases)
+        .createPredicatedSet());
   }
 
   public Parameter getParam(int index) {
@@ -192,7 +193,7 @@ public class Command implements Validator {
   }
 
   public boolean isAlias(@Nullable String alias) {
-    return Objects.equal(ALIAS, alias) ||
+    return Objects.equals(ALIAS, alias) ||
         (alias != null && aliases != null && aliases.contains(alias));
   }
 
@@ -225,7 +226,7 @@ public class Command implements Validator {
     Instance(String alias, @Nullable String... args) {
       Validate.isTrue(!alias.isEmpty(), "alias cannot be empty");
       this.ALIAS = alias;
-      this.ARGS = MoreObjects.firstNonNull(args, EMPTY_ARGS);
+      this.ARGS = ObjectUtils.firstNonNull(args, EMPTY_ARGS);
       this.compressed = false;
     }
 
@@ -252,7 +253,7 @@ public class Command implements Validator {
         String arg = getArg(i);
         return (T) PARAMS[i].deserialize(arg);
       } catch (Throwable t) {
-        Throwables.propagateIfPossible(t, SerializeException.class);
+        if (t instanceof SerializeException) throw t;
         throw new SerializeException(t);
       }
     }

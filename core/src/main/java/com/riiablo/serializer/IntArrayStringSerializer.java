@@ -1,12 +1,10 @@
 package com.riiablo.serializer;
 
-import com.google.common.primitives.Ints;
-
 import android.support.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 
 public enum IntArrayStringSerializer implements StringSerializer<int[]> {
   INSTANCE;
@@ -30,6 +28,6 @@ public enum IntArrayStringSerializer implements StringSerializer<int[]> {
       ints.add(Integer.parseInt(integer));
     }
 
-    return Ints.toArray(ints);
+    return ArrayUtils.toPrimitive(ints.toArray(ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY));
   }
 }

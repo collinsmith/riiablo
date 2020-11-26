@@ -2,14 +2,14 @@ package com.riiablo.cvar;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.riiablo.serializer.SerializeException;
 import com.riiablo.serializer.StringSerializer;
@@ -40,8 +40,8 @@ public class Cvar<T> implements SuggestionProvider {
   private boolean isLoaded;
 
   private Cvar(Cvar.Builder<T> builder) {
-    ALIAS            = Strings.nullToEmpty(builder.alias);
-    DESCRIPTION      = Strings.nullToEmpty(builder.description);
+    ALIAS            = StringUtils.defaultString(builder.alias);
+    DESCRIPTION      = StringUtils.defaultString(builder.description);
     TYPE             = builder.TYPE;
     DEFAULT_VALUE    = builder.defaultValue;
     VALIDATOR        = builder.validator;
@@ -125,8 +125,7 @@ public class Cvar<T> implements SuggestionProvider {
       T value = SERIALIZER.deserialize(str);
       set(value);
     } catch (Throwable t) {
-      Throwables.propagateIfPossible(t, RuntimeException.class);
-      throw new RuntimeException(t);
+      ExceptionUtils.wrapAndThrow(t);
     }
   }
 
@@ -140,8 +139,7 @@ public class Cvar<T> implements SuggestionProvider {
       T value = ((StringSerializer<T>) deserializer).deserialize(str);
       set(value);
     } catch (Throwable t) {
-      Throwables.propagateIfPossible(t, RuntimeException.class);
-      throw new RuntimeException(t);
+      ExceptionUtils.wrapAndThrow(t);
     }
   }
 

@@ -1,9 +1,6 @@
 package com.riiablo.key;
 
-import com.google.common.base.Throwables;
-
 import android.support.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +33,7 @@ public abstract class SaveableKeyMapper extends KeyMapper {
   @Override
   public boolean add(MappedKey key) {
     try {
+      @MappedKey.Keycode
       int[] assignments = load(key);
       if (assignments != null) {
         switch (assignments.length) {
@@ -52,7 +50,7 @@ public abstract class SaveableKeyMapper extends KeyMapper {
       }
     } catch (Throwable t) {
       super.add(key);
-      Throwables.propagateIfPossible(t, SerializeException.class);
+      if (t instanceof SerializeException) throw t;
       throw new SerializeException(t);
     }
 

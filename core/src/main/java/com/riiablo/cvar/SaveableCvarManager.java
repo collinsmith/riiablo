@@ -1,9 +1,6 @@
 package com.riiablo.cvar;
 
-import com.google.common.base.Throwables;
-
 import android.support.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,7 +61,7 @@ public abstract class SaveableCvarManager extends CvarManager {
       Object value = load(cvar);
       cvar.set(value);
     } catch (Throwable t) {
-      Throwables.propagateIfPossible(t, SerializeException.class);
+      if (t instanceof SerializeException) throw t;
       throw new SerializeException(t);
     } finally {
       return super.add(cvar);
