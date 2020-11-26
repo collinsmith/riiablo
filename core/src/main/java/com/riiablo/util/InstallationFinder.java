@@ -186,6 +186,16 @@ public abstract class InstallationFinder {
   }
 
   public static final class MacInstallationFinder extends InstallationFinder {
+    final LinuxInstallationFinder delegate = new LinuxInstallationFinder();
 
+    @Override
+    public Array<FileHandle> getHomeDirs() {
+      return delegate.getHomeDirs();
+    }
+
+    @Override
+    public Array<FileHandle> getSaveDirs(FileHandle home) {
+      return delegate.getSaveDirs(home);
+    }
   }
 }
