@@ -152,7 +152,7 @@ public class MapViewer extends Tool {
 
   @Override
   protected String getHelpHeader() {
-    return "View generated maps.\n" +
+    return "View and generate maps.\n" +
         "E.g., {cmd} --seed 0xdeadbeef --act 0 --diff 0";
   }
 

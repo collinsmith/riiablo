@@ -33,6 +33,11 @@ public class DirectionTool extends Tool {
         .start();
   }
 
+  @Override
+  protected String getHelpHeader() {
+    return "Debugs entity direction controls.";
+  }
+
   Batch batch;
   BitmapFont font;
   ShapeRenderer shapes;

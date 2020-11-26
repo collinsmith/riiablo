@@ -1,1 +1,2 @@
+description = 'Debugs entity direction controls.'
 application.mainClass = 'com.riiablo.engine.DirectionTool'

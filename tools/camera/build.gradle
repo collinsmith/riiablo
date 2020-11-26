@@ -1,1 +1,2 @@
+description = 'Debugs isometric camera functionality.'
 application.mainClass = 'com.riiablo.camera.CameraTool'

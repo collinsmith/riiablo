@@ -1,1 +1,2 @@
+description = 'View and generate maps.'
 application.mainClass = 'com.riiablo.map.MapViewer'

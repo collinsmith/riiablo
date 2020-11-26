@@ -32,6 +32,11 @@ public class CameraTool extends Tool {
         .start();
   }
 
+  @Override
+  protected String getHelpHeader() {
+    return "Debugs isometric camera functionality.";
+  }
+
   Batch batch;
   BitmapFont font;
   ShapeRenderer shapes;

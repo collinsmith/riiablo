@@ -1,1 +1,2 @@
+description = 'Deserializes and debugs D2S files.'
 application.mainClass = 'com.riiablo.save.D2SReaderTool'
