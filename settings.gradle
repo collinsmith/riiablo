@@ -19,5 +19,7 @@ include 'tools:font-metrics'
 include 'tools:d2s-reader'
 include 'tools:camera'
 include 'tools:direction'
+include 'tools:mpq-viewer'
+project(':tools:mpq-viewer').projectDir = project(':mpqviewer').projectDir
 
 include 'tester' // deprecated

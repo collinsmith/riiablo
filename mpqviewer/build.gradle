@@ -16,6 +16,7 @@ dependencies {
   implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
 }
 
+description = 'View and debug MPQ archive contents.'
 application {
   mainClass = 'com.riiablo.mpq.MPQViewer'
 }
