@@ -21,7 +21,8 @@ android {
     minSdkVersion 23
     targetSdkVersion 28
     versionCode 1
-    versionName "1.0"
+    versionName "$version"
+    archivesBaseName = "$appName-$version"
   }
   buildTypes {
     release {
@@ -95,6 +96,7 @@ task copyAndroidNatives() {
     }
   }
 }
+
 task run(type: Exec) {
   def path
   def localProperties = project.file("../local.properties")
@@ -116,6 +118,7 @@ task run(type: Exec) {
   def adb = path + "/platform-tools/adb"
   commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.riiablo/com.riiablo.AndroidLauncher'
 }
+
 // sets up the Android Idea project, using the old Ant based build.
 idea {
   module {
@@ -138,5 +141,6 @@ idea {
     }
   }
 }
+
 dependencies {
 }
