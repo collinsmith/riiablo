@@ -205,7 +205,7 @@ public class MapViewer extends Tool {
 
     if (cli.hasOption("d2")) {
       home = new FileHandle(cli.getOptionValue("d2"));
-      if (!home.child("d2data.mpq").exists()) {
+      if (!InstallationFinder.isD2Home(home)) {
         throw new GdxRuntimeException("'d2' does not refer to a valid D2 installation: " + home);
       }
     } else {
