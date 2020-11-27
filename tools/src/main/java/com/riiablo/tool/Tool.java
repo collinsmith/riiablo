@@ -30,7 +30,12 @@ public class Tool implements ApplicationListener {
   }
 
   protected void handleCliError(String cmd, Options options, Throwable t) {
-    log.error(t.getMessage(), t);
+    if (t instanceof ParseException) {
+      log.debug(t.getMessage(), t);
+    } else {
+      log.fatal(t.getMessage(), t);
+    }
+
     System.out.println(ExceptionUtils.getRootCauseMessage(t));
     printHelp(cmd, options);
     System.exit(0);
