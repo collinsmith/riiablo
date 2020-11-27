@@ -1,5 +1,7 @@
 package com.riiablo.entity;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -14,8 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.StringBuilder;
 
-import java.util.Arrays;
-
+@Deprecated
 public class DirectionTool extends ApplicationAdapter {
   private static final String TAG = "DirectionTool";
 
