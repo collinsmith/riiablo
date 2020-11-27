@@ -1,0 +1,2 @@
+description = 'View and debug MPQ archive contents.'
+application.mainClass = 'com.riiablo.mpq.MPQViewer'

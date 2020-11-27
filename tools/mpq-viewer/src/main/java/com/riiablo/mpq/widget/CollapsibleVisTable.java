@@ -1,8 +1,9 @@
 package com.riiablo.mpq.widget;
 
+import com.kotcrab.vis.ui.widget.VisTable;
+
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.kotcrab.vis.ui.widget.VisTable;
 
 public class CollapsibleVisTable extends VisTable {
 

@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="riiablo:mpqviewer" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="riiablo:tools:mpq-viewer [run]" type="GradleRunConfiguration" factoryName="Gradle" folderName="tools" nameIsGenerated="true">
     <ExternalSystemSettings>
       <option name="executionName" />
-      <option name="externalProjectPath" value="$PROJECT_DIR$/mpqviewer" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$/tools/mpq-viewer" />
       <option name="externalSystemIdString" value="GRADLE" />
       <option name="scriptParameters" value="" />
       <option name="taskDescriptions">

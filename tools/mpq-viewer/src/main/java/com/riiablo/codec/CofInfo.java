@@ -1,9 +1,9 @@
 package com.riiablo.codec;
 
 import com.kotcrab.vis.ui.widget.VisTable;
-import com.riiablo.util.DebugUtils;
-
 import java.util.Arrays;
+
+import com.riiablo.util.DebugUtils;
 
 public class CofInfo extends VisTable {
   String[] componentNames = new String[]{

@@ -1,13 +1,43 @@
 package com.riiablo.mpq;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Files;
+import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.Menu;
+import com.kotcrab.vis.ui.widget.MenuBar;
+import com.kotcrab.vis.ui.widget.MenuItem;
+import com.kotcrab.vis.ui.widget.PopupMenu;
+import com.kotcrab.vis.ui.widget.VisCheckBox;
+import com.kotcrab.vis.ui.widget.VisDialog;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisList;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
+import com.kotcrab.vis.ui.widget.VisSlider;
+import com.kotcrab.vis.ui.widget.VisSplitPane;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
+import com.kotcrab.vis.ui.widget.VisTextField;
+import com.kotcrab.vis.ui.widget.VisTree;
+import com.kotcrab.vis.ui.widget.color.ColorPicker;
+import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter;
+import com.kotcrab.vis.ui.widget.file.FileChooser;
+import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
+import java.awt.Desktop;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.Objects;
+import java.util.SortedMap;
+import org.apache.commons.collections4.Trie;
+import org.apache.commons.collections4.trie.PatriciaTrie;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -42,26 +72,7 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.Menu;
-import com.kotcrab.vis.ui.widget.MenuBar;
-import com.kotcrab.vis.ui.widget.MenuItem;
-import com.kotcrab.vis.ui.widget.PopupMenu;
-import com.kotcrab.vis.ui.widget.VisCheckBox;
-import com.kotcrab.vis.ui.widget.VisDialog;
-import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisList;
-import com.kotcrab.vis.ui.widget.VisScrollPane;
-import com.kotcrab.vis.ui.widget.VisSlider;
-import com.kotcrab.vis.ui.widget.VisSplitPane;
-import com.kotcrab.vis.ui.widget.VisTable;
-import com.kotcrab.vis.ui.widget.VisTextButton;
-import com.kotcrab.vis.ui.widget.VisTextField;
-import com.kotcrab.vis.ui.widget.VisTree;
-import com.kotcrab.vis.ui.widget.color.ColorPicker;
-import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter;
-import com.kotcrab.vis.ui.widget.file.FileChooser;
-import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
+
 import com.riiablo.Colors;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.Animation;
@@ -78,21 +89,8 @@ import com.riiablo.map.DT1;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
 import com.riiablo.mpq.widget.DirectionActor;
 import com.riiablo.mpq.widget.TabbedPane;
-
-import org.apache.commons.collections4.Trie;
-import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.Objects;
-import java.util.SortedMap;
+import com.riiablo.tool.LwjglTool;
+import com.riiablo.tool.Tool;
 
 public class MPQViewer {
 
@@ -102,20 +100,13 @@ public class MPQViewer {
   private static final String EXCEL_PATH = "C:\\Program Files (x86)\\OpenOffice\\program\\scalc.exe";
 
   public static void main(String[] args) {
-    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = TITLE;
-    config.addIcon(ASSETS + "ic_launcher_128.png", Files.FileType.Internal);
-    config.addIcon(ASSETS + "ic_launcher_32.png",  Files.FileType.Internal);
-    config.addIcon(ASSETS + "ic_launcher_16.png",  Files.FileType.Internal);
-    config.resizable = true;
-    config.width  = 1700;
-    config.height = 960;
-    config.foregroundFPS = config.backgroundFPS = 144;
-    Client client = new Client();
-    new LwjglApplication(client, config);
+    LwjglTool.create(Client.class, "mpq-viewer", args)
+        .title(TITLE)
+        .size(1700, 960, true)
+        .start();
   }
 
-  private static class Client extends ApplicationAdapter {
+  private static class Client extends Tool {
     Preferences        prefs;
     Stage              stage;
     VisTable           root;

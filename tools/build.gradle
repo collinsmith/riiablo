@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-project.ext.visuiVersion = '1.4.0'
+project.ext.visuiVersion = '1.4.2'
 
 dependencies {
   implementation project(':core')
@@ -21,6 +21,8 @@ dependencies {
 subprojects {
   apply plugin: 'java'
   apply plugin: 'application'
+
+  [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
   dependencies {
     implementation project(':core')

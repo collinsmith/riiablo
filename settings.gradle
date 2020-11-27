@@ -4,8 +4,6 @@ include 'core'
 include 'desktop'
 include 'android'
 
-include 'mpqviewer'
-
 include 'server:bnls'
 include 'server:bncs'
 include 'server:mcp'
@@ -13,13 +11,12 @@ include 'server:d2gs'
 include 'server:netty'
 
 include 'tools'
+include 'tools:mpq-viewer'
 include 'tools:map-viewer'
 include 'tools:font-metrics'
 include 'tools:d2s-reader'
 include 'tools:camera'
 include 'tools:direction'
 include 'tools:ds1-viewer' // deprecated
-include 'tools:mpq-viewer'
-project(':tools:mpq-viewer').projectDir = project(':mpqviewer').projectDir
 
 include 'tester' // deprecated
