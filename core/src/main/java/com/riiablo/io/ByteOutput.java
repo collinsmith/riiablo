@@ -68,6 +68,10 @@ public class ByteOutput {
     buffer.writeByte((int) octet);
   }
 
+  public ByteOutput writeBoolean(boolean b) {
+    return write8(b ? 1 : 0);
+  }
+
   public ByteOutput write8(int value) {
     assert aligned() : "not aligned";
     incrementBitsWritten(Byte.SIZE);

@@ -330,6 +330,10 @@ public class ByteInput {
     }
   }
 
+  public boolean readBoolean() {
+    return read8() != 0;
+  }
+
   /**
    * Reads a byte.
    *
