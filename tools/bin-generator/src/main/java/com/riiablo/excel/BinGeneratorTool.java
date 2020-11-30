@@ -135,7 +135,7 @@ public class BinGeneratorTool extends Tool {
     generator.txtDir = srcDir;
     generator.binDir = genDir;
     generator.maxStringLen = maxStringLen;
-    generator.generateSerializers(srcDir);
+    generator.generateSerializers();
 
     // log.info("Generating serializers...");
     // FileHandle[] srcFiles = srcDir.list("java"); // assert all sources like *.java

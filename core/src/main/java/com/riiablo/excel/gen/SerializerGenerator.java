@@ -48,9 +48,9 @@ public class SerializerGenerator {
     throw new ClassNotFoundException(c + " does not implement " + impl);
   }
 
-  public void generateSerializers(FileHandle root) {
-    log.info("Generating serializers for {}...", root);
-    FileHandle[] txtFiles = root.list("java");
+  public void generateSerializers() {
+    log.info("Generating serializers for {}...", txtDir);
+    FileHandle[] txtFiles = txtDir.list("java");
     for (FileHandle txtFile : txtFiles) {
       try {
         generateSerializer(txtFile);
