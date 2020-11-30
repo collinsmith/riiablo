@@ -2,6 +2,8 @@ package com.riiablo.util;
 
 import java.lang.reflect.Field;
 
+import com.badlogic.gdx.utils.Array;
+
 public class ClassUtils {
   private ClassUtils() {}
 
@@ -25,5 +27,21 @@ public class ClassUtils {
     }
 
     return null;
+  }
+
+  public static String toPackagePath(String packageName) {
+    return packageName.replace('.', '/');
+  }
+
+  public static Class[] findDeclaredClasses(Class c, Class impl) {
+    Array<Class> classes = new Array<>(Class.class);
+    final Class[] declaredClasses = c.getDeclaredClasses();
+    for (Class declaredClass : declaredClasses) {
+      if (impl.isAssignableFrom(declaredClass)) {
+        classes.add(declaredClass);
+      }
+    }
+
+    return classes.toArray();
   }
 }

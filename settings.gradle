@@ -18,5 +18,6 @@ include 'tools:d2s-reader'
 include 'tools:camera'
 include 'tools:direction'
 include 'tools:ds1-viewer' // deprecated
+include 'tools:bin-generator'
 
 include 'tester' // deprecated
