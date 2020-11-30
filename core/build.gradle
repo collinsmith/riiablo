@@ -9,8 +9,9 @@ import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 sourceSets.main.resources.srcDirs += rootProject.file('assets')
 idea.module.resourceDirs += rootProject.file('assets')
 
-sourceSets.main.java.srcDirs += file('gen/main/java/')
-idea.module.generatedSourceDirs += file('gen/main/java/')
+project.ext.generatedSourceDirs = file('gen/main/java/');
+sourceSets.main.java.srcDirs += generatedSourceDirs
+idea.module.generatedSourceDirs += generatedSourceDirs
 
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
