@@ -29,8 +29,6 @@ public class SerializerGenerator {
 
   public int maxStringLen;
 
-  public SerializerGenerator() {}
-
   public String getSerializerPart() {
     return "Bin";
   }
