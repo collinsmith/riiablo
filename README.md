@@ -51,7 +51,7 @@ compatible with playing with users using the original game client.
 ![Create Character](/screenshots/Clipboard-2.png)
 ![Paladin](/screenshots/Clipboard-5.png)
 ![Android](/screenshots/Android-1.png)
-[![MP Test](https://media.giphy.com/media/U7aXAwLcaQM0lxvPVY/giphy.gif)](https://www.youtube.com/watch?v=B2XhiS_JbIA)
+[![MP Test](/screenshots/multi_player.webp)](https://www.youtube.com/watch?v=B2XhiS_JbIA)
 
 # Setup
 The Android SDK is required to build the project by default (even if you want
