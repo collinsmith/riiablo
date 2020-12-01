@@ -47,10 +47,10 @@ compatible with playing with users using the original game client.
 - Scalable UI
 
 # Screenshots
-![In-Game](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-1.png)
-![Create Character](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-2.png)
-![Paladin](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-5.png)
-![Android](https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Android-1.png)
+![In-Game](/screenshots/Clipboard-1.png)
+![Create Character](/screenshots/Clipboard-2.png)
+![Paladin](/screenshots/Clipboard-5.png)
+![Android](/screenshots/Android-1.png)
 [![MP Test](https://media.giphy.com/media/U7aXAwLcaQM0lxvPVY/giphy.gif)](https://www.youtube.com/watch?v=B2XhiS_JbIA)
 
 # Setup
@@ -99,7 +99,7 @@ will be made easier in the future.
 
 #### IntelliJ
 - [Importing into Intellij/Android Studio](https://libgdx.badlogicgames.com/documentation/gettingstarted/Importing%20into%20IDE.html#intellij)
-- Default run configurations are provided within [.idea/runConfigurations](https://github.com/collinsmith/riiablo/tree/master/.idea/runConfigurations).
+- Default run configurations are provided within [.idea/runConfigurations](/.idea/runConfigurations).
 The default resolution is 854x480, other configurations are provided to ensure
 a wide range of support `--windowed` arg can be used to start in windowed mode,
 while `F12` can be used in-game to disable the debug UI.
