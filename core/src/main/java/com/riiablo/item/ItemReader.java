@@ -28,6 +28,7 @@ public class ItemReader {
     in.skipUntil(SIGNATURE);
   }
 
+  @SuppressWarnings("deprecation")
   public Item readItem(ByteInput in) {
     final int startOffset = in.bytesRead(); /** @see Item#data */
     Item item = readSingleItem(in);
@@ -54,6 +55,7 @@ public class ItemReader {
     return item;
   }
 
+  @SuppressWarnings("deprecation")
   Item readSingleItem(ByteInput in) {
     final int itemOffset = in.bytesRead();  /** @see Item#data */
     log.trace("Reading item...");

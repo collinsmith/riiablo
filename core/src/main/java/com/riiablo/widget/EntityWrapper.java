@@ -3,22 +3,23 @@ package com.riiablo.widget;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.riiablo.entity.Entity;
+
 import com.riiablo.graphics.PaletteIndexedBatch;
 
 public class EntityWrapper extends Actor {
   private static final Matrix4 tmpMatrix = new Matrix4();
   private static final Matrix4 transformMatrix = new Matrix4();
 
-  private Entity entity;
+  @SuppressWarnings("deprecation")
+  private com.riiablo.entity.Entity entity;
 
   public EntityWrapper() {}
 
-  public EntityWrapper(Entity entity) {
+  public EntityWrapper(@SuppressWarnings("deprecation") com.riiablo.entity.Entity entity) {
     set(entity);
   }
 
-  public void set(Entity entity) {
+  public void set(@SuppressWarnings("deprecation") com.riiablo.entity.Entity entity) {
     this.entity = entity;
   }
 

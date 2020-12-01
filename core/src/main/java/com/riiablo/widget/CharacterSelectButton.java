@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.riiablo.CharacterClass;
 import com.riiablo.Riiablo;
 import com.riiablo.codec.DC6;
-import com.riiablo.entity.CharacterPreview;
 import com.riiablo.loader.DC6Loader;
 import com.riiablo.save.D2S;
 
@@ -82,7 +81,9 @@ public class CharacterSelectButton extends Table implements Disposable {
   public void set(D2S d2s) {
     this.d2s = d2s;
     setName(d2s.name());
-    preview.set(new CharacterPreview(d2s));
+    @SuppressWarnings("deprecation")
+    com.riiablo.entity.CharacterPreview character = new com.riiablo.entity.CharacterPreview(d2s);
+    preview.set(character);
     title.setText(d2s.getProgressionString()); // TODO: i18n? This may be hard-coded in-game
     name.setText(d2s.name());
     name.setColor(d2s.isHardcore() ? Riiablo.colors.red : Riiablo.colors.gold);
