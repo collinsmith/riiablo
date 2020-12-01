@@ -129,4 +129,4 @@ Tests the map building algorithm/renderer. This is very basic at the moment.
 </details>
 
 # Developed Using:
-[![IntelliJ IDEA Logo](/resources/icon-intellij-idea-256x256.png)](https://www.jetbrains.com/?from=riiablo)
+[![IntelliJ IDEA Logo](/resources/icon-intellij-idea-128x128.png)](https://www.jetbrains.com/?from=riiablo)
