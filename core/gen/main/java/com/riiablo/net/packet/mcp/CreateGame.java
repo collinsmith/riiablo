@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class CreateGame extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static CreateGame getRootAsCreateGame(ByteBuffer _bb) { return getRootAsCreateGame(_bb, new CreateGame()); }
   public static CreateGame getRootAsCreateGame(ByteBuffer _bb, CreateGame obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public CreateGame __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int diff() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -38,7 +39,7 @@ public final class CreateGame extends Table {
       int descriptionOffset,
       int gameToken,
       int result) {
-    builder.startObject(8);
+    builder.startTable(8);
     CreateGame.addResult(builder, result);
     CreateGame.addGameToken(builder, gameToken);
     CreateGame.addDescription(builder, descriptionOffset);
@@ -50,7 +51,7 @@ public final class CreateGame extends Table {
     return CreateGame.endCreateGame(builder);
   }
 
-  public static void startCreateGame(FlatBufferBuilder builder) { builder.startObject(8); }
+  public static void startCreateGame(FlatBufferBuilder builder) { builder.startTable(8); }
   public static void addDiff(FlatBufferBuilder builder, int diff) { builder.addInt(0, diff, 0); }
   public static void addLevelDifference(FlatBufferBuilder builder, int levelDifference) { builder.addInt(1, levelDifference, 0); }
   public static void addMaxPlayers(FlatBufferBuilder builder, int maxPlayers) { builder.addInt(2, maxPlayers, 0); }
@@ -60,8 +61,15 @@ public final class CreateGame extends Table {
   public static void addGameToken(FlatBufferBuilder builder, int gameToken) { builder.addInt(6, gameToken, 0); }
   public static void addResult(FlatBufferBuilder builder, int result) { builder.addInt(7, result, 0); }
   public static int endCreateGame(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public CreateGame get(int j) { return get(new CreateGame(), j); }
+    public CreateGame get(CreateGame obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

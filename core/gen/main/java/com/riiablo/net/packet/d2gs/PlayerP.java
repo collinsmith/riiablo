@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class PlayerP extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static PlayerP getRootAsPlayerP(ByteBuffer _bb) { return getRootAsPlayerP(_bb, new PlayerP()); }
   public static PlayerP getRootAsPlayerP(ByteBuffer _bb, PlayerP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public PlayerP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int charClass() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
@@ -22,18 +23,25 @@ public final class PlayerP extends Table {
   public static int createPlayerP(FlatBufferBuilder builder,
       int charClass,
       int charNameOffset) {
-    builder.startObject(2);
+    builder.startTable(2);
     PlayerP.addCharName(builder, charNameOffset);
     PlayerP.addCharClass(builder, charClass);
     return PlayerP.endPlayerP(builder);
   }
 
-  public static void startPlayerP(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startPlayerP(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addCharClass(FlatBufferBuilder builder, int charClass) { builder.addByte(0, (byte)charClass, (byte)0); }
   public static void addCharName(FlatBufferBuilder builder, int charNameOffset) { builder.addOffset(1, charNameOffset, 0); }
   public static int endPlayerP(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public PlayerP get(int j) { return get(new PlayerP(), j); }
+    public PlayerP get(PlayerP obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

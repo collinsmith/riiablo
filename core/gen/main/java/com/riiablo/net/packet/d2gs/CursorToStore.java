@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class CursorToStore extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static CursorToStore getRootAsCursorToStore(ByteBuffer _bb) { return getRootAsCursorToStore(_bb, new CursorToStore()); }
   public static CursorToStore getRootAsCursorToStore(ByteBuffer _bb, CursorToStore obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public CursorToStore __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int storeLoc() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -22,20 +23,27 @@ public final class CursorToStore extends Table {
       int storeLoc,
       int x,
       int y) {
-    builder.startObject(3);
+    builder.startTable(3);
     CursorToStore.addY(builder, y);
     CursorToStore.addX(builder, x);
     CursorToStore.addStoreLoc(builder, storeLoc);
     return CursorToStore.endCursorToStore(builder);
   }
 
-  public static void startCursorToStore(FlatBufferBuilder builder) { builder.startObject(3); }
+  public static void startCursorToStore(FlatBufferBuilder builder) { builder.startTable(3); }
   public static void addStoreLoc(FlatBufferBuilder builder, int storeLoc) { builder.addInt(0, storeLoc, 0); }
   public static void addX(FlatBufferBuilder builder, int x) { builder.addInt(1, x, 0); }
   public static void addY(FlatBufferBuilder builder, int y) { builder.addInt(2, y, 0); }
   public static int endCursorToStore(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public CursorToStore get(int j) { return get(new CursorToStore(), j); }
+    public CursorToStore get(CursorToStore obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

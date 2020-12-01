@@ -9,31 +9,39 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class BNCS extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static BNCS getRootAsBNCS(ByteBuffer _bb) { return getRootAsBNCS(_bb, new BNCS()); }
   public static BNCS getRootAsBNCS(ByteBuffer _bb, BNCS obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public BNCS __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte dataType() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public Table data(Table obj) { int o = __offset(6); return o != 0 ? __union(obj, o) : null; }
+  public Table data(Table obj) { int o = __offset(6); return o != 0 ? __union(obj, o + bb_pos) : null; }
 
   public static int createBNCS(FlatBufferBuilder builder,
       byte data_type,
       int dataOffset) {
-    builder.startObject(2);
+    builder.startTable(2);
     BNCS.addData(builder, dataOffset);
     BNCS.addDataType(builder, data_type);
     return BNCS.endBNCS(builder);
   }
 
-  public static void startBNCS(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startBNCS(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addDataType(FlatBufferBuilder builder, byte dataType) { builder.addByte(0, dataType, 0); }
   public static void addData(FlatBufferBuilder builder, int dataOffset) { builder.addOffset(1, dataOffset, 0); }
   public static int endBNCS(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
   }
   public static void finishBNCSBuffer(FlatBufferBuilder builder, int offset) { builder.finish(offset); }
   public static void finishSizePrefixedBNCSBuffer(FlatBufferBuilder builder, int offset) { builder.finishSizePrefixed(offset); }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public BNCS get(int j) { return get(new BNCS(), j); }
+    public BNCS get(BNCS obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
+  }
 }
 

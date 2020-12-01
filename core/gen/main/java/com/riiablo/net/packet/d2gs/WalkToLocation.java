@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class WalkToLocation extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static WalkToLocation getRootAsWalkToLocation(ByteBuffer _bb) { return getRootAsWalkToLocation(_bb, new WalkToLocation()); }
   public static WalkToLocation getRootAsWalkToLocation(ByteBuffer _bb, WalkToLocation obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public WalkToLocation __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public short x() { int o = __offset(4); return o != 0 ? bb.getShort(o + bb_pos) : 0; }
@@ -20,18 +21,25 @@ public final class WalkToLocation extends Table {
   public static int createWalkToLocation(FlatBufferBuilder builder,
       short x,
       short y) {
-    builder.startObject(2);
+    builder.startTable(2);
     WalkToLocation.addY(builder, y);
     WalkToLocation.addX(builder, x);
     return WalkToLocation.endWalkToLocation(builder);
   }
 
-  public static void startWalkToLocation(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startWalkToLocation(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addX(FlatBufferBuilder builder, short x) { builder.addShort(0, x, 0); }
   public static void addY(FlatBufferBuilder builder, short y) { builder.addShort(1, y, 0); }
   public static int endWalkToLocation(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public WalkToLocation get(int j) { return get(new WalkToLocation(), j); }
+    public WalkToLocation get(WalkToLocation obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

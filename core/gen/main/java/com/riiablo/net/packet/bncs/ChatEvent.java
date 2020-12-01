@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class ChatEvent extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static ChatEvent getRootAsChatEvent(ByteBuffer _bb) { return getRootAsChatEvent(_bb, new ChatEvent()); }
   public static ChatEvent getRootAsChatEvent(ByteBuffer _bb, ChatEvent obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public ChatEvent __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte eid() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 19; }
@@ -26,20 +27,27 @@ public final class ChatEvent extends Table {
       byte eid,
       int nameOffset,
       int textOffset) {
-    builder.startObject(3);
+    builder.startTable(3);
     ChatEvent.addText(builder, textOffset);
     ChatEvent.addName(builder, nameOffset);
     ChatEvent.addEid(builder, eid);
     return ChatEvent.endChatEvent(builder);
   }
 
-  public static void startChatEvent(FlatBufferBuilder builder) { builder.startObject(3); }
+  public static void startChatEvent(FlatBufferBuilder builder) { builder.startTable(3); }
   public static void addEid(FlatBufferBuilder builder, byte eid) { builder.addByte(0, eid, 19); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(1, nameOffset, 0); }
   public static void addText(FlatBufferBuilder builder, int textOffset) { builder.addOffset(2, textOffset, 0); }
   public static int endChatEvent(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public ChatEvent get(int j) { return get(new ChatEvent(), j); }
+    public ChatEvent get(ChatEvent obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

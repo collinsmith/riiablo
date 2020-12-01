@@ -9,25 +9,33 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class GroundToCursor extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static GroundToCursor getRootAsGroundToCursor(ByteBuffer _bb) { return getRootAsGroundToCursor(_bb, new GroundToCursor()); }
   public static GroundToCursor getRootAsGroundToCursor(ByteBuffer _bb, GroundToCursor obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public GroundToCursor __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int itemId() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createGroundToCursor(FlatBufferBuilder builder,
       int itemId) {
-    builder.startObject(1);
+    builder.startTable(1);
     GroundToCursor.addItemId(builder, itemId);
     return GroundToCursor.endGroundToCursor(builder);
   }
 
-  public static void startGroundToCursor(FlatBufferBuilder builder) { builder.startObject(1); }
+  public static void startGroundToCursor(FlatBufferBuilder builder) { builder.startTable(1); }
   public static void addItemId(FlatBufferBuilder builder, int itemId) { builder.addInt(0, itemId, 0); }
   public static int endGroundToCursor(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public GroundToCursor get(int j) { return get(new GroundToCursor(), j); }
+    public GroundToCursor get(GroundToCursor obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

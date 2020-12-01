@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class CursorToBody extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static CursorToBody getRootAsCursorToBody(ByteBuffer _bb) { return getRootAsCursorToBody(_bb, new CursorToBody()); }
   public static CursorToBody getRootAsCursorToBody(ByteBuffer _bb, CursorToBody obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public CursorToBody __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int bodyLoc() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -20,18 +21,25 @@ public final class CursorToBody extends Table {
   public static int createCursorToBody(FlatBufferBuilder builder,
       int bodyLoc,
       boolean merc) {
-    builder.startObject(2);
+    builder.startTable(2);
     CursorToBody.addBodyLoc(builder, bodyLoc);
     CursorToBody.addMerc(builder, merc);
     return CursorToBody.endCursorToBody(builder);
   }
 
-  public static void startCursorToBody(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startCursorToBody(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addBodyLoc(FlatBufferBuilder builder, int bodyLoc) { builder.addInt(0, bodyLoc, 0); }
   public static void addMerc(FlatBufferBuilder builder, boolean merc) { builder.addBoolean(1, merc, false); }
   public static int endCursorToBody(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public CursorToBody get(int j) { return get(new CursorToBody(), j); }
+    public CursorToBody get(CursorToBody obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

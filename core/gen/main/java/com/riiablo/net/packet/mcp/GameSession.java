@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class GameSession extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static GameSession getRootAsGameSession(ByteBuffer _bb) { return getRootAsGameSession(_bb, new GameSession()); }
   public static GameSession getRootAsGameSession(ByteBuffer _bb, GameSession obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public GameSession __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public long index() { int o = __offset(4); return o != 0 ? (long)bb.getInt(o + bb_pos) & 0xFFFFFFFFL : 0L; }
@@ -30,7 +31,7 @@ public final class GameSession extends Table {
       int nameOffset,
       int descOffset,
       long flags) {
-    builder.startObject(5);
+    builder.startTable(5);
     GameSession.addFlags(builder, flags);
     GameSession.addDesc(builder, descOffset);
     GameSession.addName(builder, nameOffset);
@@ -39,15 +40,22 @@ public final class GameSession extends Table {
     return GameSession.endGameSession(builder);
   }
 
-  public static void startGameSession(FlatBufferBuilder builder) { builder.startObject(5); }
+  public static void startGameSession(FlatBufferBuilder builder) { builder.startTable(5); }
   public static void addIndex(FlatBufferBuilder builder, long index) { builder.addInt(0, (int)index, (int)0L); }
   public static void addPlayers(FlatBufferBuilder builder, int players) { builder.addByte(1, (byte)players, (byte)0); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(2, nameOffset, 0); }
   public static void addDesc(FlatBufferBuilder builder, int descOffset) { builder.addOffset(3, descOffset, 0); }
   public static void addFlags(FlatBufferBuilder builder, long flags) { builder.addInt(4, (int)flags, (int)0L); }
   public static int endGameSession(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public GameSession get(int j) { return get(new GameSession(), j); }
+    public GameSession get(GameSession obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

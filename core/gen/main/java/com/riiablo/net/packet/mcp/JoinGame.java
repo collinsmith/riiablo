@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class JoinGame extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static JoinGame getRootAsJoinGame(ByteBuffer _bb) { return getRootAsJoinGame(_bb, new JoinGame()); }
   public static JoinGame getRootAsJoinGame(ByteBuffer _bb, JoinGame obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public JoinGame __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public String gameName() { int o = __offset(4); return o != 0 ? __string(o + bb_pos) : null; }
@@ -30,7 +31,7 @@ public final class JoinGame extends Table {
       int ip,
       short port,
       int result) {
-    builder.startObject(5);
+    builder.startTable(5);
     JoinGame.addResult(builder, result);
     JoinGame.addIp(builder, ip);
     JoinGame.addPassword(builder, passwordOffset);
@@ -39,15 +40,22 @@ public final class JoinGame extends Table {
     return JoinGame.endJoinGame(builder);
   }
 
-  public static void startJoinGame(FlatBufferBuilder builder) { builder.startObject(5); }
+  public static void startJoinGame(FlatBufferBuilder builder) { builder.startTable(5); }
   public static void addGameName(FlatBufferBuilder builder, int gameNameOffset) { builder.addOffset(0, gameNameOffset, 0); }
   public static void addPassword(FlatBufferBuilder builder, int passwordOffset) { builder.addOffset(1, passwordOffset, 0); }
   public static void addIp(FlatBufferBuilder builder, int ip) { builder.addInt(2, ip, 0); }
   public static void addPort(FlatBufferBuilder builder, short port) { builder.addShort(3, port, 0); }
   public static void addResult(FlatBufferBuilder builder, int result) { builder.addInt(4, result, 0); }
   public static int endJoinGame(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public JoinGame get(int j) { return get(new JoinGame(), j); }
+    public JoinGame get(JoinGame obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

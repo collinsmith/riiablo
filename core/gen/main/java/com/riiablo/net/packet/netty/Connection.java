@@ -9,25 +9,33 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class Connection extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static Connection getRootAsConnection(ByteBuffer _bb) { return getRootAsConnection(_bb, new Connection()); }
   public static Connection getRootAsConnection(ByteBuffer _bb, Connection obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public Connection __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public long salt() { int o = __offset(4); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
 
   public static int createConnection(FlatBufferBuilder builder,
       long salt) {
-    builder.startObject(1);
+    builder.startTable(1);
     Connection.addSalt(builder, salt);
     return Connection.endConnection(builder);
   }
 
-  public static void startConnection(FlatBufferBuilder builder) { builder.startObject(1); }
+  public static void startConnection(FlatBufferBuilder builder) { builder.startTable(1); }
   public static void addSalt(FlatBufferBuilder builder, long salt) { builder.addLong(0, salt, 0L); }
   public static int endConnection(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public Connection get(int j) { return get(new Connection(), j); }
+    public Connection get(Connection obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

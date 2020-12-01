@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class StartInstance extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static StartInstance getRootAsStartInstance(ByteBuffer _bb) { return getRootAsStartInstance(_bb, new StartInstance()); }
   public static StartInstance getRootAsStartInstance(ByteBuffer _bb, StartInstance obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public StartInstance __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte result() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
@@ -22,20 +23,27 @@ public final class StartInstance extends Table {
       byte result,
       int ip,
       short port) {
-    builder.startObject(3);
+    builder.startTable(3);
     StartInstance.addIp(builder, ip);
     StartInstance.addPort(builder, port);
     StartInstance.addResult(builder, result);
     return StartInstance.endStartInstance(builder);
   }
 
-  public static void startStartInstance(FlatBufferBuilder builder) { builder.startObject(3); }
+  public static void startStartInstance(FlatBufferBuilder builder) { builder.startTable(3); }
   public static void addResult(FlatBufferBuilder builder, byte result) { builder.addByte(0, result, 0); }
   public static void addIp(FlatBufferBuilder builder, int ip) { builder.addInt(1, ip, 0); }
   public static void addPort(FlatBufferBuilder builder, short port) { builder.addShort(2, port, 0); }
   public static int endStartInstance(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public StartInstance get(int j) { return get(new StartInstance(), j); }
+    public StartInstance get(StartInstance obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 
