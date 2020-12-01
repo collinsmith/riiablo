@@ -127,3 +127,6 @@ Tests the map building algorithm/renderer. This is very basic at the moment.
 	<summary>Screenshot</summary>
 	<img src="https://raw.githubusercontent.com/collinsmith/diablo/master/screenshots/Clipboard-4.png" alt="Map Builder">
 </details>
+
+# Developed Using:
+[![IntelliJ IDEA Logo](/resources/icon-intellij-idea-256x256.png)](https://www.jetbrains.com/?from=riiablo)
