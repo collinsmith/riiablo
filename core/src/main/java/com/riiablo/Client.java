@@ -8,6 +8,7 @@ import java.util.Collection;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
@@ -332,8 +333,8 @@ public class Client extends Game {
       addProcessor(keys.newInputProcessor());
     }};
     Gdx.input.setInputProcessor(input);
-    Gdx.input.setCatchBackKey(true);
-    Gdx.input.setCatchMenuKey(true);
+    Gdx.input.setCatchKey(Input.Keys.BACK, true);
+    Gdx.input.setCatchKey(Input.Keys.MENU, true);
 
     Riiablo.scalingViewport = scalingViewport = new ScalingViewport(Scaling.fillY, (float) Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight() * viewportHeight, viewportHeight);
     Riiablo.extendViewport = extendViewport = new ExtendViewport(Riiablo.DESKTOP_VIEWPORT_MIN_WIDTH, Riiablo.DESKTOP_VIEWPORT_HEIGHT, 0, Riiablo.DESKTOP_VIEWPORT_HEIGHT);
