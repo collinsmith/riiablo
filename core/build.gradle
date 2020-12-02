@@ -92,11 +92,18 @@ flatbuffers {
 
 task createFlatBuffers(type: FlatBuffers) {
   doFirst {
-    if (OperatingSystem.current() != OperatingSystem.WINDOWS) {
-      throw new GradleException("'flatc' can only run on Windows")
+    if (!state.upToDate && OperatingSystem.current() != OperatingSystem.WINDOWS) {
+      throw new GradleException("'$name' can only run on $OperatingSystem.WINDOWS")
     }
   }
 
   inputDir = flatbuffersSourceDirs
   outputDir = generatedSourceDirs
 }
+
+task generateSources {
+  outputs.dir project.ext.flatbuffersSourceDirs
+}
+
+generateSources.dependsOn 'createFlatBuffers'
+compileJava.dependsOn 'generateSources'
