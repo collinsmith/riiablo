@@ -14,7 +14,7 @@ project.ext.generatedSourceDirs = file('gen/main/java/')
 sourceSets.main.java.srcDirs += generatedSourceDirs
 idea.module.generatedSourceDirs += generatedSourceDirs
 
-project.ext.flatbuffersSourceDirs = file('src/main/java/com/riiablo/net/')
+project.ext.flatbuffersSourceDirs = file('src/main/flatbuffers/')
 
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
