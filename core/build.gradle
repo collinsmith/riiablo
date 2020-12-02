@@ -92,8 +92,8 @@ flatbuffers {
 
 task createFlatBuffers(type: FlatBuffers) {
   doFirst {
-    if (!state.upToDate && OperatingSystem.current() != OperatingSystem.WINDOWS) {
-      throw new GradleException("'$name' can only run on $OperatingSystem.WINDOWS")
+    if (OperatingSystem.current() != OperatingSystem.WINDOWS) {
+      throw new GradleException("'$name' can only run on Windows")
     }
   }
 
@@ -103,6 +103,11 @@ task createFlatBuffers(type: FlatBuffers) {
 
 task generateSources {
   outputs.dir project.ext.flatbuffersSourceDirs
+}
+
+if (OperatingSystem.current() != OperatingSystem.WINDOWS) {
+  logger.warn("Disabling $createFlatBuffers.name because it can only run on Windows")
+  createFlatBuffers.enabled = false
 }
 
 generateSources.dependsOn 'createFlatBuffers'
