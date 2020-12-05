@@ -2,15 +2,13 @@ package com.riiablo.cvar;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.SortedMap;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apache.commons.lang3.ObjectUtils;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.SortedMap;
 
 public class CvarManager implements Cvar.StateListener, Iterable<Cvar> {
 
@@ -30,7 +28,7 @@ public class CvarManager implements Cvar.StateListener, Iterable<Cvar> {
   public boolean add(@NonNull Cvar cvar) {
     String alias = cvar.ALIAS.toLowerCase();
     Cvar queriedCvar = CVARS.get(alias);
-    if (ObjectUtils.equals(queriedCvar, cvar)) {
+    if (Objects.equals(queriedCvar, cvar)) {
       return false;
     } else if (queriedCvar != null) {
       throw new CvarManagerException("A Cvar with the alias %s has already been added.", queriedCvar.ALIAS);
@@ -45,7 +43,7 @@ public class CvarManager implements Cvar.StateListener, Iterable<Cvar> {
     if (cvar == null) return false;
     String alias = cvar.ALIAS.toLowerCase();
     Cvar queriedCvar = CVARS.get(alias);
-    return ObjectUtils.equals(queriedCvar, cvar) && CVARS.remove(alias) != null;
+    return Objects.equals(queriedCvar, cvar) && CVARS.remove(alias) != null;
   }
 
   @SuppressWarnings("unchecked")
@@ -65,7 +63,7 @@ public class CvarManager implements Cvar.StateListener, Iterable<Cvar> {
     if (cvar == null) return false;
     String alias = cvar.ALIAS.toLowerCase();
     Cvar queriedCvar = CVARS.get(alias);
-    return ObjectUtils.equals(queriedCvar, cvar);
+    return Objects.equals(queriedCvar, cvar);
   }
 
   public boolean isManaging(String alias) {

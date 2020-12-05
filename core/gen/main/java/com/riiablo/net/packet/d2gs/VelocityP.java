@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class VelocityP extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static VelocityP getRootAsVelocityP(ByteBuffer _bb) { return getRootAsVelocityP(_bb, new VelocityP()); }
   public static VelocityP getRootAsVelocityP(ByteBuffer _bb, VelocityP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public VelocityP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float x() { int o = __offset(4); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
@@ -20,18 +21,25 @@ public final class VelocityP extends Table {
   public static int createVelocityP(FlatBufferBuilder builder,
       float x,
       float y) {
-    builder.startObject(2);
+    builder.startTable(2);
     VelocityP.addY(builder, y);
     VelocityP.addX(builder, x);
     return VelocityP.endVelocityP(builder);
   }
 
-  public static void startVelocityP(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startVelocityP(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addX(FlatBufferBuilder builder, float x) { builder.addFloat(0, x, 0.0f); }
   public static void addY(FlatBufferBuilder builder, float y) { builder.addFloat(1, y, 0.0f); }
   public static int endVelocityP(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public VelocityP get(int j) { return get(new VelocityP(), j); }
+    public VelocityP get(VelocityP obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

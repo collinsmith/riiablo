@@ -4,9 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -55,7 +55,7 @@ public class Cvar<T> implements SuggestionProvider {
 
   @Override
   public String toString() {
-    return ObjectUtils.toString(value);
+    return Objects.toString(value);
   }
 
   @NonNull
@@ -101,7 +101,7 @@ public class Cvar<T> implements SuggestionProvider {
 
   public void set(@Nullable T value) {
     final T prev = this.value;
-    if (ObjectUtils.equals(prev, value)) {
+    if (Objects.equals(prev, value)) {
       return;
     }
 
@@ -144,7 +144,7 @@ public class Cvar<T> implements SuggestionProvider {
   }
 
   public void reset() {
-    if (!ObjectUtils.equals(value, DEFAULT_VALUE)) {
+    if (!Objects.equals(value, DEFAULT_VALUE)) {
       T prev = value;
       value = DEFAULT_VALUE;
       for (StateListener<T> l : STATE_LISTENERS) l.onChanged(this, prev, value);

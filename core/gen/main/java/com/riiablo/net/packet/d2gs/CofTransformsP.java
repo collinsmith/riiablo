@@ -9,30 +9,41 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class CofTransformsP extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static CofTransformsP getRootAsCofTransformsP(ByteBuffer _bb) { return getRootAsCofTransformsP(_bb, new CofTransformsP()); }
   public static CofTransformsP getRootAsCofTransformsP(ByteBuffer _bb, CofTransformsP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public CofTransformsP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int transform(int j) { int o = __offset(4); return o != 0 ? bb.get(__vector(o) + j * 1) & 0xFF : 0; }
   public int transformLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
+  public ByteVector transformVector() { return transformVector(new ByteVector()); }
+  public ByteVector transformVector(ByteVector obj) { int o = __offset(4); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
   public ByteBuffer transformAsByteBuffer() { return __vector_as_bytebuffer(4, 1); }
   public ByteBuffer transformInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 1); }
 
   public static int createCofTransformsP(FlatBufferBuilder builder,
       int transformOffset) {
-    builder.startObject(1);
+    builder.startTable(1);
     CofTransformsP.addTransform(builder, transformOffset);
     return CofTransformsP.endCofTransformsP(builder);
   }
 
-  public static void startCofTransformsP(FlatBufferBuilder builder) { builder.startObject(1); }
+  public static void startCofTransformsP(FlatBufferBuilder builder) { builder.startTable(1); }
   public static void addTransform(FlatBufferBuilder builder, int transformOffset) { builder.addOffset(0, transformOffset, 0); }
-  public static int createTransformVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
+  public static int createTransformVector(FlatBufferBuilder builder, byte[] data) { return builder.createByteVector(data); }
+  public static int createTransformVector(FlatBufferBuilder builder, ByteBuffer data) { return builder.createByteVector(data); }
   public static void startTransformVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
   public static int endCofTransformsP(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public CofTransformsP get(int j) { return get(new CofTransformsP(), j); }
+    public CofTransformsP get(CofTransformsP obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

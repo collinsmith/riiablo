@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class WalkToEntity extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static WalkToEntity getRootAsWalkToEntity(ByteBuffer _bb) { return getRootAsWalkToEntity(_bb, new WalkToEntity()); }
   public static WalkToEntity getRootAsWalkToEntity(ByteBuffer _bb, WalkToEntity obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public WalkToEntity __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
@@ -20,18 +21,25 @@ public final class WalkToEntity extends Table {
   public static int createWalkToEntity(FlatBufferBuilder builder,
       int type,
       int entityId) {
-    builder.startObject(2);
+    builder.startTable(2);
     WalkToEntity.addEntityId(builder, entityId);
     WalkToEntity.addType(builder, type);
     return WalkToEntity.endWalkToEntity(builder);
   }
 
-  public static void startWalkToEntity(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startWalkToEntity(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addType(FlatBufferBuilder builder, int type) { builder.addByte(0, (byte)type, (byte)0); }
   public static void addEntityId(FlatBufferBuilder builder, int entityId) { builder.addInt(1, entityId, 0); }
   public static int endWalkToEntity(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public WalkToEntity get(int j) { return get(new WalkToEntity(), j); }
+    public WalkToEntity get(WalkToEntity obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

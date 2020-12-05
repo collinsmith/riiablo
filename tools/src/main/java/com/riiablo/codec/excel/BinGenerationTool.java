@@ -1,6 +1,5 @@
 package com.riiablo.codec.excel;
 
-import com.google.common.io.LittleEndianDataOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import org.apache.commons.io.FilenameUtils;
@@ -86,7 +85,8 @@ public class BinGenerationTool extends ApplicationAdapter {
     OutputStream out = null;
     try {
       out = bin.write(false, 8192);
-      LittleEndianDataOutputStream dos = new LittleEndianDataOutputStream(out);
+      @SuppressWarnings("deprecation")
+      com.riiablo.util.LittleEndianDataOutputStream dos = new com.riiablo.util.LittleEndianDataOutputStream(out);
       excel.writeBin(dos);
     } catch (Throwable t) {
       Gdx.app.error(TAG, t.getMessage(), t);

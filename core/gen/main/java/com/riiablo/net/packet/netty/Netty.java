@@ -9,35 +9,43 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class Netty extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static Netty getRootAsNetty(ByteBuffer _bb) { return getRootAsNetty(_bb, new Netty()); }
   public static Netty getRootAsNetty(ByteBuffer _bb, Netty obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public Netty __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public long salt() { int o = __offset(4); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
   public byte dataType() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public Table data(Table obj) { int o = __offset(8); return o != 0 ? __union(obj, o) : null; }
+  public Table data(Table obj) { int o = __offset(8); return o != 0 ? __union(obj, o + bb_pos) : null; }
 
   public static int createNetty(FlatBufferBuilder builder,
       long salt,
       byte data_type,
       int dataOffset) {
-    builder.startObject(3);
+    builder.startTable(3);
     Netty.addSalt(builder, salt);
     Netty.addData(builder, dataOffset);
     Netty.addDataType(builder, data_type);
     return Netty.endNetty(builder);
   }
 
-  public static void startNetty(FlatBufferBuilder builder) { builder.startObject(3); }
+  public static void startNetty(FlatBufferBuilder builder) { builder.startTable(3); }
   public static void addSalt(FlatBufferBuilder builder, long salt) { builder.addLong(0, salt, 0L); }
   public static void addDataType(FlatBufferBuilder builder, byte dataType) { builder.addByte(1, dataType, 0); }
   public static void addData(FlatBufferBuilder builder, int dataOffset) { builder.addOffset(2, dataOffset, 0); }
   public static int endNetty(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
   }
   public static void finishNettyBuffer(FlatBufferBuilder builder, int offset) { builder.finish(offset); }
   public static void finishSizePrefixedNettyBuffer(FlatBufferBuilder builder, int offset) { builder.finishSizePrefixed(offset); }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public Netty get(int j) { return get(new Netty(), j); }
+    public Netty get(Netty obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
+  }
 }
 

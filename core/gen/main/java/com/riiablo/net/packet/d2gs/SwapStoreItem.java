@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class SwapStoreItem extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static SwapStoreItem getRootAsSwapStoreItem(ByteBuffer _bb) { return getRootAsSwapStoreItem(_bb, new SwapStoreItem()); }
   public static SwapStoreItem getRootAsSwapStoreItem(ByteBuffer _bb, SwapStoreItem obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public SwapStoreItem __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int itemId() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -24,7 +25,7 @@ public final class SwapStoreItem extends Table {
       int storeLoc,
       int x,
       int y) {
-    builder.startObject(4);
+    builder.startTable(4);
     SwapStoreItem.addY(builder, y);
     SwapStoreItem.addX(builder, x);
     SwapStoreItem.addStoreLoc(builder, storeLoc);
@@ -32,14 +33,21 @@ public final class SwapStoreItem extends Table {
     return SwapStoreItem.endSwapStoreItem(builder);
   }
 
-  public static void startSwapStoreItem(FlatBufferBuilder builder) { builder.startObject(4); }
+  public static void startSwapStoreItem(FlatBufferBuilder builder) { builder.startTable(4); }
   public static void addItemId(FlatBufferBuilder builder, int itemId) { builder.addInt(0, itemId, 0); }
   public static void addStoreLoc(FlatBufferBuilder builder, int storeLoc) { builder.addInt(1, storeLoc, 0); }
   public static void addX(FlatBufferBuilder builder, int x) { builder.addInt(2, x, 0); }
   public static void addY(FlatBufferBuilder builder, int y) { builder.addInt(3, y, 0); }
   public static int endSwapStoreItem(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public SwapStoreItem get(int j) { return get(new SwapStoreItem(), j); }
+    public SwapStoreItem get(SwapStoreItem obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

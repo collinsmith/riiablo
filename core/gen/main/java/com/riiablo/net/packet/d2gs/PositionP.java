@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class PositionP extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static PositionP getRootAsPositionP(ByteBuffer _bb) { return getRootAsPositionP(_bb, new PositionP()); }
   public static PositionP getRootAsPositionP(ByteBuffer _bb, PositionP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public PositionP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float x() { int o = __offset(4); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
@@ -20,18 +21,25 @@ public final class PositionP extends Table {
   public static int createPositionP(FlatBufferBuilder builder,
       float x,
       float y) {
-    builder.startObject(2);
+    builder.startTable(2);
     PositionP.addY(builder, y);
     PositionP.addX(builder, x);
     return PositionP.endPositionP(builder);
   }
 
-  public static void startPositionP(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startPositionP(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addX(FlatBufferBuilder builder, float x) { builder.addFloat(0, x, 0.0f); }
   public static void addY(FlatBufferBuilder builder, float y) { builder.addFloat(1, y, 0.0f); }
   public static int endPositionP(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public PositionP get(int j) { return get(new PositionP(), j); }
+    public PositionP get(PositionP obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

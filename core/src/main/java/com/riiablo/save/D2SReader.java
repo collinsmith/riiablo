@@ -36,6 +36,7 @@ public enum D2SReader {
   }
 
   // TODO: rewrite this function without stubbing serialization
+  @SuppressWarnings("deprecation")
   public D2S readD2S(FileHandle handle) {
     byte[] bytes = handle.readBytes();
     D2S d2s = readD2S(ByteInput.wrap(bytes));

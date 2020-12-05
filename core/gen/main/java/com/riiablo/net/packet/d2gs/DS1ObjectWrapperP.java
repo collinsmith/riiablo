@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class DS1ObjectWrapperP extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static DS1ObjectWrapperP getRootAsDS1ObjectWrapperP(ByteBuffer _bb) { return getRootAsDS1ObjectWrapperP(_bb, new DS1ObjectWrapperP()); }
   public static DS1ObjectWrapperP getRootAsDS1ObjectWrapperP(ByteBuffer _bb, DS1ObjectWrapperP obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public DS1ObjectWrapperP __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int act() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
@@ -22,20 +23,27 @@ public final class DS1ObjectWrapperP extends Table {
       int act,
       int type,
       int id) {
-    builder.startObject(3);
+    builder.startTable(3);
     DS1ObjectWrapperP.addId(builder, id);
     DS1ObjectWrapperP.addType(builder, type);
     DS1ObjectWrapperP.addAct(builder, act);
     return DS1ObjectWrapperP.endDS1ObjectWrapperP(builder);
   }
 
-  public static void startDS1ObjectWrapperP(FlatBufferBuilder builder) { builder.startObject(3); }
+  public static void startDS1ObjectWrapperP(FlatBufferBuilder builder) { builder.startTable(3); }
   public static void addAct(FlatBufferBuilder builder, int act) { builder.addByte(0, (byte)act, (byte)0); }
   public static void addType(FlatBufferBuilder builder, int type) { builder.addByte(1, (byte)type, (byte)0); }
   public static void addId(FlatBufferBuilder builder, int id) { builder.addByte(2, (byte)id, (byte)0); }
   public static int endDS1ObjectWrapperP(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public DS1ObjectWrapperP get(int j) { return get(new DS1ObjectWrapperP(), j); }
+    public DS1ObjectWrapperP get(DS1ObjectWrapperP obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

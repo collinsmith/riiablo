@@ -86,6 +86,7 @@ public class CharData implements ItemData.UpdateListener, Pool.Poolable {
   }
 
   /** Constructs an unmanaged instance. Used for remote players with complete save data. */
+  @SuppressWarnings("deprecation") // d2s writer not implemented yet -- stub deprecated to avoid usage
   public static CharData loadFromBuffer(int diff, ByteBuffer buffer) {
     byte[] bytes = BufferUtils.readRemaining(buffer);
     ByteInput in = ByteInput.wrap(bytes);

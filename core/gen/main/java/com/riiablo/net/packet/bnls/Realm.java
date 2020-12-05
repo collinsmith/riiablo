@@ -9,9 +9,10 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class Realm extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_1_12_0(); }
   public static Realm getRootAsRealm(ByteBuffer _bb) { return getRootAsRealm(_bb, new Realm()); }
   public static Realm getRootAsRealm(ByteBuffer _bb, Realm obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public Realm __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public String name() { int o = __offset(4); return o != 0 ? __string(o + bb_pos) : null; }
@@ -24,18 +25,25 @@ public final class Realm extends Table {
   public static int createRealm(FlatBufferBuilder builder,
       int nameOffset,
       int descOffset) {
-    builder.startObject(2);
+    builder.startTable(2);
     Realm.addDesc(builder, descOffset);
     Realm.addName(builder, nameOffset);
     return Realm.endRealm(builder);
   }
 
-  public static void startRealm(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startRealm(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(0, nameOffset, 0); }
   public static void addDesc(FlatBufferBuilder builder, int descOffset) { builder.addOffset(1, descOffset, 0); }
   public static int endRealm(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public Realm get(int j) { return get(new Realm(), j); }
+    public Realm get(Realm obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 
