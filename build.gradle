@@ -46,3 +46,21 @@ configure(subprojects - project(':android')) {
     options.incremental = true
   }
 }
+
+task release(type: Copy) {
+  doFirst {
+    delete "$buildDir/release"
+  }
+
+  dependsOn ':desktop:jar'
+  from project(':desktop').tasks.getByName('jar').outputs.files
+
+  dependsOn ':tools:mpq-viewer:jar'
+  from project(':tools:mpq-viewer').tasks.getByName('jar').outputs.files
+
+  dependsOn ':tools:map-viewer:jar'
+  from project(':tools:map-viewer').tasks.getByName('jar').outputs.files
+
+  into "$buildDir/release"
+  rename '(.*)-SNAPSHOT(.*)', '$1$2'
+}
