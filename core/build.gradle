@@ -119,3 +119,8 @@ if (OperatingSystem.current() != OperatingSystem.WINDOWS) {
 
 generateSources.dependsOn 'createFlatBuffers'
 compileJava.dependsOn 'generateSources'
+
+//tasks.withType(JavaCompile) {
+//  options.compilerArgs << '-Xlint:unchecked'
+//  options.deprecation = true
+//}
