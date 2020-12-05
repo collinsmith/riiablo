@@ -80,16 +80,16 @@ dependencies {
   testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
 
-// TODO: configure atemis weave and debug unknown primitive type [B error
-// weave {
-//   classesDir = sourceSets.main.java.outputDir
-//   enableArtemisPlugin = true
-//   enablePooledWeaving = true
-//   generateLinkMutators = true
-//   optimizeEntitySystems = true
-// }
-//
-// classes.finalizedBy weave
+weave {
+  classesDir = sourceSets.main.java.outputDir
+  enableArtemisPlugin = true
+  enablePooledWeaving = true
+  generateLinkMutators = true
+  optimizeEntitySystems = true
+}
+
+// FIXME: see #134 https://github.com/collinsmith/riiablo/issues/134
+//classes.finalizedBy weave
 
 flatbuffers {
   flatcPath = rootProject.file('flatbuffers/flatc.exe')
