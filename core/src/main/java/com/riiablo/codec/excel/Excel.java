@@ -1,7 +1,6 @@
 package com.riiablo.codec.excel;
 
 import android.support.annotation.CallSuper;
-import com.google.common.io.LittleEndianDataInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -336,7 +335,8 @@ public abstract class Excel<T extends Excel.Entry> implements Iterable<T> {
     InputStream in = null;
     try {
       in = new ByteArrayInputStream(bytes);
-      LittleEndianDataInputStream dis = new LittleEndianDataInputStream(in);
+      @SuppressWarnings("deprecation")
+      com.riiablo.util.LittleEndianDataInputStream dis = new com.riiablo.util.LittleEndianDataInputStream(in);
       T excel = excelClass.newInstance();
 
       Field primaryKey = ClassUtils.findField(entryClass, Entry.Key.class);
