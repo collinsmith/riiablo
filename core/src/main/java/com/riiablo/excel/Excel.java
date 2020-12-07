@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.riiablo.io.ByteInput;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.logger.MDC;
 import com.riiablo.util.ClassUtils;
 
 public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> implements Iterable<T> {
@@ -86,15 +87,32 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
   T load(T excel, FileHandle txt, FileHandle bin) throws IOException {
     long start = System.currentTimeMillis();
 
-    FileHandle handle;
+    final FileHandle handle;
+    final boolean loadBin;
     if (!FORCE_TXT && bin != null && bin.exists()) {
       log.debug("Loading bin {}", bin);
-      loadBin(excel, bin);
       handle = bin;
+      loadBin = true;
     } else {
       log.debug("Loading txt {}", txt);
-      loadTxt(excel, txt);
       handle = txt;
+      loadBin = false;
+    }
+
+    try {
+      MDC.put("excelClass", excel.getClass().getCanonicalName());
+      try {
+        MDC.put("entryClass", excel.getEntryClass().getCanonicalName());
+        if (loadBin) {
+          loadBin(excel, bin);
+        } else {
+          loadTxt(excel, txt);
+        }
+      } finally {
+        MDC.remove("entryClass");
+      }
+    } finally {
+      MDC.remove("excelClass");
     }
 
     long end = System.currentTimeMillis();
@@ -230,62 +248,72 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
     for (int i = excel.offset(); parser.nextLine() != null; i++) {
       E entry = excel.newEntry();
       String name = index ? null : parser.getString(primaryKeyCol);
-      for (ObjectMap.Entry<Field, int[]> row : columns.entries()) {
-        Field field = row.key;
-        int[] columnIds = row.value;
-        Class type = field.getType();
-        assert type.isArray() || columnIds.length == 1 : "field should only correspond to 1 column: " + field.getName() + ", " + columnIds.length + " columns (is it supposed to be an array?)";
-        if (type == String.class) {
-          String value = parser.getString(columnIds[0]);
-          field.set(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
-        } else if (type == String[].class) {
-          String[] value = parser.getString(columnIds);
-          field.set(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
-        } else if (type == byte.class) {
-          byte value = parser.getByte(columnIds[0]);
-          field.setByte(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
-        } else if (type == byte[].class) {
-          byte[] value = parser.getByte(columnIds);
-          field.set(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
-        } else if (type == short.class) {
-          short value = parser.getShort(columnIds[0]);
-          field.setShort(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
-        } else if (type == short[].class) {
-          short[] value = parser.getShort(columnIds);
-          field.set(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
-        } else if (type == int.class) {
-          int value = parser.getInt(columnIds[0]);
-          field.setInt(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
-        } else if (type == int[].class) {
-          int[] value = parser.getInt(columnIds);
-          field.set(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
-        } else if (type == long.class) {
-          long value = parser.getLong(columnIds[0]);
-          field.setLong(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
-        } else if (type == long[].class) {
-          long[] value = parser.getLong(columnIds);
-          field.set(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
-        } else if (type == boolean.class) {
-          boolean value = parser.getBoolean(columnIds[0]);
-          field.setBoolean(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
-        } else if (type == boolean[].class) {
-          boolean[] value = parser.getBoolean(columnIds);
-          field.set(entry, value);
-          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
-        } else {
-          throw new UnsupportedOperationException("No support for " + type + " fields");
+      try {
+        if (DEBUG_ENTRIES) MDC.put("index", i);
+        try {
+          if (DEBUG_ENTRIES) MDC.put("primaryKey", name);
+          for (ObjectMap.Entry<Field, int[]> row : columns.entries()) {
+            Field field = row.key;
+            int[] columnIds = row.value;
+            Class type = field.getType();
+            assert type.isArray() || columnIds.length == 1 : "field should only correspond to 1 column: " + field.getName() + ", " + columnIds.length + " columns (is it supposed to be an array?)";
+            if (type == String.class) {
+              String value = parser.getString(columnIds[0]);
+              field.set(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
+            } else if (type == String[].class) {
+              String[] value = parser.getString(columnIds);
+              field.set(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+            } else if (type == byte.class) {
+              byte value = parser.getByte(columnIds[0]);
+              field.setByte(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
+            } else if (type == byte[].class) {
+              byte[] value = parser.getByte(columnIds);
+              field.set(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+            } else if (type == short.class) {
+              short value = parser.getShort(columnIds[0]);
+              field.setShort(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
+            } else if (type == short[].class) {
+              short[] value = parser.getShort(columnIds);
+              field.set(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+            } else if (type == int.class) {
+              int value = parser.getInt(columnIds[0]);
+              field.setInt(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
+            } else if (type == int[].class) {
+              int[] value = parser.getInt(columnIds);
+              field.set(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+            } else if (type == long.class) {
+              long value = parser.getLong(columnIds[0]);
+              field.setLong(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
+            } else if (type == long[].class) {
+              long[] value = parser.getLong(columnIds);
+              field.set(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+            } else if (type == boolean.class) {
+              boolean value = parser.getBoolean(columnIds[0]);
+              field.setBoolean(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
+            } else if (type == boolean[].class) {
+              boolean[] value = parser.getBoolean(columnIds);
+              field.set(entry, value);
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+            } else {
+              throw new UnsupportedOperationException("No support for " + type + " fields");
+            }
+          }
+        } finally {
+          if (DEBUG_ENTRIES) MDC.remove("primaryKey");
         }
+      } finally {
+        if (DEBUG_ENTRIES) MDC.remove("index");
       }
 
       putIndex(primaryKey, primaryKeyType, i++, index, excel, entry);
