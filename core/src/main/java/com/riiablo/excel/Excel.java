@@ -90,15 +90,14 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
     final FileHandle handle;
     final boolean loadBin;
     if (!FORCE_TXT && bin != null && bin.exists()) {
-      log.debug("Loading bin {}", bin);
       handle = bin;
       loadBin = true;
     } else {
-      log.debug("Loading txt {}", txt);
       handle = txt;
       loadBin = false;
     }
 
+    log.debug("Parsing {}", handle);
     try {
       MDC.put("excelClass", excel.getClass().getCanonicalName());
       try {
@@ -116,7 +115,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
     }
 
     long end = System.currentTimeMillis();
-    if (DEBUG_TIME) log.debug("Loaded {} in {} ms", handle, end - start);
+    if (DEBUG_TIME) log.debug("{} parsed in {} ms", handle, end - start);
     return excel;
   }
 
