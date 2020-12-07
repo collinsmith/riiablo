@@ -1,6 +1,7 @@
 package com.riiablo.excel;
 
 import android.support.annotation.CallSuper;
+import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -9,8 +10,8 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -18,10 +19,12 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import com.riiablo.io.ByteInput;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.util.ClassUtils;
 
 public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> implements Iterable<T> {
-  public static final String TAG = "Excel";
+  private static final Logger log = LogManager.getLogger(Excel.class);
 
   private static final boolean DEBUG         = true;
   private static final boolean DEBUG_COLS    = DEBUG && !true;
@@ -75,46 +78,49 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
   }
 
   public static <E extends Entry, S extends Serializer<E>, T extends Excel<E, S>>
-  T load(T excel, FileHandle txt) {
+  T load(T excel, FileHandle txt) throws IOException {
     return load(excel, txt, null);
   }
 
   public static <E extends Entry, S extends Serializer<E>, T extends Excel<E, S>>
-  T load(T excel, FileHandle txt, FileHandle bin) {
+  T load(T excel, FileHandle txt, FileHandle bin) throws IOException {
     long start = System.currentTimeMillis();
 
     FileHandle handle;
     if (!FORCE_TXT && bin != null && bin.exists()) {
-      if (DEBUG_BIN) Gdx.app.debug(TAG, "Loading bin " + bin);
+      log.debug("Loading bin {}", bin);
       loadBin(excel, bin);
       handle = bin;
     } else {
-      if (DEBUG_BIN) Gdx.app.debug(TAG, "Loading txt " + txt);
+      log.debug("Loading txt {}", txt);
       loadTxt(excel, txt);
       handle = txt;
     }
 
     long end = System.currentTimeMillis();
-    if (DEBUG_TIME) Gdx.app.debug(TAG, "Loaded " + handle + " in " + (end - start) + "ms");
+    if (DEBUG_TIME) log.debug("Loaded {} in {} ms", handle, end - start);
     return excel;
   }
 
   private static <E extends Entry, S extends Serializer<E>, T extends Excel<E, S>>
-  T loadTxt(T excel, FileHandle handle) {
+  T loadTxt(T excel, FileHandle handle) throws IOException {
     TxtParser parser = null;
     try {
-      parser = TxtParser.loadFromFile(handle);
+      parser = TxtParser.parse(handle);
       return loadTxt(excel, parser);
-    } catch (Throwable t) {
-      throw new GdxRuntimeException("Couldn't load excel: " + handle, t);
+    } catch (IllegalAccessException t) {
+      log.error("Unable to load txt {}: {}",
+          excel.getClass().getCanonicalName(),
+          ExceptionUtils.getRootCauseMessage(t),
+          t);
+      return ExceptionUtils.wrapAndThrow(t);
     } finally {
       IOUtils.closeQuietly(parser);
     }
   }
 
-
   private static <E extends Entry, T extends Excel<E, ?>>
-  T loadTxt(T excel, TxtParser parser) throws IllegalAccessException {
+  T loadTxt(T excel, TxtParser parser) throws IOException, IllegalAccessException {
     final Class<E> entryClass = excel.getEntryClass();
     final boolean index = ClassUtils.hasAnnotation(entryClass, Index.class);
 
@@ -128,17 +134,17 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
       Entry.Key key = field.getAnnotation(Entry.Key.class);
       if (key != null) {
         if (index) {
-          Gdx.app.error(TAG, "primary key set in class annotated with " + com.riiablo.codec.excel.Excel.Index.class);
+          log.error("primary key set in class annotated with {}", Excel.Index.class);
         } else if (primaryKey != null) {
           boolean primaryDeclared = ClassUtils.isDeclaredField(entryClass, primaryKey);
           boolean fieldDeclared = ClassUtils.isDeclaredField(entryClass, field);
           if (primaryDeclared != fieldDeclared) {
             if (fieldDeclared) {
-              if (DEBUG_KEY) Gdx.app.debug(TAG, "primary key " + primaryKey.getName() + " -> " + field.getName());
+              if (DEBUG_KEY) log.debug("primary key {} -> {}", primaryKey.getName(), field.getName());
               primaryKey = field;
             }
           } else {
-            Gdx.app.error(TAG, "more than one primary key for " + entryClass + " " + primaryKey.getName() + " and " + field.getName());
+            log.error("more than one primary key for {}: {} and {}", entryClass, primaryKey.getName(), field.getName());
           }
         } else {
           primaryKey = field;
@@ -160,20 +166,20 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
           String[] columnNames = new String[values.length];
           for (int i = 0; i < values.length; i++) {
             String name = values[i];
-            if (DEBUG_COLS) Gdx.app.debug(TAG, name);
+            if (DEBUG_COLS) log.trace(name);
             columnNames[i] = name;
           }
 
           columns.put(field, parser.getColumnId(columnNames));
         } else if (startIndex == 0 && endIndex == 0) {
-          if (DEBUG_COLS) Gdx.app.debug(TAG, fieldName);
+          if (DEBUG_COLS) log.trace(fieldName);
           TMP[0] = fieldName;
           columns.put(field, parser.getColumnId(TMP));
         } else {
           String[] columnNames = new String[endIndex - startIndex];
           for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
             String name = fieldName + i;
-            if (DEBUG_COLS) Gdx.app.debug(TAG, name);
+            if (DEBUG_COLS) log.trace(name);
             columnNames[j] = name;
           }
 
@@ -188,13 +194,13 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
           if (values.length == 0) {
             for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
               String name = String.format(format, i);
-              if (DEBUG_COLS) Gdx.app.debug(TAG, name);
+              if (DEBUG_COLS) log.trace(name);
               columnNames[j] = name;
             }
           } else {
             for (int i = 0; i < values.length; i++) {
               String name = String.format(format, values[i]);
-              if (DEBUG_COLS) Gdx.app.debug(TAG, name);
+              if (DEBUG_COLS) log.trace(name);
               columnNames[i] = name;
             }
           }
@@ -208,14 +214,14 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
       if (FORCE_PRIMARY_KEY) {
         throw new IllegalStateException(entryClass + " does not have a " + Entry.Key.class + " set!");
       } else {
+        log.error("{} does not have a {} set! Using {}", entryClass, Entry.Key.class, firstKey.getName());
         primaryKey = firstKey;
-        Gdx.app.error(TAG, entryClass + " does not have a " + Entry.Key.class + " set! Using " + firstKey.getName());
       }
     }
 
     if (DEBUG_COL_IDS) {
       for (ObjectMap.Entry<Field, int[]> entry : columns.entries()) {
-        Gdx.app.debug(TAG, entry.key.getName() + ": " + Arrays.toString(entry.value));
+        log.debug("{}: {}", entry.key.getName(), Arrays.toString(entry.value));
       }
     }
 
@@ -232,51 +238,51 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
         if (type == String.class) {
           String value = parser.getString(columnIds[0]);
           field.set(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), value));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
         } else if (type == String[].class) {
           String[] value = parser.getString(columnIds);
           field.set(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), Arrays.toString(value)));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
         } else if (type == byte.class) {
           byte value = parser.getByte(columnIds[0]);
           field.setByte(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), value));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
         } else if (type == byte[].class) {
           byte[] value = parser.getByte(columnIds);
           field.set(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), Arrays.toString(value)));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
         } else if (type == short.class) {
           short value = parser.getShort(columnIds[0]);
           field.setShort(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), value));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
         } else if (type == short[].class) {
           short[] value = parser.getShort(columnIds);
           field.set(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), Arrays.toString(value)));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
         } else if (type == int.class) {
           int value = parser.getInt(columnIds[0]);
           field.setInt(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), value));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
         } else if (type == int[].class) {
           int[] value = parser.getInt(columnIds);
           field.set(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), Arrays.toString(value)));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
         } else if (type == long.class) {
           long value = parser.getLong(columnIds[0]);
           field.setLong(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), value));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
         } else if (type == long[].class) {
           long[] value = parser.getLong(columnIds);
           field.set(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), Arrays.toString(value)));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
         } else if (type == boolean.class) {
           boolean value = parser.getBoolean(columnIds[0]);
           field.setBoolean(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), value));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), value);
         } else if (type == boolean[].class) {
           boolean[] value = parser.getBoolean(columnIds);
           field.set(entry, value);
-          if (DEBUG_ENTRIES) Gdx.app.debug(TAG, String.format("Entry[%d](%s).%s=%s", i, name, field.getName(), Arrays.toString(value)));
+          if (DEBUG_ENTRIES) log.trace("Entry[{}]({}).{}={}", i, name, field.getName(), Arrays.toString(value));
         } else {
           throw new UnsupportedOperationException("No support for " + type + " fields");
         }
@@ -300,8 +306,9 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
         if (FORCE_PRIMARY_KEY) {
           throw new IllegalStateException(entryClass + " does not have a " + Entry.Key.class + " set!");
         } else {
-          primaryKey = entryClass.getFields()[0];
-          Gdx.app.error(TAG, entryClass + " does not have a " + Entry.Key.class + " set! Using " + primaryKey.getName());
+          Field firstKey = entryClass.getFields()[0];
+          log.error("{} does not have a {} set! Using {}", entryClass, Entry.Key.class, firstKey.getName());
+          primaryKey = firstKey;
         }
       }
 
@@ -309,7 +316,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
 
       ByteInput in = ByteInput.wrap(handle.readBytes());
       int size = in.readSafe32u();
-      Gdx.app.log(TAG, "reading " + size + " entries...");
+      log.debug("reading {} entries...", size);
       for (int i = 0, j = excel.offset(); i < size; i++, j++) {
         E entry = excel.newEntry();
         serializer.readBin(entry, in);
@@ -362,7 +369,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
 
   public T get(int id) {
     T value = entries.get(id);
-    if (DEBUG_INDEXES) Gdx.app.debug(TAG, id + " = " + value);
+    if (DEBUG_INDEXES) log.trace("{} = {}", id, value);
     return value;
   }
 

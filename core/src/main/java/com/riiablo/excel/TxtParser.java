@@ -1,26 +1,26 @@
 package com.riiablo.excel;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.ObjectIntMap;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.ObjectIntMap;
+
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 
 public class TxtParser implements Closeable {
-  private static final String TAG = "TxtParser";
+  private static final Logger log = LogManager.getLogger(TxtParser.class);
 
   private static final boolean DEBUG      = true;
-  private static final boolean DEBUG_COLS = DEBUG && true;
   private static final boolean DEBUG_ROWS = DEBUG && true;
 
   private static final boolean FORCE_BOOL = true; // logs error if boolean is not 0 or 1
@@ -28,44 +28,36 @@ public class TxtParser implements Closeable {
 
   private static final String EXPANSION = "Expansion";
 
-  public static TxtParser loadFromFile(FileHandle handle) {
-    return loadFromStream(handle.read());
+  public static TxtParser parse(FileHandle handle) throws IOException {
+    return parse(handle.read());
   }
 
-  public static TxtParser loadFromStream(InputStream in) {
+  public static TxtParser parse(InputStream in) throws IOException {
     BufferedReader reader = null;
-    try {
-      reader = IOUtils.buffer(new InputStreamReader(in, "US-ASCII"));
-      return new TxtParser(reader);
-    } catch (Throwable t) {
-      throw new GdxRuntimeException("Couldn't read excel file", t);
-    }
+    reader = IOUtils.buffer(new InputStreamReader(in, StandardCharsets.US_ASCII));
+    return new TxtParser(reader);
   }
 
   final BufferedReader reader;
-  final ObjectIntMap<String> ids;
-  final String columns[];
+  final ObjectIntMap<String> columnIds;
+  final String columnNames[];
   int index;
 
   String line;
   String tokens[];
 
-  private TxtParser(BufferedReader reader) {
+  private TxtParser(BufferedReader reader) throws IOException {
     this.reader = reader;
+    line = reader.readLine();
+    columnNames = StringUtils.splitPreserveAllTokens(line, '\t');
+    if (log.debugEnabled()) log.debug("columnNames: {}", Arrays.toString(columnNames));
 
-    try {
-      line = reader.readLine();
-      columns = StringUtils.splitPreserveAllTokens(line, '\t');
-      if (DEBUG_COLS) Gdx.app.debug(TAG, "cols=" + Arrays.toString(columns));
-
-      ids = new ObjectIntMap<>();
-      for (int i = 0; i < columns.length; i++) {
-        String key = columns[i].toLowerCase();
-        if (!ids.containsKey(key)) ids.put(key, i);
-      }
-    } catch (Throwable t) {
-      throw new GdxRuntimeException("Couldn't read TXT", t);
+    columnIds = new ObjectIntMap<>();
+    for (int i = 0; i < columnNames.length; i++) {
+      String key = columnNames[i].toLowerCase();
+      if (!columnIds.containsKey(key)) columnIds.put(key, i);
     }
+    if (log.debugEnabled()) log.debug("columnIds: {}", columnIds);
   }
 
   @Override
@@ -73,16 +65,16 @@ public class TxtParser implements Closeable {
     reader.close();
   }
 
-  public String[] getColumns() {
-    return columns;
+  public String[] getColumnNames() {
+    return columnNames;
   }
 
   public int getNumColumns() {
-    return columns.length;
+    return columnNames.length;
   }
 
   public String getColumnName(int i) {
-    return columns[i];
+    return columnNames[i];
   }
 
   public String[] getTokens() {
@@ -94,7 +86,7 @@ public class TxtParser implements Closeable {
   }
 
   public int getColumnId(String s) {
-    return ids.get(s.toLowerCase(), -1);
+    return columnIds.get(s.toLowerCase(), -1);
   }
 
   public int[] getColumnId(String[] s) {
@@ -103,28 +95,24 @@ public class TxtParser implements Closeable {
     return columnIds;
   }
 
-  public String nextLine() {
-    try {
-      index++;
-      line = reader.readLine();
-      if (line == null) {
-        return null;
-      } else if (line.equalsIgnoreCase(EXPANSION)) {
-        return nextLine();
-      }
-
-      tokens = StringUtils.splitPreserveAllTokens(line, '\t');
-      if (DEBUG_ROWS) Gdx.app.debug(TAG, (index - 1) + ": " + Arrays.toString(tokens));
-      if (FORCE_COLS && tokens.length != columns.length) {
-        Gdx.app.error(TAG, "Skipping row " + Arrays.toString(tokens));
-        return nextLine();
-      }
-
-      return line;
-    } catch (IOException e) {
-      Gdx.app.error(TAG, e.getMessage(), e);
+  public String nextLine() throws IOException {
+    index++;
+    line = reader.readLine();
+    if (line == null) {
       return null;
+    } else if (line.equalsIgnoreCase(EXPANSION)) {
+      return nextLine();
     }
+
+    tokens = StringUtils.splitPreserveAllTokens(line, '\t');
+    if (log.traceEnabled()) log.trace("{}: {}", (index - 1), Arrays.toString(tokens));
+    if (FORCE_COLS && tokens.length != columnNames.length) {
+      log.warn("skipping row {}: contains {} tokens, expected {}; tokens: {}",
+          index, tokens.length, columnNames.length, Arrays.toString(tokens));
+      return nextLine();
+    }
+
+    return line;
   }
 
   public String getString(int i) {
@@ -149,7 +137,10 @@ public class TxtParser implements Closeable {
 
   public boolean getBoolean(int i) {
     int value = getInt(i);
-    if (FORCE_BOOL && (value & 1) != value) Gdx.app.error(TAG, String.format("boolean value != 0 or 1 at row %d col %d (\"%s\", \"%s\"): %d", index, i, getString(0), getColumnName(i), value));
+    if (FORCE_BOOL && (value & 1) != value) {
+      log.warn("boolean value != 0 or 1 at {}:{} (\"{}\", \"{}\"): {}",
+          index, i, getString(0), getColumnName(i), value);
+    }
     return value != 0;
   }
 
