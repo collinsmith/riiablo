@@ -50,14 +50,14 @@ public class TxtParser implements Closeable {
     this.reader = reader;
     line = reader.readLine();
     columnNames = StringUtils.splitPreserveAllTokens(line, '\t');
-    if (log.debugEnabled()) log.debug("columnNames: {}", Arrays.toString(columnNames));
+    log.debug("columnNames: {}", columnNames);
 
     columnIds = new ObjectIntMap<>();
     for (int i = 0; i < columnNames.length; i++) {
       String key = columnNames[i].toLowerCase();
       if (!columnIds.containsKey(key)) columnIds.put(key, i);
     }
-    if (log.debugEnabled()) log.debug("columnIds: {}", columnIds);
+    log.debug("columnIds: {}", columnIds);
   }
 
   @Override

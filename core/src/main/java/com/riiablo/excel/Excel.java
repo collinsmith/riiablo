@@ -7,7 +7,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -238,7 +237,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
 
     if (DEBUG_COL_IDS) {
       for (ObjectMap.Entry<Field, int[]> entry : columns.entries()) {
-        log.debug("{}: {}", entry.key.getName(), Arrays.toString(entry.value));
+        log.debug("{}: {}", entry.key.getName(), entry.value);
       }
     }
 
@@ -263,7 +262,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
             } else if (type == String[].class) {
               String[] value = parser.getString(columnIds);
               field.set(entry, value);
-              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
             } else if (type == byte.class) {
               byte value = parser.getByte(columnIds[0]);
               field.setByte(entry, value);
@@ -271,7 +270,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
             } else if (type == byte[].class) {
               byte[] value = parser.getByte(columnIds);
               field.set(entry, value);
-              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
             } else if (type == short.class) {
               short value = parser.getShort(columnIds[0]);
               field.setShort(entry, value);
@@ -279,7 +278,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
             } else if (type == short[].class) {
               short[] value = parser.getShort(columnIds);
               field.set(entry, value);
-              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
             } else if (type == int.class) {
               int value = parser.getInt(columnIds[0]);
               field.setInt(entry, value);
@@ -287,7 +286,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
             } else if (type == int[].class) {
               int[] value = parser.getInt(columnIds);
               field.set(entry, value);
-              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
             } else if (type == long.class) {
               long value = parser.getLong(columnIds[0]);
               field.setLong(entry, value);
@@ -295,7 +294,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
             } else if (type == long[].class) {
               long[] value = parser.getLong(columnIds);
               field.set(entry, value);
-              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
             } else if (type == boolean.class) {
               boolean value = parser.getBoolean(columnIds[0]);
               field.setBoolean(entry, value);
@@ -303,7 +302,7 @@ public abstract class Excel<T extends Excel.Entry, U extends Serializer<T>> impl
             } else if (type == boolean[].class) {
               boolean[] value = parser.getBoolean(columnIds);
               field.set(entry, value);
-              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), Arrays.toString(value));
+              if (DEBUG_ENTRIES) log.trace("{}={}", field.getName(), value);
             } else {
               throw new UnsupportedOperationException("No support for " + type + " fields");
             }
