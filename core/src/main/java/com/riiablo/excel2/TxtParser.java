@@ -72,6 +72,7 @@ public class TxtParser {
   }
 
   private static String toString(ByteArray array) {
+    if (array.size == 0) return "";
     String stringValue = new String(array.items, 0, array.size, CharsetUtil.US_ASCII);
     array.clear();
     return stringValue;
@@ -89,7 +90,7 @@ public class TxtParser {
           putColumnName(toString(cache));
           return columnNames.size;
         default:
-          cache.add((byte) Character.toUpperCase(i));
+          cache.add(TO_UPPER[i]);
       }
     }
 
@@ -121,7 +122,7 @@ copy:
           tokenOffsets.add(cache.size);
           break copy;
         default:
-          cache.add(TO_UPPER[i]);
+          cache.add((byte) i);
       }
     }
 
@@ -136,7 +137,7 @@ copy:
 
     if (numTokens != numColumns) {
       log.warn("skipping row {}: contains {} tokens, expected {}; tokens: {}",
-          index, numTokens, numColumns, getTokens());
+          index, numTokens, numColumns, tokens());
       return cacheLine();
     }
 
@@ -144,7 +145,7 @@ copy:
       final int[] tokenOffsets = this.tokenOffsets.items;
       for (int i = 1, j = tokenOffsets[i - 1], s = this.tokenOffsets.size; i < s; i++) {
         final int tokenOffset = tokenOffsets[i];
-        log.trace("{}={}", getColumnName(i - 1), line.subSequence(j, tokenOffset, false));
+        log.trace("{}={}", columnName(i - 1), line.subSequence(j, tokenOffset, false));
         j = tokenOffset;
       }
     }
@@ -152,47 +153,47 @@ copy:
     return tokenOffsets.size - 1;
   }
 
-  public int getNumColumns() {
+  public int numColumns() {
     return numColumns;
   }
 
-  public String[] getColumnNames() {
+  public String[] columnNames() {
     final String[] columnNames = new String[numColumns];
-    for (int i = 0; i < numColumns; i++) columnNames[i] = getColumnName(i);
+    for (int i = 0; i < numColumns; i++) columnNames[i] = columnName(i);
     return columnNames;
   }
 
-  public String getColumnName(int i) {
+  public String columnName(int i) {
     return columnNames.get(i).toString();
   }
 
-  public String getRowName() {
+  public String rowName() {
     return parseString(0);
   }
 
-  public int getColumnId(String columnName) {
+  public int columnId(String columnName) {
     return columnIds.get(columnName.toUpperCase(), -1);
   }
 
-  public int[] getColumnId(String[] columnNames) {
+  public int[] columnId(String[] columnNames) {
     final int numColumns = columnNames.length;
     final int[] columnIds = new int[numColumns];
-    for (int i = 0; i < numColumns; i++) columnIds[i] = getColumnId(columnNames[i]);
+    for (int i = 0; i < numColumns; i++) columnIds[i] = columnId(columnNames[i]);
     return columnIds;
   }
 
-  public int getNumTokens() {
+  public int numTokens() {
     return numTokens;
   }
 
-  public AsciiString[] getTokens() {
-    final int numTokens = getNumTokens();
+  public AsciiString[] tokens() {
+    final int numTokens = numTokens();
     final AsciiString[] tokens = new AsciiString[numTokens];
-    for (int i = 0; i < numTokens; i++) tokens[i] = getToken(i);
+    for (int i = 0; i < numTokens; i++) tokens[i] = token(i);
     return tokens;
   }
 
-  public AsciiString getToken(int i) {
+  public AsciiString token(int i) {
     final int[] tokenOffsets = tokenOffsetsCache;
     return line.subSequence(tokenOffsets[i], tokenOffsets[i + 1]);
   }
@@ -228,7 +229,7 @@ copy:
     final int intValue = line.parseInt(tokenOffsets[i], tokenOffsets[i + 1]);
     if ((intValue & 1) != intValue) {
       log.warn("boolean exceeds boolean radix at {}:{} (\"{}\", \"{}\"): {}",
-          index, i, getRowName(), getColumnName(i), intValue);
+          index, i, rowName(), columnName(i), intValue);
     }
 
     return intValue != 0;
