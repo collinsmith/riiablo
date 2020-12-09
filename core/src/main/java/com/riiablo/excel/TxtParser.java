@@ -50,7 +50,7 @@ public class TxtParser implements Closeable {
     this.reader = reader;
     line = reader.readLine();
     columnNames = StringUtils.splitPreserveAllTokens(line, '\t');
-    log.debug("columnNames: {}", columnNames);
+    log.debug("columnNames: {}", (Object) columnNames);
 
     columnIds = new ObjectIntMap<>();
     for (int i = 0; i < columnNames.length; i++) {
