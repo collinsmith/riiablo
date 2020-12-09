@@ -153,6 +153,14 @@ public abstract class Excel<
     this.entryClass = entryClass;
   }
 
+  public Class<? extends Excel> excelClass() {
+    return getClass();
+  }
+
+  public Class<E> entryClass() {
+    return entryClass;
+  }
+
   public abstract E newEntry();
 
   public abstract S newSerializer();
