@@ -40,6 +40,13 @@ public abstract class Excel<
    */
   public static abstract class Entry {
     /**
+     * Tags a specified field as the primary key of the excel table.
+     */
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface PrimaryKey {}
+
+    /**
      * Tags the specified field as a column within the excel table.
      */
     @Target(ElementType.FIELD)
