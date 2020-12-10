@@ -6,14 +6,20 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.util.ClassUtils;
 
 /**
  * Root class of an excel table.
@@ -27,27 +33,11 @@ public abstract class Excel<
   private static final Logger log = LogManager.getLogger(Excel.class);
 
   /**
-   * Tags the specified excel as indexed. Indexed excels apply a 1-to-1
-   * assignment of row index to entry index. Used in the case where the excel
-   * does not include a primary key column.
-   */
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  public @interface Indexed {}
-
-  /**
    * Root class of an excel entry.
    */
   public static abstract class Entry {
     /**
-     * Tags a specified field as the primary key of the excel table.
-     */
-    @Target(ElementType.FIELD)
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface PrimaryKey {}
-
-    /**
-     * Tags the specified field as a column within the excel table.
+     * Tags a specified field as a column within the excel table.
      */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
@@ -91,21 +81,6 @@ public abstract class Excel<
        */
       @Deprecated
       int columnIndex() default -1;
-
-      /**
-       * Whether or not to store value within the generated bin.
-       */
-      boolean bin() default true;
-
-      /**
-       * Tags the column as a foreign key in the specified excel.
-       */
-      Class<? extends Excel> foreignKey() default Excel.class;
-
-      /**
-       * Tags the column as a primary key for this excel.
-       */
-      boolean primaryKey() default false;
     }
   }
 
@@ -125,13 +100,13 @@ public abstract class Excel<
     try {
       TxtParser parser = TxtParser.parse(in);
       return loadTxt(excel, parser);
-    } catch (IllegalAccessException t) {
-      log.error("Unable to load {} as {}: {}",
+    } catch (IllegalAccessException|ParseException t) {
+      log.fatal("Unable to load {} as {}: {}",
           handle,
           excel.getClass().getCanonicalName(),
           ExceptionUtils.getRootCauseMessage(t),
           t);
-      return ExceptionUtils.wrapAndThrow(t);
+      return ExceptionUtils.rethrow(t);
     } finally {
       IOUtils.closeQuietly(in);
     }

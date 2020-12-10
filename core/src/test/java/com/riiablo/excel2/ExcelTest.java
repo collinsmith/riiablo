@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.RiiabloTest;
+import com.riiablo.excel2.txt.MonStats;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
@@ -19,6 +20,6 @@ public class ExcelTest extends RiiabloTest {
   @Test
   public void parse_monstats_columns() throws IOException {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
-    Excel.loadTxt(null, handle);
+    Excel.loadTxt(new MonStats(), handle);
   }
 }
