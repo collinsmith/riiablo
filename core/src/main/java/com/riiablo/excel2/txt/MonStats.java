@@ -11,7 +11,7 @@ import com.riiablo.io.ByteOutput;
 @SerializedWith(MonStats.Serializer.class)
 public class MonStats extends Excel<MonStats.Entry, MonStats.Serializer> {
   public MonStats() {
-    super(Entry.class);
+    super(Entry.class, 1543); // 736 entries
   }
 
   @Override
