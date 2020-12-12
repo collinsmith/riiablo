@@ -76,10 +76,9 @@ public abstract class Excel<
       String[] values() default {};
 
       /**
-       * Manually sets the column index. Used in the case where a column might
-       * not be named.
+       * Manually sets the column index. This property overrides all other
+       * properties.
        */
-      @Deprecated
       int columnIndex() default -1;
     }
   }
