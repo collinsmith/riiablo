@@ -1,11 +1,13 @@
 package com.riiablo.excel2.txt;
 
+import com.riiablo.excel2.Entry;
 import com.riiablo.excel2.Excel;
 import com.riiablo.excel2.PrimaryKey;
 import com.riiablo.excel2.SerializedWith;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.ByteOutput;
 
+@Entry(MonStats.Entry.class)
 @SerializedWith(MonStats.Serializer.class)
 public class MonStats extends Excel<MonStats.Entry, MonStats.Serializer> {
   public MonStats() {

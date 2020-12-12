@@ -6,7 +6,6 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.files.FileHandle;
 
-import com.riiablo.excel2.Excel.Entry;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 import com.riiablo.util.ClassUtils;
@@ -52,27 +51,34 @@ public class SerializerGenerator {
       return;
     }
 
-    // Find impls of Entry.class within sourceClass
-    Class entryClass;
-    Class[] entryClasses = ClassUtils.findDeclaredClasses(sourceClass, Entry.class);
-    switch (entryClasses.length) {
-      case 0:
-        log.error("{} does not contain an implementation of {}", sourceClass, Entry.class);
-        return;
-      case 1:
-        entryClass = entryClasses[0];
-        log.trace("entryClass: {}", entryClass.getCanonicalName());
-        break;
-      default:
-        log.error("{} contains ambiguous implementations of {}: {}",
-            sourceClass, Entry.class, Arrays.toString(entryClasses));
-        return;
+    final Class entryClass;
+    Entry excelDef = (Entry) sourceClass.getAnnotation(Entry.class);
+    if (excelDef != null) {
+      entryClass = excelDef.value();
+    } else {
+      log.warn("excel class {} not annotated with {}",
+          sourceClass.getCanonicalName(), Entry.class.getCanonicalName());
+      // Find impls of Entry.class within sourceClass
+      Class[] entryClasses = ClassUtils.findDeclaredClasses(sourceClass, Excel.Entry.class);
+      switch (entryClasses.length) {
+        case 0:
+          log.error("{} does not contain an implementation of {}", sourceClass, Excel.Entry.class);
+          return;
+        case 1:
+          entryClass = entryClasses[0];
+          log.trace("entryClass: {}", entryClass.getCanonicalName());
+          break;
+        default:
+          log.error("{} contains ambiguous implementations of {}: {}",
+              sourceClass, Excel.Entry.class, Arrays.toString(entryClasses));
+          return;
+      }
     }
 
-    if (!entryClass.getSimpleName().equals(Entry.class.getSimpleName())) {
+    if (!entryClass.getSimpleName().equals(Excel.Entry.class.getSimpleName())) {
       log.warn("entry class {} not named {}",
           entryClass.getCanonicalName(),
-          sourceClass.getCanonicalName() + "$" + Entry.class.getSimpleName());
+          sourceClass.getCanonicalName() + "$" + Excel.Entry.class.getSimpleName());
       // return; // Allow it for now
     }
 
