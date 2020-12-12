@@ -560,7 +560,7 @@ public class BitInput {
    *
    * @param maxLen maximum number of characters to read
    * @param bits size of each character ({@code 7} or {@code 8})
-   * @param nullTerminated {@code true} to stop reading at {@code '\0}'
+   * @param nullTerminated {@code true} to stop reading at {@code '\0'}
    */
   public String readString(int maxLen, int bits, boolean nullTerminated) {
     if (maxLen < 0) throw new IllegalArgumentException("maxLen(" + maxLen + ") < " + 0);

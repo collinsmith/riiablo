@@ -536,4 +536,20 @@ public class ByteInput {
       throw new EndOfInput(t);
     }
   }
+
+  /**
+   * Reads bytes until {@code '\0'} is encountered and constructs a string.
+   */
+  public String readString() {
+    assert aligned() : "not aligned";
+    int length = buffer.bytesBefore((byte) '\0');
+    if (length == -1) {
+      throw new EndOfInput(new IndexOutOfBoundsException(
+          "Failed to find null-termination for string!"));
+    }
+    incrementBitsRead((long) length * Byte.SIZE);
+    CharSequence charSequence = buffer.readCharSequence(length, CharsetUtil.US_ASCII);
+    skipBytes(1);
+    return charSequence.toString();
+  }
 }
