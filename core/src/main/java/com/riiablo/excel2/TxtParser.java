@@ -110,9 +110,12 @@ public class TxtParser {
     tokenOffsets.clear();
     tokenOffsets.add(0);
     index++;
-copy:
-    for (int i; (i = in.read()) != -1;) {
+lineBuilder:
+    for (;;) {
+      final int i = in.read();
       switch (i) {
+        case -1:
+          return -1;
         case HT:
           tokenOffsets.add(cache.size);
           break;
@@ -120,7 +123,7 @@ copy:
           in.skip(1);
         case LF:
           tokenOffsets.add(cache.size);
-          break copy;
+          break lineBuilder;
         default:
           cache.add((byte) i);
       }
