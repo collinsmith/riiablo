@@ -35,6 +35,29 @@ public class ParseException extends Exception {
     setStackTrace(stackTrace.toArray());
   }
 
+  ParseException(Throwable t, Field field, String format, Object... args) {
+    this(format, args);
+    initCause(t);
+
+    // Formats the leading stack trace element like:
+    //   at com.riiablo.excel.txt.MonStats$Entry.hcIdx2(MonStats.java:0)
+    Class declaringClass = field.getDeclaringClass();
+    StackTraceElement fieldElement = new StackTraceElement(
+        declaringClass.getName(),
+        field.getName(),
+        getRootClass(declaringClass).getSimpleName() + ".java",
+        0); // 0 indicates line 0 -- non-zero required for link parsing in IDEA
+
+    StackTraceElement[] originalStackTrace = getStackTrace();
+    Array<StackTraceElement> stackTrace = new Array<>(
+        true,
+        originalStackTrace.length + 1,
+        StackTraceElement.class);
+    stackTrace.add(fieldElement);
+    stackTrace.addAll(originalStackTrace);
+    setStackTrace(stackTrace.toArray());
+  }
+
   ParseException(Class clazz, String format, Object... args) {
     this(format, args);
 

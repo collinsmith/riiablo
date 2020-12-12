@@ -167,11 +167,11 @@ lineBuilder:
   }
 
   public String columnName(int i) {
-    return columnNames.get(i).toString();
+    return columnNames.get(i);
   }
 
   public String rowName() {
-    return parseString(0);
+    return parseString(0, "");
   }
 
   public int columnId(String columnName) {
@@ -201,35 +201,49 @@ lineBuilder:
     return line.subSequence(tokenOffsets[i], tokenOffsets[i + 1]);
   }
 
-  public byte parseByte(int i) {
+  public byte parseByte(int i, byte defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
-    final int intValue = line.parseInt(tokenOffsets[i], tokenOffsets[i + 1]);
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    final int intValue = line.parseInt(startOffset, endOffset);
     final byte result = (byte) intValue;
     if (result != intValue) {
-      throw new NumberFormatException(line.subSequence(tokenOffsets[i], tokenOffsets[i + 1], false).toString());
+      throw new NumberFormatException(line.subSequence(startOffset, endOffset, false).toString());
     }
-
     return result;
   }
 
-  public short parseShort(int i) {
+  public short parseShort(int i, short defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
-    return line.parseShort(tokenOffsets[i], tokenOffsets[i + 1]);
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseShort(startOffset, endOffset);
   }
 
-  public int parseInt(int i) {
+  public int parseInt(int i, int defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
-    return line.parseInt(tokenOffsets[i], tokenOffsets[i + 1]);
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseInt(startOffset, endOffset);
   }
 
-  public long parseLong(int i) {
+  public long parseLong(int i, long defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
-    return line.parseLong(tokenOffsets[i], tokenOffsets[i + 1]);
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseLong(startOffset, endOffset);
   }
 
-  public boolean parseBoolean(int i) {
+  public boolean parseBoolean(int i, boolean defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
-    final int intValue = line.parseInt(tokenOffsets[i], tokenOffsets[i + 1]);
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    final int intValue = line.parseInt(startOffset, endOffset);
     if ((intValue & 1) != intValue) {
       log.warn("boolean exceeds boolean radix at {}:{} (\"{}\", \"{}\"): {}",
           index, i, rowName(), columnName(i), intValue);
@@ -238,67 +252,27 @@ lineBuilder:
     return intValue != 0;
   }
 
-  public float parseFloat(int i) {
+  public float parseFloat(int i, float defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
-    return line.parseFloat(tokenOffsets[i], tokenOffsets[i + 1]);
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseFloat(startOffset, endOffset);
   }
 
-  public double parseDouble(int i) {
+  public double parseDouble(int i, double defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
-    return line.parseDouble(tokenOffsets[i], tokenOffsets[i + 1]);
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseDouble(startOffset, endOffset);
   }
 
-  public String parseString(int i) {
+  public String parseString(int i, String defaultValue) {
     final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
     return line.toString(tokenOffsets[i], tokenOffsets[i + 1]);
-  }
-
-  public byte[] parseByte(int[] columns) {
-    final int length = columns.length;
-    byte[] values = new byte[length];
-    for (int i = 0; i < length; i++) values[i] = parseByte(columns[i]);
-    return values;
-  }
-
-  public short[] parseShort(int[] columns) {
-    final int length = columns.length;
-    short[] values = new short[length];
-    for (int i = 0; i < length; i++) values[i] = parseShort(columns[i]);
-    return values;
-  }
-
-  public long[] parseLong(int[] columns) {
-    final int length = columns.length;
-    long[] values = new long[length];
-    for (int i = 0; i < length; i++) values[i] = parseLong(columns[i]);
-    return values;
-  }
-
-  public boolean[] parseBoolean(int[] columns) {
-    final int length = columns.length;
-    boolean[] values = new boolean[length];
-    for (int i = 0; i < length; i++) values[i] = parseBoolean(columns[i]);
-    return values;
-  }
-
-  public float[] parseFloat(int[] columns) {
-    final int length = columns.length;
-    float[] values = new float[length];
-    for (int i = 0; i < length; i++) values[i] = parseFloat(columns[i]);
-    return values;
-  }
-
-  public double[] parseDouble(int[] columns) {
-    final int length = columns.length;
-    double[] values = new double[length];
-    for (int i = 0; i < length; i++) values[i] = parseDouble(columns[i]);
-    return values;
-  }
-
-  public String[] parseString(int[] columns) {
-    final int length = columns.length;
-    String[] values = new String[length];
-    for (int i = 0; i < length; i++) values[i] = parseString(columns[i]);
-    return values;
   }
 }

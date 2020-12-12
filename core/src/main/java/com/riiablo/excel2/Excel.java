@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -218,10 +219,10 @@ public abstract class Excel<
     final Class primaryKeyType = indexed ? null : primaryKey.getType();
     for (int i = excel.offset(); parser.cacheLine() != -1; i++) {
       E entry = excel.newEntry();
-      String name = indexed ? null : parser.parseString(primaryKeyColumnId);
+      String name = indexed ? null : parser.parseString(primaryKeyColumnId, "");
       try {
-        MDC.put("entry", name);
-        inject(excel, entry, name, columns, parser);
+        MDC.put("entry", indexed || StringUtils.isBlank(name) ? "" + i : name);
+        parseColumns(excel, entry, name, columns, parser);
       } finally {
         MDC.remove("entry");
       }
@@ -231,8 +232,24 @@ public abstract class Excel<
     return excel;
   }
 
+  static void
+  catchParseException(
+      Throwable t,
+      Field field,
+      Class type,
+      String key,
+      String columnName,
+      CharSequence token
+  ) {
+    ParseException parseException = new ParseException(t, field,
+        "error parsing field %s row: '%s' column: '%s': '%s' as %s",
+        field, key, columnName, token.toString(),
+        type.isArray() ? type.getComponentType().getCanonicalName() : type.getCanonicalName());
+    log.warn(parseException.getMessage(), parseException);
+  }
+
   static <E extends Entry, S extends Serializer<E>, T extends Excel<E, S>>
-  void inject(
+  void parseColumns(
       T excel,
       E entry,
       String key,
@@ -244,42 +261,155 @@ public abstract class Excel<
     for (Triple<Field, int[], String[]> column : columns) {
       final Field field = column.getLeft();
       final int[] columnIds = column.getMiddle();
+      final int numColumns = columnIds.length;
       final String[] columnNames = column.getRight();
       final Class type = field.getType();
       try {
         if (type == String.class) {
-          field.set(entry, parser.parseString(columnIds[0]));
+          try {
+            field.set(entry, parser.parseString(columnIds[0], ""));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == String[].class) {
-          field.set(entry, parser.parseString(columnIds));
-        } else if (type == byte.class) {
-          field.setByte(entry, parser.parseByte(columnIds[0]));
+          final String[] value = new String[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseString(columnIds[i], "");
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else if (type == byte.class) {
+          try {
+            field.setByte(entry, parser.parseByte(columnIds[0], (byte) 0));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == byte[].class) {
-          field.set(entry, parser.parseByte(columnIds));
-        } else if (type == short.class) {
-          field.setShort(entry, parser.parseShort(columnIds[0]));
+          final byte[] value = new byte[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseByte(columnIds[i], (byte) 0);
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else if (type == short.class) {
+          try {
+            field.setShort(entry, parser.parseShort(columnIds[0], (short) 0));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == short[].class) {
-          field.set(entry, parser.parseShort(columnIds));
-        } else if (type == int.class) {
-          field.setInt(entry, parser.parseInt(columnIds[0]));
+          final short[] value = new short[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseShort(columnIds[i], (short) 0);
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else if (type == int.class) {
+          try {
+            field.setInt(entry, parser.parseInt(columnIds[0], 0));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == int[].class) {
-          field.set(entry, parser.parseInt(columnIds));
-        } else if (type == long.class) {
-          field.setLong(entry, parser.parseLong(columnIds[0]));
+          final int[] value = new int[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseInt(columnIds[i], 0);
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else if (type == long.class) {
+          try {
+            field.setLong(entry, parser.parseLong(columnIds[0], 0L));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == long[].class) {
-          field.set(entry, parser.parseLong(columnIds));
-        } else if (type == boolean.class) {
-          field.setBoolean(entry, parser.parseBoolean(columnIds[0]));
+          final long[] value = new long[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseLong(columnIds[i], 0L);
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else if (type == boolean.class) {
+          try {
+            field.setBoolean(entry, parser.parseBoolean(columnIds[0], false));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == boolean[].class) {
-          field.set(entry, parser.parseBoolean(columnIds));
-        } else if (type == float.class) {
-          field.setFloat(entry, parser.parseFloat(columnIds[0]));
+          final boolean[] value = new boolean[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseBoolean(columnIds[i], false);
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else if (type == float.class) {
+          try {
+            field.setFloat(entry, parser.parseFloat(columnIds[0], 0f));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == float[].class) {
-          field.set(entry, parser.parseFloat(columnIds));
-        } else if (type == double.class) {
-          field.setDouble(entry, parser.parseDouble(columnIds[0]));
+          final float[] value = new float[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseFloat(columnIds[i], 0f);
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else if (type == double.class) {
+          try {
+            field.setDouble(entry, parser.parseDouble(columnIds[0], 0d));
+          } catch (Throwable t) {
+            catchParseException(t, field, type, key, columnNames[0], parser.token(columnIds[0]));
+          }
         } else if (type == double[].class) {
-          field.set(entry, parser.parseDouble(columnIds));
-        } else {
+          final double[] value = new double[numColumns];
+          for (int i = 0; i < numColumns; i++) {
+            try {
+              value[i] = parser.parseDouble(columnIds[i], 0d);
+            } catch (Throwable t) {
+              catchParseException(t, field, type, key, columnNames[i], parser.token(columnIds[i]));
+            }
+          }
+          field.set(entry, value);
+        }
+
+        else {
           throw new ParseException(field, "Cannot parse fields of type %s",
               org.apache.commons.lang3.ClassUtils.getCanonicalName(type));
         }

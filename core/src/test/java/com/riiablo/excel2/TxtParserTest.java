@@ -46,7 +46,7 @@ public class TxtParserTest extends RiiabloTest {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
     TxtParser parser = TxtParser.parse(handle.read());
     parser.cacheLine();
-    Assert.assertEquals(0, parser.parseInt(1));
+    Assert.assertEquals(0, parser.parseInt(1, -1));
     LogManager.setLevel("com.riiablo.excel2", Level.TRACE);
   }
 }
