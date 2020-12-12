@@ -14,7 +14,7 @@ import com.riiablo.logger.LogManager;
 public class TxtParserTest extends RiiabloTest {
   @org.junit.BeforeClass
   public static void before() {
-    LogManager.setLevel("com.riiablo.excel2", Level.TRACE);
+    LogManager.setLevel("com.riiablo.excel2.TxtParser", Level.TRACE);
   }
 
   @Test

@@ -12,7 +12,7 @@ import com.riiablo.logger.LogManager;
 public class SerializerGeneratorTest extends RiiabloTest {
   @BeforeClass
   public static void before() {
-    LogManager.setLevel("com.riiablo.excel2", Level.TRACE);
+    LogManager.setLevel("com.riiablo.excel2.SerializerGenerator", Level.TRACE);
   }
 
   @Test

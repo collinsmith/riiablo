@@ -10,16 +10,22 @@ import com.riiablo.RiiabloTest;
 import com.riiablo.excel2.txt.MonStats;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
+import com.riiablo.logger.MDC;
 
 public class ExcelTest extends RiiabloTest {
   @org.junit.BeforeClass
   public static void before() {
-    LogManager.setLevel("com.riiablo.excel2", Level.TRACE);
+    LogManager.setLevel("com.riiablo.excel2.Excel", Level.TRACE);
   }
 
   @Test
   public void parse_monstats_columns() throws IOException {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
-    Excel.loadTxt(new MonStats(), handle);
+    try {
+      MDC.put("excel", handle.path());
+      Excel.loadTxt(new MonStats(), handle);
+    } finally {
+      MDC.remove("excel");
+    }
   }
 }
