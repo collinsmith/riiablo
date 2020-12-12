@@ -20,7 +20,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+
 import com.riiablo.Riiablo;
+import com.riiablo.RiiabloVersion;
 import com.riiablo.codec.Animation;
 import com.riiablo.codec.DC6;
 import com.riiablo.graphics.BlendMode;
@@ -147,7 +149,7 @@ public class MenuScreen extends ScreenAdapter {
     //btnExit.setVisible(Gdx.app.getType() == Application.ApplicationType.Android);
     stage.addActor(btnExit);
 
-    lbVersion = new Label(Riiablo.bundle.get("version"), Riiablo.fonts.font16);
+    lbVersion = new Label(Riiablo.bundle.format("version", RiiabloVersion.VERSION), Riiablo.fonts.font16);
     lbVersion.setPosition(stage.getWidth() - 20, 20, Align.bottomRight);
     stage.addActor(lbVersion);
   }

@@ -258,6 +258,7 @@ public class Client extends Game {
       Calendar calendar = Calendar.getInstance();
       DateFormat format = DateFormat.getDateTimeInstance();
       console.out.println(format.format(calendar.getTime()));
+      console.out.println(RiiabloVersion.VERSION + " - " + RiiabloVersion.BUILD_DATE);
       console.out.println(home.path());
       console.out.println(saves.path());
     }
