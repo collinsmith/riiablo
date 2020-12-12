@@ -30,5 +30,7 @@ public class MonStats extends Excel<MonStats.Entry, MonStats.Serializer> {
   public static class Serializer implements com.riiablo.excel2.Serializer<Entry> {
     @Override public void readBin(Entry entry, ByteInput in) {}
     @Override public void writeBin(Entry entry, ByteOutput out) {}
+    @Override public boolean equals(Entry e1, Entry e2) { throw new UnsupportedOperationException(); }
+    @Override public void logErrors(Entry e1, Entry e2) {}
   }
 }

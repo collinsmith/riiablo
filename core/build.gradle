@@ -35,6 +35,11 @@ dependencies {
   api "com.jcraft:jzlib:1.1.3"
 }
 
+// Excel
+dependencies {
+  implementation "com.squareup:javapoet:1.13.0"
+}
+
 // Networking
 dependencies {
   api "com.google.flatbuffers:flatbuffers-java:$flatbuffersVersion"
