@@ -6,6 +6,7 @@ import com.riiablo.logger.message.PooledFormattedMessageFactory;
 import com.riiablo.logger.message.PooledParameterizedMessageFactory;
 import com.riiablo.util.Pool;
 
+@SuppressWarnings("unused")
 public final class Logger {
   private static final String FQCN = Logger.class.getName();
 
