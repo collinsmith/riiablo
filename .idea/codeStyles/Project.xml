@@ -425,7 +425,7 @@
     </codeStyleSettings>
     <codeStyleSettings language="Markdown">
       <option name="RIGHT_MARGIN" value="80" />
-      <option name="WRAP_ON_TYPING" value="0" />
+      <option name="WRAP_ON_TYPING" value="1" />
     </codeStyleSettings>
     <codeStyleSettings language="PHP">
       <option name="KEEP_CONTROL_STATEMENT_IN_ONE_LINE" value="false" />
