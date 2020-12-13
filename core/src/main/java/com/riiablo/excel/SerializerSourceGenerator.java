@@ -1,4 +1,4 @@
-package com.riiablo.excel2;
+package com.riiablo.excel;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -22,7 +22,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 
 import com.badlogic.gdx.utils.Array;
 
-import com.riiablo.excel2.Excel.Entry.Column;
+import com.riiablo.excel.Excel.Entry.Column;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.ByteOutput;
 import com.riiablo.logger.LogManager;
@@ -43,7 +43,7 @@ public class SerializerSourceGenerator {
   ClassName entryName;
 
   public SerializerSourceGenerator() {
-    this("com.riiablo.excel2.txt", "com.riiablo.excel2.serializer");
+    this("com.riiablo.excel.txt", "com.riiablo.excel.serializer");
   }
 
   static final class ColumnInfo {

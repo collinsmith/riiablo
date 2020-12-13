@@ -1,4 +1,4 @@
-package com.riiablo.excel2;
+package com.riiablo.excel;
 
 public class ColumnFormat extends RuntimeException {
   final String columnText;

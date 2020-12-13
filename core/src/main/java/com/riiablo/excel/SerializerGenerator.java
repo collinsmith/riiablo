@@ -1,4 +1,4 @@
-package com.riiablo.excel2;
+package com.riiablo.excel;
 
 import com.squareup.javapoet.JavaFile;
 import java.io.File;
@@ -13,8 +13,8 @@ import com.riiablo.util.ClassUtils;
 public class SerializerGenerator {
   private static final Logger log = LogManager.getLogger(SerializerGenerator.class);
 
-  String sourcePackage = "com.riiablo.excel2.txt";
-  String serializerPackage = "com.riiablo.excel2.serializer";
+  String sourcePackage = "com.riiablo.excel.txt";
+  String serializerPackage = "com.riiablo.excel.serializer";
 
   FileHandle sourceDir;
   FileHandle serializerDir;

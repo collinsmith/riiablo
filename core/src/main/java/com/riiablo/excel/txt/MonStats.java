@@ -1,12 +1,18 @@
 package com.riiablo.excel.txt;
 
+import com.riiablo.excel.Entry;
 import com.riiablo.excel.Excel;
+import com.riiablo.excel.PrimaryKey;
+import com.riiablo.excel.SerializedWith;
+import com.riiablo.excel.serializer.MonStatsSerializer;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.ByteOutput;
 
-public class MonStats extends Excel<MonStats.Entry, MonStats.Serializer> {
+@Entry(MonStats.Entry.class)
+@SerializedWith(MonStatsSerializer.class)
+public class MonStats extends Excel<MonStats.Entry, MonStatsSerializer> {
   public MonStats() {
-    super(Entry.class);
+    super(Entry.class, 1543); // 736 entries
   }
 
   @Override
@@ -15,8 +21,8 @@ public class MonStats extends Excel<MonStats.Entry, MonStats.Serializer> {
   }
 
   @Override
-  public Serializer newSerializer() {
-    return new Serializer();
+  public MonStatsSerializer newSerializer() {
+    return new MonStatsSerializer();
   }
 
   public static class Entry extends Excel.Entry {
@@ -25,7 +31,7 @@ public class MonStats extends Excel<MonStats.Entry, MonStats.Serializer> {
       return NameStr;
     }
 
-    @Key
+    @PrimaryKey
     @Column public String  Id;
     @Column public int     hcIdx;
     @Column public String  BaseId;
@@ -236,5 +242,7 @@ public class MonStats extends Excel<MonStats.Entry, MonStats.Serializer> {
   public static class Serializer implements com.riiablo.excel.Serializer<Entry> {
     @Override public void readBin(Entry entry, ByteInput in) {}
     @Override public void writeBin(Entry entry, ByteOutput out) {}
+    @Override public boolean equals(Entry e1, Entry e2) { throw new UnsupportedOperationException(); }
+    @Override public void logErrors(Entry e1, Entry e2) {}
   }
 }

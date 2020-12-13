@@ -1,4 +1,4 @@
-package com.riiablo.excel2;
+package com.riiablo.excel;
 
 import java.lang.reflect.Field;
 

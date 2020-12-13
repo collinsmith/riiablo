@@ -1,7 +1,7 @@
 package com.riiablo.excel;
 
 import java.io.IOException;
-import org.junit.BeforeClass;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
@@ -12,15 +12,41 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class TxtParserTest extends RiiabloTest {
-  @BeforeClass
+  @org.junit.BeforeClass
   public static void before() {
     LogManager.setLevel("com.riiablo.excel.TxtParser", Level.TRACE);
   }
 
   @Test
-  public void parse_monstats_header() throws IOException {
-    FileHandle monstats = Gdx.files.internal("test/monstats.txt");
-    TxtParser parser = TxtParser.parse(monstats);
-    String[] columnNames = parser.getColumnNames();
+  public void parse_monstats_columns() throws IOException {
+    FileHandle handle = Gdx.files.internal("test/monstats.txt");
+    TxtParser.parse(handle.read());
+  }
+
+  @Test
+  public void parse_monstats_first() throws IOException {
+    FileHandle handle = Gdx.files.internal("test/monstats.txt");
+    TxtParser parser = TxtParser.parse(handle.read());
+    parser.cacheLine();
+  }
+
+  @Test
+  public void parse_monstats_first_2() throws IOException {
+    LogManager.setLevel("com.riiablo.excel", Level.DEBUG);
+    FileHandle handle = Gdx.files.internal("test/monstats.txt");
+    TxtParser parser = TxtParser.parse(handle.read());
+    parser.cacheLine();
+    parser.cacheLine();
+    LogManager.setLevel("com.riiablo.excel", Level.TRACE);
+  }
+
+  @Test
+  public void parse_monstats_parseInt() throws IOException {
+    LogManager.setLevel("com.riiablo.excel", Level.DEBUG);
+    FileHandle handle = Gdx.files.internal("test/monstats.txt");
+    TxtParser parser = TxtParser.parse(handle.read());
+    parser.cacheLine();
+    Assert.assertEquals(0, parser.parseInt(1, -1));
+    LogManager.setLevel("com.riiablo.excel", Level.TRACE);
   }
 }

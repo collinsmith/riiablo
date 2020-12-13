@@ -1,4 +1,4 @@
-package com.riiablo.excel2;
+package com.riiablo.excel;
 
 import com.squareup.javapoet.JavaFile;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import com.riiablo.excel2.txt.MonStats;
+import com.riiablo.excel.txt.MonStats;
 
 public class SerializerSourceGeneratorTest {
   @Rule

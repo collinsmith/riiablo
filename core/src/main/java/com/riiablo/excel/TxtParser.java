@@ -1,182 +1,278 @@
 package com.riiablo.excel;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
+import io.netty.util.AsciiString;
+import io.netty.util.CharsetUtil;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ByteArray;
+import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectIntMap;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
-public class TxtParser implements Closeable {
+public class TxtParser {
   private static final Logger log = LogManager.getLogger(TxtParser.class);
 
-  private static final boolean DEBUG      = true;
-  private static final boolean DEBUG_ROWS = DEBUG && true;
+  private static final int HT = '\t';
+  private static final int CR = '\r';
+  private static final int LF = '\n';
 
-  private static final boolean FORCE_BOOL = true; // logs error if boolean is not 0 or 1
-  private static final boolean FORCE_COLS = true; // ignores row if token count != columns count
+  private static final byte[] TO_UPPER;
+  static {
+    TO_UPPER = new byte[1 << Byte.SIZE];
+    for (int i = 0; i < TO_UPPER.length; i++) {
+      TO_UPPER[i] = (byte) i;
+    }
 
-  private static final String EXPANSION = "Expansion";
-
-  public static TxtParser parse(FileHandle handle) throws IOException {
-    return parse(handle.read());
+    for (int i = 'a'; i <= 'z'; i++) {
+      TO_UPPER[i] &= ~0x20;
+    }
   }
+
+  private static final AsciiString EXPANSION = AsciiString.cached("EXPANSION");
 
   public static TxtParser parse(InputStream in) throws IOException {
-    BufferedReader reader = null;
-    reader = IOUtils.buffer(new InputStreamReader(in, StandardCharsets.US_ASCII));
-    return new TxtParser(reader);
+    return parse(in, 8192);
   }
 
-  final BufferedReader reader;
+  public static TxtParser parse(InputStream in, int bufferSize) throws IOException {
+    return new TxtParser(in, bufferSize);
+  }
+
+  final int numColumns;
+  final Array<String> columnNames;
   final ObjectIntMap<String> columnIds;
-  final String columnNames[];
+
+  BufferedInputStream in;
+  AsciiString line;
   int index;
+  final ByteArray cache;
+  final IntArray tokenOffsets;
+  int[] tokenOffsetsCache;
+  int numTokens;
 
-  String line;
-  String tokens[];
+  TxtParser(InputStream in, int bufferSize) throws IOException {
+    this.in = IOUtils.buffer(in, bufferSize);
 
-  private TxtParser(BufferedReader reader) throws IOException {
-    this.reader = reader;
-    line = reader.readLine();
-    columnNames = StringUtils.splitPreserveAllTokens(line, '\t');
-    log.debug("columnNames: {}", (Object) columnNames);
-
+    cache = new ByteArray(512);
+    columnNames = new Array<>();
     columnIds = new ObjectIntMap<>();
-    for (int i = 0; i < columnNames.length; i++) {
-      String key = columnNames[i].toLowerCase();
-      if (!columnIds.containsKey(key)) columnIds.put(key, i);
+    numColumns = parseColumnNames();
+
+    log.info("numColumns: {}", numColumns);
+    log.debug("columnNames: {}", columnNames);
+    log.trace("columnIds: {}", columnIds);
+
+    tokenOffsets = new IntArray();
+  }
+
+  private static String toString(ByteArray array) {
+    if (array.size == 0) return "";
+    String stringValue = new String(array.items, 0, array.size, CharsetUtil.US_ASCII);
+    array.clear();
+    return stringValue;
+  }
+
+  private int parseColumnNames() throws IOException {
+    for (int i; (i = in.read()) != -1;) {
+      switch (i) {
+        case HT:
+          putColumnName(toString(cache));
+          break;
+        case CR:
+          in.skip(1);
+        case LF:
+          putColumnName(toString(cache));
+          return columnNames.size;
+        default:
+          cache.add(TO_UPPER[i]);
+      }
     }
-    log.debug("columnIds: {}", columnIds);
+
+    throw new IOException("Unexpected end of file while parsing column names");
   }
 
-  @Override
-  public void close() throws IOException {
-    reader.close();
+  private void putColumnName(String columnName) {
+    if (!columnIds.containsKey(columnName)) {
+      columnIds.put(columnName, columnNames.size);
+    }
+
+    columnNames.add(columnName);
   }
 
-  public String[] getColumnNames() {
+  public int cacheLine() throws IOException {
+    cache.clear();
+    tokenOffsets.clear();
+    tokenOffsets.add(0);
+    index++;
+lineBuilder:
+    for (;;) {
+      final int i = in.read();
+      switch (i) {
+        case -1:
+          return -1;
+        case HT:
+          tokenOffsets.add(cache.size);
+          break;
+        case CR:
+          in.skip(1);
+        case LF:
+          tokenOffsets.add(cache.size);
+          break lineBuilder;
+        default:
+          cache.add((byte) i);
+      }
+    }
+
+    numTokens = tokenOffsets.size - 1;
+    tokenOffsetsCache = tokenOffsets.items;
+    line = new AsciiString(cache.items, 0, cache.size, false);
+    log.debug("line: {}", line);
+    if (line.contentEqualsIgnoreCase(EXPANSION)) {
+      log.trace("skipping row {}: {} is an ignored symbol", index, EXPANSION);
+      return cacheLine();
+    }
+
+    if (numTokens != numColumns) {
+      log.warn("skipping row {}: contains {} tokens, expected {}; tokens: {}",
+          index, numTokens, numColumns, tokens());
+      return cacheLine();
+    }
+
+    if (log.traceEnabled()) {
+      final int[] tokenOffsets = this.tokenOffsets.items;
+      for (int i = 1, j = tokenOffsets[i - 1], s = this.tokenOffsets.size; i < s; i++) {
+        final int tokenOffset = tokenOffsets[i];
+        log.trace("{}={}", columnName(i - 1), line.subSequence(j, tokenOffset, false));
+        j = tokenOffset;
+      }
+    }
+
+    return tokenOffsets.size - 1;
+  }
+
+  public int numColumns() {
+    return numColumns;
+  }
+
+  public String[] columnNames() {
+    final String[] columnNames = new String[numColumns];
+    for (int i = 0; i < numColumns; i++) columnNames[i] = columnName(i);
     return columnNames;
   }
 
-  public int getNumColumns() {
-    return columnNames.length;
+  public String columnName(int i) {
+    return columnNames.get(i);
   }
 
-  public String getColumnName(int i) {
-    return columnNames[i];
+  public String rowName() {
+    return parseString(0, "");
   }
 
-  public String[] getTokens() {
-    return tokens;
+  public int columnId(String columnName) {
+    return columnIds.get(columnName.toUpperCase(), -1);
   }
 
-  public int getNumTokens() {
-    return tokens.length;
-  }
-
-  public int getColumnId(String s) {
-    return columnIds.get(s.toLowerCase(), -1);
-  }
-
-  public int[] getColumnId(String[] s) {
-    int[] columnIds = new int[s.length];
-    for (int i = 0; i < s.length; i++) columnIds[i] = getColumnId(s[i]);
+  public int[] columnId(String[] columnNames) {
+    final int numColumns = columnNames.length;
+    final int[] columnIds = new int[numColumns];
+    for (int i = 0; i < numColumns; i++) columnIds[i] = columnId(columnNames[i]);
     return columnIds;
   }
 
-  public String nextLine() throws IOException {
-    index++;
-    line = reader.readLine();
-    if (line == null) {
-      return null;
-    } else if (line.equalsIgnoreCase(EXPANSION)) {
-      return nextLine();
+  public int numTokens() {
+    return numTokens;
+  }
+
+  public AsciiString[] tokens() {
+    final int numTokens = numTokens();
+    final AsciiString[] tokens = new AsciiString[numTokens];
+    for (int i = 0; i < numTokens; i++) tokens[i] = token(i);
+    return tokens;
+  }
+
+  public AsciiString token(int i) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    return line.subSequence(tokenOffsets[i], tokenOffsets[i + 1]);
+  }
+
+  public byte parseByte(int i, byte defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    final int intValue = line.parseInt(startOffset, endOffset);
+    final byte result = (byte) intValue;
+    if (result != intValue) {
+      throw new NumberFormatException(line.subSequence(startOffset, endOffset, false).toString());
+    }
+    return result;
+  }
+
+  public short parseShort(int i, short defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseShort(startOffset, endOffset);
+  }
+
+  public int parseInt(int i, int defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseInt(startOffset, endOffset);
+  }
+
+  public long parseLong(int i, long defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseLong(startOffset, endOffset);
+  }
+
+  public boolean parseBoolean(int i, boolean defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    final int intValue = line.parseInt(startOffset, endOffset);
+    if ((intValue & 1) != intValue) {
+      log.warn("boolean exceeds boolean radix at {}:{} (\"{}\", \"{}\"): {}",
+          index, i, rowName(), columnName(i), intValue);
     }
 
-    tokens = StringUtils.splitPreserveAllTokens(line, '\t');
-    if (log.traceEnabled()) log.trace("{}: {}", (index - 1), Arrays.toString(tokens));
-    if (FORCE_COLS && tokens.length != columnNames.length) {
-      log.warn("skipping row {}: contains {} tokens, expected {}; tokens: {}",
-          index, tokens.length, columnNames.length, Arrays.toString(tokens));
-      return nextLine();
-    }
-
-    return line;
+    return intValue != 0;
   }
 
-  public String getString(int i) {
-    return tokens[i];
+  public float parseFloat(int i, float defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseFloat(startOffset, endOffset);
   }
 
-  public byte getByte(int i) {
-    return NumberUtils.toByte(tokens[i]);
+  public double parseDouble(int i, double defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.parseDouble(startOffset, endOffset);
   }
 
-  public short getShort(int i) {
-    return NumberUtils.toShort(tokens[i]);
-  }
-
-  public int getInt(int i) {
-    return NumberUtils.toInt(tokens[i]);
-  }
-
-  public long getLong(int i) {
-    return NumberUtils.toLong(tokens[i]);
-  }
-
-  public boolean getBoolean(int i) {
-    int value = getInt(i);
-    if (FORCE_BOOL && (value & 1) != value) {
-      log.warn("boolean value != 0 or 1 at {}:{} (\"{}\", \"{}\"): {}",
-          index, i, getString(0), getColumnName(i), value);
-    }
-    return value != 0;
-  }
-
-  public String[] getString(int[] cols) {
-    String[] data = new String[cols.length];
-    for (int i = 0; i < cols.length; i++) data[i] = getString(cols[i]);
-    return data;
-  }
-
-  public byte[] getByte(int[] cols) {
-    byte[] data = new byte[cols.length];
-    for (int i = 0; i < cols.length; i++) data[i] = getByte(cols[i]);
-    return data;
-  }
-
-  public short[] getShort(int[] cols) {
-    short[] data = new short[cols.length];
-    for (int i = 0; i < cols.length; i++) data[i] = getShort(cols[i]);
-    return data;
-  }
-
-  public int[] getInt(int[] cols) {
-    int[] data = new int[cols.length];
-    for (int i = 0; i < cols.length; i++) data[i] = getInt(cols[i]);
-    return data;
-  }
-
-  public long[] getLong(int[] cols) {
-    long[] data = new long[cols.length];
-    for (int i = 0; i < cols.length; i++) data[i] = getLong(cols[i]);
-    return data;
-  }
-
-  public boolean[] getBoolean(int[] cols) {
-    boolean[] data = new boolean[cols.length];
-    for (int i = 0; i < cols.length; i++) data[i] = getBoolean(cols[i]);
-    return data;
+  public String parseString(int i, String defaultValue) {
+    final int[] tokenOffsets = tokenOffsetsCache;
+    final int startOffset = tokenOffsets[i];
+    final int endOffset = tokenOffsets[i + 1];
+    if (startOffset >= endOffset) return defaultValue;
+    return line.toString(tokenOffsets[i], tokenOffsets[i + 1]);
   }
 }

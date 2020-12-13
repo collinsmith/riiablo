@@ -1,4 +1,4 @@
-package com.riiablo.excel2;
+package com.riiablo.excel;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import com.riiablo.logger.LogManager;
 public class SerializerGeneratorTest extends RiiabloTest {
   @BeforeClass
   public static void before() {
-    LogManager.setLevel("com.riiablo.excel2.SerializerGenerator", Level.TRACE);
+    LogManager.setLevel("com.riiablo.excel.SerializerGenerator", Level.TRACE);
   }
 
   @Test
@@ -21,12 +21,12 @@ public class SerializerGeneratorTest extends RiiabloTest {
     generator.init();
     generator.sourceDir = Gdx.files.absolute(
         "C:\\Users\\csmith\\projects\\libgdx\\riiablo"
-            + "\\core\\src\\main\\java\\com\\riiablo\\excel2\\txt");
+            + "\\core\\src\\main\\java\\com\\riiablo\\excel\\txt");
     generator.serializerDir = Gdx.files.absolute(
         "C:\\Users\\csmith\\projects\\libgdx\\riiablo"
             + "\\core\\src\\main\\java");
-    generator.sourcePackage = "com.riiablo.excel2.txt";
-    generator.serializerPackage = "com.riiablo.excel2.serializer";
+    generator.sourcePackage = "com.riiablo.excel.txt";
+    generator.serializerPackage = "com.riiablo.excel.serializer";
     generator.generateSerializers();
   }
 }

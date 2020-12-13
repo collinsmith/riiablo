@@ -1,4 +1,4 @@
-package com.riiablo.excel2;
+package com.riiablo.excel;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
