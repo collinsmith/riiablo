@@ -13,15 +13,35 @@ import com.riiablo.util.ClassUtils;
 public class SerializerGenerator {
   private static final Logger log = LogManager.getLogger(SerializerGenerator.class);
 
-  String sourcePackage = "com.riiablo.excel.txt";
-  String serializerPackage = "com.riiablo.excel.serializer";
+  final String sourcePackage;
+  final String serializerPackage;
 
-  FileHandle sourceDir;
-  FileHandle serializerDir;
+  final FileHandle sourceDir;
+  final FileHandle serializerDir;
 
-  SerializerSourceGenerator sourceGenerator;
+  final SerializerSourceGenerator sourceGenerator;
 
-  void init() {
+  public SerializerGenerator(
+      FileHandle sourceDir,
+      FileHandle serializerDir) {
+    this(
+        "com.riiablo.excel.txt",
+        "com.riiablo.excel.serializer",
+        sourceDir,
+        serializerDir
+    );
+  }
+
+  public SerializerGenerator(
+      String sourcePackage,
+      String serializerPackage,
+      FileHandle sourceDir,
+      FileHandle serializerDir
+  ) {
+    this.sourcePackage = sourcePackage;
+    this.serializerPackage = serializerPackage;
+    this.sourceDir = sourceDir;
+    this.serializerDir = serializerDir;
     sourceGenerator = new SerializerSourceGenerator(sourcePackage, serializerPackage);
   }
 
@@ -30,7 +50,7 @@ public class SerializerGenerator {
     FileHandle[] sourceFiles = sourceDir.list("java");
     for (FileHandle sourceFile : sourceFiles) {
       try {
-        log.info("Generating: '{}'", sourceFile);
+        log.info("Processing: '{}'", sourceFile);
         configureSourceGenerator(sourceFile);
         JavaFile serializerFile = sourceGenerator.generateFile(SerializerGenerator.class);
         File file = serializerFile.writeToFile(serializerDir.file());

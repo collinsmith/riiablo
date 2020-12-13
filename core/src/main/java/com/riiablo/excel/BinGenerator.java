@@ -40,10 +40,10 @@ public class BinGenerator {
     log.trace("binFile: {}", binFile);
 
     ByteOutput out = ByteOutput.wrap(Unpooled.buffer());
-    // S serializer = excel.newSerializer();
-    // for (E entry : excel) {
-    //   serializer.writeBin(entry, out);
-    // }
+    S serializer = excel.newSerializer();
+    for (E entry : excel) {
+      // serializer.writeBin(entry, out);
+    }
 
     log.trace("dump of {}:\n{}", binFile, ByteBufUtil.prettyHexDump(out.buffer()));
   }

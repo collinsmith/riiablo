@@ -4,6 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.RiiabloTest;
 import com.riiablo.logger.Level;
@@ -17,16 +18,13 @@ public class SerializerGeneratorTest extends RiiabloTest {
 
   @Test
   public void monstats() {
-    SerializerGenerator generator = new SerializerGenerator();
-    generator.init();
-    generator.sourceDir = Gdx.files.absolute(
+    FileHandle sourceDir = Gdx.files.absolute(
         "C:\\Users\\csmith\\projects\\libgdx\\riiablo"
             + "\\core\\src\\main\\java\\com\\riiablo\\excel\\txt");
-    generator.serializerDir = Gdx.files.absolute(
+    FileHandle serializerDir = Gdx.files.absolute(
         "C:\\Users\\csmith\\projects\\libgdx\\riiablo"
             + "\\core\\src\\main\\java");
-    generator.sourcePackage = "com.riiablo.excel.txt";
-    generator.serializerPackage = "com.riiablo.excel.serializer";
+    SerializerGenerator generator = new SerializerGenerator(sourceDir, serializerDir);
     generator.generateSerializers();
   }
 }

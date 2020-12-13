@@ -4,13 +4,13 @@ import com.riiablo.excel.Entry;
 import com.riiablo.excel.Excel;
 import com.riiablo.excel.PrimaryKey;
 import com.riiablo.excel.SerializedWith;
-import com.riiablo.excel.serializer.MonStatsSerializer;
+import com.riiablo.excel.Serializer;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.ByteOutput;
 
 @Entry(MonStats.Entry.class)
-@SerializedWith(MonStatsSerializer.class)
-public class MonStats extends Excel<MonStats.Entry, MonStatsSerializer> {
+@SerializedWith(MonStats.Serializer.class)
+public class MonStats extends Excel<MonStats.Entry, Serializer<MonStats.Entry>> {
   public MonStats() {
     super(Entry.class, 1543); // 736 entries
   }
@@ -21,8 +21,8 @@ public class MonStats extends Excel<MonStats.Entry, MonStatsSerializer> {
   }
 
   @Override
-  public MonStatsSerializer newSerializer() {
-    return new MonStatsSerializer();
+  public com.riiablo.excel.Serializer<Entry> newSerializer() {
+    return new MonStats.Serializer();
   }
 
   public static class Entry extends Excel.Entry {

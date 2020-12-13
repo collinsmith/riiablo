@@ -1,0 +1,53 @@
+description = 'Generates serializer sources for excel tables schemas.'
+application.mainClass = 'com.riiablo.excel.SerializerGeneratorTool'
+
+project.ext {
+  group = 'Excel Serializer Generator'
+  srcProjectDir = project(':core').sourceSets.main.java.srcDirs.first()
+  genProjectDir = project(':core').generatedSourceDir
+//  genProjectDir = srcProjectDir
+  excelPackage = 'com.riiablo.excel'
+  txtPackage = "${excelPackage}.txt"
+  binPackage = "${excelPackage}.serializer"
+}
+
+task cleanAndGenerateSerializers {
+  group "${project.ext.group}"
+  description 'cleanSerializers + generateSerializers'
+  dependsOn 'cleanSerializers'
+  dependsOn 'generateSerializers'
+}
+
+task generateSerializers(type: JavaExec) {
+  group "${project.ext.group}"
+  description 'generates serializers for ' + project(':core')
+  mainClass = application.mainClass
+  classpath = sourceSets.main.runtimeClasspath
+  args = [
+      "--src=$srcProjectDir",
+      "--gen=$genProjectDir",
+      "--schema-package=$txtPackage",
+      "--serializer-package=$binPackage",
+  ]
+}
+
+task cleanSerializers(type: Delete) {
+  group "${project.ext.group}"
+  description 'cleans generated serializers for ' + project(':core')
+  dependsOn 'listSerializers'
+  delete fileTree(genProjectDir).matching {
+    include binPackage.replace('.', '/') + '/*Serializer.java'
+  }
+}
+
+task listSerializers {
+  group "${project.ext.group}"
+  description 'lists generated serializers for ' + project(':core')
+  doLast {
+    fileTree(genProjectDir) {
+      include binPackage.replace('.', '/') + '/*Serializer.java'
+    }.each {
+      println it
+    }
+  }
+}
