@@ -23,7 +23,7 @@ public class D2SWriter96 {
     out.write32(d2s.size);
     out.write32(d2s.checksum);
     out.write32(d2s.alternate);
-    out.writeString(d2s.name, Riiablo.MAX_NAME_LENGTH + 1);
+    out.writeChars(d2s.name, Riiablo.MAX_NAME_LENGTH + 1);
     out.write32(d2s.flags);
     out.write8(d2s.charClass);
   }
