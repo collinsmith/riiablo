@@ -558,13 +558,13 @@ public abstract class Excel<
       E entry
   ) throws IllegalAccessException {
     if (indexed) {
-      excel.put(i, entry);
+      excel._put(i, entry);
     } else if (primaryKeyType == int.class) {
       int id = primaryKey.getInt(entry);
-      excel.put(id, entry);
+      excel._put(id, entry);
     } else if (primaryKeyType == String.class) {
       String id = (String) primaryKey.get(entry);
-      excel.put(i, entry);
+      excel._put(i, entry);
 
       if (excel.stringToIndex == EMPTY_OBJECT_INT_MAP) excel.stringToIndex = new ObjectIntMap<>();
       if (!excel.stringToIndex.containsKey(id)) excel.stringToIndex.put(id, i);
@@ -597,6 +597,11 @@ public abstract class Excel<
 
   public Class<E> entryClass() {
     return entryClass;
+  }
+
+  final void _put(int id, E value) {
+    entries.put(id, value);
+    put(id, value);
   }
 
   protected void put(int id, E value) {}
