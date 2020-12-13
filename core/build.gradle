@@ -128,6 +128,9 @@ generateSources.dependsOn 'createVersionSource'
 compileJava.dependsOn 'generateSources'
 
 task createVersionSource {
+  // force task to execute for every build
+  outputs.upToDateWhen { false }
+
   def versionClassName = 'RiiabloVersion'
 
   def timeZone = TimeZone.getTimeZone("UTC")
