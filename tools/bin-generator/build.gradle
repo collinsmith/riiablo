@@ -22,7 +22,7 @@ task testme(type: GenerateBinsTask) {
 
 project.ext {
   srcProjectDir = project(':core').sourceSets.main.java.srcDirs.first()
-  genProjectDir = project(':core').generatedSourceDirs
+  genProjectDir = project(':core').generatedSourceDir
   excelPackage = 'com.riiablo.excel'
   txtPackage = "${excelPackage}.txt"
   binPackage = "${excelPackage}.bin"
