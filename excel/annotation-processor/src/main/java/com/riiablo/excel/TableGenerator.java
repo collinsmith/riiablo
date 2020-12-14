@@ -44,8 +44,7 @@ public class TableGenerator {
   }
 
   JavaFile generateFile(SchemaAnnotatedElement schema) {
-    ClassName schemaName = ClassName.get(schema.element);
-    String comments = schemaName.canonicalName();
+    String comments = schema.name.canonicalName();
     List<FieldElement> fields = new ArrayList<>(256);
 
     TypeSpec.Builder tableType = newTable(schemaName, fields)
@@ -70,10 +69,10 @@ public class TableGenerator {
         .build();
   }
 
-  TypeSpec.Builder newTable(ClassName schemaName, List<FieldElement> fields) {
+  TypeSpec.Builder newTable(SchemaAnnotatedElement schema, List<FieldElement> fields) {
     return TypeSpec
-        .classBuilder(serializerName(schemaName))
-        .superclass(ParameterizedTypeName.get(tableName, schemaName))
+        .classBuilder(serializerName(schema.name))
+        .superclass(ParameterizedTypeName.get(tableName, schema.name))
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
         ;
   }

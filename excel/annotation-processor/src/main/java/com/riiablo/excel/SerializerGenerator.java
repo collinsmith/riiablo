@@ -57,8 +57,7 @@ public class SerializerGenerator {
   }
 
   JavaFile generateFile(SchemaAnnotatedElement schema) {
-    ClassName schemaName = ClassName.get(schema.element);
-    String comments = schemaName.canonicalName();
+    String comments = schema.name.canonicalName();
     List<FieldElement> fields = new ArrayList<>(256);
     for (Element element : schema.element.getEnclosedElements()) {
       switch (element.getKind()) {
@@ -98,7 +97,7 @@ public class SerializerGenerator {
       }
     }
 
-    TypeSpec.Builder serializerType = newSerializer(schemaName, fields)
+    TypeSpec.Builder serializerType = newSerializer(schema.name, fields)
         .addAnnotation(newGenerated(comments))
         ;
 
