@@ -3,6 +3,7 @@ package com.riiablo.excel;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import javax.annotation.Generated;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
@@ -43,8 +43,8 @@ public class TableGenerator {
     this.serializerPackage = serializerPackage;
   }
 
-  JavaFile generateFile(TypeElement schemaType) {
-    ClassName schemaName = ClassName.get(schemaType);
+  JavaFile generateFile(SchemaAnnotatedElement schema) {
+    ClassName schemaName = ClassName.get(schema.element);
     String comments = schemaName.canonicalName();
     List<FieldElement> fields = new ArrayList<>(256);
 

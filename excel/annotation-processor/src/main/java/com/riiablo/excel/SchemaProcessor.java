@@ -1,7 +1,6 @@
 package com.riiablo.excel;
 
 import com.google.auto.service.AutoService;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -42,13 +41,13 @@ public class SchemaProcessor extends AbstractProcessor {
         continue;
       }
 
-      TypeElement schemaElement = (TypeElement) element;
-      ClassName schemaName = ClassName.get(schemaElement);
+      SchemaAnnotatedElement schema = SchemaAnnotatedElement.get(element);
+      TypeElement schemaElement = schema.element;
 
       TableAnnotatedElement table = TableAnnotatedElement.get(schemaElement);
       if (table == null) {
         try {
-          JavaFile file = tableGenerator.generateFile(schemaElement);
+          JavaFile file = tableGenerator.generateFile(schema);
           // file.writeTo(System.out);
           file.writeTo(processingEnv.getFiler());
         } catch (GenerationException t) {
@@ -62,7 +61,7 @@ public class SchemaProcessor extends AbstractProcessor {
       SerializedWithAnnotatedElement serializedWith = SerializedWithAnnotatedElement.get(schemaElement);
       if (serializedWith == null) {
         try {
-          JavaFile file = serializerGenerator.generateFile(schemaElement);
+          JavaFile file = serializerGenerator.generateFile(schema);
           // file.writeTo(System.out);
           file.writeTo(processingEnv.getFiler());
         } catch (GenerationException t) {
