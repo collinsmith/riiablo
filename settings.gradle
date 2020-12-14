@@ -4,6 +4,11 @@ include 'core'
 include 'desktop'
 include 'android'
 
+include 'excel:core'
+include 'excel:annotations'
+include 'excel:excel-test'
+include 'excel:annotation-processor'
+
 include 'server:bnls'
 include 'server:bncs'
 include 'server:mcp'
