@@ -1,0 +1,12 @@
+sourceSets.main.java.srcDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
+idea.module.generatedSourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
+
+dependencies {
+  annotationProcessor project(':table:annotation-processor')
+  implementation project(':table:annotation-processor')
+  implementation project(':table:annotations')
+}
+
+dependencies {
+  testImplementation "junit:junit:4.12"
+}

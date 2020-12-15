@@ -1,0 +1,10 @@
+dependencies {
+  annotationProcessor "com.google.auto.service:auto-service:1.0-rc7"
+  implementation "com.google.auto.service:auto-service-annotations:1.0-rc7"
+  implementation "com.squareup:javapoet:1.13.0"
+
+  api project(':table:annotations')
+  api project(':table:core')
+
+  implementation "org.apache.commons:commons-text:1.8"
+}

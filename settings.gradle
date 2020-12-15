@@ -9,6 +9,11 @@ include 'excel:annotations'
 include 'excel:excel-test'
 include 'excel:annotation-processor'
 
+include 'table:core'
+include 'table:annotations'
+include 'table:integration'
+include 'table:annotation-processor'
+
 include 'server:bnls'
 include 'server:bncs'
 include 'server:mcp'
