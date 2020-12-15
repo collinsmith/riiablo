@@ -1,11 +1,9 @@
 package com.riiablo.table.annotation;
 
-import com.squareup.javapoet.ClassName;
 import java.util.Collection;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 class PrimaryKeyElement {
@@ -16,8 +14,7 @@ class PrimaryKeyElement {
   ) {
     VariableElement firstAcceptableElement = null, primaryKeyElement = null;
     for (VariableElement e : elements) {
-      if (firstAcceptableElement == null
-          && ArrayUtils.contains(Constants.PRIMARY_KEY_TYPES, ClassName.get(e.asType()))) {
+      if (firstAcceptableElement == null && Constants.isPrimaryKey(e)) {
         firstAcceptableElement = e;
       }
 

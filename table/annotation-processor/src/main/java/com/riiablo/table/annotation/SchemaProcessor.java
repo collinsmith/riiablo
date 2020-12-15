@@ -1,8 +1,6 @@
 package com.riiablo.table.annotation;
 
 import com.google.auto.service.AutoService;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -15,7 +13,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import org.apache.commons.lang3.ArrayUtils;
 
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
@@ -41,8 +38,7 @@ public class SchemaProcessor extends AbstractProcessor {
     final Context context = new Context(processingEnv);
     for (Element element : roundEnv.getElementsAnnotatedWith(PrimaryKey.class)) {
       VariableElement variableElement = (VariableElement) element;
-      TypeName typeName = ClassName.get(variableElement.asType());
-      if (!ArrayUtils.contains(Constants.PRIMARY_KEY_TYPES, typeName)) {
+      if (!Constants.isPrimaryKey(variableElement)) {
         context.error(variableElement, "{} must be one of {}",
             PrimaryKey.class, Constants.PRIMARY_KEY_TYPES);
       }
