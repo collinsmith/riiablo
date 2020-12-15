@@ -27,7 +27,7 @@ class PrimaryKeyElement {
           primaryKeyElement = e;
         } else {
           context.error(
-              e, context.getAnnotationMirror(e, PrimaryKey.class),
+              e, context.getAnnotationMirror(e, Constants.PRIMARY_KEY),
               "{} already declared as {}", primaryKeyElement, PrimaryKey.class);
         }
       }
