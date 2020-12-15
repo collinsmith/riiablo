@@ -9,10 +9,7 @@ import javax.lang.model.type.MirroredTypeException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 final class SerializerElement {
-  static SerializerElement get(
-      Context context,
-      Element element
-  ) {
+  static SerializerElement get(Context context, Element element) {
     Serializer annotation = element.getAnnotation(Serializer.class);
     final TypeElement serializerElement, serializerImplElement;
     final DeclaredType declaredType;
@@ -30,10 +27,7 @@ final class SerializerElement {
     return new SerializerElement(annotation, declaredType, serializerElement, serializerImplElement);
   }
 
-  static TypeElement getSerializerImpl(
-      Context context,
-      Serializer annotation
-  ) {
+  static TypeElement getSerializerImpl(Context context, Serializer annotation) {
     if (annotation == null) return null;
     try {
       Class<?> serializerImpl = annotation.value();

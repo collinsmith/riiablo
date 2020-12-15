@@ -6,7 +6,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-class PrimaryKeyElement {
+final class PrimaryKeyElement {
   static PrimaryKeyElement find(
       Context context,
       TypeElement element,

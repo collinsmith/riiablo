@@ -7,10 +7,7 @@ import javax.lang.model.type.MirroredTypeException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 final class TableElement {
-  static TableElement get(
-      Context context,
-      Element element
-  ) {
+  static TableElement get(Context context, Element element) {
     Table annotation = element.getAnnotation(Table.class);
     final TypeElement tableElement, tableImplElement;
     if (annotation == null) {
@@ -26,10 +23,7 @@ final class TableElement {
     return new TableElement(annotation, tableElement, tableImplElement);
   }
 
-  static TypeElement getTableImpl(
-      Context context,
-      Table annotation
-  ) {
+  static TypeElement getTableImpl(Context context, Table annotation) {
     if (annotation == null) return null;
     try {
       Class<?> tableImpl = annotation.value();

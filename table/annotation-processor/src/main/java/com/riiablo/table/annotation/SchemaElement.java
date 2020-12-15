@@ -10,9 +10,7 @@ import javax.lang.model.type.TypeMirror;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 final class SchemaElement {
-  static SchemaElement get(
-      Context context,
-      Element element) {
+  static SchemaElement get(Context context, Element element) {
     TypeElement typeElement = (TypeElement) element;
     List<VariableElement> columns = collectColumns(context, typeElement);
     PrimaryKeyElement primaryKeyElement = PrimaryKeyElement.find(context, typeElement, columns);
@@ -27,9 +25,7 @@ final class SchemaElement {
     return new SchemaElement(typeElement, tableElement, serializerElement);
   }
 
-  static List<VariableElement> collectColumns(
-      Context context,
-      TypeElement typeElement) {
+  static List<VariableElement> collectColumns(Context context, TypeElement typeElement) {
     List<VariableElement> columns = new ArrayList<>();
     TypeElement superclassElement = typeElement;
     for (;;) {
