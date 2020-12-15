@@ -2,6 +2,7 @@ package com.riiablo.table.annotation;
 
 import com.squareup.javapoet.ClassName;
 import java.util.Collection;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import org.apache.commons.lang3.ArrayUtils;
@@ -25,7 +26,9 @@ class PrimaryKeyElement {
         if (primaryKeyElement == null) {
           primaryKeyElement = e;
         } else {
-          context.error(e, "{} already declared as {}", primaryKeyElement, PrimaryKey.class);
+          context.error(
+              e, context.getAnnotationMirror(e, PrimaryKey.class),
+              "{} already declared as {}", primaryKeyElement, PrimaryKey.class);
         }
       }
     }
@@ -41,19 +44,23 @@ class PrimaryKeyElement {
       primaryKeyElement = firstAcceptableElement;
     }
 
-    return new PrimaryKeyElement(primaryKeyElement);
+    AnnotationMirror primaryKeyMirror = context.getAnnotationMirror(primaryKeyElement, PrimaryKey.class);
+    return new PrimaryKeyElement(primaryKeyElement, primaryKeyMirror);
   }
 
   final VariableElement element;
+  final AnnotationMirror mirror;
 
-  PrimaryKeyElement(VariableElement element) {
+  PrimaryKeyElement(VariableElement element, AnnotationMirror mirror) {
     this.element = element;
+    this.mirror = mirror;
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
         .append("element", element)
+        .append("mirror", mirror)
         .toString();
   }
 }

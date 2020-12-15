@@ -1,5 +1,6 @@
 package com.riiablo.table.annotation;
 
+import com.squareup.javapoet.ClassName;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 import javax.annotation.processing.Messager;
@@ -24,6 +25,16 @@ class Context {
     messager = processingEnvironment.getMessager();
     typeUtils = processingEnvironment.getTypeUtils();
     elementUtils = processingEnvironment.getElementUtils();
+  }
+
+  AnnotationMirror getAnnotationMirror(Element element, Class<? extends Annotation> annotationClass) {
+    for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+      if (Constants.PRIMARY_KEY.equals(ClassName.get(annotationMirror.getAnnotationType()))) {
+        return annotationMirror;
+      }
+    }
+
+    return null;
   }
 
   void log(

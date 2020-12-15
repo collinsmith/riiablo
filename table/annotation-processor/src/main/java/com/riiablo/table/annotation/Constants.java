@@ -7,6 +7,7 @@ final class Constants {
   private Constants() {}
 
   static final ClassName STRING = ClassName.get(String.class);
+  static final ClassName PRIMARY_KEY = ClassName.get(PrimaryKey.class);
 
   static final TypeName[] PRIMARY_KEY_TYPES = { TypeName.INT, STRING };
 }
