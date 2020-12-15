@@ -44,7 +44,7 @@ class PrimaryKeyElement {
       primaryKeyElement = firstAcceptableElement;
     }
 
-    AnnotationMirror primaryKeyMirror = context.getAnnotationMirror(primaryKeyElement, PrimaryKey.class);
+    AnnotationMirror primaryKeyMirror = context.getAnnotationMirror(primaryKeyElement, Constants.PRIMARY_KEY);
     return new PrimaryKeyElement(primaryKeyElement, primaryKeyMirror);
   }
 

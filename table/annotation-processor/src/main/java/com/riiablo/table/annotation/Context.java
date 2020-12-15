@@ -27,9 +27,17 @@ class Context {
     elementUtils = processingEnvironment.getElementUtils();
   }
 
+  /**
+   * @deprecated use {@link #getAnnotationMirror(Element, ClassName)} with cached value
+   */
+  @Deprecated
   AnnotationMirror getAnnotationMirror(Element element, Class<? extends Annotation> annotationClass) {
+    return getAnnotationMirror(element, ClassName.get(annotationClass));
+  }
+
+  AnnotationMirror getAnnotationMirror(Element element, ClassName annotationClass) {
     for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
-      if (Constants.PRIMARY_KEY.equals(ClassName.get(annotationMirror.getAnnotationType()))) {
+      if (annotationClass.equals(ClassName.get(annotationMirror.getAnnotationType()))) {
         return annotationMirror;
       }
     }
