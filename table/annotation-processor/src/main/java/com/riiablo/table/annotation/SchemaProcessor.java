@@ -13,6 +13,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
@@ -44,6 +45,8 @@ public class SchemaProcessor extends AbstractProcessor {
       }
     }
 
+    SerializerCodeGenerator serializerCodeGenerator = new SerializerCodeGenerator(
+        context, SchemaProcessor.class, "com.riiablo.excel.serializer");
     for (Element element : roundEnv.getElementsAnnotatedWith(Schema.class)) {
       if (element.getKind() != ElementKind.CLASS) {
         context.error(element, "{} can only be applied to classes", Schema.class);
@@ -51,6 +54,14 @@ public class SchemaProcessor extends AbstractProcessor {
       }
 
       SchemaElement schemaElement = SchemaElement.get(context, element);
+      if (schemaElement.serializerElement.declaredType != null) {
+        try {
+          serializerCodeGenerator.generate(schemaElement)
+              .writeTo(processingEnv.getFiler());
+        } catch (Throwable t) {
+          context.error(ExceptionUtils.getRootCauseMessage(t));
+        }
+      }
       // if (schemaElement.serializerElement.serializerElement != null) {
       //   SerializerElement serializerElement = schemaElement.serializerElement;
       //   ExecutableElement readRecordElement = serializerElement.getMethod("readRecord");

@@ -69,7 +69,12 @@ final class SchemaElement {
     TableElement tableElement = TableElement.get(context, typeElement);
     SerializerElement serializerElement = SerializerElement.get(context, typeElement);
 
-    return new SchemaElement(typeElement, tableElement, serializerElement, primaryKeyFieldElement);
+    return new SchemaElement(
+        typeElement,
+        tableElement,
+        serializerElement,
+        primaryKeyFieldElement,
+        fields);
   }
 
   static ExecutableElement defaultConstructor(
@@ -117,16 +122,19 @@ final class SchemaElement {
   final TableElement tableElement;
   final SerializerElement serializerElement;
   final FieldElement primaryKeyFieldElement;
+  final Collection<FieldElement> fields;
 
   SchemaElement(
       TypeElement element,
       TableElement tableElement,
       SerializerElement serializerElement,
-      FieldElement primaryKeyFieldElement) {
+      FieldElement primaryKeyFieldElement,
+      Collection<FieldElement> fields) {
     this.element = element;
     this.tableElement = tableElement;
     this.serializerElement = serializerElement;
     this.primaryKeyFieldElement = primaryKeyFieldElement;
+    this.fields = fields;
   }
 
   @Override
