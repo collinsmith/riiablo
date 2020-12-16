@@ -30,10 +30,7 @@ class SerializerCodeGenerator {
   final Context context;
   final String serializerPackage;
 
-  SerializerCodeGenerator(
-      Context context,
-      String serializerPackage
-  ) {
+  SerializerCodeGenerator(Context context, String serializerPackage) {
     this.context = context;
     this.serializerPackage = serializerPackage;
   }
