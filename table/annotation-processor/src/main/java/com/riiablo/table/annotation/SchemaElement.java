@@ -69,12 +69,14 @@ final class SchemaElement {
 
     TableElement tableElement = TableElement.get(context, typeElement);
     SerializerElement serializerElement = SerializerElement.get(context, typeElement);
+    ParserElement parserElement = ParserElement.get(context, typeElement);
 
     return new SchemaElement(
         annotation,
         typeElement,
         tableElement,
         serializerElement,
+        parserElement,
         primaryKeyFieldElement,
         fields);
   }
@@ -124,27 +126,42 @@ final class SchemaElement {
   final TypeElement element;
   final TableElement tableElement;
   final SerializerElement serializerElement;
+  final ParserElement parserElement;
   final FieldElement primaryKeyFieldElement;
   final Collection<FieldElement> fields;
+  final int numFields;
 
   ClassName serializerClassName;
+  ClassName parserClassName;
 
   SchemaElement(
       Schema annotation,
       TypeElement element,
       TableElement tableElement,
       SerializerElement serializerElement,
+      ParserElement parserElement,
       FieldElement primaryKeyFieldElement,
       Collection<FieldElement> fields) {
     this.annotation = annotation;
     this.element = element;
     this.tableElement = tableElement;
     this.serializerElement = serializerElement;
+    this.parserElement = parserElement;
     this.primaryKeyFieldElement = primaryKeyFieldElement;
     this.fields = fields;
+    this.numFields = countNumFields(fields);
     if (serializerElement.serializerImplElement != null) {
       serializerClassName = ClassName.get(serializerElement.serializerImplElement);
     }
+    if (parserElement.parserImplElement != null) {
+      parserClassName = ClassName.get(parserElement.parserImplElement);
+    }
+  }
+
+  final int countNumFields(Collection<FieldElement> fields) {
+    int numFields = 0;
+    for (FieldElement field : fields) numFields += field.fieldNames.length;
+    return numFields;
   }
 
   @Override
@@ -153,6 +170,8 @@ final class SchemaElement {
         .append("element", element)
         .append("tableElement", tableElement)
         .append("serializerElement", serializerElement)
+        .append("serializerClassName", serializerClassName)
+        .append("ParserElement", parserElement)
         .append("serializerClassName", serializerClassName)
         .append("primaryKeyFieldElement", primaryKeyFieldElement)
         .toString();

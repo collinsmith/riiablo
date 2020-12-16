@@ -49,6 +49,8 @@ public class SchemaProcessor extends AbstractProcessor {
         context, "com.riiablo.excel.table");
     SerializerCodeGenerator serializerCodeGenerator = new SerializerCodeGenerator(
         context, "com.riiablo.excel.serializer");
+    ParserCodeGenerator parserCodeGenerator = new ParserCodeGenerator(
+        context, "com.riiablo.excel.parser");
     for (Element element : roundEnv.getElementsAnnotatedWith(Schema.class)) {
       if (element.getKind() != ElementKind.CLASS) {
         context.error(element, "{} can only be applied to classes", Schema.class);
@@ -66,8 +68,20 @@ public class SchemaProcessor extends AbstractProcessor {
           t.printStackTrace(System.err);
         }
       }
+      
+      if (schemaElement.parserElement.declaredType != null) {
+        try {
+          parserCodeGenerator.generate(schemaElement)
+              .writeTo(processingEnv.getFiler());
+              // .writeTo(System.out);
+        } catch (Throwable t) {
+          context.error(ExceptionUtils.getRootCauseMessage(t));
+          t.printStackTrace(System.err);
+        }
+      }
 
       // Depends on serializerElement to generate Serializer impl
+      // Depends on parserElement to generate Parser impl
       if (schemaElement.tableElement.declaredType != null) {
         try {
           tableCodeGenerator.generate(schemaElement)
