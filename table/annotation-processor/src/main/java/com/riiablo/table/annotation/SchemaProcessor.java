@@ -45,6 +45,8 @@ public class SchemaProcessor extends AbstractProcessor {
       }
     }
 
+    TableCodeGenerator tableCodeGenerator = new TableCodeGenerator(
+        context, "com.riiablo.excel.table");
     SerializerCodeGenerator serializerCodeGenerator = new SerializerCodeGenerator(
         context, "com.riiablo.excel.serializer");
     for (Element element : roundEnv.getElementsAnnotatedWith(Schema.class)) {
@@ -54,26 +56,26 @@ public class SchemaProcessor extends AbstractProcessor {
       }
 
       SchemaElement schemaElement = SchemaElement.get(context, element);
+      if (schemaElement.tableElement.declaredType != null) {
+        try {
+          tableCodeGenerator.generate(schemaElement)
+              .writeTo(processingEnv.getFiler());
+              // .writeTo(System.out);
+        } catch (Throwable t) {
+          context.error(ExceptionUtils.getRootCauseMessage(t));
+          t.printStackTrace(System.err);
+        }
+      }
+
       if (schemaElement.serializerElement.declaredType != null) {
         try {
           serializerCodeGenerator.generate(schemaElement)
               .writeTo(processingEnv.getFiler());
         } catch (Throwable t) {
           context.error(ExceptionUtils.getRootCauseMessage(t));
+          t.printStackTrace(System.err);
         }
       }
-      // if (schemaElement.serializerElement.serializerElement != null) {
-      //   SerializerElement serializerElement = schemaElement.serializerElement;
-      //   ExecutableElement readRecordElement = serializerElement.getMethod("readRecord");
-      //   MethodSpec readRecord = MethodSpec
-      //       .overriding(readRecordElement, serializerElement.declaredType, typeUtils)
-      //       .build();
-      //   System.out.println(readRecord);
-      //   System.out.println(readRecord.parameters.get(0));
-      //   System.out.println(readRecord.parameters.get(1));
-      // }
-
-
     }
 
     return true;

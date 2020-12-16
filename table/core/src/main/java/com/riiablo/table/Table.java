@@ -57,6 +57,10 @@ public abstract class Table<R> implements Iterable<R> {
     return 0;
   }
 
+  protected boolean indexed() {
+    return false;
+  }
+
   protected String primaryKey() {
     return null;
   }
