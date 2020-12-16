@@ -29,6 +29,15 @@ class TableCodeGenerator extends CodeGenerator {
         ;
   }
 
+  MethodSpec constructor(SchemaElement schemaElement) {
+    Schema config = schemaElement.annotation;
+    return MethodSpec
+        .constructorBuilder()
+        .addStatement("super($T.class, $L, $Lf)", // does not append "f" automatically for float literals
+            schemaElement.element, config.initialCapacity(), config.loadFactor())
+        .build();
+  }
+
   MethodSpec newRecord(SchemaElement schemaElement) {
     TableElement tableElement = schemaElement.tableElement;
     return MethodSpec
@@ -37,15 +46,6 @@ class TableCodeGenerator extends CodeGenerator {
             tableElement.declaredType,
             context.typeUtils)
         .addStatement("return new $T()", schemaElement.element)
-        .build();
-  }
-
-  MethodSpec constructor(SchemaElement schemaElement) {
-    Schema config = schemaElement.annotation;
-    return MethodSpec
-        .constructorBuilder()
-        .addStatement("super($T.class, $L, $Lf)", // does not append "f" automatically for float literals
-            schemaElement.element, config.initialCapacity(), config.loadFactor())
         .build();
   }
 
