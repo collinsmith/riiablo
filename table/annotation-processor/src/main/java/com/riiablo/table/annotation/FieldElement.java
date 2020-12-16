@@ -55,6 +55,10 @@ final class FieldElement {
     return element.getSimpleName();
   }
 
+  boolean isTransient() {
+    return element.getModifiers().contains(Modifier.TRANSIENT);
+  }
+
   boolean isArray() {
     return mirror.getKind() == TypeKind.ARRAY;
   }
