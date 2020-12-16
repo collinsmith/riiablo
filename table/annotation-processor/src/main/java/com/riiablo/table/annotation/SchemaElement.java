@@ -4,7 +4,10 @@ import com.squareup.javapoet.ClassName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -16,6 +19,24 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 final class SchemaElement {
   static SchemaElement get(final Context context, Element element) {
     TypeElement typeElement = (TypeElement) element;
+    Set<Modifier> modifiers = typeElement.getModifiers();
+    if (!modifiers.contains(Modifier.PUBLIC)) {
+      context.error(typeElement, "{element} must be declared {}", Modifier.PUBLIC);
+      return null;
+    } else if (modifiers.contains(Modifier.ABSTRACT)) {
+      context.error(typeElement, "{element} must be a concrete type");
+      return null;
+    }
+
+      ExecutableElement defaultConstructor = defaultConstructor(context, typeElement);
+    if (defaultConstructor == null) {
+      context.error(typeElement, "{element} must contain a default constructor");
+      return null;
+    } else if (!defaultConstructor.getModifiers().contains(Modifier.PUBLIC)) {
+      context.error(defaultConstructor, "{element} must be declared {}", Modifier.PUBLIC);
+      return null;
+    }
+
     Collection<FieldElement> fields = collectFieldElements(context, typeElement);
 
     final FieldElement primaryKeyFieldElement;
@@ -49,6 +70,24 @@ final class SchemaElement {
     SerializerElement serializerElement = SerializerElement.get(context, typeElement);
 
     return new SchemaElement(typeElement, tableElement, serializerElement, primaryKeyFieldElement);
+  }
+
+  static ExecutableElement defaultConstructor(
+      Context context,
+      TypeElement typeElement
+  ) {
+    for (Element e : typeElement.getEnclosedElements()) {
+      switch (e.getKind()) {
+        case CONSTRUCTOR:
+          ExecutableElement constructor = (ExecutableElement) e;
+          if (constructor.getParameters().isEmpty()) {
+            return constructor;
+          }
+          break;
+      }
+    }
+
+    return null;
   }
 
   static Collection<FieldElement> collectFieldElements(Context context, TypeElement typeElement) {
