@@ -67,7 +67,7 @@ class Context {
       }
     }
 
-    messager.printMessage(kind, builder);
+    messager.printMessage(kind, builder, element, annotationMirror, annotationValue);
   }
 
   void error(String message, Object... args) {
