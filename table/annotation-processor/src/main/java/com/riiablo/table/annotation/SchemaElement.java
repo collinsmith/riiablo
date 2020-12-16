@@ -52,14 +52,14 @@ final class SchemaElement {
   }
 
   static Collection<FieldElement> collectFieldElements(Context context, TypeElement typeElement) {
-    Collection<FieldElement> columns = new ArrayList<>();
+    Collection<FieldElement> fields = new ArrayList<>();
     TypeElement superclassElement = typeElement;
     for (;;) {
       for (Element e : superclassElement.getEnclosedElements()) {
         switch (e.getKind()) {
           case FIELD:
             FieldElement field = FieldElement.get(context, (VariableElement) e);
-            if (field != null) columns.add(field);
+            if (field != null) fields.add(field);
             break;
         }
       }
@@ -71,7 +71,7 @@ final class SchemaElement {
       }
     }
 
-    return columns;
+    return fields;
   }
 
   final TypeElement element;
