@@ -8,6 +8,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import org.apache.commons.lang3.ArrayUtils;
 
 final class FieldElement {
   static FieldElement get(Context context, VariableElement element) {
@@ -43,12 +44,16 @@ final class FieldElement {
   final TypeMirror mirror;
   final FormatElement formatElement;
   final PrimaryKeyElement primaryKeyElement;
+  final String[] fieldNames;
 
   FieldElement(VariableElement element, FormatElement formatElement, PrimaryKeyElement primaryKeyElement) {
     this.element = element;
     this.mirror = element.asType();
     this.formatElement = formatElement;
     this.primaryKeyElement = primaryKeyElement;
+    fieldNames = formatElement != null
+        ? formatElement.fieldNames
+        : ArrayUtils.toArray(element.getSimpleName().toString());
   }
 
   Name name() {
