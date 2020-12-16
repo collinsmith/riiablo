@@ -36,12 +36,12 @@ final class SchemaElement {
     } else {
       primaryKeyFieldElement = FieldElement.firstPrimaryKey(fields);
       if (primaryKeyFieldElement == null) {
-        context.error(element, "{element} did not declare any {}", PrimaryKey.class);
+        context.error(element, "{element} did not declare any valid {}", PrimaryKey.class);
         return null;
       }
 
       context.warn(element,
-          "{element} did not declare any {}, using {}",
+          "{element} did not declare any valid {}, using {}",
           PrimaryKey.class, primaryKeyFieldElement);
     }
 
@@ -58,7 +58,8 @@ final class SchemaElement {
       for (Element e : superclassElement.getEnclosedElements()) {
         switch (e.getKind()) {
           case FIELD:
-            columns.add(FieldElement.get(context, (VariableElement) e));
+            FieldElement field = FieldElement.get(context, (VariableElement) e);
+            if (field != null) columns.add(field);
             break;
         }
       }

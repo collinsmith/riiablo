@@ -7,6 +7,9 @@ import javax.lang.model.element.VariableElement;
 
 final class FieldElement {
   static FieldElement get(Context context, VariableElement element) {
+    FormatElement formatElement = FormatElement.get(context, element);
+    PrimaryKeyElement primaryKeyElement = PrimaryKeyElement.get(context, element);
+    
     Set<Modifier> modifiers = element.getModifiers();
     if (!modifiers.contains(Modifier.PUBLIC)) {
       context.warn(element, "record fields should be declared {}", Modifier.PUBLIC);
@@ -20,9 +23,6 @@ final class FieldElement {
       context.error(element, "'{}' is an illegal record field name", Constants.RESERVED_NAME);
       return null;
     }
-
-    FormatElement formatElement = FormatElement.get(context, element);
-    PrimaryKeyElement primaryKeyElement = PrimaryKeyElement.get(context, element);
     return new FieldElement(element, formatElement, primaryKeyElement);
   }
 
