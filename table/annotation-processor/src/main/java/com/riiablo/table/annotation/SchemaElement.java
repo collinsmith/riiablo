@@ -127,6 +127,8 @@ final class SchemaElement {
   final FieldElement primaryKeyFieldElement;
   final Collection<FieldElement> fields;
 
+  ClassName serializerClassName;
+
   SchemaElement(
       Schema annotation,
       TypeElement element,
@@ -140,6 +142,9 @@ final class SchemaElement {
     this.serializerElement = serializerElement;
     this.primaryKeyFieldElement = primaryKeyFieldElement;
     this.fields = fields;
+    if (serializerElement.serializerImplElement != null) {
+      serializerClassName = ClassName.get(serializerElement.serializerImplElement);
+    }
   }
 
   @Override
@@ -148,6 +153,7 @@ final class SchemaElement {
         .append("element", element)
         .append("tableElement", tableElement)
         .append("serializerElement", serializerElement)
+        .append("serializerClassName", serializerClassName)
         .append("primaryKeyFieldElement", primaryKeyFieldElement)
         .toString();
   }

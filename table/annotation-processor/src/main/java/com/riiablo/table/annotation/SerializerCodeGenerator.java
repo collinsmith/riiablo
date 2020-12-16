@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import org.apache.commons.lang3.Validate;
 
 import static com.riiablo.table.annotation.Constants.STRING;
 
@@ -23,8 +24,13 @@ class SerializerCodeGenerator extends CodeGenerator {
   }
 
   @Override
-  String formatName(SchemaElement schemaElement) {
-    return ClassName.get(schemaElement.element).simpleName() + Serializer.class.getSimpleName();
+  ClassName formatName(String packageName, SchemaElement schemaElement) {
+    Validate.validState(schemaElement.serializerClassName == null,
+        "schemaElement.serializerClassName already set to " + schemaElement.serializerClassName);
+    return schemaElement.serializerClassName
+        = ClassName.get(
+            packageName,
+            schemaElement.element.getSimpleName() + Serializer.class.getSimpleName());
   }
 
   @Override

@@ -56,21 +56,23 @@ public class SchemaProcessor extends AbstractProcessor {
       }
 
       SchemaElement schemaElement = SchemaElement.get(context, element);
-      if (schemaElement.tableElement.declaredType != null) {
+      if (schemaElement == null) continue;
+      if (schemaElement.serializerElement.declaredType != null) {
         try {
-          tableCodeGenerator.generate(schemaElement)
+          serializerCodeGenerator.generate(schemaElement)
               .writeTo(processingEnv.getFiler());
-              // .writeTo(System.out);
         } catch (Throwable t) {
           context.error(ExceptionUtils.getRootCauseMessage(t));
           t.printStackTrace(System.err);
         }
       }
 
-      if (schemaElement.serializerElement.declaredType != null) {
+      // Depends on serializerElement to generate Serializer impl
+      if (schemaElement.tableElement.declaredType != null) {
         try {
-          serializerCodeGenerator.generate(schemaElement)
+          tableCodeGenerator.generate(schemaElement)
               .writeTo(processingEnv.getFiler());
+              // .writeTo(System.out);
         } catch (Throwable t) {
           context.error(ExceptionUtils.getRootCauseMessage(t));
           t.printStackTrace(System.err);

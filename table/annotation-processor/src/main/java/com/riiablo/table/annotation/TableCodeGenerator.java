@@ -12,8 +12,10 @@ class TableCodeGenerator extends CodeGenerator {
   }
 
   @Override
-  String formatName(SchemaElement schemaElement) {
-    return ClassName.get(schemaElement.element).simpleName() + Table.class.getSimpleName();
+  ClassName formatName(String packageName, SchemaElement schemaElement) {
+    return ClassName.get(
+            packageName,
+            schemaElement.element.getSimpleName() + Table.class.getSimpleName());
   }
 
   @Override
@@ -23,6 +25,7 @@ class TableCodeGenerator extends CodeGenerator {
         .superclass(schemaElement.tableElement.declaredType)
         .addMethod(constructor(schemaElement))
         .addMethod(newRecord(schemaElement))
+        .addMethod(newSerializer(schemaElement))
         .addMethod(offset(schemaElement))
         .addMethod(indexed(schemaElement))
         .addMethod(primaryKey(schemaElement))
@@ -46,6 +49,18 @@ class TableCodeGenerator extends CodeGenerator {
             tableElement.declaredType,
             context.typeUtils)
         .addStatement("return new $T()", schemaElement.element)
+        .build();
+  }
+
+  MethodSpec newSerializer(SchemaElement schemaElement) {
+    TableElement tableElement = schemaElement.tableElement;
+    SerializerElement serializerElement = schemaElement.serializerElement;
+    return MethodSpec
+        .overriding(
+            tableElement.getMethod("newSerializer"),
+            tableElement.declaredType,
+            context.typeUtils)
+        .addStatement("return new $T()", schemaElement.serializerClassName)
         .build();
   }
 
