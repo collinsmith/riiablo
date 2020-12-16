@@ -18,6 +18,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 final class SchemaElement {
   static SchemaElement get(final Context context, Element element) {
+    Schema annotation = element.getAnnotation(Schema.class);
     TypeElement typeElement = (TypeElement) element;
     Set<Modifier> modifiers = typeElement.getModifiers();
     if (!modifiers.contains(Modifier.PUBLIC)) {
@@ -70,6 +71,7 @@ final class SchemaElement {
     SerializerElement serializerElement = SerializerElement.get(context, typeElement);
 
     return new SchemaElement(
+        annotation,
         typeElement,
         tableElement,
         serializerElement,
@@ -118,6 +120,7 @@ final class SchemaElement {
     return fields;
   }
 
+  final Schema annotation;
   final TypeElement element;
   final TableElement tableElement;
   final SerializerElement serializerElement;
@@ -125,11 +128,13 @@ final class SchemaElement {
   final Collection<FieldElement> fields;
 
   SchemaElement(
+      Schema annotation,
       TypeElement element,
       TableElement tableElement,
       SerializerElement serializerElement,
       FieldElement primaryKeyFieldElement,
       Collection<FieldElement> fields) {
+    this.annotation = annotation;
     this.element = element;
     this.tableElement = tableElement;
     this.serializerElement = serializerElement;
