@@ -28,16 +28,13 @@ class SerializerCodeGenerator {
   }
 
   final Context context;
-  final Class<?> generatingClass;
   final String serializerPackage;
 
   SerializerCodeGenerator(
       Context context,
-      Class<?> generatingClass,
       String serializerPackage
   ) {
     this.context = context;
-    this.generatingClass = generatingClass;
     this.serializerPackage = serializerPackage;
   }
 
@@ -59,7 +56,7 @@ class SerializerCodeGenerator {
   AnnotationSpec newGenerated(String comments) {
     return AnnotationSpec
         .builder(Generated.class)
-        .addMember("value", "$S", generatingClass.getCanonicalName())
+        .addMember("value", "$S", SerializerCodeGenerator.class.getCanonicalName())
         .addMember("date", "$S", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(new Date()))
         .addMember("comments", "$S", comments)
         .build();

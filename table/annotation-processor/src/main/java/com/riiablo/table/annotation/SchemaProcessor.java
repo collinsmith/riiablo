@@ -46,7 +46,7 @@ public class SchemaProcessor extends AbstractProcessor {
     }
 
     SerializerCodeGenerator serializerCodeGenerator = new SerializerCodeGenerator(
-        context, SchemaProcessor.class, "com.riiablo.excel.serializer");
+        context, "com.riiablo.excel.serializer");
     for (Element element : roundEnv.getElementsAnnotatedWith(Schema.class)) {
       if (element.getKind() != ElementKind.CLASS) {
         context.error(element, "{} can only be applied to classes", Schema.class);
