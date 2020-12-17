@@ -39,15 +39,13 @@ public class SchemaProcessor extends AbstractProcessor {
     if (roundEnv.processingOver()) {
       generateManifest();
     } else {
-      processAnnotations(annotations, roundEnv);
+      processAnnotations(roundEnv);
     }
 
     return true;
   }
 
-  private void processAnnotations(
-      Set<? extends TypeElement> annotations,
-      RoundEnvironment roundEnv) {
+  private void processAnnotations(RoundEnvironment roundEnv) {
 
     for (Element element : roundEnv.getElementsAnnotatedWith(PrimaryKey.class)) {
       VariableElement variableElement = (VariableElement) element;
@@ -85,7 +83,6 @@ public class SchemaProcessor extends AbstractProcessor {
         try {
           parserCodeGenerator.generate(schemaElement)
               .writeTo(processingEnv.getFiler());
-              // .writeTo(System.out);
         } catch (Throwable t) {
           context.error(ExceptionUtils.getRootCauseMessage(t));
           t.printStackTrace(System.err);
@@ -98,7 +95,6 @@ public class SchemaProcessor extends AbstractProcessor {
         try {
           tableCodeGenerator.generate(schemaElement)
               .writeTo(processingEnv.getFiler());
-              // .writeTo(System.out);
         } catch (Throwable t) {
           context.error(ExceptionUtils.getRootCauseMessage(t));
           t.printStackTrace(System.err);
@@ -120,7 +116,7 @@ public class SchemaProcessor extends AbstractProcessor {
                   .addModifiers(Modifier.PRIVATE)
                   .build())
               .addMethod(MethodSpec
-                  .methodBuilder("tables")
+                  .methodBuilder("names")
                   .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                   .returns(ArrayTypeName.of(String.class))
                   .addStatement("return new String[] {\n$L\n}", StringUtils
