@@ -25,6 +25,7 @@ class TableCodeGenerator extends CodeGenerator {
         .superclass(schemaElement.tableElement.declaredType)
         .addMethod(constructor(schemaElement))
         .addMethod(newRecord(schemaElement))
+        .addMethod(newParser(schemaElement))
         .addMethod(newSerializer(schemaElement))
         .addMethod(offset(schemaElement))
         .addMethod(indexed(schemaElement))
@@ -36,6 +37,7 @@ class TableCodeGenerator extends CodeGenerator {
     Schema config = schemaElement.annotation;
     return MethodSpec
         .constructorBuilder()
+        .addModifiers(Modifier.PUBLIC)
         .addStatement("super($T.class, $L, $Lf)", // does not append "f" automatically for float literals
             schemaElement.element, config.initialCapacity(), config.loadFactor())
         .build();
@@ -52,9 +54,19 @@ class TableCodeGenerator extends CodeGenerator {
         .build();
   }
 
+  MethodSpec newParser(SchemaElement schemaElement) {
+    TableElement tableElement = schemaElement.tableElement;
+    return MethodSpec
+        .overriding(
+            tableElement.getMethod("newParser"),
+            tableElement.declaredType,
+            context.typeUtils)
+        .addStatement("return new $T()", schemaElement.parserClassName)
+        .build();
+  }
+
   MethodSpec newSerializer(SchemaElement schemaElement) {
     TableElement tableElement = schemaElement.tableElement;
-    SerializerElement serializerElement = schemaElement.serializerElement;
     return MethodSpec
         .overriding(
             tableElement.getMethod("newSerializer"),

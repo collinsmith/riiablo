@@ -3,7 +3,7 @@ idea.module.generatedSourceDirs += compileJava.options.annotationProcessorGenera
 
 dependencies {
   annotationProcessor project(':table:annotation-processor')
-  implementation project(':table:annotation-processor')
+  implementation project(':table:core')
   implementation project(':table:annotations')
 }
 

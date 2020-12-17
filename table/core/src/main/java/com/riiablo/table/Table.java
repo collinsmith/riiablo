@@ -36,10 +36,11 @@ public abstract class Table<R> implements Iterable<R> {
   }
 
   protected abstract R newRecord();
+  protected abstract Parser<R> newParser();
   protected abstract Serializer<R> newSerializer();
 
   public Class<R> recordClass() {
-    throw new UnsupportedOperationException();
+    return recordClass;
   }
 
   @Override
