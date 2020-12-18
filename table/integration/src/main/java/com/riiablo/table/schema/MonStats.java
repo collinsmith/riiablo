@@ -3,11 +3,8 @@ package com.riiablo.table.schema;
 import com.riiablo.table.annotation.Format;
 import com.riiablo.table.annotation.PrimaryKey;
 import com.riiablo.table.annotation.Schema;
-import com.riiablo.table.annotation.Table;
 
 @Schema
-@Table(MonStatsTableImpl.class)
-// @Serializer(MonStatsSerializerImpl.class)
 @SuppressWarnings("unused")
 public class MonStats {
   @Override
