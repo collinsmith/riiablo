@@ -137,9 +137,9 @@ public class ByteOutput {
     return writeChars(chars).skipBytes(1);
   }
 
-  /**
-   * @deprecated until fixed and null termination
-   */
+  // /**
+  //  * @deprecated until fixed and null termination
+  //  */
   // @Deprecated
   // public ByteOutput writeString(CharSequence chars, int len) {
   //   throw new UnsupportedOperationException("Not supported yet!");
