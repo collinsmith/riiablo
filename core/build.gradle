@@ -16,6 +16,10 @@ project.ext.generatedSourceDir = file("$buildDir/generated-src/main/java/")
 sourceSets.main.java.srcDirs += generatedSourceDir
 idea.module.generatedSourceDirs += generatedSourceDir
 
+project.ext.annotationProcessorGeneratedSourcesDirectory = compileJava.options.annotationProcessorGeneratedSourcesDirectory
+sourceSets.main.java.srcDirs += annotationProcessorGeneratedSourcesDirectory
+idea.module.generatedSourceDirs += annotationProcessorGeneratedSourcesDirectory
+
 project.ext.vcsGeneratedSourceDir = file('gen/main/java/')
 sourceSets.main.java.srcDirs += vcsGeneratedSourceDir
 idea.module.generatedSourceDirs += vcsGeneratedSourceDir
@@ -44,6 +48,13 @@ dependencies {
 // Excel
 dependencies {
   implementation "com.squareup:javapoet:1.13.0"
+}
+
+// Table
+dependencies {
+  annotationProcessor project(':table:annotation-processor')
+  implementation project(':table:core')
+  implementation project(':table:annotations')
 }
 
 // Networking

@@ -79,7 +79,12 @@ public abstract class Table<R> implements Iterable<R> {
   }
 
   public R get(int id) {
-    return records.get(id);
+    R record = records.get(id);
+    if (record == null && parser != null) {
+      records.put(id, record = parser.parseRecord(id, newRecord()));
+    }
+
+    return record;
   }
 
   public int index(String id) {
