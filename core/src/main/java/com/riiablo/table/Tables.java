@@ -41,8 +41,7 @@ public class Tables {
   static <R, T extends Table<R>>
   T loadTsv(T table, TsvParser parser) {
     parser.primaryKey(table.primaryKey());
-    table.parser(parser);
-    table.initialize();
+    table.initialize(parser);
     return table;
   }
 

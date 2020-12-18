@@ -50,8 +50,16 @@ public abstract class Table<R> implements Iterable<R> {
     return ordered.iterator();
   }
 
+  /**
+   * Called when this table has been constructed and initialized. Used to
+   * set-up table-specific configurations.
+   */
   protected void initialize() {}
 
+  /**
+   * Assigns a record to a specified id. Implementations can override this and
+   * call this super function to re-map indexes.
+   */
   protected void put(int id, R record) {
     records.put(id, record);
     ordered.add(record);
@@ -73,9 +81,14 @@ public abstract class Table<R> implements Iterable<R> {
     return parser;
   }
 
-  protected Parser<R> parser(ParserInput in) {
+  /**
+   * Initializes this table for loading records via a
+   * {@link ParserInput parser}.
+   */
+  protected final void initialize(ParserInput in) {
     if (parser != null) throw new IllegalStateException("parser already set");
-    return this.parser = newParser(in).parseFields();
+    this.parser = newParser(in).parseFields();
+    initialize();
   }
 
   public R get(int id) {
