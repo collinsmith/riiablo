@@ -11,6 +11,8 @@ import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 
+import com.riiablo.table.ParserInput;
+
 import static com.riiablo.table.annotation.Constants.STRING;
 
 class ParserCodeGenerator extends CodeGenerator {
@@ -35,18 +37,31 @@ class ParserCodeGenerator extends CodeGenerator {
         .build();
     return super.newTypeSpec(schemaElement)
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-        .addSuperinterface(schemaElement.parserElement.declaredType)
+        .superclass(schemaElement.parserElement.declaredType)
         .addField(fieldIds)
+        .addMethod(constructor(schemaElement))
         .addMethod(parseFields(schemaElement, fieldIds))
         .addMethod(parseRecord(schemaElement, fieldIds))
         ;
+  }
+
+  MethodSpec constructor(SchemaElement schemaElement) {
+    ParameterSpec parser = ParameterSpec
+        .builder(ParserInput.class, "parser")
+        .build();
+    return MethodSpec
+        .constructorBuilder()
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parser)
+        .addStatement("super($N)", parser)
+        .build();
   }
 
   MethodSpec parseFields(SchemaElement schemaElement, FieldSpec fieldIds) {
     ParserElement parserElement = schemaElement.parserElement;
     MethodSpec.Builder method = MethodSpec
         .overriding(
-            parserElement.getMethod("parseFields"),
+            parserElement.getMethod("_parseFields"),
             parserElement.declaredType,
             context.typeUtils);
 
@@ -58,6 +73,7 @@ class ParserCodeGenerator extends CodeGenerator {
       }
     }
 
+    method.addStatement("return $L", "this");
     return method.build();
   }
 
@@ -65,13 +81,13 @@ class ParserCodeGenerator extends CodeGenerator {
     ParserElement parserElement = schemaElement.parserElement;
     MethodSpec.Builder method = MethodSpec
         .overriding(
-            parserElement.getMethod("parseRecord"),
+            parserElement.getMethod("_parseRecord"),
             parserElement.declaredType,
             context.typeUtils);
 
     int i = 0;
-    final ParameterSpec recordId = method.parameters.get(0);
-    final ParameterSpec parser = method.parameters.get(1);
+    final ParameterSpec parser = method.parameters.get(0);
+    final ParameterSpec recordId = method.parameters.get(1);
     final ParameterSpec record = method.parameters.get(2);
     for (FieldElement field : schemaElement.fields) {
       final TypeName fieldTypeName = TypeName.get(field.element());

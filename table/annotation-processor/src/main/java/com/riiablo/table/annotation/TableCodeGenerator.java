@@ -3,6 +3,7 @@ package com.riiablo.table.annotation;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 
@@ -56,13 +57,14 @@ class TableCodeGenerator extends CodeGenerator {
 
   MethodSpec newParser(SchemaElement schemaElement) {
     TableElement tableElement = schemaElement.tableElement;
-    return MethodSpec
+    MethodSpec.Builder method = MethodSpec
         .overriding(
             tableElement.getMethod("newParser"),
             tableElement.declaredType,
-            context.typeUtils)
-        .addStatement("return new $T()", schemaElement.parserClassName)
-        .build();
+            context.typeUtils);
+    final ParameterSpec parser = method.parameters.get(0);
+    method.addStatement("return new $T($N)", schemaElement.parserClassName, parser);
+    return method.build();
   }
 
   MethodSpec newSerializer(SchemaElement schemaElement) {

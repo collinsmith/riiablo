@@ -20,6 +20,8 @@ public abstract class Table<R> implements Iterable<R> {
   protected IntMap<R> records;
   protected Array<R> ordered;
 
+  protected Parser<R> parser;
+
   protected Table(Class<R> recordClass) {
     this(recordClass, DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);
   }
@@ -36,7 +38,7 @@ public abstract class Table<R> implements Iterable<R> {
   }
 
   protected abstract R newRecord();
-  protected abstract Parser<R> newParser();
+  protected abstract Parser<R> newParser(ParserInput parser);
   protected abstract Serializer<R> newSerializer();
 
   public Class<R> recordClass() {
@@ -65,6 +67,15 @@ public abstract class Table<R> implements Iterable<R> {
 
   protected String primaryKey() {
     return null;
+  }
+
+  protected Parser<R> parser() {
+    return parser;
+  }
+
+  protected Parser<R> parser(ParserInput in) {
+    if (parser != null) throw new IllegalStateException("parser already set");
+    return this.parser = newParser(in).parseFields();
   }
 
   public R get(int id) {
