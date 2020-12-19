@@ -29,7 +29,7 @@ final class SchemaElement {
       return null;
     }
 
-      ExecutableElement defaultConstructor = defaultConstructor(context, typeElement);
+    ExecutableElement defaultConstructor = defaultConstructor(context, typeElement);
     if (defaultConstructor == null) {
       context.error(typeElement, "{element} must contain a default constructor");
       return null;
@@ -68,6 +68,7 @@ final class SchemaElement {
     }
 
     TableElement tableElement = TableElement.get(context, typeElement);
+    InjectorElement injectorElement = InjectorElement.get(context, typeElement);
     SerializerElement serializerElement = SerializerElement.get(context, typeElement);
     ParserElement parserElement = ParserElement.get(context, typeElement);
 
@@ -75,6 +76,7 @@ final class SchemaElement {
         annotation,
         typeElement,
         tableElement,
+        injectorElement,
         serializerElement,
         parserElement,
         primaryKeyFieldElement,
@@ -122,15 +124,28 @@ final class SchemaElement {
     return fields;
   }
 
+  static Collection<FieldElement> collectForeignKeys(Collection<FieldElement> fields) {
+    return CollectionUtils.select(fields, new Predicate<FieldElement>() {
+      @Override
+      public boolean evaluate(FieldElement field) {
+        return field.isForeignKey();
+      }
+    });
+  }
+
   final Schema annotation;
   final TypeElement element;
   final TableElement tableElement;
+  final InjectorElement injectorElement;
   final SerializerElement serializerElement;
   final ParserElement parserElement;
   final FieldElement primaryKeyFieldElement;
   final Collection<FieldElement> fields;
   final int numFields;
+  final Collection<FieldElement> foreignKeys;
 
+  ClassName tableClassName;
+  ClassName injectorClassName;
   ClassName serializerClassName;
   ClassName parserClassName;
 
@@ -138,6 +153,7 @@ final class SchemaElement {
       Schema annotation,
       TypeElement element,
       TableElement tableElement,
+      InjectorElement injectorElement,
       SerializerElement serializerElement,
       ParserElement parserElement,
       FieldElement primaryKeyFieldElement,
@@ -145,11 +161,19 @@ final class SchemaElement {
     this.annotation = annotation;
     this.element = element;
     this.tableElement = tableElement;
+    this.injectorElement = injectorElement;
     this.serializerElement = serializerElement;
     this.parserElement = parserElement;
     this.primaryKeyFieldElement = primaryKeyFieldElement;
     this.fields = fields;
     this.numFields = countNumFields(fields);
+    this.foreignKeys = collectForeignKeys(fields);
+    if (tableElement.tableImplElement != null) {
+      tableClassName = ClassName.get(tableElement.tableImplElement);
+    }
+    if (injectorElement.injectorImplElement != null) {
+      injectorClassName = ClassName.get(injectorElement.injectorImplElement);
+    }
     if (serializerElement.serializerImplElement != null) {
       serializerClassName = ClassName.get(serializerElement.serializerImplElement);
     }
@@ -169,10 +193,12 @@ final class SchemaElement {
     return new ToStringBuilder(this)
         .append("element", element)
         .append("tableElement", tableElement)
+        .append("injectorElement", injectorElement)
+        .append("injectorClassName", injectorClassName)
         .append("serializerElement", serializerElement)
         .append("serializerClassName", serializerClassName)
-        .append("ParserElement", parserElement)
-        .append("serializerClassName", serializerClassName)
+        .append("parserElement", parserElement)
+        .append("parserClassName", parserClassName)
         .append("primaryKeyFieldElement", primaryKeyFieldElement)
         .toString();
   }

@@ -14,9 +14,9 @@ class TableCodeGenerator extends CodeGenerator {
 
   @Override
   ClassName formatName(String packageName, SchemaElement schemaElement) {
-    return ClassName.get(
-            packageName,
-            schemaElement.element.getSimpleName() + Table.class.getSimpleName());
+    return schemaElement.tableClassName = ClassName.get(
+        packageName,
+        schemaElement.element.getSimpleName() + Table.class.getSimpleName());
   }
 
   @Override

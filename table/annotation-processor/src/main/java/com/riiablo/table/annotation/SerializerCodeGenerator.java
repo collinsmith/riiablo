@@ -58,6 +58,7 @@ class SerializerCodeGenerator extends CodeGenerator {
     final ParameterSpec in = method.parameters.get(1);
     for (FieldElement field : schemaElement.fields) {
       if (field.isTransient()) continue;
+      if (field.isForeignKey()) continue;
       final TypeName fieldTypeName = TypeName.get(field.element());
       final CodeBlock fqFieldName = qualify(record, field.name());
       if (field.isArray()) {
@@ -97,6 +98,7 @@ class SerializerCodeGenerator extends CodeGenerator {
     final ParameterSpec out = method.parameters.get(1);
     for (FieldElement field : schemaElement.fields) {
       if (field.isTransient()) continue;
+      if (field.isForeignKey()) continue;
       final TypeName fieldTypeName = TypeName.get(field.element());
       final CodeBlock fqFieldName = qualify(record, field.name());
       if (field.isArray()) {
@@ -135,6 +137,7 @@ class SerializerCodeGenerator extends CodeGenerator {
     final ParameterSpec e2 = method.parameters.get(1);
     for (FieldElement field : schemaElement.fields) {
       if (field.isTransient()) continue;
+      if (field.isForeignKey()) continue;
       final Name fieldName = field.name();
       final CodeBlock e1FqFieldName = qualify(e1, fieldName);
       final CodeBlock e2FqFieldName = qualify(e2, fieldName);
@@ -180,6 +183,7 @@ class SerializerCodeGenerator extends CodeGenerator {
 
     for (FieldElement field : schemaElement.fields) {
       if (field.isTransient()) continue;
+      if (field.isForeignKey()) continue;
       final Name fieldName = field.name();
       final CodeBlock e1FqFieldName = qualify(e1, fieldName);
       final CodeBlock e2FqFieldName = qualify(e2, fieldName);
@@ -231,7 +235,6 @@ class SerializerCodeGenerator extends CodeGenerator {
   }
 
   static CodeBlock defaultString(Object var) {
-    // return CodeBlock.of("$T.$N($L)", StringUtils.class, "defaultString", var);
     return CodeBlock.of("$1L == null ? $2S : $1L", var, "");
   }
 

@@ -14,6 +14,7 @@ final class FieldElement {
   static FieldElement get(Context context, VariableElement element) {
     FormatElement formatElement = FormatElement.get(context, element);
     PrimaryKeyElement primaryKeyElement = PrimaryKeyElement.get(context, element);
+    ForeignKeyElement foreignKeyElement = ForeignKeyElement.get(context, element);
     Set<Modifier> modifiers = element.getModifiers();
     if (!modifiers.contains(Modifier.PUBLIC)) {
       context.warn(element, "record fields should be declared {}", Modifier.PUBLIC);
@@ -27,12 +28,15 @@ final class FieldElement {
       context.error(element, "'{}' is an illegal record field name", Constants.RESERVED_NAME);
       return null;
     }
-    return new FieldElement(element, formatElement, primaryKeyElement);
+    if (foreignKeyElement == null && !Constants.isRecordFieldType(element)) {
+      context.error(element, "{element} is not a supported record field type");
+    }
+    return new FieldElement(element, formatElement, primaryKeyElement, foreignKeyElement);
   }
 
   static FieldElement firstPrimaryKey(Collection<FieldElement> fields) {
     for (FieldElement field : fields) {
-      if (field.primaryKeyElement != null || Constants.isPrimaryKey(field.element)) {
+      if (field.primaryKeyElement != null || Constants.isPrimaryKeyType(field.element)) {
         return field;
       }
     }
@@ -44,13 +48,19 @@ final class FieldElement {
   final TypeMirror mirror;
   final FormatElement formatElement;
   final PrimaryKeyElement primaryKeyElement;
+  final ForeignKeyElement foreignKeyElement;
   final String[] fieldNames;
 
-  FieldElement(VariableElement element, FormatElement formatElement, PrimaryKeyElement primaryKeyElement) {
+  FieldElement(
+      VariableElement element,
+      FormatElement formatElement,
+      PrimaryKeyElement primaryKeyElement,
+      ForeignKeyElement foreignKeyElement) {
     this.element = element;
     this.mirror = element.asType();
     this.formatElement = formatElement;
     this.primaryKeyElement = primaryKeyElement;
+    this.foreignKeyElement = foreignKeyElement;
     fieldNames = formatElement != null
         ? formatElement.fieldNames
         : ArrayUtils.toArray(element.getSimpleName().toString());
@@ -58,6 +68,14 @@ final class FieldElement {
 
   Name name() {
     return element.getSimpleName();
+  }
+
+  boolean isPrimaryKey() {
+    return primaryKeyElement != null;
+  }
+
+  boolean isForeignKey() {
+    return foreignKeyElement != null;
   }
 
   boolean isTransient() {

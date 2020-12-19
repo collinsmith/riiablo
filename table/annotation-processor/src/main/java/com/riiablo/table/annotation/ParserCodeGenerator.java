@@ -15,15 +15,14 @@ import com.riiablo.table.ParserInput;
 
 import static com.riiablo.table.annotation.Constants.STRING;
 
-class ParserCodeGenerator extends CodeGenerator {
+final class ParserCodeGenerator extends CodeGenerator {
   ParserCodeGenerator(Context context, String parserPackage) {
     super(context, parserPackage);
   }
 
   @Override
   ClassName formatName(String packageName, SchemaElement schemaElement) {
-    return schemaElement.parserClassName
-        = ClassName.get(
+    return schemaElement.parserClassName = ClassName.get(
         packageName,
         schemaElement.element.getSimpleName() + Parser.class.getSimpleName());
   }
@@ -90,6 +89,7 @@ class ParserCodeGenerator extends CodeGenerator {
     final ParameterSpec recordId = method.parameters.get(1);
     final ParameterSpec record = method.parameters.get(2);
     for (FieldElement field : schemaElement.fields) {
+      if (field.isForeignKey()) continue;
       final TypeName fieldTypeName = TypeName.get(field.element());
       final CodeBlock fqFieldName = qualify(record, field.name());
       if (field.isArray()) {

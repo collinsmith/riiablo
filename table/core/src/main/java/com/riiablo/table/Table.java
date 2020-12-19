@@ -20,6 +20,7 @@ public abstract class Table<R> implements Iterable<R> {
   protected IntMap<R> records;
   protected Array<R> ordered;
 
+  protected Injector<R, ?> injector;
   protected Parser<R> parser;
 
   protected Table(Class<R> recordClass) {
@@ -40,6 +41,10 @@ public abstract class Table<R> implements Iterable<R> {
   protected abstract R newRecord();
   protected abstract Parser<R> newParser(ParserInput parser);
   protected abstract Serializer<R> newSerializer();
+
+  protected Injector<R, ?> newInjector() {
+    return null;
+  }
 
   public Class<R> recordClass() {
     return recordClass;
@@ -77,6 +82,12 @@ public abstract class Table<R> implements Iterable<R> {
     return null;
   }
 
+  protected R inject(R record) {
+    if (injector == null) injector = newInjector();
+    if (injector != null) return injector.inject(null, record);
+    return record;
+  }
+
   protected Parser<R> parser() {
     return parser;
   }
@@ -94,7 +105,9 @@ public abstract class Table<R> implements Iterable<R> {
   public R get(int id) {
     R record = records.get(id);
     if (record == null && parser != null) {
-      records.put(id, record = parser.parseRecord(id, newRecord()));
+      record = parser.parseRecord(id, newRecord());
+      record = inject(record);
+      records.put(id, record);
     }
 
     return record;

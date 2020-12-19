@@ -23,6 +23,20 @@ abstract class AnnotationElement<A extends Annotation> {
     return context.elementUtils.getElementValuesWithDefaults(mirror);
   }
 
+  AnnotationValue value(String key) {
+    for (
+        Map.Entry<
+            ? extends ExecutableElement,
+            ? extends AnnotationValue
+        > entry : defaults().entrySet()) {
+      if (entry.getKey().getSimpleName().contentEquals(key)) {
+        return entry.getValue();
+      }
+    }
+
+    return null;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
