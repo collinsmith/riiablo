@@ -1,6 +1,7 @@
 package com.riiablo.table;
 
 import java.util.Arrays;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -11,7 +12,9 @@ import com.riiablo.RiiabloTest;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.table.schema.MonStats;
+import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.MonStatsTable;
+import com.riiablo.table.table.WeaponsTable;
 
 public class TablesTest extends RiiabloTest {
   @BeforeClass
@@ -23,6 +26,7 @@ public class TablesTest extends RiiabloTest {
   public void monstats() {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
     TsvParser parser = TsvParser.parse(handle.readBytes());
+    TableManifest.monstats.parser = null;
     MonStatsTable table = Tables.loadTsv(TableManifest.monstats, parser);
     MonStats record = table.get(0);
     System.out.println(record.Id);
@@ -38,16 +42,37 @@ public class TablesTest extends RiiabloTest {
     MonStatsTable table = Tables.loadTsv(TableManifest.monstats, parser);
     MonStats record;
     record = table.get(54);
-    System.out.println(record);
+    Assert.assertEquals("NightClan", record.NameStr);
     record = table.get(311);
-    System.out.println(record);
+    Assert.assertEquals("AbyssKnight", record.NameStr);
     record = table.get(411);
-    System.out.println(record);
+    Assert.assertEquals("Charged Bolt Sentry", record.NameStr);
     record = table.get(5);
-    System.out.println(record);
+    Assert.assertEquals("Zombie", record.NameStr);
     record = table.get(700);
-    System.out.println(record);
+    Assert.assertEquals("DoomKnight", record.NameStr);
     record = table.get(578);
-    System.out.println(record);
+    Assert.assertEquals("ReturnedArcher", record.NameStr);
+  }
+
+  @Test
+  public void weapons_random_access() {
+    FileHandle handle = Gdx.files.internal("test/weapons.txt");
+    TsvParser parser = TsvParser.parse(handle.readBytes());
+    TableManifest.weapons.parser = null;
+    WeaponsTable table = Tables.loadTsv(TableManifest.weapons, parser);
+    Weapons record;
+    record = table.get(54);
+    Assert.assertEquals("Brandistock", record.name);
+    record = table.get(72);
+    Assert.assertEquals("Short Battle Bow", record.name);
+    record = table.get(299);
+    Assert.assertEquals("Vortex Orb", record.name);
+    record = table.get(5);
+    Assert.assertEquals("Large Axe", record.name);
+    record = table.get(115);
+    Assert.assertEquals("Battle Hammer", record.name);
+    record = table.get(240);
+    Assert.assertEquals("Flying Axe", record.name);
   }
 }
