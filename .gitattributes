@@ -1,1 +1,2 @@
 assets/* linguist-vendored
+assets/data/**.txt text eol=crlf
