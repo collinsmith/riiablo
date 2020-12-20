@@ -67,6 +67,7 @@ final class ParserCodeGenerator extends CodeGenerator {
     int i = 0;
     final ParameterSpec parser = method.parameters.get(0);
     for (FieldElement field : schemaElement.fields) {
+      if (field.isForeignKey()) continue;
       for (String fieldName : field.fieldNames) {
         method.addStatement("$N[$L] = $N.$N($S)", fieldIds, i++, parser, "fieldId", fieldName);
       }

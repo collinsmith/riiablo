@@ -1,5 +1,6 @@
 package com.riiablo.table.schema;
 
+import com.riiablo.table.annotation.ForeignKey;
 import com.riiablo.table.annotation.Format;
 import com.riiablo.table.annotation.PrimaryKey;
 import com.riiablo.table.annotation.Schema;
@@ -11,6 +12,9 @@ public class MonStats {
   public String toString() {
     return NameStr;
   }
+
+  @ForeignKey("MonStatsEx")
+  public MonStats2 monstats2;
 
   @PrimaryKey
   public String Id;

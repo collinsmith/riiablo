@@ -202,7 +202,7 @@ finder:
             .builder(
                 schema.tableClassName,
                 schemaName.simpleName().toLowerCase(),
-                Modifier.PUBLIC, Modifier.FINAL)
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
             .initializer("new $T()", schema.tableClassName)
             .build();
         tableManifest.addField(tableFieldSpec);

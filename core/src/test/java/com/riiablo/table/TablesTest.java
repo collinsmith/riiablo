@@ -23,7 +23,7 @@ public class TablesTest extends RiiabloTest {
   public void monstats() {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
     TsvParser parser = TsvParser.parse(handle.readBytes());
-    MonStatsTable table = Tables.loadTsv(new MonStatsTable(), parser);
+    MonStatsTable table = Tables.loadTsv(TableManifest.monstats, parser);
     MonStats record = table.get(0);
     System.out.println(record.Id);
     System.out.println(record.hcIdx);
@@ -34,7 +34,8 @@ public class TablesTest extends RiiabloTest {
   public void monstats_random_access() {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
     TsvParser parser = TsvParser.parse(handle.readBytes());
-    MonStatsTable table = Tables.loadTsv(new MonStatsTable(), parser);
+    TableManifest.monstats.parser = null;
+    MonStatsTable table = Tables.loadTsv(TableManifest.monstats, parser);
     MonStats record;
     record = table.get(54);
     System.out.println(record);
