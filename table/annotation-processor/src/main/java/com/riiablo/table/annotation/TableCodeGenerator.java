@@ -30,6 +30,7 @@ class TableCodeGenerator extends CodeGenerator {
         .addMethod(newSerializer(schemaElement))
         .addMethod(offset(schemaElement))
         .addMethod(indexed(schemaElement))
+        .addMethod(preload(schemaElement))
         .addMethod(primaryKey(schemaElement))
         ;
   }
@@ -99,6 +100,18 @@ class TableCodeGenerator extends CodeGenerator {
             tableElement.declaredType,
             context.typeUtils)
         .addStatement("return $L", config.indexed())
+        .build();
+  }
+
+  MethodSpec preload(SchemaElement schemaElement) {
+    Schema config = schemaElement.annotation;
+    TableElement tableElement = schemaElement.tableElement;
+    return MethodSpec
+        .overriding(
+            tableElement.getMethod("preload"),
+            tableElement.declaredType,
+            context.typeUtils)
+        .addStatement("return $L", config.preload())
         .build();
   }
 

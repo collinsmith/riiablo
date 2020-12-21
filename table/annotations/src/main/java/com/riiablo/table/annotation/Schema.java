@@ -27,6 +27,12 @@ public @interface Schema {
   boolean indexed() default false;
 
   /**
+   * Whether or not records are automatically precached when the schema is
+   * initialized.
+   */
+  boolean preload() default false;
+
+  /**
    * Number of expected records of this type.
    *
    * @see #loadFactor()

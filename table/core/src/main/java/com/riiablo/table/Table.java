@@ -78,6 +78,10 @@ public abstract class Table<R> implements Iterable<R> {
     return false;
   }
 
+  protected boolean preload() {
+    return false;
+  }
+
   protected String primaryKey() {
     return null;
   }
