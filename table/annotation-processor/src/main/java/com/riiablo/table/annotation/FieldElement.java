@@ -16,6 +16,9 @@ final class FieldElement {
     PrimaryKeyElement primaryKeyElement = PrimaryKeyElement.get(context, element);
     ForeignKeyElement foreignKeyElement = ForeignKeyElement.get(context, element);
     Set<Modifier> modifiers = element.getModifiers();
+    if (modifiers.contains(Modifier.STATIC) && modifiers.contains(Modifier.FINAL)) {
+      return null;
+    }
     if (!modifiers.contains(Modifier.PUBLIC)) {
       context.warn(element, "record fields should be declared {}", Modifier.PUBLIC);
       return null;
