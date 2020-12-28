@@ -12,9 +12,11 @@ import com.riiablo.RiiabloTest;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.table.schema.MonStats;
+import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.MonStatsTable;
 import com.riiablo.table.table.RunesTable;
+import com.riiablo.table.table.SoundsTable;
 import com.riiablo.table.table.WeaponsTable;
 
 public class TablesTest extends RiiabloTest {
@@ -161,5 +163,16 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals("Wind", table.get(188).Rune_Name);
     Assert.assertEquals("Wrath", table.get(193).Rune_Name);
     Assert.assertEquals("Zephyr", table.get(195).Rune_Name);
+  }
+
+  @Test
+  public void sounds() {
+    LogManager.setLevel("com.riiablo.table.table.SoundsTable", Level.TRACE);
+    TableManifest.sounds.parser = null;
+    FileHandle handle = Gdx.files.internal("test/sounds.txt");
+    SoundsTable table = Tables.loadTsv(TableManifest.sounds, handle);
+    for (Sounds record : table) {
+      Assert.assertSame(record, table.get(record.Index));
+    }
   }
 }
