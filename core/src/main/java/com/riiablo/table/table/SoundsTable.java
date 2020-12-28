@@ -3,6 +3,8 @@ package com.riiablo.table.table;
 
 import javax.annotation.Generated;
 
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.table.Parser;
 import com.riiablo.table.ParserInput;
 import com.riiablo.table.Serializer;
@@ -17,6 +19,8 @@ import com.riiablo.table.serializer.SoundsSerializer;
     comments = "com.riiablo.table.schema.Sounds"
 )
 public final class SoundsTable extends Table<Sounds> {
+  private static final Logger log = LogManager.getLogger(SoundsTable.class);
+
   public SoundsTable() {
     super(Sounds.class, 53, 0.8f);
   }
@@ -58,6 +62,7 @@ public final class SoundsTable extends Table<Sounds> {
 
   @Override
   protected void put(int id, Sounds record) {
+    log.trace("{}: {} -> {}", record.FileName, id, record.Index);
     super.put(record.Index, record);
   }
 }
