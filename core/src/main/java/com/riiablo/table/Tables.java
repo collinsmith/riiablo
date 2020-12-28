@@ -42,6 +42,7 @@ public class Tables {
   T loadTsv(T table, TsvParser parser) {
     parser.primaryKey(table.primaryKey());
     table.initialize(parser);
+    table.initialize();
     return table;
   }
 

@@ -97,21 +97,28 @@ public abstract class Table<R> implements Iterable<R> {
   }
 
   /**
-   * Initializes this table for loading records via a
-   * {@link ParserInput parser}.
+   * Initializes this table for loading records via a {@link ParserInput parser}.
    */
   protected final void initialize(ParserInput in) {
     if (parser != null) throw new IllegalStateException("parser already set");
     this.parser = newParser(in).parseFields();
-    initialize();
+    if (preload()) {
+      for (int i = 0, s = in.numRecords(); i < s; i++) {
+        final R record = newRecord();
+        parser.parseRecord(i, record);
+        inject(record);
+        put(i, record);
+      }
+    }
   }
 
   public R get(int id) {
     R record = records.get(id);
-    if (record == null && parser != null) {
+    if (record == null && !preload() && parser != null) {
+      if (id < 0 || id >= parser.parser().numRecords()) return null;
       record = parser.parseRecord(id, newRecord());
       record = inject(record);
-      records.put(id, record);
+      put(id, record);
     }
 
     return record;
