@@ -11,9 +11,11 @@ import com.badlogic.gdx.files.FileHandle;
 import com.riiablo.RiiabloTest;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
+import com.riiablo.table.schema.BodyLocs;
 import com.riiablo.table.schema.MonStats;
 import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
+import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.MonStatsTable;
 import com.riiablo.table.table.RunesTable;
 import com.riiablo.table.table.SoundsTable;
@@ -175,5 +177,15 @@ public class TablesTest extends RiiabloTest {
     for (Sounds record : table) {
       Assert.assertSame(record, table.get(record.Index));
     }
+  }
+
+  @Test
+  public void bodylocs() {
+    LogManager.setLevel("com.riiablo.table.table.BodyLocsTable", Level.TRACE);
+    TableManifest.bodylocs.parser = null;
+    FileHandle handle = Gdx.files.internal("test/bodylocs.txt");
+    BodyLocsTable table = Tables.loadTsv(TableManifest.bodylocs, handle);
+    Assert.assertSame(table.get(BodyLocs.RARM), table.get(BodyLocs.RARM2));
+    Assert.assertSame(table.get(BodyLocs.LARM), table.get(BodyLocs.LARM2));
   }
 }
