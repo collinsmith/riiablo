@@ -171,6 +171,7 @@ public class TablesTest extends RiiabloTest {
     TableManifest.sounds.parser = null;
     FileHandle handle = Gdx.files.internal("test/sounds.txt");
     SoundsTable table = Tables.loadTsv(TableManifest.sounds, handle);
+    for (int i = 0, s = table.parser.parser().numRecords(); i < s; i++) table.get(i);
     for (Sounds record : table) {
       Assert.assertSame(record, table.get(record.Index));
     }
