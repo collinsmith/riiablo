@@ -9,13 +9,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.RiiabloTest;
+import com.riiablo.attributes.Stat;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.table.schema.BodyLocs;
+import com.riiablo.table.schema.ItemStatCost;
 import com.riiablo.table.schema.MonStats;
 import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.BodyLocsTable;
+import com.riiablo.table.table.ItemStatCostTable;
 import com.riiablo.table.table.MonStatsTable;
 import com.riiablo.table.table.RunesTable;
 import com.riiablo.table.table.SoundsTable;
@@ -187,5 +190,19 @@ public class TablesTest extends RiiabloTest {
     BodyLocsTable table = Tables.loadTsv(TableManifest.bodylocs, handle);
     Assert.assertSame(table.get(BodyLocs.RARM), table.get(BodyLocs.RARM2));
     Assert.assertSame(table.get(BodyLocs.LARM), table.get(BodyLocs.LARM2));
+  }
+
+  @Test
+  public void itemstatcost() {
+    LogManager.setLevel("com.riiablo.table.table.ItemStatCostTable", Level.TRACE);
+    TableManifest.itemstatcost.parser = null;
+    FileHandle handle = Gdx.files.internal("test/itemstatcost.txt");
+    ItemStatCostTable table = Tables.loadTsv(TableManifest.itemstatcost, handle);
+    Assert.assertNotNull(table.get(Stat.reqstr));
+    Assert.assertNotNull(table.get(Stat.reqdex));
+    for (int i = 0, s = table.parser.parser().numRecords(); i < s; i++) table.get(i);
+    for (ItemStatCost record : table) {
+      Assert.assertSame(record, table.get(record.ID));
+    }
   }
 }
