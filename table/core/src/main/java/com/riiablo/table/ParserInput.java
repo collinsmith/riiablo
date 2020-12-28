@@ -2,7 +2,11 @@ package com.riiablo.table;
 
 public interface ParserInput {
   int fieldId(String fieldName);
-  int recordId(String fieldName);
+  int numFields();
+
+  int recordId(String recordName);
+  int numRecords();
+
   CharSequence token(int recordId, int fieldId);
 
   byte parseByte(int recordId, int fieldId);

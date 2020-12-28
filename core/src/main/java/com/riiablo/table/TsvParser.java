@@ -180,6 +180,7 @@ public class TsvParser implements ParserInput {
     fieldNames.add(fieldName);
   }
 
+  @Override
   public int numFields() {
     return numFields;
   }
@@ -192,6 +193,7 @@ public class TsvParser implements ParserInput {
     return fieldNames.get(fieldId);
   }
 
+  @Override
   public int numRecords() {
     return numRecords;
   }
