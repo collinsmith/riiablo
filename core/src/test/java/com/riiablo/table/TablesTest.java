@@ -21,6 +21,7 @@ import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.ItemStatCostTable;
 import com.riiablo.table.table.MonPresetTable;
 import com.riiablo.table.table.MonStatsTable;
+import com.riiablo.table.table.ObjTable;
 import com.riiablo.table.table.RunesTable;
 import com.riiablo.table.table.SoundsTable;
 import com.riiablo.table.table.WeaponsTable;
@@ -231,5 +232,31 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals(56, table.getSize(5));
     Assert.assertEquals("larzuk", table.getPlace(5, 0));
     Assert.assertEquals("place_nothing", table.getPlace(5, 55));
+  }
+
+  @Test
+  public void obj() {
+    LogManager.setLevel("com.riiablo.table.table.ObjTable", Level.TRACE);
+    TableManifest.obj.parser = null;
+    FileHandle handle = Gdx.files.internal("test/obj.txt");
+    ObjTable table = Tables.loadTsv(TableManifest.obj, handle);
+    for (int i = 0, s = table.parser.parser().numRecords(); i < s; i++) table.get(i);
+    Assert.assertEquals(150, table.getSize(1));
+    Assert.assertEquals(12, table.getObjectId(1, 0)); // RogueFountain
+    Assert.assertEquals(37, table.getObjectId(1, 1)); // Torch1 Tiki
+    Assert.assertEquals(0, table.getObjectId(1, 113)); // 0
+    Assert.assertEquals(8, table.getObjectId(1, 114)); // Myhrginoc's Book of Lore
+    Assert.assertEquals(150, table.getSize(2));
+    Assert.assertEquals(74, table.getObjectId(2, 0)); // Trap Door
+    Assert.assertEquals(402, table.getObjectId(2, 134)); // waypoint valleywaypoint
+    Assert.assertEquals(150, table.getSize(3));
+    Assert.assertEquals(117, table.getObjectId(3, 0)); // jungle torch
+    Assert.assertEquals(406, table.getObjectId(3, 115)); // khalim chest
+    Assert.assertEquals(150, table.getSize(4));
+    Assert.assertEquals(238, table.getObjectId(4, 0)); // waypointh
+    Assert.assertEquals(409, table.getObjectId(4, 65)); // fortress brazier #2
+    Assert.assertEquals(150, table.getSize(5));
+    Assert.assertEquals(452, table.getObjectId(5, 0)); // banner 1
+    Assert.assertEquals(397, table.getObjectId(5, 149)); // chest
   }
 }
