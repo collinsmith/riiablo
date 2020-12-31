@@ -5,6 +5,7 @@ import com.riiablo.table.annotation.Table;
 import com.riiablo.table.table.MonPresetTable;
 
 @Schema(
+    indexed = true,
     preload = true
 )
 @Table(MonPresetTable.class)

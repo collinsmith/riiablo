@@ -50,7 +50,7 @@ public final class MonPresetTable extends Table<MonPreset> {
 
   @Override
   protected boolean indexed() {
-    return false;
+    return true;
   }
 
   @Override
