@@ -213,8 +213,23 @@ public class TablesTest extends RiiabloTest {
     TableManifest.monpreset.parser = null;
     FileHandle handle = Gdx.files.internal("test/monpreset.txt");
     MonPresetTable table = Tables.loadTsv(TableManifest.monpreset, handle);
-    for (int i = 0, s = table.parser.parser().numRecords(); i < s; i++) {
-      System.out.println(table.get(i));
-    }
+    for (int i = 0, s = table.parser.parser().numRecords(); i < s; i++) table.get(i);
+    Assert.assertEquals(47, table.getSize(1));
+    Assert.assertEquals("gheed", table.getPlace(1, 0));
+    Assert.assertEquals("cain1", table.getPlace(1, 1));
+    Assert.assertEquals("The Cow King", table.getPlace(1, 45));
+    Assert.assertEquals("Corpsefire", table.getPlace(1, 46));
+    Assert.assertEquals(59, table.getSize(2));
+    Assert.assertEquals("warriv2", table.getPlace(2, 0));
+    Assert.assertEquals("skeleton5", table.getPlace(2, 58));
+    Assert.assertEquals(39, table.getSize(3));
+    Assert.assertEquals("cain3", table.getPlace(3, 0));
+    Assert.assertEquals("Maffer Dragonhand", table.getPlace(3, 38));
+    Assert.assertEquals(28, table.getSize(4));
+    Assert.assertEquals("place_champion", table.getPlace(4, 0));
+    Assert.assertEquals("The Feature Creep", table.getPlace(4, 27));
+    Assert.assertEquals(56, table.getSize(5));
+    Assert.assertEquals("larzuk", table.getPlace(5, 0));
+    Assert.assertEquals("place_nothing", table.getPlace(5, 55));
   }
 }

@@ -6,6 +6,8 @@ import javax.annotation.Generated;
 import com.badlogic.gdx.utils.IntArray;
 
 import com.riiablo.Riiablo;
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.table.Parser;
 import com.riiablo.table.ParserInput;
 import com.riiablo.table.Serializer;
@@ -20,6 +22,8 @@ import com.riiablo.table.serializer.MonPresetSerializer;
     comments = "com.riiablo.table.schema.MonPreset"
 )
 public final class MonPresetTable extends Table<MonPreset> {
+  private static final Logger log = LogManager.getLogger(MonPresetTable.class);
+
   public MonPresetTable() {
     super(MonPreset.class, 53, 0.8f);
   }
@@ -72,7 +76,9 @@ public final class MonPresetTable extends Table<MonPreset> {
   @Override
   protected void put(int id, MonPreset record) {
     super.put(id, record);
-    lookup[record.Act].add(id);
+    final IntArray lookup = this.lookup[record.Act];
+    lookup.add(id);
+    log.trace("lookup[{}][{}] = {} ({})", record.Act, lookup.size - 1, record, id);
   }
 
   public MonPreset get(int act, int id) {
