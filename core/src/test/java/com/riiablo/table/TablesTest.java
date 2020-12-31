@@ -66,6 +66,16 @@ public class TablesTest extends RiiabloTest {
   }
 
   @Test
+  public void weapons_primary_key() {
+    FileHandle handle = Gdx.files.internal("test/weapons.txt");
+    TsvParser parser = TsvParser.parse(handle.readBytes());
+    TableManifest.weapons.parser = null;
+    WeaponsTable table = Tables.loadTsv(TableManifest.weapons, parser);
+    Assert.assertNotNull(table.get(54));
+    Assert.assertNotNull(table.get("BRN"));
+  }
+
+  @Test
   public void weapons_superclass_access() {
     FileHandle handle = Gdx.files.internal("test/weapons.txt");
     TsvParser parser = TsvParser.parse(handle.readBytes());
