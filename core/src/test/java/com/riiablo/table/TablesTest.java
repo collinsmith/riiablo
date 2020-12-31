@@ -19,6 +19,7 @@ import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.ItemStatCostTable;
+import com.riiablo.table.table.MonPresetTable;
 import com.riiablo.table.table.MonStatsTable;
 import com.riiablo.table.table.RunesTable;
 import com.riiablo.table.table.SoundsTable;
@@ -203,6 +204,17 @@ public class TablesTest extends RiiabloTest {
     for (int i = 0, s = table.parser.parser().numRecords(); i < s; i++) table.get(i);
     for (ItemStatCost record : table) {
       Assert.assertSame(record, table.get(record.ID));
+    }
+  }
+
+  @Test
+  public void monpreset() {
+    LogManager.setLevel("com.riiablo.table.table.MonPresetTable", Level.TRACE);
+    TableManifest.monpreset.parser = null;
+    FileHandle handle = Gdx.files.internal("test/monpreset.txt");
+    MonPresetTable table = Tables.loadTsv(TableManifest.monpreset, handle);
+    for (int i = 0, s = table.parser.parser().numRecords(); i < s; i++) {
+      System.out.println(table.get(i));
     }
   }
 }
