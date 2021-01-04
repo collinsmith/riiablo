@@ -7,6 +7,10 @@ public interface ParserInput {
   int recordId(String recordName);
   int numRecords();
 
+  String recordName(int recordId);
+  int primaryKey(String fieldName);
+  int primaryKey();
+
   CharSequence token(int recordId, int fieldId);
 
   byte parseByte(int recordId, int fieldId);

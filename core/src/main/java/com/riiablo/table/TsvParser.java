@@ -207,6 +207,7 @@ public class TsvParser implements ParserInput {
     return recordNames;
   }
 
+  @Override
   public String recordName(int recordId) {
     return primaryKeyFieldId == -1
         ? "" + recordId
@@ -217,7 +218,8 @@ public class TsvParser implements ParserInput {
     return token(recordId, primaryKeyFieldId);
   }
 
-  public void primaryKey(String fieldName) {
+  @Override
+  public int primaryKey(String fieldName) {
     Validate.validState(primaryKeyFieldId == -1, "primary key already set");
     final int fieldId = primaryKeyFieldId = fieldId(fieldName);
     final int[] tokenOffsets = this.tokenOffsets.items;
@@ -226,6 +228,12 @@ public class TsvParser implements ParserInput {
       String recordName = toUpper(buffer, tokenOffsets[offset], tokenOffsets[offset + 1]);
       recordIds.put(recordName, i);
     }
+    return primaryKeyFieldId;
+  }
+
+  @Override
+  public int primaryKey() {
+    return primaryKeyFieldId;
   }
 
   private int lineOffset(final int recordId, final int fieldId) {

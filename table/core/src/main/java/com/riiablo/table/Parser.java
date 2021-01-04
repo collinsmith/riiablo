@@ -29,4 +29,8 @@ public abstract class Parser<R> {
   final R parseRecord(int recordId, R record) {
     return _parseRecord(parser, recordId, record);
   }
+
+  public String recordName(int recordId) {
+    return parser.recordName(recordId);
+  }
 }

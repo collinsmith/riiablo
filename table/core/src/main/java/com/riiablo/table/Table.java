@@ -39,7 +39,9 @@ public abstract class Table<R> implements Iterable<R> {
     this.recordClass = recordClass;
     records = new IntMap<>(initialCapacity, loadFactor);
     ordered = new Array<>(true, (int) (initialCapacity * loadFactor), recordClass);
-    lookup = new ObjectIntMap<>(stringLookup ? initialCapacity : 0, loadFactor);
+    lookup = stringLookup
+        ? new ObjectIntMap<String>(initialCapacity, loadFactor)
+        : null;
   }
 
   protected abstract R newRecord();
@@ -72,6 +74,11 @@ public abstract class Table<R> implements Iterable<R> {
   protected void put(int id, R record) {
     records.put(id, record);
     ordered.add(record);
+    if (lookup != null) {
+      // if put is overridden in subclass to remap id, this will not work
+      // this operation asserts that no remapping occurs
+      lookup.put(parser.recordName(id), id);
+    }
   }
 
   protected int offset() {
@@ -108,36 +115,34 @@ public abstract class Table<R> implements Iterable<R> {
     this.parser = newParser(in).parseFields();
     if (preload()) {
       for (int i = 0, s = in.numRecords(); i < s; i++) {
-        final R record = newRecord();
-        parser.parseRecord(i, record);
-        inject(record);
-        put(i, record);
+        put(i, parseRecord(i));
       }
     }
+  }
+
+  private R parseRecord(int recordId) {
+    final R record = newRecord();
+    parser.parseRecord(recordId, record);
+    inject(record);
+    return record;
   }
 
   public R get(int id) {
     R record = records.get(id);
     if (record == null && !preload() && parser != null) {
       if (id < 0 || id >= parser.parser().numRecords()) return null;
-      record = parser.parseRecord(id, newRecord());
-      record = inject(record);
-      put(id, record);
+      put(id, record = parseRecord(id));
     }
 
     return record;
   }
 
   public int index(String id) {
-    return lookup == null ? -1 : lookup.get(id, -1);
+    return lookup.get(id, -1);
   }
 
   public R get(String id) {
-    return lookup == null ? null : get(lookup.get(id, -1));
-  }
-
-  private void resolve(String id) {
-    if (lookup == null) lookup = new ObjectIntMap<>();
+    return get(lookup.get(id, -1));
   }
 
   public int size() {

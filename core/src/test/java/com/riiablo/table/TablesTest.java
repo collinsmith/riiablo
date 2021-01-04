@@ -73,6 +73,7 @@ public class TablesTest extends RiiabloTest {
     WeaponsTable table = Tables.loadTsv(TableManifest.weapons, parser);
     Assert.assertNotNull(table.get(54));
     Assert.assertNotNull(table.get("BRN"));
+    Assert.assertEquals(54, table.index("BRN"));
   }
 
   @Test
