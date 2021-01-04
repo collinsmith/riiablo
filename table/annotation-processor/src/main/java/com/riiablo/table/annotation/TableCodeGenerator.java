@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 
@@ -37,11 +38,19 @@ class TableCodeGenerator extends CodeGenerator {
 
   MethodSpec constructor(SchemaElement schemaElement) {
     Schema config = schemaElement.annotation;
+    final boolean stringLookup;
+    if (config.indexed()) {
+      stringLookup = false;
+    } else {
+      TypeName primaryKeyType = ClassName.get(schemaElement.primaryKeyFieldElement.element());
+      stringLookup = Constants.STRING.equals(primaryKeyType);
+    }
+
     return MethodSpec
         .constructorBuilder()
         .addModifiers(Modifier.PUBLIC)
-        .addStatement("super($T.class, $L, $Lf)", // does not append "f" automatically for float literals
-            schemaElement.element, config.initialCapacity(), config.loadFactor())
+        .addStatement("super($T.class, $L, $Lf, $L)", // does not append "f" automatically for float literals
+            schemaElement.element, config.initialCapacity(), config.loadFactor(), stringLookup)
         .build();
   }
 

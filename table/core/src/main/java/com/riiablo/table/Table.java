@@ -32,10 +32,14 @@ public abstract class Table<R> implements Iterable<R> {
   }
 
   protected Table(Class<R> recordClass, int initialCapacity, float loadFactor) {
+    this(recordClass, initialCapacity, loadFactor, false);
+  }
+
+  protected Table(Class<R> recordClass, int initialCapacity, float loadFactor, boolean stringLookup) {
     this.recordClass = recordClass;
     records = new IntMap<>(initialCapacity, loadFactor);
     ordered = new Array<>(true, (int) (initialCapacity * loadFactor), recordClass);
-    lookup = null;
+    lookup = new ObjectIntMap<>(stringLookup ? initialCapacity : 0, loadFactor);
   }
 
   protected abstract R newRecord();
@@ -130,6 +134,10 @@ public abstract class Table<R> implements Iterable<R> {
 
   public R get(String id) {
     return lookup == null ? null : get(lookup.get(id, -1));
+  }
+
+  private void resolve(String id) {
+    if (lookup == null) lookup = new ObjectIntMap<>();
   }
 
   public int size() {
