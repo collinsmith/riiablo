@@ -138,11 +138,15 @@ public abstract class Table<R> implements Iterable<R> {
   }
 
   public int index(String id) {
-    return lookup.get(id, -1);
+    return lookup.get(toUpper(id), -1);
   }
 
   public R get(String id) {
-    return get(lookup.get(id, -1));
+    return get(lookup.get(toUpper(id), -1));
+  }
+
+  private String toUpper(String id) {
+    return id == null ? null : id.toUpperCase();
   }
 
   public int size() {
