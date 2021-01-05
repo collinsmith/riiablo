@@ -79,8 +79,7 @@ public class TsvParser implements ParserInput {
       }
     }
 
-    while (bytes[i] == HT) i++;
-    assert bytes[i] == CR;
+    while (bytes[i] != CR) i++;
     return i + 1;
   }
 
