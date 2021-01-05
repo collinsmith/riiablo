@@ -289,6 +289,7 @@ public class TsvParser implements ParserInput {
    */
   @Override
   public int parseInt(int recordId, int fieldId) {
+    if (fieldId < 0) return 0;
     final int offset = lineOffset(recordId, fieldId);
     final int[] tokenOffsets = this.tokenOffsets.items;
     final int start = tokenOffsets[offset];
@@ -312,6 +313,7 @@ public class TsvParser implements ParserInput {
    */
   @Override
   public long parseLong(int recordId, int fieldId) {
+    if (fieldId < 0) return 0L;
     final int offset = lineOffset(recordId, fieldId);
     final int[] tokenOffsets = this.tokenOffsets.items;
     final int start = tokenOffsets[offset];
@@ -343,16 +345,19 @@ public class TsvParser implements ParserInput {
 
   @Override
   public float parseFloat(int recordId, int fieldId) {
+    if (fieldId < 0) return 0f;
     return Float.parseFloat(parseString(recordId, fieldId));
   }
 
   @Override
   public double parseDouble(int recordId, int fieldId) {
+    if (fieldId < 0) return 0d;
     return Double.parseDouble(parseString(recordId, fieldId));
   }
 
   @Override
   public String parseString(int recordId, int fieldId) {
+    if (fieldId < 0) return null;
     final int offset = lineOffset(recordId, fieldId);
     final int[] tokenOffsets = this.tokenOffsets.items;
     return buffer.toString(tokenOffsets[offset], tokenOffsets[offset + 1]);
