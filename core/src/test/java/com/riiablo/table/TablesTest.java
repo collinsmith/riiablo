@@ -15,11 +15,13 @@ import com.riiablo.logger.LogManager;
 import com.riiablo.table.schema.BodyLocs;
 import com.riiablo.table.schema.ItemStatCost;
 import com.riiablo.table.schema.MonStats;
+import com.riiablo.table.schema.MonStats2;
 import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.ItemStatCostTable;
 import com.riiablo.table.table.MonPresetTable;
+import com.riiablo.table.table.MonStats2Table;
 import com.riiablo.table.table.MonStatsTable;
 import com.riiablo.table.table.ObjTable;
 import com.riiablo.table.table.RunesTable;
@@ -42,6 +44,40 @@ public class TablesTest extends RiiabloTest {
     System.out.println(record.Id);
     System.out.println(record.hcIdx);
     System.out.println(Arrays.toString(record.Level));
+  }
+
+  @Test
+  public void monstats_primary_key() {
+    FileHandle handle = Gdx.files.internal("test/monstats.txt");
+    TsvParser parser = TsvParser.parse(handle.readBytes());
+    TableManifest.monstats.parser = null;
+    MonStatsTable table = Tables.loadTsv(TableManifest.monstats, parser);
+    Assert.assertNotNull(table.get(54));
+    Assert.assertNotNull(table.get("goatman2"));
+    Assert.assertEquals(54, table.index("goatman2"));
+  }
+
+  @Test
+  public void monstats2() {
+    FileHandle handle = Gdx.files.internal("test/monstats2.txt");
+    TsvParser parser = TsvParser.parse(handle.readBytes());
+    TableManifest.monstats2.parser = null;
+    MonStats2Table table = Tables.loadTsv(TableManifest.monstats2, parser);
+    MonStats2 record = table.get(0);
+    System.out.println(record.Id);
+    System.out.println(record.pixHeight);
+    System.out.println(Arrays.toString(record.Modemv));
+  }
+
+  @Test
+  public void monstats2_primary_key() {
+    FileHandle handle = Gdx.files.internal("test/monstats2.txt");
+    TsvParser parser = TsvParser.parse(handle.readBytes());
+    TableManifest.monstats2.parser = null;
+    MonStats2Table table = Tables.loadTsv(TableManifest.monstats2, parser);
+    Assert.assertNotNull(table.get(54));
+    Assert.assertNotNull(table.get("goatman2"));
+    Assert.assertEquals(54, table.index("goatman2"));
   }
 
   @Test
@@ -74,6 +110,24 @@ public class TablesTest extends RiiabloTest {
     Assert.assertNotNull(table.get(54));
     Assert.assertNotNull(table.get("BRN"));
     Assert.assertEquals(54, table.index("BRN"));
+  }
+
+  @Test
+  public void monstats_foreign_key() {
+    FileHandle handle2 = Gdx.files.internal("test/monstats2.txt");
+    TsvParser parser2 = TsvParser.parse(handle2.readBytes());
+    TableManifest.monstats2.parser = null;
+    MonStats2Table table2 = Tables.loadTsv(TableManifest.monstats2, parser2);
+    Assert.assertNotNull(table2.get("SKELETON1"));
+
+    FileHandle handle = Gdx.files.internal("test/monstats.txt");
+    TsvParser parser = TsvParser.parse(handle.readBytes());
+    TableManifest.monstats.parser = null;
+    MonStatsTable table = Tables.loadTsv(TableManifest.monstats, parser);
+
+    MonStats skeleton1 = table.get(0);
+    Assert.assertNotNull(skeleton1.monstats2);
+    Assert.assertSame(table2.get("SKELETON1"), skeleton1.monstats2);
   }
 
   @Test

@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.riiablo.Riiablo;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.table.Manifest;
 import com.riiablo.table.Parser;
 import com.riiablo.table.ParserInput;
 import com.riiablo.table.Serializer;
@@ -24,8 +25,8 @@ import com.riiablo.table.serializer.ObjSerializer;
 public final class ObjTable extends Table<Obj> {
   private static final Logger log = LogManager.getLogger(ObjTable.class);
 
-  public ObjTable() {
-    super(Obj.class, 53, 0.8f);
+  public ObjTable(Manifest manifest) {
+    super(manifest, Obj.class, 53, 0.8f);
   }
 
   @Override

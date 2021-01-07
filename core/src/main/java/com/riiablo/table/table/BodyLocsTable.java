@@ -5,6 +5,7 @@ import javax.annotation.Generated;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.table.Manifest;
 import com.riiablo.table.Parser;
 import com.riiablo.table.ParserInput;
 import com.riiablo.table.Serializer;
@@ -21,8 +22,8 @@ import com.riiablo.table.serializer.BodyLocsSerializer;
 public final class BodyLocsTable extends Table<BodyLocs> {
   private static final Logger log = LogManager.getLogger(BodyLocsTable.class);
 
-  public BodyLocsTable() {
-    super(BodyLocs.class, 53, 0.8f);
+  public BodyLocsTable(Manifest manifest) {
+    super(manifest, BodyLocs.class, 53, 0.8f);
   }
 
   @Override

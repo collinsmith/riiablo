@@ -5,6 +5,7 @@ import javax.annotation.Generated;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.table.Manifest;
 import com.riiablo.table.Parser;
 import com.riiablo.table.ParserInput;
 import com.riiablo.table.Serializer;
@@ -24,8 +25,8 @@ public final class ItemStatCostTable extends Table<ItemStatCost> {
   private static final boolean FIX_BYTIME_ENCODING = true; // changes bit counts
   private static final boolean FIX_NULL_OP_STAT = true; // sets op_stat to non-null array if null
 
-  public ItemStatCostTable() {
-    super(ItemStatCost.class, 53, 0.8f);
+  public ItemStatCostTable(Manifest manifest) {
+    super(manifest, ItemStatCost.class, 53, 0.8f);
   }
 
   @Override

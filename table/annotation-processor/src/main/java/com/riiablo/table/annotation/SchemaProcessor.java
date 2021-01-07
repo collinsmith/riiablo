@@ -5,7 +5,10 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +31,11 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import com.riiablo.table.Manifest;
+import com.riiablo.table.Table;
+
 import static com.riiablo.table.annotation.Constants.FOREIGN_KEY;
+import static com.riiablo.table.annotation.Constants.MANIFEST;
 import static com.riiablo.table.annotation.Constants.PRIMARY_KEY;
 import static com.riiablo.table.annotation.Constants.PRIMARY_KEY_TYPES;
 
@@ -49,10 +56,7 @@ public class SchemaProcessor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment r) {
     if (r.processingOver()) {
-      ClassName tableManifest = generateManifest();
-      if (tableManifest != null) {
-        generateInjectors(tableManifest);
-      }
+      generateManifest();
     } else {
       processPrimaryKeyAnnotations(r);
       processSchemaAnnotations(r);
@@ -168,6 +172,7 @@ finder:
 
       // Depends on serializerElement to generate Serializer impl
       // Depends on parserElement to generate Parser impl
+      // Depends on injectorElement to generate Injector impl
       if (schemaElement.tableElement.declaredType != null) {
         try {
           tableCodeGenerator
@@ -184,17 +189,26 @@ finder:
     }
   }
 
-  private ClassName generateManifest() {
+  private void generateManifest() {
     try {
-      ClassName manifestName = ClassName.get("com.riiablo.table", "TableManifest");
       TypeSpec.Builder tableManifest = TypeSpec
-          .classBuilder(manifestName)
+          .classBuilder(MANIFEST)
           .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+          .addSuperinterface(Manifest.class)
           .addMethod(MethodSpec
               .constructorBuilder()
               .addModifiers(Modifier.PRIVATE)
               .build())
           ;
+
+      FieldSpec manifest = FieldSpec
+          .builder(
+              MANIFEST,
+              "INSTANCE",
+              Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+          .initializer("new $T()", MANIFEST)
+          .build();
+      tableManifest.addField(manifest);
 
       for (SchemaElement schema : schemas) {
         ClassName schemaName = ClassName.get(schema.element);
@@ -203,38 +217,64 @@ finder:
                 schema.tableClassName,
                 schemaName.simpleName().toLowerCase(),
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-            .initializer("new $T()", schema.tableClassName)
+            .initializer("new $T($N)", schema.tableClassName, manifest)
             .build();
         tableManifest.addField(tableFieldSpec);
         tables.put(schemaName, tableFieldSpec);
       }
 
+      TypeVariableName R = TypeVariableName.get("R");
+      ParameterSpec table = ParameterSpec
+          .builder(ParameterizedTypeName.get(ClassName.get(Table.class), R), "table")
+          .build();
+      ParameterSpec record = ParameterSpec
+          .builder(R, "record")
+          .build();
+      MethodSpec.Builder inject = MethodSpec
+          .methodBuilder("inject")
+          .addAnnotation(Override.class)
+          .addModifiers(Modifier.PUBLIC)
+          .addTypeVariable(R)
+          .addParameter(table)
+          .addParameter(record)
+          .returns(table.type)
+          ;
+      inject.beginControlFlow("if ($N == null)", table);
+      for (SchemaElement schema : schemas) {
+        if  (!schema.requiresInjection()) continue;
+        ClassName schemaName = ClassName.get(schema.element);
+        inject.nextControlFlow("else if ($N == $N)", table, tables.get(schemaName));
+        FieldSpec castedRecord = FieldSpec
+            .builder(schemaName, "r", Modifier.FINAL)
+            .initializer("($T) $N", schemaName, record)
+            .build();
+        inject.addCode("$L", castedRecord);
+        for (FieldElement field : schema.foreignKeys) {
+          FieldSpec fieldSpec = tables.get(ClassName.get(field.element()));
+          if (fieldSpec == null) continue;
+          inject.addStatement("$N.$N = $T.$N.get($N.$N)",
+              castedRecord,
+              field.name(),
+              MANIFEST,
+              fieldSpec,
+              castedRecord,
+              field.foreignKeyElement.annotation.value());
+        }
+      }
+      // Generate a default clause to throw error if table wasn't found
+      // Will require cases for all tables in the manifest to be generated
+      // inject.nextControlFlow("else");
+      // inject.addStatement("throw new $T($S)", AssertionError.class, "table is not managed by this manifest");
+      inject.endControlFlow();
+      inject.addStatement("return $N", table);
+      tableManifest.addMethod(inject.build());
+
       JavaFile
-          .builder(manifestName.packageName(), tableManifest.build()).build()
+          .builder(MANIFEST.packageName(), tableManifest.build()).build()
           .writeTo(processingEnv.getFiler());
-      return manifestName;
     } catch (Throwable t) {
       context.error(ExceptionUtils.getRootCauseMessage(t));
       t.printStackTrace(System.err);
-      return null;
-    }
-  }
-
-  private void generateInjectors(ClassName tableManifest) {
-    InjectorCodeGenerator injectorCodeGenerator = new InjectorCodeGenerator(
-        context, "com.riiablo.table.injector", tableManifest, tables);
-    for (SchemaElement schemaElement : schemas) {
-      if (schemaElement.foreignKeys.isEmpty()) continue;
-      if (schemaElement.parserElement.declaredType != null) {
-        try {
-          injectorCodeGenerator
-              .generate(schemaElement)
-              .writeTo(processingEnv.getFiler());
-        } catch (Throwable t) {
-          context.error(ExceptionUtils.getRootCauseMessage(t));
-          t.printStackTrace(System.err);
-        }
-      }
     }
   }
 

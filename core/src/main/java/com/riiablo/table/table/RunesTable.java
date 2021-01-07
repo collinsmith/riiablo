@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.IntMap;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.table.Manifest;
 import com.riiablo.table.Parser;
 import com.riiablo.table.ParserInput;
 import com.riiablo.table.Serializer;
@@ -23,8 +24,8 @@ import com.riiablo.table.serializer.RunesSerializer;
 public final class RunesTable extends Table<Runes> {
   private static final Logger log = LogManager.getLogger(RunesTable.class);
 
-  public RunesTable() {
-    super(Runes.class, 53, 0.8f);
+  public RunesTable(Manifest manifest) {
+    super(manifest, Runes.class, 53, 0.8f);
   }
 
   @Override

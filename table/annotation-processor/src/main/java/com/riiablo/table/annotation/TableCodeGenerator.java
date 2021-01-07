@@ -8,6 +8,8 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 
+import com.riiablo.table.Manifest;
+
 class TableCodeGenerator extends CodeGenerator {
   TableCodeGenerator(Context context, String tablePackage) {
     super(context, tablePackage);
@@ -46,11 +48,15 @@ class TableCodeGenerator extends CodeGenerator {
       stringLookup = Constants.STRING.equals(primaryKeyType);
     }
 
+    ParameterSpec manifest = ParameterSpec
+        .builder(Manifest.class, "manifest")
+        .build();
     return MethodSpec
         .constructorBuilder()
         .addModifiers(Modifier.PUBLIC)
-        .addStatement("super($T.class, $L, $Lf, $L)", // does not append "f" automatically for float literals
-            schemaElement.element, config.initialCapacity(), config.loadFactor(), stringLookup)
+        .addParameter(manifest)
+        .addStatement("super($N, $T.class, $L, $Lf, $L)", // does not append "f" automatically for float literals
+            manifest, schemaElement.element, config.initialCapacity(), config.loadFactor(), stringLookup)
         .build();
   }
 

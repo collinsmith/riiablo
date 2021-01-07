@@ -68,7 +68,6 @@ final class SchemaElement {
     }
 
     TableElement tableElement = TableElement.get(context, typeElement);
-    InjectorElement injectorElement = InjectorElement.get(context, typeElement);
     SerializerElement serializerElement = SerializerElement.get(context, typeElement);
     ParserElement parserElement = ParserElement.get(context, typeElement);
 
@@ -76,7 +75,6 @@ final class SchemaElement {
         annotation,
         typeElement,
         tableElement,
-        injectorElement,
         serializerElement,
         parserElement,
         primaryKeyFieldElement,
@@ -136,7 +134,6 @@ final class SchemaElement {
   final Schema annotation;
   final TypeElement element;
   final TableElement tableElement;
-  final InjectorElement injectorElement;
   final SerializerElement serializerElement;
   final ParserElement parserElement;
   final FieldElement primaryKeyFieldElement;
@@ -153,7 +150,6 @@ final class SchemaElement {
       Schema annotation,
       TypeElement element,
       TableElement tableElement,
-      InjectorElement injectorElement,
       SerializerElement serializerElement,
       ParserElement parserElement,
       FieldElement primaryKeyFieldElement,
@@ -161,7 +157,6 @@ final class SchemaElement {
     this.annotation = annotation;
     this.element = element;
     this.tableElement = tableElement;
-    this.injectorElement = injectorElement;
     this.serializerElement = serializerElement;
     this.parserElement = parserElement;
     this.primaryKeyFieldElement = primaryKeyFieldElement;
@@ -170,9 +165,6 @@ final class SchemaElement {
     this.foreignKeys = collectForeignKeys(fields);
     if (tableElement.tableImplElement != null) {
       tableClassName = ClassName.get(tableElement.tableImplElement);
-    }
-    if (injectorElement.injectorImplElement != null) {
-      injectorClassName = ClassName.get(injectorElement.injectorImplElement);
     }
     if (serializerElement.serializerImplElement != null) {
       serializerClassName = ClassName.get(serializerElement.serializerImplElement);
@@ -188,13 +180,15 @@ final class SchemaElement {
     return numFields;
   }
 
+  final boolean requiresInjection() {
+    return foreignKeys.size() > 0;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
         .append("element", element)
         .append("tableElement", tableElement)
-        .append("injectorElement", injectorElement)
-        .append("injectorClassName", injectorClassName)
         .append("serializerElement", serializerElement)
         .append("serializerClassName", serializerClassName)
         .append("parserElement", parserElement)

@@ -15,27 +15,28 @@ public abstract class Table<R> implements Iterable<R> {
   public static final int DEFAULT_INITIAL_CAPACITY = 53;
   public static final float DEFAULT_LOAD_FACTOR = 0.8f;
 
+  protected final Manifest manifest;
   protected final Class<R> recordClass;
   protected ObjectIntMap<String> lookup;
   protected IntMap<R> records;
   protected Array<R> ordered;
 
-  protected Injector<R, ?> injector;
   protected Parser<R> parser;
 
-  protected Table(Class<R> recordClass) {
-    this(recordClass, DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);
+  protected Table(Manifest manifest, Class<R> recordClass) {
+    this(manifest, recordClass, DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);
   }
 
-  protected Table(Class<R> recordClass, int initialCapacity) {
-    this(recordClass, initialCapacity, DEFAULT_LOAD_FACTOR);
+  protected Table(Manifest manifest, Class<R> recordClass, int initialCapacity) {
+    this(manifest, recordClass, initialCapacity, DEFAULT_LOAD_FACTOR);
   }
 
-  protected Table(Class<R> recordClass, int initialCapacity, float loadFactor) {
-    this(recordClass, initialCapacity, loadFactor, false);
+  protected Table(Manifest manifest, Class<R> recordClass, int initialCapacity, float loadFactor) {
+    this(manifest, recordClass, initialCapacity, loadFactor, false);
   }
 
-  protected Table(Class<R> recordClass, int initialCapacity, float loadFactor, boolean stringLookup) {
+  protected Table(Manifest manifest, Class<R> recordClass, int initialCapacity, float loadFactor, boolean stringLookup) {
+    this.manifest = manifest;
     this.recordClass = recordClass;
     records = new IntMap<>(initialCapacity, loadFactor);
     ordered = new Array<>(true, (int) (initialCapacity * loadFactor), recordClass);
@@ -48,8 +49,8 @@ public abstract class Table<R> implements Iterable<R> {
   protected abstract Parser<R> newParser(ParserInput parser);
   protected abstract Serializer<R> newSerializer();
 
-  protected Injector<R, ?> newInjector() {
-    return null;
+  protected Manifest manifest() {
+    return manifest;
   }
 
   public Class<R> recordClass() {
@@ -98,8 +99,7 @@ public abstract class Table<R> implements Iterable<R> {
   }
 
   protected R inject(R record) {
-    if (injector == null) injector = newInjector();
-    if (injector != null) return injector.inject(null, record);
+    manifest.inject(this, record);
     return record;
   }
 

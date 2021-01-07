@@ -25,6 +25,7 @@ final class Constants {
   }
 
   static final ClassName STRING = ClassName.get(String.class);
+  static final ClassName MANIFEST = ClassName.get("com.riiablo.table", "TableManifest");
   static final ClassName PRIMARY_KEY = ClassName.get(PrimaryKey.class);
   static final ClassName FOREIGN_KEY = ClassName.get(ForeignKey.class);
   static final ClassName FORMAT = ClassName.get(Format.class);
