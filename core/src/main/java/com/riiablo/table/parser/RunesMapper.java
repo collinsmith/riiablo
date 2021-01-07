@@ -4,10 +4,9 @@ import io.netty.util.AsciiString;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
-import com.riiablo.table.ParserMapper;
 
 @Deprecated
-public final class RunesMapper implements ParserMapper<RunesParser> {
+public final class RunesMapper implements com.riiablo.table.ParserMapper<RunesParser> {
   private static final Logger log = LogManager.getLogger(RunesMapper.class);
 
   private static final int PREFIX_LENGTH = "RUNEWORD".length();
