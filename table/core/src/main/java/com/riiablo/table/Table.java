@@ -75,8 +75,8 @@ public abstract class Table<R> implements Iterable<R> {
     records.put(id, record);
     ordered.add(record);
     if (lookup != null) {
-      // if put is overridden in subclass to remap id, this will not work
-      // this operation asserts that no remapping occurs
+      // assertion: table id must match record id for this to work properly
+      //            i.e., remapping id will break this invariant
       lookup.put(parser.recordName(id), id);
     }
   }
