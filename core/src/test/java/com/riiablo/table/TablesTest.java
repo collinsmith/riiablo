@@ -14,12 +14,16 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.table.schema.BodyLocs;
 import com.riiablo.table.schema.ItemStatCost;
+import com.riiablo.table.schema.MagicPrefix;
+import com.riiablo.table.schema.MagicSuffix;
 import com.riiablo.table.schema.MonStats;
 import com.riiablo.table.schema.MonStats2;
 import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.ItemStatCostTable;
+import com.riiablo.table.table.MagicPrefixTable;
+import com.riiablo.table.table.MagicSuffixTable;
 import com.riiablo.table.table.MonPresetTable;
 import com.riiablo.table.table.MonStats2Table;
 import com.riiablo.table.table.MonStatsTable;
@@ -337,5 +341,43 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals(150, table.getSize(5));
     Assert.assertEquals(452, table.getObjectId(5, 0)); // banner 1
     Assert.assertEquals(397, table.getObjectId(5, 149)); // chest
+  }
+
+  @Test
+  public void magicprefix() {
+    LogManager.setLevel("com.riiablo.table.table.MagicPrefixTable", Level.TRACE);
+    TableManifest.magicprefix.parser = null;
+    FileHandle handle = Gdx.files.internal("test/magicprefix.txt");
+    MagicPrefixTable table = Tables.loadTsv(TableManifest.magicprefix, handle);
+    MagicPrefix sturdy = table.get(1);
+    Assert.assertEquals("STURDY", sturdy.name);
+    Assert.assertEquals(0, sturdy.version);
+    Assert.assertEquals(4, sturdy.level);
+    Assert.assertEquals(3, sturdy.levelreq);
+
+    Assert.assertEquals("STURDY", table.get(1).name);
+    Assert.assertEquals("VICIOUS", table.get(14).name);
+    Assert.assertEquals("LORD'S", table.get(39).name);
+    Assert.assertEquals("STALWART", table.get(132).name);
+    Assert.assertEquals("CRUEL", table.get(668).name);
+  }
+
+  @Test
+  public void magicsuffix() {
+    LogManager.setLevel("com.riiablo.table.table.MagicSuffixTable", Level.TRACE);
+    TableManifest.magicsuffix.parser = null;
+    FileHandle handle = Gdx.files.internal("test/magicsuffix.txt");
+    MagicSuffixTable table = Tables.loadTsv(TableManifest.magicsuffix, handle);
+    MagicSuffix of_health = table.get(0);
+    Assert.assertEquals("OF HEALTH", of_health.name);
+    Assert.assertEquals(0, of_health.version);
+    Assert.assertEquals(7, of_health.level);
+    Assert.assertEquals(5, of_health.levelreq);
+
+    Assert.assertEquals("OF HEALTH", table.get(0).name);
+    Assert.assertEquals("OF SPIKES", table.get(14).name);
+    Assert.assertEquals("OF GORE", table.get(39).name);
+    Assert.assertEquals("OF AMIANTHUS", table.get(132).name);
+    Assert.assertEquals("OF THE VAMPIRE", table.get(746).name);
   }
 }
