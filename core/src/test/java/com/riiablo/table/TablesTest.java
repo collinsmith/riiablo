@@ -27,6 +27,7 @@ import com.riiablo.table.table.ArmTypeTable;
 import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.CharStatsTable;
 import com.riiablo.table.table.ColorsTable;
+import com.riiablo.table.table.CompCodeTable;
 import com.riiablo.table.table.ItemStatCostTable;
 import com.riiablo.table.table.MagicPrefixTable;
 import com.riiablo.table.table.MagicSuffixTable;
@@ -485,5 +486,24 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals("LYEL", table.get(13).Code);
     Assert.assertEquals("DYEL", table.get(14).Code);
     Assert.assertEquals("LGLD", table.get(15).Code);
+  }
+
+  @Test
+  public void compCode() {
+    LogManager.setLevel("com.riiablo.table.table.CompCodeTable", Level.TRACE);
+    TableManifest.compcode.parser = null;
+    FileHandle handle = Gdx.files.internal("test/compcode.txt");
+    CompCodeTable table = Tables.loadTsv(TableManifest.compcode, handle);
+    Assert.assertEquals("NIL", table.get(0).code);
+    Assert.assertEquals("LIT", table.get(1).code);
+    Assert.assertEquals("MED", table.get(2).code);
+    Assert.assertEquals("HEV", table.get(3).code);
+    Assert.assertEquals("HVY", table.get(4).code);
+    Assert.assertEquals("DES", table.get(5).code);
+    Assert.assertEquals("WND", table.get(17).code);
+    Assert.assertEquals("CLM", table.get(47).code);
+    Assert.assertEquals("BLD", table.get(57).code);
+    Assert.assertEquals("ZZ1", table.get(70).code);
+    Assert.assertEquals("HED", table.get(114).code);
   }
 }
