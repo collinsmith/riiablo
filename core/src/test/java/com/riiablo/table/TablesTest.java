@@ -22,6 +22,7 @@ import com.riiablo.table.schema.RarePrefix;
 import com.riiablo.table.schema.RareSuffix;
 import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
+import com.riiablo.table.table.ArmTypeTable;
 import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.ItemStatCostTable;
 import com.riiablo.table.table.MagicPrefixTable;
@@ -424,5 +425,16 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals("NEEDLE", table.get(39).name);
     Assert.assertEquals("TRAMPLE", table.get(106).name);
     Assert.assertEquals("FLANGE", table.get(154).name);
+  }
+
+  @Test
+  public void armtype() {
+    LogManager.setLevel("com.riiablo.table.table.ArmTypeTable", Level.TRACE);
+    TableManifest.armtype.parser = null;
+    FileHandle handle = Gdx.files.internal("test/armtype.txt");
+    ArmTypeTable table = Tables.loadTsv(TableManifest.armtype, handle);
+    Assert.assertEquals("LIT", table.get(0).Token);
+    Assert.assertEquals("MED", table.get(1).Token);
+    Assert.assertEquals("HVY", table.get(2).Token);
   }
 }
