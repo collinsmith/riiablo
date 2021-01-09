@@ -142,7 +142,6 @@ final class SchemaElement {
   final Collection<FieldElement> foreignKeys;
 
   ClassName tableClassName;
-  ClassName injectorClassName;
   ClassName serializerClassName;
   ClassName parserClassName;
 
