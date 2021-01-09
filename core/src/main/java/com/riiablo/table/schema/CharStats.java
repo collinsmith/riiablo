@@ -1,6 +1,7 @@
 package com.riiablo.table.schema;
 
 import com.riiablo.table.annotation.Format;
+import com.riiablo.table.annotation.PrimaryKey;
 import com.riiablo.table.annotation.Schema;
 
 @Schema
@@ -10,6 +11,7 @@ public class CharStats {
     return _class;
   }
 
+  @PrimaryKey
   @Format(format = "class")
   public String _class;
 
