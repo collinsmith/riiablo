@@ -18,6 +18,8 @@ import com.riiablo.table.schema.MagicPrefix;
 import com.riiablo.table.schema.MagicSuffix;
 import com.riiablo.table.schema.MonStats;
 import com.riiablo.table.schema.MonStats2;
+import com.riiablo.table.schema.RarePrefix;
+import com.riiablo.table.schema.RareSuffix;
 import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.BodyLocsTable;
@@ -28,6 +30,8 @@ import com.riiablo.table.table.MonPresetTable;
 import com.riiablo.table.table.MonStats2Table;
 import com.riiablo.table.table.MonStatsTable;
 import com.riiablo.table.table.ObjTable;
+import com.riiablo.table.table.RarePrefixTable;
+import com.riiablo.table.table.RareSuffixTable;
 import com.riiablo.table.table.RunesTable;
 import com.riiablo.table.table.SoundsTable;
 import com.riiablo.table.table.WeaponsTable;
@@ -379,5 +383,46 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals("OF GORE", table.get(39).name);
     Assert.assertEquals("OF AMIANTHUS", table.get(132).name);
     Assert.assertEquals("OF THE VAMPIRE", table.get(746).name);
+  }
+
+  @Test
+  public void rareprefix() {
+    LogManager.setLevel("com.riiablo.table.table.RarePrefixTable", Level.TRACE);
+    TableManifest.rareprefix.parser = null;
+    FileHandle handle = Gdx.files.internal("test/rareprefix.txt");
+    RarePrefixTable table = Tables.loadTsv(TableManifest.rareprefix, handle);
+    RarePrefix beast = table.get(0);
+    Assert.assertEquals("BEAST", beast.name);
+    Assert.assertEquals(0, beast.version);
+    Assert.assertEquals("armo", beast.itype1);
+    Assert.assertEquals("weap", beast.itype2);
+
+    Assert.assertEquals("BEAST", table.get(0).name);
+    Assert.assertEquals("RUNE", table.get(14).name);
+    Assert.assertEquals("ENTROPY", table.get(39).name);
+    Assert.assertEquals("CORRUPTION", table.get(45).name);
+  }
+
+  @Test
+  public void raresuffix() {
+    LogManager.setLevel("com.riiablo.table.table.RareSuffixTable", Level.TRACE);
+    TableManifest.raresuffix.parser = null;
+    FileHandle handle = Gdx.files.internal("test/raresuffix.txt");
+    RareSuffixTable table = Tables.loadTsv(TableManifest.raresuffix, handle);
+    RareSuffix bite = table.get(0);
+    Assert.assertEquals("BITE", bite.name);
+    Assert.assertEquals(0, bite.version);
+    Assert.assertEquals("swor", bite.itype1);
+    Assert.assertEquals("knif", bite.itype2);
+    Assert.assertEquals("spea", bite.itype3);
+    Assert.assertEquals("pole", bite.itype4);
+    Assert.assertEquals("axe", bite.itype5);
+    Assert.assertEquals("h2h", bite.itype6);
+
+    Assert.assertEquals("BITE", table.get(0).name);
+    Assert.assertEquals("REND", table.get(14).name);
+    Assert.assertEquals("NEEDLE", table.get(39).name);
+    Assert.assertEquals("TRAMPLE", table.get(106).name);
+    Assert.assertEquals("FLANGE", table.get(154).name);
   }
 }
