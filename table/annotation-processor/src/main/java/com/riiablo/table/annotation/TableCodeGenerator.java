@@ -140,7 +140,7 @@ class TableCodeGenerator extends CodeGenerator {
             context.typeUtils)
         .addStatement("return $L", config.indexed()
             ? null
-            : CodeBlock.of("$S", schemaElement.primaryKeyFieldElement.element))
+            : CodeBlock.of("$S", schemaElement.primaryKeyFieldElement.fieldNames[0]))
         .build();
   }
 }
