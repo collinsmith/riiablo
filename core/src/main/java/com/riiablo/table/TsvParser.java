@@ -220,6 +220,7 @@ public class TsvParser implements ParserInput {
   @Override
   public int primaryKey(String fieldName) {
     Validate.validState(primaryKeyFieldId == -1, "primary key already set");
+    if (fieldName == null) return primaryKeyFieldId;
     final int fieldId = primaryKeyFieldId = fieldId(fieldName);
     final int[] tokenOffsets = this.tokenOffsets.items;
     for (int i = 0, s = numRecords(); i < s; i++) {
