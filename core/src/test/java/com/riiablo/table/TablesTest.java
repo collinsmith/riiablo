@@ -26,6 +26,7 @@ import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.ArmTypeTable;
 import com.riiablo.table.table.BodyLocsTable;
 import com.riiablo.table.table.CharStatsTable;
+import com.riiablo.table.table.ColorsTable;
 import com.riiablo.table.table.ItemStatCostTable;
 import com.riiablo.table.table.MagicPrefixTable;
 import com.riiablo.table.table.MagicSuffixTable;
@@ -460,5 +461,29 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals(15, table.get(Riiablo.DRUID).str);
     Assert.assertEquals("ASSASSIN", table.get(Riiablo.ASSASSIN)._class);
     Assert.assertEquals(20, table.get(Riiablo.ASSASSIN).str);
+  }
+
+  @Test
+  public void colors() {
+    LogManager.setLevel("com.riiablo.table.table.ColorsTable", Level.TRACE);
+    TableManifest.colors.parser = null;
+    FileHandle handle = Gdx.files.internal("test/colors.txt");
+    ColorsTable table = Tables.loadTsv(TableManifest.colors, handle);
+    Assert.assertEquals("WHIT", table.get(0).Code);
+    Assert.assertEquals("LGRY", table.get(1).Code);
+    Assert.assertEquals("DGRY", table.get(2).Code);
+    Assert.assertEquals("BLAC", table.get(3).Code);
+    Assert.assertEquals("LBLU", table.get(4).Code);
+    Assert.assertEquals("DBLU", table.get(5).Code);
+    Assert.assertEquals("CBLU", table.get(6).Code);
+    Assert.assertEquals("LRED", table.get(7).Code);
+    Assert.assertEquals("DRED", table.get(8).Code);
+    Assert.assertEquals("CRED", table.get(9).Code);
+    Assert.assertEquals("LGRN", table.get(10).Code);
+    Assert.assertEquals("DGRN", table.get(11).Code);
+    Assert.assertEquals("CGRN", table.get(12).Code);
+    Assert.assertEquals("LYEL", table.get(13).Code);
+    Assert.assertEquals("DYEL", table.get(14).Code);
+    Assert.assertEquals("LGLD", table.get(15).Code);
   }
 }
