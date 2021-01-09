@@ -8,6 +8,7 @@ import org.junit.Test;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
+import com.riiablo.Riiablo;
 import com.riiablo.RiiabloTest;
 import com.riiablo.attributes.Stat;
 import com.riiablo.logger.Level;
@@ -24,6 +25,7 @@ import com.riiablo.table.schema.Sounds;
 import com.riiablo.table.schema.Weapons;
 import com.riiablo.table.table.ArmTypeTable;
 import com.riiablo.table.table.BodyLocsTable;
+import com.riiablo.table.table.CharStatsTable;
 import com.riiablo.table.table.ItemStatCostTable;
 import com.riiablo.table.table.MagicPrefixTable;
 import com.riiablo.table.table.MagicSuffixTable;
@@ -436,5 +438,27 @@ public class TablesTest extends RiiabloTest {
     Assert.assertEquals("LIT", table.get(0).Token);
     Assert.assertEquals("MED", table.get(1).Token);
     Assert.assertEquals("HVY", table.get(2).Token);
+  }
+
+  @Test
+  public void charstats() {
+    LogManager.setLevel("com.riiablo.table.table.CharStatsTable", Level.TRACE);
+    TableManifest.charstats.parser = null;
+    FileHandle handle = Gdx.files.internal("test/charstats.txt");
+    CharStatsTable table = Tables.loadTsv(TableManifest.charstats, handle);
+    Assert.assertEquals("AMAZON", table.get(Riiablo.AMAZON)._class);
+    Assert.assertEquals(20, table.get(Riiablo.AMAZON).str);
+    Assert.assertEquals("SORCERESS", table.get(Riiablo.SORCERESS)._class);
+    Assert.assertEquals(10, table.get(Riiablo.SORCERESS).str);
+    Assert.assertEquals("NECROMANCER", table.get(Riiablo.NECROMANCER)._class);
+    Assert.assertEquals(15, table.get(Riiablo.NECROMANCER).str);
+    Assert.assertEquals("PALADIN", table.get(Riiablo.PALADIN)._class);
+    Assert.assertEquals(25, table.get(Riiablo.PALADIN).str);
+    Assert.assertEquals("BARBARIAN", table.get(Riiablo.BARBARIAN)._class);
+    Assert.assertEquals(30, table.get(Riiablo.BARBARIAN).str);
+    Assert.assertEquals("DRUID", table.get(Riiablo.DRUID)._class);
+    Assert.assertEquals(15, table.get(Riiablo.DRUID).str);
+    Assert.assertEquals("ASSASSIN", table.get(Riiablo.ASSASSIN)._class);
+    Assert.assertEquals(20, table.get(Riiablo.ASSASSIN).str);
   }
 }
