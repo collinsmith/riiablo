@@ -62,9 +62,11 @@ final class SchemaElement {
         return null;
       }
 
-      context.warn(element,
-          "{element} did not declare any valid {}, using {}",
-          PrimaryKey.class, primaryKeyFieldElement);
+      if (!annotation.indexed()) {
+        context.warn(element,
+            "{element} did not declare any valid {}, using {}",
+            PrimaryKey.class, primaryKeyFieldElement);
+      }
     }
 
     TableElement tableElement = TableElement.get(context, typeElement);
