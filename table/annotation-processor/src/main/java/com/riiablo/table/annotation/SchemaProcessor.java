@@ -3,12 +3,6 @@ package com.riiablo.table.annotation;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,18 +18,13 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import com.riiablo.table.Manifest;
-import com.riiablo.table.Table;
-
 import static com.riiablo.table.annotation.Constants.FOREIGN_KEY;
-import static com.riiablo.table.annotation.Constants.MANIFEST;
 import static com.riiablo.table.annotation.Constants.PRIMARY_KEY;
 import static com.riiablo.table.annotation.Constants.PRIMARY_KEY_TYPES;
 
@@ -191,86 +180,8 @@ finder:
 
   private void generateManifest() {
     try {
-      TypeSpec.Builder tableManifest = TypeSpec
-          .classBuilder(MANIFEST)
-          .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-          .addSuperinterface(Manifest.class)
-          .addMethod(MethodSpec
-              .constructorBuilder()
-              .addModifiers(Modifier.PRIVATE)
-              .build())
-          ;
-
-      FieldSpec manifest = FieldSpec
-          .builder(
-              MANIFEST,
-              "INSTANCE",
-              Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-          .initializer("new $T()", MANIFEST)
-          .build();
-      tableManifest.addField(manifest);
-
-      for (SchemaElement schema : schemas) {
-        ClassName schemaName = ClassName.get(schema.element);
-        FieldSpec tableFieldSpec = FieldSpec
-            .builder(
-                schema.tableClassName,
-                schemaName.simpleName().toLowerCase(),
-                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-            .initializer("new $T($N)", schema.tableClassName, manifest)
-            .build();
-        tableManifest.addField(tableFieldSpec);
-        tables.put(schemaName, tableFieldSpec);
-      }
-
-      TypeVariableName R = TypeVariableName.get("R");
-      ParameterSpec table = ParameterSpec
-          .builder(ParameterizedTypeName.get(ClassName.get(Table.class), R), "table")
-          .build();
-      ParameterSpec record = ParameterSpec
-          .builder(R, "record")
-          .build();
-      MethodSpec.Builder inject = MethodSpec
-          .methodBuilder("inject")
-          .addAnnotation(Override.class)
-          .addModifiers(Modifier.PUBLIC)
-          .addTypeVariable(R)
-          .addParameter(table)
-          .addParameter(record)
-          .returns(table.type)
-          ;
-      inject.beginControlFlow("if ($N == null)", table);
-      for (SchemaElement schema : schemas) {
-        if  (!schema.requiresInjection()) continue;
-        ClassName schemaName = ClassName.get(schema.element);
-        inject.nextControlFlow("else if ($N == $N)", table, tables.get(schemaName));
-        FieldSpec castedRecord = FieldSpec
-            .builder(schemaName, "r", Modifier.FINAL)
-            .initializer("($T) $N", schemaName, record)
-            .build();
-        inject.addCode("$L", castedRecord);
-        for (FieldElement field : schema.foreignKeys) {
-          FieldSpec fieldSpec = tables.get(ClassName.get(field.element()));
-          if (fieldSpec == null) continue;
-          inject.addStatement("$N.$N = $T.$N.get($N.$N)",
-              castedRecord,
-              field.name(),
-              MANIFEST,
-              fieldSpec,
-              castedRecord,
-              field.foreignKeyElement.annotation.value());
-        }
-      }
-      // Generate a default clause to throw error if table wasn't found
-      // Will require cases for all tables in the manifest to be generated
-      // inject.nextControlFlow("else");
-      // inject.addStatement("throw new $T($S)", AssertionError.class, "table is not managed by this manifest");
-      inject.endControlFlow();
-      inject.addStatement("return $N", table);
-      tableManifest.addMethod(inject.build());
-
-      JavaFile
-          .builder(MANIFEST.packageName(), tableManifest.build()).build()
+      new ManifestCodeGenerator(context, schemas)
+          .generate()
           .writeTo(processingEnv.getFiler());
     } catch (Throwable t) {
       context.error(ExceptionUtils.getRootCauseMessage(t));
