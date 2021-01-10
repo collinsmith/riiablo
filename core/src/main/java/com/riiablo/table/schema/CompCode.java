@@ -4,6 +4,7 @@ import com.riiablo.table.annotation.PrimaryKey;
 import com.riiablo.table.annotation.Schema;
 
 @Schema
+@SuppressWarnings("unused")
 public class CompCode {
   @Override
   public String toString() {

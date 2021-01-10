@@ -9,6 +9,7 @@ import com.riiablo.table.table.MonPresetTable;
     preload = true
 )
 @Table(MonPresetTable.class)
+@SuppressWarnings("unused")
 public class MonPreset {
   @Override
   public String toString() {

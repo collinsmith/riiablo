@@ -5,6 +5,7 @@ import com.riiablo.table.annotation.Schema;
 @Schema(
     offset = 1
 )
+@SuppressWarnings("unused")
 public class MagicSuffix extends MagicAffix {
   public String mod1code;
   public int mod1param;

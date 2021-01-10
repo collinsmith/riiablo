@@ -3,6 +3,7 @@ package com.riiablo.table.schema;
 import com.riiablo.table.annotation.Format;
 import com.riiablo.table.annotation.PrimaryKey;
 
+@SuppressWarnings("unused")
 public class ItemEntry {
   @Override
   public String toString() {

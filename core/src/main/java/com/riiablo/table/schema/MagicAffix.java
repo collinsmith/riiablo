@@ -2,6 +2,7 @@ package com.riiablo.table.schema;
 
 import com.riiablo.table.annotation.Format;
 
+@SuppressWarnings("unused")
 public class MagicAffix extends Affix {
   public boolean spawnable;
   public boolean rare;

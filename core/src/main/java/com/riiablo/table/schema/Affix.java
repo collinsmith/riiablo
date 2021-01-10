@@ -2,6 +2,7 @@ package com.riiablo.table.schema;
 
 import com.riiablo.table.annotation.PrimaryKey;
 
+@SuppressWarnings("unused")
 public class Affix {
   @Override
   public String toString() {

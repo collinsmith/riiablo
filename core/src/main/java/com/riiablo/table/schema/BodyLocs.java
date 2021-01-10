@@ -8,6 +8,7 @@ import com.riiablo.table.table.BodyLocsTable;
 
 @Schema
 @Table(BodyLocsTable.class)
+@SuppressWarnings("unused")
 public class BodyLocs {
   public static final int NONE = 0;
   public static final int HEAD = 1;

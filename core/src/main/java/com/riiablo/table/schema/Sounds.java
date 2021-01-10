@@ -8,6 +8,7 @@ import com.riiablo.table.table.SoundsTable;
 
 @Schema
 @Table(SoundsTable.class)
+@SuppressWarnings("unused")
 public class Sounds {
   @Override
   public String toString() {

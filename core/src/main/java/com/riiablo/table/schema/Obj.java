@@ -8,6 +8,7 @@ import com.riiablo.table.table.ObjTable;
     indexed = true
 )
 @Table(ObjTable.class)
+@SuppressWarnings("unused")
 public class Obj {
   @Override
   public String toString() {

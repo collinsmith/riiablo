@@ -5,6 +5,7 @@ import com.riiablo.table.annotation.Schema;
 @Schema(
     offset = 1
 )
+@SuppressWarnings("unused")
 public class RareSuffix extends RareAffix {
   public String itype1;
   public String itype2;
