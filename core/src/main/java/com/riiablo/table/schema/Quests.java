@@ -1,7 +1,7 @@
 package com.riiablo.table.schema;
 
-import com.riiablo.excel.PrimaryKey;
 import com.riiablo.table.annotation.Format;
+import com.riiablo.table.annotation.PrimaryKey;
 import com.riiablo.table.annotation.Schema;
 
 @Schema
