@@ -1,90 +1,99 @@
 package com.riiablo.table.schema;
 
-import com.riiablo.codec.excel.Excel;
+import com.riiablo.table.annotation.Format;
+import com.riiablo.table.annotation.PrimaryKey;
+import com.riiablo.table.annotation.Schema;
 
-@Excel.Binned
-public class UniqueItems extends Excel<UniqueItems.Entry> {
-  public static class Entry extends Excel.Entry {
-    @Override
-    public String toString() {
-      return index;
-    }
-
-    @Key
-    @Column
-    public String  index;
-    @Column public int     version;
-    @Column public boolean enabled;
-    @Column public boolean ladder;
-    @Column public int     rarity;
-    @Column public int     nolimit;
-    @Column public int     lvl;
-    @Column(format = "lvl req")
-    public int     lvl_req;
-    @Column public String  code;
-    @Column(format = "*type")
-    public String  type;
-    @Column(format = "*uber")
-    public boolean uber;
-    @Column public boolean carry1;
-    @Column(format = "cost mult")
-    public int     cost_mult;
-    @Column(format = "cost add")
-    public int     cost_add;
-    @Column public String  chrtransform;
-    @Column public String  invtransform;
-    @Column public String  flippyfile;
-    @Column public String  invfile;
-    @Column public String  dropsound;
-    @Column public int     dropsfxframe;
-    @Column public String  usesound;
-    @Column public String  prop1;
-    @Column public int     par1;
-    @Column public int     min1;
-    @Column public int     max1;
-    @Column public String  prop2;
-    @Column public int     par2;
-    @Column public int     min2;
-    @Column public int     max2;
-    @Column public String  prop3;
-    @Column public int     par3;
-    @Column public int     min3;
-    @Column public int     max3;
-    @Column public String  prop4;
-    @Column public int     par4;
-    @Column public int     min4;
-    @Column public int     max4;
-    @Column public String  prop5;
-    @Column public int     par5;
-    @Column public int     min5;
-    @Column public int     max5;
-    @Column public String  prop6;
-    @Column public int     par6;
-    @Column public int     min6;
-    @Column public int     max6;
-    @Column public String  prop7;
-    @Column public int     par7;
-    @Column public int     min7;
-    @Column public int     max7;
-    @Column public String  prop8;
-    @Column public int     par8;
-    @Column public int     min8;
-    @Column public int     max8;
-    @Column public String  prop9;
-    @Column public int     par9;
-    @Column public int     min9;
-    @Column public int     max9;
-    @Column public String  prop10;
-    @Column public int     par10;
-    @Column public int     min10;
-    @Column public int     max10;
-    @Column public String  prop11;
-    @Column public int     par11;
-    @Column public int     min11;
-    @Column public int     max11;
-    @Column public String  prop12;
-    @Column public int     par12;
-    @Column public int     min12;
-    @Column public int     max12;
+@Schema
+@SuppressWarnings("unused")
+public class UniqueItems {
+  @Override
+  public String toString() {
+    return index;
   }
+
+  @PrimaryKey
+  public String index;
+
+  public int version;
+  public boolean enabled;
+  public boolean ladder;
+  public int rarity;
+  public int nolimit;
+  public int lvl;
+
+  @Format(format = "lvl req")
+  public int lvl_req;
+
+  public String code;
+
+  @Format(format = "*type")
+  public String type;
+
+  @Format(format = "*uber")
+  public boolean uber;
+
+  public boolean carry1;
+
+  @Format(format = "cost mult")
+  public int cost_mult;
+
+  @Format(format = "cost add")
+  public int cost_add;
+
+  public String chrtransform;
+  public String invtransform;
+  public String flippyfile;
+  public String invfile;
+  public String dropsound;
+  public int dropsfxframe;
+  public String usesound;
+  public String prop1;
+  public int par1;
+  public int min1;
+  public int max1;
+  public String prop2;
+  public int par2;
+  public int min2;
+  public int max2;
+  public String prop3;
+  public int par3;
+  public int min3;
+  public int max3;
+  public String prop4;
+  public int par4;
+  public int min4;
+  public int max4;
+  public String prop5;
+  public int par5;
+  public int min5;
+  public int max5;
+  public String prop6;
+  public int par6;
+  public int min6;
+  public int max6;
+  public String prop7;
+  public int par7;
+  public int min7;
+  public int max7;
+  public String prop8;
+  public int par8;
+  public int min8;
+  public int max8;
+  public String prop9;
+  public int par9;
+  public int min9;
+  public int max9;
+  public String prop10;
+  public int par10;
+  public int min10;
+  public int max10;
+  public String prop11;
+  public int par11;
+  public int min11;
+  public int max11;
+  public String prop12;
+  public int par12;
+  public int min12;
+  public int max12;
 }
