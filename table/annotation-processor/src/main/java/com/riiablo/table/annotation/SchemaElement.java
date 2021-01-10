@@ -3,7 +3,6 @@ package com.riiablo.table.annotation;
 import com.squareup.javapoet.ClassName;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -12,7 +11,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -48,13 +46,23 @@ final class SchemaElement {
       }
     });
     if (primaryKeys.size() >= 1) {
-      Iterator<FieldElement> it = primaryKeys.iterator();
-      primaryKeyFieldElement = it.next();
-      for (FieldElement e : IteratorUtils.asIterable(it)) {
-        context.warn(e.element, e.primaryKeyElement.mirror,
-            "{} already declared as {}",
-            primaryKeyFieldElement, PrimaryKey.class);
+      FieldElement overridingElement = null, fallbackElement = null;
+      for (FieldElement e : primaryKeys) {
+        if (e.element.getEnclosingElement() == element) {
+          if (overridingElement != null) {
+            context.warn(element,
+                "{element} declares multiple {}, using {}",
+                PrimaryKey.class, overridingElement);
+            continue;
+          }
+
+          overridingElement = e;
+        } else {
+          fallbackElement = e;
+        }
       }
+
+      primaryKeyFieldElement = overridingElement == null ? fallbackElement : overridingElement;
     } else {
       primaryKeyFieldElement = FieldElement.firstPrimaryKey(fields);
       if (primaryKeyFieldElement == null) {
