@@ -39,14 +39,19 @@ public class ADPCM {
     byte  stepIndex;
   }
 
-  private static final Pool<Channel[]> POOL = new Pool<Channel[]>(8, 64, true) {
-    @Override
-    protected Channel[] newObject() {
-      final Channel[] channels = new Channel[CHANNELS];
-      for (int i = 0; i < CHANNELS; i++) channels[i] = new Channel();
-      return channels;
-    }
-  };
+  private static final Pool<Channel[]> POOL;
+  static {
+    final int initialCapacity = 8, max = 64;
+    POOL = new Pool<Channel[]>(initialCapacity, max) {
+      @Override
+      protected Channel[] newObject() {
+        final Channel[] channels = new Channel[CHANNELS];
+        for (int i = 0; i < CHANNELS; i++) channels[i] = new Channel();
+        return channels;
+      }
+    };
+    POOL.fill(initialCapacity);
+  }
 
   public static void decompress(ByteBuffer in, ByteBuffer out, int numChannels) {
     Channel[] channels = POOL.obtain();

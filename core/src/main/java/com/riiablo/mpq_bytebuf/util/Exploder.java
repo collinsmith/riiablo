@@ -159,11 +159,16 @@ public final class Exploder {
     }
   }
 
-  private static final Pool<byte[]> BYTES = new Pool<byte[]>(1, 8, true) {
-    @Override
-    protected byte[] newObject() {
-      return new byte[0x1000];
-    }
+  private static final Pool<byte[]> BYTES;
+  static {
+    final int initialCapacity = 1, max = 8;
+    BYTES = new Pool<byte[]>(initialCapacity, max) {
+      @Override
+      protected byte[] newObject() {
+        return new byte[0x1000];
+      }
+    };
+    BYTES.fill(initialCapacity);
   };
 
   public static ByteBuf pkexplode(final ByteBuf inout) {

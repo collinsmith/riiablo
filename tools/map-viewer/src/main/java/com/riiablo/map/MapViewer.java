@@ -430,15 +430,11 @@ public class MapViewer extends Tool {
       private final float ZOOM_AMOUNT = 0.1f;
 
       @Override
-      public boolean scrolled(int amount) {
-        switch (amount) {
-          case -1:
-            mapRenderer.zoom(Math.max(0.20f, mapRenderer.zoom() - ZOOM_AMOUNT));
-            break;
-          case 1:
-            mapRenderer.zoom(Math.min(2.50f, mapRenderer.zoom() + ZOOM_AMOUNT));
-            break;
-          default:
+      public boolean scrolled(float amountX, float amountY) {
+        if (amountX < 0) {
+          mapRenderer.zoom(Math.max(0.20f, mapRenderer.zoom() - ZOOM_AMOUNT));
+        } else {
+          mapRenderer.zoom(Math.min(2.50f, mapRenderer.zoom() + ZOOM_AMOUNT));
         }
         return true;
       }

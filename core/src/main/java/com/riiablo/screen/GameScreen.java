@@ -445,21 +445,15 @@ public class GameScreen extends ScreenAdapter implements GameLoadingScreen.Loada
       private final float ZOOM_AMOUNT = 0.1f;
 
       @Override
-      public boolean scrolled(int amount) {
-        switch (amount) {
-          case -1:
-            if (UIUtils.ctrl()) {
-              renderer.zoom(Math.max(0.20f, renderer.zoom() - ZOOM_AMOUNT));
-            }
-
-            break;
-          case 1:
-            if (UIUtils.ctrl()) {
-              renderer.zoom(Math.min(5.00f, renderer.zoom() + ZOOM_AMOUNT));
-            }
-
-            break;
-          default:
+      public boolean scrolled(float amountX, float amountY) {
+        if (amountY < 0) {
+          if (UIUtils.ctrl()) {
+            renderer.zoom(Math.max(0.20f, renderer.zoom() - ZOOM_AMOUNT));
+          }
+        } else {
+          if (UIUtils.ctrl()) {
+            renderer.zoom(Math.min(5.00f, renderer.zoom() + ZOOM_AMOUNT));
+          }
         }
 
         return true;

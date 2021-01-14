@@ -2,19 +2,18 @@ package com.riiablo.console;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import org.apache.commons.lang3.Validate;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+
 import com.riiablo.util.StringUtils;
-
-import org.apache.commons.lang3.Validate;
-
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Console implements InputProcessor {
   private static final int INITIAL_BUFFER_CAPACITY = 128;
@@ -207,7 +206,7 @@ public class Console implements InputProcessor {
   }
 
   @Override
-  public boolean scrolled(int amount) {
+  public boolean scrolled(float amountX, float amountY) {
     return false;
   }
 

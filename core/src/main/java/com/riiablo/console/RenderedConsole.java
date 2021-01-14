@@ -295,24 +295,19 @@ public class RenderedConsole extends Console implements Disposable, InputProcess
   }
 
   @Override
-  public boolean scrolled(int amount) {
+  public boolean scrolled(float amountX, float amountY) {
     if (!visible) return false;
-    switch (amount) {
-      case -1:
-        if (scrollOffset > 0) {
-          scrollOffset--;
-        }
-        break;
-      case 1:
-        if (scrollOffset < OUTPUT.size) {
-          scrollOffset++;
-        }
-        break;
-      default:
-        Gdx.app.error(TAG, "Unexpected scroll amount: " + amount);
+    if (amountY < 0) {
+      if (scrollOffset > 0) {
+        scrollOffset--;
+      }
+    } else {
+      if (scrollOffset < OUTPUT.size) {
+        scrollOffset++;
+      }
     }
 
-    super.scrolled(amount);
+    super.scrolled(amountX, amountY);
     return true;
   }
 

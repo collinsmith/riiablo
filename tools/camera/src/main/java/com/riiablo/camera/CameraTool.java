@@ -66,10 +66,10 @@ public class CameraTool extends Tool {
 
     Gdx.input.setInputProcessor(new InputAdapter() {
       @Override
-      public boolean scrolled(int amount) {
-        iso.zoom += (amount * 0.05);
+      public boolean scrolled(float amountX, float amountY) {
+        iso.zoom += (amountY * 0.05);
         iso.zoom = MathUtils.clamp(iso.zoom, 0.05f, 2f);
-        return super.scrolled(amount);
+        return super.scrolled(amountX, amountY);
       }
 
       @Override

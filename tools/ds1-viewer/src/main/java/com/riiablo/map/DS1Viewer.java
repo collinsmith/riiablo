@@ -1,5 +1,9 @@
 package com.riiablo.map;
 
+import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.VisSelectBox;
+import com.kotcrab.vis.ui.widget.VisTable;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -24,9 +28,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.VisSelectBox;
-import com.kotcrab.vis.ui.widget.VisTable;
+
 import com.riiablo.COFs;
 import com.riiablo.Files;
 import com.riiablo.Palettes;
@@ -40,7 +42,6 @@ import com.riiablo.codec.excel.LvlTypes;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.loader.COFLoader;
 import com.riiablo.loader.DCCLoader;
-import com.riiablo.loader.TXTLoader;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 public class DS1Viewer extends ApplicationAdapter {
@@ -199,15 +200,11 @@ public class DS1Viewer extends ApplicationAdapter {
       private final float ZOOM_AMOUNT = 0.1f;
 
       @Override
-      public boolean scrolled(int amount) {
-        switch (amount) {
-          case -1:
-            camera.zoom = Math.max(0.25f, camera.zoom - ZOOM_AMOUNT);
-            break;
-          case 1:
-            camera.zoom = Math.min(10.0f, camera.zoom + ZOOM_AMOUNT);
-            break;
-          default:
+      public boolean scrolled(float amountX, float amountY) {
+        if (amountY < 0) {
+          camera.zoom = Math.max(0.25f, camera.zoom - ZOOM_AMOUNT);
+        } else {
+          camera.zoom = Math.min(10.0f, camera.zoom + ZOOM_AMOUNT);
         }
 
         camera.update();
