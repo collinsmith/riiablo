@@ -134,6 +134,13 @@ public class Client extends Game {
 
   private String realm;
 
+  private static final Color glClearColor;
+  static {
+    // TODO: This needs to be updated if some shader settings change to match the "new" black
+    final float color = 10 / 255f;//0.025f;
+    glClearColor = new Color(color, color, color, 1f);
+  }
+
   public Client(FileHandle home) {
     this(home, Riiablo.DESKTOP_VIEWPORT_HEIGHT);
   }
@@ -356,10 +363,6 @@ public class Client extends Game {
       setScreen(new SplashScreen());
     }
 
-    // TODO: This needs to be updated if some shader settings change to match the "new" black
-    final float color = 10/255f;//0.025f;
-    Gdx.gl.glClearColor(color, color, color, 1.0f);
-
     Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
   }
 
@@ -408,6 +411,7 @@ public class Client extends Game {
 
   @Override
   public void render() {
+    Gdx.gl.glClearColor(glClearColor.r, glClearColor.g, glClearColor.b, glClearColor.a);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
     audio.update();
