@@ -431,7 +431,7 @@ public class MapViewer extends Tool {
 
       @Override
       public boolean scrolled(float amountX, float amountY) {
-        if (amountX < 0) {
+        if (amountY < 0) {
           mapRenderer.zoom(Math.max(0.20f, mapRenderer.zoom() - ZOOM_AMOUNT));
         } else {
           mapRenderer.zoom(Math.min(2.50f, mapRenderer.zoom() + ZOOM_AMOUNT));
