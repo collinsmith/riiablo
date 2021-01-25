@@ -23,6 +23,11 @@ void main() {
     color = texture2D(ColorMap, color.ar);
   }
 
+  // workaround for https://github.com/collinsmith/riiablo/issues/139
+  else if (color.a == 0.99609375) { // index 255 == float(255 / 256)
+    color.a = color.a - 0.00390625; // index 255 -> 254 by subtracting float(1 / 256)
+  }
+
   color = texture2D(ColorTable, color.ar);
 
   // Set alpha to tint alpha, including palette id 0
