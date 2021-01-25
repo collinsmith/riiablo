@@ -1,15 +1,14 @@
 package com.riiablo.codec;
 
+import java.io.InputStream;
+import org.apache.commons.io.IOUtils;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
-
-import org.apache.commons.io.IOUtils;
-
-import java.io.InputStream;
 
 public class Palette {
   private static final String TAG = "Palette";
@@ -63,7 +62,7 @@ public class Palette {
     Pixmap palettePixmap = new Pixmap(COLORS, 1, Pixmap.Format.RGBA8888);
     palettePixmap.getPixels().asIntBuffer().put(colors);
     Texture texture = new Texture(palettePixmap);
-    //texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+    texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
     palettePixmap.dispose();
     return texture;
