@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="ExcelGenerationTool" type="Application" factoryName="Application" folderName="tools" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.riiablo.codec.excel.ExcelGenerationTool" />
-    <module name="riiablo.tools" />
+    <module name="riiablo.tools.main" />
     <option name="PROGRAM_PARAMETERS" value="com.riiablo.codec.excel.MonStats" />
     <option name="VM_PARAMETERS" value="-ea" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/assets" />
