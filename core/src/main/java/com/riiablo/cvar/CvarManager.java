@@ -43,7 +43,10 @@ public class CvarManager implements Cvar.StateListener, Iterable<Cvar> {
     if (cvar == null) return false;
     String alias = cvar.ALIAS.toLowerCase();
     Cvar queriedCvar = CVARS.get(alias);
-    return Objects.equals(queriedCvar, cvar) && CVARS.remove(alias) != null;
+    boolean removed = Objects.equals(queriedCvar, cvar)
+        && CVARS.remove(alias) != null;
+    if (removed) queriedCvar.removeStateListener(this);
+    return removed;
   }
 
   @SuppressWarnings("unchecked")
