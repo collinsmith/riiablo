@@ -8,8 +8,6 @@ import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerAdapter;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.Controllers;
-import com.badlogic.gdx.controllers.PovDirection;
-import com.badlogic.gdx.controllers.mappings.Xbox;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -178,10 +176,10 @@ public class MenuScreen extends ScreenAdapter {
       @Override
       public boolean buttonDown(Controller controller, int buttonIndex) {
         System.out.println(buttonIndex);
-        if (buttonIndex == Xbox.A) {
+        if (buttonIndex == controller.getMapping().buttonA) {
           EventUtils.click((Button) focus);
           return true;
-        } else if (buttonIndex == Xbox.B) {
+        } else if (buttonIndex == controller.getMapping().buttonB) {
           EventUtils.click(btnExitDiablo);
           return true;
         }
@@ -189,6 +187,11 @@ public class MenuScreen extends ScreenAdapter {
         return false;
       }
 
+      /*
+       * This API changed and no longer exists.
+       * Functionality need to migrate into #buttonDown I think
+       */
+      /*
       @Override
       public boolean povMoved(Controller controller, int povIndex, PovDirection value) {
         System.out.println(povIndex + " " + value);
@@ -213,6 +216,7 @@ public class MenuScreen extends ScreenAdapter {
 
         return false;
       }
+      */
 
       @Override
       public boolean axisMoved(Controller controller, int axisIndex, float value) {

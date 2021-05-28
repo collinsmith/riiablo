@@ -35,7 +35,7 @@ public class TestServer extends ApplicationAdapter implements PacketProcessor {
 
   public static void main(String[] args) {
     HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
-    config.renderInterval = Animation.FRAME_DURATION;
+    config.updatesPerSecond = (int) Animation.FRAMES_PER_SECOND;
     new HeadlessApplication(new TestServer(), config);
   }
 

@@ -31,7 +31,7 @@ dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-ai:$gdxAiVersion"
-  api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+  api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
 }
 
 // Libraries

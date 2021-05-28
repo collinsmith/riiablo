@@ -53,7 +53,7 @@ public class Main extends ApplicationAdapter {
     // TODO: process args and setup server
 
     HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
-    config.renderInterval = Animation.FRAME_DURATION;
+    config.updatesPerSecond = (int) Animation.FRAMES_PER_SECOND;
     new HeadlessApplication(new Main(), config);
   }
 

@@ -160,7 +160,7 @@ public class D2GS extends ApplicationAdapter {
     }
 
     HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
-    config.renderInterval = Animation.FRAME_DURATION;
+    config.updatesPerSecond = (int) Animation.FRAMES_PER_SECOND;
     new HeadlessApplication(new D2GS(home, seed, diff), config);
   }
 
