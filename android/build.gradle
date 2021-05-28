@@ -62,7 +62,7 @@ dependencies {
 
 repositories {
   google()
-  jcenter()
+  gradlePluginPortal()
 }
 
 // build complains this dependency is not found otherwise
