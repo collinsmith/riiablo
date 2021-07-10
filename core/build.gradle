@@ -52,6 +52,7 @@ dependencies {
 
 // Table
 sourceSets.main.java.exclude '**/com/riiablo/table/*/**'
+sourceSets.test.java.exclude '**/com/riiablo/table/*/**'
 dependencies {
 //annotationProcessor project(':table:annotation-processor')
   implementation project(':table:core')
