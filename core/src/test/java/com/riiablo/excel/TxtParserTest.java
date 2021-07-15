@@ -1,8 +1,9 @@
 package com.riiablo.excel;
 
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.IOException;
-import org.junit.Assert;
-import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -12,7 +13,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class TxtParserTest extends RiiabloTest {
-  @org.junit.BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.excel.TxtParser", Level.TRACE);
   }
@@ -46,7 +47,7 @@ public class TxtParserTest extends RiiabloTest {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
     TxtParser parser = TxtParser.parse(handle.read());
     parser.cacheLine();
-    Assert.assertEquals(0, parser.parseInt(1, -1));
+    assertEquals(0, parser.parseInt(1, -1));
     LogManager.setLevel("com.riiablo.excel", Level.TRACE);
   }
 }

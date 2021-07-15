@@ -1,7 +1,7 @@
 package com.riiablo.io;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BitInputTest {
   private static BitInput newInstance() {
@@ -14,25 +14,27 @@ public class BitInputTest {
   @Test
   public void align_matches_unalign() {
     BitInput b = newInstance();
-    Assert.assertEquals(b, b.align().unalign());
+    assertEquals(b, b.align().unalign());
   }
 
   @Test
   public void empty_bit_input_is_empty() {
     BitInput b = ByteInput.emptyByteInput().unalign();
-    Assert.assertEquals(0, b.bitsRemaining());
-    Assert.assertEquals(0, b.bytesRemaining());
+    assertEquals(0, b.bitsRemaining());
+    assertEquals(0, b.bytesRemaining());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void skip_neg_bits_throws_IllegalArgumentException() {
-    BitInput b = newInstance();
-    try {
-      assert b.bitsRead() == 0;
-      b.skipBits(-1);
-    } finally {
-      Assert.assertEquals(0L, b.bitsRead());
-    }
+    assertThrows(IllegalArgumentException.class, () -> {
+      BitInput b = newInstance();
+      try {
+        assert b.bitsRead() == 0;
+        b.skipBits(-1);
+      } finally {
+        assertEquals(0L, b.bitsRead());
+      }
+    });
   }
 
   @Test
@@ -41,10 +43,10 @@ public class BitInputTest {
     long bitsRead = b.bitsRead();
     assert b.aligned();
     b.skipBits(0);
-    Assert.assertTrue(b.aligned());
-    Assert.assertEquals(bitsRead, b.bitsRead());
-    Assert.assertEquals(0, b.bitsCached());
-    Assert.assertEquals(0, b.cache());
+    assertTrue(b.aligned());
+    assertEquals(bitsRead, b.bitsRead());
+    assertEquals(0, b.bitsCached());
+    assertEquals(0, b.cache());
   }
 
   @Test
@@ -56,10 +58,10 @@ public class BitInputTest {
     long cache = b.cache();
     assert !b.aligned();
     b.skipBits(0);
-    Assert.assertTrue(!b.aligned());
-    Assert.assertEquals(bitsRead, b.bitsRead());
-    Assert.assertEquals(bitsCached, b.bitsCached());
-    Assert.assertEquals(cache, b.cache());
+    assertTrue(!b.aligned());
+    assertEquals(bitsRead, b.bitsRead());
+    assertEquals(bitsCached, b.bitsCached());
+    assertEquals(cache, b.cache());
   }
 
   @Test
@@ -67,9 +69,9 @@ public class BitInputTest {
     BitInput b = newInstance();
     assert b.aligned();
     b.skipBits(Byte.SIZE);
-    Assert.assertEquals(Byte.SIZE, b.bitsRead());
-    Assert.assertEquals(0, b.bitsCached());
-    Assert.assertEquals(0, b.cache());
+    assertEquals(Byte.SIZE, b.bitsRead());
+    assertEquals(0, b.bitsCached());
+    assertEquals(0, b.cache());
   }
 
   @Test
@@ -77,10 +79,10 @@ public class BitInputTest {
     BitInput b = newInstance();
     assert b.aligned();
     b.skipBits(Byte.SIZE - 1);
-    Assert.assertTrue(!b.aligned());
-    Assert.assertEquals(Byte.SIZE - 1, b.bitsRead());
-    Assert.assertEquals(1, b.bitsCached());
-    Assert.assertEquals(0b1, b.cache());
+    assertTrue(!b.aligned());
+    assertEquals(Byte.SIZE - 1, b.bitsRead());
+    assertEquals(1, b.bitsCached());
+    assertEquals(0b1, b.cache());
   }
 
   @Test
@@ -90,10 +92,10 @@ public class BitInputTest {
     assert b.bitsRead() == 1;
     assert !b.aligned();
     b.skipBits(Byte.SIZE - 1);
-    Assert.assertTrue(b.aligned());
-    Assert.assertEquals(Byte.SIZE, b.bitsRead());
-    Assert.assertEquals(0, b.bitsCached());
-    Assert.assertEquals(0, b.cache());
+    assertTrue(b.aligned());
+    assertEquals(Byte.SIZE, b.bitsRead());
+    assertEquals(0, b.bitsCached());
+    assertEquals(0, b.cache());
   }
 
   @Test
@@ -102,10 +104,10 @@ public class BitInputTest {
     b.skipBits(1);
     assert !b.aligned();
     b.skipBits(Byte.SIZE - 2);
-    Assert.assertTrue(!b.aligned());
-    Assert.assertEquals(Byte.SIZE - 1, b.bitsRead());
-    Assert.assertEquals(1, b.bitsCached());
-    Assert.assertEquals(0b1, b.cache());
+    assertTrue(!b.aligned());
+    assertEquals(Byte.SIZE - 1, b.bitsRead());
+    assertEquals(1, b.bitsCached());
+    assertEquals(0b1, b.cache());
   }
 
   @Test
@@ -113,9 +115,9 @@ public class BitInputTest {
     BitInput b = newInstance();
     assert b.aligned();
     b.skipBits(Byte.SIZE + Byte.SIZE);
-    Assert.assertEquals(Byte.SIZE + Byte.SIZE, b.bitsRead());
-    Assert.assertEquals(0, b.bitsCached());
-    Assert.assertEquals(0, b.cache());
+    assertEquals(Byte.SIZE + Byte.SIZE, b.bitsRead());
+    assertEquals(0, b.bitsCached());
+    assertEquals(0, b.cache());
   }
 
   @Test
@@ -123,10 +125,10 @@ public class BitInputTest {
     BitInput b = newInstance();
     assert b.aligned();
     b.skipBits(Byte.SIZE + Byte.SIZE - 1);
-    Assert.assertTrue(!b.aligned());
-    Assert.assertEquals(Byte.SIZE + Byte.SIZE - 1, b.bitsRead());
-    Assert.assertEquals(1, b.bitsCached());
-    Assert.assertEquals(0b1, b.cache());
+    assertTrue(!b.aligned());
+    assertEquals(Byte.SIZE + Byte.SIZE - 1, b.bitsRead());
+    assertEquals(1, b.bitsCached());
+    assertEquals(0b1, b.cache());
   }
 
   @Test
@@ -136,10 +138,10 @@ public class BitInputTest {
     assert b.bitsRead() == 1;
     assert !b.aligned();
     b.skipBits(Byte.SIZE + Byte.SIZE - 1);
-    Assert.assertTrue(b.aligned());
-    Assert.assertEquals(Byte.SIZE + Byte.SIZE, b.bitsRead());
-    Assert.assertEquals(0, b.bitsCached());
-    Assert.assertEquals(0, b.cache());
+    assertTrue(b.aligned());
+    assertEquals(Byte.SIZE + Byte.SIZE, b.bitsRead());
+    assertEquals(0, b.bitsCached());
+    assertEquals(0, b.cache());
   }
 
   @Test
@@ -148,10 +150,10 @@ public class BitInputTest {
     b.skipBits(1);
     assert !b.aligned();
     b.skipBits(Byte.SIZE);
-    Assert.assertTrue(!b.aligned());
-    Assert.assertEquals(Byte.SIZE + 1, b.bitsRead());
-    Assert.assertEquals(7, b.bitsCached());
-    Assert.assertEquals(0b1011111, b.cache());
+    assertTrue(!b.aligned());
+    assertEquals(Byte.SIZE + 1, b.bitsRead());
+    assertEquals(7, b.bitsCached());
+    assertEquals(0b1011111, b.cache());
   }
 
   @Test
@@ -165,15 +167,15 @@ public class BitInputTest {
         (byte) 0xFA, (byte) 0x7B, (byte) 0xE7, (byte) 0x18, 0x00, 0x00, 0x00, 0x00,
         (byte) 0xDA, (byte) 0x79, (byte) 0xC7, (byte) 0x18, 0x00, 0x00, 0x00, 0x00,
         (byte) 0x10, (byte) 0x51, (byte) 0xE3, (byte) 0x18, 0x00, 0x00, 0x00, 0x00});
-    Assert.assertArrayEquals(new byte[] {0x01, 0x77}, b.align().readBytes(2)); // signature
-    Assert.assertEquals(52, b.readUnsigned(16)); // size
-    Assert.assertEquals(0x00000002_89A5AEACL, b.readRaw(64));
-    Assert.assertEquals(0x00000002_89A4BEACL, b.readRaw(64));
-    Assert.assertEquals(0x00000002_C9A4AEAEL, b.readRaw(64));
-    Assert.assertEquals(0x00000000_18E77BFAL, b.readRaw(64));
-    Assert.assertEquals(0x00000000_18C779DAL, b.readRaw(64));
-    Assert.assertEquals(0x00000000_18E35110L, b.readRaw(64));
-    Assert.assertEquals(0, b.bitsRemaining());
+    assertArrayEquals(new byte[] {0x01, 0x77}, b.align().readBytes(2)); // signature
+    assertEquals(52, b.readUnsigned(16)); // size
+    assertEquals(0x00000002_89A5AEACL, b.readRaw(64));
+    assertEquals(0x00000002_89A4BEACL, b.readRaw(64));
+    assertEquals(0x00000002_C9A4AEAEL, b.readRaw(64));
+    assertEquals(0x00000000_18E77BFAL, b.readRaw(64));
+    assertEquals(0x00000000_18C779DAL, b.readRaw(64));
+    assertEquals(0x00000000_18E35110L, b.readRaw(64));
+    assertEquals(0, b.bitsRemaining());
   }
 
   @Test
@@ -187,15 +189,15 @@ public class BitInputTest {
         (byte) 0xFA, (byte) 0x7B, (byte) 0xE7, (byte) 0x18, 0x00, 0x00, 0x00, 0x00,
         (byte) 0xDA, (byte) 0x79, (byte) 0xC7, (byte) 0x18, 0x00, 0x00, 0x00, 0x00,
         (byte) 0x10, (byte) 0x51, (byte) 0xE3, (byte) 0x18, 0x00, 0x00, 0x00, 0x00});
-    Assert.assertArrayEquals(new byte[]{0x01, 0x77}, b.align().readBytes(2)); // signature
-    Assert.assertEquals(52, b.read16u()); // size
-    Assert.assertEquals(0x00000002_89A5AEACL, b.readRaw(64));
-    Assert.assertEquals(0x00000002_89A4BEACL, b.readRaw(64));
-    Assert.assertEquals(0x00000002_C9A4AEAEL, b.readRaw(64));
-    Assert.assertEquals(0x00000000_18E77BFAL, b.readRaw(64));
-    Assert.assertEquals(0x00000000_18C779DAL, b.readRaw(64));
-    Assert.assertEquals(0x00000000_18E35110L, b.readRaw(64));
-    Assert.assertEquals(0, b.bitsRemaining());
+    assertArrayEquals(new byte[]{0x01, 0x77}, b.align().readBytes(2)); // signature
+    assertEquals(52, b.read16u()); // size
+    assertEquals(0x00000002_89A5AEACL, b.readRaw(64));
+    assertEquals(0x00000002_89A4BEACL, b.readRaw(64));
+    assertEquals(0x00000002_C9A4AEAEL, b.readRaw(64));
+    assertEquals(0x00000000_18E77BFAL, b.readRaw(64));
+    assertEquals(0x00000000_18C779DAL, b.readRaw(64));
+    assertEquals(0x00000000_18E35110L, b.readRaw(64));
+    assertEquals(0, b.bitsRemaining());
   }
 
   @Test
@@ -205,36 +207,36 @@ public class BitInputTest {
         (byte) 0x82, 0x26, 0x76, 0x07, (byte) 0x82, 0x09, (byte) 0xD4,
         (byte) 0xAA, 0x12, 0x03, 0x01, (byte) 0x80, 0x70, 0x01, 0x01,
         (byte) 0x91, 0x03, 0x01, 0x04, 0x64, (byte) 0xFC, 0x07});
-    Assert.assertArrayEquals(new byte[] {0x4A, 0x4D}, b.align().readBytes(2)); // signature
-    Assert.assertEquals(0x00800010, b.readUnsigned(Integer.SIZE)); // flags
-    Assert.assertEquals(101, b.readUnsigned(8)); // version
+    assertArrayEquals(new byte[] {0x4A, 0x4D}, b.align().readBytes(2)); // signature
+    assertEquals(0x00800010, b.readUnsigned(Integer.SIZE)); // flags
+    assertEquals(101, b.readUnsigned(8)); // version
     b.skipBits(2); // unknown
-    Assert.assertEquals(0, b.readUnsigned(3)); // location
-    Assert.assertEquals(0, b.readUnsigned(4)); // body location
-    Assert.assertEquals(2, b.readUnsigned(4)); // grid x
-    Assert.assertEquals(0, b.readUnsigned(4)); // grid y
-    Assert.assertEquals(1, b.readUnsigned(3)); // store location
-    Assert.assertEquals("hbw ", b.readString(4)); // code
-    Assert.assertEquals(0, b.readUnsigned(3)); // sockets filled
-    Assert.assertEquals(0x2555A813, b.readUnsigned(Integer.SIZE)); // id
-    Assert.assertEquals(6, b.readUnsigned(7)); // ilvl
-    Assert.assertEquals(4, b.readUnsigned(4)); // quality
-    Assert.assertEquals(false, b.readBoolean()); // picture id
-    Assert.assertEquals(false, b.readBoolean()); // class only
-    Assert.assertEquals(0, b.readUnsigned(11)); // magic prefix
-    Assert.assertEquals(737, b.readUnsigned(11)); // magic suffix
+    assertEquals(0, b.readUnsigned(3)); // location
+    assertEquals(0, b.readUnsigned(4)); // body location
+    assertEquals(2, b.readUnsigned(4)); // grid x
+    assertEquals(0, b.readUnsigned(4)); // grid y
+    assertEquals(1, b.readUnsigned(3)); // store location
+    assertEquals("hbw ", b.readString(4)); // code
+    assertEquals(0, b.readUnsigned(3)); // sockets filled
+    assertEquals(0x2555A813, b.readUnsigned(Integer.SIZE)); // id
+    assertEquals(6, b.readUnsigned(7)); // ilvl
+    assertEquals(4, b.readUnsigned(4)); // quality
+    assertEquals(false, b.readBoolean()); // picture id
+    assertEquals(false, b.readBoolean()); // class only
+    assertEquals(0, b.readUnsigned(11)); // magic prefix
+    assertEquals(737, b.readUnsigned(11)); // magic suffix
     b.skipBits(1); // unknown
-    Assert.assertEquals(32, b.readUnsigned(8)); // max durability
-    Assert.assertEquals(32, b.readUnsigned(9)); // durability
-    Assert.assertEquals(57, b.readUnsigned(9)); // poisonmindam
-    Assert.assertEquals(0, b.readUnsigned(0)); // poisonmindam param bits
-    Assert.assertEquals(8, b.readUnsigned(10)); // poisonmindam value
-    Assert.assertEquals(0, b.readUnsigned(0)); // poisonmaxdam param bits
-    Assert.assertEquals(8, b.readUnsigned(10)); // poisonmaxdam value
-    Assert.assertEquals(0, b.readUnsigned(0)); // poisonlength param bits
-    Assert.assertEquals(50, b.readUnsigned(9)); // poisonlength value
-    Assert.assertEquals(0x1ff, b.readUnsigned(9)); // stat list finished
-    Assert.assertEquals(5, b.bitsRemaining()); // tail end of stream
+    assertEquals(32, b.readUnsigned(8)); // max durability
+    assertEquals(32, b.readUnsigned(9)); // durability
+    assertEquals(57, b.readUnsigned(9)); // poisonmindam
+    assertEquals(0, b.readUnsigned(0)); // poisonmindam param bits
+    assertEquals(8, b.readUnsigned(10)); // poisonmindam value
+    assertEquals(0, b.readUnsigned(0)); // poisonmaxdam param bits
+    assertEquals(8, b.readUnsigned(10)); // poisonmaxdam value
+    assertEquals(0, b.readUnsigned(0)); // poisonlength param bits
+    assertEquals(50, b.readUnsigned(9)); // poisonlength value
+    assertEquals(0x1ff, b.readUnsigned(9)); // stat list finished
+    assertEquals(5, b.bitsRemaining()); // tail end of stream
   }
 
   @Test
@@ -244,36 +246,36 @@ public class BitInputTest {
         (byte) 0x82, 0x26, 0x76, 0x07, (byte) 0x82, 0x09, (byte) 0xD4,
         (byte) 0xAA, 0x12, 0x03, 0x01, (byte) 0x80, 0x70, 0x01, 0x01,
         (byte) 0x91, 0x03, 0x01, 0x04, 0x64, (byte) 0xFC, 0x07});
-    Assert.assertArrayEquals(new byte[] {0x4A, 0x4D}, b.align().readBytes(2)); // signature
-    Assert.assertEquals(0x00800010, b.readRaw(32)); // flags
-    Assert.assertEquals(101, b.read8u()); // version
+    assertArrayEquals(new byte[] {0x4A, 0x4D}, b.align().readBytes(2)); // signature
+    assertEquals(0x00800010, b.readRaw(32)); // flags
+    assertEquals(101, b.read8u()); // version
     b.skipBits(2); // unknown
-    Assert.assertEquals(0, b.read7u(3)); // location
-    Assert.assertEquals(0, b.read7u(4)); // body location
-    Assert.assertEquals(2, b.read7u(4)); // grid x
-    Assert.assertEquals(0, b.read7u(4)); // grid y
-    Assert.assertEquals(1, b.read7u(3)); // store location
-    Assert.assertEquals("hbw ", b.readString(4)); // code
-    Assert.assertEquals(0, b.read7u(3)); // sockets filled
-    Assert.assertEquals(0x2555A813, b.readRaw(32)); // id
-    Assert.assertEquals(6, b.read7u(7)); // ilvl
-    Assert.assertEquals(4, b.read7u(4)); // quality
-    Assert.assertEquals(false, b.readBoolean()); // picture id
-    Assert.assertEquals(false, b.readBoolean()); // class only
-    Assert.assertEquals(0, b.read15u(11)); // magic prefix
-    Assert.assertEquals(737, b.read15u(11)); // magic suffix
+    assertEquals(0, b.read7u(3)); // location
+    assertEquals(0, b.read7u(4)); // body location
+    assertEquals(2, b.read7u(4)); // grid x
+    assertEquals(0, b.read7u(4)); // grid y
+    assertEquals(1, b.read7u(3)); // store location
+    assertEquals("hbw ", b.readString(4)); // code
+    assertEquals(0, b.read7u(3)); // sockets filled
+    assertEquals(0x2555A813, b.readRaw(32)); // id
+    assertEquals(6, b.read7u(7)); // ilvl
+    assertEquals(4, b.read7u(4)); // quality
+    assertEquals(false, b.readBoolean()); // picture id
+    assertEquals(false, b.readBoolean()); // class only
+    assertEquals(0, b.read15u(11)); // magic prefix
+    assertEquals(737, b.read15u(11)); // magic suffix
     b.skipBits(1); // unknown
-    Assert.assertEquals(32, b.read15u(8)); // max durability
-    Assert.assertEquals(32, b.read15u(9)); // durability
-    Assert.assertEquals(57, b.read15u(9)); // poisonmindam
-    Assert.assertEquals(0, b.read31u(0)); // poisonmindam param bits
-    Assert.assertEquals(8, b.read31u(10)); // poisonmindam value
-    Assert.assertEquals(0, b.read31u(0)); // poisonmaxdam param bits
-    Assert.assertEquals(8, b.read31u(10)); // poisonmaxdam value
-    Assert.assertEquals(0, b.read31u(0)); // poisonlength param bits
-    Assert.assertEquals(50, b.read31u(9)); // poisonlength value
-    Assert.assertEquals(0x1ff, b.read15u(9)); // stat list finished
-    Assert.assertEquals(5, b.bitsRemaining()); // tail end of stream
+    assertEquals(32, b.read15u(8)); // max durability
+    assertEquals(32, b.read15u(9)); // durability
+    assertEquals(57, b.read15u(9)); // poisonmindam
+    assertEquals(0, b.read31u(0)); // poisonmindam param bits
+    assertEquals(8, b.read31u(10)); // poisonmindam value
+    assertEquals(0, b.read31u(0)); // poisonmaxdam param bits
+    assertEquals(8, b.read31u(10)); // poisonmaxdam value
+    assertEquals(0, b.read31u(0)); // poisonlength param bits
+    assertEquals(50, b.read31u(9)); // poisonlength value
+    assertEquals(0x1ff, b.read15u(9)); // stat list finished
+    assertEquals(5, b.bitsRemaining()); // tail end of stream
   }
 
   @Test
@@ -281,16 +283,16 @@ public class BitInputTest {
     BitInput b = newInstance();
     assert b.aligned();
     BitInput slice = b.readSlice(Byte.SIZE);
-    Assert.assertTrue(b.aligned());
-    Assert.assertEquals(Byte.SIZE, b.bitsRead());
-    Assert.assertEquals(0, b.bitsCached());
-    Assert.assertEquals(0, b.cache());
+    assertTrue(b.aligned());
+    assertEquals(Byte.SIZE, b.bitsRead());
+    assertEquals(0, b.bitsCached());
+    assertEquals(0, b.cache());
 
-    Assert.assertTrue(slice.aligned());
-    Assert.assertEquals(Byte.SIZE, slice.numBits());
-    Assert.assertEquals(0, slice.bitsRead());
-    Assert.assertEquals(0, slice.bitsCached());
-    Assert.assertEquals(0, slice.cache());
+    assertTrue(slice.aligned());
+    assertEquals(Byte.SIZE, slice.numBits());
+    assertEquals(0, slice.bitsRead());
+    assertEquals(0, slice.bitsCached());
+    assertEquals(0, slice.cache());
   }
 
   @Test
@@ -298,16 +300,16 @@ public class BitInputTest {
     BitInput b = newInstance();
     assert b.aligned();
     BitInput slice = b.readSlice(Byte.SIZE - 1);
-    Assert.assertFalse(b.aligned());
-    Assert.assertEquals(Byte.SIZE - 1, b.bitsRead());
-    Assert.assertEquals(1, b.bitsCached());
-    Assert.assertEquals(0b1, b.cache());
+    assertFalse(b.aligned());
+    assertEquals(Byte.SIZE - 1, b.bitsRead());
+    assertEquals(1, b.bitsCached());
+    assertEquals(0b1, b.cache());
 
-    Assert.assertTrue(slice.aligned());
-    Assert.assertEquals(Byte.SIZE - 1, slice.numBits());
-    Assert.assertEquals(0, slice.bitsRead());
-    Assert.assertEquals(0, slice.bitsCached());
-    Assert.assertEquals(0, slice.cache());
+    assertTrue(slice.aligned());
+    assertEquals(Byte.SIZE - 1, slice.numBits());
+    assertEquals(0, slice.bitsRead());
+    assertEquals(0, slice.bitsCached());
+    assertEquals(0, slice.cache());
   }
 
   @Test
@@ -316,16 +318,16 @@ public class BitInputTest {
     b.skipBits(Byte.SIZE - 1);
     assert !b.aligned();
     BitInput slice = b.readSlice(1);
-    Assert.assertTrue(b.aligned());
-    Assert.assertEquals(Byte.SIZE, b.bitsRead());
-    Assert.assertEquals(0, b.bitsCached());
-    Assert.assertEquals(0, b.cache());
+    assertTrue(b.aligned());
+    assertEquals(Byte.SIZE, b.bitsRead());
+    assertEquals(0, b.bitsCached());
+    assertEquals(0, b.cache());
 
-    Assert.assertFalse(slice.aligned());
-    Assert.assertEquals(1, slice.numBits());
-    Assert.assertEquals(Byte.SIZE - 1, slice.bitsRead()); // FIXME: was 0 -- should this include bits read from b?
-    Assert.assertEquals(1, slice.bitsCached());
-    Assert.assertEquals(0b1, slice.cache());
+    assertFalse(slice.aligned());
+    assertEquals(1, slice.numBits());
+    assertEquals(Byte.SIZE - 1, slice.bitsRead()); // FIXME: was 0 -- should this include bits read from b?
+    assertEquals(1, slice.bitsCached());
+    assertEquals(0b1, slice.cache());
   }
 
   @Test
@@ -334,15 +336,15 @@ public class BitInputTest {
     b.skipBits(1);
     assert !b.aligned();
     BitInput slice = b.readSlice(Byte.SIZE - 2);
-    Assert.assertTrue(!b.aligned());
-    Assert.assertEquals(Byte.SIZE - 1, b.bitsRead());
-    Assert.assertEquals(1, b.bitsCached());
-    Assert.assertEquals(0b1, b.cache());
+    assertTrue(!b.aligned());
+    assertEquals(Byte.SIZE - 1, b.bitsRead());
+    assertEquals(1, b.bitsCached());
+    assertEquals(0b1, b.cache());
 
-    Assert.assertFalse(slice.aligned());
-    Assert.assertEquals(Byte.SIZE - 2, slice.numBits());
-    Assert.assertEquals(1, slice.bitsRead()); // FIXME: was 0 -- should this include bits read from b?
-    Assert.assertEquals(Byte.SIZE - 1, slice.bitsCached());
-    Assert.assertEquals(0b1110111, slice.cache());
+    assertFalse(slice.aligned());
+    assertEquals(Byte.SIZE - 2, slice.numBits());
+    assertEquals(1, slice.bitsRead()); // FIXME: was 0 -- should this include bits read from b?
+    assertEquals(Byte.SIZE - 1, slice.bitsCached());
+    assertEquals(0b1110111, slice.cache());
   }
 }

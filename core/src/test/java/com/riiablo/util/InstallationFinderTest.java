@@ -1,9 +1,9 @@
 package com.riiablo.util;
 
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -13,7 +13,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class InstallationFinderTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel(InstallationFinder.class.getName(), Level.TRACE);
   }
@@ -36,7 +36,7 @@ public class InstallationFinderTest extends RiiabloTest {
   private void test_getHomeDirs_windows() {
     final InstallationFinder instance = getInstance();
     final Array<FileHandle> handles = instance.getHomeDirs();
-    Assert.assertNotNull(handles);
+    assertNotNull(handles);
     System.out.println("found: " + handles);
   }
 
@@ -60,7 +60,7 @@ public class InstallationFinderTest extends RiiabloTest {
   private void test_getSaveDirs_windows() {
     final InstallationFinder instance = getInstance();
     final Array<FileHandle> handles = instance.getSaveDirs(null);
-    Assert.assertNotNull(handles);
+    assertNotNull(handles);
     System.out.println("found: " + handles);
   }
 

@@ -1,9 +1,10 @@
 package com.riiablo.io;
 
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class IOTest {
   private static ByteInput newInstance() {
@@ -24,11 +25,11 @@ public class IOTest {
     BitInput bits = b.bitInput(); // creates bit input instance
     assert b.aligned();
     final byte[] bytesRead = b.readBytes(signature.length);
-    Assert.assertTrue(b.aligned());
-    Assert.assertArrayEquals(signature, bytesRead); // signature
-    Assert.assertEquals(signature.length * Byte.SIZE, bits.bitsRead());
-    Assert.assertEquals(0, bits.bitsCached());
-    Assert.assertEquals(0, bits.cache());
+    assertTrue(b.aligned());
+    assertArrayEquals(signature, bytesRead); // signature
+    assertEquals(signature.length * Byte.SIZE, bits.bitsRead());
+    assertEquals(0, bits.bitsCached());
+    assertEquals(0, bits.cache());
   }
 
   @Test
@@ -38,37 +39,37 @@ public class IOTest {
         (byte) 0x82, 0x26, 0x76, 0x07, (byte) 0x82, 0x09, (byte) 0xD4,
         (byte) 0xAA, 0x12, 0x03, 0x01, (byte) 0x80, 0x70, 0x01, 0x01,
         (byte) 0x91, 0x03, 0x01, 0x04, 0x64, (byte) 0xFC, 0x07});
-    Assert.assertArrayEquals(new byte[] {0x4A, 0x4D}, bytes.readBytes(2)); // signature
-    Assert.assertEquals(0x00800010, bytes.read32()); // flags
-    Assert.assertEquals(101, bytes.read8u()); // version
+    assertArrayEquals(new byte[] {0x4A, 0x4D}, bytes.readBytes(2)); // signature
+    assertEquals(0x00800010, bytes.read32()); // flags
+    assertEquals(101, bytes.read8u()); // version
     BitInput bits = bytes.unalign();
     bits.skipBits(2); // unknown
-    Assert.assertEquals(0, bits.read7u(3)); // location
-    Assert.assertEquals(0, bits.read7u(4)); // body location
-    Assert.assertEquals(2, bits.read7u(4)); // grid x
-    Assert.assertEquals(0, bits.read7u(4)); // grid y
-    Assert.assertEquals(1, bits.read7u(3)); // store location
-    Assert.assertEquals("hbw ", bits.readString(4)); // code
-    Assert.assertEquals(0, bits.read7u(3)); // sockets filled
-    Assert.assertEquals(0x2555A813, bits.readRaw(32)); // id
-    Assert.assertEquals(6, bits.read7u(7)); // ilvl
-    Assert.assertEquals(4, bits.read7u(4)); // quality
-    Assert.assertEquals(false, bits.readBoolean()); // picture id
-    Assert.assertEquals(false, bits.readBoolean()); // class only
-    Assert.assertEquals(0, bits.read15u(11)); // magic prefix
-    Assert.assertEquals(737, bits.read15u(11)); // magic suffix
+    assertEquals(0, bits.read7u(3)); // location
+    assertEquals(0, bits.read7u(4)); // body location
+    assertEquals(2, bits.read7u(4)); // grid x
+    assertEquals(0, bits.read7u(4)); // grid y
+    assertEquals(1, bits.read7u(3)); // store location
+    assertEquals("hbw ", bits.readString(4)); // code
+    assertEquals(0, bits.read7u(3)); // sockets filled
+    assertEquals(0x2555A813, bits.readRaw(32)); // id
+    assertEquals(6, bits.read7u(7)); // ilvl
+    assertEquals(4, bits.read7u(4)); // quality
+    assertEquals(false, bits.readBoolean()); // picture id
+    assertEquals(false, bits.readBoolean()); // class only
+    assertEquals(0, bits.read15u(11)); // magic prefix
+    assertEquals(737, bits.read15u(11)); // magic suffix
     bits.skipBits(1); // unknown
-    Assert.assertEquals(32, bits.read15u(8)); // max durability
-    Assert.assertEquals(32, bits.read15u(9)); // durability
-    Assert.assertEquals(57, bits.read15u(9)); // poisonmindam
-    Assert.assertEquals(0, bits.read31u(0)); // poisonmindam param bits
-    Assert.assertEquals(8, bits.read31u(10)); // poisonmindam value
-    Assert.assertEquals(0, bits.read31u(0)); // poisonmaxdam param bits
-    Assert.assertEquals(8, bits.read31u(10)); // poisonmaxdam value
-    Assert.assertEquals(0, bits.read31u(0)); // poisonlength param bits
-    Assert.assertEquals(50, bits.read31u(9)); // poisonlength value
-    Assert.assertEquals(0x1ff, bits.read15u(9)); // stat list finished
-    Assert.assertEquals(5, bits.bitsRemaining()); // tail end of stream
+    assertEquals(32, bits.read15u(8)); // max durability
+    assertEquals(32, bits.read15u(9)); // durability
+    assertEquals(57, bits.read15u(9)); // poisonmindam
+    assertEquals(0, bits.read31u(0)); // poisonmindam param bits
+    assertEquals(8, bits.read31u(10)); // poisonmindam value
+    assertEquals(0, bits.read31u(0)); // poisonmaxdam param bits
+    assertEquals(8, bits.read31u(10)); // poisonmaxdam value
+    assertEquals(0, bits.read31u(0)); // poisonlength param bits
+    assertEquals(50, bits.read31u(9)); // poisonlength value
+    assertEquals(0x1ff, bits.read15u(9)); // stat list finished
+    assertEquals(5, bits.bitsRemaining()); // tail end of stream
   }
 
   @Test
@@ -110,6 +111,6 @@ public class IOTest {
     bits.write31u(50, 9); // poisonlength value
     bits.write15u(0x1ff, 9); // stat list finished
     bits.flush();
-    Assert.assertTrue(ByteBufUtil.equals(bytes.buffer(), b.buffer()));
+    assertTrue(ByteBufUtil.equals(bytes.buffer(), b.buffer()));
   }
 }

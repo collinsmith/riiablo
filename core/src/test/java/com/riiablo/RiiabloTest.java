@@ -1,7 +1,6 @@
 package com.riiablo;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.*;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -13,7 +12,7 @@ import com.riiablo.logger.OutputStreamAppender;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 public class RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     Gdx.app = new HeadlessApplication(new ApplicationAdapter() {});
     Riiablo.home = Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II");
@@ -24,7 +23,7 @@ public class RiiabloTest {
     Riiablo.logs.getRootLogger().addAppender(new OutputStreamAppender(System.out));
   }
 
-  @AfterClass
+  @AfterAll
   public static void teardown() {
     Gdx.app.exit();
   }

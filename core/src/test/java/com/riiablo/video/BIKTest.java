@@ -1,9 +1,9 @@
 package com.riiablo.video;
 
+import org.junit.jupiter.api.*;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.AudioDevice;
@@ -13,7 +13,7 @@ import com.riiablo.RiiabloTest;
 import com.riiablo.logger.Level;
 
 public class BIKTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     com.riiablo.logger.LogManager.setLevel("com.riiablo.video", Level.TRACE);
   }

@@ -1,8 +1,8 @@
 package com.riiablo.excel;
 
+import org.junit.jupiter.api.*;
+
 import java.io.IOException;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -13,12 +13,13 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class BinGeneratorTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.excel.BinGenerator", Level.TRACE);
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void monstats() throws IOException {
     FileHandle handle = Gdx.files.internal("test/monstats.txt");
     Excel monstats = Excel.loadTxt(new MonStats(), handle);

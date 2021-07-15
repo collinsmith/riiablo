@@ -1,12 +1,10 @@
 package com.riiablo.item;
 
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -20,7 +18,7 @@ import com.riiablo.io.ByteOutput;
 import com.riiablo.mpq.MPQFileHandleResolver;
 
 public class ItemWriterTest {
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     Gdx.app = new HeadlessApplication(new ApplicationAdapter() {});
     Riiablo.home = Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II");
@@ -29,7 +27,7 @@ public class ItemWriterTest {
     Riiablo.files = new Files();
   }
 
-  @AfterClass
+  @AfterAll
   public static void teardown() {
     Gdx.app.exit();
   }
@@ -52,7 +50,7 @@ public class ItemWriterTest {
       System.out.println("Expected:");
       System.out.println(firstHexDump);
     }
-    Assert.assertTrue(equal);
+    assertTrue(equal);
   }
 
   @Test
@@ -131,7 +129,7 @@ public class ItemWriterTest {
   }
 
   @Test
-  @Ignore("item is erroneously flagged socketed")
+  @Disabled("item is erroneously flagged socketed")
   public void Tome_of_Town_Portal_2() {
     // FIXME: should gracefully handle this as original game does
     testItem(Gdx.files.internal("test/Tome of Town Portal 2.d2i").readBytes());

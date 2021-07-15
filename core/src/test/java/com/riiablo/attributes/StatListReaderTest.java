@@ -1,8 +1,7 @@
 package com.riiablo.attributes;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.riiablo.RiiabloTest;
 import com.riiablo.io.BitInput;
@@ -11,7 +10,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class StatListReaderTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.attributes", Level.TRACE);
   }
@@ -66,27 +65,27 @@ public class StatListReaderTest extends RiiabloTest {
     final BitInput bits = ByteInput.wrap(bytes).unalign().skipBits(197);
     final StatListReader reader = new StatListReader();
     final StatListRef stats = reader.read(new StatList().reset(1).buildList(), bits, false);
-    Assert.assertTrue(stats.containsAny(Stat.item_healafterkill));
-    Assert.assertEquals(11, stats.get(Stat.item_healafterkill).value0());
+    assertTrue(stats.containsAny(Stat.item_healafterkill));
+    assertEquals(11, stats.get(Stat.item_healafterkill).value0());
 
-    Assert.assertTrue(stats.containsAny(Stat.item_fasterattackrate));
-    Assert.assertEquals(31, stats.get(Stat.item_fasterattackrate).value0());
+    assertTrue(stats.containsAny(Stat.item_fasterattackrate));
+    assertEquals(31, stats.get(Stat.item_fasterattackrate).value0());
 
-    Assert.assertTrue(stats.containsAny(Stat.item_normaldamage));
-    Assert.assertEquals(373, stats.get(Stat.item_normaldamage).value0());
+    assertTrue(stats.containsAny(Stat.item_normaldamage));
+    assertEquals(373, stats.get(Stat.item_normaldamage).value0());
 
-    Assert.assertTrue(stats.containsAny(Stat.item_ignoretargetac));
-    Assert.assertEquals(1, stats.get(Stat.item_ignoretargetac).value0());
+    assertTrue(stats.containsAny(Stat.item_ignoretargetac));
+    assertEquals(1, stats.get(Stat.item_ignoretargetac).value0());
 
-    Assert.assertTrue(stats.containsAny(Stat.item_skillonhit));
-    Assert.assertEquals(15, stats.first(Stat.item_skillonhit).param0());
-    Assert.assertEquals(278, stats.first(Stat.item_skillonhit).param1());
-    Assert.assertEquals(35, stats.first(Stat.item_skillonhit).value0());
+    assertTrue(stats.containsAny(Stat.item_skillonhit));
+    assertEquals(15, stats.first(Stat.item_skillonhit).param0());
+    assertEquals(278, stats.first(Stat.item_skillonhit).param1());
+    assertEquals(35, stats.first(Stat.item_skillonhit).value0());
 
-    Assert.assertTrue(stats.containsAny(Stat.item_damage_demon_perlevel));
-    Assert.assertEquals(15, stats.get(Stat.item_damage_demon_perlevel).value0());
+    assertTrue(stats.containsAny(Stat.item_damage_demon_perlevel));
+    assertEquals(15, stats.get(Stat.item_damage_demon_perlevel).value0());
 
-    Assert.assertTrue(stats.containsAny(Stat.passive_pois_pierce));
-    Assert.assertEquals(23, stats.get(Stat.passive_pois_pierce).value0());
+    assertTrue(stats.containsAny(Stat.passive_pois_pierce));
+    assertEquals(23, stats.get(Stat.passive_pois_pierce).value0());
   }
 }

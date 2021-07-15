@@ -1,8 +1,8 @@
 package com.riiablo.attributes;
 
+import org.junit.jupiter.api.*;
+
 import io.netty.buffer.Unpooled;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
 
@@ -15,7 +15,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class AttributesUpdaterTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.attributes", Level.WARN);
     LogManager.setLevel("com.riiablo.attributes.StatList", Level.DEBUG);

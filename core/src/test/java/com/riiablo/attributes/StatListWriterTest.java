@@ -1,11 +1,11 @@
 package com.riiablo.attributes;
 
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
 
@@ -24,7 +24,7 @@ import static com.riiablo.attributes.StatListFlags.NUM_ITEM_LISTS;
 import static com.riiablo.attributes.StatListFlags.getSetItemFlags;
 
 public class StatListWriterTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.attributes", Level.TRACE);
   }
@@ -50,7 +50,7 @@ public class StatListWriterTest extends RiiabloTest {
       System.out.println("Expected:");
       System.out.println(firstHexDump);
     }
-    Assert.assertTrue(equal);
+    assertTrue(equal);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class StatListWriterTest extends RiiabloTest {
       System.out.println("Expected:");
       System.out.println(firstHexDump);
     }
-    Assert.assertTrue(equal);
+    assertTrue(equal);
   }
 
   @Test

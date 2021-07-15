@@ -1,8 +1,7 @@
 package com.riiablo.mpq_bytebuf;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -13,7 +12,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class MPQTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.mpq_bytebuf", Level.DEBUG);
     LogManager.setLevel("com.riiablo.mpq_bytebuf.MPQInputStream", Level.INFO);
@@ -65,7 +64,7 @@ public class MPQTest extends RiiabloTest {
   public void contains() {
     final MPQ mpq = load("d2char");
     final MPQFileHandle handle = new MPQFileHandle(mpq, "data\\global\\CHARS\\BA\\COF\\BAA11HS.COF");
-    Assert.assertTrue(handle.exists());
+    assertTrue(handle.exists());
     System.out.println("searches: " + mpq.searches + ", misses: " + mpq.misses);
   }
 

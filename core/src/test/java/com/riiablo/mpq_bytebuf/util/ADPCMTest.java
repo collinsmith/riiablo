@@ -1,11 +1,11 @@
 package com.riiablo.mpq_bytebuf.util;
 
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -15,7 +15,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class ADPCMTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.mpq_bytebuf.util.ADPCM", Level.TRACE);
   }
@@ -29,6 +29,6 @@ public class ADPCMTest extends RiiabloTest {
 
     FileHandle pcm_out = Gdx.files.internal("test/pcm_out.bin");
     ByteBuf expected = Unpooled.wrappedBuffer(pcm_out.readBytes());
-    Assert.assertTrue(ByteBufUtil.equals(expected, actual));
+    assertTrue(ByteBufUtil.equals(expected, actual));
   }
 }

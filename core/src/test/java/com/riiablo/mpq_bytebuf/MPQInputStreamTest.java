@@ -1,5 +1,8 @@
 package com.riiablo.mpq_bytebuf;
 
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -7,9 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -19,7 +19,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 
 public class MPQInputStreamTest extends RiiabloTest {
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.mpq_bytebuf", Level.DEBUG);
     LogManager.setLevel("com.riiablo.mpq_bytebuf.MPQInputStream", Level.TRACE);
@@ -52,7 +52,7 @@ public class MPQInputStreamTest extends RiiabloTest {
       System.out.println(actual);
     }
 
-    Assert.assertTrue(equal);
+    assertTrue(equal);
   }
 
   private static void testStream(MPQ mpq, String filename) throws IOException {
@@ -78,7 +78,7 @@ public class MPQInputStreamTest extends RiiabloTest {
       System.out.println(actual);
     }
 
-    Assert.assertTrue(equal);
+    assertTrue(equal);
   }
 
   @Test

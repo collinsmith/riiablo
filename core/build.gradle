@@ -98,10 +98,23 @@ dependencies {
   //api "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$artemisContribVersion"
 }
 
+compileTestJava {
+  sourceCompatibility = "1.8"
+  targetCompatibility = "1.8"
+}
+
 dependencies {
-  testImplementation "junit:junit:4.12"
+  testImplementation platform('org.junit:junit-bom:5.7.1')
+  testImplementation 'org.junit.jupiter:junit-jupiter'
   testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
   testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
 }
 
 weave {
