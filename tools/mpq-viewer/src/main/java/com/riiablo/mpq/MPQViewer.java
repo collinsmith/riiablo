@@ -29,6 +29,9 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Objects;
 import java.util.SortedMap;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.apache.commons.io.FilenameUtils;
@@ -108,6 +111,8 @@ public class MPQViewer {
   }
 
   private static class Client extends Tool {
+    String             initialFile;
+
     Preferences        prefs;
     Stage              stage;
     VisTable           root;
@@ -127,6 +132,7 @@ public class MPQViewer {
     MenuItem           address_copy;
     MenuItem           address_copyFixed;
     MenuItem           address_paste;
+    ClickListener      address_paste_clickListener;
 
     VisTextField       fileTreeFilter;
     Trie<String, Node> fileTreeNodes;
@@ -224,6 +230,24 @@ public class MPQViewer {
     ShaderProgram       shader;
     ShapeRenderer       shapes;
     Texture             DEFAULT_PALETTE;
+
+    @Override
+    protected void createCliOptions(Options options) {
+      super.createCliOptions(options);
+      options.addOption(Option
+          .builder("f")
+          .longOpt("file")
+          .desc("initial file to open")
+          .hasArg()
+          .argName("path")
+          .build());
+    }
+
+    @Override
+    protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+      super.handleCliOptions(cmd, options, cli);
+      initialFile = cli.getOptionValue("file");
+    }
 
     @Override
     public void create() {
@@ -893,7 +917,7 @@ public class MPQViewer {
               });
             }});
             addItem(address_paste = new MenuItem("Paste") {{
-              addListener(new ClickListener() {
+              addListener(address_paste_clickListener = new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                   if (Riiablo.mpqs == null) {
@@ -985,6 +1009,12 @@ public class MPQViewer {
       String home = prefs.getString("home");
       if (home != null && !home.isEmpty()) {
         loadMPQs(Gdx.files.absolute(home));
+      }
+
+      if (initialFile != null) {
+        Gdx.app.debug(TAG, "setting clipboard contents to " + initialFile);
+        Gdx.app.getClipboard().setContents(initialFile);
+        address_paste_clickListener.clicked(null, -1, -1);
       }
     }
 
