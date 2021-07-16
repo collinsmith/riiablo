@@ -86,6 +86,7 @@ import com.riiablo.codec.DccInfo;
 import com.riiablo.codec.Palette;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.map.DT1;
+import com.riiablo.map2.Dt1Info;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
 import com.riiablo.mpq.widget.DirectionActor;
 import com.riiablo.mpq.widget.TabbedPane;
@@ -215,6 +216,9 @@ public class MPQViewer {
 
     CollapsibleVisTable   dc6Panel;
     Dc6Info               dc6Info;
+
+    CollapsibleVisTable   dt1Panel;
+    Dt1Info               dt1Info;
 
     PaletteIndexedBatch batch;
     ShaderProgram       shader;
@@ -383,8 +387,10 @@ public class MPQViewer {
                   }};
                   rendererScroller = new VisScrollPane(renderer = new Renderer()) {
                     {
-                      setupFadeScrollBars(0, 0);
-                      setFadeScrollBars(true);
+                      // copy "list" style into "renderer scroller" style
+                      setStyle(new ScrollPaneStyle(VisUI.getSkin().get("list", ScrollPaneStyle.class)));
+                      // setupFadeScrollBars(0, 0);
+                      // setFadeScrollBars(true);
                       setSmoothScrolling(false);
                       setFlingTime(0);
                       setOverscroll(false, false);
@@ -446,6 +452,7 @@ public class MPQViewer {
                   VisTable controls = new VisTable();
                   controls.align(Align.bottomLeft);
                   controls.pad(8);
+                  controls.padBottom(controls.getPadBottom() + 18); // this is just a guess
                   controls.add(new VisTextButton("[ ]") {{
                     addListener(new ClickListener() {
                       @Override
@@ -546,6 +553,14 @@ public class MPQViewer {
             @Override
             public void clicked(InputEvent event, float x, float y) {
               dc6Panel.setCollapsed(!dc6Panel.isCollapsed());
+            }
+          });
+        }}).row();
+        add(new VisTextButton("7") {{
+          addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              dt1Panel.setCollapsed(!dt1Panel.isCollapsed());
             }
           });
         }}).row();
@@ -832,6 +847,11 @@ public class MPQViewer {
         add(dc6Info = new Dc6Info()).row();
         add().growY();
       }}).growY().space(4);
+      optionsPanel.add(dt1Panel = new CollapsibleVisTable() {{
+        add("DT1:").align(Align.left).row();
+        add(dt1Info = new Dt1Info()).row();
+        add().growY();
+      }}).growY().space(4);
 
       optionsSubpanels = new Array<>();
       optionsSubpanels.add(imageControlsPanel);
@@ -840,6 +860,7 @@ public class MPQViewer {
       optionsSubpanels.add(cofPanel);
       optionsSubpanels.add(dccPanel);
       optionsSubpanels.add(dc6Panel);
+      optionsSubpanels.add(dt1Panel);
       for (CollapsibleVisTable o : optionsSubpanels) {
         o.setCollapsed(true);
       }
@@ -1462,7 +1483,9 @@ public class MPQViewer {
       } else if (extension.equals("dt1")) {
         imageControlsPanel.setCollapsed(false);
         palettePanel.setCollapsed(false);
+        dt1Panel.setCollapsed(false);
         final DT1 dt1 = DT1.loadFromFile(handle);
+        dt1Info.setDT1(dt1);
         dt1.prepareTextures();
         renderer.setDrawable(new DelegatingDrawable<TextureRegionDrawable>() {
           {
@@ -1478,6 +1501,10 @@ public class MPQViewer {
             TextureRegionDrawable drawable = new TextureRegionDrawable();
             drawable.setRegion(dt1.getTexture(0));
             setDelegate(drawable);
+
+            String palette = paletteList.getSelected();
+            Riiablo.batch.setPalette(palettes.get(palette));
+            Gdx.app.debug(TAG, "palette set to " + palette);
           }
 
           @Override
@@ -1520,11 +1547,17 @@ public class MPQViewer {
               int id = (int) slFrameIndex.getValue();
               delegate.setRegion(dt1.getTexture(id));
               slFrameIndex.setValue(id);
+              updateInfo();
             }  else if (actor == paletteList) {
               String palette = paletteList.getSelected();
               Riiablo.batch.setPalette(palettes.get(palette));
               Gdx.app.debug(TAG, "palette set to " + palette);
             }
+          }
+
+          void updateInfo() {
+            int id = (int) slFrameIndex.getValue();
+            dt1Info.update(id);
           }
 
           @Override
