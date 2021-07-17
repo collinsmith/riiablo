@@ -112,6 +112,7 @@ public class MPQViewer {
 
   private static class Client extends Tool {
     String             initialFile;
+    boolean            debugMode;
 
     Preferences        prefs;
     Stage              stage;
@@ -241,12 +242,18 @@ public class MPQViewer {
           .hasArg()
           .argName("path")
           .build());
+      options.addOption(Option
+          .builder("d")
+          .longOpt("debug")
+          .desc("enabled debug mode")
+          .build());
     }
 
     @Override
     protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
       super.handleCliOptions(cmd, options, cli);
       initialFile = cli.getOptionValue("file");
+      debugMode = cli.hasOption("debug");
     }
 
     @Override
