@@ -1580,6 +1580,10 @@ public class MPQViewer {
 
           @Override
           protected void changed(ChangeEvent event, Actor actor) {
+            if (delegate == null) {
+              return;
+            }
+
             if (actor == slFrameIndex) {
               int id = (int) slFrameIndex.getValue();
               delegate.setRegion(dt1.getTexture(id));
