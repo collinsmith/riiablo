@@ -539,6 +539,7 @@ public class MPQViewer {
       optionsPanel.align(Align.left);
       optionsPanel.pad(4);
       optionsPanel.add(new VisTable() {{
+        defaults().growX();
         add(new VisTextButton("1") {{
           addListener(new ClickListener() {
             @Override
