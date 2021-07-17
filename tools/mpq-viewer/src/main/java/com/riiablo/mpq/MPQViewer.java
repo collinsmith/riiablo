@@ -661,7 +661,7 @@ public class MPQViewer {
               }}).row();
             }}).growX().row();*/
             add(new VisTable() {{
-              add(cbDebugMode = new VisCheckBox("Debug Bounds", false)).growX();
+              add(cbDebugMode = new VisCheckBox("Debug Bounds", debugMode)).growX();
             }}).growX().row();
           }});
           addTab("Pages", new VisTable() {{
