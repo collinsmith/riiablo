@@ -60,6 +60,11 @@ public class DebugUtils {
     drawDiamond2(shapes, x - width / 2, y - height / 2, width, height);
   }
 
+  public static void drawDiamondTL(ShapeRenderer shapes, float x, float y, int width, int height) {
+    height = Math.abs(height);
+    drawDiamond2(shapes, x, y - height, width, height);
+  }
+
   public static void drawEllipse2(ShapeRenderer shapes, float x, float y, int width, int height) {
     shapes.ellipse(x - width / 2, y - height / 2, width, height);
   }

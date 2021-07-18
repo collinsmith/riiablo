@@ -36,6 +36,7 @@ import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -88,7 +89,10 @@ import com.riiablo.codec.Dc6Info;
 import com.riiablo.codec.DccInfo;
 import com.riiablo.codec.Palette;
 import com.riiablo.graphics.PaletteIndexedBatch;
-import com.riiablo.map.DT1;
+import com.riiablo.io.ByteInput;
+import com.riiablo.io.SignatureMismatch;
+import com.riiablo.map2.DT1;
+import com.riiablo.map2.DT1Reader;
 import com.riiablo.map2.Dt1Info;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
 import com.riiablo.mpq.widget.DirectionActor;
@@ -421,7 +425,7 @@ public class MPQViewer {
                       // copy "list" style into "renderer scroller" style
                       setStyle(new ScrollPaneStyle(VisUI.getSkin().get("list", ScrollPaneStyle.class)));
                       // setupFadeScrollBars(0, 0);
-                      // setFadeScrollBars(true);
+                      setFadeScrollBars(false);
                       setSmoothScrolling(false);
                       setFlingTime(0);
                       setOverscroll(false, false);
@@ -636,8 +640,7 @@ public class MPQViewer {
                 addListener(new ChangeListener() {
                   @Override
                   public void changed(ChangeEvent event, Actor actor) {
-                    lbFrameIndex.setText((int) (getValue() + 1) + " / " + (int) (getMaxValue() +
-                        1));
+                    lbFrameIndex.setText((int) (getValue() + 1) + " / " + (int) (getMaxValue() + 1));
                   }
                 });
               }}).growX().colspan(2).row();
@@ -1336,12 +1339,12 @@ public class MPQViewer {
 
             slDirection.setValue(0);
             slDirection.setRange(0, dc.getNumDirections() - 1);
-            lbDirection.setText((int) slDirection.getMinValue() + " / " + (int) slDirection.getMaxValue());
+            slDirection.fire(new ChangeEvent());
             daDirection.setDirections(dc.getNumDirections());
 
             slFrameIndex.setValue(0);
             slFrameIndex.setRange(0, dc.getNumFramesPerDir() - 1);
-            lbFrameIndex.setText((int) slFrameIndex.getMinValue() + " / " + (int) slFrameIndex.getMaxValue());
+            slFrameIndex.fire(new ChangeEvent());
 
             //sbBlendMode.setSelectedIndex(0);
             //cbCombineFrames.setChecked(false);
@@ -1522,27 +1525,38 @@ public class MPQViewer {
         imageControlsPanel.setCollapsed(false);
         palettePanel.setCollapsed(false);
         dt1Panel.setCollapsed(false);
-        final DT1 dt1 = DT1.loadFromFile(handle);
-        dt1Info.setDT1(dt1);
-        dt1.prepareTextures();
-        renderer.setDrawable(new DelegatingDrawable<TextureRegionDrawable>() {
+        DT1 tmp;
+        try {
+          tmp = new DT1Reader()
+              .readDt1(
+                  handle.fileName,
+                  ByteInput.wrap(handle.readBytes()));
+        } catch (SignatureMismatch t) {
+          Gdx.app.error(TAG, ExceptionUtils.getRootCauseMessage(t), t);
+          tmp = null;
+        }
+        final DT1 dt1 = tmp;
+        if (dt1 != null) {
+          dt1.prepareTextures();
+          dt1Info.setDT1(dt1);
+        }
+        renderer.setDrawable(dt1 == null ? null : new DelegatingDrawable<Drawable>() {
+          int id; // tile index
+
           {
             slDirection.setValue(0); // TODO: Disable control -- doesn't do anything
             slDirection.setRange(0, 0);
-            lbDirection.setText((int) slDirection.getMinValue() + " / " + (int) slDirection.getMaxValue());
+            slDirection.fire(new ChangeEvent());
             daDirection.setDirections(0);
 
-            slFrameIndex.setValue(0);
-            slFrameIndex.setRange(0, dt1.getNumTiles() - 1);
-            lbFrameIndex.setText((int) slFrameIndex.getMinValue() + " / " + (int) slFrameIndex.getMaxValue());
-
-            TextureRegionDrawable drawable = new TextureRegionDrawable();
-            drawable.setRegion(dt1.getTexture(0));
-            setDelegate(drawable);
+            slFrameIndex.setValue(id = 0);
+            slFrameIndex.setRange(0, dt1.numTiles() - 1);
+            slFrameIndex.fire(new ChangeEvent());
 
             String palette = paletteList.getSelected();
             Riiablo.batch.setPalette(palettes.get(palette));
-            Gdx.app.debug(TAG, "palette set to " + palette);
+
+            updateInfo();
           }
 
           @Override
@@ -1555,39 +1569,20 @@ public class MPQViewer {
           protected void clicked(InputEvent event, float x, float y) {
             Actor actor = event.getListenerActor();
             if (actor == btnFirstFrame) {
-              int id = 0;
-              delegate.setRegion(dt1.getTexture(id));
-              slFrameIndex.setValue(id);
+              slFrameIndex.setValue(id = 0);
             } else if (actor == btnLastFrame) {
-              int id = dt1.getNumTiles() - 1;
-              delegate.setRegion(dt1.getTexture(id));
-              slFrameIndex.setValue(id);
+              slFrameIndex.setValue(id = dt1.numTiles() - 1);
             } else if (actor == btnPrevFrame) {
-              int id = (int) slFrameIndex.getValue();
-              if (id > 0) {
-                id -= 1;
-                delegate.setRegion(dt1.getTexture(id));
-                slFrameIndex.setValue(id);
-              }
+              if (id > 0) slFrameIndex.setValue(--id);
             } else if (actor == btnNextFrame) {
-              int id = (int) slFrameIndex.getValue();
-              if (id < dt1.getNumTiles() - 1) {
-                id += 1;
-                delegate.setRegion(dt1.getTexture(id));
-                slFrameIndex.setValue(id);
-              }
+              if (id < dt1.numTiles() - 1) slFrameIndex.setValue(++id);
             }
           }
 
           @Override
           protected void changed(ChangeEvent event, Actor actor) {
-            if (delegate == null) {
-              return;
-            }
-
             if (actor == slFrameIndex) {
-              int id = (int) slFrameIndex.getValue();
-              delegate.setRegion(dt1.getTexture(id));
+              id = (int) slFrameIndex.getValue();
               slFrameIndex.setValue(id);
               updateInfo();
             }  else if (actor == paletteList) {
@@ -1598,7 +1593,6 @@ public class MPQViewer {
           }
 
           void updateInfo() {
-            int id = (int) slFrameIndex.getValue();
             dt1Info.update(id);
           }
 
@@ -1609,9 +1603,16 @@ public class MPQViewer {
 
             b.setTransformMatrix(batch.getTransformMatrix());
             b.begin();
-            TextureRegion region = delegate.getRegion();
-            b.draw(region, x - (region.getRegionWidth() / 2), y - (region.getRegionHeight() / 2));
+            dt1.tile(id).draw(b, x - DT1.Tile.WIDTH50, y - DT1.Tile.SUBTILE_HEIGHT);
             b.end();
+
+            shapes.setTransformMatrix(batch.getTransformMatrix());
+            if (cbDebugMode.isChecked()) {
+              shapes.begin(ShapeRenderer.ShapeType.Line);
+              shapes.setAutoShapeType(true);
+              dt1.tile(id).drawDebug(shapes, x - DT1.Tile.WIDTH50, y - DT1.Tile.SUBTILE_HEIGHT);
+              shapes.end();
+            }
 
             batch.begin();
           }
@@ -1769,12 +1770,12 @@ public class MPQViewer {
 
             slDirection.setValue(0);
             slDirection.setRange(0, cof.getNumDirections() - 1);
-            lbDirection.setText((int) slDirection.getMinValue() + " / " + (int) slDirection.getMaxValue());
+            slDirection.fire(new ChangeEvent());
             daDirection.setDirections(cof.getNumDirections());
 
             slFrameIndex.setValue(0);
             slFrameIndex.setRange(0, cof.getNumFramesPerDir() - 1);
-            lbFrameIndex.setText((int) slFrameIndex.getMinValue() + " / " + (int) slFrameIndex.getMaxValue());
+            slFrameIndex.fire(new ChangeEvent());
 
             String palette = paletteList.getSelected();
             Riiablo.batch.setPalette(palettes.get(palette));

@@ -3,6 +3,11 @@ package com.riiablo.util;
 public class ArrayUtils {
   private ArrayUtils() {}
 
+  public static boolean allZeroes(byte[] array) {
+    for (byte b : array) if (b != 0) return false;
+    return true;
+  }
+
   public static int firstPositive(int[] array) {
     for (int i : array) if (i > 0) return i;
     return 0;
