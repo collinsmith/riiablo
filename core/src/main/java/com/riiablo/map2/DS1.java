@@ -114,7 +114,7 @@ public class DS1 {
           .append("type", Type.toString(type))
           .append("id", id)
           .append("position", position)
-          .append("flags", String.format("%08x", flags))
+          .append("flags", String.format("0x%08x", flags))
           .toString();
     }
   }

@@ -91,8 +91,11 @@ import com.riiablo.codec.Palette;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.SignatureMismatch;
+import com.riiablo.map2.DS1;
+import com.riiablo.map2.DS1Reader;
 import com.riiablo.map2.DT1;
 import com.riiablo.map2.DT1Reader;
+import com.riiablo.map2.Ds1Info;
 import com.riiablo.map2.Dt1Info;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
 import com.riiablo.mpq.widget.DirectionActor;
@@ -230,6 +233,9 @@ public class MPQViewer {
 
     CollapsibleVisTable   dt1Panel;
     Dt1Info               dt1Info;
+
+    CollapsibleVisTable   ds1Panel;
+    Ds1Info               ds1Info;
 
     PaletteIndexedBatch batch;
     ShaderProgram       shader;
@@ -600,6 +606,14 @@ public class MPQViewer {
             }
           });
         }}).row();
+        add(new VisTextButton("8") {{
+          addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              ds1Panel.setCollapsed(!ds1Panel.isCollapsed());
+            }
+          });
+        }}).row();
       }}).align(Align.top).space(4);
       optionsPanel.add(imageControlsPanel = new CollapsibleVisTable() {{
         add(imageControls = new TabbedPane() {{
@@ -887,6 +901,11 @@ public class MPQViewer {
         add(dt1Info = new Dt1Info()).row();
         add().growY();
       }}).growY().space(4);
+      optionsPanel.add(ds1Panel = new CollapsibleVisTable() {{
+        add("DS1:").align(Align.left).row();
+        add(ds1Info = new Ds1Info()).row();
+        add().growY();
+      }}).growY().space(4);
 
       optionsSubpanels = new Array<>();
       optionsSubpanels.add(imageControlsPanel);
@@ -896,6 +915,7 @@ public class MPQViewer {
       optionsSubpanels.add(dccPanel);
       optionsSubpanels.add(dc6Panel);
       optionsSubpanels.add(dt1Panel);
+      optionsSubpanels.add(ds1Panel);
       for (CollapsibleVisTable o : optionsSubpanels) {
         o.setCollapsed(true);
       }
@@ -1618,6 +1638,15 @@ public class MPQViewer {
           }
         });
       } else if (extension.equals("ds1")) {
+        imageControlsPanel.setCollapsed(false);
+        palettePanel.setCollapsed(false);
+        ds1Panel.setCollapsed(false);
+        final DS1 ds1 = new DS1Reader()
+            .readDs1(
+                handle.fileName,
+                ByteInput.wrap(handle.readBytes()));
+        ds1Info.setDS1(ds1);
+        renderer.setDrawable(null);
       } else if (extension.equals("wav")) {
         audioPanel.setCollapsed(false);
         final Music sound = Gdx.audio.newMusic(handle);
