@@ -43,7 +43,7 @@ public class DT1Reader {
       if (DT1.loadData) {
         for (int i = 0, s = dt1.numTiles; i < s; i++) {
           Tile tile = dt1.tiles[i];
-          tile.pixmap = tileRenderer.render2(tile);
+          tile.pixmap = tileRenderer.createPixmap(tile);
         }
       }
       return dt1;
