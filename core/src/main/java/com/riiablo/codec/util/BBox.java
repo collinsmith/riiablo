@@ -63,6 +63,21 @@ public class BBox implements Pool.Poolable {
     return this;
   }
 
+  public BBox asBox(int x, int y, int width, int height) {
+    this.xMin = x;
+    this.yMin = y;
+    this.width = width;
+    this.height = height;
+    this.xMax = x + width;
+    this.yMax = y + height;
+    return this;
+  }
+
+  public final boolean contains(int x, int y) {
+    return xMin <= x && x < xMax
+        && yMin <= y && y < yMax;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
