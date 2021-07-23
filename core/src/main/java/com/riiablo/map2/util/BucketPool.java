@@ -23,7 +23,7 @@ public class BucketPool<E> {
     Arrays.sort(lengths, offset, offset + length);
     pools = new Array<>(ArrayPool.class);
     for (int i = offset, s = i + length; i < s; i++) {
-      pools.add(ArrayPool.get(clazz, lengths[i]));
+      pools.add(ArrayPool.get(clazz, lengths[i], 16, Integer.MAX_VALUE));
     }
   }
 

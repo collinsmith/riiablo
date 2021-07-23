@@ -11,10 +11,10 @@ public class ArrayPool<E> extends Pool<E> {
   }
 
   public static <E> ArrayPool<E> get(Class<E> clazz, int length) {
-    return new ArrayPool<>(clazz, length, 16, 16);
+    return get(clazz, length, 16, 16);
   }
 
-  public static <E> Pool<E> get(
+  public static <E> ArrayPool<E> get(
       Class<E> clazz,
       int length,
       int initialCapacity,
