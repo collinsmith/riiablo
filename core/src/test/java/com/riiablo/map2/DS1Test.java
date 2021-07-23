@@ -95,4 +95,10 @@ public class DS1Test extends RiiabloTest {
   public void townN1() {
     DS1 ds1 = testDs1(Gdx.files.internal("test/townN1.ds1"));
   }
+
+  @Test
+  @DisplayName("data\\global\\tiles\\ACT1\\OUTDOORS\\pud.ds1")
+  public void pud() {
+    DS1 ds1 = testDs1(Gdx.files.internal("test/pud.ds1"));
+  }
 }
