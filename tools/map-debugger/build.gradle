@@ -1,0 +1,2 @@
+description = 'Debugs map generation.'
+application.mainClass = 'com.riiablo.MapDebugger'

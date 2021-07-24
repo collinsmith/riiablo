@@ -30,5 +30,6 @@ include 'tools:direction'
 include 'tools:ds1-viewer' // deprecated
 include 'tools:video-player'
 include 'tools:excel-serializer-generator'
+include 'tools:map-debugger'
 
 include 'tester' // deprecated
