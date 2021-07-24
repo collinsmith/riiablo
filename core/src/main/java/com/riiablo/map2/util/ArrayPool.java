@@ -1,6 +1,7 @@
 package com.riiablo.map2.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.badlogic.gdx.utils.Pool;
@@ -21,6 +22,11 @@ public class ArrayPool<E> extends Pool<E> {
       int maxCapacity
   ) {
     return new ArrayPool<>(clazz, length, initialCapacity, maxCapacity);
+  }
+
+  @Override
+  protected void reset(E object) {
+    if (object instanceof Object[]) Arrays.fill((Object[]) object, null);
   }
 
   final Class<E> clazz;
