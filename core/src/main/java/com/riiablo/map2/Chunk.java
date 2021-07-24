@@ -11,6 +11,8 @@ import com.riiablo.codec.util.BBox;
 import com.riiablo.map2.DT1.Tile;
 import com.riiablo.map2.util.BucketPool;
 
+import static com.riiablo.map2.DT1.Tile.SUBTILE_SIZE;
+
 /** acts as a dt1 Tile cache chunk of zone */
 public class Chunk extends BBox implements Poolable, Disposable {
   static final Pool<Chunk> pool = Pools.get(Chunk.class);
@@ -18,7 +20,7 @@ public class Chunk extends BBox implements Poolable, Disposable {
   public static Chunk obtain(int x, int y, int width, int height) {
     Chunk chunk = pool.obtain();
     chunk.asBox(x, y, width, height);
-    // chunk.tiles = tilePools.obtain(chunk.width * chunk.height);
+    chunk.tiles = tilePools.obtain(width * height / SUBTILE_SIZE);
     return chunk;
   }
 
