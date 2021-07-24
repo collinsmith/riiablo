@@ -86,6 +86,9 @@ public final class Zone extends BBox implements Poolable, Disposable {
       case CHUNK:
         drawDebugChunk(pixmap, x, y);
         break;
+      case PREFAB:
+        drawDebugPrefab(pixmap, x, y);
+        break;
       case TILE:
         drawDebugTile(pixmap, x, y);
         break;
@@ -98,6 +101,10 @@ public final class Zone extends BBox implements Poolable, Disposable {
 
   void drawDebugChunk(Pixmap pixmap, int x, int y) {
     for (Chunk chunk : chunks) chunk.drawDebug(pixmap, x, y);
+  }
+
+  void drawDebugPrefab(Pixmap pixmap, int x, int y) {
+    // TODO: implement
   }
 
   void drawDebugTile(Pixmap pixmap, int x, int y) {
