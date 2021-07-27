@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
+import com.badlogic.gdx.math.Vector3;
 import com.riiablo.camera.OrthographicCamera;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
@@ -62,7 +63,7 @@ public class MapDebugger extends Tool {
         camera.unproject(end);
 
         tmp.set(start).sub(end);
-        camera.position.add(tmp.x, tmp.y, 0f);
+        camera.translate(tmp);
         camera.update();
         return true;
       }
@@ -121,7 +122,10 @@ public class MapDebugger extends Tool {
 
   @Override
   public void resize(int width, int height) {
+    Vector3 tmp = camera.position.cpy();
     camera.setToOrtho(false, width, height);
+    camera.position.set(tmp);
+    camera.update();
   }
 
   @Override
