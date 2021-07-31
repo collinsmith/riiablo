@@ -8,7 +8,7 @@ import com.riiablo.map2.util.ZoneGraph;
 import static com.riiablo.map2.DT1.Tile.SUBTILE_SIZE;
 
 public class MapGenerator {
-  TileGenerator tileGenerator = new TileGenerator();
+  public TileGenerator tileGenerator = new TileGenerator();
   final Random random = new Random();
 
   public void generate(DS1 ds1) {
@@ -23,6 +23,7 @@ public class MapGenerator {
         ds1.height);
     Chunk chunk = zone.get(0, 0);
     copyPrefab(chunk, ds1);
+    zone.prefab(ds1.fileName, 0, 0, 0, ds1.width, ds1.height);
   }
 
   public void generate(Seed seed, int diff) {
@@ -30,14 +31,24 @@ public class MapGenerator {
   }
 
   void copyPrefab(Chunk chunk, DS1 ds1) {
-    if (ds1.width != chunk.width) throw new IllegalArgumentException("ds1 width != chunk width");
-    if (ds1.height != chunk.height) throw new IllegalArgumentException("ds1 height != chunk height");
+    if (ds1.width != chunk.width / SUBTILE_SIZE) throw new IllegalArgumentException("ds1 width(" + ds1.width + ") != chunk width(" + chunk.width + ")");
+    if (ds1.height != chunk.height / SUBTILE_SIZE) throw new IllegalArgumentException("ds1 height(" + ds1.height + ") != chunk height(" + chunk.height + ")");
     int[] cells = ds1.floors;
     Tile[] tiles = chunk.tiles;
     for (int i = 0, s = ds1.floorLen; i < s; i++) {
       int cell = cells[i];
       tiles[i] = tileGenerator.next(
           Orientation.FLOOR,
+          DS1.Cell.mainIndex(cell),
+          DS1.Cell.subIndex(cell));
+    }
+
+    cells = ds1.walls;
+    int[] orientations = ds1.orientations;
+    for (int i = 0, s = ds1.wallLen; i < s; i++) {
+      int cell = cells[i];
+      tiles[i] = tileGenerator.next(
+          orientations[i],
           DS1.Cell.mainIndex(cell),
           DS1.Cell.subIndex(cell));
     }

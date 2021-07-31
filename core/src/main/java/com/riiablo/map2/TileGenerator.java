@@ -8,8 +8,8 @@ import com.riiablo.map2.DT1.Tile;
 import com.riiablo.map2.random.Random;
 
 public class TileGenerator {
-  ObjectSet<DT1> dt1s;
-  IntMap<Entry> entries;
+  final ObjectSet<DT1> dt1s = new ObjectSet<>();
+  final IntMap<Entry> entries = new IntMap<>();
 
   final Random random = new Random();
 

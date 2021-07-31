@@ -12,10 +12,13 @@ import com.riiablo.codec.util.BBox;
 import com.riiablo.map2.util.DebugMode;
 
 import static com.riiablo.map2.DT1.Tile.SUBTILE_SIZE;
+import static com.riiablo.map2.util.DebugMode.CHUNK;
+import static com.riiablo.map2.util.DebugMode.SUBTILE;
 
 public final class Zone extends BBox implements Poolable, Disposable {
   public static final Pool<Zone> pool = Pools.get(Zone.class, 16);
   static final Pool<Chunk> chunkPool = Chunk.pool;
+  static final Pool<Prefab> prefabPool = Prefab.pool;
 
   public static Zone obtain(int x, int y, int width, int height, int chunkWidth, int chunkHeight) {
     assert (width / SUBTILE_SIZE) % chunkWidth == 0
@@ -62,6 +65,8 @@ public final class Zone extends BBox implements Poolable, Disposable {
   @Override
   public void reset() {
     chunkPool.freeAll(chunks);
+    chunks.clear();
+    prefabs.clear();
   }
 
   @Override
@@ -74,12 +79,21 @@ public final class Zone extends BBox implements Poolable, Disposable {
   public int chunksX;
   public int chunksY;
   public final Array<Chunk> chunks = new Array<>(256); // TODO: ChunkGrid?
+  public final Array<Prefab> prefabs = new Array<>();
 
   public Chunk get(int x, int y) {
     return chunks.get(y * chunkWidth + x);
   }
 
   int color = MathUtils.random.nextInt() | 0xff;
+
+  public Prefab prefab(String name, int group, int x, int y, int width, int height) {
+    Prefab prefab = prefabPool.obtain();
+    prefab.asBox(x, y, width, height);
+    prefab.name = name;
+    prefab.group = group;
+    return prefab;
+  }
 
   public void drawDebug(DebugMode mode, Pixmap pixmap, int x, int y) {
     switch (mode) {
@@ -100,7 +114,7 @@ public final class Zone extends BBox implements Poolable, Disposable {
   }
 
   void drawDebugChunk(Pixmap pixmap, int x, int y) {
-    for (Chunk chunk : chunks) chunk.drawDebug(pixmap, x, y);
+    for (Chunk chunk : chunks) chunk.drawDebug(CHUNK, pixmap, x, y);
   }
 
   void drawDebugPrefab(Pixmap pixmap, int x, int y) {
@@ -117,6 +131,7 @@ public final class Zone extends BBox implements Poolable, Disposable {
   }
 
   void drawDebugSubtile(Pixmap pixmap, int x, int y) {
+    for (Chunk chunk : chunks) chunk.drawDebug(SUBTILE, pixmap, x, y);
     pixmap.setColor(color);
     pixmap.drawRectangle(x + xMin, y + yMin, width, height);
   }

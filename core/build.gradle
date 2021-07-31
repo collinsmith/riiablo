@@ -26,6 +26,11 @@ idea.module.generatedSourceDirs += vcsGeneratedSourceDir
 
 project.ext.flatbuffersSourceDirs = file('src/main/flatbuffers/')
 
+// Java
+dependencies {
+  implementation 'javax.annotation:javax.annotation-api:1.3.2'
+}
+
 // LibGDX
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
