@@ -1,5 +1,7 @@
 package com.riiablo.map2;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Disposable;
@@ -49,7 +51,7 @@ public class Chunk extends BBox implements Poolable, Disposable {
     chunk.asBox(x, y, width, height);
     chunk.layers = 0;
     chunk.numTiles = width * height / SUBTILE_SIZE;
-    chunk.flags = bytePools.obtain(chunk.numTiles);
+    chunk.flags = bytePools.obtain(width * height);
     return chunk;
   }
 
@@ -58,10 +60,11 @@ public class Chunk extends BBox implements Poolable, Disposable {
     layers = 0;
     numTiles = 0;
     for (int i = 0, s = tiles.length; i < s; i++) {
-      if (tiles[i] != null) {
-        tilePools.free(tiles[i]);
-        tiles[i] = null;
-      }
+      Tile[] tiles = this.tiles[i];
+      if (tiles == null) continue;
+      tilePools.free(tiles);
+      Arrays.fill(tiles, 0, numTiles, null);
+      this.tiles[i] = null;
     }
     bytePools.free(flags);
     flags = null;
@@ -110,16 +113,23 @@ public class Chunk extends BBox implements Poolable, Disposable {
   }
 
   void drawDebugSubtiles(Pixmap pixmap, int x, int y) {
-    int chunkWidth = width / SUBTILE_SIZE;
-    Tile[] tiles = this.tiles[4];
-    if (tiles == null) return; // TODO: remove when above is corrected
-    for (int i = 0, s = numTiles; i < s; i++) {
-      Tile tile = tiles[i];
-      if (tile == null) continue;
-      drawDebugSubtile(tile, pixmap,
-          x + (i % chunkWidth) * SUBTILE_SIZE,
-          y + (i / chunkWidth) * SUBTILE_SIZE);
+    for (int i = 0, s = width * height; i < s; i++) {
+      if (flags[i] == 0) continue;
+      pixmap.drawPixel(
+          x + (i % width),
+          y + (i / width));
     }
+
+    // int chunkWidth = width / SUBTILE_SIZE;
+    // Tile[] tiles = this.tiles[4];
+    // if (tiles == null) return; // TODO: remove when above is corrected
+    // for (int i = 0, s = numTiles; i < s; i++) {
+    //   Tile tile = tiles[i];
+    //   if (tile == null) continue;
+    //   drawDebugSubtile(tile, pixmap,
+    //       x + (i % chunkWidth) * SUBTILE_SIZE,
+    //       y + (i / chunkWidth) * SUBTILE_SIZE);
+    // }
   }
 
   void drawDebugSubtile(Tile tile, Pixmap pixmap, int x, int y) {
