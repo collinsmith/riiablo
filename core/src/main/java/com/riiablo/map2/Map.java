@@ -1,11 +1,12 @@
 package com.riiablo.map2;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 
 import com.riiablo.map2.util.ZoneGraph;
 
-public class Map {
+public class Map implements Disposable {
   /**
    * LevelType.Id -> TileGenerator
    * I.e., procedurally generates a random tile using its specifier
@@ -14,6 +15,15 @@ public class Map {
 
   final ZoneGraph zones = new ZoneGraph();
   final Array<Chunk> chunks = new Array<>();
+
+  @Override
+  public void dispose() {
+    zones.dispose();
+  }
+
+  public ZoneGraph zones() {
+    return zones;
+  }
 
   void addZone(int x, int y, int width, int height) {
     // Zone zone = zones.claim(x, y, width, height);

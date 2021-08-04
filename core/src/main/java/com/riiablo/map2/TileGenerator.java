@@ -55,7 +55,7 @@ public class TileGenerator {
 
   static final class Entry {
     int probability;
-    final Array<Tile> tiles = new Array<>(4);
+    final Array<Tile> tiles = new Array<>(true, 4, Tile.class);
 
     void add(Tile tile) {
       tiles.add(tile);

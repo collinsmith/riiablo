@@ -45,8 +45,8 @@ public class ZoneGraph implements Disposable {
     }
   }
 
-  public Zone claim(int x, int y, int width, int height, int chunkWidth, int chunkHeight) {
-    Zone element = Zone.obtain(x, y, width, height, chunkWidth, chunkHeight);
+  public Zone claim(String name, int x, int y, int width, int height, int chunkWidth, int chunkHeight) {
+    Zone element = Zone.obtain(name, x, y, width, height, chunkWidth, chunkHeight);
     Node n = Node.wrap(element);
     nodes.add(n);
     mode = UNSET;
@@ -73,7 +73,7 @@ public class ZoneGraph implements Disposable {
     if (nodes.isEmpty()) return;
     Texture texture = prepareTexture(mode);
     if (texture == null) return;
-    batch.draw(texture, box.xMin, box.yMin);
+    batch.draw(texture, box.xMin, -box.yMax);
   }
 
   Texture prepareTexture(DebugMode mode) {

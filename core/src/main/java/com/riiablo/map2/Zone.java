@@ -20,21 +20,30 @@ public final class Zone extends BBox implements Poolable, Disposable {
   static final Pool<Chunk> chunkPool = Chunk.pool;
   static final Pool<Prefab> prefabPool = Prefab.pool;
 
-  public static Zone obtain(int x, int y, int width, int height, int chunkWidth, int chunkHeight) {
+  public String name;
+  public int chunkWidth;
+  public int chunkHeight;
+  public int xChunks;
+  public int yChunks;
+  public final Array<Chunk> chunks = new Array<>(256); // TODO: ChunkGrid?
+  public final Array<Prefab> prefabs = new Array<>();
+
+  public static Zone obtain(String name, int x, int y, int width, int height, int chunkWidth, int chunkHeight) {
     assert (width / SUBTILE_SIZE) % chunkWidth == 0
         : "width(" + width + ") / SUBTILE_SIZE(" + SUBTILE_SIZE + ") is not evenly divisible by chunkWidth(" + chunkWidth + ")";
     assert (height / SUBTILE_SIZE) % chunkHeight == 0
         : "height(" + height + ") / SUBTILE_SIZE(" + SUBTILE_SIZE + ") is not evenly divisible by chunkHeight(" + chunkHeight + ")";
     Zone zone = pool.obtain();
     zone.asBox(x, y, width, height);
-    zone.chunksX = width / SUBTILE_SIZE / chunkWidth;
-    zone.chunksY = height / SUBTILE_SIZE / chunkHeight;
+    zone.name = name;
+    zone.xChunks = width / SUBTILE_SIZE / chunkWidth;
+    zone.yChunks = height / SUBTILE_SIZE / chunkHeight;
     zone.chunkWidth = chunkWidth;
     zone.chunkHeight = chunkHeight;
     obtainChunks(
         zone.xMin, zone.yMin,
         zone.chunks,
-        zone.chunksX, zone.chunksY,
+        zone.xChunks, zone.yChunks,
         zone.chunkWidth * SUBTILE_SIZE, zone.chunkHeight * SUBTILE_SIZE);
     return zone;
   }
@@ -66,6 +75,7 @@ public final class Zone extends BBox implements Poolable, Disposable {
   public void reset() {
     chunkPool.freeAll(chunks);
     chunks.clear();
+    prefabPool.freeAll(prefabs);
     prefabs.clear();
   }
 
@@ -74,15 +84,12 @@ public final class Zone extends BBox implements Poolable, Disposable {
     pool.free(this);
   }
 
-  public int chunkHeight;
-  public int chunkWidth;
-  public int chunksX;
-  public int chunksY;
-  public final Array<Chunk> chunks = new Array<>(256); // TODO: ChunkGrid?
-  public final Array<Prefab> prefabs = new Array<>();
-
   public Chunk get(int x, int y) {
     return chunks.get(y * chunkWidth + x);
+  }
+
+  public Chunk init(int x, int y, int layers) {
+    return get(x, y).init(layers);
   }
 
   int color = MathUtils.random.nextInt() | 0xff;
@@ -92,6 +99,7 @@ public final class Zone extends BBox implements Poolable, Disposable {
     prefab.asBox(x, y, width, height);
     prefab.name = name;
     prefab.group = group;
+    prefabs.add(prefab);
     return prefab;
   }
 
@@ -118,7 +126,7 @@ public final class Zone extends BBox implements Poolable, Disposable {
   }
 
   void drawDebugPrefab(Pixmap pixmap, int x, int y) {
-    // TODO: implement
+    for (Prefab prefab : prefabs) prefab.drawDebug(pixmap, x, y);
   }
 
   void drawDebugTile(Pixmap pixmap, int x, int y) {

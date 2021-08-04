@@ -13,6 +13,7 @@ public class DS1 {
   static final int MAX_FLOORS = 2;
   static final int MAX_SHADOWS = 1;
   static final int MAX_TAGS = 1;
+  static final int MAX_LAYERS = MAX_WALLS + MAX_FLOORS + MAX_SHADOWS + MAX_TAGS;
 
   String fileName;
 
@@ -30,6 +31,7 @@ public class DS1 {
   int numFloors;
   int numTags;
   int numShadows;
+  int layers;
 
   int wallRun, wallLen;
   int[] walls;

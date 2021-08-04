@@ -38,12 +38,12 @@ import static com.riiablo.map2.Orientation.UNKNOWN_20;
 public class DS1Reader {
   private static final Logger log = LogManager.getLogger(DS1Reader.class);
 
-  static final int WALL_OFFSET = 0;
-  static final int ORIENTATION_OFFSET = WALL_OFFSET + DS1.MAX_WALLS;
-  static final int FLOOR_OFFSET = ORIENTATION_OFFSET + DS1.MAX_WALLS;
-  static final int SHADOW_OFFSET = FLOOR_OFFSET + DS1.MAX_FLOORS;
-  static final int TAG_OFFSET = SHADOW_OFFSET + DS1.MAX_SHADOWS;
-  static final int MAX_LAYERS = TAG_OFFSET + DS1.MAX_TAGS;
+  private static final int WALL_OFFSET = 0;
+  private static final int ORIENTATION_OFFSET = WALL_OFFSET + DS1.MAX_WALLS;
+  private static final int FLOOR_OFFSET = ORIENTATION_OFFSET + DS1.MAX_WALLS;
+  private static final int SHADOW_OFFSET = FLOOR_OFFSET + DS1.MAX_FLOORS;
+  private static final int TAG_OFFSET = SHADOW_OFFSET + DS1.MAX_SHADOWS;
+  private static final int MAX_LAYERS = TAG_OFFSET + DS1.MAX_TAGS;
 
   static final int WALL_LAYER_0 = 0;
   static final int WALL_LAYER_1 = 1;
@@ -157,17 +157,24 @@ public class DS1Reader {
     if (version < 4) {
       ds1.numWalls = 1;
       ds1.numFloors = 1;
-      ds1.numTags = 1;
       ds1.numShadows = 1;
+      ds1.numTags = 1;
     } else {
       ds1.numWalls = in.readSafe32u();
       ds1.numFloors = version < 16 ? 1 : in.readSafe32u();
-      ds1.numTags = version >= 10 && (ds1.tagType == 1 || ds1.tagType == 2) ? 1 : 0;
       ds1.numShadows = 1;
+      ds1.numTags = version >= 10 && (ds1.tagType == 1 || ds1.tagType == 2) ? 1 : 0;
     }
 
     log.trace("layers: {} walls (+{} orients) + {} floors + {} shadows + {} tags",
         ds1.numWalls, ds1.numWalls, ds1.numFloors, ds1.numShadows, ds1.numTags);
+
+    ds1.layers |= ((1 << ds1.numWalls) - 1);
+    ds1.layers |= ((1 << ds1.numFloors) - 1) << (DS1.MAX_WALLS);
+    ds1.layers |= ((1 << ds1.numShadows) - 1) << (DS1.MAX_WALLS + DS1.MAX_FLOORS);
+    ds1.layers |= ((1 << ds1.numTags) - 1) << (DS1.MAX_WALLS + DS1.MAX_FLOORS + DS1.MAX_SHADOWS);
+
+    log.tracef("layer flags: %08x", ds1.layers);
 
     ds1.specialTiles = new IntMap<>(8);
 
