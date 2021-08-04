@@ -30,15 +30,26 @@ public class Chunk extends BBox implements Poolable, Disposable {
       .add(64 * 64)
       .build();
 
+  static final BucketPool<byte[]> bytePools = BucketPool
+      .builder(byte[].class)
+      .add(8 * 8)
+      .add(16 * 16)
+      .add(24 * 24)
+      .add(32 * 32)
+      .add(64 * 64)
+      .build();
+
   public int layers;
   public int numTiles;
   public final Tile[][] tiles = new Tile[MAX_LAYERS][];
+  public byte[] flags;
 
   public static Chunk obtain(int x, int y, int width, int height) {
     Chunk chunk = pool.obtain();
     chunk.asBox(x, y, width, height);
     chunk.layers = 0;
     chunk.numTiles = width * height / SUBTILE_SIZE;
+    chunk.flags = bytePools.obtain(chunk.numTiles);
     return chunk;
   }
 
@@ -52,6 +63,8 @@ public class Chunk extends BBox implements Poolable, Disposable {
         tiles[i] = null;
       }
     }
+    bytePools.free(flags);
+    flags = null;
   }
 
   @Override
