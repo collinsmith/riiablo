@@ -25,7 +25,7 @@ public final class Zone extends BBox implements Poolable, Disposable {
   public int chunkHeight;
   public int xChunks;
   public int yChunks;
-  public final Array<Chunk> chunks = new Array<>(256); // TODO: ChunkGrid?
+  public final Array<Chunk> chunks = new Array<>(256);
   public final Array<Prefab> prefabs = new Array<>();
 
   public static Zone obtain(String name, int x, int y, int width, int height, int chunkWidth, int chunkHeight) {
