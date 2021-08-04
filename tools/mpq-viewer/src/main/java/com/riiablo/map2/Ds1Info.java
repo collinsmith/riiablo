@@ -103,9 +103,9 @@ public class Ds1Info extends VisTable {
   String generateObjectsDump() {
     StringBuilder builder = new StringBuilder(1024);
     for (int i = 0, s = ds1.numObjects; i < s; i++) {
-      DS1.Object object = ds1.objects[i];
+      DS1.Ds1Object object = ds1.objects[i];
       builder.append('[').append(i).append(']').append('\n');
-      builder.append("type: ").append(DS1.Object.Type.toString(object.type)).append('\n');
+      builder.append("type: ").append(DS1.Ds1Object.Type.toString(object.type)).append('\n');
       builder.append("id: ").append(object.id).append('\n');
       builder.append("position: ").append(object.position).append('\n');
       builder.append("flags: ").append(String.format("0x%08x", object.flags)).append('\n');
