@@ -21,6 +21,15 @@ import static com.riiablo.map2.DT1.Tile.SUBTILE_SIZE;
 public class Chunk extends BBox implements Poolable, Disposable {
   static final Pool<Chunk> pool = Pools.get(Chunk.class);
 
+  static final BucketPool<Tile[]> tilePools = BucketPool
+      .builder(Tile[].class)
+      .add(8 * 8)
+      .add(16 * 16)
+      .add(24 * 24)
+      .add(32 * 32)
+      .add(64 * 64)
+      .build();
+
   public int layers;
   public int numTiles;
   public final Tile[][] tiles = new Tile[MAX_LAYERS][];
@@ -49,15 +58,6 @@ public class Chunk extends BBox implements Poolable, Disposable {
   public void dispose() {
     pool.free(this);
   }
-
-  static final BucketPool<Tile[]> tilePools = BucketPool
-      .builder(Tile[].class)
-      .add(8 * 8)
-      .add(16 * 16)
-      .add(24 * 24)
-      .add(32 * 32)
-      .add(64 * 64)
-      .build();
 
   Chunk init(int layers) {
     if (this.layers != 0) throw new IllegalStateException("chunk already initialized");
