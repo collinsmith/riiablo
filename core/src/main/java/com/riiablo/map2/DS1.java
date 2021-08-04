@@ -47,7 +47,7 @@ public class DS1 {
   int[] tags;
 
   int numObjects;
-  Object[] objects;
+  Ds1Object[] objects;
 
   int numGroups;
   Group[] groups;
@@ -88,8 +88,8 @@ public class DS1 {
     }
   }
 
-  static final class Object {
-    static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+  static final class Ds1Object {
+    static final Ds1Object[] EMPTY_OBJECT_ARRAY = new Ds1Object[0];
 
     public static final class Type {
       public static final int DYNAMIC = 1;

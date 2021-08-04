@@ -358,7 +358,7 @@ public class DS1Reader {
 
   void readObjects(ByteInput in, DS1 ds1) {
     ds1.numObjects = ds1.version < 2 ? 0 : in.readSafe32u();
-    ds1.objects = ds1.numObjects == 0 ? DS1.Object.EMPTY_OBJECT_ARRAY : new DS1.Object[ds1.numObjects];
+    ds1.objects = ds1.numObjects == 0 ? DS1.Ds1Object.EMPTY_OBJECT_ARRAY : new DS1.Ds1Object[ds1.numObjects];
     Rectangle ds1Bounds = ds1.numObjects <= 0 ? null : new Rectangle(
         0f,
         0f,
@@ -367,7 +367,7 @@ public class DS1Reader {
     for (int i = 0, s = ds1.numObjects; i < s; i++) {
       try {
         MDC.put("object", i);
-        DS1.Object object = ds1.objects[i] = readObject(in, ds1, ds1Bounds);
+        DS1.Ds1Object object = ds1.objects[i] = readObject(in, ds1, ds1Bounds);
         if (!object.valid) {
           log.warn("object outside of DS1 bounds: {} (bounds: {})", object, ds1Bounds);
         }
@@ -377,10 +377,10 @@ public class DS1Reader {
     }
   }
 
-  DS1.Object readObject(ByteInput in, DS1 ds1, Rectangle ds1Bounds) {
-    DS1.Object object = new DS1.Object();
+  DS1.Ds1Object readObject(ByteInput in, DS1 ds1, Rectangle ds1Bounds) {
+    DS1.Ds1Object object = new DS1.Ds1Object();
     object.type = in.readSafe32u();
-    log.trace("object.type: {}", DS1.Object.Type.toString(object.type));
+    log.trace("object.type: {}", DS1.Ds1Object.Type.toString(object.type));
     object.id = in.readSafe32u();
     log.trace("object.id: {}", object.id);
     object.position = new Vector2(in.readSafe32u(), in.readSafe32u());
