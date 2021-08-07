@@ -43,7 +43,7 @@ public class BucketPool<E> {
       return pool.obtain();
     } catch (NoSuchElementException t) {
       E instance = ArrayPool.create(clazz, length);
-      log.debugf("obtain custom-sized array instance: 0x%h %s length %d",
+      log.debugf("obtain custom-sized array instance: 0x%h %s.length=%d",
           System.identityHashCode(instance),
           clazz.getSimpleName(),
           length);
@@ -58,7 +58,7 @@ public class BucketPool<E> {
       Pool<E> pool = get(length);
       pool.free(o);
     } catch (NoSuchElementException t) {
-      log.debugf("free custom-sized array instance: 0x%h %s length %d",
+      log.debugf("free custom-sized array instance: 0x%h %s.length=%d",
           System.identityHashCode(o),
           clazz.getSimpleName(),
           length);
@@ -88,6 +88,14 @@ public class BucketPool<E> {
 
     public Builder<E> add(int length) {
       lengths.add(length);
+      return this;
+    }
+
+    public Builder<E> scl(int factor) {
+      int[] arr = lengths.items;
+      for (int i = 0, s = lengths.size; i < s; i++) {
+        arr[i] *= factor;
+      }
       return this;
     }
 

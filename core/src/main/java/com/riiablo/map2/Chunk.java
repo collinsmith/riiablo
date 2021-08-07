@@ -39,6 +39,7 @@ public class Chunk extends BBox implements Poolable, Disposable {
       .add(24 * 24)
       .add(32 * 32)
       .add(64 * 64)
+      .scl(NUM_SUBTILES)
       .build();
 
   public int layers;
@@ -50,7 +51,7 @@ public class Chunk extends BBox implements Poolable, Disposable {
     Chunk chunk = pool.obtain();
     chunk.asBox(x, y, width, height);
     chunk.layers = 0;
-    chunk.numTiles = width * height / SUBTILE_SIZE;
+    chunk.numTiles = width * height / NUM_SUBTILES;
     chunk.flags = bytePools.obtain(width * height);
     return chunk;
   }
@@ -87,6 +88,35 @@ public class Chunk extends BBox implements Poolable, Disposable {
     return this;
   }
 
+  public Chunk updateFlags() {
+    for (int i = 0; i < MAX_LAYERS; i++) {
+      if ((layers & (1 << i)) == 0) continue;
+      Tile[] tiles = this.tiles[i];
+      for (int y = 0, j = 0; y <= height; y += SUBTILE_SIZE) {
+        for (int x = 0; x <= width; x += SUBTILE_SIZE) {
+          mergeFlags(flags, width, tiles[j++].flags, x, y);
+        }
+      }
+
+      // TODO:
+      // update only takes into account chunk tiles, but needs to account for
+      // ds1 tile overrides.
+    }
+
+    return this;
+  }
+
+  static void mergeFlags(byte[] dst, int width, byte[] flags, int x, int y) {
+    int dXY, i = 0;
+    for (int dy = 0; dy < SUBTILE_SIZE; dy++) {
+      // flags are stored in reversed row order: 20..24,15..19,10..14,5..9,0..4
+      dXY = (y + SUBTILE_SIZE - 1 - dy) * width + x;
+      for (int dx = 0; dx < SUBTILE_SIZE; dx++) {
+        dst[dXY++] |= flags[i++];
+      }
+    }
+  }
+
   Tile[] tiles(int layer) {
     Tile[] tiles = this.tiles[layer];
     if (tiles == null) throw new IllegalArgumentException("layer(" + layer + ") does not exist!");
@@ -118,28 +148,6 @@ public class Chunk extends BBox implements Poolable, Disposable {
       pixmap.drawPixel(
           x + (i % width),
           y + (i / width));
-    }
-
-    // int chunkWidth = width / SUBTILE_SIZE;
-    // Tile[] tiles = this.tiles[4];
-    // if (tiles == null) return; // TODO: remove when above is corrected
-    // for (int i = 0, s = numTiles; i < s; i++) {
-    //   Tile tile = tiles[i];
-    //   if (tile == null) continue;
-    //   drawDebugSubtile(tile, pixmap,
-    //       x + (i % chunkWidth) * SUBTILE_SIZE,
-    //       y + (i / chunkWidth) * SUBTILE_SIZE);
-    // }
-  }
-
-  void drawDebugSubtile(Tile tile, Pixmap pixmap, int x, int y) {
-    // pixmap.drawPixel(x, y);
-    // TODO: apply tile offset + subtile offset of flags id
-    byte[] flags = tile.flags;
-    for (int i = 0; i < NUM_SUBTILES; i++) {
-      byte flag = flags[i];
-      if (flag == 0) continue;
-      pixmap.drawPixel(x + (i % SUBTILE_SIZE), y + (i / SUBTILE_SIZE));
     }
   }
 }

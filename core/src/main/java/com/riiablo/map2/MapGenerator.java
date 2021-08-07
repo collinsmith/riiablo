@@ -1,5 +1,9 @@
 package com.riiablo.map2;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.riiablo.logger.LogManager;
+import com.riiablo.logger.Logger;
 import com.riiablo.map2.DT1.Tile;
 import com.riiablo.map2.random.Random;
 import com.riiablo.map2.random.Seed;
@@ -8,6 +12,8 @@ import com.riiablo.map2.util.ZoneGraph;
 import static com.riiablo.map2.DT1.Tile.SUBTILE_SIZE;
 
 public class MapGenerator {
+  private static final Logger log = LogManager.getLogger(MapGenerator.class);
+
   public TileGenerator tileGenerator = new TileGenerator();
   final Random random = new Random();
 
@@ -35,7 +41,10 @@ public class MapGenerator {
   void copyPrefab(Chunk chunk, DS1 ds1) {
     if (ds1.width != chunk.width / SUBTILE_SIZE) throw new IllegalArgumentException("ds1 width(" + ds1.width + ") != chunk width(" + chunk.width + ")");
     if (ds1.height != chunk.height / SUBTILE_SIZE) throw new IllegalArgumentException("ds1 height(" + ds1.height + ") != chunk height(" + chunk.height + ")");
-    chunk.init(ds1.layers);
+    // chunk.init(ds1.layers);
+    chunk.init(1 << 4);
+    log.debugf("layers: %s", StringUtils.reverse(StringUtils.leftPad(Integer.toBinaryString(chunk.layers), 8, '0')));
+
     int[] cells = ds1.floors;
     Tile[] tiles = chunk.tiles(4);
     for (int i = 0, s = ds1.floorLen; i < s; i++) {
@@ -44,6 +53,7 @@ public class MapGenerator {
           Orientation.FLOOR,
           DS1.Cell.mainIndex(cell),
           DS1.Cell.subIndex(cell));
+      // TODO: merge cell flags for stuff like unwalkable tiles
     }
 
     // cells = ds1.walls;
@@ -55,6 +65,8 @@ public class MapGenerator {
     //       DS1.Cell.mainIndex(cell),
     //       DS1.Cell.subIndex(cell));
     // }
+
+    chunk.updateFlags();
   }
 
   void copyPrefab(Chunk chunk, DS1 ds1,

@@ -102,6 +102,7 @@ public class MapDebugger extends Tool {
   public void create() {
     Gdx.app.setLogLevel(Application.LOG_DEBUG);
     LogManager.setLevel(MapDebugger.class.getName(), Level.DEBUG);
+    LogManager.setLevel("com.riiablo.map2", Level.DEBUG);
 
     Riiablo.home = Gdx.files.absolute(Riiablo.home.path());
     Riiablo.mpqs = new MPQFileHandleResolver();
