@@ -45,7 +45,7 @@ public class TileGenerator {
     int chance = sum == 0 ? 0 : this.random.nextInt(sum);
     Tile[] items = entry.tiles.items;
     Tile tile = null;
-    for (int i = 0, s = entry.tiles.size; i < s && chance > 0; i++) {
+    for (int i = 0, s = entry.tiles.size; i < s && chance >= 0; i++) {
       tile = items[i];
       chance -= tile.rarity;
     }
