@@ -9,11 +9,11 @@ import com.badlogic.gdx.utils.IntMap;
 import com.riiablo.map.DT1;
 
 public class DS1 {
-  static final int MAX_WALLS = 4;
-  static final int MAX_FLOORS = 2;
-  static final int MAX_SHADOWS = 1;
-  static final int MAX_TAGS = 1;
-  static final int MAX_LAYERS = MAX_WALLS + MAX_FLOORS + MAX_SHADOWS + MAX_TAGS;
+  public static final int MAX_WALLS = 4;
+  public static final int MAX_FLOORS = 2;
+  public static final int MAX_SHADOWS = 1;
+  public static final int MAX_TAGS = 1;
+  public static final int MAX_LAYERS = MAX_WALLS + MAX_FLOORS + MAX_SHADOWS + MAX_TAGS;
 
   String fileName;
 
