@@ -27,6 +27,13 @@ public class ArrayPool<E> extends Pool<E> {
   @Override
   protected void reset(E object) {
     if (object instanceof Object[]) Arrays.fill((Object[]) object, null);
+    else if (object instanceof byte[]) Arrays.fill((byte[]) object, (byte) 0);
+    else if (object instanceof short[]) Arrays.fill((short[]) object, (short) 0);
+    else if (object instanceof int[]) Arrays.fill((int[]) object, 0);
+    else if (object instanceof long[]) Arrays.fill((long[]) object, 0L);
+    else if (object instanceof boolean[]) Arrays.fill((boolean[]) object, false);
+    else if (object instanceof float[]) Arrays.fill((float[]) object, 0f);
+    else if (object instanceof double[]) Arrays.fill((double[]) object, 0d);
   }
 
   final Class<E> clazz;
