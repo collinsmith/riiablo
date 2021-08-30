@@ -35,6 +35,7 @@ import com.riiablo.tool.LwjglTool;
 import com.riiablo.tool.Tool;
 import com.riiablo.util.InstallationFinder;
 
+import static com.badlogic.gdx.Input.Keys.ESCAPE;
 import static com.badlogic.gdx.Input.Keys.GRAVE;
 import static com.riiablo.map2.util.DebugMode.TILE;
 
@@ -149,6 +150,12 @@ public class MapDebugger extends Tool {
         switch (keycode) {
           case GRAVE:
             debugMode = debugMode.next;
+            return true;
+          case ESCAPE:
+            camera.zoom = 1.0f;
+            camera.setToOrtho(false); // calls camera#update()
+            camera.position.set(0, 0, 0);
+            camera.update(); // required due to camera.position.set(Vector3) call
             return true;
           default:
             return false;
