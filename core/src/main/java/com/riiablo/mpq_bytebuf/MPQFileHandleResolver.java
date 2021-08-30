@@ -25,7 +25,7 @@ public class MPQFileHandleResolver implements FileHandleResolver {
   public final MPQ d2speech;
   public final MPQ d2video;
 
-  private final CopyOnWriteArrayList<MPQ> mpqs = new CopyOnWriteArrayList<>();
+  final CopyOnWriteArrayList<MPQ> mpqs = new CopyOnWriteArrayList<>();
 
   public MPQFileHandleResolver() {
     this(Riiablo.home);

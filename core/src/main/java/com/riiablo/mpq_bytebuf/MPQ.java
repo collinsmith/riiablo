@@ -252,8 +252,12 @@ public final class MPQ {
     return file;
   }
 
-  MappedByteBuffer map() {
+  public MappedByteBuffer map() {
     return map;
+  }
+
+  ByteBuf buffer() {
+    return buffer;
   }
 
   ByteBuf buffer(int offset) {
