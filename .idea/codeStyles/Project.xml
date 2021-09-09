@@ -372,6 +372,7 @@
       <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
       <option name="LINE_COMMENT_ADD_SPACE" value="true" />
       <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
+      <option name="SPACE_WITHIN_BRACES" value="true" />
       <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
       <option name="KEEP_SIMPLE_BLOCKS_IN_ONE_LINE" value="true" />
       <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="true" />
