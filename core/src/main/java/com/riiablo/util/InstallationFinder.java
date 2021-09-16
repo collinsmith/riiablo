@@ -1,5 +1,6 @@
 package com.riiablo.util;
 
+import io.netty.util.internal.SystemPropertyUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -25,6 +26,12 @@ public abstract class InstallationFinder {
   public static boolean isD2Home(FileHandle handle) {
     if (handle == null) return false;
     return handle.child("d2data.mpq").exists();
+  }
+
+  public static boolean isD2TestHome(FileHandle handle) {
+    if (handle == null) return false;
+    if (!handle.isDirectory()) return false;
+    return handle.child("data").exists();
   }
 
   public static boolean containsSaves(FileHandle handle) {
@@ -56,6 +63,10 @@ public abstract class InstallationFinder {
   }
 
   public Array<FileHandle> getSaveDirs(FileHandle home) {
+    return EMPTY_ARRAY;
+  }
+
+  public Array<FileHandle> getTestDirs() {
     return EMPTY_ARRAY;
   }
 
@@ -91,7 +102,7 @@ public abstract class InstallationFinder {
       homeDirs.add(ProgramFiles);
       homeDirs.add(ProgramFiles86);
 
-      log.traceEntry("resolve() paths: {}", homeDirs);
+      log.trace("resolve() paths: {}", homeDirs);
       Array<FileHandle> result = null;
       for (String path : homeDirs) {
         FileHandle handle = new FileHandle(path);
@@ -111,6 +122,29 @@ public abstract class InstallationFinder {
       }
 
       return result == null ? super.getHomeDirs() : result;
+    }
+
+    @Override
+    public Array<FileHandle> getTestDirs() {
+      final String d2test = SystemPropertyUtil.get("d2test", null);
+      final String D2_TEST = SystemUtils.getEnvironmentVariable("D2_TEST", null);
+
+      final Array<String> testDirs = new Array<>();
+      if (d2test != null) testDirs.add(d2test);
+      if (D2_TEST != null) testDirs.add(D2_TEST);
+
+      log.trace("resolve() paths: {}", testDirs);
+      Array<FileHandle> result = null;
+      for (String path : testDirs) {
+        FileHandle handle = new FileHandle(path);
+        log.trace("Trying {}", handle);
+        if (isD2TestHome(handle)) {
+          if (result == null) result = new Array<>();
+          result.add(handle);
+        }
+      }
+
+      return result == null ? super.getTestDirs() : result;
     }
 
     @Override
@@ -145,7 +179,7 @@ public abstract class InstallationFinder {
       homeDirs.add(SystemUtils.USER_HOME);
       homeDirs.add(SystemUtils.USER_DIR);
 
-      log.traceEntry("resolve() paths: {}", homeDirs);
+      log.trace("resolve() paths: {}", homeDirs);
       Array<FileHandle> result = null;
       for (String path : homeDirs) {
         FileHandle handle = new FileHandle(path);
@@ -165,6 +199,29 @@ public abstract class InstallationFinder {
       }
 
       return result == null ? super.getHomeDirs() : result;
+    }
+
+    @Override
+    public Array<FileHandle> getTestDirs() {
+      final String d2test = SystemPropertyUtil.get("d2test", null);
+      final String D2_TEST = SystemUtils.getEnvironmentVariable("D2_TEST", null);
+
+      final Array<String> testDirs = new Array<>();
+      if (d2test != null) testDirs.add(d2test);
+      if (D2_TEST != null) testDirs.add(D2_TEST);
+
+      log.trace("resolve() paths: {}", testDirs);
+      Array<FileHandle> result = null;
+      for (String path : testDirs) {
+        FileHandle handle = new FileHandle(path);
+        log.trace("Trying {}", handle);
+        if (isD2TestHome(handle)) {
+          if (result == null) result = new Array<>();
+          result.add(handle);
+        }
+      }
+
+      return result == null ? super.getTestDirs() : result;
     }
 
     @Override

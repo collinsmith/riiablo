@@ -47,6 +47,30 @@ public class InstallationFinderTest extends RiiabloTest {
   }
 
   @Test
+  public void test_getTestDirs() {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      test_getHomeDirs_windows();
+    } else if (SystemUtils.IS_OS_LINUX) {
+      test_getHomeDirs_linux();
+    } else if (SystemUtils.IS_OS_MAC) {
+      test_getHomeDirs_mac();
+    }
+  }
+
+  private void test_getTestDirs_windows() {
+    final InstallationFinder instance = getInstance();
+    final Array<FileHandle> handles = instance.getTestDirs();
+    assertNotNull(handles);
+    System.out.println("found: " + handles);
+  }
+
+  private void test_getTestDirs_linux() {
+  }
+
+  private void test_getTestDirs_mac() {
+  }
+
+  @Test
   public void test_getSaves() {
     if (SystemUtils.IS_OS_WINDOWS) {
       test_getSaveDirs_windows();

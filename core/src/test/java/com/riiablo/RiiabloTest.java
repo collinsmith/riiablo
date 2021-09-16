@@ -1,16 +1,19 @@
 package com.riiablo;
 
 import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.OutputStreamAppender;
 import com.riiablo.mpq.MPQFileHandleResolver;
+import com.riiablo.util.InstallationFinder;
 
 public class RiiabloTest {
   protected static FileHandle testHome;
@@ -22,13 +25,32 @@ public class RiiabloTest {
   @BeforeAll
   public static void setup() {
     Gdx.app = new HeadlessApplication(new ApplicationAdapter() {});
-    Riiablo.home = Gdx.files.absolute("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Diablo II");
+    final InstallationFinder finder = InstallationFinder.getInstance();
+    Riiablo.home = getHomeDir(finder);
     Riiablo.mpqs = new MPQFileHandleResolver();
     Riiablo.string = new StringTBLs(Riiablo.mpqs);
     Riiablo.files = new Files();
     Riiablo.logs = new GdxLoggerManager(LogManager.getRegistry());
     Riiablo.logs.getRootLogger().addAppender(new OutputStreamAppender(System.out));
-    testHome = Gdx.files.absolute("D:\\mpq");
+    testHome = getTestDir(finder);
+  }
+
+  static FileHandle getHomeDir(InstallationFinder finder) {
+    Array<FileHandle> homeDirs = finder.getHomeDirs();
+    if (homeDirs.size > 0) {
+      return homeDirs.first();
+    } else {
+      return fail("Unable to locate D2 installation!");
+    }
+  }
+
+  static FileHandle getTestDir(InstallationFinder finder) {
+    Array<FileHandle> testDirs = finder.getTestDirs();
+    if (testDirs.size > 0) {
+      return testDirs.first();
+    } else {
+      return fail("Unable to locate D2 test files!");
+    }
   }
 
   @AfterAll
