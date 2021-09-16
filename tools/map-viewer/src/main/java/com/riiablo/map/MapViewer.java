@@ -30,7 +30,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import com.riiablo.COFs;
@@ -200,19 +199,11 @@ public class MapViewer extends Tool {
   }
 
   @Override
-  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) throws Exception {
     super.handleCliOptions(cmd, options, cli);
 
-    if (cli.hasOption("d2")) {
-      home = new FileHandle(cli.getOptionValue("d2"));
-      if (!InstallationFinder.isD2Home(home)) {
-        throw new GdxRuntimeException("'d2' does not refer to a valid D2 installation: " + home);
-      }
-    } else {
-      InstallationFinder finder = InstallationFinder.getInstance();
-      Array<FileHandle> homeDirs = finder.getHomeDirs();
-      home = homeDirs.first();
-    }
+    InstallationFinder finder = InstallationFinder.getInstance();
+    home = finder.defaultHomeDir("d2", cli.getOptionValue("d2"));
 
     if (cli.hasOption("random")) {
       seed = -1;

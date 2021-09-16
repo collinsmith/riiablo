@@ -12,7 +12,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.video.VideoPlayer;
 import com.badlogic.gdx.video.VideoPlayerCreator;
 
@@ -65,12 +64,11 @@ public class VideoPlayerTool extends Tool {
   }
 
   @Override
-  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) throws Exception {
     super.handleCliOptions(cmd, options, cli);
 
     InstallationFinder finder = InstallationFinder.getInstance();
-    Array<FileHandle> homeDirs = finder.getHomeDirs();
-    home = homeDirs.first();
+    home = finder.defaultHomeDir();
 
     String fileOptionValue = cli.getOptionValue("file");
     file = fileOptionValue;

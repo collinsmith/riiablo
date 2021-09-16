@@ -12,7 +12,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import com.riiablo.Files;
 import com.riiablo.Riiablo;
@@ -64,30 +63,11 @@ public class D2SReaderTool extends Tool {
   }
 
   @Override
-  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) throws Exception {
     super.handleCliOptions(cmd, options, cli);
 
     final InstallationFinder finder = InstallationFinder.getInstance();
-
-    final FileHandle d2Home;
-    if (cli.hasOption("d2")) {
-      d2Home = new FileHandle(cli.getOptionValue("d2"));
-      if (!InstallationFinder.isD2Home(d2Home)) {
-        throw new GdxRuntimeException("'d2' does not refer to a valid D2 installation: " + d2Home);
-      }
-    } else {
-      log.trace("Locating D2 installations...");
-      Array<FileHandle> homeDirs = finder.getHomeDirs();
-      log.trace("D2 installations: {}", homeDirs);
-      if (homeDirs.size > 0) {
-        d2Home = homeDirs.first();
-      } else {
-        System.err.println("Unable to locate any D2 installation!");
-        printHelp(cmd, options);
-        System.exit(0);
-        return;
-      }
-    }
+    final FileHandle d2Home = finder.defaultHomeDir("d2", cli.getOptionValue("d2"));
     log.debug("d2Home: {}", d2Home);
     Riiablo.home = d2Home;
 

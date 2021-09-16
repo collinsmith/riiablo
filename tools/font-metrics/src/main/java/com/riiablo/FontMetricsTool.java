@@ -27,7 +27,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
@@ -91,12 +90,11 @@ public class FontMetricsTool extends Tool {
   }
 
   @Override
-  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) throws Exception {
     super.handleCliOptions(cmd, options, cli);
 
     InstallationFinder finder = InstallationFinder.getInstance();
-    Array<FileHandle> homeDirs = finder.getHomeDirs();
-    home = homeDirs.first();
+    home = finder.defaultHomeDir();
 
     String fontOptionValue = cli.getOptionValue("font");
     font = FilenameUtils.getBaseName(fontOptionValue);

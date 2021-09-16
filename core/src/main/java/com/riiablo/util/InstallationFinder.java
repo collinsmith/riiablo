@@ -72,19 +72,19 @@ public abstract class InstallationFinder {
 
   public final FileHandle defaultHomeDir() throws DefaultNotFound {
     try {
-      return defaultHomeDir(null);
+      return defaultHomeDir(null, null);
     } catch (ArgNotFound t) {
       throw new AssertionError("null arg should not throw " + ArgNotFound.class.getCanonicalName(), t);
     }
   }
 
-  public final FileHandle defaultHomeDir(String arg) throws ArgNotFound, DefaultNotFound {
+  public final FileHandle defaultHomeDir(String argName, String arg) throws ArgNotFound, DefaultNotFound {
     if (arg != null) {
       final FileHandle handle = new FileHandle(arg);
       if (InstallationFinder.isD2Home(handle)) {
         return handle;
       } else {
-        throw new ArgNotFound(handle, "Unable to locate any D2 installation!");
+        throw new ArgNotFound(handle, "'" + argName + "' does not refer to a valid D2 installation: " + handle);
       }
     }
 
@@ -100,19 +100,19 @@ public abstract class InstallationFinder {
 
   public final FileHandle defaultTestDir() throws DefaultNotFound {
     try {
-      return defaultTestDir(null);
+      return defaultTestDir(null, null);
     } catch (ArgNotFound t) {
       throw new AssertionError("null arg should not throw " + ArgNotFound.class.getCanonicalName(), t);
     }
   }
 
-  public final FileHandle defaultTestDir(String arg) throws ArgNotFound, DefaultNotFound {
+  public final FileHandle defaultTestDir(String argName, String arg) throws ArgNotFound, DefaultNotFound {
     if (arg != null) {
       final FileHandle handle = new FileHandle(arg);
       if (InstallationFinder.isD2Home(handle)) {
         return handle;
       } else {
-        throw new ArgNotFound(handle, "Unable to locate any D2 test installation!");
+        throw new ArgNotFound(handle, "'" + argName + "' does not refer to a valid D2 test installation: " + handle);
       }
     }
 

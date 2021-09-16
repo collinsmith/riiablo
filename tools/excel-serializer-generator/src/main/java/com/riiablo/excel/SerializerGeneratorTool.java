@@ -75,7 +75,7 @@ public class SerializerGeneratorTool extends Tool {
   }
 
   @Override
-  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) throws Exception {
     super.handleCliOptions(cmd, options, cli);
 
     String srcOptionValue = cli.getOptionValue("src");

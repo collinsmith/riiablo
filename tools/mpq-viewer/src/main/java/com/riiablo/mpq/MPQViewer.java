@@ -260,7 +260,7 @@ public class MPQViewer {
     }
 
     @Override
-    protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+    protected void handleCliOptions(String cmd, Options options, CommandLine cli) throws Exception {
       super.handleCliOptions(cmd, options, cli);
       initialFile = cli.getOptionValue("file");
       debugMode = cli.hasOption("debug");

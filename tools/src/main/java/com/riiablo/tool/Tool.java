@@ -41,7 +41,7 @@ public class Tool implements ApplicationListener {
     System.exit(0);
   }
 
-  protected void handleCliOptions(String cmd, Options options, CommandLine cli) {
+  protected void handleCliOptions(String cmd, Options options, CommandLine cli) throws Exception {
     if (cli.hasOption("help")) {
       printHelp(cmd, options);
       System.exit(0);
