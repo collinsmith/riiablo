@@ -62,12 +62,96 @@ public abstract class InstallationFinder {
     return EMPTY_ARRAY;
   }
 
+  public Array<FileHandle> getTestDirs() {
+    return EMPTY_ARRAY;
+  }
+
   public Array<FileHandle> getSaveDirs(FileHandle home) {
     return EMPTY_ARRAY;
   }
 
-  public Array<FileHandle> getTestDirs() {
-    return EMPTY_ARRAY;
+  public final FileHandle defaultHomeDir() throws DefaultNotFound {
+    try {
+      return defaultHomeDir(null);
+    } catch (ArgNotFound t) {
+      throw new AssertionError("null arg should not throw " + ArgNotFound.class.getCanonicalName(), t);
+    }
+  }
+
+  public final FileHandle defaultHomeDir(String arg) throws ArgNotFound, DefaultNotFound {
+    if (arg != null) {
+      final FileHandle handle = new FileHandle(arg);
+      if (InstallationFinder.isD2Home(handle)) {
+        return handle;
+      } else {
+        throw new ArgNotFound(handle, "Unable to locate any D2 installation!");
+      }
+    }
+
+    log.trace("Locating D2 installations...");
+    Array<FileHandle> homeDirs = getHomeDirs();
+    log.trace("D2 installations: {}", homeDirs);
+    if (homeDirs.size > 0) {
+      return homeDirs.first();
+    } else {
+      throw new DefaultNotFound(homeDirs, "Unable to locate any D2 installation!");
+    }
+  }
+
+  public final FileHandle defaultTestDir() throws DefaultNotFound {
+    try {
+      return defaultTestDir(null);
+    } catch (ArgNotFound t) {
+      throw new AssertionError("null arg should not throw " + ArgNotFound.class.getCanonicalName(), t);
+    }
+  }
+
+  public final FileHandle defaultTestDir(String arg) throws ArgNotFound, DefaultNotFound {
+    if (arg != null) {
+      final FileHandle handle = new FileHandle(arg);
+      if (InstallationFinder.isD2Home(handle)) {
+        return handle;
+      } else {
+        throw new ArgNotFound(handle, "Unable to locate any D2 test installation!");
+      }
+    }
+
+    log.trace("Locating D2 test installations...");
+    Array<FileHandle> testDirs = getTestDirs();
+    log.trace("D2 test installations: {}", testDirs);
+    if (testDirs.size > 0) {
+      return testDirs.first();
+    } else {
+      throw new DefaultNotFound(testDirs, "Unable to locate any D2 test installation!");
+    }
+  }
+
+  public static final class ArgNotFound extends Exception {
+    public final FileHandle dir;
+
+    ArgNotFound(FileHandle dir, String message) {
+      super(message);
+      this.dir = dir;
+    }
+
+    ArgNotFound(FileHandle dir, String message, Throwable cause) {
+      super(message, cause);
+      this.dir = dir;
+    }
+  }
+
+  public static final class DefaultNotFound extends Exception {
+    public final Array<FileHandle> dirs;
+
+    DefaultNotFound(Array<FileHandle> dirs, String message) {
+      super(message);
+      this.dirs = dirs;
+    }
+
+    DefaultNotFound(Array<FileHandle> dirs, String message, Throwable cause) {
+      super(message, cause);
+      this.dirs = dirs;
+    }
   }
 
   public static final class StubbedInstallationFinder extends InstallationFinder {

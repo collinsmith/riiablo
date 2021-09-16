@@ -1,13 +1,11 @@
 package com.riiablo;
 
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.codec.StringTBLs;
 import com.riiablo.logger.LogManager;
@@ -23,34 +21,16 @@ public class RiiabloTest {
   }
 
   @BeforeAll
-  public static void setup() {
+  public static void setup() throws InstallationFinder.DefaultNotFound {
     Gdx.app = new HeadlessApplication(new ApplicationAdapter() {});
     final InstallationFinder finder = InstallationFinder.getInstance();
-    Riiablo.home = getHomeDir(finder);
+    Riiablo.home = finder.defaultHomeDir();
     Riiablo.mpqs = new MPQFileHandleResolver();
     Riiablo.string = new StringTBLs(Riiablo.mpqs);
     Riiablo.files = new Files();
     Riiablo.logs = new GdxLoggerManager(LogManager.getRegistry());
     Riiablo.logs.getRootLogger().addAppender(new OutputStreamAppender(System.out));
-    testHome = getTestDir(finder);
-  }
-
-  static FileHandle getHomeDir(InstallationFinder finder) {
-    Array<FileHandle> homeDirs = finder.getHomeDirs();
-    if (homeDirs.size > 0) {
-      return homeDirs.first();
-    } else {
-      return fail("Unable to locate D2 installation!");
-    }
-  }
-
-  static FileHandle getTestDir(InstallationFinder finder) {
-    Array<FileHandle> testDirs = finder.getTestDirs();
-    if (testDirs.size > 0) {
-      return testDirs.first();
-    } else {
-      return fail("Unable to locate D2 test files!");
-    }
+    testHome = finder.defaultTestDir();
   }
 
   @AfterAll
