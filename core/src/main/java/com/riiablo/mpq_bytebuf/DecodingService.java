@@ -44,8 +44,20 @@ public final class DecodingService extends ForkJoinPool {
     }
   };
 
+  final Thread shutdownHook = new Thread(new Runnable() {
+    @Override
+    public void run() {
+      gracefulShutdown();
+    }
+  });
+
   DecodingService(int nThreads) {
     super(nThreads);
+    try {
+      Runtime.getRuntime().addShutdownHook(shutdownHook);
+    } catch (Throwable t) {
+      log.warn("Problem occurred while trying to add runtime shutdown hook.", t);
+    }
   }
 
   public Future<ByteBuf> submit(DecodingTask task) {
@@ -53,6 +65,14 @@ public final class DecodingService extends ForkJoinPool {
   }
 
   public boolean gracefulShutdown() {
+    try {
+      Runtime.getRuntime().removeShutdownHook(shutdownHook);
+    } catch (IllegalStateException ignored) {
+      // called during runtime shutdown -- who cares
+    } catch (Throwable t) {
+      log.warn("Problem occurred while trying to remove runtime shutdown hook.", t);
+    }
+
     shutdown();
     boolean shutdown;
     try {
