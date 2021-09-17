@@ -351,8 +351,6 @@ public class DCC extends com.riiablo.codec.DC {
   public static DCC loadFromFile(FileHandle handle) {
     if (handle instanceof MPQFileHandle) {
       return loadFromArray(handle.readBytes());
-    } else if (handle instanceof com.riiablo.mpq_bytebuf.MPQFileHandle) {
-      return loadFromByteBuf(((com.riiablo.mpq_bytebuf.MPQFileHandle) handle).readByteBuf());
     }
 
     return loadFromArray(handle.readBytes());

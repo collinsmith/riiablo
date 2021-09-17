@@ -1,6 +1,8 @@
 package com.riiablo.mpq_bytebuf.util;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.*;
+import org.junit.jupiter.params.provider.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.netty.buffer.ByteBuf;
@@ -20,14 +22,18 @@ public class ADPCMTest extends RiiabloTest {
     LogManager.setLevel("com.riiablo.mpq_bytebuf.util.ADPCM", Level.TRACE);
   }
 
-  @Test
-  public void decompress() {
-    FileHandle pcm_in = Gdx.files.internal("test/pcm_in.bin");
-    ByteBuf actual = Unpooled.buffer(0x1000).writeBytes(pcm_in.readBytes());
-    ADPCM.decompress(actual, 1);
+  @ParameterizedTest
+  @CsvSource(value = {
+      "test/pcm_in.bin,test/pcm_out.bin",
+  }, delimiter = ',')
+  void decode(String in, String out) {
+    FileHandle pcm_in = Gdx.files.internal(in);
+    ByteBuf encoded = Unpooled.buffer(0x1000).writeBytes(pcm_in.readBytes());
+    ByteBuf actual = Unpooled.buffer(0x1000);
+    ADPCM.decode(encoded, actual, 1);
     System.out.println(ByteBufUtil.prettyHexDump(actual));
 
-    FileHandle pcm_out = Gdx.files.internal("test/pcm_out.bin");
+    FileHandle pcm_out = Gdx.files.internal(out);
     ByteBuf expected = Unpooled.wrappedBuffer(pcm_out.readBytes());
     assertTrue(ByteBufUtil.equals(expected, actual));
   }

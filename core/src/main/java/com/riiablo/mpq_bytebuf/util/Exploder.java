@@ -1,66 +1,105 @@
 package com.riiablo.mpq_bytebuf.util;
 
-/*
-  Taken from: https://github.com/horschi/OpenTeufel/blob/master/src/main/java/org/openteufel/file/mpq/explode/Exploder.java
-
-  Modifications: Removed unused variables, made the static arrays private and changed formatting, set pInPos to 1
-
-  *************
-
-  Sources:
-  https://github.com/ladislav-zezula/StormLib/blob/master/src/pklib/explode.c
-  https://github.com/toshok/scsharp/blob/master/SCSharp/SCSharp.Mpq/PKLibDecompress.cs
-
-  https://code.google.com/p/arx-fatalis-fixed/source/browse/trunk/Sources/HERMES/explode.c?r=23
-  https://github.com/dcramer/ghostplusplus-nibbits/blob/master/StormLib/stormlib/pklib/explode.c
-  https://code.google.com/p/stormlibsharp/source/browse/trunk/development/stormlib/src/pklib/explode.c?r=2
-  http://yumiko.svnrepository.com/TrinityCore/trac.cgi/browser/trunk/contrib/vmap_extractor_v2/stormlib/pklib/explode.c
-*/
-
 import io.netty.buffer.ByteBuf;
-
-import com.badlogic.gdx.utils.Pool;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
-import com.riiablo.mpq_bytebuf.InvalidFormat;
 
-/**
- * pkexplode.c                                Copyright (c) ShadowFlare 2003
- * -------------------------------------------------------------------------
- * Explode function compatible with compressed data from PKWARE Data
- * Compression library
- *
- * Author: ShadowFlare (blakflare@hotmail.com)
- *
- * This code was created from a format specification that was posted on
- * a newsgroup.  No reverse-engineering of any kind was performed by
- * me to produce this code.
- *
- * This code is free and you may perform any modifications to it that
- * you wish to perform, but please leave my name in the file as the
- * original author of the code.
- *
- * -------------------------------------------------------------------------
- *   Date    Ver   Comment
- * --------  ----  -------
- * 03/05/10  1.02  Fix the timing of a buffer check
- * 10/24/03  1.01  Added checks for when the end of a buffer is reached
- *                 Extended error codes added
- * 06/29/03  1.00  First version
- */
 public final class Exploder {
   private Exploder() {}
 
   private static final Logger log = LogManager.getLogger(Exploder.class);
 
-  private static final int PK_LITERAL_SIZE_FIXED = 0; // Use fixed size literal bytes, used for binary data
-  private static final int PK_LITERAL_SIZE_VARIABLE = 1; // Use variable size literal bytes, used for text
+  static final int CTYPE_BINARY = 0;
+  static final int CTYPE_ASCII = 1;
 
-  private static final int INT_BYTES = Integer.SIZE / Byte.SIZE;
+  static final int RET_NO_ERROR = 0;
+  static final int RET_INVALID_DICTSIZE = 1;
+  static final int RET_INVALID_MODE = 2;
+  static final int RET_BAD_DATA = 3;
+  static final int RET_ABORT = 4;
 
-  // Bit sequences used to represent literal bytes
-  private static final int[] ChCode = {
+  static final int DCL_OK = 0;
+  static final int DCL_STREAM_END = 1;
+  static final int DCL_NEED_DICT = 2;
+  static final int DCL_CONTINUE = 10;
+  static final int DCL_GET_INPUT = 11;
+
+  static int[] GenCodeTable(int[] codes, int[] bits) {
+    final int rollOver = 0x100;
+    final int[] gen = new int[rollOver];
+    for (int i = 0, s = bits.length; i < s; i++) {
+      final int len = 1 << bits[i];
+      for (int j = codes[i]; j < rollOver; j += len) {
+        gen[j] = i;
+      }
+    }
+    return gen;
+  }
+
+  static int[] GenAsciiTable(int[] codes, int[] bits) {
+    // throw new UnsupportedOperationException();
+    return null;
+  }
+
+  static final int[/*0x40*/] DistBits = {
+      0x02, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
+      0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
+      0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
+      0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
+  };
+
+  static final int[/*0x40*/] DistCode = {
+      0x03, 0x0D, 0x05, 0x19, 0x09, 0x11, 0x01, 0x3E, 0x1E, 0x2E, 0x0E, 0x36, 0x16, 0x26, 0x06, 0x3A,
+      0x1A, 0x2A, 0x0A, 0x32, 0x12, 0x22, 0x42, 0x02, 0x7C, 0x3C, 0x5C, 0x1C, 0x6C, 0x2C, 0x4C, 0x0C,
+      0x74, 0x34, 0x54, 0x14, 0x64, 0x24, 0x44, 0x04, 0x78, 0x38, 0x58, 0x18, 0x68, 0x28, 0x48, 0x08,
+      0xF0, 0x70, 0xB0, 0x30, 0xD0, 0x50, 0x90, 0x10, 0xE0, 0x60, 0xA0, 0x20, 0xC0, 0x40, 0x80, 0x00,
+  };
+
+  static final int[/*0x100*/] GenDistCode = GenCodeTable(DistCode, DistBits);
+
+  static final int[/*0x10*/] ExLenBits = {
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+  };
+
+  static final int[/*0x10*/] LenBase = {
+      0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+      0x0008, 0x000A, 0x000E, 0x0016, 0x0026, 0x0046, 0x0086, 0x0106,
+  };
+
+  static final int[/*0x10*/] LenBits = {
+      0x03, 0x02, 0x03, 0x03, 0x04, 0x04, 0x04, 0x05,
+      0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x07, 0x07,
+  };
+
+  static final int[/*0x10*/] LenCode = {
+      0x05, 0x03, 0x01, 0x06, 0x0A, 0x02, 0x0C, 0x14,
+      0x04, 0x18, 0x08, 0x30, 0x10, 0x20, 0x40, 0x00,
+  };
+
+  static final int[/*0x100*/] GenLenCode = GenCodeTable(LenCode, LenBits);
+
+  static final int[/*0x100*/] ChBits = {
+      0x0B, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x08, 0x07, 0x0C, 0x0C, 0x07, 0x0C, 0x0C,
+      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0D, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
+      0x04, 0x0A, 0x08, 0x0C, 0x0A, 0x0C, 0x0A, 0x08, 0x07, 0x07, 0x08, 0x09, 0x07, 0x06, 0x07, 0x08,
+      0x07, 0x06, 0x07, 0x07, 0x07, 0x07, 0x08, 0x07, 0x07, 0x08, 0x08, 0x0C, 0x0B, 0x07, 0x09, 0x0B,
+      0x0C, 0x06, 0x07, 0x06, 0x06, 0x05, 0x07, 0x08, 0x08, 0x06, 0x0B, 0x09, 0x06, 0x07, 0x06, 0x06,
+      0x07, 0x0B, 0x06, 0x06, 0x06, 0x07, 0x09, 0x08, 0x09, 0x09, 0x0B, 0x08, 0x0B, 0x09, 0x0C, 0x08,
+      0x0C, 0x05, 0x06, 0x06, 0x06, 0x05, 0x06, 0x06, 0x06, 0x05, 0x0B, 0x07, 0x05, 0x06, 0x05, 0x05,
+      0x06, 0x0A, 0x05, 0x05, 0x05, 0x05, 0x08, 0x07, 0x08, 0x08, 0x0A, 0x0B, 0x0B, 0x0C, 0x0C, 0x0C,
+      0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D,
+      0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D,
+      0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D,
+      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
+      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
+      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
+      0x0D, 0x0C, 0x0D, 0x0D, 0x0D, 0x0C, 0x0D, 0x0D, 0x0D, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0C, 0x0D,
+      0x0D, 0x0D, 0x0C, 0x0C, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D,
+  };
+
+  static final int[/*0x100*/] ChCode = {
       0x0490, 0x0FE0, 0x07E0, 0x0BE0, 0x03E0, 0x0DE0, 0x05E0, 0x09E0,
       0x01E0, 0x00B8, 0x0062, 0x0EE0, 0x06E0, 0x0022, 0x0AE0, 0x02E0,
       0x0CE0, 0x04E0, 0x08E0, 0x00E0, 0x0F60, 0x0760, 0x0B60, 0x0360,
@@ -92,222 +131,195 @@ public final class Exploder {
       0x0300, 0x0D40, 0x1D00, 0x0D00, 0x1500, 0x0540, 0x0500, 0x1900,
       0x0900, 0x0940, 0x1100, 0x0100, 0x1E00, 0x0E00, 0x0140, 0x1600,
       0x0600, 0x1A00, 0x0E40, 0x0640, 0x0A40, 0x0A00, 0x1200, 0x0200,
-      0x1C00, 0x0C00, 0x1400, 0x0400, 0x1800, 0x0800, 0x1000, 0x0000
+      0x1C00, 0x0C00, 0x1400, 0x0400, 0x1800, 0x0800, 0x1000, 0x0000,
   };
 
-  // Lengths of bit sequences used to represent literal bytes
-  private static final int[] ChBits = {
-      0x0B, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x08, 0x07, 0x0C, 0x0C, 0x07, 0x0C, 0x0C,
-      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0D, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
-      0x04, 0x0A, 0x08, 0x0C, 0x0A, 0x0C, 0x0A, 0x08, 0x07, 0x07, 0x08, 0x09, 0x07, 0x06, 0x07, 0x08,
-      0x07, 0x06, 0x07, 0x07, 0x07, 0x07, 0x08, 0x07, 0x07, 0x08, 0x08, 0x0C, 0x0B, 0x07, 0x09, 0x0B,
-      0x0C, 0x06, 0x07, 0x06, 0x06, 0x05, 0x07, 0x08, 0x08, 0x06, 0x0B, 0x09, 0x06, 0x07, 0x06, 0x06,
-      0x07, 0x0B, 0x06, 0x06, 0x06, 0x07, 0x09, 0x08, 0x09, 0x09, 0x0B, 0x08, 0x0B, 0x09, 0x0C, 0x08,
-      0x0C, 0x05, 0x06, 0x06, 0x06, 0x05, 0x06, 0x06, 0x06, 0x05, 0x0B, 0x07, 0x05, 0x06, 0x05, 0x05,
-      0x06, 0x0A, 0x05, 0x05, 0x05, 0x05, 0x08, 0x07, 0x08, 0x08, 0x0A, 0x0B, 0x0B, 0x0C, 0x0C, 0x0C,
-      0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D,
-      0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D,
-      0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D,
-      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
-      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
-      0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
-      0x0D, 0x0C, 0x0D, 0x0D, 0x0D, 0x0C, 0x0D, 0x0D, 0x0D, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0C, 0x0D,
-      0x0D, 0x0D, 0x0C, 0x0C, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D
-  };
+  static final int[/*0x100*/] GenChCode = GenAsciiTable(ChCode, ChBits);
 
-  // Bit sequences used to represent the base values of the copy length
-  private static final int[] LenCode = {
-      0x05, 0x03, 0x01, 0x06, 0x0A, 0x02, 0x0C, 0x14, 0x04, 0x18, 0x08, 0x30, 0x10, 0x20, 0x40, 0x00
-  };
-
-  // Lengths of bit sequences used to represent the base values of the copy length
-  private static final int[] LenBits = {
-      0x03, 0x02, 0x03, 0x03, 0x04, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x07, 0x07
-  };
-
-  // Base values used for the copy length
-  private static final int[] LenBase = {
-      0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009,
-      0x000A, 0x000C, 0x0010, 0x0018, 0x0028, 0x0048, 0x0088, 0x0108
-  };
-
-  // Lengths of extra bits used to represent the copy length
-  private static final int[] ExLenBits = {
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
-  };
-
-  // Bit sequences used to represent the most significant 6 bits of the copy offset
-  private static final int[] OffsCode = {
-      0x03, 0x0D, 0x05, 0x19, 0x09, 0x11, 0x01, 0x3E, 0x1E, 0x2E, 0x0E, 0x36, 0x16, 0x26, 0x06, 0x3A,
-      0x1A, 0x2A, 0x0A, 0x32, 0x12, 0x22, 0x42, 0x02, 0x7C, 0x3C, 0x5C, 0x1C, 0x6C, 0x2C, 0x4C, 0x0C,
-      0x74, 0x34, 0x54, 0x14, 0x64, 0x24, 0x44, 0x04, 0x78, 0x38, 0x58, 0x18, 0x68, 0x28, 0x48, 0x08,
-      0xF0, 0x70, 0xB0, 0x30, 0xD0, 0x50, 0x90, 0x10, 0xE0, 0x60, 0xA0, 0x20, 0xC0, 0x40, 0x80, 0x00
-  };
-
-  // Lengths of bit sequences used to represent the most significant 6 bits of the copy offset
-  private static final int[] OffsBits = {
-      0x02, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
-      0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
-      0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
-      0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
-  };
-
-  private static final int[] BIT_MASKS = new int[Integer.SIZE + 1];
+  static final int[] BIT_MASKS = new int[Integer.SIZE + 1];
   static {
-    for (int i = 1; i < Integer.SIZE; i++) {
+    for (int i = 1; i <= Integer.SIZE; i++) {
       BIT_MASKS[i] = (BIT_MASKS[i - 1] << 1) + 1;
     }
   }
 
-  private static final Pool<byte[]> BYTES;
-  static {
-    final int initialCapacity = 1, max = 8;
-    BYTES = new Pool<byte[]>(initialCapacity, max) {
-      @Override
-      protected byte[] newObject() {
-        return new byte[0x1000];
-      }
-    };
-    BYTES.fill(initialCapacity);
-  };
+  static final class Tuple {
+    final byte[] in;
+    int pIn;
+    int pInLimit;
 
-  public static ByteBuf pkexplode(final ByteBuf inout) {
-    return pkexplode(inout.resetReaderIndex().slice(), inout.clear());
+    final byte[] out;
+    int pOut;
+    int pOutLimit;
+
+    final int cType;
+    final int dictSize;
+    final int dictSizeMask;
+
+    int bitBuffer;
+    int extraBits;
+
+    Tuple(
+        final byte[] in,
+        final int pIn,
+        final int pInLimit,
+        final byte[] out,
+        final int pOut,
+        final int pOutLimit,
+        final int cType,
+        final int dictSize,
+        final int dictSizeMask,
+        final int bitBuffer,
+        final int extraBits
+    ) {
+      this.in = in;
+      this.pIn = pIn;
+      this.pInLimit = pInLimit;
+      this.out = out;
+      this.pOut = pOut;
+      this.pOutLimit = pOutLimit;
+      this.cType = cType;
+      this.dictSize = dictSize;
+      this.dictSizeMask = dictSizeMask;
+      this.bitBuffer = bitBuffer;
+      this.extraBits = extraBits;
+    }
   }
 
-  public static ByteBuf pkexplode(final ByteBuf in, final ByteBuf out) {
-    log.traceEntry("pkexplode(in: {}, out: {})", in, out);
-    if (in.readableBytes() < INT_BYTES) {
-      throw new InvalidFormat("PK_ERR_INCOMPLETE_INPUT: Incomplete input");
-    }
+  public static int explode(final ByteBuf in, final ByteBuf out) {
+    final int exitCode = explode(
+        in.array(), in.arrayOffset() + in.readerIndex(), in.readableBytes(),
+        out.array(), out.arrayOffset() + out.writerIndex(), out.writableBytes());
+    out.writerIndex(out.capacity());
+    return exitCode;
+  }
 
-    final int litSize = in.readUnsignedByte();
-    if (litSize != PK_LITERAL_SIZE_FIXED && litSize != PK_LITERAL_SIZE_VARIABLE) {
-      throw new InvalidFormat("PK_ERR_BAD_DATA: Invalid litSize: " + litSize);
-    }
+  public static int explode(
+      final byte[] in, int COffs, int CSize,
+      final byte[] out, int FOffs, int FSize
+  ) {
+    int pIn = COffs;
+    int pInLimit = pIn + CSize;
+    if ((pInLimit - pIn) <= 4) return RET_BAD_DATA;
 
-    final int dictShift = in.readUnsignedByte();
-    if (4 > dictShift || dictShift > 6) { // Only dictionary sizes of 1024, 2048, and 4096 are allowed.
-      throw new InvalidFormat("PK_ERR_BAD_DATA: Invalid dictShift: " + dictShift);
-    }
+    int pOut = FOffs;
+    int pOutLimit = pOut + FSize;
 
-    final int[] ChCode = Exploder.ChCode;
-    final int[] ChBits = Exploder.ChBits;
-    final int[] LenCode = Exploder.LenCode;
-    final int[] LenBits = Exploder.LenBits;
-    final int[] LenBase = Exploder.LenBase;
-    final int[] ExLenBits = Exploder.ExLenBits;
-    final int[] OffsCode = Exploder.OffsCode;
-    final int[] OffsBits = Exploder.OffsBits;
+    final int cType = in[pIn++] & 0xff;
+    if (cType != CTYPE_ASCII && cType != CTYPE_BINARY) return RET_INVALID_MODE;
 
-    final int dictSize = 64 << dictShift;
-    final byte[] Dict = BYTES.obtain();
-    int dictPos = 0;
-    int curDictSize = 0;
+    final int dictSize = in[pIn++] & 0xff;
+    if (dictSize < 4 || 6 < dictSize) return RET_INVALID_DICTSIZE;
 
-    final int outSize = out.writableBytes();
-    final byte[] Out = BYTES.obtain();
-    int outPos = 0;
+    final int dictSizeMask = 0xffff >> (0x10 - dictSize);
 
-    try {
-      int cache = in.readUnsignedShortLE();
-      int bitsCached = Short.SIZE;
+    final int bitBuffer = in[pIn++] & 0xff;
+    final int extraBits = 0;
+    Tuple t = new Tuple(
+        in,
+        pIn,
+        pInLimit,
+        out,
+        pOut,
+        pOutLimit,
+        cType,
+        dictSize,
+        dictSizeMask,
+        bitBuffer,
+        extraBits
+    );
 
-      int i;
-      int copyLen;
-      while (outPos < outSize) {
-        while (bitsCached < Short.SIZE) {
-          if (!in.isReadable()) {
-            // Store the current size of output
-            // nOutSize = pOutPos - pOutBuffer;
-            throw new InvalidFormat("PK_ERR_INCOMPLETE_INPUT: Incomplete input");
-          }
-          cache |= (in.readUnsignedByte() << bitsCached);
-          bitsCached += Byte.SIZE;
+    return expand(t) != 0x306 ? RET_NO_ERROR : RET_ABORT;
+  }
+
+  static int expand(Tuple t) {
+    int b, result;
+    while ((result = b = decodeLiteral(t)) < 0x305) {
+      if (b >= 0x100) {
+        int repeatLen = b - 0xfe;
+        final int copyBack;
+        if ((copyBack = decodeDist(t, repeatLen)) == 0) {
+          result = 0x306;
+          break;
         }
 
-        if ((cache & 1) == 1) { // First bit is 1; copy from dictionary
-          cache >>= 1;
-          bitsCached--;
-
-          // Find the base value for the copy length
-          for (i = 0; i <= 0x0F && (cache & BIT_MASKS[LenBits[i]]) != LenCode[i]; i++);
-          cache >>= LenBits[i];
-          bitsCached -= LenBits[i];
-
-          copyLen = LenBase[i] + (cache & BIT_MASKS[ExLenBits[i]]);
-          cache >>= ExLenBits[i];
-          bitsCached -= ExLenBits[i];
-          if (copyLen == 519) break; // indicates end of the stream has been reached
-
-          while (bitsCached < 14) { // intentionally 14
-            if (!in.isReadable()) {
-              // Store the current size of output
-              // nOutSize = pOutPos - pOutBuffer;
-              throw new InvalidFormat("PK_ERR_INCOMPLETE_INPUT: Incomplete input");
-            }
-            cache |= (in.readUnsignedByte() << bitsCached);
-            bitsCached += Byte.SIZE;
-          }
-
-          // Find most significant 6 bits of offset into the dictionary
-          for (i = 0; i <= 0x3F && (cache & BIT_MASKS[OffsBits[i]]) != OffsCode[i]; i++);
-          cache >>= OffsBits[i];
-          bitsCached -= OffsBits[i];
-
-          // If the copy length is 2, there are only two more bits in the dictionary
-          // offset; otherwise, there are 4, 5, or 6 bits left, depending on what
-          // the dictionary size is
-          int copyOffset;
-          if (copyLen == 2) {
-            copyOffset = dictPos - 1 - (i << copyLen) - (cache & BIT_MASKS[copyLen]);
-            cache >>= copyLen;
-            bitsCached -= copyLen;
-          } else {
-            copyOffset = dictPos - 1 - (i << dictShift) - (cache & BIT_MASKS[dictShift]);
-            cache >>= dictShift;
-            bitsCached -= dictShift;
-          }
-
-          while (copyLen-- > 0) {
-            if (!out.isWritable()) {
-              throw new InvalidFormat("PK_ERR_BUFFER_TOO_SMALL: Output buffer is full: " + out);
-            }
-
-            while (copyOffset < 0) copyOffset += curDictSize;
-            while (copyOffset >= curDictSize) copyOffset -= curDictSize;
-
-            // Copy the byte from the dictionary and add it to the end of the dictionary
-            Dict[dictPos++] = Out[outPos++] = Dict[copyOffset++];
-
-            if (curDictSize < dictSize) curDictSize++;
-            if (dictPos >= dictSize) dictPos = 0;
-          }
-        } else { // First bit is 0; literal byte
-          if (litSize == PK_LITERAL_SIZE_FIXED) {
-            Dict[dictPos++] = Out[outPos++] = (byte) (cache >> 1);
-            cache >>= (Byte.SIZE + 1);
-            bitsCached -= (Byte.SIZE + 1);
-          } else { // Variable size literal byte
-            cache >>= 1;
-            bitsCached -= 1;
-
-            // Find the actual byte from the bit sequence
-            for (i = 0; i <= 0xFF && (cache & BIT_MASKS[ChBits[i]]) != ChCode[i]; i++);
-            Dict[dictPos++] = Out[outPos++] = (byte) i;
-            cache >>= ChBits[i];
-            bitsCached -= ChBits[i];
-          }
-
-          if (curDictSize < dictSize) curDictSize++;
-          if (dictPos >= dictSize) dictPos = 0;
+        int target = t.pOut;
+        int source = target - copyBack;
+        final byte[] out = t.out;
+        t.pOut += repeatLen;
+        while (repeatLen-- > 0) {
+          out[target++] = out[source++];
         }
+      } else {
+        t.out[t.pOut++] = (byte) b;
+      }
+    }
+
+    return result;
+  }
+
+  static boolean skip(Tuple t, int bits) {
+    if (bits <= t.extraBits) {
+      t.bitBuffer >>>= bits;
+      t.extraBits -= bits;
+      return false;
+    }
+
+    t.bitBuffer >>>= t.extraBits;
+    if (t.pIn >= t.pInLimit) {
+      t.pIn = t.pInLimit;
+      return true;
+    }
+
+    t.bitBuffer |=  ((t.in[t.pIn++] & 0xff) << Byte.SIZE);
+    t.bitBuffer >>>= (bits - t.extraBits);
+    t.extraBits = (t.extraBits - bits) + Byte.SIZE;
+    return false;
+  }
+
+  static int decodeLiteral(Tuple t) {
+    int lenCode;
+    if ((t.bitBuffer & 1) == 1) {
+      if (skip(t, 1)) return 0x306;
+
+      lenCode = GenLenCode[t.bitBuffer & 0xff];
+      if (skip(t, LenBits[lenCode])) return 0x306;
+
+      int exLenBits;
+      if ((exLenBits = ExLenBits[lenCode]) != 0) {
+        int exLen = t.bitBuffer & BIT_MASKS[exLenBits]; // & ((1 << exLenBits) - 1)
+        if (skip(t, exLenBits) && (lenCode + exLen) != 0x10e) return 0x306;
+        lenCode = LenBase[lenCode] + exLen;
       }
 
-      return out.writeBytes(Out, 0, outSize);
-    } finally {
-      BYTES.free(Dict);
-      BYTES.free(Out);
+      return lenCode + 0x100;
     }
+
+    if (skip(t, 1)) return 0x306;
+    if (t.cType == CTYPE_BINARY) {
+      final int b = t.bitBuffer & 0xff;
+      if (skip(t, Byte.SIZE)) return 0x306;
+      return b;
+    }
+
+    // ascii
+    throw new UnsupportedOperationException();
+  }
+
+  static int decodeDist(Tuple t, int repeatLen) {
+    final int distCode = GenDistCode[t.bitBuffer & 0xff];
+    final int distBits = DistBits[distCode];
+    if (skip(t, distBits)) return 0;
+
+    final int distance;
+    if (repeatLen == 2) {
+      distance = (distCode << 2) | (t.bitBuffer & 0x3);
+      if (skip(t, 2)) return 0;
+    } else {
+      distance = (distCode << t.dictSize) | (t.bitBuffer & t.dictSizeMask);
+      if (skip(t, t.dictSize)) return 0;
+    }
+
+    return distance + 1;
   }
 }

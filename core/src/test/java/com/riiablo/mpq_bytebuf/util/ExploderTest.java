@@ -1,6 +1,8 @@
 package com.riiablo.mpq_bytebuf.util;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.*;
+import org.junit.jupiter.params.provider.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.netty.buffer.ByteBuf;
@@ -20,14 +22,18 @@ public class ExploderTest extends RiiabloTest {
     LogManager.setLevel("com.riiablo.mpq_bytebuf.util.Exploder", Level.TRACE);
   }
 
-  @Test
-  public void explode() {
-    FileHandle exploder_in = Gdx.files.internal("test/exploder_in.bin");
-    ByteBuf actual = Unpooled.buffer(0x1000).writeBytes(exploder_in.readBytes());
-    Exploder.pkexplode(actual);
+  @ParameterizedTest
+  @CsvSource(value = {
+      "test/exploder_in.bin,test/exploder_out.bin",
+  }, delimiter = ',')
+  void explode(String in, String out) {
+    FileHandle exploder_in = Gdx.files.internal(in);
+    ByteBuf imploded = Unpooled.buffer(0x1000).writeBytes(exploder_in.readBytes());
+    ByteBuf actual = Unpooled.buffer(0x1000);
+    Exploder.explode(imploded, actual);
     System.out.println(ByteBufUtil.prettyHexDump(actual));
 
-    FileHandle exploder_out = Gdx.files.internal("test/exploder_out.bin");
+    FileHandle exploder_out = Gdx.files.internal(out);
     ByteBuf expected = Unpooled.wrappedBuffer(exploder_out.readBytes());
     assertTrue(ByteBufUtil.equals(expected, actual));
   }

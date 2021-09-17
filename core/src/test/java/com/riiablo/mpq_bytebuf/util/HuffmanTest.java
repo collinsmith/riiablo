@@ -1,6 +1,8 @@
 package com.riiablo.mpq_bytebuf.util;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.*;
+import org.junit.jupiter.params.provider.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.netty.buffer.ByteBuf;
@@ -20,15 +22,40 @@ public class HuffmanTest extends RiiabloTest {
     LogManager.setLevel("com.riiablo.mpq_bytebuf.util.Huffman", Level.TRACE);
   }
 
-  @Test
-  public void decompress() {
-    FileHandle huffman_in = Gdx.files.internal("test/huffman_in.bin");
-    ByteBuf actual = Unpooled.buffer(0x1000).writeBytes(huffman_in.readBytes());
-    new Huffman().decompress(actual);
+  @ParameterizedTest
+  @CsvSource(value = {
+      "test/huffman_in.bin,test/huffman_out.bin",
+  }, delimiter = ',')
+  void inflate(String in, String out) {
+    FileHandle huffman_in = Gdx.files.internal(in);
+    ByteBuf deflated = Unpooled.buffer(0x1000).writeBytes(huffman_in.readBytes());
+    ByteBuf actual = Unpooled.buffer(0x1000);
+    new Huffman().inflate(deflated, actual);
     System.out.println(ByteBufUtil.prettyHexDump(actual));
 
-    FileHandle huffman_out = Gdx.files.internal("test/huffman_out.bin");
+    FileHandle huffman_out = Gdx.files.internal(out);
     ByteBuf expected = Unpooled.wrappedBuffer(huffman_out.readBytes());
     assertTrue(ByteBufUtil.equals(expected, actual));
+  }
+
+  @Nested
+  class reuse {
+    final Huffman huffman = new Huffman();
+
+    @ParameterizedTest
+    @CsvSource(value = {
+        "test/huffman_in.bin,test/huffman_out.bin",
+    }, delimiter = ',')
+    void inflate(String in, String out) {
+      FileHandle huffman_in = Gdx.files.internal(in);
+      ByteBuf deflated = Unpooled.buffer(0x1000).writeBytes(huffman_in.readBytes());
+      ByteBuf actual = Unpooled.buffer(0x1000);
+      huffman.inflate(deflated, actual);
+      System.out.println(ByteBufUtil.prettyHexDump(actual));
+
+      FileHandle huffman_out = Gdx.files.internal(out);
+      ByteBuf expected = Unpooled.wrappedBuffer(huffman_out.readBytes());
+      assertTrue(ByteBufUtil.equals(expected, actual));
+    }
   }
 }
