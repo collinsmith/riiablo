@@ -1,7 +1,6 @@
 package com.riiablo.mpq_bytebuf;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -174,20 +173,8 @@ public final class DecodingService extends ForkJoinPool {
         if (DEBUG_MODE) log.trace("Decoding {} sectors...", sectors.size());
         invokeAll(sectors);
         if (DEBUG_MODE) log.trace("Decoded {} sectors", sectors.size());
-        // FIXME: ugly solution which allows use with streams, in which case
-        //        return value is not used. handle.decoded.or is _very_ slow
-        final boolean stream = handle.buffer == null;
-        if (!stream) { // only needed in file buffering, not in streams
-          synchronized (handle.decoded) { handle.decoded.or(decoding); }
-        }
-        assert (stream && handle.numSectors == -1) || handle.numSectors >= 0
-            : "handle buffer state does not match expected state: "
-                + "handle=" + handle + ", "
-                + "numSectors=" + handle.numSectors + ", "
-                + "buffer=" + handle.buffer;
-        ByteBuf buffer = stream
-            ? Unpooled.EMPTY_BUFFER // assert MpqStream input stream
-            : handle.buffer.slice(offset, length); // assert MpqFileHandle buffer
+        synchronized (handle.decoded) { handle.decoded.or(decoding); }
+        ByteBuf buffer = handle.buffer.slice(offset, length);
         callback.onDecoded(handle, offset, length, buffer);
         return buffer;
       } catch (Throwable t) {
