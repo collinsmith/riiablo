@@ -346,6 +346,18 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
     return ConcurrentUtils.constantFuture(buffer);
   }
 
+  public InputStream stream() {
+    return stream(0, FSize, true);
+  }
+
+  public InputStream stream(boolean releaseOnClose) {
+    return stream(0, FSize, releaseOnClose);
+  }
+
+  public InputStream stream(int offset, int length, boolean releaseOnClose) {
+    return MpqStream.open(this, offset, length, releaseOnClose);
+  }
+
   @Override
   public int refCnt() {
     return updater.refCnt(this);
