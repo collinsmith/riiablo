@@ -193,8 +193,6 @@ public final class DecodingService extends ForkJoinPool {
       return new Builder(handle, offset, length, numSectors, callback);
     }
 
-    static final BitVector EMPTY_BIT_VECTOR = new BitVector();
-
     static ByteBuf decodeSync(
         MpqFileHandle handle,
         int sector,
