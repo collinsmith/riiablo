@@ -26,7 +26,7 @@ class MpqStreamTest extends RiiabloTest {
   public static void before() {
     LogManager.setLevel("com.riiablo.mpq_bytebuf", Level.WARN);
     LogManager.setLevel("com.riiablo.mpq_bytebuf.MpqStream", Level.TRACE);
-    LogManager.setLevel("com.riiablo.mpq_bytebuf.DecodingService", Level.WARN);
+    LogManager.setLevel("com.riiablo.mpq_bytebuf.DecoderExecutorGroup", Level.WARN);
   }
 
   @Test
@@ -45,7 +45,7 @@ class MpqStreamTest extends RiiabloTest {
     }
 
     void read(String in) throws IOException {
-      DecodingService decoder = new DecodingService(4);
+      DecoderExecutorGroup decoder = new DecoderExecutorGroup(4);
       try {
         MpqFileHandle handle = mpq.open(decoder, in, DEFAULT_LOCALE);
         InputStream stream = MpqStream.open(handle, 0, handle.FSize, true);
@@ -61,7 +61,7 @@ class MpqStreamTest extends RiiabloTest {
         ByteBuf expected = Unpooled.wrappedBuffer(handle_out.readBytes());
         assertTrue(ByteBufUtil.equals(expected, actual));
       } finally {
-        decoder.gracefulShutdown();
+        decoder.shutdownGracefully();
       }
     }
   }

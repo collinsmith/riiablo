@@ -9,25 +9,27 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.ImmediateEventExecutor;
+import io.netty.util.concurrent.Promise;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.RiiabloTest;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
-import com.riiablo.mpq_bytebuf.DecodingService.Callback;
 
-import static com.riiablo.mpq_bytebuf.DecodingService.IGNORE;
 import static com.riiablo.mpq_bytebuf.Mpq.DEFAULT_LOCALE;
 
 class DecodingTest extends RiiabloTest {
   @BeforeAll
   public static void before() {
     LogManager.setLevel("com.riiablo.mpq_bytebuf.MpqFileHandle", Level.TRACE);
-    LogManager.setLevel("com.riiablo.mpq_bytebuf.DecodingService", Level.TRACE);
+    LogManager.setLevel("com.riiablo.mpq_bytebuf.DecoderExecutorGroup", Level.TRACE);
   }
 
   @Nested
@@ -42,8 +44,8 @@ class DecodingTest extends RiiabloTest {
         "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
         "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
     })
-    void decode(String in) {
-      DecodingService decoder = new DecodingService(4);
+    void decode_await(String in) {
+      DecoderExecutorGroup decoder = new DecoderExecutorGroup(4);
       try {
         MpqFileHandle handle = mpq.open(decoder, in, DEFAULT_LOCALE);
         try {
@@ -56,7 +58,7 @@ class DecodingTest extends RiiabloTest {
           handle.release();
         }
       } finally {
-        decoder.gracefulShutdown();
+        decoder.shutdownGracefully();
       }
     }
 
@@ -65,68 +67,32 @@ class DecodingTest extends RiiabloTest {
         "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
         "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
     })
-    void decode_async(String in) {
-      DecodingService decoder = new DecodingService(4);
-      try {
-      MpqFileHandle handle = mpq.open(decoder, in, DEFAULT_LOCALE);
-        try {
-          final ByteBuf actual;
-          Future<ByteBuf> future = handle.bufferAsync(IGNORE);
-          try {
-            actual = future.get();
-          } catch (InterruptedException | ExecutionException t) {
-            fail(t);
-            return;
-          }
-
-          FileHandle handle_out = testAsset(in);
-          ByteBuf expected = Unpooled.wrappedBuffer(handle_out.readBytes());
-          assertTrue(ByteBufUtil.equals(expected, actual));
-        } finally {
-          handle.release();
-        }
-      } finally {
-        decoder.gracefulShutdown();
-      }
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-        "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
-        "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
-    })
-    void decode_callback(String in) {
-      DecodingService decoder = new DecodingService(4);
+    void decode_future(String in) {
+      DecoderExecutorGroup decoder = new DecoderExecutorGroup(4);
       try {
         MpqFileHandle handle = mpq.open(decoder, in, DEFAULT_LOCALE);
         try {
-          final AtomicReference<ByteBuf> actual = new AtomicReference<>();
-          Future<ByteBuf> future = handle.bufferAsync(new Callback() {
-            @Override
-            public void onDecoded(MpqFileHandle handle, int offset, int length, ByteBuf buffer) {
-              actual.set(buffer);
-            }
-
-            @Override
-            public void onError(MpqFileHandle handle, Throwable throwable) {
-            }
-          });
+          final EventExecutor executor = ImmediateEventExecutor.INSTANCE;
+          Promise<ByteBuf> actual = executor.newPromise();
+          Future<ByteBuf> future = handle.bufferAsync(executor);
+          future.addListener((FutureListener<ByteBuf>) f -> actual.setSuccess(f.getNow()));
           try {
             ByteBuf futureResult = future.get();
-            assertSame(actual.get(), futureResult);
-          } catch (InterruptedException | ExecutionException t) {
+            actual.await();
+            assertSame(actual.getNow(), futureResult);
+          } catch (InterruptedException | CancellationException | ExecutionException t) {
             fail(t);
             return;
           }
 
           FileHandle handle_out = testAsset(in);
           ByteBuf expected = Unpooled.wrappedBuffer(handle_out.readBytes());
-          assertTrue(ByteBufUtil.equals(expected, actual.get()));
+          assertTrue(ByteBufUtil.equals(expected, actual.getNow()));
         } finally {
           handle.release();
         }
       } finally {
-        decoder.gracefulShutdown();
+        decoder.shutdownGracefully();
       }
     }
   }

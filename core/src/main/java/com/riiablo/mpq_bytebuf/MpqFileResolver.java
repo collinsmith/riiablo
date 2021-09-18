@@ -33,7 +33,7 @@ public class MpqFileResolver implements FileHandleResolver, Disposable {
   public final Mpq d2video;
 
   final Array<Mpq> mpqs = Array.of(true, 16, Mpq.class);
-  final DecodingService decoder = new DecodingService(2);
+  final DecoderExecutorGroup decoder = new DecoderExecutorGroup(2);
   final Array<MountPoint> mounts = Array.of(true, 4, MountPoint.class);
 
   public MpqFileResolver() {
@@ -64,7 +64,7 @@ public class MpqFileResolver implements FileHandleResolver, Disposable {
 
   @Override
   public void dispose() {
-    decoder.gracefulShutdown();
+    decoder.shutdownGracefully();
     for (Mpq mpq : mpqs) mpq.dispose();
     mpqs.clear();
   }

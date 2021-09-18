@@ -8,7 +8,6 @@ import java.io.InputStream;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
-import com.riiablo.mpq_bytebuf.DecodingService.DecodingTask;
 
 import static com.riiablo.mpq_bytebuf.Decrypter.ENCRYPTION;
 import static com.riiablo.mpq_bytebuf.Decrypter.SEED2;
@@ -19,7 +18,6 @@ public final class MpqStream extends InputStream {
   private static final boolean DEBUG_MODE = !true;
 
   final MpqFileHandle handle;
-  final DecodingService decoder;
   final boolean releaseOnClose;
   final boolean encrypted;
   ByteBuf buffer;
@@ -65,7 +63,6 @@ public final class MpqStream extends InputStream {
     }
 
     this.handle = handle;
-    this.decoder = handle.decoder;
     this.encrypted = handle.encrypted();
     this.releaseOnClose = releaseOnClose;
     this.bytesRead = offset;
@@ -188,7 +185,7 @@ public final class MpqStream extends InputStream {
     final int bufferOffset = currentSector * sectorSize;
     final int sectorCSize = nextSectorOffset - sectorOffset;
     final int sectorFSize = Math.min(handle.FSize - bufferOffset, sectorSize);
-    return DecodingTask.decodeSync(
+    return DecoderExecutorGroup.SectorDecodeTask.decodeSync(
         handle,
         currentSector++,
         sectorOffset,

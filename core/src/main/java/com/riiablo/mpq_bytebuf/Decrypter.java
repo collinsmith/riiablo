@@ -276,6 +276,10 @@ public enum Decrypter {
       (byte) 0xf8, (byte) 0xf9, (byte) 0xfa, (byte) 0xfb, (byte) 0xfc, (byte) 0xfd, (byte) 0xfe, (byte) 0xff,
   };
 
+  public static byte[] charMap() {
+    return charMap;
+  }
+
   public static String fix(String str) {
     final byte[] charMap = Decrypter.charMap;
     final byte[] bytes = getBytes(str);

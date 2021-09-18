@@ -4,6 +4,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.ImmediateEventExecutor;
+import io.netty.util.concurrent.Promise;
 import io.netty.util.internal.ReferenceCountUpdater;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -16,11 +21,10 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.artemis.utils.BitVector;
@@ -30,11 +34,8 @@ import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
-import com.riiablo.mpq_bytebuf.DecodingService.ArchiveRead;
-import com.riiablo.mpq_bytebuf.DecodingService.Callback;
-import com.riiablo.mpq_bytebuf.DecodingService.DecodingTask;
+import com.riiablo.mpq_bytebuf.DecoderExecutorGroup.DecodingTask;
 
-import static com.riiablo.mpq_bytebuf.DecodingService.IGNORE;
 import static com.riiablo.mpq_bytebuf.Mpq.Block.FLAG_ENCRYPTED;
 import static com.riiablo.mpq_bytebuf.Mpq.Block.FLAG_EXISTS;
 import static com.riiablo.util.ImplUtils.unsupported;
@@ -85,7 +86,7 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
   @SuppressWarnings("unused")
   private volatile int refCnt = updater.initialValue();
 
-  final DecodingService decoder;
+  final DecoderExecutorGroup decoder;
   public final Mpq mpq;
   final int index;
   public final String filename;
@@ -106,7 +107,7 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
   int encryptionKey;
 
   MpqFileHandle(
-      DecodingService decoder,
+      DecoderExecutorGroup decoder,
       Mpq mpq,
       int index,
       String filename,
@@ -178,8 +179,8 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
    * released, instead the handle must be released when it is no longer needed.
    *
    * @see #buffer(int, int)
-   * @see #bufferAsync(Callback)
-   * @see #bufferAsync(int, int, Callback)
+   * @see #bufferAsync(EventExecutor)
+   * @see #bufferAsync(EventExecutor, int, int)
    * @see #release()
    */
   public ByteBuf buffer() {
@@ -195,28 +196,16 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
    * @param length length of decompressed contents after offset
    *
    * @see #buffer()
-   * @see #bufferAsync(Callback)
-   * @see #bufferAsync(int, int, Callback)
+   * @see #bufferAsync(EventExecutor)
+   * @see #bufferAsync(EventExecutor, int, int)
    * @see #release()
    */
   public ByteBuf buffer(int offset, int length) {
-    if (offset + length > FSize) {
-      throw new IndexOutOfBoundsException(
-          String.format(
-              "offset(+0x%x) + length(0x%x) exceeds declared FSize(0x%x)",
-              offset, length, FSize));
-    }
-
-    Future<ByteBuf> future = ensureReadable(offset, length, IGNORE);
     try {
-      return future.get();
-    } catch (InterruptedException | ExecutionException t) {
+      return bufferAsync(ImmediateEventExecutor.INSTANCE, offset, length).get();
+    } catch (InterruptedException | CancellationException | ExecutionException t) {
       return ExceptionUtils.rethrow(t);
     }
-  }
-
-  public Future<ByteBuf> bufferAsync() {
-    return bufferAsync(IGNORE);
   }
 
   /**
@@ -230,15 +219,15 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
    *
    * @see #buffer()
    * @see #buffer(int, int)
-   * @see #bufferAsync()
-   * @see #bufferAsync(int, int, Callback)
+   * @see #bufferAsync(EventExecutor)
+   * @see #bufferAsync(EventExecutor, int, int)
    * @see #release()
    */
-  public Future<ByteBuf> bufferAsync(Callback callback) {
-    return bufferAsync(0, FSize, callback);
+  public Future<ByteBuf> bufferAsync(EventExecutor executor) {
+    return bufferAsync(executor, 0, FSize);
   }
 
-  public Future<ByteBuf> bufferAsync(int offset, int length, Callback callback) {
+  public Future<ByteBuf> bufferAsync(EventExecutor executor, int offset, int length) {
     if (offset + length > FSize) {
       throw new IndexOutOfBoundsException(
           String.format(
@@ -246,7 +235,7 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
               offset, length, FSize));
     }
 
-    return ensureReadable(offset, length, callback);
+    return ensureReadable(executor, offset, length);
   }
 
   int encryptionKey() {
@@ -255,15 +244,15 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
         : encryptionKey;
   }
 
-  Future<ByteBuf> ensureReadable(final int offset, final int length, final Callback callback) {
+  Future<ByteBuf> ensureReadable(EventExecutor executor, int offset, int length) {
     if (numSectors < 0) {
       readSectorOffsets();
       allocateBuffer();
     }
 
     return numSectors == 0
-        ? readRawArchive(callback)
-        : decodeSectors(offset, length, callback);
+        ? readRawArchive(executor)
+        : decodeSectors(executor, offset, length);
   }
 
   ByteBuf readSectorOffsets() {
@@ -297,53 +286,97 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
     return buffer;
   }
 
-  Future<ByteBuf> readRawArchive(Callback callback) {
+  Future<ByteBuf> readRawArchive(EventExecutor executor) {
     assert numSectors == 0 : "copyBuffer requires numSectors=" + numSectors;
-    final boolean decoded;
-    synchronized (this.decoded) {
-      decoded = this.decoded.unsafeGet(0); // using bit 0 as decoded tag for buffer
-    }
-
-    if (decoded) {
+    if (decoded(0)) { // using bit 0 as decoded tag for buffer
       final ByteBuf buffer = this.buffer;
-      callback.onDecoded(this, 0, FSize, buffer);
-      return ConcurrentUtils.constantFuture(buffer);
+      return executor.newSucceededFuture(buffer);
     }
 
-    return decoder.submit(new ArchiveRead(this, 0, FSize, buffer, 0, callback));
+    return decoder
+        .newArchiveReadTask(executor, this, 0, FSize, buffer, 0)
+        .submit()
+        .addListener(new FutureListener<ByteBuf>() {
+          @Override
+          public void operationComplete(Future<ByteBuf> future) {
+            setDecoded(0, buffer); // using bit 0 as decoded tag for buffer
+          }
+        });
   }
 
-  Future<ByteBuf> decodeSectors(int offset, int length, Callback callback) {
+  Future<ByteBuf> decodeSectors(EventExecutor executor, final int offset, final int length) {
     final int sectorSize = mpq.sectorSize;
     int startSector = offset / sectorSize;
     int endSector = (offset + length + sectorSize - 1) / sectorSize;
-    DecodingTask.Builder task = null;
+    DecodingTask task = null;
     for (int i = startSector; i < endSector; i++) {
-      synchronized (decoded) { if (decoded.unsafeGet(i)) continue; }
-      final int bufferOffset = i * sectorSize;
-      final int sectorOffset = sectorOffsets.getIntLE(i << 2);
-      final int nextSectorOffset = sectorOffsets.getIntLE((i + 1) << 2);
+      final int sector = i;
+      if (decoded(sector)) continue;
+      final int bufferOffset = sector * sectorSize;
+      final int sectorOffset = sectorOffsets.getIntLE(sector << 2);
+      final int nextSectorOffset = sectorOffsets.getIntLE((sector + 1) << 2);
       final int sectorCSize = nextSectorOffset - sectorOffset;
       final int sectorFSize = Math.min(FSize - bufferOffset, sectorSize);
-      if (task == null) {
-        task = DecodingTask.builder(
-            this,
-            offset,
-            length,
-            endSector - i,
-            callback);
-      }
-      task.add(i, sectorOffset, sectorCSize, sectorFSize, buffer, bufferOffset);
+      if (task == null) task = decoder.newDecodingTask(executor, this, offset, length);
+      // if (buffer == null) throw new AssertionError("buffer was null?");
+      final ByteBuf buffer = this.buffer;
+      task.submit(sector, sectorOffset, sectorCSize, sectorFSize, buffer, bufferOffset)
+          .addListener(new FutureListener<Object>() {
+            @Override
+            public void operationComplete(Future<Object> future) {
+              setDecoded(sector, buffer);
+            }
+          });
     }
 
     if (task != null) {
-      if (DEBUG_MODE) log.trace("Submitting {} sectors for decoding", task.size());
-      return decoder.submit(task.build());
+      if (DEBUG_MODE) log.trace("Submitting {} sectors for decoding", task.numTasks());
+      final Promise<ByteBuf> aggregatePromise = executor.newPromise();
+      task.combine(executor.<Void>newPromise())
+          .addListener(new FutureListener<Void>() {
+            @Override
+            public void operationComplete(Future<Void> future) {
+              aggregatePromise.setSuccess(buffer.slice(offset, length));
+            }
+          });
+      return aggregatePromise;
     }
 
     ByteBuf buffer = this.buffer.slice(offset, length);
-    callback.onDecoded(this, offset, length, buffer);
-    return ConcurrentUtils.constantFuture(buffer);
+    return executor.newSucceededFuture(buffer);
+  }
+
+  /**
+   * Queries whether the buffer backed by this file handle already contains the
+   * decoded contents of the specified sector.
+   *
+   * @see #decoded(int, ByteBuf)
+   */
+  boolean decoded(final int sector) {
+    return decoded(sector, this.buffer);
+  }
+
+  /**
+   * Queries whether the buffer backed by this file handle already contains the
+   * decoded contents of the specified sector, and that the given buffer is the
+   * backing buffer (and thus contains those contents).
+   *
+   * @see #decoded(int)
+   */
+  boolean decoded(final int sector, final ByteBuf buffer) {
+    assert buffer != null : "buffer cannot be null";
+    if (this.buffer != buffer) return false;
+    synchronized (decoded) { return decoded.get(sector); }
+  }
+
+  /**
+   * Marks the specified sector as decoded iff {@code buffer} is the backing
+   * buffer.
+   */
+  void setDecoded(final int sector, final ByteBuf buffer) {
+    assert buffer != null : "buffer cannot be null";
+    if (this.buffer != buffer) return;
+    synchronized (decoded) { decoded.unsafeSet(sector); }
   }
 
   public InputStream stream() {
@@ -629,5 +662,23 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
   @Override
   public long lastModified() {
     return unsupported("not supported for mpq files");
+  }
+
+  public FutureListener<ByteBuf> releasingFuture() {
+    return new ReleasingFuture(this);
+  }
+
+  public static final class ReleasingFuture implements FutureListener<ByteBuf> {
+    final MpqFileHandle handle;
+
+    public ReleasingFuture(MpqFileHandle handle) {
+      this.handle = handle;
+    }
+
+    @Override
+    public void operationComplete(Future<ByteBuf> future) {
+      log.info("Releasing {}", handle);
+      handle.release();
+    }
   }
 }

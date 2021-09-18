@@ -370,12 +370,12 @@ public final class Mpq implements Disposable {
 
   /** @deprecated for use in tests, use MpqFileHandleResolver instead */
   @Deprecated
-  MpqFileHandle open(final DecodingService decoder, final CharSequence filename, final short locale) {
+  MpqFileHandle open(final DecoderExecutorGroup decoder, final CharSequence filename, final short locale) {
     final int index = get(filename, locale);
     return open(decoder, index, filename);
   }
 
-  MpqFileHandle open(final DecodingService decoder, final int index, final CharSequence filename) {
+  MpqFileHandle open(final DecoderExecutorGroup decoder, final int index, final CharSequence filename) {
     return hashTable.open(decoder, this, index, filename);
   }
 
@@ -502,7 +502,7 @@ public final class Mpq implements Disposable {
       return bestId;
     }
 
-    MpqFileHandle open(final DecodingService decoder, final Mpq mpq, final int index, final CharSequence filename) {
+    MpqFileHandle open(final DecoderExecutorGroup decoder, final Mpq mpq, final int index, final CharSequence filename) {
       MpqFileHandle handle = this.handle[index];
       if (handle == null) {
         final int blockId = this.blockId[index];
