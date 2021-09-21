@@ -286,8 +286,8 @@ public enum Decrypter {
     byte b;
     boolean equal = true;
     for (int i = 0, s = bytes.length; i < s; i++) {
-        // remaps bytes and tracks changes if original didn't change
-        equal &= ((bytes[i] = charMap[b = bytes[i]]) == b);
+      // remaps bytes and tracks changes if original didn't change
+      equal &= ((bytes[i] = charMap[b = bytes[i]]) == b);
     }
     return equal ? str : new String(bytes, StandardCharsets.US_ASCII);
   }
