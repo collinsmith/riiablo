@@ -1,186 +1,144 @@
 package com.riiablo.asset;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import io.netty.util.concurrent.DefaultEventExecutor;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.ImmediateEventExecutor;
+import io.netty.util.concurrent.Promise;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 
-import com.riiablo.asset.adapter.GdxFileHandleAdapter;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
 public final class AssetManager implements Disposable {
   private static final Logger log = LogManager.getLogger(AssetManager.class);
 
-  final ExecutorService io;
-  final ExecutorService async;
-
-  /** Updated after each sync {@link #update} or sync {@link #load(AssetDesc)} */
-  final ObjectMap<String, AssetContainer> loadedAssets = new ObjectMap<>();
-  /** Queue of assets which need to be loaded */
-  final PriorityBlockingQueue<AssetDesc> queuedAssets = new PriorityBlockingQueue<>();
-
-  final Map<Class, AssetLoader> loaders = new ConcurrentHashMap<>();
-  final Map<Class, FileHandleAdapter> adapters = new ConcurrentHashMap<>();
-
+  final ObjectMap<AssetDesc, AssetContainer> loadedAssets = new ObjectMap<>();
+  final ObjectMap<Class, AssetLoader> loaders = new ObjectMap<>();
+  final ObjectMap<Class, Adapter> adapters = new ObjectMap<>();
   final Array<PriorityContainer<FileHandleResolver>> resolvers = new Array<>();
+  final ObjectMap<Class, Class<? extends AssetParams>> defaultParams = new ObjectMap<>();
+
+  final EventExecutor io;
+  final EventExecutor sync;
 
   public AssetManager() {
-    this(2);
+    io = new DefaultEventExecutor();
+    sync = ImmediateEventExecutor.INSTANCE;
   }
 
-  public AssetManager(int nThreads) {
-    final String className = AssetManager.class.getSimpleName();
-    io = Executors.newSingleThreadExecutor(new NamedThreadFactory(className, "io"));
-    async = Executors.newFixedThreadPool(nThreads, new NamedThreadFactory(className, "async"));
+  @Override
+  public void dispose() {
+    log.trace("Shutting down i/o event executor...");
+    io.shutdownGracefully();
 
-    setAdapter(FileHandle.class, new GdxFileHandleAdapter());
+    log.trace("Disposing file handle resolvers...");
+    for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
+      AssetUtils.dispose(resolver);
+    }
   }
 
   public AssetLoader getLoader(Class type) {
     return loaders.get(type);
   }
 
-  AssetLoader findLoader(Class type) {
+  AssetLoader findLoader(Class type) throws LoaderNotFound {
     final AssetLoader loader = getLoader(type);
     if (loader == null) throw new LoaderNotFound(type);
     return loader;
   }
 
-  public <T> void setLoader(Class<T> type, AssetLoader<T, ?> loader) {
+  public <T> AssetManager loader(Class<T> type, AssetLoader<T> loader) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
     if (loader == null) throw new IllegalArgumentException("loader cannot be null");
     log.debug("Loader set {} -> {}", type.getSimpleName(), loader.getClass());
     loaders.put(type, loader);
+    return this;
   }
 
-  public FileHandleAdapter getAdapter(Class type) {
+  public AssetManager resolver(FileHandleResolver resolver) {
+    return resolver(resolver, 0);
+  }
+
+  public AssetManager resolver(FileHandleResolver resolver, int priority) {
+    if (resolver == null) throw new IllegalArgumentException("resolver cannot be null");
+    log.debug("Resolver added {}", resolver);
+    resolvers.add(PriorityContainer.wrap(priority, resolver));
+    resolvers.sort(); // stable sort, order maintained for equal priorities
+    return this;
+  }
+
+  FileHandle resolve(AssetDesc asset) throws ResolverNotFound {
+    if (asset.params == null) asset.params = defaultParams(asset.type);
+    for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
+      final FileHandle handle = resolver.resolve(asset);
+      if (handle != null) return handle;
+    }
+
+    throw new ResolverNotFound(asset);
+  }
+
+  public Adapter getAdapter(Class type) {
     return adapters.get(type);
   }
 
-  FileHandleAdapter findAdapter(Class type) {
-    final FileHandleAdapter adapter = getAdapter(type);
+  Adapter findAdapter(FileHandle handle) throws AdapterNotFound {
+    return findAdapter(handle.getClass());
+  }
+
+  Adapter findAdapter(Class type) throws AdapterNotFound {
+    final Adapter adapter = getAdapter(type);
     if (adapter == null) throw new AdapterNotFound(type);
     return adapter;
   }
 
-  public <F extends FileHandle> void setAdapter(Class<F> type, FileHandleAdapter<F> adapter) {
+  public <F extends FileHandle> AssetManager adapter(Class<F> type, Adapter<? extends F> adapter) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
     if (adapter == null) throw new IllegalArgumentException("adapter cannot be null");
     log.debug("Adapter set {} -> {}", type.getSimpleName(), adapter.getClass());
     adapters.put(type, adapter);
+    return this;
   }
 
-  public void addResolver(FileHandleResolver resolver) {
-    addResolver(resolver, Integer.MIN_VALUE);
+  public <T> AssetManager paramResolver(Class<T> type, Class<? extends AssetParams<? super T>> paramsType) {
+    if (type == null) throw new IllegalArgumentException("type cannot be null");
+    if (paramsType == null) throw new IllegalArgumentException("paramsType cannot be null");
+    defaultParams.put(type, paramsType);
+    log.debug("Params set {} -> {}", type, paramsType);
+    return this;
   }
 
-  public void addResolver(FileHandleResolver resolver, int priority) {
-    if (resolver == null) throw new IllegalArgumentException("resolver cannot be null");
-    log.debug("Resolver set {}", resolver);
-    resolvers.add(PriorityContainer.wrap(priority, resolver));
-    resolvers.sort();
-  }
-
-  public FileHandle resolve(MutableString path) {
-    for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
-      final FileHandle handle = resolver.resolve(path);
-      if (handle != null) {
-        return handle;
-      }
-    }
-
-    throw new ResolverNotFound(path);
-  }
-
-  public <T> T get(AssetDesc<T> asset) {
-    final AssetContainer container = loadedAssets.get(asset.path());
-    if (container == null) return null;
-    return container.get(asset.type);
-  }
-
-  public <T> T load(AssetDesc<T> asset) {
-    log.traceEntry("load(asset: {})", asset);
-
-    final AssetContainer container = loadedAssets.get(asset.path());
-    if (container != null) {
-      log.debug("Asset already loaded: {}", container);
-      return container.get(asset.type);
-    }
-
-    FileHandle handle;
+  AssetParams defaultParams(Class type) throws ParamsNotFound {
     try {
-      handle = resolve(asset.path);
-    } catch (ResolverNotFound t) {
-      final AssetLoader loader = findLoader(asset.type);
-      loader.resolver().transformer().transform(asset.path);
-      handle = null;
-    }
-
-    // need series of resolver to try and locate file
-    // need to resolve path at this point...
-
-    throw null;
-  }
-
-  public <T> void unload(AssetDesc<T> asset) {
-    log.traceEntry("unload(asset: {})", asset);
-  }
-
-  @Override
-  public void dispose() {
-    shutdown(io, "io");
-    shutdown(async, "async");
-  }
-
-  public void update() {
-
-  }
-
-  private static void shutdown(ExecutorService executor, String name) {
-    log.trace("Shutting down {} executor...", name);
-    try {
-      executor.shutdown();
-      if (!executor.awaitTermination(15, TimeUnit.SECONDS)) {
-        List<Runnable> unexecutedTasks = executor.shutdownNow();
-        log.warn("{} tasks terminated", unexecutedTasks.size());
-        if (!executor.awaitTermination(16, TimeUnit.SECONDS)) {
-          log.error("{} executor failed to shut down gracefully", name);
-        }
-      }
-    } catch (InterruptedException t) {
-      log.error("{} executor failed to shut down gracefully", name, t);
-      executor.shutdownNow();
-      Thread.currentThread().interrupt();
+      return defaultParams.get(type).newInstance();
+    } catch (Throwable t) {
+      throw new ParamsNotFound(type, t);
     }
   }
 
-  private static class NamedThreadFactory implements ThreadFactory {
-    final String parent;
-    final String pool;
+  public <T> Future<T> load(final AssetDesc<T> asset) {
+    final AssetContainer container = loadedAssets.get(asset);
+    if (container != null) return container.get(asset.type);
 
-    NamedThreadFactory(String parent, String pool) {
-      this.parent = parent;
-      this.pool = pool;
-    }
+    final Promise<T> promise = sync.newPromise();
+    final AssetLoader loader = findLoader(asset.type);
+    final FileHandle handle = resolve(asset); // TODO: refactor AssetLoader#resolver?
+    final Adapter adapter = findAdapter(handle);
+    @SuppressWarnings("unchecked") // nn adapter => adapter parametric class = handle class
+    Future<?> future = loader.ioAsync(io, asset, handle, adapter);
 
-    @Override
-    public Thread newThread(final Runnable r) {
-      final String name = String.format("%s-%s-%08x", parent, pool, MathUtils.random.nextInt());
-      log.debug("Creating {}...", name);
-      final Thread thread = new Thread(r, name);
-      thread.setDaemon(true);
-      return thread;
-    }
+
+    // check loadedAssets
+    // check preload queue
+    // check task list
+
+    return promise;
+  }
+
+  public void unload(AssetDesc asset) {
   }
 }

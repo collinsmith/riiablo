@@ -1,3 +1,4 @@
 package com.riiablo.asset;
 
-public abstract class AssetParams<T> {}
+public class AssetParams<T> {
+}

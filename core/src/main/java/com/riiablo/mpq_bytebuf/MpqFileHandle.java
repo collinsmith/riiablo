@@ -136,6 +136,10 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
         : toString;
   }
 
+  public int sectorSize() {
+    return mpq.sectorSize;
+  }
+
   @Override
   public String path() {
     return filename;

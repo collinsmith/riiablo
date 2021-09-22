@@ -3,19 +3,37 @@ package com.riiablo.asset;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class AssetDesc<T> {
-  public static <T> AssetDesc<T> of(CharSequence path, Class<T> type) {
+  public static <T> AssetDesc<T> of(
+      CharSequence path,
+      Class<T> type
+  ) {
     return of(path, type, null);
   }
 
-  public static <T> AssetDesc<T> of(CharSequence path, Class<T> type, AssetParams<T> params) {
-    return new AssetDesc<>(MutableString.wrap(path), type, params);
+  public static <T> AssetDesc<T> of(
+      CharSequence path,
+      Class<T> type,
+      AssetParams<? super T> params
+  ) {
+    return new AssetDesc<>(AssetPath.of(path), type, params);
   }
 
-  final MutableString path;
-  final Class<T> type;
-  final AssetParams<T> params;
+  public static <T> AssetDesc<T> of(
+      AssetDesc<T> asset,
+      AssetParams<? super T> params
+  ) {
+    return new AssetDesc<>(asset.path, asset.type, params);
+  }
 
-  AssetDesc(MutableString path, Class<T> type, AssetParams<T> params) {
+  final AssetPath path;
+  final Class<T> type;
+  AssetParams<? super T> params;
+
+  AssetDesc(
+      AssetPath path,
+      Class<T> type,
+      AssetParams<? super T> params
+  ) {
     this.path = path;
     this.type = type;
     this.params = params;
@@ -29,8 +47,13 @@ public class AssetDesc<T> {
     return type;
   }
 
-  public AssetParams<T> params() {
+  public AssetParams params() {
     return params;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <E extends AssetParams> E params(Class<E> paramsType) {
+    return (E) params;
   }
 
   @Override
@@ -39,20 +62,22 @@ public class AssetDesc<T> {
         .append("path", path)
         .append("type", type)
         .append("params", params)
-        .build();
+        .toString();
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == this) return true;
-    if (obj == null) return false;
-    if (!(obj instanceof AssetDesc)) return false;
-    final AssetDesc other = (AssetDesc) obj;
-    return path.equals(other.path);
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AssetDesc)) return false;
+    AssetDesc<?> assetDesc = (AssetDesc<?>) o;
+    if (!path.equals(assetDesc.path)) return false;
+    return params.equals(assetDesc.params);
   }
 
   @Override
   public int hashCode() {
-    return path.hashCode();
+    int result = path.hashCode();
+    result = 31 * result + params.hashCode();
+    return result;
   }
 }

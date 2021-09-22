@@ -47,6 +47,33 @@ public final class Mpq implements Disposable {
       0x1000, // 4 KB (mpq sector size)
       PooledByteBufAllocator.defaultMaxOrder());
 
+  public static String localeToString(short locale) {
+    switch (locale) {
+      case 0: return "en";
+      case 0x404: return "zh-TW";
+      case 0x405: return "cs-CZ";
+      case 0x407: return "de-DE";
+      case 0x409: return "en-US";
+      case 0x40a: return "es-ES";
+      case 0x40c: return "fr-FR";
+      case 0x410: return "it-IT";
+      case 0x411: return "ja-JP";
+      case 0x412: return "ko-KR";
+      case 0x415: return "pl-PL";
+      case 0x416: return "pt-BR";
+      case 0x419: return "ru-RU";
+      case 0x809: return "en-GB";
+      default: return String.format("0x%x", locale);
+    }
+  }
+
+  public static String platformToString(short platform) {
+    switch (platform) {
+      case 0: return "win32";
+      default: return String.format("0x%x", platform);
+    }
+  }
+
   ByteBufAllocator alloc() {
     return ALLOC;
   }
@@ -344,7 +371,7 @@ public final class Mpq implements Disposable {
     return map;
   }
 
-  /** @deprecated for use in tests, use MpqFileHandleResolver instead */
+  /** @deprecated for use in tests, use MpqFileResolver instead */
   @Deprecated
   boolean contains(final String filename, final short locale) {
     final long key = HashTable.key(filename);
@@ -356,7 +383,7 @@ public final class Mpq implements Disposable {
     return hashTable.get(key, hash, locale) >= 0;
   }
 
-  /** @deprecated for use in tests, use MpqFileHandleResolver instead */
+  /** @deprecated for use in tests, use MpqFileResolver instead */
   @Deprecated
   int get(final CharSequence filename, final short locale) {
     final long key = HashTable.key(filename);
@@ -368,7 +395,7 @@ public final class Mpq implements Disposable {
     return hashTable.get(key, hash, locale);
   }
 
-  /** @deprecated for use in tests, use MpqFileHandleResolver instead */
+  /** @deprecated for use in tests, use MpqFileResolver instead */
   @Deprecated
   MpqFileHandle open(final DecoderExecutorGroup decoder, final CharSequence filename, final short locale) {
     final int index = get(filename, locale);
@@ -409,33 +436,6 @@ public final class Mpq implements Disposable {
 
     static int hash(final CharSequence filename) {
       return Decrypter.HASH_TABLE_OFFSET.hash(filename);
-    }
-
-    static String localeToString(short locale) {
-      switch (locale) {
-        case 0: return "en";
-        case 0x404: return "zh-TW";
-        case 0x405: return "cs-CZ";
-        case 0x407: return "de-DE";
-        case 0x409: return "en-US";
-        case 0x40a: return "es-ES";
-        case 0x40c: return "fr-FR";
-        case 0x410: return "it-IT";
-        case 0x411: return "ja-JP";
-        case 0x412: return "ko-KR";
-        case 0x415: return "pl-PL";
-        case 0x416: return "pt-BR";
-        case 0x419: return "ru-RU";
-        case 0x809: return "en-GB";
-        default: return String.format("0x%x", locale);
-      }
-    }
-
-    static String platformToString(short platform) {
-      switch (platform) {
-        case 0: return "win32";
-        default: return String.format("0x%x", platform);
-      }
     }
 
     final int size;

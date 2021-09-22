@@ -4,11 +4,12 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Transformer;
 
 public class PriorityContainer<T> implements Comparable<PriorityContainer<T>> {
-  public static <T> PriorityContainer<T> wrap(int priority, T ref) {
+  static <T> PriorityContainer<T> wrap(int priority, T ref) {
     return new PriorityContainer<>(priority, ref);
   }
 
-  public static <T> Iterable<T> unwrap(Iterable<? extends PriorityContainer<T>> it) {
+  /** transforms a stream of containers into their elements */
+  static <T> Iterable<T> unwrap(Iterable<? extends PriorityContainer<T>> it) {
     return IteratorUtils.asIterable(IteratorUtils.transformedIterator(
         it.iterator(),
         new Transformer<PriorityContainer<T>, T>() {
@@ -29,6 +30,6 @@ public class PriorityContainer<T> implements Comparable<PriorityContainer<T>> {
 
   @Override
   public int compareTo(PriorityContainer<T> other) {
-    return Integer.compare(other.priority, priority);
+    return Integer.compare(priority, other.priority);
   }
 }

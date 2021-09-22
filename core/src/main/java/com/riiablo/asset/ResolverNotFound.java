@@ -1,18 +1,18 @@
 package com.riiablo.asset;
 
 public class ResolverNotFound extends RuntimeException {
-  final CharSequence path;
+  public final AssetDesc<?> asset;
 
-  ResolverNotFound(CharSequence path) {
-    this(path, null);
+  ResolverNotFound(AssetDesc<?> asset) {
+    this(asset, null);
   }
 
-  ResolverNotFound(CharSequence path, Throwable cause) {
-    super("Resolver not found for " + path, cause);
-    this.path = path;
+  ResolverNotFound(AssetDesc<?> asset, Throwable cause) {
+    super("Resolver not found for " + asset, cause);
+    this.asset = asset;
   }
 
-  public CharSequence path() {
-    return path;
+  public AssetDesc<?> asset() {
+    return asset;
   }
 }

@@ -1,48 +1,48 @@
 package com.riiablo.asset;
 
 import io.netty.util.AbstractReferenceCounted;
+import io.netty.util.ReferenceCounted;
+import io.netty.util.concurrent.Future;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.badlogic.gdx.utils.Disposable;
+import static com.riiablo.util.ImplUtils.unimplemented;
 
 public class AssetContainer extends AbstractReferenceCounted {
-  public static AssetContainer wrap(AssetDesc asset, Object ref) {
-    if (ref == null) throw new IllegalArgumentException("ref cannot be null");
-    return new AssetContainer(asset, ref);
+  public static AssetContainer wrap(AssetDesc asset, Future<?> future) {
+    if (future == null) throw new IllegalArgumentException("future cannot be null");
+    return new AssetContainer(asset, future);
   }
 
-  final AssetDesc asset;
-  Object ref;
+  final AssetDesc asset; // for context of which asset this contains
+  final Future<?> future;
 
-  AssetContainer(AssetDesc asset, Object ref) {
+  AssetContainer(AssetDesc asset, Future<?> future) {
     this.asset = asset;
-    this.ref = ref;
+    this.future = future;
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T get(Class<T> type) {
-    return (T) ref;
-  }
-
-  public void set(Object ref) {
-    this.ref = ref;
+  public <T> Future<T> get(Class<T> type) {
+    return (Future<T>) future;
   }
 
   @Override
   protected void deallocate() {
-    if (ref instanceof Disposable) ((Disposable) ref).dispose();
+    // dispose if completed, else ?
+    // AssetUtils.dispose(ref);
+    unimplemented();
   }
 
   @Override
-  public AssetContainer touch(Object hint) {
+  public ReferenceCounted touch(Object hint) {
     return this;
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("ref", ref)
+        .append("future", future)
         .append("refCnt", refCnt())
-        .build();
+        .toString();
   }
 }
