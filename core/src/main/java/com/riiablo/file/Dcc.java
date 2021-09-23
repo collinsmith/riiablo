@@ -1,7 +1,6 @@
 package com.riiablo.file;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
@@ -49,17 +48,11 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
   public static Dcc read(FileHandle handle, SwappedDataInputStream in) throws IOException {
     byte[] signature = IOUtils.readFully(in, 1);
-    if (log.traceEnabled()) log.trace("signature: {}", ByteBufUtil.hexDump(signature));
     byte version = in.readByte();
-    log.trace("version: {}", version);
     int numDirections = in.readByte();
-    log.trace("numDirections: {}", numDirections);
     int numFrames = in.readInt();
-    log.trace("numFrames: {}", numFrames);
     int tag = in.readInt();
-    log.tracef("tag: 0x%08x", tag);
     int uncompressedSize = in.readInt();
-    log.trace("uncompressedSize: {} bytes", uncompressedSize);
 
     final int[] dirOffsets = new int[numDirections + 1];
     for (int i = 0, s = numDirections; i < s; i++) dirOffsets[i] = in.readInt();
@@ -123,7 +116,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     final byte heightBits;
     final byte xOffsetBits;
     final byte yOffsetBits;
-    final byte optionalBytesBits;
+    final byte extraBytesBits;
     final byte compressedBytesBits;
 
     final long equalCellBitStreamSize;
@@ -141,37 +134,19 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
     DccDirection(BitInput bits, int numFrames) {
       uncompressedSize = bits.readSafe32u();
-      log.trace("uncompressedSize: {} bytes", uncompressedSize);
-
       compressionFlags = (byte) bits.readRaw(2);
-      if (log.traceEnabled()) log.tracef("compressionFlags: 0x%01x (%s)", compressionFlags, DccDirection.getFlagsString(compressionFlags));
-
       variable0Bits = bits.read7u(4);
-      log.trace("variable0Bits: {} ({} bits)", variable0Bits, ENCODED_BITS[variable0Bits]);
-
       widthBits = bits.read7u(4);
-      log.trace("widthBits: {} ({} bits)", widthBits, ENCODED_BITS[widthBits]);
-
       heightBits = bits.read7u(4);
-      log.trace("heightBits: {} ({} bits)", heightBits, ENCODED_BITS[heightBits]);
-
       xOffsetBits = bits.read7u(4);
-      log.trace("xOffsetBits: {} ({} bits)", xOffsetBits, ENCODED_BITS[xOffsetBits]);
-
       yOffsetBits = bits.read7u(4);
-      log.trace("yOffsetBits: {} ({} bits)", yOffsetBits, ENCODED_BITS[yOffsetBits]);
-
-      optionalBytesBits = bits.read7u(4);
-      log.trace("optionalBytesBits: {} ({} bits)", optionalBytesBits, ENCODED_BITS[optionalBytesBits]);
-
+      extraBytesBits = bits.read7u(4);
       compressedBytesBits = bits.read7u(4);
-      log.trace("compressedBytesBits: {} ({} bits)", compressedBytesBits, ENCODED_BITS[compressedBytesBits]);
 
       box = new BBox().prepare();
       DccFrame[] frames = this.frames = new DccFrame[numFrames];
 
-      long codedBytes = 0;
-      long optionalBytes = 0;
+      long extraBytes = 0;
       for (int frame = 0; frame < numFrames; frame++) {
         try {
           MDC.put("frame", frame);
@@ -182,39 +157,32 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
               heightBits,
               xOffsetBits,
               yOffsetBits,
-              optionalBytesBits,
+              extraBytesBits,
               compressedBytesBits);
           box.max(f.box);
-          codedBytes += f.compressedBytes;
-          optionalBytes += f.optionalBytes;
+          extraBytes += f.extraBytes;
         } finally {
           MDC.remove("frame");
         }
       }
 
-      log.trace("compressedBytes: {} bytes", codedBytes);
-      log.trace("optionalBytes: {} bytes", optionalBytes);
-
       box.width++; // why?
       box.height++; // why?
 
-      if (optionalBytes > 0) {
+      if (extraBytes > 0) {
+        ByteInput in = bits.align();
         for (int frame = 0; frame < numFrames; frame++) {
           DccFrame f = frames[frame];
-          if (f.optionalBytes > 0) {
-            f.optionalData = bits.align().readSlice(f.optionalBytes);
+          if (f.extraBytes > 0) {
+            f.extraData = in.readSlice(f.extraBytes); // TODO: 0 => EMPTY
           }
         }
       }
 
       equalCellBitStreamSize = (compressionFlags & CompressEqualCells) == CompressEqualCells ? bits.read31u(20) : 0;
-      log.trace("equalCellBitStreamSize: {} bits", equalCellBitStreamSize);
       pixelMaskBitStreamSize = bits.read31u(20);
-      log.trace("pixelMaskBitStreamSize: {} bits", pixelMaskBitStreamSize);
       encodingTypeBitStreamSize = (compressionFlags & HasRawPixelEncoding) == HasRawPixelEncoding ? bits.read31u(20) : 0;
-      log.trace("encodingTypeBitStreamSize: {} bits", encodingTypeBitStreamSize);
       rawPixelCodesBitStreamSize = (compressionFlags & HasRawPixelEncoding) == HasRawPixelEncoding ? bits.read31u(20) : 0;
-      log.trace("rawPixelCodesBitStreamSize: {} bits", rawPixelCodesBitStreamSize);
 
       pixelValues = new byte[Palette.COLORS];
       readPixelValues(bits, pixelValues);
@@ -255,7 +223,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
   public static final class DccFrame implements Dc.Frame {
     // Dc
-    final byte flip;
+    final boolean flipY;
     final int width;
     final int height;
     final int xOffset;
@@ -266,8 +234,8 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
     // Dcc
     final int compressedBytes;
-    final int optionalBytes;
-    ByteInput optionalData;
+    final int extraBytes;
+    ByteInput extraData = ByteInput.emptyByteInput();
 
     DccFrame(
         BitInput bits,
@@ -280,36 +248,23 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
         byte compressedBytesBits
     ) {
       variable0 = readSafe32u(bits, variable0Bits);
-      log.trace("variable0: {}", variable0);
-
       width = readSafe32u(bits, widthBits);
-      log.trace("width: {}", width);
-
       height = readSafe32u(bits, heightBits);
-      log.trace("height: {}", height);
-
       xOffset = readSafe32u(bits, xOffsetBits);
-      log.trace("xOffset: {}", xOffset);
-
       yOffset = readSafe32u(bits, yOffsetBits);
-      log.trace("yOffset: {}", yOffset);
-
-      optionalBytes = readSafe32u(bits, optionalBytesBits);
-      log.trace("optionalBytes: {} bytes", optionalBytes);
-
+      extraBytes = readSafe32u(bits, optionalBytesBits);
       compressedBytes = readSafe32u(bits, compressedBytesBits);
-      log.trace("compressedBytes: {} bytes", compressedBytes);
-
-      flip = bits.read1();
-      log.trace("flip: {}", flip);
+      flipY = bits.readBoolean();
 
       box = new BBox();
       box.xMin = xOffset;
       box.xMax = box.xMin + width - 1;
-      if (flip != 0) { // bottom-up
+      if (flipY) {
+        // bottom-up
         box.yMin = yOffset;
         box.yMax = box.yMin + height - 1;
-      } else {        // top-down
+      } else {
+        // top-down
         box.yMax = yOffset;
         box.yMin = box.yMax - height + 1;
       }
@@ -319,8 +274,8 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     }
 
     @Override
-    public byte flip() {
-      return flip;
+    public boolean flipY() {
+      return flipY;
     }
 
     @Override

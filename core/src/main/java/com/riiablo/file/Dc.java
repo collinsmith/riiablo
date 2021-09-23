@@ -57,7 +57,7 @@ public abstract class Dc<D extends Dc.Direction> implements Disposable {
   }
 
   public interface Frame {
-    byte flip();
+    boolean flipY();
     int width();
     int height();
     int xOffset();
