@@ -128,7 +128,7 @@ public class MpqFileResolver implements FileHandleResolver, Disposable {
       }
     }
 
-    log.error("Failed to resolve {}:{}", mpqParams.localeToString(), filename);
+    log.debug("Failed to resolve {}:{}", mpqParams.localeToString(), filename);
     return null;
   }
 }

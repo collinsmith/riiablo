@@ -3,6 +3,7 @@ package com.riiablo.asset;
 import io.netty.util.concurrent.DefaultEventExecutor;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 
@@ -128,9 +129,21 @@ public final class AssetManager implements Disposable {
     final AssetLoader loader = findLoader(asset.type);
     final FileHandle handle = resolve(asset); // TODO: refactor AssetLoader#resolver?
     final Adapter adapter = findAdapter(handle);
+    io.execute(new Runnable() {
+      @Override
+      public void run() {
     @SuppressWarnings("unchecked") // nn adapter => adapter parametric class = handle class
     Future<?> future = loader.ioAsync(io, asset, handle, adapter);
-
+    future.addListener(new FutureListener() {
+      @Override
+      public void operationComplete(Future future) {
+        log.debug("Asset IO complete: " + asset);
+        loadedAssets.put(asset, AssetContainer.wrap(asset, promise));
+        promise.setSuccess(null);
+      }
+    });
+      }
+    });
 
     // check loadedAssets
     // check preload queue
@@ -140,5 +153,9 @@ public final class AssetManager implements Disposable {
   }
 
   public void unload(AssetDesc asset) {
+    final AssetContainer container = loadedAssets.get(asset);
+    if (container == null) return;
+    boolean release = container.release();
+    log.debug("container released? " + release);
   }
 }

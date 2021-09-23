@@ -395,6 +395,10 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
     return MpqStream.open(this, offset, length, releaseOnClose);
   }
 
+  public Future<InputStream> bufferStream(EventExecutor executor, int bufferSize) {
+    return new MpqBufferStream(this, executor, bufferSize, false).initialize();
+  }
+
   @Override
   public int refCnt() {
     return updater.refCnt(this);

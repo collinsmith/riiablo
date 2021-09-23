@@ -2,10 +2,10 @@ package com.riiablo.asset.param;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.riiablo.codec.DC;
+import com.riiablo.file.Dc;
 import com.riiablo.mpq_bytebuf.Mpq;
 
-public class DcParams extends MpqParams<DC> {
+public class DcParams extends MpqParams<Dc> {
   public static DcParams of(int direction) {
     return of(direction, false);
   }

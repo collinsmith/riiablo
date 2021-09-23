@@ -7,16 +7,20 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
 
 import io.netty.util.ReferenceCountUtil;
+import java.time.Duration;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.files.FileHandle;
 
 import com.riiablo.RiiabloTest;
 import com.riiablo.asset.adapter.GdxFileHandleAdapter;
 import com.riiablo.asset.adapter.MpqFileHandleAdapter;
+import com.riiablo.asset.loader.DccLoader;
 import com.riiablo.asset.param.DcParams;
 import com.riiablo.asset.resolver.GdxFileHandleResolver;
-import com.riiablo.codec.DC;
-import com.riiablo.codec.DCC;
+import com.riiablo.file.Dc;
+import com.riiablo.file.Dcc;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.mpq_bytebuf.MpqFileHandle;
@@ -27,6 +31,7 @@ public class AssetManagerTest extends RiiabloTest {
   public static void before() {
     LogManager.setLevel("com.riiablo.asset", Level.TRACE);
     LogManager.setLevel("com.riiablo.mpq_bytebuf.MpqFileResolver", Level.TRACE);
+    LogManager.setLevel("com.riiablo.file", Level.TRACE);
   }
 
   @Test
@@ -36,7 +41,7 @@ public class AssetManagerTest extends RiiabloTest {
       assets
           .resolver(GdxFileHandleResolver.Internal, 0)
           .resolver(new MpqFileResolver(), 1)
-          .paramResolver(DC.class, DcParams.class)
+          .paramResolver(Dc.class, DcParams.class)
           .adapter(FileHandle.class, new GdxFileHandleAdapter())
           .adapter(MpqFileHandle.class, new MpqFileHandleAdapter())
           ;
@@ -55,7 +60,7 @@ public class AssetManagerTest extends RiiabloTest {
       assets = new AssetManager()
           .resolver(GdxFileHandleResolver.Internal, 0)
           .resolver(new MpqFileResolver(), 1)
-          .paramResolver(DC.class, DcParams.class)
+          .paramResolver(Dc.class, DcParams.class)
           .adapter(FileHandle.class, new GdxFileHandleAdapter())
           .adapter(MpqFileHandle.class, new MpqFileHandleAdapter())
           ;
@@ -83,7 +88,7 @@ public class AssetManagerTest extends RiiabloTest {
         "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
     })
     void resolve_mpq(String path) {
-      AssetDesc<DCC> asset = AssetDesc.of(path, DCC.class, DcParams.of(0));
+      AssetDesc<Dcc> asset = AssetDesc.of(path, Dcc.class, DcParams.of(0));
       FileHandle handle = assets.resolve(asset);
       try {
         assertNotNull(handle);
@@ -99,8 +104,56 @@ public class AssetManagerTest extends RiiabloTest {
         "chars\\PA\\LA\\PALALITTN1HS.DCC",
     })
     void resolve_fail(String path) {
-      AssetDesc asset = AssetDesc.of(path, DC.class, DcParams.of(0));
+      AssetDesc asset = AssetDesc.of(path, Dc.class, DcParams.of(0));
       assertThrows(ResolverNotFound.class, () -> assets.resolve(asset));
+    }
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  class load {
+    AssetManager assets;
+
+    @BeforeAll
+    void beforeAll() {
+      assets = new AssetManager()
+          .resolver(GdxFileHandleResolver.Internal, 0)
+          .resolver(new MpqFileResolver(), 1)
+          .paramResolver(Dc.class, DcParams.class)
+          .adapter(FileHandle.class, new GdxFileHandleAdapter())
+          .adapter(MpqFileHandle.class, new MpqFileHandleAdapter())
+          .loader(Dcc.class, new DccLoader(null))
+      ;
+    }
+
+    @AfterAll
+    void afterAll() {
+      assets.dispose();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "test/test.txt",
+    })
+    void load_internal(String path) {
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
+    })
+    void load_mpq(String path) {
+      AssetDesc<Dcc> asset = AssetDesc.of(path, Dcc.class, DcParams.of(-1));
+      Future<Dcc> handle = assets.load(asset);
+      try {
+        assertNotNull(handle);
+        assertTimeout(Duration.ofMillis(100), () -> {
+          Dcc object = handle.get(100, TimeUnit.MILLISECONDS);
+          assertNotNull(object);
+        });
+      } finally {
+        assets.unload(asset);
+      }
     }
   }
 }

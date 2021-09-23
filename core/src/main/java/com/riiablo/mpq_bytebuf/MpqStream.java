@@ -12,6 +12,13 @@ import com.riiablo.logger.Logger;
 import static com.riiablo.mpq_bytebuf.Decrypter.ENCRYPTION;
 import static com.riiablo.mpq_bytebuf.Decrypter.SEED2;
 
+/**
+ * InputStream of a mpq file. Optimized s.t. an uncompressed stream can be
+ * used directly from the slice of the mpq archive, or decoded using structures
+ * maintained by this stream.
+ * <p>
+ * TODO: improve fix placeholder doc
+ */
 public final class MpqStream extends InputStream {
   private static final Logger log = LogManager.getLogger(MpqStream.class);
 

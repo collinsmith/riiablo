@@ -5,8 +5,6 @@ import io.netty.util.ReferenceCounted;
 import io.netty.util.concurrent.Future;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import static com.riiablo.util.ImplUtils.unimplemented;
-
 public class AssetContainer extends AbstractReferenceCounted {
   public static AssetContainer wrap(AssetDesc asset, Future<?> future) {
     if (future == null) throw new IllegalArgumentException("future cannot be null");
@@ -29,8 +27,8 @@ public class AssetContainer extends AbstractReferenceCounted {
   @Override
   protected void deallocate() {
     // dispose if completed, else ?
-    // AssetUtils.dispose(ref);
-    unimplemented();
+    future.cancel(false);
+    if (future.isDone()) AssetUtils.dispose(future.getNow());
   }
 
   @Override

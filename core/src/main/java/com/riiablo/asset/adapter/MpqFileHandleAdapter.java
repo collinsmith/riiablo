@@ -8,8 +8,6 @@ import java.io.InputStream;
 import com.riiablo.asset.Adapter;
 import com.riiablo.mpq_bytebuf.MpqFileHandle;
 
-import static com.riiablo.util.ImplUtils.todo;
-
 public class MpqFileHandleAdapter extends Adapter<MpqFileHandle> {
   public MpqFileHandleAdapter() {
     super(MpqFileHandle.class);
@@ -22,7 +20,11 @@ public class MpqFileHandleAdapter extends Adapter<MpqFileHandle> {
 
   @Override
   public Future<InputStream> stream(EventExecutor executor, MpqFileHandle handle, int bufferSize) {
-    return todo();
+    if (bufferSize > 0) {
+      return handle.bufferStream(executor, bufferSize);
+    } else {
+      return executor.newSucceededFuture(handle.stream(true));
+    }
   }
 
   @Override
