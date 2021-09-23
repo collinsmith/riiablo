@@ -126,24 +126,29 @@ public final class AssetManager implements Disposable {
     if (container != null) return container.get(asset.type);
 
     final Promise<T> promise = sync.newPromise();
+    loadedAssets.put(asset, AssetContainer.wrap(asset, promise));
     final AssetLoader loader = findLoader(asset.type);
     final FileHandle handle = resolve(asset); // TODO: refactor AssetLoader#resolver?
     final Adapter adapter = findAdapter(handle);
     io.execute(new Runnable() {
       @Override
+      @SuppressWarnings("unchecked") // guaranteed by loader and adapter contracts
       public void run() {
-    @SuppressWarnings("unchecked") // nn adapter => adapter parametric class = handle class
-    Future<?> future = loader.ioAsync(io, asset, handle, adapter);
-    future.addListener(new FutureListener() {
-      @Override
-      public void operationComplete(Future future) {
-        log.debug("Asset IO complete: " + asset);
-        loadedAssets.put(asset, AssetContainer.wrap(asset, promise));
-        promise.setSuccess(null);
+        loader
+            .ioAsync(io, asset, handle, adapter)
+            .addListener(new FutureListener() {
+              @Override
+              public void operationComplete(Future future) {
+                log.debug("Asset IO complete: " + asset);
+                @SuppressWarnings("unchecked") // guaranteed by loader contract
+                T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
+                promise.setSuccess(object);
+              }
+            });
       }
     });
-      }
-    });
+
+    // io promise -> loadAsync promise -> loadSync promise
 
     // check loadedAssets
     // check preload queue

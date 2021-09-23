@@ -83,11 +83,10 @@ public class DccLoader extends AssetLoader<Dcc> {
       try {
         // dcc decode header
         // pass handle reference to DCC
-        Dcc.read(handle, stream);
+        return Dcc.read(handle, stream);
       } finally {
         ReferenceCountUtil.release(stream);
       }
-      return null;
     }
   }
 

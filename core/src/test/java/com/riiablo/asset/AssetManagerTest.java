@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
 import io.netty.util.ReferenceCountUtil;
 import java.time.Duration;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.files.FileHandle;
 
@@ -148,7 +147,7 @@ public class AssetManagerTest extends RiiabloTest {
       try {
         assertNotNull(handle);
         assertTimeout(Duration.ofMillis(100), () -> {
-          Dcc object = handle.get(100, TimeUnit.MILLISECONDS);
+          Dcc object = handle.get();
           assertNotNull(object);
         });
       } finally {

@@ -14,8 +14,6 @@ import java.io.InputStream;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
-import static com.riiablo.util.ImplUtils.todo;
-
 /**
  * InputStream of a mpq file which depends on the backing buffers of the mpq
  * file handle. Benefit includes ability to reuse the buffered data later for
@@ -84,8 +82,21 @@ public final class MpqBufferStream extends InputStream {
   }
 
   @Override
+  public int available() {
+    return buffer.readableBytes();
+  }
+
+  @Override
   public int read() {
-    return todo();
+    if (readableBytes() <= 0) {
+      return -1;
+    }
+
+    syncInitialization();
+    if (!buffer.isReadable()) saturateBuffer().syncUninterruptibly();
+    bytesRead++;
+    if (DEBUG_MODE) log.trace("Read {} bytes ({} bytes remaining)", 1, readableBytes());
+    return buffer.readUnsignedByte();
   }
 
   @Override
