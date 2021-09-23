@@ -44,6 +44,7 @@ public class DccLoader extends AssetLoader<Dcc> {
   @Override
   protected <F extends FileHandle> Future<?> ioAsync(
       EventExecutor executor,
+      AssetManager assets,
       AssetDesc<Dcc> asset,
       F handle,
       Adapter<F> adapter
@@ -51,7 +52,10 @@ public class DccLoader extends AssetLoader<Dcc> {
     log.traceEntry("ioAsync(executor: {}, asset: {}, handle: {}, adapter: {})", executor, asset, handle, adapter);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
-      return adapter.buffer(executor, handle, 0, 0);
+      Dcc parent = assets.load(AssetDesc.of(asset, PARENT_DC)).getNow();
+      int offset = parent.dirOffset(params.direction);
+      int nextOffset = parent.dirOffset(params.direction + 1);
+      return adapter.buffer(executor, handle, offset, nextOffset - offset);
     } else {
       return adapter.stream(executor, handle, adapter.defaultBufferSize(handle));
     }
@@ -73,10 +77,11 @@ public class DccLoader extends AssetLoader<Dcc> {
       ByteBuf buffer = (ByteBuf) data;
       try {
         // dcc decode data and load params.direction
+        parent.read(buffer, params.direction);
+        return parent;
       } finally {
         ReferenceCountUtil.release(buffer);
       }
-      return null;
     } else {
       assert data instanceof InputStream;
       InputStream stream = (InputStream) data;

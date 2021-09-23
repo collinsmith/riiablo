@@ -14,6 +14,7 @@ public class AssetDescTest {
       "data\\global\\CHARS\\BA\\S1\\BAS1LITTNhth.dcc,com.riiablo.codec.DCC",
       "data\\global\\CHARS\\BA\\S2\\BAS2LITTNhth.dcc,com.riiablo.codec.DCC",
   }, delimiter = ',')
+  @SuppressWarnings("unchecked") // expected
   void test(String path, String className) throws ClassNotFoundException {
     Class type = Class.forName(className);
     AssetParams params = new AssetParams();

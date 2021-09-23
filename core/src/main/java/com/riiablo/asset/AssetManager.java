@@ -123,7 +123,10 @@ public final class AssetManager implements Disposable {
 
   public <T> Future<T> load(final AssetDesc<T> asset) {
     final AssetContainer container = loadedAssets.get(asset);
-    if (container != null) return container.get(asset.type);
+    if (container != null) {
+      container.retain();
+      return container.get(asset.type);
+    }
 
     final Promise<T> promise = sync.newPromise();
     loadedAssets.put(asset, AssetContainer.wrap(asset, promise));
@@ -135,7 +138,7 @@ public final class AssetManager implements Disposable {
       @SuppressWarnings("unchecked") // guaranteed by loader and adapter contracts
       public void run() {
         loader
-            .ioAsync(io, asset, handle, adapter)
+            .ioAsync(io, AssetManager.this, asset, handle, adapter)
             .addListener(new FutureListener() {
               @Override
               public void operationComplete(Future future) {

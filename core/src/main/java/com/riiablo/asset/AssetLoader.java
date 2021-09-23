@@ -23,6 +23,7 @@ public abstract class AssetLoader<T> {
 
   protected <F extends FileHandle> Future<?> ioAsync(
       EventExecutor executor,
+      AssetManager assets,
       AssetDesc<T> asset,
       F handle,
       Adapter<F> adapter

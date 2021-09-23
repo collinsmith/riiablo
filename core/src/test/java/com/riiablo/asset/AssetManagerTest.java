@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
 
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.concurrent.Future;
 import java.time.Duration;
-import java.util.concurrent.Future;
 
 import com.badlogic.gdx.files.FileHandle;
 
@@ -143,6 +143,7 @@ public class AssetManagerTest extends RiiabloTest {
     })
     void load_mpq(String path) {
       AssetDesc<Dcc> asset = AssetDesc.of(path, Dcc.class, DcParams.of(-1));
+      AssetDesc<Dcc> asset0 = AssetDesc.of(path, Dcc.class, DcParams.of(0));
       Future<Dcc> handle = assets.load(asset);
       try {
         assertNotNull(handle);
@@ -150,8 +151,16 @@ public class AssetManagerTest extends RiiabloTest {
           Dcc object = handle.get();
           assertNotNull(object);
         });
+        handle.syncUninterruptibly();
+        assets.loadedAssets.put(asset, AssetContainer.wrap(asset, handle));
+        Future<Dcc> handle0 = assets.load(asset0);
+        assertTimeout(Duration.ofMillis(100), () -> {
+          Dcc object = handle0.get();
+          assertNotNull(object);
+        });
       } finally {
         assets.unload(asset);
+        assets.unload(asset0);
       }
     }
   }

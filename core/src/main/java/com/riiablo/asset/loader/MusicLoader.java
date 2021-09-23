@@ -21,11 +21,12 @@ public class MusicLoader extends AssetLoader<Music> {
   @Override
   protected <F extends FileHandle> Future<?> ioAsync(
       EventExecutor executor,
+      AssetManager assets,
       AssetDesc<Music> asset,
       F handle,
       Adapter<F> adapter
   ) {
-    return super.ioAsync(executor, asset, handle, adapter);
+    return super.ioAsync(executor, assets, asset, handle, adapter);
   }
 
   @Override
