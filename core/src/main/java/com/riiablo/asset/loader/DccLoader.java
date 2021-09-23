@@ -1,10 +1,10 @@
 package com.riiablo.asset.loader;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import java.io.InputStream;
+import org.apache.commons.io.IOUtils;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -74,23 +74,16 @@ public class DccLoader extends AssetLoader<Dcc> {
       Dcc parent = assets.load(AssetDesc.of(asset, PARENT_DC)).getNow();
       assert parent != null : "parent dcc should not be null";
       assert data instanceof ByteBuf;
-      ByteBuf buffer = (ByteBuf) data;
-      try {
-        // dcc decode data and load params.direction
-        parent.read(buffer, params.direction);
-        return parent;
-      } finally {
-        ReferenceCountUtil.release(buffer);
-      }
+      ByteBuf buffer = (ByteBuf) data; // borrowed, don't release
+      parent.read(buffer, params.direction);
+      return parent;
     } else {
       assert data instanceof InputStream;
       InputStream stream = (InputStream) data;
       try {
-        // dcc decode header
-        // pass handle reference to DCC
         return Dcc.read(handle, stream);
       } finally {
-        ReferenceCountUtil.release(stream);
+        IOUtils.closeQuietly(stream);
       }
     }
   }
