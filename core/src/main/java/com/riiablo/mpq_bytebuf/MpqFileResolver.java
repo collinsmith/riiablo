@@ -104,7 +104,7 @@ public class MpqFileResolver implements FileHandleResolver, Disposable {
   }
 
   @Override
-  public FileHandle resolve(AssetDesc<?> asset) {
+  public MpqFileHandle resolve(AssetDesc<?> asset) {
     final AssetParams assetParams = asset.params();
     if (!(assetParams instanceof MpqParams)) return null;
     final MpqParams mpqParams = (MpqParams) assetParams;
