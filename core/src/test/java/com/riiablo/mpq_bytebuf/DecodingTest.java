@@ -32,18 +32,11 @@ class DecodingTest extends RiiabloTest {
     LogManager.setLevel("com.riiablo.mpq_bytebuf.DecoderExecutorGroup", Level.TRACE);
   }
 
-  @Nested
-  @TestInstance(PER_CLASS)
-  class d2char extends MpqTest.NestedMpqTest {
-    d2char(TestInfo testInfo) {
+  static class NestedDecodingTest extends MpqTest.NestedMpqTest {
+    NestedDecodingTest(TestInfo testInfo) {
       super(testInfo);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-        "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
-        "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
-    })
     void decode_await(String in) {
       DecoderExecutorGroup decoder = new DecoderExecutorGroup(4);
       try {
@@ -53,6 +46,7 @@ class DecodingTest extends RiiabloTest {
 
           FileHandle handle_out = testAsset(in);
           ByteBuf expected = Unpooled.wrappedBuffer(handle_out.readBytes());
+          assertEquals(expected.readableBytes(), actual.readableBytes());
           assertTrue(ByteBufUtil.equals(expected, actual));
         } finally {
           handle.release();
@@ -62,11 +56,6 @@ class DecodingTest extends RiiabloTest {
       }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-        "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
-        "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
-    })
     void decode_future(String in) {
       DecoderExecutorGroup decoder = new DecoderExecutorGroup(4);
       try {
@@ -87,6 +76,7 @@ class DecodingTest extends RiiabloTest {
 
           FileHandle handle_out = testAsset(in);
           ByteBuf expected = Unpooled.wrappedBuffer(handle_out.readBytes());
+          assertEquals(expected.readableBytes(), actual.getNow().readableBytes());
           assertTrue(ByteBufUtil.equals(expected, actual.getNow()));
         } finally {
           handle.release();
@@ -94,6 +84,60 @@ class DecodingTest extends RiiabloTest {
       } finally {
         decoder.shutdownGracefully();
       }
+    }
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  class d2char extends NestedDecodingTest {
+    d2char(TestInfo testInfo) {
+      super(testInfo);
+    }
+
+    @Override
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
+        "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
+    })
+    void decode_await(String in) {
+      super.decode_await(in);
+    }
+
+    @Override
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
+        "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
+    })
+    void decode_future(String in) {
+      super.decode_await(in);
+    }
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  class d2exp extends NestedDecodingTest {
+    d2exp(TestInfo testInfo) {
+      super(testInfo);
+    }
+
+    @Override
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "DATA\\GLOBAL\\CHARS\\AI\\HD\\AIHDBHMA11HS.DCC",
+    })
+    void decode_await(String in) {
+      super.decode_await(in);
+    }
+
+    @Override
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "DATA\\GLOBAL\\CHARS\\AI\\HD\\AIHDBHMA11HS.DCC",
+    })
+    void decode_future(String in) {
+      super.decode_await(in);
     }
   }
 }

@@ -255,7 +255,7 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
     }
 
     return numSectors == 0
-        ? readRawArchive(executor)
+        ? readRawArchive(executor, offset, length)
         : decodeSectors(executor, offset, length);
   }
 
@@ -290,22 +290,25 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
     return buffer;
   }
 
-  Future<ByteBuf> readRawArchive(EventExecutor executor) {
+  Future<ByteBuf> readRawArchive(EventExecutor executor, final int offset, final int length) {
     assert numSectors == 0 : "copyBuffer requires numSectors=" + numSectors;
     if (decoded(0)) { // using bit 0 as decoded tag for buffer
-      final ByteBuf buffer = this.buffer;
+      final ByteBuf buffer = this.buffer.slice(offset, length).writerIndex(length);
       return executor.newSucceededFuture(buffer);
     }
 
-    return decoder
+    final Promise<ByteBuf> promise = executor.newPromise();
+    decoder
         .newArchiveReadTask(executor, this, 0, FSize, buffer, 0)
         .submit()
         .addListener(new FutureListener<ByteBuf>() {
           @Override
           public void operationComplete(Future<ByteBuf> future) {
             setDecoded(0, buffer); // using bit 0 as decoded tag for buffer
+            promise.setSuccess(buffer.slice(offset, length).writerIndex(length));
           }
         });
+    return promise;
   }
 
   Future<ByteBuf> decodeSectors(EventExecutor executor, final int offset, final int length) {
@@ -340,13 +343,13 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
           .addListener(new FutureListener<Void>() {
             @Override
             public void operationComplete(Future<Void> future) {
-              aggregatePromise.setSuccess(buffer.slice(offset, length));
+              aggregatePromise.setSuccess(buffer.slice(offset, length).writerIndex(length));
             }
           });
       return aggregatePromise;
     }
 
-    ByteBuf buffer = this.buffer.slice(offset, length);
+    ByteBuf buffer = this.buffer.slice(offset, length).writerIndex(length);
     return executor.newSucceededFuture(buffer);
   }
 
