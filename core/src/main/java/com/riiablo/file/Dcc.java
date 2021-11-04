@@ -8,6 +8,8 @@ import org.apache.commons.io.input.SwappedDataInputStream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.riiablo.codec.Palette;
 import com.riiablo.codec.util.BBox;
@@ -82,13 +84,14 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
   public Dcc read(ByteBuf buffer, int direction) {
     assert directions[direction] == null;
-    assert buffer.isReadable(dirOffsets[direction + 1] - dirOffsets[direction]);
+    assert buffer.isReadable(dirOffsets[direction + 1] - dirOffsets[direction])
+        : handle + " buffer.isReadable(" + (dirOffsets[direction + 1] - dirOffsets[direction]) + ") = " + buffer.readableBytes();
     ByteInput in = ByteInput.wrap(buffer);
     directions[direction] = new DccDirection(in.unalign(), numFrames);
     return this;
   }
 
-  public static final class DccDirection implements Dc.Direction<DccFrame> {
+  public static final class DccDirection extends Dc.Direction<DccFrame> {
     static final int HasRawPixelEncoding = 1 << 0;
     static final int CompressEqualCells = 1 << 1;
 
@@ -107,6 +110,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     // Dc
     final DccFrame[] frames;
     final BBox box;
+    final Texture[] texture;
 
     // Dcc
     final int uncompressedSize;
@@ -130,7 +134,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     final BitInput rawPixelCodesBitStream;
     final BitInput pixelCodeAndDisplacementBitStream;
 
-    final byte[] pixelValues;
+    final short[] pixelValues;
 
     DccDirection(BitInput bits, int numFrames) {
       uncompressedSize = bits.readSafe32u();
@@ -144,6 +148,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       compressedBytesBits = bits.read7u(4);
 
       box = new BBox().prepare();
+      texture = new Texture[numFrames];
       DccFrame[] frames = this.frames = new DccFrame[numFrames];
 
       long extraBytes = 0;
@@ -166,8 +171,8 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
         }
       }
 
-      box.width++; // why?
-      box.height++; // why?
+      // box.width++; // why?
+      // box.height++; // why?
 
       if (extraBytes > 0) {
         ByteInput in = bits.align();
@@ -184,7 +189,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       encodingTypeBitStreamSize = (compressionFlags & HasRawPixelEncoding) == HasRawPixelEncoding ? bits.read31u(20) : 0;
       rawPixelCodesBitStreamSize = (compressionFlags & HasRawPixelEncoding) == HasRawPixelEncoding ? bits.read31u(20) : 0;
 
-      pixelValues = new byte[Palette.COLORS];
+      pixelValues = new short[Palette.COLORS];
       readPixelValues(bits, pixelValues);
 
       assert (compressionFlags & CompressEqualCells) != CompressEqualCells || equalCellBitStreamSize > 0;
@@ -198,10 +203,20 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     }
 
     // TODO: benchmark and see if this requires optimization -- 256 single bit reads
-    private static void readPixelValues(BitInput bits, byte[] pixelValues) {
+    private static void readPixelValues(BitInput bits, short[] pixelValues) {
       int index = 0;
-      for (int i = 0; i < Palette.COLORS; i++) {
-        if (bits.readBoolean()) pixelValues[index++] = (byte) i;
+      for (short i = 0; i < Palette.COLORS; i++) {
+        if (bits.readBoolean()) pixelValues[index++] = i;
+      }
+    }
+
+    @Override
+    public void dispose() {
+      System.out.println("disposing dcc textures");
+      for (int i = 0, s = texture.length; i < s; i++) {
+        if (texture[i] == null) continue;
+        texture[i].dispose();
+        texture[i] = null;
       }
     }
 
@@ -221,7 +236,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     }
   }
 
-  public static final class DccFrame implements Dc.Frame {
+  public static final class DccFrame extends Dc.Frame {
     // Dc
     final boolean flipY;
     final int width;
@@ -231,6 +246,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     final int variable0;
 
     final BBox box;
+    final TextureRegion texture;
 
     // Dcc
     final int compressedBytes;
@@ -256,21 +272,27 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       compressedBytes = readSafe32u(bits, compressedBytesBits);
       flipY = bits.readBoolean();
 
-      box = new BBox();
-      box.xMin = xOffset;
-      box.xMax = box.xMin + width - 1;
-      if (flipY) {
-        // bottom-up
-        box.yMin = yOffset;
-        box.yMax = box.yMin + height - 1;
-      } else {
-        // top-down
-        box.yMax = yOffset;
-        box.yMin = box.yMax - height + 1;
-      }
-
-      box.width = box.xMax - box.xMin + 1;
-      box.height = box.yMax - box.yMin + 1;
+      box = new BBox().asBox(
+          xOffset,
+          flipY ? yOffset : yOffset - height,
+          width,
+          height);
+      // box.xMin = xOffset;
+      // box.xMax = box.xMin + width;
+      // // box.xMax--;
+      // if (flipY) {
+      //   // bottom-up
+      //   box.yMin = yOffset;
+      //   box.yMax = yOffset + height; // - 1; // why?
+      // } else {
+      //   // top-down
+      //   box.yMin = yOffset - height; // + 1; // why?
+      //   box.yMax = yOffset;
+      // }
+      //
+      // box.width = width; // + 1; // why?
+      // box.height = height; // + 1; // why?
+      texture = new TextureRegion();
     }
 
     @Override
@@ -301,6 +323,11 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     @Override
     public BBox box() {
       return box;
+    }
+
+    @Override
+    public TextureRegion texture() {
+      return texture;
     }
   }
 }

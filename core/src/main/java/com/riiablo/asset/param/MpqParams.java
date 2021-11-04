@@ -9,15 +9,15 @@ import static com.riiablo.mpq_bytebuf.Mpq.DEFAULT_LOCALE;
 import static com.riiablo.mpq_bytebuf.Mpq.DEFAULT_PLATFORM;
 
 public class MpqParams<T> extends AssetParams<T> {
-  public static MpqParams<?> of() {
+  public static <T> MpqParams<T> of() {
     return new MpqParams<>();
   }
 
-  public static MpqParams<?> of(short locale) {
+  public static <T> MpqParams<T> of(short locale) {
     return new MpqParams<>(locale);
   }
 
-  public static MpqParams<?> of(short locale, short platform) {
+  public static <T> MpqParams<T> of(short locale, short platform) {
     return new MpqParams<>(locale, platform);
   }
 
