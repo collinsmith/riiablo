@@ -4,7 +4,6 @@ import io.netty.util.internal.PlatformDependent;
 import java.util.Arrays;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.BufferUtils;
 
 import com.riiablo.codec.util.BBox;
@@ -23,12 +22,8 @@ public final class DccDecoder {
   }
   final PixelBuffer pixelBuffer = new PixelBuffer();
   final Bitmap bmp = new Bitmap();
-  // TODO: custom Pixmap /w PixmapTextureData that supports reuse
-  //       override Pixmap#getWidth and Pixmap#getHeight for current size
-  //       rewind Pixmap data stream to beginning and write bytes, set limit, etc
-  Pixmap pixmap;
 
-  void decode(Dcc dcc, int d) {
+  public void decode(Dcc dcc, int d) {
     decode(dcc, dcc.directions[d]);
   }
 
@@ -38,13 +33,7 @@ public final class DccDecoder {
     decodeFrames(dir, dcc.numFrames);
 
     bmp.reset(dir);
-    try {
-      pixmap = new PaletteIndexedPixmap(dir.box.width, dir.box.height);
-      buildFrames(dir, dcc.numFrames);
-    } finally {
-      pixmap.dispose();
-      pixmap = null;
-    }
+    buildFrames(dir, dcc.numFrames);
 
     assert dir.equalCellBitStream.bitsRemaining() == 0;
     assert dir.pixelMaskBitStream.bitsRemaining() == 0;
@@ -174,11 +163,12 @@ public final class DccDecoder {
    * construct frames into {@link #bmp}
    */
   void buildFrames(DccDirection dir, int numFrames) {
+    final Pixmap[] pixmap = dir.pixmap;
     for (int f = 0, s = numFrames; f < s; f++) {
       bmp.flip();
       buildFrame(dir, f);
-      BufferUtils.copy(bmp.frontBuffer, 0, pixmap.getPixels().rewind(), bmp.length);
-      dir.texture[f] = new Texture(pixmap);
+      final Pixmap p = pixmap[f] = new PaletteIndexedPixmap(dir.box.width, dir.box.height);
+      BufferUtils.copy(bmp.frontBuffer, 0, p.getPixels().rewind(), bmp.length);
     }
   }
 

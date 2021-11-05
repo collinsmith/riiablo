@@ -17,15 +17,22 @@ import com.riiablo.asset.EmptyArray;
 import com.riiablo.asset.FileHandleResolver;
 import com.riiablo.asset.param.DcParams;
 import com.riiablo.file.Dcc;
+import com.riiablo.file.DccDecoder;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
-
-import static com.riiablo.util.ImplUtils.unimplemented;
+import com.riiablo.util.Pool;
 
 public class DccLoader extends AssetLoader<Dcc> {
   private static final Logger log = LogManager.getLogger(DccLoader.class);
 
   private static final DcParams PARENT_DC = DcParams.of(-1);
+
+  private final Pool<DccDecoder> decoders = new Pool<DccDecoder>(true, false, 4, 8) {
+    @Override
+    protected DccDecoder newInstance() {
+      return new DccDecoder();
+    }
+  };
 
   public DccLoader(FileHandleResolver resolver) {
     super(resolver);
@@ -75,7 +82,13 @@ public class DccLoader extends AssetLoader<Dcc> {
       assert parent != null : "parent dcc should not be null";
       assert data instanceof ByteBuf;
       ByteBuf buffer = (ByteBuf) data; // borrowed, don't release
-      parent.read(buffer, params.direction);
+      Dcc child = parent.read(buffer, params.direction);
+      DccDecoder decoder = decoders.obtain();
+      try {
+        decoder.decode(child, params.direction);
+      } finally {
+        decoders.release(decoder);
+      }
       return parent;
     } else {
       assert data instanceof InputStream;
@@ -93,6 +106,7 @@ public class DccLoader extends AssetLoader<Dcc> {
     log.traceEntry("loadSync(assets: {}, asset: {}, dcc: {})", assets, asset, dcc);
     DcParams params = asset.params(DcParams.class);
     if (params.direction < 0) return dcc;
-    return unimplemented();
+    dcc.uploadTextures(params.direction);
+    return dcc;
   }
 }

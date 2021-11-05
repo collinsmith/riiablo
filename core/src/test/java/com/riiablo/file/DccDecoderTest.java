@@ -149,7 +149,6 @@ public class DccDecoderTest {
     int nextOffset = dcc.dirOffset(1);
     ByteBuf buffer = dccHandle.bufferAsync(executor, offset, nextOffset - offset).get();
     dcc.read(buffer, 0);
-    // decoder.decode(dcc, 0);
 
     final Promise<?> promise = executor.newPromise();
     new LwjglApplication(new ApplicationAdapter() {
@@ -171,6 +170,7 @@ public class DccDecoderTest {
 
       void create0() {
         decoder.decode(dcc, 0);
+        dcc.uploadTextures(0);
 
         String paletteName = "data\\global\\palette\\ACT1\\pal.dat";
         AssetDesc<Palette> paletteDesc = AssetDesc.of(paletteName, Palette.class, MpqParams.of());

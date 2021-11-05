@@ -8,6 +8,7 @@ import org.apache.commons.io.input.SwappedDataInputStream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -91,6 +92,17 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     return this;
   }
 
+  public void uploadTextures(int d) {
+    final DccDirection direction = directions[d];
+    final Pixmap[] pixmap = direction.pixmap;
+    final Texture[] texture = direction.texture;
+    for (int f = 0; f < numFrames; f++) {
+      texture[f] = new Texture(pixmap[f]);
+      pixmap[f].dispose();
+      pixmap[f] = null;
+    }
+  }
+
   public static final class DccDirection extends Dc.Direction<DccFrame> {
     static final int HasRawPixelEncoding = 1 << 0;
     static final int CompressEqualCells = 1 << 1;
@@ -110,6 +122,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     // Dc
     final DccFrame[] frames;
     final BBox box;
+    final Pixmap[] pixmap;
     final Texture[] texture;
 
     // Dcc
@@ -148,6 +161,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       compressedBytesBits = bits.read7u(4);
 
       box = new BBox().prepare();
+      pixmap = new Pixmap[numFrames];
       texture = new Texture[numFrames];
       DccFrame[] frames = this.frames = new DccFrame[numFrames];
 
@@ -212,6 +226,13 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
     @Override
     public void dispose() {
+      System.out.println("disposing dcc pixmaps");
+      for (int i = 0, s = pixmap.length; i < s; i++) {
+        if (pixmap[i] == null) continue;
+        pixmap[i].dispose();
+        pixmap[i] = null;
+      }
+
       System.out.println("disposing dcc textures");
       for (int i = 0, s = texture.length; i < s; i++) {
         if (texture[i] == null) continue;
