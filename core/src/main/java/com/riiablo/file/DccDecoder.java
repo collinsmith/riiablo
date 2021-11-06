@@ -92,13 +92,13 @@ public final class DccDecoder {
     int lastPixel, decodedPixels, pixelDisplacement;
     final int[] pixelStack = new int[4];
     final int[] NUM_PIXELS = PixelBuffer.PIXEL_TABLE;
-    for (int cy = 0; cy < fCellsH; cy++) {
+    for (int cy = 0, fCell = 0; cy < fCellsH; cy++) {
       final int dCy = dCellH + cy;
-      int cell = dCy * stride + dCellW;
-      for (int cx = 0; cx < fCellsW; cx++, cell++) {
-        // System.out.println("  " + (cy * fStride + cx) + " " + cell);
-        // pixel buffer has written to cell in previous frame
-        if (pixelBuffer.touched(cell)) {
+      int dCell = dCy * stride + dCellW;
+      for (int cx = 0; cx < fCellsW; cx++, dCell++, fCell++) {
+        // System.out.println("  " + (cy * fStride + cx) + " " + dCell);
+        // pixel buffer has written to dCell in previous frame
+        if (pixelBuffer.touched(dCell)) {
           // System.out.println("nn");
           equalCell = dir.equalCellBitStreamSize > 0 && dir.equalCellBitStream.readBoolean();
           // System.out.print(equalCell ? "1 " : "0 ");
@@ -143,9 +143,9 @@ public final class DccDecoder {
         }
 
         // System.out.printf("  %02x %02x %02x %02x%n", pixels[0], pixels[1], pixels[2], pixels[3]);
-        pixelBuffer.enqueue(cell, f, pixelMask, pixelStack, decodedPixels);
+        pixelBuffer.enqueue(dCell, f, fCell, pixelMask, pixelStack, decodedPixels);
         System.out.println("  -> "
-            + cell
+            + dCell
             + "=" + pixelBuffer.frame[pixelBuffer.size - 1]
             + ":" + String.format("0x%08x",
                       (pixelBuffer.pixels[pixelBuffer.size - 1][0] & 0xff)
@@ -182,7 +182,7 @@ public final class DccDecoder {
       final FrameBuffer.Cell fCell = frameBuffer.cells[c];
       final int cellId = (fCell.y >>> 2) * stride + (fCell.x >>> 2);
       final DirectionBuffer.Cell dCell = directionBuffer.cells[cellId];
-      if (pixelBuffer.peekFrame() != f) {
+      if (!pixelBuffer.peek(f, c)) {
         System.out.println("copy " + c + " " + pixelBuffer.peek());
         if (fCell.w != dCell.wLast || fCell.h != dCell.hLast) {
           bmp.clear(fCell);
@@ -540,10 +540,11 @@ public final class DccDecoder {
 
     final int bufferCapacity;
     final int[] lastFrame; // can be simplified to bool/bitset later to represent it was ever touched
-    final int[] cell;
+    final int[] lastCell; // cell mapped to this buffer cell (queue index)
 
     final int queueCapacity;
     final int[] frame; // frame pushing this cell
+    final int[] cell; // fCell of this cell
     final byte[][] pixels; // pixels of the cell
     int iter;
     int size;
@@ -555,16 +556,17 @@ public final class DccDecoder {
     PixelBuffer(int bufferCapacity, int queueCapacity) {
       this.bufferCapacity = bufferCapacity;
       this.lastFrame = new int[bufferCapacity];
-      this.cell = new int[bufferCapacity];
+      this.lastCell = new int[bufferCapacity];
 
       this.queueCapacity = queueCapacity;
       frame = new int[queueCapacity];
+      cell = new int[queueCapacity];
       pixels = new byte[queueCapacity][4];
     }
 
     void clear(int bufferSize) {
       Arrays.fill(lastFrame, 0, bufferSize, -1);
-      Arrays.fill(cell, 0, bufferSize, -1);
+      Arrays.fill(lastCell, 0, bufferSize, -1);
       iter = 0;
       size = 0;
     }
@@ -578,6 +580,16 @@ public final class DccDecoder {
       return iter >= size ? -1 : frame[iter];
     }
 
+    /** cell at iter position */
+    int peekCell() {
+      return iter >= size ? -1 : cell[iter];
+    }
+
+    /** checks if iter position matches f,c */
+    boolean peek(int f, int c) {
+      return iter < size && frame[iter] == f && cell[iter] == c;
+    }
+
     /** queue iter position */
     int peek() {
       return iter;
@@ -588,17 +600,18 @@ public final class DccDecoder {
       return iter++;
     }
 
-    void enqueue(int cell, int frame, int pixelMask, int[] pixelStack, int stackPtr) {
-      lastFrame[cell] = frame; // touch buffer cell
+    void enqueue(int dCell, int frame, int fCell, int pixelMask, int[] pixelStack, int stackPtr) {
+      lastFrame[dCell] = frame; // touch buffer dCell
 
       final int queuePtr = size++;
       this.frame[queuePtr] = frame;
+      this.cell[queuePtr] = fCell;
 
-      // map cell from buffer cell to queue cell
-      final int queueCell = this.cell[cell] < 0 ? queuePtr : this.cell[cell];
-      this.cell[cell] = queuePtr; // save enqueued cell to active cell
+      // map dCell from buffer dCell to queue dCell
+      final int queueCell = lastCell[dCell] < 0 ? queuePtr : lastCell[dCell];
+      lastCell[dCell] = queuePtr; // save enqueued dCell to active dCell
 
-      /** if bit is set, copy from pixelStack, otherwise, copy from cell */
+      /** if bit is set, copy from pixelStack, otherwise, copy from dCell */
       for (int i = 0, bit = 1; i < 4; bit = 1 << ++i) {
         if ((pixelMask & bit) == bit) {
           pixels[queuePtr][i] = stackPtr > 0 ? (byte) pixelStack[--stackPtr] : 0;

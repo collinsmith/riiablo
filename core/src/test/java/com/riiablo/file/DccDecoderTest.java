@@ -135,6 +135,7 @@ public class DccDecoderTest {
   @ParameterizedTest
   @ValueSource(strings = {
       "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
+      // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
   })
   void draw_pixmaps(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();
@@ -162,7 +163,7 @@ public class DccDecoderTest {
       public void create() {
         try {
           create0();
-        } catch (Exception t) {
+        } catch (Throwable t) {
           t.printStackTrace(System.err);
           Gdx.app.exit();
         }
@@ -223,9 +224,11 @@ public class DccDecoderTest {
     resolver.dispose();
   }
 
+  @Disabled
   @ParameterizedTest
   @ValueSource(strings = {
       "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
+      // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
   })
   void draw_pixmaps2(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();
@@ -233,10 +236,15 @@ public class DccDecoderTest {
     AssetDesc<Dcc> parent = AssetDesc.of(dccName, Dcc.class, DcParams.of(-1));
     MpqFileResolver resolver = new MpqFileResolver(testHome);
     MpqFileHandle dccHandle = resolver.resolve(parent);
-    DCC.loadFromArray(ByteBufUtil.getBytes(dccHandle.buffer()));
 
     final Promise<?> promise = executor.newPromise();
     new LwjglApplication(new ApplicationAdapter() {
+      @Override
+      public void create() {
+        DCC.loadFromArray(ByteBufUtil.getBytes(dccHandle.buffer()));
+        Gdx.app.exit();
+      }
+
       @Override
       public void render() {
       }
