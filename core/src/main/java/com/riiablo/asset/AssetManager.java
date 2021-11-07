@@ -25,7 +25,7 @@ public final class AssetManager implements Disposable {
   final ObjectMap<Class, Adapter> adapters = new ObjectMap<>();
   final Array<PriorityContainer<FileHandleResolver>> resolvers = new Array<>();
   final ObjectMap<Class, Class<? extends AssetParams>> defaultParams = new ObjectMap<>();
-  final BlockingQueue<SyncTuple> syncQueue = new LinkedBlockingQueue<>();
+  final BlockingQueue<SyncMessage> syncQueue = new LinkedBlockingQueue<>();
 
   final EventExecutor io;
   final EventExecutor sync;
@@ -158,7 +158,7 @@ public final class AssetManager implements Disposable {
                 @SuppressWarnings("unchecked") // guaranteed by loader contract
                 T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
                 log.debug("Asset Async complete: {}", asset);
-                boolean inserted = syncQueue.offer(SyncTuple.wrap(container, promise, loader, object));
+                boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
                 if (!inserted) log.error("Failed to enqueue {}", asset);
                 log.debug("Queue added {} {}", inserted, syncQueue.size());
               }
@@ -182,49 +182,14 @@ public final class AssetManager implements Disposable {
 
   // TODO: intended as a "process until something is synced" for testing
   public boolean update() {
-    SyncTuple sync;
-    while ((sync = syncQueue.poll()) != null) {
-      log.debug("Asset Sync: {}", sync.container.asset);
-      sync.loadSync(this);
+    SyncMessage msg;
+    while ((msg = syncQueue.poll()) != null) {
+      log.debug("Asset Sync: {}", msg.container.asset);
+      msg.loadSync(this);
+      log.debug("Asset Loaded: {}", msg.container.asset);
       return true;
     }
     return false;
   }
 
-  static final class SyncTuple<T> {
-    static <T> SyncTuple<T> wrap(
-        AssetContainer container,
-        Promise<T> promise,
-        AssetLoader loader,
-        T object
-    ) {
-      return new SyncTuple<>(container, promise, loader, object);
-    }
-
-    final AssetContainer container;
-    final Promise<T> promise;
-    final AssetLoader loader;
-    final T object;
-
-    SyncTuple(
-        AssetContainer container,
-        Promise<T> promise,
-        AssetLoader loader,
-        T object
-    ) {
-      assert container.promise == promise : "container.promise != promise";
-      this.container = container;
-      this.promise = promise;
-      this.loader = loader;
-      this.object = object;
-    }
-
-    @SuppressWarnings("unchecked") // guaranteed by loader contract
-    Future<?> loadSync(AssetManager assets) {
-      loader.loadSync(assets, container.asset, object);
-      promise.setSuccess(object);
-      log.debug("Asset Loaded: {}", container.asset);
-      return promise;
-    }
-  }
 }
