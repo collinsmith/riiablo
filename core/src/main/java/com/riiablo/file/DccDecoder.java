@@ -12,6 +12,7 @@ import com.riiablo.file.Dcc.DccFrame;
 import com.riiablo.graphics.PaletteIndexedPixmap;
 
 public final class DccDecoder {
+  static final boolean DEBUG = !true;
   static final int MAX_FRAMES = 256;
 
   final DirectionBuffer directionBuffer = new DirectionBuffer();
@@ -84,7 +85,7 @@ public final class DccDecoder {
     final int dCellH = (frame.box.yMin - dir.box.yMin) / 4;
     final int fCellsW = frameBuffer.cellsW;
     final int fCellsH = frameBuffer.cellsH;
-    System.out.println(fCellsW + "," + fCellsH + ";" + dCellW + "," + dCellH);
+    if (DEBUG) System.out.println(fCellsW + "," + fCellsH + ";" + dCellW + "," + dCellH);
 
     boolean equalCell;
     int pixelMask, numPixels;
@@ -144,7 +145,7 @@ public final class DccDecoder {
 
         // System.out.printf("  %02x %02x %02x %02x%n", pixels[0], pixels[1], pixels[2], pixels[3]);
         pixelBuffer.enqueue(dCell, f, fCell, pixelMask, pixelStack, decodedPixels);
-        System.out.println("  -> "
+        if (DEBUG) System.out.println("  -> "
             + dCell
             + "=" + pixelBuffer.frame[pixelBuffer.size - 1]
             + ":" + String.format("0x%08x",
@@ -175,15 +176,15 @@ public final class DccDecoder {
   void buildFrame(DccDirection dir, int f) {
     final int stride = directionBuffer.cellsW;
     final FrameBuffer frameBuffer = this.frameBuffer[f];
-    System.out.println("frameBuffer.size: " + frameBuffer.size);
-    System.out.println("  " + dir.pixelCodeAndDisplacementBitStream.bitsRead());
+    if (DEBUG) if (DEBUG) if (DEBUG) if (DEBUG) System.out.println("frameBuffer.size: " + frameBuffer.size);
+    if (DEBUG) if (DEBUG) if (DEBUG) System.out.println("  " + dir.pixelCodeAndDisplacementBitStream.bitsRead());
     byte[] pixels;
     for (int c = 0, s = frameBuffer.size; c < s; c++) {
       final FrameBuffer.Cell fCell = frameBuffer.cells[c];
       final int cellId = (fCell.y >>> 2) * stride + (fCell.x >>> 2);
       final DirectionBuffer.Cell dCell = directionBuffer.cells[cellId];
       if (!pixelBuffer.peek(f, c)) {
-        System.out.println("copy " + c + " " + pixelBuffer.peek());
+        if (DEBUG) if (DEBUG) System.out.println("copy " + c + " " + pixelBuffer.peek());
         if (fCell.w != dCell.wLast || fCell.h != dCell.hLast) {
           bmp.clear(fCell);
         } else {
@@ -192,7 +193,7 @@ public final class DccDecoder {
       } else {
         final int iter = pixelBuffer.peek();
         pixels = pixelBuffer.pixels[iter];
-        System.out.println("write " + pixelBuffer.peekFrame() + " " + c + " " + iter + " "
+        if (DEBUG) System.out.println("write " + pixelBuffer.peekFrame() + " " + c + " " + iter + " "
             + String.format("0x%08x",
                   (pixels[0] & 0xff)
                 | (pixels[1] & 0xff) << 8
@@ -206,7 +207,7 @@ public final class DccDecoder {
           for (int y = 0; y < fCell.h; y++) {
             for (int x = 0; x < fCell.w; x++) {
               final int i = dir.pixelCodeAndDisplacementBitStream.read7u(bits);
-              System.out.printf("0 0x%01x%n", i);
+              if (DEBUG) System.out.printf("0 0x%01x%n", i);
               bmp.set(fCell, x, y, pixels[i]);
             }
           }
