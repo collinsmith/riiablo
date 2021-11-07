@@ -59,9 +59,9 @@ public class DccLoader extends AssetLoader<Dcc> {
     log.traceEntry("ioAsync(executor: {}, asset: {}, handle: {}, adapter: {})", executor, asset, handle, adapter);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
-      Dcc parent = assets.load(AssetDesc.of(asset, PARENT_DC)).getNow();
-      int offset = parent.dirOffset(params.direction);
-      int nextOffset = parent.dirOffset(params.direction + 1);
+      Dcc dcc = assets.getDepNow(AssetDesc.of(asset, PARENT_DC));
+      int offset = dcc.dirOffset(params.direction);
+      int nextOffset = dcc.dirOffset(params.direction + 1);
       return adapter.buffer(executor, handle, offset, nextOffset - offset);
     } else {
       return adapter.stream(executor, handle, adapter.defaultBufferSize(handle));
@@ -78,18 +78,17 @@ public class DccLoader extends AssetLoader<Dcc> {
     log.traceEntry("loadAsync(assets: {}, asset: {}, handle: {}, data: {})", assets, asset, handle, data);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
-      Dcc parent = assets.load(AssetDesc.of(asset, PARENT_DC)).getNow();
-      assert parent != null : "parent dcc should not be null";
+      Dcc dcc = assets.getDepNow(AssetDesc.of(asset, PARENT_DC));
       assert data instanceof ByteBuf;
       ByteBuf buffer = (ByteBuf) data; // borrowed, don't release
-      Dcc child = parent.read(buffer, params.direction);
+      dcc.read(buffer, params.direction);
       DccDecoder decoder = decoders.obtain();
       try {
-        decoder.decode(child, params.direction);
+        decoder.decode(dcc, params.direction);
       } finally {
         decoders.release(decoder);
       }
-      return parent;
+      return dcc;
     } else {
       assert data instanceof InputStream;
       InputStream stream = (InputStream) data;
