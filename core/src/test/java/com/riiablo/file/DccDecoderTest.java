@@ -198,8 +198,8 @@ public class DccDecoderTest {
         batch.setBlendMode(BlendMode.NONE);
         batch.begin(paletteTexture);
         updater += Gdx.graphics.getDeltaTime();
-        if (updater > 1f) {
-          updater -= 1f;
+        if (updater > 0.25f) {
+          updater -= 0.25f;
           frame++;
           if (frame >= dcc.numFrames) {
             frame = 0;
