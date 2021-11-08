@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 
+import com.riiablo.concurrent.PromiseCombiner;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
@@ -27,16 +28,21 @@ public final class AssetManager implements Disposable {
   final ObjectMap<Class, Class<? extends AssetParams>> defaultParams = new ObjectMap<>();
   final BlockingQueue<SyncMessage> syncQueue = new LinkedBlockingQueue<>();
 
+  final EventExecutor deps;
   final EventExecutor io;
   final EventExecutor sync;
 
   public AssetManager() {
+    deps = new DefaultEventExecutor();
     io = new DefaultEventExecutor();
     sync = ImmediateEventExecutor.INSTANCE;
   }
 
   @Override
   public void dispose() {
+    log.trace("Shutting down dependency event executor...");
+    deps.shutdownGracefully();
+
     log.trace("Shutting down i/o event executor...");
     io.shutdownGracefully();
 
@@ -132,16 +138,26 @@ public final class AssetManager implements Disposable {
     return object;
   }
 
-  public <T> Future<T> load(final AssetDesc<T> asset) {
-    final AssetContainer container0 = loadedAssets.get(asset);
-    if (container0 != null) {
-      container0.retain();
-      return container0.get(asset.type);
+  <T> AssetContainer[] loadDependencies(AssetDesc<T> asset) {
+    final AssetLoader loader = findLoader(asset.type);
+    @SuppressWarnings("unchecked") // guaranteed by loader contract
+    Array<AssetDesc> dependencies = loader.dependencies(asset);
+    final int numDependencies = dependencies.size;
+    final AssetContainer[] containers = numDependencies > 0
+        ? new AssetContainer[dependencies.size]
+        : AssetContainer.EMPTY_ASSET_CONTAINER_ARRAY;
+    for (int i = 0; i < numDependencies; i++) {
+      final AssetDesc dependency = dependencies.get(i);
+      @SuppressWarnings("unchecked") // dependencies submitted by loader
+      AssetContainer container = load0(dependency);
+      containers[i] = container;
     }
+    return containers;
+  }
 
-    final Promise<T> promise = sync.newPromise();
-    final AssetContainer container = AssetContainer.wrap(asset, promise);
-    loadedAssets.put(asset, container);
+  <T> void ioAsync(final AssetContainer container) {
+    final AssetDesc asset = container.asset;
+    final Promise promise = container.promise;
     final AssetLoader loader = findLoader(asset.type);
     final FileHandle handle = resolve(asset); // TODO: refactor AssetLoader#resolver?
     final Adapter adapter = findAdapter(handle);
@@ -158,19 +174,67 @@ public final class AssetManager implements Disposable {
                 @SuppressWarnings("unchecked") // guaranteed by loader contract
                 T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
                 log.debug("Asset Async complete: {}", asset);
+                // if (loader.requiresSync()) {
+                // }
                 boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
                 if (!inserted) log.error("Failed to enqueue {}", asset);
-                log.debug("Queue added {} {}", inserted, syncQueue.size());
               }
             });
       }
     });
+  }
 
-    // check loadedAssets
-    // check preload queue
-    // check task list
+  <T> AssetContainer load0(final AssetDesc<T> asset) {
+    final AssetContainer container0 = loadedAssets.get(asset);
+    if (container0 != null) {
+      return container0.retain();
+    }
 
-    return promise;
+    // create promise
+    // submit asset loading task
+    //    get dependencies and submit them
+    //       add listener to promise to continue
+    //    after dependencies perform io
+    //    after io perform async
+    //    after async submit sync
+    //    complete promise
+
+    final Promise<T> promise = sync.newPromise();
+    final AssetContainer[] dependencies = loadDependencies(asset);
+    final AssetContainer container = AssetContainer.wrap(asset, promise, dependencies);
+    loadedAssets.put(asset, container);
+
+    log.debug("Dependencies: {}", (Object) dependencies);
+    if (dependencies.length > 0) {
+      deps.execute(new Runnable() {
+        @Override
+        public void run() {
+          PromiseCombiner combiner = new PromiseCombiner(deps);
+          for (AssetContainer dependency : dependencies) {
+            combiner.add((Future) dependency.promise);
+          }
+
+          Promise<Void> combinerPromise = deps.newPromise();
+          combinerPromise.addListener(new FutureListener<Void>() {
+            @Override
+            public void operationComplete(Future<Void> future) {
+              log.debug("Dependencies loaded: {}", asset);
+              ioAsync(container);
+            }
+          });
+          combiner.finish(combinerPromise);
+        }
+      });
+    } else {
+      log.debug("Dependencies loaded: {}", asset);
+      ioAsync(container);
+    }
+
+    return container;
+  }
+
+  public <T> Future<T> load(final AssetDesc<T> asset) {
+    return load0(asset).get(asset.type);
   }
 
   public void unload(AssetDesc asset) {

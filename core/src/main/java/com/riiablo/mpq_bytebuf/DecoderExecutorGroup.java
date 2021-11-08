@@ -10,6 +10,7 @@ import io.netty.util.concurrent.Promise;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import com.riiablo.concurrent.PromiseCombiner;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 

@@ -1,4 +1,4 @@
-package com.riiablo.mpq_bytebuf;
+package com.riiablo.concurrent;
 
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.EventExecutorGroup;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @see <a href="https://github.com/netty/netty/blob/d50cfc69e03a35e984d12d381de7a89ac8f0b2d7/common/src/main/java/io/netty/util/concurrent/PromiseCombiner.java">Netty Github Repository d50cfc6</a>
  */
-final class PromiseCombiner {
+public final class PromiseCombiner {
   private int expectedCount;
   private final AtomicInteger doneCount = new AtomicInteger();
   private Promise<Void> aggregatePromise;

@@ -143,6 +143,31 @@ public class AssetManagerTest extends RiiabloTest {
         // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
     })
     void load_mpq(String path) {
+      AssetDesc<Dcc> asset = AssetDesc.of(path, Dcc.class, DcParams.of(0));
+      Future<Dcc> handle = assets.load(asset);
+      try {
+        assertNotNull(handle);
+        while (!assets.update()); // dir -1
+        while (!assets.update()); // dir 1, throws NPE because headless LibGDX -> no Gdx.gl object
+        assertTimeout(Duration.ofMillis(100), () -> {
+          Dcc object = handle.get();
+          assertNotNull(object);
+        });
+        handle.syncUninterruptibly();
+        assertEquals(2, assets.loadedAssets.size);
+        /** TODO: sync of direction throws NPE in {@link Dcc#uploadTextures(int)} */
+      } finally {
+        assets.unload(asset);
+      }
+    }
+
+    @Disabled
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
+        // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
+    })
+    void load_mpq0(String path) {
       AssetDesc<Dcc> asset = AssetDesc.of(path, Dcc.class, DcParams.of(-1));
       AssetDesc<Dcc> asset0 = AssetDesc.of(path, Dcc.class, DcParams.of(0));
       Future<Dcc> handle = assets.load(asset);

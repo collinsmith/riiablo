@@ -41,7 +41,7 @@ public class DccLoader extends AssetLoader<Dcc> {
   @Override
   public Array<AssetDesc> dependencies(AssetDesc<Dcc> asset) {
     DcParams params = asset.params(DcParams.class);
-    if (params.direction >= 0) return EmptyArray.empty();
+    if (params.direction < 0) return EmptyArray.empty();
     AssetDesc<Dcc> header = AssetDesc.of(asset, PARENT_DC);
     final Array<AssetDesc> dependencies = Array.of(false, 1, AssetDesc.class);
     dependencies.add(header);
@@ -84,6 +84,7 @@ public class DccLoader extends AssetLoader<Dcc> {
       dcc.read(buffer, params.direction);
       DccDecoder decoder = decoders.obtain();
       try {
+        log.trace("decoding {}", asset);
         decoder.decode(dcc, params.direction);
       } finally {
         decoders.release(decoder);

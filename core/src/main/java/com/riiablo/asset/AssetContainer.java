@@ -7,17 +7,29 @@ import io.netty.util.concurrent.Promise;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class AssetContainer extends AbstractReferenceCounted {
-  public static AssetContainer wrap(AssetDesc asset, Promise<?> promise) {
+  static final AssetContainer[] EMPTY_ASSET_CONTAINER_ARRAY = new AssetContainer[0];
+
+  public static AssetContainer wrap(
+      AssetDesc asset,
+      Promise<?> promise,
+      AssetContainer[] dependencies
+  ) {
     if (promise == null) throw new IllegalArgumentException("promise cannot be null");
-    return new AssetContainer(asset, promise);
+    return new AssetContainer(asset, promise, dependencies);
   }
 
   final AssetDesc asset; // for context of which asset this contains
   final Promise<?> promise;
+  final AssetContainer[] dependencies;
 
-  AssetContainer(AssetDesc asset, Promise<?> promise) {
+  AssetContainer(
+      AssetDesc asset,
+      Promise<?> promise,
+      AssetContainer[] dependencies
+  ) {
     this.asset = asset;
     this.promise = promise;
+    this.dependencies = dependencies;
   }
 
   @SuppressWarnings("unchecked")
@@ -26,10 +38,20 @@ public class AssetContainer extends AbstractReferenceCounted {
   }
 
   @Override
+  public AssetContainer retain() {
+    super.retain();
+    return this;
+  }
+
+  @Override
   protected void deallocate() {
+    System.out.println("deallocating " + asset);
     // dispose if completed, else ?
     promise.cancel(false);
     if (promise.isDone()) AssetUtils.dispose(promise.getNow());
+    for (AssetContainer dependency : dependencies) {
+      dependency.release();
+    }
   }
 
   @Override
