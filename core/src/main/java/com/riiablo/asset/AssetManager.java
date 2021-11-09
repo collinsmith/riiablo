@@ -6,8 +6,11 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -132,8 +135,8 @@ public final class AssetManager implements Disposable {
 
   // TODO: something more elegant for dependencies
   public <T> T getDepNow(final AssetDesc<T> asset) {
-    final AssetContainer container0 = loadedAssets.get(asset);
-    final T object = container0 != null ? container0.get(asset.type).getNow() : null;
+    final AssetContainer container = loadedAssets.get(asset);
+    final T object = container != null ? container.get(asset.type).getNow() : null;
     if (object == null) throw new RuntimeException("dependency not loaded: " + asset);
     return object;
   }
@@ -170,10 +173,8 @@ public final class AssetManager implements Disposable {
             .addListener(new FutureListener() {
               @Override
               public void operationComplete(Future future) {
-                log.debug("Asset IO complete: {}", asset);
                 @SuppressWarnings("unchecked") // guaranteed by loader contract
                 T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
-                log.debug("Asset Async complete: {}", asset);
                 // if (loader.requiresSync()) {
                 // }
                 boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
@@ -185,6 +186,7 @@ public final class AssetManager implements Disposable {
   }
 
   <T> AssetContainer load0(final AssetDesc<T> asset) {
+    log.traceEntry("load0(asset: {})", asset);
     final AssetContainer container0 = loadedAssets.get(asset);
     if (container0 != null) {
       return container0.retain();
@@ -204,7 +206,8 @@ public final class AssetManager implements Disposable {
     final AssetContainer container = AssetContainer.wrap(asset, promise, dependencies);
     loadedAssets.put(asset, container);
 
-    log.debug("Dependencies: {}", (Object) dependencies);
+    // FIXME: below is a workaround since Object[] isn't supported at the moment of writing
+    if (log.debugEnabled()) log.debug("Dependencies: {}", Arrays.toString(dependencies));
     if (dependencies.length > 0) {
       deps.execute(new Runnable() {
         @Override
@@ -218,7 +221,6 @@ public final class AssetManager implements Disposable {
           combinerPromise.addListener(new FutureListener<Void>() {
             @Override
             public void operationComplete(Future<Void> future) {
-              log.debug("Dependencies loaded: {}", asset);
               ioAsync(container);
             }
           });
@@ -226,7 +228,6 @@ public final class AssetManager implements Disposable {
         }
       });
     } else {
-      log.debug("Dependencies loaded: {}", asset);
       ioAsync(container);
     }
 
@@ -244,16 +245,24 @@ public final class AssetManager implements Disposable {
     log.debug("container released? {}", release);
   }
 
-  // TODO: intended as a "process until something is synced" for testing
-  public boolean update() {
+  public void sync(final long timeoutMillis) {
+    log.debug("Syncing...");
     SyncMessage msg;
-    while ((msg = syncQueue.poll()) != null) {
-      log.debug("Asset Sync: {}", msg.container.asset);
-      msg.loadSync(this);
-      log.debug("Asset Loaded: {}", msg.container.asset);
-      return true;
+    long timeoutRemaining = timeoutMillis;
+    long start, end = System.currentTimeMillis();
+    try {
+      while (timeoutRemaining > 0) {
+        log.debug("taking... ({}ms remaining)", timeoutRemaining);
+        start = end;
+        msg = syncQueue.poll(timeoutRemaining, TimeUnit.MILLISECONDS);
+        if (msg == null) break;
+        msg.loadSync(this);
+        end = System.currentTimeMillis();
+        timeoutRemaining -= (end - start);
+      }
+    } catch (InterruptedException t) {
+      log.debug(ExceptionUtils.getRootCauseMessage(t), t);
+      Thread.currentThread().interrupt();
     }
-    return false;
   }
-
 }

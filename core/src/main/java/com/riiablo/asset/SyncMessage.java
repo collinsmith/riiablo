@@ -37,4 +37,9 @@ final class SyncMessage<T> {
     promise.setSuccess(object);
     return promise;
   }
+
+  @Override
+  public String toString() {
+    return container.asset.toString();
+  }
 }

@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
 
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.Future;
-import java.time.Duration;
 
 import com.badlogic.gdx.files.FileHandle;
 
@@ -147,51 +146,14 @@ public class AssetManagerTest extends RiiabloTest {
       Future<Dcc> handle = assets.load(asset);
       try {
         assertNotNull(handle);
-        while (!assets.update()); // dir -1
-        while (!assets.update()); // dir 1, throws NPE because headless LibGDX -> no Gdx.gl object
-        assertTimeout(Duration.ofMillis(100), () -> {
-          Dcc object = handle.get();
-          assertNotNull(object);
-        });
-        handle.syncUninterruptibly();
+        assets.sync(100);
+        assertTrue(assets.syncQueue.isEmpty());
         assertEquals(2, assets.loadedAssets.size);
+        Dcc object = handle.getNow();
+        assertNotNull(object);
         /** TODO: sync of direction throws NPE in {@link Dcc#uploadTextures(int)} */
       } finally {
         assets.unload(asset);
-      }
-    }
-
-    @Disabled
-    @ParameterizedTest
-    @ValueSource(strings = {
-        "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
-        // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
-    })
-    void load_mpq0(String path) {
-      AssetDesc<Dcc> asset = AssetDesc.of(path, Dcc.class, DcParams.of(-1));
-      AssetDesc<Dcc> asset0 = AssetDesc.of(path, Dcc.class, DcParams.of(0));
-      Future<Dcc> handle = assets.load(asset);
-      try {
-        assertNotNull(handle);
-        while (!assets.update());
-        assertTimeout(Duration.ofMillis(100), () -> {
-          Dcc object = handle.get();
-          assertNotNull(object);
-        });
-        handle.syncUninterruptibly();
-        // assets.loadedAssets.put(asset, AssetContainer.wrap(asset, (Promise<?>) handle));
-        assertEquals(1, assets.loadedAssets.size);
-        Future<Dcc> handle0 = assets.load(asset0);
-        while (!assets.update()); // throws NPE because headless LibGDX -> no Gdx.gl object
-        assertTimeout(Duration.ofMillis(100), () -> {
-          Dcc object = handle0.get();
-          assertNotNull(object);
-        });
-        handle0.syncUninterruptibly();
-        /** TODO: sync of direction throws NPE in {@link Dcc#uploadTextures(int)} */
-      } finally {
-        assets.unload(asset);
-        assets.unload(asset0);
       }
     }
   }
