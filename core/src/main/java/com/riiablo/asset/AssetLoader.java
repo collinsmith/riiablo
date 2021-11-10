@@ -7,16 +7,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 
 public abstract class AssetLoader<T> {
-  final FileHandleResolver resolver;
-
-  protected AssetLoader(FileHandleResolver resolver) {
-    this.resolver = resolver;
-  }
-
-  public final FileHandleResolver resolver() {
-    return resolver;
-  }
-
   public Array<AssetDesc> dependencies(AssetDesc<T> asset) {
     return EmptyArray.empty();
   }

@@ -120,7 +120,7 @@ public class AssetManagerTest extends RiiabloTest {
           .paramResolver(Dc.class, DcParams.class)
           .adapter(FileHandle.class, new GdxFileHandleAdapter())
           .adapter(MpqFileHandle.class, new MpqFileHandleAdapter())
-          .loader(Dcc.class, new DccLoader(null))
+          .loader(Dcc.class, new DccLoader())
       ;
     }
 

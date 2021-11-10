@@ -45,7 +45,6 @@ public class AssetContainer extends AbstractReferenceCounted {
 
   @Override
   protected void deallocate() {
-    System.out.println("deallocating " + asset);
     // dispose if completed, else ?
     promise.cancel(false);
     if (promise.isDone()) AssetUtils.dispose(promise.getNow());
@@ -64,6 +63,7 @@ public class AssetContainer extends AbstractReferenceCounted {
     return new ToStringBuilder(this)
         .append("future", promise)
         .append("refCnt", refCnt())
+        .append("asset", asset)
         .toString();
   }
 }

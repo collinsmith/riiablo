@@ -1,6 +1,9 @@
 package com.riiablo.file;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.util.AbstractReferenceCounted;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.ReferenceCounted;
 import java.lang.reflect.Array;
 
 import com.badlogic.gdx.files.FileHandle;
@@ -9,7 +12,10 @@ import com.badlogic.gdx.utils.Disposable;
 
 import com.riiablo.codec.util.BBox;
 
-public abstract class Dc<D extends Dc.Direction> implements Disposable {
+public abstract class Dc<D extends Dc.Direction>
+    extends AbstractReferenceCounted
+    implements Disposable
+{
   protected final FileHandle handle;
   protected final int numDirections;
   protected final int numFrames;
@@ -25,13 +31,31 @@ public abstract class Dc<D extends Dc.Direction> implements Disposable {
     this.directions = (D[]) Array.newInstance(dirType, numDirections);
   }
 
+  public Dc<D> read(ByteBuf buffer, int direction) {
+    assert directions[direction] == null;
+    assert buffer.isReadable(dirOffsets[direction + 1] - dirOffsets[direction])
+        : handle + " buffer.isReadable(" + (dirOffsets[direction + 1] - dirOffsets[direction]) + ") = " + buffer.readableBytes();
+    retain(); // increment refCnt for each direction read
+    return this;
+  }
+
   @Override
-  public void dispose() {
+  protected void deallocate() {
     ReferenceCountUtil.release(handle);
     for (int d = 0, s = numDirections; d < s; d++) {
       if (directions[d] == null) continue;
       directions[d].dispose();
     }
+  }
+
+  @Override
+  public ReferenceCounted touch(Object hint) {
+    return this;
+  }
+
+  @Override
+  public void dispose() {
+    release();
   }
 
   public FileHandle handle() {
@@ -53,6 +77,10 @@ public abstract class Dc<D extends Dc.Direction> implements Disposable {
 
   public int dirOffset(int d) {
     return dirOffsets[d];
+  }
+
+  public D direction(int d) {
+    return directions[d];
   }
 
   public static abstract class Direction<F extends Dc.Frame> implements Disposable {

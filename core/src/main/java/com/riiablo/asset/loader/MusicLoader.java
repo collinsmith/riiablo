@@ -11,13 +11,8 @@ import com.riiablo.asset.Adapter;
 import com.riiablo.asset.AssetDesc;
 import com.riiablo.asset.AssetLoader;
 import com.riiablo.asset.AssetManager;
-import com.riiablo.asset.FileHandleResolver;
 
 public class MusicLoader extends AssetLoader<Music> {
-  public MusicLoader(FileHandleResolver resolver) {
-    super(resolver);
-  }
-
   @Override
   protected <F extends FileHandle> Future<?> ioAsync(
       EventExecutor executor,

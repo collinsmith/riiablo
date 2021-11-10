@@ -24,6 +24,9 @@ import com.riiablo.logger.MDC;
 public final class Dcc extends Dc<Dcc.DccDirection> {
   private static final Logger log = LogManager.getLogger(Dcc.class);
 
+  @SuppressWarnings("GDXJavaStaticResource")
+  public static Texture MISSING_TEXTURE;
+
   static final int ENCODED_BITS[] = {
       0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 26, 28, 30, 32
   };
@@ -38,7 +41,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
   final byte version;
 //final int numDirections; // Dc#numDirections
 //final int numFrames; // Dc#numFrames
-//final int dirOffsets; // Dc#dirOffsets;
+//final int[] dirOffsets; // Dc#dirOffsets;
 
   public static Dcc read(FileHandle handle, InputStream stream) {
     SwappedDataInputStream in = new SwappedDataInputStream(stream);
@@ -83,10 +86,9 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     super.dispose();
   }
 
+  @Override
   public Dcc read(ByteBuf buffer, int direction) {
-    assert directions[direction] == null;
-    assert buffer.isReadable(dirOffsets[direction + 1] - dirOffsets[direction])
-        : handle + " buffer.isReadable(" + (dirOffsets[direction + 1] - dirOffsets[direction]) + ") = " + buffer.readableBytes();
+    super.read(buffer, direction);
     ByteInput in = ByteInput.wrap(buffer);
     directions[direction] = new DccDirection(in.unalign(), numFrames);
     return this;
@@ -94,10 +96,12 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
   public void uploadTextures(int d) {
     final DccDirection direction = directions[d];
+    final DccFrame[] frame = direction.frames;
     final Pixmap[] pixmap = direction.pixmap;
     final Texture[] texture = direction.texture;
     for (int f = 0; f < numFrames; f++) {
-      texture[f] = new Texture(pixmap[f]);
+      Texture t = texture[f] = new Texture(pixmap[f]);
+      frame[f].texture.setRegion(t);
       pixmap[f].dispose();
       pixmap[f] = null;
     }
@@ -185,9 +189,6 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
         }
       }
 
-      // box.width++; // why?
-      // box.height++; // why?
-
       if (extraBytes > 0) {
         ByteInput in = bits.align();
         for (int frame = 0; frame < numFrames; frame++) {
@@ -226,14 +227,14 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 
     @Override
     public void dispose() {
-      System.out.println("disposing dcc pixmaps");
+      log.trace("disposing dcc pixmaps");
       for (int i = 0, s = pixmap.length; i < s; i++) {
         if (pixmap[i] == null) continue;
         pixmap[i].dispose();
         pixmap[i] = null;
       }
 
-      System.out.println("disposing dcc textures");
+      log.trace("disposing dcc textures");
       for (int i = 0, s = texture.length; i < s; i++) {
         if (texture[i] == null) continue;
         texture[i].dispose();
@@ -292,28 +293,8 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       extraBytes = readSafe32u(bits, optionalBytesBits);
       compressedBytes = readSafe32u(bits, compressedBytesBits);
       flipY = bits.readBoolean();
-
-      box = new BBox().asBox(
-          xOffset,
-          flipY ? yOffset : yOffset - height,
-          width,
-          height);
-      // box.xMin = xOffset;
-      // box.xMax = box.xMin + width;
-      // // box.xMax--;
-      // if (flipY) {
-      //   // bottom-up
-      //   box.yMin = yOffset;
-      //   box.yMax = yOffset + height; // - 1; // why?
-      // } else {
-      //   // top-down
-      //   box.yMin = yOffset - height; // + 1; // why?
-      //   box.yMax = yOffset;
-      // }
-      //
-      // box.width = width; // + 1; // why?
-      // box.height = height; // + 1; // why?
-      texture = new TextureRegion();
+      box = new BBox().asBox(xOffset, flipY ? yOffset : yOffset - height, width, height);
+      texture = MISSING_TEXTURE == null ? new TextureRegion() : new TextureRegion(MISSING_TEXTURE);
     }
 
     @Override

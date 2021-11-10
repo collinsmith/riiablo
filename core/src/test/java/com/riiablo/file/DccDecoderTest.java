@@ -16,14 +16,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import com.riiablo.RiiabloTest;
 import com.riiablo.asset.AssetDesc;
 import com.riiablo.asset.AssetUtils;
 import com.riiablo.asset.param.DcParams;
@@ -83,8 +86,8 @@ public class DccDecoderTest {
     assertEquals(s, directionBuffer.size);
     for (int y = 0, i = 0; y < eHs.length; y++) {
       for (int x = 0; x < eWs.length; x++, i++) {
-        assertEquals(eWs[x], directionBuffer.cells[i].w);
-        assertEquals(eHs[y], directionBuffer.cells[i].h);
+        assertEquals(eWs[x], directionBuffer.w[i]);
+        assertEquals(eHs[y], directionBuffer.h[i]);
       }
     }
   }
@@ -126,16 +129,22 @@ public class DccDecoderTest {
     assertEquals(s, frameBuffer.size);
     for (int y = 0, i = 0; y < eHs.length; y++) {
       for (int x = 0; x < eWs.length; x++, i++) {
-        assertEquals(eWs[x], frameBuffer.cells[i].w);
-        assertEquals(eHs[y], frameBuffer.cells[i].h);
+        assertEquals(eWs[x], frameBuffer.w[i]);
+        assertEquals(eHs[y], frameBuffer.h[i]);
       }
     }
+  }
+
+  @BeforeEach
+  public void beforeEach() {
+    RiiabloTest.clearGdxContext();
   }
 
   @ParameterizedTest
   @ValueSource(strings = {
       "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
-      // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
+      "data\\global\\chars\\ba\\lg\\balglittnhth.dcc",
+      "data\\global\\chars\\ba\\hd\\bahdlittnhth.dcc",
   })
   void draw_pixmaps(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();
@@ -152,7 +161,11 @@ public class DccDecoderTest {
     dcc.read(buffer, 0);
 
     final Promise<?> promise = executor.newPromise();
-    new LwjglApplication(new ApplicationAdapter() {
+    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration() {{
+      title = dccName;
+      forceExit = false;
+    }};
+    ApplicationListener listener = new ApplicationAdapter() {
       PaletteIndexedBatch batch;
       ShaderProgram shader;
       Texture paletteTexture;
@@ -219,16 +232,17 @@ public class DccDecoderTest {
         AssetUtils.dispose(batch);
         promise.setSuccess(null);
       }
-    });
+    };
+    new LwjglApplication(listener, config);
     promise.awaitUninterruptibly();
     resolver.dispose();
   }
 
-  @Disabled
   @ParameterizedTest
   @ValueSource(strings = {
       "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
-      // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
+      "data\\global\\chars\\ba\\lg\\balglittnhth.dcc",
+      "data\\global\\chars\\ba\\hd\\bahdlittnhth.dcc",
   })
   void draw_pixmaps2(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();
@@ -238,7 +252,11 @@ public class DccDecoderTest {
     MpqFileHandle dccHandle = resolver.resolve(parent);
 
     final Promise<?> promise = executor.newPromise();
-    new LwjglApplication(new ApplicationAdapter() {
+    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration() {{
+      title = dccName;
+      forceExit = false;
+    }};
+    ApplicationListener listener = new ApplicationAdapter() {
       @Override
       public void create() {
         DCC.loadFromArray(ByteBufUtil.getBytes(dccHandle.buffer()));
@@ -253,7 +271,8 @@ public class DccDecoderTest {
       public void dispose() {
         promise.setSuccess(null);
       }
-    });
+    };
+    new LwjglApplication(listener, config);
     promise.awaitUninterruptibly();
     ReferenceCountUtil.release(dccHandle);
     resolver.dispose();

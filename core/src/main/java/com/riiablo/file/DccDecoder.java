@@ -180,15 +180,21 @@ public final class DccDecoder {
     if (DEBUG) if (DEBUG) if (DEBUG) System.out.println("  " + dir.pixelCodeAndDisplacementBitStream.bitsRead());
     byte[] pixels;
     for (int c = 0, s = frameBuffer.size; c < s; c++) {
-      final FrameBuffer.Cell fCell = frameBuffer.cells[c];
-      final int cellId = (fCell.y >>> 2) * stride + (fCell.x >>> 2);
-      final DirectionBuffer.Cell dCell = directionBuffer.cells[cellId];
+      final short fCx = frameBuffer.x[c];
+      final short fCy = frameBuffer.y[c];
+      final byte fCw = frameBuffer.w[c];
+      final byte fCh = frameBuffer.h[c];
+      final int cellId = (fCy >>> 2) * stride + (fCx >>> 2);
+      final short dCxLast = directionBuffer.xLast[cellId];
+      final short dCyLast = directionBuffer.yLast[cellId];
+      final byte dCwLast = directionBuffer.wLast[cellId];
+      final byte dChLast = directionBuffer.hLast[cellId];
       if (!pixelBuffer.peek(f, c)) {
         if (DEBUG) if (DEBUG) System.out.println("copy " + c + " " + pixelBuffer.peek());
-        if (fCell.w != dCell.wLast || fCell.h != dCell.hLast) {
-          bmp.clear(fCell);
+        if (fCw != dCwLast || fCh != dChLast) {
+          bmp.clear(fCx, fCy, fCw, fCh);
         } else {
-          bmp.copy(dCell.xLast, dCell.yLast, fCell.x, fCell.y, fCell.w, fCell.h);
+          bmp.copy(dCxLast, dCyLast, fCx, fCy, fCw, fCh);
         }
       } else {
         final int iter = pixelBuffer.peek();
@@ -201,14 +207,14 @@ public final class DccDecoder {
                 | (pixels[3] & 0xff) << 24
         ));
         if (pixels[0] == pixels[1]) {
-          bmp.fill(fCell, pixels[0]);
+          bmp.fill(fCx, fCy, fCw, fCh, pixels[0]);
         } else {
           final int bits = pixels[1] == pixels[2] ? 1 : 2;
-          for (int y = 0; y < fCell.h; y++) {
-            for (int x = 0; x < fCell.w; x++) {
+          for (int y = 0; y < fCh; y++) {
+            for (int x = 0; x < fCw; x++) {
               final int i = dir.pixelCodeAndDisplacementBitStream.read7u(bits);
               if (DEBUG) System.out.printf("0 0x%01x%n", i);
-              bmp.set(fCell, x, y, pixels[i]);
+              bmp.set(fCx, fCy, x, y, pixels[i]);
             }
           }
         }
@@ -216,7 +222,7 @@ public final class DccDecoder {
         pixelBuffer.dequeue();
       }
 
-      dCell.touch(fCell);
+      directionBuffer.touch(cellId, fCx, fCy, fCw, fCh);
     }
   }
 
@@ -257,38 +263,33 @@ public final class DccDecoder {
      * data\global\monsters\os\lh\oslhlita2hth.dcc 5 445,178
      */
     static final int MAX_SIZE = 0x10000;
-    final Cell[] cells = new Cell[MAX_SIZE]; {
-      for (int i = 0; i < MAX_SIZE; i++) {
-        cells[i] = new Cell();
-      }
-    }
-
-    static final class Cell {
-      byte w, h;
-      short xLast, yLast;
-      byte wLast, hLast;
-
-      void reset(byte w, byte h) {
-        this.w = w;
-        this.h = h;
-        xLast = yLast = -1;
-        wLast = hLast = 0;
-      }
-
-      void touch(FrameBuffer.Cell cell) {
-        xLast = cell.x;
-        yLast = cell.y;
-        wLast = cell.w;
-        hLast = cell.h;
-      }
-    }
-
     static final byte CELL_SIZE = 4; // 4x4
 
     DccDirection direction;
     int cellsW;
     int cellsH;
     int size; // cellsW * cellsH
+
+    final byte[] w = PlatformDependent.allocateUninitializedArray(MAX_SIZE);
+    final byte[] h = PlatformDependent.allocateUninitializedArray(MAX_SIZE);
+    final short[] xLast = new short[MAX_SIZE];
+    final short[] yLast = new short[MAX_SIZE];
+    final byte[] wLast = PlatformDependent.allocateUninitializedArray(MAX_SIZE);
+    final byte[] hLast = PlatformDependent.allocateUninitializedArray(MAX_SIZE);
+
+    void set(int i, byte w, byte h) {
+      this.w[i] = w;
+      this.h[i] = h;
+      xLast[i] = yLast[i] = -1;
+      wLast[i] = hLast[i] = 0;
+    }
+
+    void touch(int i, short fCx, short fCy, byte fCw, byte fCh) {
+      xLast[i] = fCx;
+      yLast[i] = fCy;
+      wLast[i] = fCw;
+      hLast[i] = fCh;
+    }
 
     /**
      * Clears all cells in this frame buffer and sets their sizes, ranging from
@@ -323,14 +324,11 @@ public final class DccDecoder {
     }
 
     private int resetCells(int defCellsW, byte remCellsW, int i, int x, byte cellSize) {
-      Cell cell;
       for (int cx = 0; cx < defCellsW; cx++, x += CELL_SIZE) {
-        cell = cells[i++];
-        cell.reset(CELL_SIZE, cellSize);
+        set(i++, CELL_SIZE, cellSize);
       }
       if (remCellsW > 0) {
-        cell = cells[i++];
-        cell.reset(remCellsW, cellSize);
+        set(i++, remCellsW, cellSize);
         x += CELL_SIZE;
       }
       return i;
@@ -365,24 +363,6 @@ public final class DccDecoder {
    */
   static final class FrameBuffer {
     static final int MAX_SIZE = DirectionBuffer.MAX_SIZE;
-    final Cell[] cells = new Cell[MAX_SIZE]; {
-      for (int i = 0; i < MAX_SIZE; i++) {
-        cells[i] = new Cell();
-      }
-    }
-
-    static final class Cell {
-      short x, y;
-      byte w, h;
-
-      void reset(short x, short y, byte w, byte h) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-      }
-    }
-
     static final byte CELL_SIZE = DirectionBuffer.CELL_SIZE;
 
     DirectionBuffer directionBuffer;
@@ -391,6 +371,34 @@ public final class DccDecoder {
     int cellsW;
     int cellsH;
     int size; // cellsW * cellsH
+
+    final short[] x = new short[MAX_SIZE];
+    final short[] y = new short[MAX_SIZE];
+    final byte[] w = PlatformDependent.allocateUninitializedArray(MAX_SIZE);
+    final byte[] h = PlatformDependent.allocateUninitializedArray(MAX_SIZE);
+
+    void set(int i, short x, short y, byte w, byte h) {
+        this.x[i] = x;
+        this.y[i] = y;
+        this.w[i] = w;
+        this.h[i] = h;
+    }
+
+    short x(int i) {
+      return x[i];
+    }
+
+    short y(int i) {
+      return y[i];
+    }
+
+    byte w(int i) {
+      return w[i];
+    }
+
+    byte h(int i) {
+      return h[i];
+    }
 
     void clear(DirectionBuffer directionBuffer, DccFrame frame) {
       this.directionBuffer = directionBuffer;
@@ -504,21 +512,17 @@ public final class DccDecoder {
     }
 
     private void resetCells(byte startCellW, int defCellsW, byte endCellW, int i, short x, short y, byte cellSize) {
-      Cell cell;
       assert startCellW > 0 : "startCellW(" + startCellW + ") <= " + 0;
       // if (startCellW > 0) {
-      cell = cells[i++];
-      cell.reset(x, y, startCellW, cellSize);
+      set(i++, x, y, startCellW, cellSize);
       x += startCellW;
       // }
       for (int cx = 0; cx < defCellsW; cx++) {
-        cell = cells[i++];
-        cell.reset(x, y, CELL_SIZE, cellSize);
+        set(i++, x, y, CELL_SIZE, cellSize);
         x += CELL_SIZE;
       }
       if (endCellW > 0) {
-        cell = cells[i/*++*/];
-        cell.reset(x, y, endCellW, cellSize);
+        set(i/*++*/, x, y, endCellW, cellSize);
         // x += endCellW;
       }
       // y += cellSize;
@@ -662,26 +666,26 @@ public final class DccDecoder {
       // Arrays.fill(colormap1, 0, length, (byte) 0);
     }
 
-    void clear(FrameBuffer.Cell cell) {
-      for (int yC = cell.y, yS = yC + cell.h; yC < yS; yC++) {
+    void clear(short fCx, short fCy, byte fCw, byte fCh) {
+      for (int yC = fCy, yS = yC + fCh; yC < yS; yC++) {
         int id = yC * stride;
-        for (int xC = cell.x, xS = xC + cell.w; xC < xS; xC++) {
+        for (int xC = fCx, xS = xC + fCw; xC < xS; xC++) {
           frontBuffer[id++] = 0;
         }
       }
     }
 
-    void fill(FrameBuffer.Cell cell, byte value) {
-      for (int yC = cell.y, yS = yC + cell.h; yC < yS; yC++) {
+    void fill(short fCx, short fCy, byte fCw, byte fCh, byte value) {
+      for (int yC = fCy, yS = yC + fCh; yC < yS; yC++) {
         int id = yC * stride;
-        for (int xC = cell.x, xS = xC + cell.w; xC < xS; xC++) {
+        for (int xC = fCx, xS = xC + fCw; xC < xS; xC++) {
           frontBuffer[id++] = value;
         }
       }
     }
 
-    void set(FrameBuffer.Cell cell, int x, int y, byte value) {
-      final int id = ((cell.y + y) * stride) + (cell.x + x);
+    void set(short fCx, short fCy, int x, int y, byte value) {
+      final int id = ((fCy + y) * stride) + (fCx + x);
       frontBuffer[id] = value;
     }
 

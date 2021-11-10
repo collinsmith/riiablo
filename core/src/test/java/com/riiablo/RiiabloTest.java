@@ -45,4 +45,16 @@ public class RiiabloTest {
     }
     return bytes;
   }
+
+  public static void clearGdxContext() {
+	Gdx.app = null;
+	Gdx.graphics = null;
+	Gdx.audio = null;
+	Gdx.input = null;
+	Gdx.files = null;
+	Gdx.net = null;
+	Gdx.gl = null;
+	Gdx.gl20 = null;
+	Gdx.gl30 = null;
+  }
 }

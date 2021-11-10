@@ -207,7 +207,7 @@ public final class AssetManager implements Disposable {
     loadedAssets.put(asset, container);
 
     // FIXME: below is a workaround since Object[] isn't supported at the moment of writing
-    if (log.debugEnabled()) log.debug("Dependencies: {}", Arrays.toString(dependencies));
+    if (log.traceEnabled()) log.trace("Dependencies: {}", Arrays.toString(dependencies));
     if (dependencies.length > 0) {
       deps.execute(new Runnable() {
         @Override
@@ -241,8 +241,9 @@ public final class AssetManager implements Disposable {
   public void unload(AssetDesc asset) {
     final AssetContainer container = loadedAssets.get(asset);
     if (container == null) return;
-    boolean release = container.release();
-    log.debug("container released? {}", release);
+    boolean released = container.release();
+    if (released) loadedAssets.remove(asset);
+    log.debug("container released? {}", released);
   }
 
   public void sync(final long timeoutMillis) {
@@ -263,6 +264,58 @@ public final class AssetManager implements Disposable {
     } catch (InterruptedException t) {
       log.debug(ExceptionUtils.getRootCauseMessage(t), t);
       Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * blocks and processes sync events until the specified asset has loaded
+   */
+  public void await(AssetDesc asset) throws InterruptedException {
+    log.traceEntry("await(asset: {})", asset);
+    AssetContainer container = loadedAssets.get(asset);
+    if (container != null && container.promise.isDone()) return;
+    SyncMessage msg;
+    do {
+      msg = syncQueue.take();
+      msg.loadSync(this);
+    } while (!asset.equals(msg.container.asset));
+  }
+
+  /**
+   * blocks and processes sync events until all specified assets have loaded
+   */
+  public void awaitAll(AssetDesc... array) throws InterruptedException {
+    log.traceEntry("awaitAll(array: {})", (Object) array);
+    Array<AssetDesc> assets = Array.with(array);
+    Array.ArrayIterator<AssetDesc> it = new Array.ArrayIterator<>(assets);
+    while (it.hasNext()) {
+      AssetDesc asset = it.next();
+      AssetContainer container = loadedAssets.get(asset);
+      if (container != null && container.promise.isDone()) {
+        it.remove();
+      }
+    }
+
+    SyncMessage msg;
+    do {
+      msg = syncQueue.take();
+      msg.loadSync(this);
+      assets.removeValue(msg.container.asset, false);
+    } while (!assets.isEmpty());
+  }
+
+  /**
+   * blocks and processes sync messages up to a max timeoutMillis,
+   * final message will not be interrupted and may exceed timeoutMillis
+   */
+  public void syncAwait(long timeoutMillis) {
+    log.traceEntry("syncAwait(timeoutMillis: {})", timeoutMillis);
+    SyncMessage msg;
+    long currentTime = System.currentTimeMillis();
+    final long endTime = currentTime + timeoutMillis;
+    while (currentTime < endTime && (msg = syncQueue.poll()) != null) {
+      msg.loadSync(this);
+      currentTime = System.currentTimeMillis();
     }
   }
 }

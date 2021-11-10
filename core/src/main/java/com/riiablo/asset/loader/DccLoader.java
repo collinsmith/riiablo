@@ -1,6 +1,7 @@
 package com.riiablo.asset.loader;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import java.io.InputStream;
@@ -14,7 +15,6 @@ import com.riiablo.asset.AssetDesc;
 import com.riiablo.asset.AssetLoader;
 import com.riiablo.asset.AssetManager;
 import com.riiablo.asset.EmptyArray;
-import com.riiablo.asset.FileHandleResolver;
 import com.riiablo.asset.param.DcParams;
 import com.riiablo.file.Dcc;
 import com.riiablo.file.DccDecoder;
@@ -33,10 +33,6 @@ public class DccLoader extends AssetLoader<Dcc> {
       return new DccDecoder();
     }
   };
-
-  public DccLoader(FileHandleResolver resolver) {
-    super(resolver);
-  }
 
   @Override
   public Array<AssetDesc> dependencies(AssetDesc<Dcc> asset) {
@@ -78,6 +74,8 @@ public class DccLoader extends AssetLoader<Dcc> {
     log.traceEntry("loadAsync(assets: {}, asset: {}, handle: {}, data: {})", assets, asset, handle, data);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
+      boolean released = ReferenceCountUtil.release(handle); // dcc already owns a reference
+      assert !released : handle + " was released, parent dc did not retain it";
       Dcc dcc = assets.getDepNow(AssetDesc.of(asset, PARENT_DC));
       assert data instanceof ByteBuf;
       ByteBuf buffer = (ByteBuf) data; // borrowed, don't release
