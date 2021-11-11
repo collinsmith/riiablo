@@ -31,9 +31,13 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 26, 28, 30, 32
   };
 
-  static int readSafe32u(final BitInput in, final int bits) {
+  static int readEncodedSafe32u(final BitInput in, final int bits) {
     long value = in.read63u(ENCODED_BITS[bits]);
     return BitConstraints.safe32u(in.byteMark(), value);
+  }
+
+  static int readEncoded32(final BitInput in, final int bits) {
+    return in.read32(ENCODED_BITS[bits]);
   }
 
 //final FileHandle handle; // Dc#handle
@@ -285,13 +289,14 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
         byte optionalBytesBits,
         byte compressedBytesBits
     ) {
-      variable0 = readSafe32u(bits, variable0Bits);
-      width = readSafe32u(bits, widthBits);
-      height = readSafe32u(bits, heightBits);
-      xOffset = readSafe32u(bits, xOffsetBits);
-      yOffset = readSafe32u(bits, yOffsetBits);
-      extraBytes = readSafe32u(bits, optionalBytesBits);
-      compressedBytes = readSafe32u(bits, compressedBytesBits);
+      // Note: must look up actual number of bits to read from ENCODED_BITS
+      variable0 = readEncodedSafe32u(bits, variable0Bits);
+      width = readEncodedSafe32u(bits, widthBits);
+      height = readEncodedSafe32u(bits, heightBits);
+      xOffset = readEncoded32(bits, xOffsetBits); // signed
+      yOffset = readEncoded32(bits, yOffsetBits); // signed
+      extraBytes = readEncodedSafe32u(bits, optionalBytesBits);
+      compressedBytes = readEncodedSafe32u(bits, compressedBytesBits);
       flipY = bits.readBoolean();
       box = new BBox().asBox(xOffset, flipY ? yOffset : yOffset - height, width, height);
       texture = MISSING_TEXTURE == null ? new TextureRegion() : new TextureRegion(MISSING_TEXTURE);
