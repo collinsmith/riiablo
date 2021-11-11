@@ -145,6 +145,8 @@ public class DccDecoderTest {
       "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
       "data\\global\\chars\\ba\\lg\\balglittnhth.dcc",
       "data\\global\\chars\\ba\\hd\\bahdlittnhth.dcc",
+      "data\\global\\chars\\ba\\s2\\bas2littnhth.dcc",
+      "data\\global\\chars\\so\\s2\\sos2medtnhth.dcc",
   })
   void draw_pixmaps(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();
@@ -226,7 +228,10 @@ public class DccDecoderTest {
 
       @Override
       public void dispose() {
-        dcc.dispose(); // also releases dccHandle reference
+        // also releases dccHandle reference
+        // release twice, once for header, again for direction
+        ReferenceCountUtil.release(dcc);
+        ReferenceCountUtil.release(dcc);
         AssetUtils.dispose(paletteTexture);
         AssetUtils.dispose(shader);
         AssetUtils.dispose(batch);
@@ -243,6 +248,8 @@ public class DccDecoderTest {
       "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
       "data\\global\\chars\\ba\\lg\\balglittnhth.dcc",
       "data\\global\\chars\\ba\\hd\\bahdlittnhth.dcc",
+      "data\\global\\chars\\ba\\s2\\bas2littnhth.dcc",
+      "data\\global\\chars\\so\\s2\\sos2medtnhth.dcc",
   })
   void draw_pixmaps2(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();

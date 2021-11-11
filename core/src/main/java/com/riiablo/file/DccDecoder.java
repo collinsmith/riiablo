@@ -25,10 +25,10 @@ public final class DccDecoder {
   final Bitmap bmp = new Bitmap();
 
   public void decode(Dcc dcc, int d) {
-    decode(dcc, dcc.directions[d]);
+    decode(dcc, d, dcc.directions[d]);
   }
 
-  void decode(Dcc dcc, DccDirection dir) {
+  void decode(Dcc dcc, int d, DccDirection dir) {
     directionBuffer.clear(dir);
     pixelBuffer.clear(directionBuffer.size);
     decodeFrames(dir, dcc.numFrames);
@@ -40,7 +40,9 @@ public final class DccDecoder {
     assert dir.pixelMaskBitStream.bitsRemaining() == 0;
     assert dir.encodingTypeBitStream.bitsRemaining() == 0;
     assert dir.rawPixelCodesBitStream.bitsRemaining() == 0;
-    assert dir.pixelCodeAndDisplacementBitStream.bytesRemaining() == 0 : dir.pixelCodeAndDisplacementBitStream.bytesRemaining();
+    assert dir.pixelCodeAndDisplacementBitStream.bytesRemaining() == 0 :
+        String.format("dcc: %s, dir: %d, bytesRemaining: %d",
+            dcc.handle, d, dir.pixelCodeAndDisplacementBitStream.bytesRemaining());
   }
 
   /**
