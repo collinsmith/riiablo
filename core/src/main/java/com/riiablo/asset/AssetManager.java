@@ -192,15 +192,6 @@ public final class AssetManager implements Disposable {
       return container0.retain();
     }
 
-    // create promise
-    // submit asset loading task
-    //    get dependencies and submit them
-    //       add listener to promise to continue
-    //    after dependencies perform io
-    //    after io perform async
-    //    after async submit sync
-    //    complete promise
-
     final Promise<T> promise = sync.newPromise();
     final AssetContainer[] dependencies = loadDependencies(asset);
     final AssetContainer container = AssetContainer.wrap(asset, promise, dependencies);
@@ -243,7 +234,6 @@ public final class AssetManager implements Disposable {
     if (container == null) return;
     boolean released = container.release();
     if (released) loadedAssets.remove(asset);
-    log.debug("container released? {}", released);
   }
 
   public void sync(final long timeoutMillis) {
