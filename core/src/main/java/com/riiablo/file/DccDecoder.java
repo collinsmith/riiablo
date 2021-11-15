@@ -56,26 +56,28 @@ public final class DccDecoder {
 
     // map dcc pixel code to palette index
     final short[] PALETTE = dir.pixelValues;
-    final byte[][] pixels0 = pixelBuffer.pixels;
-    for (int c = 0, s = pixelBuffer.size; c < s; c++) {
-      final byte[] pixels = pixels0[c];
-      // System.out.println(String.format("0x%08x",
-      //           (pixels[0] & 0xff)
-      //         | (pixels[1] & 0xff) << 8
-      //         | (pixels[2] & 0xff) << 16
-      //         | (pixels[3] & 0xff) << 24
-      // ));
-      pixels[0] = (byte) PALETTE[pixels[0]];
-      pixels[1] = (byte) PALETTE[pixels[1]];
-      pixels[2] = (byte) PALETTE[pixels[2]];
-      pixels[3] = (byte) PALETTE[pixels[3]];
-      // System.out.println(String.format("0x%08x",
-      //           (pixels[0] & 0xff)
-      //         | (pixels[1] & 0xff) << 8
-      //         | (pixels[2] & 0xff) << 16
-      //         | (pixels[3] & 0xff) << 24
-      // ));
+    final byte[] pixels = pixelBuffer.pixels;
+    // for (int c = 0, s = pixelBuffer.size; c < s; c++) {
+    //   final int c0 = (c << 2);
+    //   System.out.println(String.format("0x%08x",
+    //             (pixels[c0 + 0] & 0xff)
+    //           | (pixels[c0 + 1] & 0xff) << 8
+    //           | (pixels[c0 + 2] & 0xff) << 16
+    //           | (pixels[c0 + 3] & 0xff) << 24
+    //   ));
+    // }
+    for (int c = 0, s = pixelBuffer.size << 2; c < s; c++) {
+      pixels[c] = (byte) PALETTE[pixels[c]];
     }
+    // for (int c = 0, s = pixelBuffer.size; c < s; c++) {
+    //   final int c0 = (c << 2);
+    //   System.out.println(String.format("0x%08x",
+    //             (pixels[c0 + 0] & 0xff)
+    //           | (pixels[c0 + 1] & 0xff) << 8
+    //           | (pixels[c0 + 2] & 0xff) << 16
+    //           | (pixels[c0 + 3] & 0xff) << 24
+    //   ));
+    // }
   }
 
   void decodeFrame(DccDirection dir, DccFrame frame, int f) {
@@ -151,10 +153,10 @@ public final class DccDecoder {
             + dCell
             + "=" + pixelBuffer.frame[pixelBuffer.size - 1]
             + ":" + String.format("0x%08x",
-                      (pixelBuffer.pixels[pixelBuffer.size - 1][0] & 0xff)
-                    | (pixelBuffer.pixels[pixelBuffer.size - 1][1] & 0xff) << 8
-                    | (pixelBuffer.pixels[pixelBuffer.size - 1][2] & 0xff) << 16
-                    | (pixelBuffer.pixels[pixelBuffer.size - 1][3] & 0xff) << 24
+                      (pixelBuffer.pixels[((pixelBuffer.size - 1) << 2) + 0] & 0xff)
+                    | (pixelBuffer.pixels[((pixelBuffer.size - 1) << 2) + 1] & 0xff) << 8
+                    | (pixelBuffer.pixels[((pixelBuffer.size - 1) << 2) + 2] & 0xff) << 16
+                    | (pixelBuffer.pixels[((pixelBuffer.size - 1) << 2) + 3] & 0xff) << 24
             )
         );
       }
@@ -180,7 +182,7 @@ public final class DccDecoder {
     final FrameBuffer frameBuffer = this.frameBuffer[f];
     if (DEBUG) if (DEBUG) if (DEBUG) if (DEBUG) System.out.println("frameBuffer.size: " + frameBuffer.size);
     if (DEBUG) if (DEBUG) if (DEBUG) System.out.println("  " + dir.pixelCodeAndDisplacementBitStream.bitsRead());
-    byte[] pixels;
+    final byte[] pixels = pixelBuffer.pixels;
     for (int c = 0, s = frameBuffer.size; c < s; c++) {
       final short fCx = frameBuffer.x[c];
       final short fCy = frameBuffer.y[c];
@@ -200,23 +202,23 @@ public final class DccDecoder {
         }
       } else {
         final int iter = pixelBuffer.peek();
-        pixels = pixelBuffer.pixels[iter];
+        final int c0 = iter << 2;
         if (DEBUG) System.out.println("write " + pixelBuffer.peekFrame() + " " + c + " " + iter + " "
             + String.format("0x%08x",
-                  (pixels[0] & 0xff)
-                | (pixels[1] & 0xff) << 8
-                | (pixels[2] & 0xff) << 16
-                | (pixels[3] & 0xff) << 24
+                  (pixels[c0 + 0] & 0xff)
+                | (pixels[c0 + 1] & 0xff) << 8
+                | (pixels[c0 + 2] & 0xff) << 16
+                | (pixels[c0 + 3] & 0xff) << 24
         ));
-        if (pixels[0] == pixels[1]) {
-          bmp.fill(fCx, fCy, fCw, fCh, pixels[0]);
+        if (pixels[c0 + 0] == pixels[c0 + 1]) {
+          bmp.fill(fCx, fCy, fCw, fCh, pixels[c0 + 0]);
         } else {
-          final int bits = pixels[1] == pixels[2] ? 1 : 2;
+          final int bits = pixels[c0 + 1] == pixels[c0 + 2] ? 1 : 2;
           for (int y = 0; y < fCh; y++) {
             for (int x = 0; x < fCw; x++) {
               final int i = dir.pixelCodeAndDisplacementBitStream.read7u(bits);
               if (DEBUG) System.out.printf("0 0x%01x%n", i);
-              bmp.set(fCx, fCy, x, y, pixels[i]);
+              bmp.set(fCx, fCy, x, y, pixels[c0 + i]);
             }
           }
         }
@@ -546,13 +548,13 @@ public final class DccDecoder {
     static final int DEFAULT_QUEUE_CAPACITY = 0x100000;
 
     final int bufferCapacity;
-    final int[] lastFrame; // can be simplified to bool/bitset later to represent it was ever touched
+    final short[] lastFrame; // can be simplified to bool/bitset later to represent it was ever touched
     final int[] lastCell; // cell mapped to this buffer cell (queue index)
 
     final int queueCapacity;
-    final int[] frame; // frame pushing this cell
+    final short[] frame; // frame pushing this cell
     final int[] cell; // fCell of this cell
-    final byte[][] pixels; // pixels of the cell
+    final byte[] pixels; // pixels of the cell
     int iter;
     int size;
 
@@ -562,17 +564,17 @@ public final class DccDecoder {
 
     PixelBuffer(int bufferCapacity, int queueCapacity) {
       this.bufferCapacity = bufferCapacity;
-      this.lastFrame = new int[bufferCapacity];
+      this.lastFrame = new short[bufferCapacity];
       this.lastCell = new int[bufferCapacity];
 
       this.queueCapacity = queueCapacity;
-      frame = new int[queueCapacity];
+      frame = new short[queueCapacity];
       cell = new int[queueCapacity];
-      pixels = new byte[queueCapacity][4];
+      pixels = PlatformDependent.allocateUninitializedArray(queueCapacity << 2);
     }
 
     void clear(int bufferSize) {
-      Arrays.fill(lastFrame, 0, bufferSize, -1);
+      Arrays.fill(lastFrame, 0, bufferSize, (short) -1);
       Arrays.fill(lastCell, 0, bufferSize, -1);
       iter = 0;
       size = 0;
@@ -608,10 +610,10 @@ public final class DccDecoder {
     }
 
     void enqueue(int dCell, int frame, int fCell, int pixelMask, int[] pixelStack, int stackPtr) {
-      lastFrame[dCell] = frame; // touch buffer dCell
+      lastFrame[dCell] = (short) frame; // touch buffer dCell
 
       final int queuePtr = size++;
-      this.frame[queuePtr] = frame;
+      this.frame[queuePtr] = (short) frame;
       this.cell[queuePtr] = fCell;
 
       // map dCell from buffer dCell to queue dCell
@@ -621,9 +623,9 @@ public final class DccDecoder {
       /** if bit is set, copy from pixelStack, otherwise, copy from dCell */
       for (int i = 0, bit = 1; i < 4; bit = 1 << ++i) {
         if ((pixelMask & bit) == bit) {
-          pixels[queuePtr][i] = stackPtr > 0 ? (byte) pixelStack[--stackPtr] : 0;
+          pixels[(queuePtr << 2) + i] = stackPtr > 0 ? (byte) pixelStack[--stackPtr] : 0;
         } else {
-          pixels[queuePtr][i] = pixels[queueCell][i];
+          pixels[(queuePtr << 2) + i] = pixels[(queueCell << 2) + i];
         }
         // System.out.println(String.format("      %d 0x%02x", i, pixels[queuePtr][i] & 0xff));
       }
