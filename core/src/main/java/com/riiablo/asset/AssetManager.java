@@ -1,12 +1,12 @@
 package com.riiablo.asset;
 
-import io.netty.util.concurrent.DefaultEventExecutor;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
-import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -31,25 +31,20 @@ public final class AssetManager implements Disposable {
   final ObjectMap<Class, Class<? extends AssetParams>> defaultParams = new ObjectMap<>();
   final BlockingQueue<SyncMessage> syncQueue = new LinkedBlockingQueue<>();
 
-  final EventExecutor deps;
-  final EventExecutor io;
+  final EventExecutorGroup async;
   final EventExecutor sync;
 
   FileHandleResolver[] resolverCache; // ref updated when resolvers changed
 
   public AssetManager() {
-    deps = new DefaultEventExecutor();
-    io = new DefaultEventExecutor();
+    async = new DefaultEventExecutorGroup(4);
     sync = ImmediateEventExecutor.INSTANCE;
   }
 
   @Override
   public void dispose() {
-    log.trace("Shutting down dependency event executor...");
-    deps.shutdownGracefully();
-
-    log.trace("Shutting down i/o event executor...");
-    io.shutdownGracefully();
+    log.trace("Shutting down async executor...");
+    async.shutdownGracefully();
 
     log.trace("Disposing file handle resolvers...");
     for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
@@ -154,6 +149,7 @@ public final class AssetManager implements Disposable {
         : AssetContainer.EMPTY_ASSET_CONTAINER_ARRAY;
     for (int i = 0; i < numDependencies; i++) {
       final AssetDesc dependency = dependencies.get(i);
+      // redirection to suppress unchecked warning via variable assignment
       @SuppressWarnings("unchecked") // dependencies submitted by loader
       AssetContainer container = load0(dependency);
       containers[i] = container;
@@ -161,69 +157,62 @@ public final class AssetManager implements Disposable {
     return containers;
   }
 
-  <T> void ioAsync(final AssetContainer container) {
+  @SuppressWarnings("unchecked") // guaranteed by loader and adapter contracts
+  <T> void ioAsync(final EventExecutor executor, final AssetContainer container) {
     final AssetDesc asset = container.asset;
     final Promise promise = container.promise;
     final AssetLoader loader = findLoader(asset.type);
     final FileHandle handle = resolve(asset); // TODO: refactor AssetLoader#resolver?
     final Adapter adapter = findAdapter(handle);
-    io.execute(new Runnable() {
-      @Override
-      @SuppressWarnings("unchecked") // guaranteed by loader and adapter contracts
-      public void run() {
-        loader
-            .ioAsync(io, AssetManager.this, asset, handle, adapter)
-            .addListener(new FutureListener() {
-              @Override
-              public void operationComplete(Future future) {
-                @SuppressWarnings("unchecked") // guaranteed by loader contract
-                T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
-                // if (loader.requiresSync()) {
-                // }
-                boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
-                if (!inserted) log.error("Failed to enqueue {}", asset);
-              }
-            });
-      }
-    });
+    loader
+        .ioAsync(executor, AssetManager.this, asset, handle, adapter)
+        .addListener(new FutureListener() {
+          @Override
+          public void operationComplete(Future future) {
+            @SuppressWarnings("unchecked") // guaranteed by loader contract
+            T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
+            // if (loader.requiresSync()) {
+            // }
+            boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
+            if (!inserted) log.error("Failed to enqueue {}", asset);
+          }
+        });
   }
 
   <T> AssetContainer load0(final AssetDesc<T> asset) {
     log.traceEntry("load0(asset: {})", asset);
+
     final AssetContainer container0 = loadedAssets.get(asset);
-    if (container0 != null) {
-      return container0.retain();
-    }
+    if (container0 != null) return container0.retain();
 
     final Promise<T> promise = sync.newPromise();
     final AssetContainer[] dependencies = loadDependencies(asset);
     final AssetContainer container = AssetContainer.wrap(asset, promise, dependencies);
     loadedAssets.put(asset, container);
 
-    // FIXME: below is a workaround since Object[] isn't supported at the moment of writing
-    if (log.traceEnabled()) log.trace("Dependencies: {}", Arrays.toString(dependencies));
-    if (dependencies.length > 0) {
-      deps.execute(new Runnable() {
-        @Override
-        public void run() {
-          PromiseCombiner combiner = new PromiseCombiner(deps);
+    final EventExecutor executor = async.next();
+    executor.execute(new Runnable() {
+      @Override
+      public void run() {
+        if (dependencies.length == 0) {
+          ioAsync(executor, container);
+        } else {
+          PromiseCombiner combiner = new PromiseCombiner(executor);
           for (AssetContainer dependency : dependencies) {
             combiner.add((Future) dependency.promise);
           }
 
-          Promise<Void> combinerPromise = deps.newPromise();
+          Promise<Void> combinerPromise = executor.newPromise();
           combinerPromise.addListener(new FutureListener<Void>() {
             @Override
             public void operationComplete(Future<Void> future) {
-              ioAsync(container);
+              ioAsync(executor, container);
             }
           });
           combiner.finish(combinerPromise);
         }
-      });
-    } else {
-      ioAsync(container);
-    }
+      }
+    });
 
     return container;
   }
