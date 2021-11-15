@@ -71,6 +71,7 @@ public class DccLoaderTest {
       "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
       "data\\global\\chars\\ba\\lg\\balglittnhth.dcc",
       "data\\global\\chars\\ba\\hd\\bahdlittnhth.dcc",
+      "data\\global\\chars\\ba\\tr\\batrlittnhth.dcc",
   })
   void load(String dccName) throws Throwable {
     AssetDesc<Dcc> asset = AssetDesc.of(dccName, Dcc.class, DcParams.of(0));

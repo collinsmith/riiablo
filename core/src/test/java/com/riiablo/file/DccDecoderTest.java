@@ -151,6 +151,7 @@ public class DccDecoderTest {
       "data\\global\\chars\\ba\\hd\\bahdlittnhth.dcc",
       "data\\global\\chars\\ba\\s2\\bas2littnhth.dcc",
       "data\\global\\chars\\so\\s2\\sos2medtnhth.dcc",
+      "data\\global\\chars\\ba\\tr\\batrlittnhth.dcc",
   })
   void draw_pixmaps(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();
@@ -254,6 +255,7 @@ public class DccDecoderTest {
       "data\\global\\chars\\ba\\hd\\bahdlittnhth.dcc",
       "data\\global\\chars\\ba\\s2\\bas2littnhth.dcc",
       "data\\global\\chars\\so\\s2\\sos2medtnhth.dcc",
+      "data\\global\\chars\\ba\\tr\\batrlittnhth.dcc",
   })
   void draw_pixmaps2(String dccName) throws Exception {
     FileHandle testHome = InstallationFinder.getInstance().defaultHomeDir();
