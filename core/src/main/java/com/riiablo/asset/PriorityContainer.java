@@ -20,6 +20,10 @@ public class PriorityContainer<T> implements Comparable<PriorityContainer<T>> {
     }));
   }
 
+  static <T> T[] toArray(Iterable<? extends PriorityContainer<T>> it, Class<T> clazz) {
+    return IteratorUtils.toArray(unwrap(it).iterator(), clazz);
+  }
+
   final int priority;
   final T ref;
 

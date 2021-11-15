@@ -35,6 +35,8 @@ public final class AssetManager implements Disposable {
   final EventExecutor io;
   final EventExecutor sync;
 
+  FileHandleResolver[] resolverCache; // ref updated when resolvers changed
+
   public AssetManager() {
     deps = new DefaultEventExecutor();
     io = new DefaultEventExecutor();
@@ -82,12 +84,13 @@ public final class AssetManager implements Disposable {
     log.debug("Resolver added {}", resolver);
     resolvers.add(PriorityContainer.wrap(priority, resolver));
     resolvers.sort(); // stable sort, order maintained for equal priorities
+    resolverCache = PriorityContainer.toArray(resolvers, FileHandleResolver.class);
     return this;
   }
 
   FileHandle resolve(AssetDesc asset) throws ResolverNotFound {
     if (asset.params == null) asset.params = defaultParams(asset.type);
-    for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
+    for (FileHandleResolver resolver : resolverCache) {
       final FileHandle handle = resolver.resolve(asset);
       if (handle != null) return handle;
     }
