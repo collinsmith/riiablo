@@ -118,7 +118,9 @@ public class MpqFileResolver implements FileHandleResolver, Disposable {
     int misses = 0;
     final long key = HashTable.key(filename);
     final int hash = HashTable.hash(filename);
-    for (Mpq mpq : mpqs) {
+    final Mpq[] mpqs = this.mpqs.items;
+    for (int i = 0, s = this.mpqs.size; i < s; i++) {
+      final Mpq mpq = mpqs[i];
       final int m = mpq.hashTable.misses;
       final int index = mpq.get(key, hash, mpqParams.locale);
       misses += (mpq.hashTable.misses - m);
