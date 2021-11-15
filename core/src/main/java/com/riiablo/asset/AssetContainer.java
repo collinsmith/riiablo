@@ -48,9 +48,6 @@ public class AssetContainer extends AbstractReferenceCounted {
     // dispose if completed, else ?
     promise.cancel(false);
     if (promise.isDone()) AssetUtils.dispose(promise.getNow());
-    for (AssetContainer dependency : dependencies) {
-      dependency.release();
-    }
   }
 
   @Override

@@ -237,6 +237,9 @@ public final class AssetManager implements Disposable {
     if (container == null) return;
     boolean released = container.release();
     if (released) loadedAssets.remove(asset);
+    for (AssetContainer dependency : container.dependencies) {
+      unload(dependency.asset);
+    }
   }
 
   public void sync(final long timeoutMillis) {
