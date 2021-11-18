@@ -45,7 +45,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
   final byte version;
 //final int numDirections; // Dc#numDirections
 //final int numFrames; // Dc#numFrames
-//final int[] dirOffsets; // Dc#dirOffsets;
+  final int[] dirOffsets;
 
   public static Dcc read(FileHandle handle, InputStream stream) {
     SwappedDataInputStream in = new SwappedDataInputStream(stream);
@@ -80,14 +80,20 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       int numFrames,
       int[] dirOffsets
   ) {
-    super(handle, numDirections, numFrames, dirOffsets, DccDirection.class);
+    super(handle, numDirections, numFrames, DccDirection.class);
     this.signature = signature;
     this.version = version;
+    this.dirOffsets = dirOffsets;
   }
 
   @Override
   public void dispose() {
     super.dispose();
+  }
+
+  @Override
+  public int dirOffset(int d) {
+    return dirOffsets[d];
   }
 
   @Override

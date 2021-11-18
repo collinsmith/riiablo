@@ -19,22 +19,20 @@ public abstract class Dc<D extends Dc.Direction>
   protected final FileHandle handle;
   protected final int numDirections;
   protected final int numFrames;
-  protected final int[] dirOffsets;
   protected final D[] directions;
 
   @SuppressWarnings("unchecked")
-  protected Dc(FileHandle handle, int numDirections, int numFrames, int[] dirOffsets, Class<D> dirType) {
+  protected Dc(FileHandle handle, int numDirections, int numFrames, Class<D> dirType) {
     this.handle = handle;
     this.numDirections = numDirections;
     this.numFrames = numFrames;
-    this.dirOffsets = dirOffsets;
     this.directions = (D[]) Array.newInstance(dirType, numDirections);
   }
 
   public Dc<D> read(ByteBuf buffer, int direction) {
     assert directions[direction] == null;
-    assert buffer.isReadable(dirOffsets[direction + 1] - dirOffsets[direction])
-        : handle + " buffer.isReadable(" + (dirOffsets[direction + 1] - dirOffsets[direction]) + ") = " + buffer.readableBytes();
+    assert buffer.isReadable(dirOffset(direction + 1) - dirOffset(direction))
+        : handle + " buffer.isReadable(" + (dirOffset(direction + 1) - dirOffset(direction)) + ") = " + buffer.readableBytes();
     retain(); // increment refCnt for each direction read
     return this;
   }
@@ -70,14 +68,7 @@ public abstract class Dc<D extends Dc.Direction>
     return numFrames;
   }
 
-  /** Dc file direction offsets table */
-  public int[] dirOffsets() {
-    return dirOffsets;
-  }
-
-  public int dirOffset(int d) {
-    return dirOffsets[d];
-  }
+  public abstract int dirOffset(int d);
 
   public D direction(int d) {
     return directions[d];
