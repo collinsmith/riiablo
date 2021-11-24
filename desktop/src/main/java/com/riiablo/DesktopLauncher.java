@@ -183,6 +183,7 @@ public class DesktopLauncher {
 
     config.width = width;
     config.height = height;
+    config.forceExit = SystemUtils.IS_OS_MAC_OSX; /** see {@link LwjglApplicationConfiguration#forceExit */
     final Client client = new Client(d2Home, d2Saves, height);
     if (cmd != null) {
       client.setWindowedForced(cmd.hasOption("windowed"));
