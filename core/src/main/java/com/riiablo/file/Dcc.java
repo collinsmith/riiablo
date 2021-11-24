@@ -46,6 +46,8 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
 //final int numDirections; // Dc#numDirections
 //final int numFrames; // Dc#numFrames
   final int[] dirOffsets;
+  final int tag;
+  final int uncompressedSize;
 
   public static Dcc read(FileHandle handle, InputStream stream) {
     SwappedDataInputStream in = new SwappedDataInputStream(stream);
@@ -69,7 +71,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     dirOffsets[numDirections] = (int) handle.length();
     log.trace("dirOffsets: {}", dirOffsets);
 
-    return new Dcc(handle, signature, version, numDirections, numFrames, dirOffsets);
+    return new Dcc(handle, signature, version, numDirections, numFrames, dirOffsets, tag, uncompressedSize);
   }
 
   Dcc(
@@ -78,12 +80,16 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
       byte version,
       int numDirections,
       int numFrames,
-      int[] dirOffsets
+      int[] dirOffsets,
+      int tag,
+      int uncompressedSize
   ) {
     super(handle, numDirections, numFrames, DccDirection.class);
     this.signature = signature;
     this.version = version;
     this.dirOffsets = dirOffsets;
+    this.tag = tag;
+    this.uncompressedSize = uncompressedSize;
   }
 
   @Override
