@@ -1,2 +1,3 @@
+*.bat text eol=crlf
 assets/* linguist-vendored
 assets/data/**.txt text eol=crlf
