@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 28
+  compileSdkVersion 30
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
@@ -9,7 +9,7 @@ android {
       aidl.srcDirs = ['src/main/java']
       renderscript.srcDirs = ['src/main/java']
       res.srcDirs = ['res']
-      assets.srcDirs += rootProject.file('assets')
+      assets.srcDirs = [rootProject.file('assets').path]
       jniLibs.srcDirs = ['libs']
     }
   }
@@ -19,7 +19,7 @@ android {
   defaultConfig {
     applicationId "com.riiablo"
     minSdkVersion 23
-    targetSdkVersion 28
+    targetSdkVersion 30
     versionCode 1
     versionName "$version"
     archivesBaseName = "$appName-$version"
@@ -31,8 +31,8 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility 1.8
-    targetCompatibility 1.8
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
   productFlavors {
   }
