@@ -47,6 +47,9 @@ configure(subprojects - project(':android')) {
   }
 }
 
+// generates sources when creating IDEA project files
+tasks.idea.dependsOn 'core:generateSources'
+
 task release(type: Copy) {
   doFirst {
     delete "$buildDir/release"
