@@ -63,11 +63,6 @@ repositories {
   gradlePluginPortal()
 }
 
-// build complains this dependency is not found otherwise
-dependencies {
-  compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
-}
-
 // called every time gradle gets executed, takes the native dependencies of
 // the natives configuration, and extracts them to the proper libs/ folders
 // so they get packed with the APK.
