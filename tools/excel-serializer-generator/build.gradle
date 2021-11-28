@@ -1,3 +1,4 @@
+dependencies { implementation project(':tools:backends:backend-headless') }
 description = 'Generates serializer sources for excel tables schemas.'
 application.mainClass = 'com.riiablo.excel.SerializerGeneratorTool'
 

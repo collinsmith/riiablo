@@ -1,2 +1,3 @@
+dependencies { implementation project(':tools:backends:backend-lwjgl') }
 description = 'View and generate maps.'
 application.mainClass = 'com.riiablo.map.MapViewer'

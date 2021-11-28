@@ -100,7 +100,7 @@ import com.riiablo.map2.Dt1Info;
 import com.riiablo.mpq.widget.CollapsibleVisTable;
 import com.riiablo.mpq.widget.DirectionActor;
 import com.riiablo.mpq.widget.TabbedPane;
-import com.riiablo.tool.LwjglTool;
+import com.riiablo.tool.Lwjgl3Tool;
 import com.riiablo.tool.Tool;
 
 public class MPQViewer {
@@ -111,7 +111,7 @@ public class MPQViewer {
   private static final String EXCEL_PATH = "C:\\Program Files (x86)\\OpenOffice\\program\\scalc.exe";
 
   public static void main(String[] args) {
-    LwjglTool.create(Client.class, "mpq-viewer", args)
+    Lwjgl3Tool.create(Client.class, "mpq-viewer", args)
         .title(TITLE)
         .size(1700, 960, true)
         .start();

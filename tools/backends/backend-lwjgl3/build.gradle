@@ -1,0 +1,6 @@
+dependencies {
+  api project(':tools:backends:backend-core')
+  api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  api "com.kotcrab.vis:vis-ui:$visuiVersion"
+}

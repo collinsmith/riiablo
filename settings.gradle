@@ -20,7 +20,10 @@ include 'server:mcp'
 include 'server:d2gs'
 include 'server:netty'
 
-include 'tools'
+include 'tools:backends:backend-core'
+include 'tools:backends:backend-headless'
+include 'tools:backends:backend-lwjgl'
+include 'tools:backends:backend-lwjgl3'
 include 'tools:mpq-viewer'
 include 'tools:map-viewer'
 include 'tools:font-metrics'
@@ -32,5 +35,6 @@ include 'tools:video-player'
 include 'tools:physics'
 include 'tools:excel-serializer-generator'
 include 'tools:map-debugger'
+include 'tools:old'
 
 include 'tester' // deprecated

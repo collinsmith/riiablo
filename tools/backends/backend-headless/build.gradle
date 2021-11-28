@@ -1,0 +1,5 @@
+dependencies {
+  api project(':tools:backends:backend-core')
+  api "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}

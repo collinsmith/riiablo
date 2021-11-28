@@ -1,2 +1,3 @@
+dependencies { implementation project(':tools:backends:backend-lwjgl3') }
 description = 'View and debug MPQ archive contents.'
 application.mainClass = 'com.riiablo.mpq.MPQViewer'

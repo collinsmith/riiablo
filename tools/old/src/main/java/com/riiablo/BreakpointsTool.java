@@ -1,13 +1,13 @@
 package com.riiablo;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.badlogic.gdx.math.MathUtils;
-
-import java.util.Arrays;
 
 public class BreakpointsTool extends ApplicationAdapter {
   private static final String TAG = "BreakpointsTool";

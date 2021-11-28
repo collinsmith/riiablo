@@ -34,7 +34,6 @@ dependencies {
 // LibGDX
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
-  api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-ai:$gdxAiVersion"
   api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
 }
@@ -112,6 +111,7 @@ dependencies {
   testImplementation platform('org.junit:junit-bom:5.7.1')
   testImplementation 'org.junit.jupiter:junit-jupiter'
   testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
   testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
 

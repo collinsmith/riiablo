@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="BinGenerationTool" type="Application" factoryName="Application" folderName="tools" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.riiablo.codec.excel.BinGenerationTool" />
-    <module name="riiablo.tools.main" />
+    <module name="riiablo.tools.old.main" />
     <option name="PROGRAM_PARAMETERS" value="com.riiablo.codec.excel data/global/excel &quot;C:\Program Files (x86)\Steam\steamapps\common\Diablo II&quot;" />
     <option name="VM_PARAMETERS" value="-ea" />
     <method v="2">

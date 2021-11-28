@@ -1,2 +1,3 @@
+dependencies { implementation project(':tools:backends:backend-lwjgl') }
 description = 'Debugs entity direction controls.'
 application.mainClass = 'com.riiablo.engine.DirectionTool'

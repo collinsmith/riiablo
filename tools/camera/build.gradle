@@ -1,2 +1,3 @@
+dependencies { implementation project(':tools:backends:backend-lwjgl') }
 description = 'Debugs isometric camera functionality.'
 application.mainClass = 'com.riiablo.camera.CameraTool'

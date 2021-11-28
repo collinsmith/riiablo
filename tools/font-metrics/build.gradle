@@ -1,2 +1,3 @@
+dependencies { implementation project(':tools:backends:backend-lwjgl') }
 description = 'Configures font metrics for D2 font files.'
 application.mainClass = 'com.riiablo.FontMetricsTool'

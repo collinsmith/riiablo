@@ -1,2 +1,3 @@
+dependencies { implementation project(':tools:backends:backend-lwjgl') }
 description = 'Debugs map generation.'
 application.mainClass = 'com.riiablo.MapDebugger'

@@ -1,3 +1,4 @@
+dependencies { implementation project(':tools:backends:backend-lwjgl') }
 description = 'Play videos from MPQ archives.'
 application.mainClass = 'com.riiablo.video.VideoPlayerTool'
 

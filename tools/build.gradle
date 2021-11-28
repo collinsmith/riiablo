@@ -1,42 +1,13 @@
-apply plugin: 'java'
-
 project.ext.visuiVersion = '1.4.2'
 
-dependencies {
-  implementation project(':core')
-  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-  implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-
-  implementation "commons-cli:commons-cli:$cliVersion"
-  implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
-}
-
-dependencies {
-  implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-  implementation "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
-}
-
 subprojects {
-  apply plugin: 'java'
   apply plugin: 'application'
 
   [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-  dependencies {
-    implementation project(':core')
-    implementation project(':tools')
-    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-
-    implementation "commons-cli:commons-cli:$cliVersion"
-    implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
-  }
-
-  dependencies {
-    testImplementation 'junit:junit:4.12'
+  java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
   }
 
   run {
