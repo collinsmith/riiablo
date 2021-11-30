@@ -54,10 +54,7 @@ compatible with playing with users using the original game client.
 [![MP Test](/screenshots/multi_player.webp)](https://www.youtube.com/watch?v=B2XhiS_JbIA)
 
 # Setup
-The Android SDK is required to build the project by default (even if you want
-the desktop module only), however you can circumvent this by following
-[this post](https://github.com/collinsmith/riiablo/issues/6#issuecomment-465661949)
-which explains which files to modify and references to delete.
+The Android SDK is required to build the android subproject project.
 
 Two environment variables can be used to automatically set the D2 installation
 and save directories if they are not automatically detected, and you do not want
