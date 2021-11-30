@@ -1,5 +1,5 @@
-sourceSets.main.java.srcDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
-idea.module.generatedSourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
+sourceSets.main.java.srcDirs += compileJava.options.generatedSourceOutputDirectory
+idea.module.generatedSourceDirs += compileJava.options.generatedSourceOutputDirectory
 
 dependencies {
   annotationProcessor project(':excel:annotation-processor')

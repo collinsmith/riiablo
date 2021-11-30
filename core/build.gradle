@@ -16,7 +16,7 @@ project.ext.generatedSourceDir = file("$buildDir/generated-src/main/java/")
 sourceSets.main.java.srcDirs += generatedSourceDir
 idea.module.generatedSourceDirs += generatedSourceDir
 
-project.ext.annotationProcessorGeneratedSourcesDirectory = compileJava.options.annotationProcessorGeneratedSourcesDirectory
+project.ext.annotationProcessorGeneratedSourcesDirectory = compileJava.options.generatedSourceOutputDirectory
 sourceSets.main.java.srcDirs += annotationProcessorGeneratedSourcesDirectory
 idea.module.generatedSourceDirs += annotationProcessorGeneratedSourcesDirectory
 
@@ -123,7 +123,7 @@ test {
 }
 
 weave {
-  classesDir = sourceSets.main.java.outputDir
+  classesDir = sourceSets.main.java.classesDirectory.get().getAsFile()
   enableArtemisPlugin = true
   enablePooledWeaving = true
   generateLinkMutators = true
