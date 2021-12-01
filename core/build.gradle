@@ -16,7 +16,7 @@ project.ext.generatedSourceDir = file("$buildDir/generated-src/main/java/")
 sourceSets.main.java.srcDirs += generatedSourceDir
 idea.module.generatedSourceDirs += generatedSourceDir
 
-project.ext.annotationProcessorGeneratedSourcesDirectory = compileJava.options.generatedSourceOutputDirectory
+project.ext.annotationProcessorGeneratedSourcesDirectory = compileJava.options.generatedSourceOutputDirectory.getAsFile().get()
 sourceSets.main.java.srcDirs += annotationProcessorGeneratedSourcesDirectory
 idea.module.generatedSourceDirs += annotationProcessorGeneratedSourcesDirectory
 

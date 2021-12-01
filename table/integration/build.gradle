@@ -1,5 +1,5 @@
-sourceSets.main.java.srcDirs += compileJava.options.generatedSourceOutputDirectory
-idea.module.generatedSourceDirs += compileJava.options.generatedSourceOutputDirectory
+sourceSets.main.java.srcDirs += compileJava.options.generatedSourceOutputDirectory.getAsFile().get()
+idea.module.generatedSourceDirs += compileJava.options.generatedSourceOutputDirectory.getAsFile().get()
 
 dependencies {
   annotationProcessor project(':table:annotation-processor')
