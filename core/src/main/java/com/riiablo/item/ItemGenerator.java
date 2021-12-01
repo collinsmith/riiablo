@@ -26,7 +26,8 @@ public class ItemGenerator extends PassiveSystem {
 //  }
 
   public Item generate(String code) {
-    return generate(ItemUtils.getBase(code));
+    ItemEntry type = ItemUtils.getBase(code);
+    return generate(type);
   }
 
   public Item generate(ItemEntry base) {
