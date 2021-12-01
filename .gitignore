@@ -9,6 +9,7 @@ build/
 !.idea/runConfigurations
 !.idea/runConfigurations/*
 !.idea/codeStyles/Project.xml
+!.idea/.idea.riiablo/.idea/icon.svg
 *.ipr
 *.iws
 *.iml
