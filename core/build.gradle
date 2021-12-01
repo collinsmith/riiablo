@@ -102,11 +102,6 @@ dependencies {
   //api "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$artemisContribVersion"
 }
 
-compileTestJava {
-  sourceCompatibility = "1.8"
-  targetCompatibility = "1.8"
-}
-
 dependencies {
   testImplementation platform('org.junit:junit-bom:5.7.1')
   testImplementation 'org.junit.jupiter:junit-jupiter'
