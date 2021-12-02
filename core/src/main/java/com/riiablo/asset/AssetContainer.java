@@ -2,7 +2,6 @@ package com.riiablo.asset;
 
 import io.netty.util.AbstractReferenceCounted;
 import io.netty.util.ReferenceCounted;
-import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -33,8 +32,8 @@ public class AssetContainer extends AbstractReferenceCounted {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> Future<T> get(Class<T> type) {
-    return (Future<T>) promise;
+  public <T> Promise<T> get(Class<T> type) {
+    return (Promise<T>) promise;
   }
 
   @Override

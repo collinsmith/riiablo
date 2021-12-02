@@ -139,7 +139,7 @@ public final class AssetManager implements Disposable {
     return object;
   }
 
-  <T> AssetContainer[] loadDependencies(AssetDesc<T> asset) {
+  <T> AssetContainer[] loadDependencies(Promise<T> promise, AssetDesc<T> asset) {
     final AssetLoader loader = findLoader(asset.type);
     @SuppressWarnings("unchecked") // guaranteed by loader contract
     Array<AssetDesc> dependencies = loader.dependencies(asset);
@@ -152,6 +152,10 @@ public final class AssetManager implements Disposable {
       // redirection to suppress unchecked warning via variable assignment
       @SuppressWarnings("unchecked") // dependencies submitted by loader
       AssetContainer container = load0(dependency);
+      if (container.promise.isDone() && container.promise.cause() != null) {
+        promise.tryFailure(new InvalidDependency(
+            asset, "Failed to load one or more dependencies.", container.promise.cause()));
+      }
       containers[i] = container;
     }
     return containers;
@@ -166,16 +170,11 @@ public final class AssetManager implements Disposable {
     final Adapter adapter = findAdapter(handle);
     loader
         .ioAsync(executor, AssetManager.this, asset, handle, adapter)
-        .addListener(new FutureListener() {
-          @Override
-          public void operationComplete(Future future) {
-            @SuppressWarnings("unchecked") // guaranteed by loader contract
-            T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
-            // if (loader.requiresSync()) {
-            // }
-            boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
-            if (!inserted) log.error("Failed to enqueue {}", asset);
-          }
+        .addListener((FutureListener) future -> {
+          @SuppressWarnings("unchecked") // guaranteed by loader contract
+          T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
+          boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
+          if (!inserted) log.error("Failed to enqueue {}", asset);
         });
   }
 
@@ -186,38 +185,38 @@ public final class AssetManager implements Disposable {
     if (container0 != null) return container0.retain();
 
     final Promise<T> promise = sync.newPromise();
-    final AssetContainer[] dependencies = loadDependencies(asset);
+    final AssetContainer[] dependencies = loadDependencies(promise, asset);
     final AssetContainer container = AssetContainer.wrap(asset, promise, dependencies);
     loadedAssets.put(asset, container);
+    if (promise.isDone()) return container; // one or more dependencies was invalid
+
+    try {
+      findLoader(asset.type).validate(asset);
+    } catch (Throwable cause) {
+      promise.setFailure(cause);
+      return container;
+    }
 
     final EventExecutor executor = async.next();
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
-        if (dependencies.length == 0) {
-          ioAsync(executor, container);
-        } else {
-          PromiseCombiner combiner = new PromiseCombiner(executor);
-          for (AssetContainer dependency : dependencies) {
-            combiner.add((Future) dependency.promise);
-          }
-
-          Promise<Void> combinerPromise = executor.newPromise();
-          combinerPromise.addListener(new FutureListener<Void>() {
-            @Override
-            public void operationComplete(Future<Void> future) {
-              ioAsync(executor, container);
-            }
-          });
-          combiner.finish(combinerPromise);
+    executor.execute(() -> {
+      if (dependencies.length == 0) {
+        ioAsync(executor, container);
+      } else {
+        PromiseCombiner combiner = new PromiseCombiner(executor);
+        for (AssetContainer dependency : dependencies) {
+          combiner.add((Future) dependency.promise);
         }
+
+        Promise<Void> combinerPromise = executor.newPromise();
+        combinerPromise.addListener((FutureListener<Void>) future -> ioAsync(executor, container));
+        combiner.finish(combinerPromise);
       }
     });
 
     return container;
   }
 
-  public <T> Future<T> load(final AssetDesc<T> asset) {
+  public <T> Promise<? extends T> load(final AssetDesc<T> asset) {
     return load0(asset).get(asset.type);
   }
 
@@ -282,11 +281,11 @@ public final class AssetManager implements Disposable {
     }
 
     SyncMessage msg;
-    do {
+    while (!assets.isEmpty()) {
       msg = syncQueue.take();
       msg.loadSync(this);
       assets.removeValue(msg.container.asset, false);
-    } while (!assets.isEmpty());
+    }
   }
 
   /**

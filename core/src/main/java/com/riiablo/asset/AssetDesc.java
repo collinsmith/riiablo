@@ -12,7 +12,7 @@ public class AssetDesc<T> {
 
   public static <T> AssetDesc<T> of(
       CharSequence path,
-      Class<T> type,
+      Class<? extends T> type,
       AssetParams<? super T> params
   ) {
     return new AssetDesc<>(AssetPath.of(path), type, params);
@@ -26,12 +26,12 @@ public class AssetDesc<T> {
   }
 
   final AssetPath path;
-  final Class<T> type;
+  final Class<? extends T> type;
   AssetParams<? super T> params;
 
   AssetDesc(
       AssetPath path,
-      Class<T> type,
+      Class<? extends T> type,
       AssetParams<? super T> params
   ) {
     this.path = path;
@@ -43,7 +43,7 @@ public class AssetDesc<T> {
     return path.toString();
   }
 
-  public Class<T> type() {
+  public Class<? extends T> type() {
     return type;
   }
 

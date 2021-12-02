@@ -15,6 +15,7 @@ import com.riiablo.asset.AssetDesc;
 import com.riiablo.asset.AssetLoader;
 import com.riiablo.asset.AssetManager;
 import com.riiablo.asset.EmptyArray;
+import com.riiablo.asset.InvalidParams;
 import com.riiablo.asset.param.DcParams;
 import com.riiablo.file.Dcc;
 import com.riiablo.file.DccDecoder;
@@ -35,13 +36,20 @@ public class DccLoader extends AssetLoader<Dcc> {
   };
 
   @Override
-  public Array<AssetDesc> dependencies(AssetDesc<Dcc> asset) {
+  protected Array<AssetDesc> dependencies(AssetDesc<Dcc> asset) {
     DcParams params = asset.params(DcParams.class);
     if (params.direction < 0) return EmptyArray.empty();
     AssetDesc<Dcc> header = AssetDesc.of(asset, PARENT_DC);
     final Array<AssetDesc> dependencies = Array.of(false, 1, AssetDesc.class);
     dependencies.add(header);
     return dependencies;
+  }
+
+  @Override
+  protected void validate(AssetDesc<Dcc> asset) {
+    DcParams params = asset.params(DcParams.class);
+    if (params.combineFrames) throw new InvalidParams(asset,
+        "Dcc does not support DcParams#combineFrames=true");
   }
 
   @Override

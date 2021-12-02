@@ -7,9 +7,11 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 
 public abstract class AssetLoader<T> {
-  public Array<AssetDesc> dependencies(AssetDesc<T> asset) {
+  protected Array<AssetDesc> dependencies(AssetDesc<T> asset) {
     return EmptyArray.empty();
   }
+
+  protected void validate(AssetDesc<T> asset) {}
 
   protected <F extends FileHandle> Future<?> ioAsync(
       EventExecutor executor,
