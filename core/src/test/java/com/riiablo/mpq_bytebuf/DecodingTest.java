@@ -111,7 +111,35 @@ class DecodingTest extends RiiabloTest {
         "DATA\\GLOBAL\\CHARS\\PA\\LA\\PALALITTN1HS.DCC",
     })
     void decode_future(String in) {
+      super.decode_future(in);
+    }
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  class d2music extends NestedDecodingTest {
+    d2music(TestInfo testInfo) {
+      super(testInfo);
+    }
+
+    @Override
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\global\\music\\Act1\\tristram.wav",
+        "data\\global\\music\\Act1\\town1.wav",
+    })
+    void decode_await(String in) {
       super.decode_await(in);
+    }
+
+    @Override
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\global\\music\\Act1\\tristram.wav",
+        "data\\global\\music\\Act1\\town1.wav",
+    })
+    void decode_future(String in) {
+      super.decode_future(in);
     }
   }
 
@@ -137,7 +165,7 @@ class DecodingTest extends RiiabloTest {
         "DATA\\GLOBAL\\CHARS\\AI\\HD\\AIHDBHMA11HS.DCC",
     })
     void decode_future(String in) {
-      super.decode_await(in);
+      super.decode_future(in);
     }
   }
 }

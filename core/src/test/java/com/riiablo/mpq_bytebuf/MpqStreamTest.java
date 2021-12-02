@@ -76,6 +76,7 @@ class MpqStreamTest extends RiiabloTest {
     @ParameterizedTest
     @ValueSource(strings = {
         "data\\global\\music\\Act1\\andarielaction.wav",
+        "data\\global\\music\\Act1\\tristram.wav",
         "data\\local\\video\\New_Bliz640x240.bik",
     })
     @Override
