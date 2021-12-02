@@ -77,7 +77,6 @@ class MpqStreamTest extends RiiabloTest {
     @ValueSource(strings = {
         "data\\global\\music\\Act1\\andarielaction.wav",
         "data\\global\\music\\Act1\\tristram.wav",
-        "data\\local\\video\\New_Bliz640x240.bik",
     })
     @Override
     void read(String in) throws IOException {
@@ -112,6 +111,23 @@ class MpqStreamTest extends RiiabloTest {
     @ParameterizedTest
     @ValueSource(strings = {
         "data\\global\\missiles\\blessedhammer.dcc",
+    })
+    @Override
+    void read(String in) throws IOException {
+      super.read(in);
+    }
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  class d2video extends NestedMpqStreamTest {
+    d2video(TestInfo testInfo) {
+      super(testInfo);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\local\\video\\New_Bliz640x240.bik",
     })
     @Override
     void read(String in) throws IOException {
