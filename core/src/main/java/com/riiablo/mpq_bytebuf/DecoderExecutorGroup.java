@@ -170,6 +170,17 @@ public class DecoderExecutorGroup extends DefaultEventExecutorGroup {
       }
 
       final ByteBuf bufferSlice = dst.slice(dstOffset, sectorFSize).writerIndex(0);
+      if ((flags & FLAG_ENCRYPTED) == FLAG_ENCRYPTED && !requiresDecompression) {
+        // rare case -- copy decrypted data directly into buffer
+        ArchiveReadTask
+            .getBytes(handle, sectorOffset, sectorCSize, bufferSlice, 0)
+            .writerIndex(sectorCSize);
+        if (DEBUG_MODE) log.trace("Decrypting sector...");
+        Decrypter.decrypt(handle.encryptionKey() + sector, bufferSlice);
+        if (DEBUG_MODE) log.trace("Decrypted {} bytes", sectorFSize);
+        return;
+      }
+
       final ByteBuf sectorSlice = handle.mpq.sectorBuffer(); // thread-safe
       final ByteBuf scratch = handle.mpq.sectorBuffer(); // thread-safe
       try {
@@ -195,6 +206,7 @@ public class DecoderExecutorGroup extends DefaultEventExecutorGroup {
           if (DEBUG_MODE) log.trace("Exploded {} bytes", sectorFSize);
         }
       } finally {
+        System.out.println("released still");
         scratch.release();
         sectorSlice.release();
       }
