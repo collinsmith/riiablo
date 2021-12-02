@@ -206,7 +206,6 @@ public class DecoderExecutorGroup extends DefaultEventExecutorGroup {
           if (DEBUG_MODE) log.trace("Exploded {} bytes", sectorFSize);
         }
       } finally {
-        System.out.println("released still");
         scratch.release();
         sectorSlice.release();
       }
