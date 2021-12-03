@@ -24,9 +24,6 @@ import com.riiablo.logger.MDC;
 public final class Dcc extends Dc<Dcc.DccDirection> {
   private static final Logger log = LogManager.getLogger(Dcc.class);
 
-  @SuppressWarnings("GDXJavaStaticResource")
-  public static Texture MISSING_TEXTURE;
-
   static final int ENCODED_BITS[] = {
       0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 26, 28, 30, 32
   };
@@ -103,6 +100,11 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
   }
 
   @Override
+  public BBox box(int d, int f) {
+    return box(d);
+  }
+
+  @Override
   public Dcc read(ByteBuf buffer, int direction) {
     super.read(buffer, direction);
     ByteInput in = ByteInput.wrap(buffer);
@@ -110,7 +112,9 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     return this;
   }
 
-  public void uploadTextures(int d) {
+  @Override
+  public void uploadTextures(int d, boolean combineFrames) {
+    if (combineFrames) throw new UnsupportedOperationException("DCC do not support combined frames");
     final DccDirection direction = directions[d];
     final DccFrame[] frame = direction.frames;
     final Pixmap[] pixmap = direction.pixmap;

@@ -191,7 +191,7 @@ public class DccDecoderTest {
 
       void create0() {
         decoder.decode(dcc, 0);
-        dcc.uploadTextures(0);
+        dcc.uploadTextures(0, false);
 
         String paletteName = "data\\global\\palette\\ACT1\\pal.dat";
         AssetDesc<Palette> paletteDesc = AssetDesc.of(paletteName, Palette.class, MpqParams.of());

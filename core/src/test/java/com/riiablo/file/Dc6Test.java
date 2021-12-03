@@ -1,6 +1,8 @@
 package com.riiablo.file;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.*;
+import org.junit.jupiter.params.provider.*;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCountUtil;
@@ -22,13 +24,16 @@ public class Dc6Test extends RiiabloTest {
     LogManager.setLevel("com.riiablo.file.Dc6", Level.TRACE);
   }
 
-  @Test
-  @DisplayName("dc6_buffers w/ data\\global\\monsters\\ty\\ra\\tyralitnuhth.dc6")
-  void dc6_buffers() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "data\\global\\monsters\\ty\\ra\\tyralitnuhth.dc6",
+      "data\\global\\ui\\panel\\invchar6.dc6",
+      "data\\global\\ui\\Loading\\loadingscreen.dc6",
+  })
+  void test(String dc6Name) throws Exception {
     EventExecutor executor = ImmediateEventExecutor.INSTANCE;
     MpqFileResolver resolver = new MpqFileResolver();
     try {
-      final String dc6Name = "data\\global\\monsters\\ty\\ra\\tyralitnuhth.dc6";
       AssetDesc<Dc6> parent = AssetDesc.of(dc6Name, Dc6.class, DcParams.of(-1));
       MpqFileHandle dc6Handle = resolver.resolve(parent);
       try {

@@ -19,11 +19,12 @@ import com.riiablo.logger.Logger;
 import com.riiablo.logger.MDC;
 import com.riiablo.util.DebugUtils;
 
+import static com.riiablo.graphics.PaletteIndexedPixmap.INDEXED;
+
 public class Dc6 extends Dc<Dc6.Dc6Direction> {
   private static final Logger log = LogManager.getLogger(Dc6.class);
 
-  @SuppressWarnings("GDXJavaStaticResource")
-  public static Texture MISSING_TEXTURE;
+  public static final int PAGE_SIZE = 256;
 
 //final FileHandle handle; // Dc#handle
   final byte[] signature;
@@ -33,6 +34,7 @@ public class Dc6 extends Dc<Dc6.Dc6Direction> {
 //final int numDirections; // Dc#numDirections
 //final int numFrames; // Dc#numFrames
   final int[] frameOffsets;
+  int numPages;
 
   public static Dc6 read(FileHandle handle, InputStream stream) {
     SwappedDataInputStream in = new SwappedDataInputStream(stream);
@@ -83,11 +85,17 @@ public class Dc6 extends Dc<Dc6.Dc6Direction> {
     this.format = format;
     this.section = section;
     this.frameOffsets = frameOffsets;
+    numPages = numFrames;
   }
 
   @Override
   public void dispose() {
     super.dispose();
+  }
+
+  @Override
+  public int numPages() {
+    return numPages;
   }
 
   @Override
@@ -107,16 +115,48 @@ public class Dc6 extends Dc<Dc6.Dc6Direction> {
     return this;
   }
 
-  public void uploadTextures(int d) {
+  @Override
+  public void uploadTextures(int d, boolean combineFrames) {
     final Dc6Direction direction = directions[d];
     final Dc6Frame[] frame = direction.frames;
     final Pixmap[] pixmap = direction.pixmap;
     final Texture[] texture = direction.texture;
-    for (int f = 0; f < numFrames; f++) {
-      Texture t = texture[f] = new Texture(pixmap[f]);
-      frame[f].texture.setRegion(t);
-      pixmap[f].dispose();
-      pixmap[f] = null;
+    if (!combineFrames) {
+      for (int f = 0; f < numFrames; f++) {
+        Texture t = texture[f] = new Texture(pixmap[f]);
+        frame[f].texture.setRegion(t);
+        pixmap[f].dispose();
+        pixmap[f] = null;
+      }
+    } else {
+      int rows = 0, columns = 0;
+      int width = 0, height = 0;
+      for (int w = 0, s = numFrames; w < s; w++) {
+        columns++;
+        width += frame[w].width;
+        if (frame[w].width < PAGE_SIZE) break;
+      }
+      for (int h = 0, s = numFrames; h < s; h += columns) {
+        rows++;
+        height += frame[h].height;
+        if (frame[h].height < PAGE_SIZE) break;
+      }
+
+      numPages = numFrames / (rows * columns);
+      for (int p = 0, s = numPages, f = 0; p < s; p++) {
+        int x = 0, y = 0;
+        Texture t = texture[p] = new Texture(width, height, INDEXED);
+        frame[p].texture.setRegion(t);
+        for (int r = 0; r < rows; r++, x = 0) {
+          for (int c = 0; c < columns; c++, f++) {
+            t.draw(pixmap[f], x, y);
+            pixmap[f].dispose();
+            pixmap[f] = null;
+            x += PAGE_SIZE;
+          }
+          y += PAGE_SIZE;
+        }
+      }
     }
   }
 

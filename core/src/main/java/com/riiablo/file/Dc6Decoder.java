@@ -14,8 +14,8 @@ import com.riiablo.io.ByteInput;
 
 public class Dc6Decoder {
   static final boolean DEBUG = !true;
-  static final int MAX_WIDTH = 256;
-  static final int MAX_HEIGHT = 256;
+  static final int MAX_WIDTH = Dc6.PAGE_SIZE;
+  static final int MAX_HEIGHT = Dc6.PAGE_SIZE;
 
   final byte[] bmp = PlatformDependent.allocateUninitializedArray(MAX_WIDTH * MAX_HEIGHT); // 256x256 px
 

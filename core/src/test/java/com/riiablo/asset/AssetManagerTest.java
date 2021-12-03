@@ -139,11 +139,11 @@ public class AssetManagerTest extends RiiabloTest {
     @ParameterizedTest
     @ValueSource(strings = {
         "data\\global\\chars\\ba\\hd\\bahdbhma11hs.dcc",
-        // "data\\global\\CHARS\\BA\\LG\\BALGLITTNHTH.DCC",
+        "data\\global\\chars\\ba\\lg\\balglittnhth.dcc",
     })
     void load_mpq(String path) {
       AssetDesc<Dcc> asset = AssetDesc.of(path, Dcc.class, DcParams.of(0));
-      Future<Dcc> handle = assets.load(asset);
+      Future<? extends Dcc> handle = assets.load(asset);
       try {
         assertNotNull(handle);
         assets.sync(100);

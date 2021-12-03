@@ -112,7 +112,7 @@ public class DccLoader extends AssetLoader<Dcc> {
     log.traceEntry("loadSync(assets: {}, asset: {}, dcc: {})", assets, asset, dcc);
     DcParams params = asset.params(DcParams.class);
     if (params.direction < 0) return dcc;
-    dcc.uploadTextures(params.direction);
+    dcc.uploadTextures(params.direction, params.combineFrames);
     return dcc;
   }
 }
