@@ -21,7 +21,7 @@ public class MusicLoader extends AssetLoader<Music> {
       F handle,
       Adapter<F> adapter
   ) {
-    return super.ioAsync(executor, assets, asset, handle, adapter);
+    return adapter.self(executor, handle);
   }
 
   @Override

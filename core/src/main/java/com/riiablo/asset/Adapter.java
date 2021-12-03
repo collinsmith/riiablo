@@ -18,6 +18,10 @@ public abstract class Adapter<F extends FileHandle> {
     return type;
   }
 
+  public Future<? extends F> self(EventExecutor executor, F handle) {
+    return executor.newSucceededFuture(handle);
+  }
+
   public abstract int defaultBufferSize(F handle);
   public abstract Future<InputStream> stream(EventExecutor executor, F handle, int bufferSize);
   public abstract Future<ByteBuf> buffer(EventExecutor executor, F handle, int offset, int length);
