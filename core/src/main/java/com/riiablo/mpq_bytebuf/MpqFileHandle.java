@@ -482,7 +482,10 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
 
   @Override
   public InputStream read() {
-    return unsupported("not supported for mpq files");
+    // required by music files, restricting for everything else
+    return FilenameUtils.isExtension(filename, "WAV")
+        ? stream(true)
+        : unsupported("not supported for mpq files");
   }
 
   @Override
