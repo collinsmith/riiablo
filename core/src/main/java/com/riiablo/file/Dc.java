@@ -84,7 +84,11 @@ public abstract class Dc<D extends Dc.Direction>
     return directions[d];
   }
 
-  public void uploadTextures(int d, boolean combineFrames) {}
+  public boolean loaded(int d) {
+    return directions[d] != null;
+  }
+
+  public void uploadTextures(int d, int combineFrames) {}
 
   public BBox box() {
     return todo();

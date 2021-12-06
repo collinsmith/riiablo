@@ -35,7 +35,7 @@ public class Dc6Loader extends AssetLoader<Dc6> {
   };
 
   @Override
-  public Array<AssetDesc> dependencies(AssetDesc<Dc6> asset) {
+  public Array<AssetDesc> dependencies0(AssetDesc<Dc6> asset) {
     DcParams params = asset.params(DcParams.class);
     if (params.direction < 0) return EmptyArray.empty();
     AssetDesc<Dc6> header = AssetDesc.of(asset, PARENT_DC);
@@ -45,14 +45,14 @@ public class Dc6Loader extends AssetLoader<Dc6> {
   }
 
   @Override
-  protected <F extends FileHandle> Future<?> ioAsync(
+  protected <F extends FileHandle> Future<?> ioAsync0(
       EventExecutor executor,
       AssetManager assets,
       AssetDesc<Dc6> asset,
       F handle,
       Adapter<F> adapter
   ) {
-    log.traceEntry("ioAsync(executor: {}, asset: {}, handle: {}, adapter: {})", executor, asset, handle, adapter);
+    log.traceEntry("ioAsync0(executor: {}, asset: {}, handle: {}, adapter: {})", executor, asset, handle, adapter);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
       Dc6 dc6 = assets.getDepNow(AssetDesc.of(asset, PARENT_DC));
@@ -65,13 +65,13 @@ public class Dc6Loader extends AssetLoader<Dc6> {
   }
 
   @Override
-  protected <F extends FileHandle> Dc6 loadAsync(
+  protected <F extends FileHandle> Dc6 loadAsync0(
       AssetManager assets,
       AssetDesc<Dc6> asset,
       F handle,
       Object data
   ) {
-    log.traceEntry("loadAsync(assets: {}, asset: {}, handle: {}, data: {})", assets, asset, handle, data);
+    log.traceEntry("loadAsync0(assets: {}, asset: {}, handle: {}, data: {})", assets, asset, handle, data);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
       boolean released = ReferenceCountUtil.release(handle); // dcc already owns a reference
@@ -100,8 +100,8 @@ public class Dc6Loader extends AssetLoader<Dc6> {
   }
 
   @Override
-  protected Dc6 loadSync(AssetManager assets, AssetDesc<Dc6> asset, Dc6 dc6) {
-    log.traceEntry("loadSync(assets: {}, asset: {}, dcc: {})", assets, asset, dc6);
+  protected Dc6 loadSync0(AssetManager assets, AssetDesc<Dc6> asset, Dc6 dc6) {
+    log.traceEntry("loadSync0(assets: {}, asset: {}, dcc: {})", assets, asset, dc6);
     DcParams params = asset.params(DcParams.class);
     if (params.direction < 0) return dc6;
     dc6.uploadTextures(params.direction, params.combineFrames);

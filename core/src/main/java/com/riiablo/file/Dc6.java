@@ -116,12 +116,12 @@ public class Dc6 extends Dc<Dc6.Dc6Direction> {
   }
 
   @Override
-  public void uploadTextures(int d, boolean combineFrames) {
+  public void uploadTextures(int d, int combineFrames) {
     final Dc6Direction direction = directions[d];
     final Dc6Frame[] frame = direction.frames;
     final Pixmap[] pixmap = direction.pixmap;
     final Texture[] texture = direction.texture;
-    if (!combineFrames) {
+    if (combineFrames == 0 || (combineFrames == -1 && frame[0].width < Dc6.PAGE_SIZE)) {
       for (int f = 0; f < numFrames; f++) {
         Texture t = texture[f] = new Texture(pixmap[f]);
         frame[f].texture.setRegion(t);

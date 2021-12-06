@@ -14,10 +14,12 @@ import com.badlogic.gdx.files.FileHandle;
 import com.riiablo.RiiabloTest;
 import com.riiablo.asset.adapter.GdxFileHandleAdapter;
 import com.riiablo.asset.adapter.MpqFileHandleAdapter;
+import com.riiablo.asset.loader.Dc6Loader;
 import com.riiablo.asset.loader.DccLoader;
 import com.riiablo.asset.param.DcParams;
 import com.riiablo.asset.resolver.GdxFileHandleResolver;
 import com.riiablo.file.Dc;
+import com.riiablo.file.Dc6;
 import com.riiablo.file.Dcc;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
@@ -121,6 +123,7 @@ public class AssetManagerTest extends RiiabloTest {
           .adapter(FileHandle.class, new GdxFileHandleAdapter())
           .adapter(MpqFileHandle.class, new MpqFileHandleAdapter())
           .loader(Dcc.class, new DccLoader())
+          .loader(Dc6.class, new Dc6Loader())
       ;
     }
 

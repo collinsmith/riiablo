@@ -142,7 +142,7 @@ public final class AssetManager implements Disposable {
   <T> AssetContainer[] loadDependencies(Promise<T> promise, AssetDesc<T> asset) {
     final AssetLoader loader = findLoader(asset.type);
     @SuppressWarnings("unchecked") // guaranteed by loader contract
-    Array<AssetDesc> dependencies = loader.dependencies(asset);
+    Array<AssetDesc> dependencies = loader.dependencies(promise, asset);
     final int numDependencies = dependencies.size;
     final AssetContainer[] containers = numDependencies > 0
         ? new AssetContainer[dependencies.size]
@@ -169,10 +169,10 @@ public final class AssetManager implements Disposable {
     final FileHandle handle = resolve(asset); // TODO: refactor AssetLoader#resolver?
     final Adapter adapter = findAdapter(handle);
     loader
-        .ioAsync(executor, AssetManager.this, asset, handle, adapter)
+        .ioAsync(promise, executor, AssetManager.this, asset, handle, adapter)
         .addListener((FutureListener) future -> {
           @SuppressWarnings("unchecked") // guaranteed by loader contract
-          T object = (T) loader.loadAsync(AssetManager.this, asset, handle, future.getNow());
+          T object = (T) loader.loadAsync(promise, AssetManager.this, asset, handle, future.getNow());
           boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
           if (!inserted) log.error("Failed to enqueue {}", asset);
         });
@@ -185,15 +185,22 @@ public final class AssetManager implements Disposable {
     if (container0 != null) return container0.retain();
 
     final Promise<T> promise = sync.newPromise();
+    promise.setUncancellable();
+    promise.addListener(future -> {
+      final Throwable cause = future.cause();
+      if (cause != null) {
+        log.warn("Failed to load asset {}", asset, cause);
+      }
+    });
+    // FIXME: loadDependencies may throw an exception to propagate to caller
     final AssetContainer[] dependencies = loadDependencies(promise, asset);
     final AssetContainer container = AssetContainer.wrap(asset, promise, dependencies);
     loadedAssets.put(asset, container);
     if (promise.isDone()) return container; // one or more dependencies was invalid
 
     try {
-      findLoader(asset.type).validate(asset);
-    } catch (Throwable cause) {
-      promise.setFailure(cause);
+      findLoader(asset.type).validate(promise, asset);
+    } catch (Throwable t) {
       return container;
     }
 
@@ -241,7 +248,10 @@ public final class AssetManager implements Disposable {
         start = end;
         msg = syncQueue.poll(timeoutRemaining, TimeUnit.MILLISECONDS);
         if (msg == null) break;
-        msg.loadSync(this);
+        try {
+          msg.loadSync(this);
+        } catch (Throwable ignored) {
+        }
         end = System.currentTimeMillis();
         timeoutRemaining -= (end - start);
       }

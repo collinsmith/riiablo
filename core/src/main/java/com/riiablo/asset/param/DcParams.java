@@ -7,40 +7,44 @@ import com.riiablo.mpq_bytebuf.Mpq;
 
 public class DcParams extends MpqParams<Dc> {
   public static DcParams of(int direction) {
-    return of(direction, false);
+    return of(direction, -1);
   }
 
-  public static DcParams of(int direction, boolean combineFrames) {
+  public static DcParams of(int direction, int combineFrames) {
     return new DcParams(direction, combineFrames);
   }
 
-  public static DcParams of(short locale, int direction, boolean combineFrames) {
+  public static DcParams of(short locale, int direction, int combineFrames) {
     return new DcParams(locale, direction, combineFrames);
   }
 
-  public static DcParams of(short locale, short platform, int direction, boolean combineFrames) {
+  public static DcParams of(short locale, short platform, int direction, int combineFrames) {
     return new DcParams(locale, platform, direction, combineFrames);
   }
 
   public final int direction;
-  public final boolean combineFrames;
+  public final int combineFrames;
 
-  protected DcParams(int direction, boolean combineFrames) {
+  protected DcParams(int direction, int combineFrames) {
     super();
     this.direction = direction;
     this.combineFrames = combineFrames;
   }
 
-  protected DcParams(short locale, int direction, boolean combineFrames) {
+  protected DcParams(short locale, int direction, int combineFrames) {
     super(locale);
     this.direction = direction;
     this.combineFrames = combineFrames;
   }
 
-  protected DcParams(short locale, short platform, int direction, boolean combineFrames) {
+  protected DcParams(short locale, short platform, int direction, int combineFrames) {
     super(locale, platform);
     this.direction = direction;
     this.combineFrames = combineFrames;
+  }
+
+  public DcParams copy(int direction) {
+    return of(locale, platform, direction, combineFrames);
   }
 
   @Override
@@ -57,7 +61,7 @@ public class DcParams extends MpqParams<Dc> {
   public int hashCode() {
     int result = super.hashCode();
     result = 31 * result + direction;
-    result = 31 * result + (combineFrames ? 1 : 0);
+    result = 31 * result + combineFrames;
     return result;
   }
 

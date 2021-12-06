@@ -36,7 +36,7 @@ public class DccLoader extends AssetLoader<Dcc> {
   };
 
   @Override
-  protected Array<AssetDesc> dependencies(AssetDesc<Dcc> asset) {
+  protected Array<AssetDesc> dependencies0(AssetDesc<Dcc> asset) {
     DcParams params = asset.params(DcParams.class);
     if (params.direction < 0) return EmptyArray.empty();
     AssetDesc<Dcc> header = AssetDesc.of(asset, PARENT_DC);
@@ -46,21 +46,21 @@ public class DccLoader extends AssetLoader<Dcc> {
   }
 
   @Override
-  protected void validate(AssetDesc<Dcc> asset) {
+  protected void validate0(AssetDesc<Dcc> asset) {
     DcParams params = asset.params(DcParams.class);
-    if (params.combineFrames) throw new InvalidParams(asset,
-        "Dcc does not support DcParams#combineFrames=true");
+    if (params.combineFrames == 1) throw new InvalidParams(asset,
+        "Dcc does not support DcParams#combineFrames=1");
   }
 
   @Override
-  protected <F extends FileHandle> Future<?> ioAsync(
+  protected <F extends FileHandle> Future<?> ioAsync0(
       EventExecutor executor,
       AssetManager assets,
       AssetDesc<Dcc> asset,
       F handle,
       Adapter<F> adapter
   ) {
-    log.traceEntry("ioAsync(executor: {}, asset: {}, handle: {}, adapter: {})", executor, asset, handle, adapter);
+    log.traceEntry("ioAsync0(executor: {}, asset: {}, handle: {}, adapter: {})", executor, asset, handle, adapter);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
       Dcc dcc = assets.getDepNow(AssetDesc.of(asset, PARENT_DC));
@@ -73,13 +73,13 @@ public class DccLoader extends AssetLoader<Dcc> {
   }
 
   @Override
-  protected <F extends FileHandle> Dcc loadAsync(
+  protected <F extends FileHandle> Dcc loadAsync0(
       AssetManager assets,
       AssetDesc<Dcc> asset,
       F handle,
       Object data
   ) {
-    log.traceEntry("loadAsync(assets: {}, asset: {}, handle: {}, data: {})", assets, asset, handle, data);
+    log.traceEntry("loadAsync0(assets: {}, asset: {}, handle: {}, data: {})", assets, asset, handle, data);
     DcParams params = asset.params(DcParams.class);
     if (params.direction >= 0) {
       boolean released = ReferenceCountUtil.release(handle); // dcc already owns a reference
@@ -108,8 +108,8 @@ public class DccLoader extends AssetLoader<Dcc> {
   }
 
   @Override
-  protected Dcc loadSync(AssetManager assets, AssetDesc<Dcc> asset, Dcc dcc) {
-    log.traceEntry("loadSync(assets: {}, asset: {}, dcc: {})", assets, asset, dcc);
+  protected Dcc loadSync0(AssetManager assets, AssetDesc<Dcc> asset, Dcc dcc) {
+    log.traceEntry("loadSync0(assets: {}, asset: {}, dcc: {})", assets, asset, dcc);
     DcParams params = asset.params(DcParams.class);
     if (params.direction < 0) return dcc;
     dcc.uploadTextures(params.direction, params.combineFrames);

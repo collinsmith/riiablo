@@ -113,8 +113,8 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
   }
 
   @Override
-  public void uploadTextures(int d, boolean combineFrames) {
-    if (combineFrames) throw new UnsupportedOperationException("DCC do not support combined frames");
+  public void uploadTextures(int d, int combineFrames) {
+    if (combineFrames == 1) throw new UnsupportedOperationException("DCC do not support combined frames");
     final DccDirection direction = directions[d];
     final DccFrame[] frame = direction.frames;
     final Pixmap[] pixmap = direction.pixmap;

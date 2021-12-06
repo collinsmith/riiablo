@@ -14,7 +14,7 @@ import com.riiablo.asset.AssetManager;
 
 public class MusicLoader extends AssetLoader<Music> {
   @Override
-  protected <F extends FileHandle> Future<?> ioAsync(
+  protected <F extends FileHandle> Future<?> ioAsync0(
       EventExecutor executor,
       AssetManager assets,
       AssetDesc<Music> asset,
@@ -25,7 +25,7 @@ public class MusicLoader extends AssetLoader<Music> {
   }
 
   @Override
-  protected <F extends FileHandle> Music loadAsync(
+  protected <F extends FileHandle> Music loadAsync0(
       AssetManager assets,
       AssetDesc<Music> asset,
       F handle,
@@ -35,7 +35,7 @@ public class MusicLoader extends AssetLoader<Music> {
   }
 
   @Override
-  protected Music loadSync(
+  protected Music loadSync0(
       AssetManager assets,
       AssetDesc<Music> asset,
       Music music

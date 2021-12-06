@@ -33,8 +33,8 @@ final class SyncMessage<T> {
 
   @SuppressWarnings("unchecked") // guaranteed by loader contract
   Future<?> loadSync(AssetManager assets) {
-    loader.loadSync(assets, container.asset, object);
-    promise.setSuccess(object);
+    loader.loadSync(promise, assets, container.asset, object);
+    promise.trySuccess(object);
     return promise;
   }
 
