@@ -1817,7 +1817,8 @@ public class MPQViewer {
             Animation anim = Animation.newAnimation(cof);
             anim.setDirection((int) slDirection.getValue());
             //anim.setFrameDuration(1 / slFrameDuration.getValue());
-            anim.setFrameDelta((int) slFrameDuration.getValue());for (int l = 0; l < cof.getNumLayers(); l++) {
+            anim.setFrameDelta((int) slFrameDuration.getValue());
+            for (int l = 0; l < cof.getNumLayers(); l++) {
               COF.Layer layer = cof.getLayer(l);
 
               String clazz = selectedWClass[layer.component];
