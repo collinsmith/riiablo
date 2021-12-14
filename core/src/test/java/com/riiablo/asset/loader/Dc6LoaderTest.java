@@ -70,12 +70,12 @@ public class Dc6LoaderTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-      "data\\global\\monsters\\ty\\ra\\tyralitnuhth.dc6,0,false",
-      "data\\global\\ui\\panel\\invchar6.dc6,0,true",
+      "data\\global\\monsters\\ty\\ra\\tyralitnuhth.dc6,0,0",
+      "data\\global\\ui\\panel\\invchar6.dc6,0,1",
   }, delimiter = ',')
   void load(String dccName, String szDirection, String szCombineFrames) throws Throwable {
     int direction = NumberUtils.toInt(szDirection);
-    boolean combineFrames = Boolean.parseBoolean(szCombineFrames);
+    int combineFrames = NumberUtils.toInt(szCombineFrames);
     AssetDesc<Dc6> asset = AssetDesc.of(dccName, Dc6.class, DcParams.of(direction, combineFrames));
     EventExecutor executor = ImmediateEventExecutor.INSTANCE;
     final Promise<Throwable> promise = executor.newPromise();
@@ -134,7 +134,7 @@ public class Dc6LoaderTest {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setBlendMode(NONE);
         batch.begin(palette.texture());
-        if (combineFrames) {
+        if (combineFrames > 0) {
           batch.draw(dc6.page(0), 0, 0);
           batch.end();
           return;

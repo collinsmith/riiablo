@@ -86,7 +86,7 @@ public class DccLoaderTest {
       "data\\global\\chars\\ba\\tr\\batrlittnhth.dcc",
   })
   void fail(String dccName) throws Throwable {
-    AssetDesc<Dcc> asset = AssetDesc.of(dccName, Dcc.class, DcParams.of(0, true));
+    AssetDesc<Dcc> asset = AssetDesc.of(dccName, Dcc.class, DcParams.of(0, 1));
     EventExecutor executor = ImmediateEventExecutor.INSTANCE;
     final Promise<Throwable> promise = executor.newPromise();
     LwjglApplicationConfiguration config = new LwjglApplicationConfiguration() {{

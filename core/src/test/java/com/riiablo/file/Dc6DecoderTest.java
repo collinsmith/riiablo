@@ -83,7 +83,7 @@ public class Dc6DecoderTest {
 
       void create0() {
         decoder.decode(dc6, 0);
-        dc6.uploadTextures(0, false);
+        dc6.uploadTextures(0, 0);
 
         String paletteName = "data\\global\\palette\\ACT1\\pal.dat";
         AssetDesc<Palette> paletteDesc = AssetDesc.of(paletteName, Palette.class, MpqParams.of());
