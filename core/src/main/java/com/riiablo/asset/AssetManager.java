@@ -50,6 +50,8 @@ public final class AssetManager implements Disposable {
     for (FileHandleResolver resolver : PriorityContainer.unwrap(resolvers)) {
       AssetUtils.dispose(resolver);
     }
+    resolvers.clear();
+    resolverCache = PriorityContainer.toArray(resolvers, FileHandleResolver.class);
   }
 
   public AssetLoader getLoader(Class type) {
