@@ -6,12 +6,12 @@ import io.netty.util.concurrent.Promise;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class AssetContainer extends AbstractReferenceCounted {
-  static final AssetContainer[] EMPTY_ASSET_CONTAINER_ARRAY = new AssetContainer[0];
+  static final Promise[] EMPTY_PROMISE_ARRAY = new Promise[0];
 
   public static AssetContainer wrap(
       AssetDesc asset,
       Promise<?> promise,
-      AssetContainer[] dependencies
+      AssetDesc[] dependencies
   ) {
     if (promise == null) throw new IllegalArgumentException("promise cannot be null");
     return new AssetContainer(asset, promise, dependencies);
@@ -19,12 +19,12 @@ public class AssetContainer extends AbstractReferenceCounted {
 
   final AssetDesc asset; // for context of which asset this contains
   final Promise<?> promise;
-  final AssetContainer[] dependencies;
+  final AssetDesc[] dependencies;
 
   AssetContainer(
       AssetDesc asset,
       Promise<?> promise,
-      AssetContainer[] dependencies
+      AssetDesc[] dependencies
   ) {
     this.asset = asset;
     this.promise = promise;

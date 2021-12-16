@@ -21,6 +21,8 @@ import com.riiablo.concurrent.PromiseCombiner;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 
+import static com.riiablo.asset.AssetContainer.EMPTY_PROMISE_ARRAY;
+
 public final class AssetManager implements Disposable {
   private static final Logger log = LogManager.getLogger(AssetManager.class);
 
@@ -141,26 +143,22 @@ public final class AssetManager implements Disposable {
     return object;
   }
 
-  <T> AssetContainer[] loadDependencies(Promise<T> promise, AssetDesc<T> asset) {
-    final AssetLoader loader = findLoader(asset.type);
-    @SuppressWarnings("unchecked") // guaranteed by loader contract
-    Array<AssetDesc> dependencies = loader.dependencies(promise, asset);
-    final int numDependencies = dependencies.size;
-    final AssetContainer[] containers = numDependencies > 0
-        ? new AssetContainer[dependencies.size]
-        : AssetContainer.EMPTY_ASSET_CONTAINER_ARRAY;
+  <T> Promise[] loadDependencies(Promise<T> promise, AssetContainer container) {
+    final AssetDesc[] dependencies = container.dependencies;
+    final int numDependencies = dependencies.length;
+    if (numDependencies == 0) return EMPTY_PROMISE_ARRAY;
+    Promise[] promises = new Promise[numDependencies];
     for (int i = 0; i < numDependencies; i++) {
-      final AssetDesc dependency = dependencies.get(i);
+      final AssetDesc dependency = dependencies[i];
       // redirection to suppress unchecked warning via variable assignment
       @SuppressWarnings("unchecked") // dependencies submitted by loader
-      AssetContainer container = load0(dependency);
-      if (container.promise.isDone() && container.promise.cause() != null) {
+      Promise<?> p = promises[i] = load(dependency);
+      if (p.isDone() && p.cause() != null) {
         promise.tryFailure(new InvalidDependency(
-            asset, "Failed to load one or more dependencies.", container.promise.cause()));
+            container.asset, "Failed to load one or more dependencies.", p.cause()));
       }
-      containers[i] = container;
     }
-    return containers;
+    return promises;
   }
 
   @SuppressWarnings("unchecked") // guaranteed by loader and adapter contracts
@@ -180,11 +178,11 @@ public final class AssetManager implements Disposable {
         });
   }
 
-  <T> AssetContainer load0(final AssetDesc<T> asset) {
-    log.traceEntry("load0(asset: {})", asset);
+  <T> Promise<? extends T> load(final AssetDesc<T> asset) {
+    log.traceEntry("load(asset: {})", asset);
 
     final AssetContainer container0 = loadedAssets.get(asset);
-    if (container0 != null) return container0.retain();
+    if (container0 != null) return container0.retain().get(asset.type);
 
     final Promise<T> promise = sync.newPromise();
     promise.setUncancellable();
@@ -194,16 +192,23 @@ public final class AssetManager implements Disposable {
         log.warn("Failed to load asset {}", asset, cause);
       }
     });
-    // FIXME: loadDependencies may throw an exception to propagate to caller
-    final AssetContainer[] dependencies = loadDependencies(promise, asset);
+
+    final AssetDesc[] dependencies;
+    try {
+      dependencies = findLoader(asset.type).dependencies(promise, asset);
+    } catch (Throwable t) {
+      return promise;
+    }
+
     final AssetContainer container = AssetContainer.wrap(asset, promise, dependencies);
+    final Promise[] promises = loadDependencies(promise, container);
     loadedAssets.put(asset, container);
-    if (promise.isDone()) return container; // one or more dependencies was invalid
+    if (promise.isDone()) return promise; // one or more dependencies was invalid
 
     try {
       findLoader(asset.type).validate(promise, asset);
     } catch (Throwable t) {
-      return container;
+      return promise;
     }
 
     final EventExecutor executor = async.next();
@@ -212,8 +217,8 @@ public final class AssetManager implements Disposable {
         ioAsync(executor, container);
       } else {
         PromiseCombiner combiner = new PromiseCombiner(executor);
-        for (AssetContainer dependency : dependencies) {
-          combiner.add((Future) dependency.promise);
+        for (Promise dependency : promises) {
+          combiner.add((Future) dependency);
         }
 
         Promise<Void> combinerPromise = executor.newPromise();
@@ -222,11 +227,7 @@ public final class AssetManager implements Disposable {
       }
     });
 
-    return container;
-  }
-
-  public <T> Promise<? extends T> load(final AssetDesc<T> asset) {
-    return load0(asset).get(asset.type);
+    return promise;
   }
 
   public void unload(AssetDesc asset) {
@@ -234,8 +235,8 @@ public final class AssetManager implements Disposable {
     if (container == null) return;
     boolean released = container.release();
     if (released) loadedAssets.remove(asset);
-    for (AssetContainer dependency : container.dependencies) {
-      unload(dependency.asset);
+    for (AssetDesc dependency : container.dependencies) {
+      unload(dependency);
     }
   }
 

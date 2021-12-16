@@ -3,6 +3,8 @@ package com.riiablo.asset;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class AssetDesc<T> {
+  static final AssetDesc[] EMPTY_ASSET_DESC_ARRAY = new AssetDesc[0];
+
   public static <T> AssetDesc<T> of(
       CharSequence path,
       Class<T> type

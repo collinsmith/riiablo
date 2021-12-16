@@ -8,13 +8,11 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
 
 import com.riiablo.asset.Adapter;
 import com.riiablo.asset.AssetDesc;
 import com.riiablo.asset.AssetLoader;
 import com.riiablo.asset.AssetManager;
-import com.riiablo.asset.EmptyArray;
 import com.riiablo.asset.param.DcParams;
 import com.riiablo.file.Dc6;
 import com.riiablo.file.Dc6Decoder;
@@ -35,13 +33,11 @@ public class Dc6Loader extends AssetLoader<Dc6> {
   };
 
   @Override
-  public Array<AssetDesc> dependencies0(AssetDesc<Dc6> asset) {
+  public AssetDesc[] dependencies0(AssetDesc<Dc6> asset) {
     DcParams params = asset.params(DcParams.class);
-    if (params.direction < 0) return EmptyArray.empty();
+    if (params.direction < 0) return super.dependencies0(asset);
     AssetDesc<Dc6> header = AssetDesc.of(asset, PARENT_DC);
-    final Array<AssetDesc> dependencies = Array.of(false, 1, AssetDesc.class);
-    dependencies.add(header);
-    return dependencies;
+    return new AssetDesc[] { header };
   }
 
   @Override

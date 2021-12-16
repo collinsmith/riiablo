@@ -5,10 +5,11 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
+
+import static com.riiablo.asset.AssetDesc.EMPTY_ASSET_DESC_ARRAY;
 
 public abstract class AssetLoader<T> {
-  public final Array<AssetDesc> dependencies(
+  public final AssetDesc[] dependencies(
       Promise<T> promise,
       AssetDesc<T> asset
   ) {
@@ -77,10 +78,10 @@ public abstract class AssetLoader<T> {
     }
   }
 
-  protected Array<AssetDesc> dependencies0(
+  protected AssetDesc[] dependencies0(
       AssetDesc<T> asset
   ) {
-    return EmptyArray.empty();
+    return EMPTY_ASSET_DESC_ARRAY;
   }
 
   protected void validate0(
