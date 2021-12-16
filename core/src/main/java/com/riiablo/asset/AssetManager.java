@@ -178,7 +178,7 @@ public final class AssetManager implements Disposable {
         });
   }
 
-  <T> Promise<? extends T> load(final AssetDesc<T> asset) {
+  public <T> Promise<? extends T> load(final AssetDesc<T> asset) {
     log.traceEntry("load(asset: {})", asset);
 
     final AssetContainer container0 = loadedAssets.get(asset);
