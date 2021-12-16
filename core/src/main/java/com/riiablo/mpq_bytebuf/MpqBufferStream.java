@@ -146,7 +146,6 @@ public final class MpqBufferStream extends InputStream {
   Promise syncInitialization() {
     if (init == null) throw new IllegalStateException("not initialized via MpqBufferStream#initialize()");
     init.syncUninterruptibly();
-    assert buffer.isReadable();
     return init;
   }
 
