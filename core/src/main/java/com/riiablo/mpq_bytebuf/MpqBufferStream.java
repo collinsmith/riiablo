@@ -7,6 +7,7 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.UnaryPromiseNotifier;
 import java.io.InputStream;
@@ -134,7 +135,7 @@ public final class MpqBufferStream extends InputStream {
   public Promise<InputStream> initialize() {
     if (init != null) return init;
     init = executor.newPromise();
-    saturateBuffer0().addListener(new FutureListener() {
+    saturateBuffer0(executor).addListener(new FutureListener() {
       @Override
       public void operationComplete(Future future) {
         init.setSuccess(MpqBufferStream.this);
@@ -152,10 +153,15 @@ public final class MpqBufferStream extends InputStream {
   Promise saturateBuffer() {
     promise.syncUninterruptibly();
     promise = null;
-    return saturateBuffer0();
+    return saturateBuffer0(ImmediateEventExecutor.INSTANCE);
   }
 
-  Promise saturateBuffer0() {
+  /**
+   * @param executor executor to perform async operations on, initialization of
+   *                 buffer stream is done async, subsequent buffering is done
+   *                 sync due to nature of {@link InputStream#read()}
+   */
+  Promise saturateBuffer0(EventExecutor executor) {
     assert promise == null;
     promise = executor.newPromise();
     final int sectorSize = handle.sectorSize();

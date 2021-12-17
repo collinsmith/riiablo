@@ -72,6 +72,7 @@ public class Dc6LoaderTest {
   @CsvSource(value = {
       "data\\global\\monsters\\ty\\ra\\tyralitnuhth.dc6,0,0",
       "data\\global\\ui\\panel\\invchar6.dc6,0,1",
+      "data\\global\\ui\\AUTOMAP\\MaxiMap.dc6,0,0",
   }, delimiter = ',')
   void load(String dccName, String szDirection, String szCombineFrames) throws Throwable {
     int direction = NumberUtils.toInt(szDirection);

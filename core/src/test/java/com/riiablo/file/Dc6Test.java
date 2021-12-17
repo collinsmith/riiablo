@@ -29,6 +29,7 @@ public class Dc6Test extends RiiabloTest {
       "data\\global\\monsters\\ty\\ra\\tyralitnuhth.dc6",
       "data\\global\\ui\\panel\\invchar6.dc6",
       "data\\global\\ui\\Loading\\loadingscreen.dc6",
+      "data\\global\\ui\\AUTOMAP\\MaxiMap.dc6",
   })
   void test(String dc6Name) throws Exception {
     EventExecutor executor = ImmediateEventExecutor.INSTANCE;

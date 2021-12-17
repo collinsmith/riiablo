@@ -125,4 +125,21 @@ class MpqBufferStreamTest extends RiiabloTest {
       super.read(in);
     }
   }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  class d2exp extends NestedMpqStreamTest {
+    d2exp(TestInfo testInfo) {
+      super(testInfo);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "data\\global\\ui\\AUTOMAP\\MaxiMap.dc6",
+    })
+    @Override
+    void read(String in) throws IOException {
+      super.read(in);
+    }
+  }
 }
