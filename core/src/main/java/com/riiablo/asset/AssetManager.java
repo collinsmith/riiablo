@@ -139,7 +139,7 @@ public final class AssetManager implements Disposable {
   public <T> T getDepNow(final AssetDesc<T> asset) {
     final AssetContainer container = loadedAssets.get(asset);
     final T object = container != null ? container.get(asset.type).getNow() : null;
-    if (object == null) throw new RuntimeException("dependency not loaded: " + asset);
+    if (object == null) throw new InvalidDependency(asset, "Dependency not loaded: " + asset);
     return object;
   }
 
