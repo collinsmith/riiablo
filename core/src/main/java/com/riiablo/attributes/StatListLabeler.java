@@ -273,7 +273,7 @@ public class StatListLabeler {
 
     @Override
     public int compareTo(Tuple other) {
-      return NumberUtils.compare(descPriority, other.descPriority);
+      return NumberUtils.compare(other.descPriority, descPriority);
     }
 
     @Override
