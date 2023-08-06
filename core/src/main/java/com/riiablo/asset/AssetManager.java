@@ -240,6 +240,12 @@ public final class AssetManager implements Disposable {
     }
   }
 
+  public void unloadAll(AssetDesc[] assets) {
+    for (AssetDesc asset : assets) {
+      if (asset != null) unload(asset);
+    }
+  }
+
   public void sync(final long timeoutMillis) {
     log.debug("Syncing...");
     SyncMessage msg;
