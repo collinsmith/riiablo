@@ -280,6 +280,9 @@ public class MpqViewer extends Tool {
   VisSlider slFrameDuration;
   VisCheckBox cbDebugMode;
   VisSelectBox<BlendModes> sbBlendMode;
+  VisImageButton btnBlendColor;
+  final Color blendColor = Color.WHITE.cpy();
+  Texture blendColorTexture;
 
   // Page tab controls
   VisLabel lbPage;
@@ -815,6 +818,59 @@ public class MpqViewer extends Tool {
                 setSelectedIndex(0);
                 setDisabled(true); // disabled -- applied through animation
               }}).row();
+              add(i18n("blendColor")).space(labelSpacing).growX();
+              final int buttonSize = 22;
+              if (blendColorTexture != null) blendColorTexture.dispose();
+              Pixmap p = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+              try {
+                p.drawPixel(0, 0, Color.rgba8888(blendColor));
+                blendColorTexture = new Texture(p);
+              } finally {
+                p.dispose();
+              }
+              add(btnBlendColor = new VisImageButton(new VisImageButton.VisImageButtonStyle() {{
+                imageUp =
+                imageDown =
+                imageOver =
+                imageChecked =
+                imageCheckedOver =
+                imageDisabled = new TextureRegionDrawable(blendColorTexture) {{
+                  setMinSize(buttonSize, buttonSize);
+                }};
+              }}) {{
+                addListener(new ClickListener(Input.Buttons.LEFT) {
+                  @Override
+                  public void clicked(InputEvent event, float x, float y) {
+                    ColorPicker cp = new ColorPicker(
+                        i18n("blendColor"),
+                        new ColorPickerAdapter() {
+                          @Override
+                          public void finished(Color newColor) {
+                            blendColor.set(newColor);
+                            if (blendColorTexture != null) blendColorTexture.dispose();
+                            Pixmap p = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+                            try {
+                              p.drawPixel(0, 0, Color.rgba8888(blendColor));
+                              blendColorTexture = new Texture(p);
+                              getStyle().imageUp =
+                              getStyle().imageDown =
+                              getStyle().imageOver =
+                              getStyle().imageChecked =
+                              getStyle().imageCheckedOver =
+                              getStyle().imageDisabled = new TextureRegionDrawable(blendColorTexture) {{
+                                setMinSize(buttonSize, buttonSize);
+                              }};
+                            } finally {
+                              p.dispose();
+                            }
+                          }
+                        }
+                    );
+                    cp.setColor(blendColor);
+                    stage.addActor(cp.fadeIn());
+                  }
+                });
+              }}).left().row();
             }}).growX().row();
             add(new VisTable() {{
               align(topLeft);
@@ -1220,6 +1276,7 @@ public class MpqViewer extends Tool {
 
     log.debug("disposing stage...");
     stage.dispose();
+    blendColorTexture.dispose();
 
     log.debug("disposing VisUI...");
     VisUI.dispose();
@@ -1882,8 +1939,8 @@ public class MpqViewer extends Tool {
             String palette = paletteList.getSelected();
             Riiablo.batch.setPalette(palettes.get(palette));
             log.debug("palette -> {}", palette);
-          } else if (actor == sbBlendMode) {
-            anim.getLayer(0).setBlendMode(sbBlendMode.getSelectedIndex());
+          } else if (actor == sbBlendMode || actor == btnBlendColor) {
+            anim.getLayer(0).setBlendMode(sbBlendMode.getSelectedIndex(), blendColor);
           /*} else if (actor == sbBlendMode) {
             int frame = delegate.getFrame();
             //if (pages != null) {
