@@ -1606,7 +1606,42 @@ public class MpqViewer extends Tool {
             String comp = components.getSelected();
             wclasses.setItems(compClasses.get(comp));
             wclasses.setSelected(selectedWClass[COMP_TO_ID.get(comp, -1)]);
+          } else if (actor == daDirection) {
+            int d = daDirection.getDirection();
+            updateDirection(d);
+            delegate.setDirection(d);
+            slDirection.setValue(d);
+          } else if (actor == slDirection) {
+            int d = (int) slDirection.getValue();
+            updateDirection(d);
+            delegate.setDirection(d);
+            updateInfo();
           }
+        }
+
+        void updateDirection(int d) {
+          if (delegate.getDirection() == d) return;
+          log.traceEntry("updateDirection(d: {})", d);
+
+          // Cache old layers to unload after new ones are queued
+          AssetDesc[] oldLayers = Arrays.copyOf(layers, layers.length);
+
+          anim.setDirection(d);
+          Cof cof = anim.getCof();
+          for (int l = 0; l < cof.numLayers(); l++) {
+            Cof.Layer layer = cof.layer(l);
+            AssetDesc<Dc<?>> desc = AssetDesc.of(layers[l], DcParams.of(d));
+            if (mpqs.contains(desc.path())) {
+              layers[l] = desc;
+              assets.load(desc)
+                  .addListener(future -> {
+                    log.debug("Loaded {}", desc);
+                    delegate.setLayer(layer, (Dc<?>) future.getNow(), true);
+                  });
+            }
+          }
+
+          assets.unloadAll(oldLayers);
         }
 
         @Override
@@ -1754,7 +1789,7 @@ public class MpqViewer extends Tool {
 
         void updateDirection(int d) {
           if (delegate.getDirection() == d) return;
-          log.traceEntry("setDirection(d: {})", d);
+          log.traceEntry("updateDirection(d: {})", d);
           final AssetDesc<Dc<?>> oldAsset = ref.get();
           assert oldAsset.params(DcParams.class).direction != d;
           final AssetDesc<Dc<?>> asset = AssetDesc.of(oldAsset, oldAsset.params(DcParams.class).copy(d));
