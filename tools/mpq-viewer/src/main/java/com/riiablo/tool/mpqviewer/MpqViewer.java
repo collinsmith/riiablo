@@ -1722,7 +1722,8 @@ public class MpqViewer extends Tool {
           slFrameIndex.setRange(0, dc.numFrames() - 1);
           slFrameIndex.fire(new ChangeEvent());
 
-          //sbBlendMode.setSelectedIndex(0);
+          sbBlendMode.setDisabled(false);
+          sbBlendMode.setSelectedIndex(0);
           //cbCombineFrames.setChecked(false);
 
           slPage.setValue(0);
@@ -1881,6 +1882,8 @@ public class MpqViewer extends Tool {
             String palette = paletteList.getSelected();
             Riiablo.batch.setPalette(palettes.get(palette));
             log.debug("palette -> {}", palette);
+          } else if (actor == sbBlendMode) {
+            anim.getLayer(0).setBlendMode(sbBlendMode.getSelectedIndex());
           /*} else if (actor == sbBlendMode) {
             int frame = delegate.getFrame();
             //if (pages != null) {
@@ -2112,6 +2115,7 @@ public class MpqViewer extends Tool {
     };
 
     public DelegatingDrawable() {
+      sbBlendMode.setDisabled(true);
       animationControlsTabs.addListener(this);
       animationControlsTabs.setDisabled(PAGE_TAB, false);
       animationControlsTabs.setDisabled(ANIMATION_TAB, false);
@@ -2125,7 +2129,7 @@ public class MpqViewer extends Tool {
       slDirection      .addListener(changeListener);
       slFrameIndex     .addListener(changeListener);
       slFrameDuration  .addListener(changeListener);
-      // sbBlendMode      .addListener(changeListener);
+      sbBlendMode      .addListener(changeListener);
       //cbCombineFrames.addListener(sbBlendModePage);
       // btnPlayPauseAudio.addListener(clickListener);
       // btnRestartAudio  .addListener(clickListener);
@@ -2164,7 +2168,7 @@ public class MpqViewer extends Tool {
       slDirection      .removeListener(changeListener);
       slFrameIndex     .removeListener(changeListener);
       slFrameDuration  .removeListener(changeListener);
-      //sbBlendMode      .removeListener(changeListener);
+      sbBlendMode      .removeListener(changeListener);
       //cbCombineFrames.removeListener(clickListener);
       // btnPlayPauseAudio.removeListener(clickListener);
       // btnRestartAudio  .removeListener(clickListener);
