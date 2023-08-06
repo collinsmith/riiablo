@@ -130,7 +130,7 @@ public class MpqViewer extends Tool {
 
   public static void main(String[] args) throws Exception {
     Lwjgl3Tool.create(MpqViewer.class, "mpq-viewer", args)
-        .size(1280, 800, true) // arbitrary, comfortable widget layout
+        .size(1380, 870, true) // arbitrary, comfortable widget layout
         .config((Lwjgl3Tool.Lwjgl3ToolConfigurator) config -> {
           config.setWindowSizeLimits(640, 480, -1, -1);
           config.useVsync(false);
