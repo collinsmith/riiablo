@@ -67,7 +67,7 @@ public final class DccDecoder {
     //   ));
     // }
     for (int c = 0, s = pixelBuffer.size << 2; c < s; c++) {
-      pixels[c] = (byte) PALETTE[pixels[c]];
+      pixels[c] = (byte) PALETTE[pixels[c] & 0xFF];
     }
     // for (int c = 0, s = pixelBuffer.size; c < s; c++) {
     //   final int c0 = (c << 2);
