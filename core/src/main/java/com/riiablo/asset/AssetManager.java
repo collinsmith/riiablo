@@ -171,10 +171,15 @@ public final class AssetManager implements Disposable {
     loader
         .ioAsync(promise, executor, AssetManager.this, asset, handle, adapter)
         .addListener((FutureListener) future -> {
-          @SuppressWarnings("unchecked") // guaranteed by loader contract
-          T object = (T) loader.loadAsync(promise, AssetManager.this, asset, handle, future.getNow());
-          boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
-          if (!inserted) log.error("Failed to enqueue {}", asset);
+          try {
+            @SuppressWarnings("unchecked") // guaranteed by loader contract
+            T object = (T) loader.loadAsync(promise, AssetManager.this, asset, handle, future.getNow());
+            boolean inserted = syncQueue.offer(SyncMessage.wrap(container, promise, loader, object));
+            if (!inserted) log.error("Failed to enqueue {}", asset);
+          } catch (Throwable t) {
+            log.error("Failed to load {}", asset, t);
+            ExceptionUtils.rethrow(t);
+          }
         });
   }
 
