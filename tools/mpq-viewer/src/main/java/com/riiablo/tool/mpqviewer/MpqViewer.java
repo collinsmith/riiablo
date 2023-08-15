@@ -2007,6 +2007,21 @@ public class MpqViewer extends Tool {
           batch.begin();
         }
       });
+    } else if (extension.equals("DAT")) { // palette
+      // TODO: update to new asset manager?
+      AssetDesc<Palette> asset = AssetDesc.of(filename, Palette.class, MpqParams.of());
+      MpqFileHandle handle = mpqs.resolve(asset);
+      try {
+        Palette pal = Palette.read(handle.buffer());
+        renderer.setDrawable(new TextureRegionDrawable(pal.texture()) {{
+          final float scale = 8;
+          setMinSize(
+              pal.texture().getWidth() * scale,
+              pal.texture().getHeight() * scale);
+        }});
+      } finally {
+        handle.release();
+      }
     }
   }
 
