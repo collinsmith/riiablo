@@ -123,6 +123,7 @@ public class Dc6 extends Dc<Dc6.Dc6Direction> {
     final Texture[] texture = direction.texture;
     if (combineFrames == 0 || (combineFrames == -1 && frame[0].width < Dc6.PAGE_SIZE)) {
       for (int f = 0; f < numFrames; f++) {
+        // FIXME: memory leak if called multiple times, asserted asset manger works correctly
         Texture t = texture[f] = new Texture(pixmap[f]);
         frame[f].texture.setRegion(t);
         pixmap[f].dispose();
@@ -145,6 +146,7 @@ public class Dc6 extends Dc<Dc6.Dc6Direction> {
       numPages = numFrames / (rows * columns);
       for (int p = 0, s = numPages, f = 0; p < s; p++) {
         int x = 0, y = 0;
+        // FIXME: memory leak if called multiple times, asserted asset manger works correctly
         Texture t = texture[p] = new Texture(width, height, INDEXED);
         frame[p].texture.setRegion(t);
         for (int r = 0; r < rows; r++, x = 0) {

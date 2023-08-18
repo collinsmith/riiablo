@@ -120,6 +120,7 @@ public final class Dcc extends Dc<Dcc.DccDirection> {
     final Pixmap[] pixmap = direction.pixmap;
     final Texture[] texture = direction.texture;
     for (int f = 0; f < numFrames; f++) {
+      // FIXME: memory leak if called multiple times, asserted asset manger works correctly
       Texture t = texture[f] = new Texture(pixmap[f]);
       frame[f].texture.setRegion(t);
       pixmap[f].dispose();
