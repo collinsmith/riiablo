@@ -105,6 +105,7 @@ dependencies {
 dependencies {
   testImplementation platform('org.junit:junit-bom:5.7.1')
   testImplementation 'org.junit.jupiter:junit-jupiter'
+  testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0'
   testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
   testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
   testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
