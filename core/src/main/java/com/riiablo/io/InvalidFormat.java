@@ -15,6 +15,18 @@ public class InvalidFormat extends RuntimeException {
     this(in.mark(), message, cause);
   }
 
+  public InvalidFormat(ByteInputStream in, Throwable cause) {
+    this(in.mark(), "Invalid format", cause);
+  }
+
+  public InvalidFormat(ByteInputStream in, String message) {
+    this(in.mark(), message, null);
+  }
+
+  public InvalidFormat(ByteInputStream in, String message, Throwable cause) {
+    this(in.mark(), message, cause);
+  }
+
   InvalidFormat(long offset, String message, Throwable cause) {
     super(message + " +0x" + Long.toHexString(offset), cause);
     this.offset = offset;
