@@ -13,7 +13,11 @@ public class PaletteIndexedPixmap extends Pixmap {
   }
 
   public PaletteIndexedPixmap(int width, int height, byte[] data) {
+    this(width, height, data, data.length);
+  }
+
+  public PaletteIndexedPixmap(int width, int height, byte[] data, int length) {
     this(width, height);
-    BufferUtils.copy(data, 0, getPixels(), data.length);
+    BufferUtils.copy(data, 0, getPixels(), length);
   }
 }
