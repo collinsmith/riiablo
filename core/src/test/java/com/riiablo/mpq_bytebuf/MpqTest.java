@@ -199,6 +199,7 @@ class MpqTest extends RiiabloTest {
         "data\\global\\tiles\\ACT1\\TOWN\\townN1.ds1",
         "data\\local\\font\\LATIN\\font42.DC6",
     })
+    @SuppressWarnings("deprecation")
     void contains(String filename) {
       assertTrue(mpq.contains(filename, DEFAULT_LOCALE));
     }
@@ -223,6 +224,7 @@ class MpqTest extends RiiabloTest {
         "data\\global\\CHARS\\PA\\HD\\PAHDBHMGH1HS.dcc",
         "data\\global\\CHARS\\SO\\SH\\SOSHBSHKKHTH.dcc",
     })
+    @SuppressWarnings("deprecation")
     void contains(String filename) {
       assertTrue(mpq.contains(filename, DEFAULT_LOCALE));
     }
