@@ -1,5 +1,5 @@
 apply plugin: 'java-library'
-apply plugin: 'artemis'
+//apply plugin: 'artemis'
 apply plugin: 'io.netifi.flatbuffers'
 
 import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
@@ -119,13 +119,13 @@ test {
   }
 }
 
-weave {
-  classesDir = sourceSets.main.java.classesDirectory.get().getAsFile()
-  enableArtemisPlugin = true
-  enablePooledWeaving = true
-  generateLinkMutators = true
-  optimizeEntitySystems = true
-}
+//weave {
+//  classesDir = sourceSets.main.java.classesDirectory.get().getAsFile()
+//  enableArtemisPlugin = true
+//  enablePooledWeaving = true
+//  generateLinkMutators = true
+//  optimizeEntitySystems = true
+//}
 
 // FIXME: see #134 https://github.com/collinsmith/riiablo/issues/134
 //classes.finalizedBy weave
