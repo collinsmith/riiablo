@@ -20,7 +20,7 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 import com.riiablo.mpq.MPQFileHandleResolver;
-import com.riiablo.tool.LwjglTool;
+import com.riiablo.tool.Lwjgl3Tool;
 import com.riiablo.tool.Tool;
 import com.riiablo.util.InstallationFinder;
 
@@ -29,7 +29,7 @@ public class VideoPlayerTool extends Tool {
 
   public static void main(String[] args) {
     LogManager.setLevel(VideoPlayerTool.class.getCanonicalName(), Level.TRACE);
-    LwjglTool.create(VideoPlayerTool.class, "video-player", args)
+    Lwjgl3Tool.create(VideoPlayerTool.class, "video-player", args)
         .title("Video Player Tool")
         .size(640, 480, false) // default video size
         .start();
