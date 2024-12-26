@@ -92,7 +92,9 @@ import com.riiablo.asset.adapter.MpqFileHandleAdapter;
 import com.riiablo.asset.loader.CofLoader;
 import com.riiablo.asset.loader.Dc6Loader;
 import com.riiablo.asset.loader.DccLoader;
+import com.riiablo.asset.loader.Dt1Loader;
 import com.riiablo.asset.param.DcParams;
+import com.riiablo.asset.param.Dt1Params;
 import com.riiablo.asset.param.MpqParams;
 import com.riiablo.file.Animation;
 import com.riiablo.file.Cof;
@@ -102,12 +104,15 @@ import com.riiablo.file.Dc6;
 import com.riiablo.file.Dc6Info;
 import com.riiablo.file.Dcc;
 import com.riiablo.file.DccInfo;
+import com.riiablo.file.Dt1Info;
 import com.riiablo.file.Palette;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.map5.Dt1;
+import com.riiablo.map5.Tile;
 import com.riiablo.mpq.widget.DirectionActor;
 import com.riiablo.mpq_bytebuf.MpqFileHandle;
 import com.riiablo.mpq_bytebuf.MpqFileResolver;
@@ -124,6 +129,7 @@ import static com.badlogic.gdx.utils.Align.top;
 import static com.badlogic.gdx.utils.Align.topLeft;
 import static com.kotcrab.vis.ui.widget.file.FileChooser.Mode.OPEN;
 import static com.kotcrab.vis.ui.widget.file.FileChooser.SelectionMode.DIRECTORIES;
+import static com.riiablo.graphics.PaletteIndexedPixmap.INDEXED;
 
 public class MpqViewer extends Tool {
   private static final Logger log = LogManager.getLogger(MpqViewer.class);
@@ -295,6 +301,18 @@ public class MpqViewer extends Tool {
   VisSlider slDirectionPage;
   VisSelectBox<BlendModes> sbBlendModePage;
 
+  CollapsibleVisTable tileControls;
+  Button btnFirstTile;
+  Button btnLastTile;
+  Button btnPrevTile;
+  Button btnNextTile;
+  VisLabel lbTileIndex;
+  VisSlider slTileIndex;
+  VisCheckBox cbTileDebug;
+
+  CollapsibleVisTable dt1Controls;
+  Dt1Info dt1Info;
+
   CollapsibleVisTable paletteControls;
   Trie<String, Texture> palettes;
   VisList<String> paletteList;
@@ -356,6 +374,10 @@ public class MpqViewer extends Tool {
     // TODO: pack mpq-viewer assets with VisUI skin
     final TextureAtlas mpqViewerAtlas = new TextureAtlas(Gdx.files.internal("skin/mpq-viewer/mpq-viewer.atlas"));
     mpqViewerAssets = new Skin(mpqViewerAtlas);
+
+    log.debug("creating placeholder textures...");
+    Dc.MISSING_TEXTURE = new Texture(0, 0, INDEXED);
+    Dt1.MISSING_TEXTURE = new Texture(0, 0, INDEXED);
 
     log.debug("creating menu bar...");
     menu = new MenuBar() {{
@@ -729,7 +751,7 @@ public class MpqViewer extends Tool {
         addListener(new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            // dt1Panel.setCollapsed(!dt1Panel.isCollapsed());
+            dt1Controls.setCollapsed(!dt1Controls.isCollapsed());
           }
         });
       }}).row();
@@ -937,11 +959,53 @@ public class MpqViewer extends Tool {
         add().growY();
       }}).growY();
     }
-
-    @Override
-    public void setCollapsed(boolean collapsed) {
-      super.setCollapsed(collapsed);
-      daDirection.setVisible(!collapsed());
+      @Override
+      public void setCollapsed(boolean collapsed) {
+        super.setCollapsed(collapsed);
+        daDirection.setVisible(!collapsed());
+      }
+    });
+    controlPanel.add(tileControls = new CollapsibleVisTable() {{
+      align(topLeft);
+      add(new VisTable() {{
+        setBackground(VisUI.getSkin().getDrawable("default-pane"));
+        pad(controlPadding);
+        add(new VisTable() {{
+          setBackground(VisUI.getSkin().getDrawable("grey"));
+          defaults().size(24);
+          add(btnFirstTile = new BorderedVisImageButton(new VisImageButton.VisImageButtonStyle() {{
+            up = mpqViewerAssets.getDrawable("first-frame");
+          }}, VisUI.getSkin().getDrawable("border"), i18n("first-tile")));
+          add(btnPrevTile = new BorderedVisImageButton(new VisImageButton.VisImageButtonStyle() {{
+            up = mpqViewerAssets.getDrawable("prev-frame");
+          }}, VisUI.getSkin().getDrawable("border"), i18n("prev-tile")));
+          add(btnNextTile = new BorderedVisImageButton(new VisImageButton.VisImageButtonStyle() {{
+            up = mpqViewerAssets.getDrawable("next-frame");
+          }}, VisUI.getSkin().getDrawable("border"), i18n("next-tile")));
+          add(btnLastTile = new BorderedVisImageButton(new VisImageButton.VisImageButtonStyle() {{
+            up = mpqViewerAssets.getDrawable("last-frame");
+          }}, VisUI.getSkin().getDrawable("border"), i18n("last-tile")));
+        }}).row();
+        add(new VisTable() {{
+          add(i18n("tile")).space(labelSpacing).growX();
+          add(lbTileIndex = new VisLabel()).row();
+          add(slTileIndex = new VisSlider(0, 0, 1, false) {{
+            ChangeListener l;
+            addListener(l = new ChangeListener() {
+              @Override
+              public void changed(ChangeEvent event, Actor actor) {
+                lbTileIndex.setText(i18n("tile-label", getValue() + 1, getMaxValue() + 1));
+              }
+            });
+            l.changed(null, null);
+          }}).growX().colspan(2).row();
+        }}).row();
+        add(new VisTable() {{
+          align(topLeft);
+          add(cbTileDebug = new VisCheckBox(i18n("debug-bounds"), debugMode));
+        }}).growX().row();
+        add().growY();
+      }}).pad(4).growY();
     }});
     controlPanel.add(paletteControls = new CollapsibleVisTable() {{
       add(new VisTable() {{
@@ -1090,9 +1154,21 @@ public class MpqViewer extends Tool {
         add().growY();
       }}).pad(4).growY();
     }});
+    controlPanel.add(dt1Controls = new CollapsibleVisTable() {{
+      add(new VisTable() {{
+        setBackground(VisUI.getSkin().getDrawable("default-pane"));
+        pad(controlPadding);
+        padTop(0); // 0 on top to account for font height
+        // debug();
+        add(i18n("dt1")).align(topLeft).row();
+        add(dt1Info = new Dt1Info()).row();
+        add().growY();
+      }}).pad(4).growY();
+    }});
 
     controlPanels = new Array<>();
     controlPanels.add(animationControls);
+    controlPanels.add(tileControls);
     controlPanels.add(paletteControls);
     controlPanels.add(cofControls);
     controlPanels.add(dccControls);
@@ -1278,6 +1354,10 @@ public class MpqViewer extends Tool {
     stage.dispose();
     blendColorTexture.dispose();
 
+    log.debug("disposing placeholder textures...");
+    Dc.MISSING_TEXTURE.dispose();
+    Dt1.MISSING_TEXTURE.dispose();
+
     log.debug("disposing VisUI...");
     VisUI.dispose();
     mpqViewerAssets.dispose();
@@ -1358,6 +1438,7 @@ public class MpqViewer extends Tool {
         .loader(Cof.class, new CofLoader())
         .loader(Dcc.class, new DccLoader())
         .loader(Dc6.class, new Dc6Loader())
+        .loader(Dt1.class, new Dt1Loader())
         ;
   }
 
@@ -1856,11 +1937,11 @@ public class MpqViewer extends Tool {
               .addListener(future -> {
                 if (future.cause() != null) {
                   Dialogs.showDetailsDialog(
-                      stage,
-                      "Failed to load " + asset.path(),
-                      "Error",
-                      ExceptionUtils.getStackTrace(future.cause()),
-                      true)
+                          stage,
+                          "Failed to load " + asset.path(),
+                          "Error",
+                          ExceptionUtils.getStackTrace(future.cause()),
+                          true)
                       .show(stage);
                   animationControlsTabs.switchTo(isAnimationTab ? PAGE_TAB : ANIMATION_TAB);
                   return;
@@ -1959,7 +2040,7 @@ public class MpqViewer extends Tool {
             delegate.setFrameDelta((int) slFrameDuration.getValue());
           } else if (actor == slPage) {
             //delegate.setFrame((int) slPage.getValue());
-          //} else if (actor == slDirectionPage || /*actor == sbBlendModePage || */(actor == paletteList && pages != null)) {
+            //} else if (actor == slDirectionPage || /*actor == sbBlendModePage || */(actor == paletteList && pages != null)) {
             //for (int p = 0; p < pages.size; p++) pages.get(p).dispose();
             //pages = new DC6.PageList(dc6.pages((int) slDirectionPage.getValue(), palettes.get(paletteList.getSelected()), sbBlendModePage.getSelected()));
           }
@@ -2001,6 +2082,126 @@ public class MpqViewer extends Tool {
           if (cbDebugMode.isChecked()) {
             shapes.begin(ShapeRenderer.ShapeType.Line);
             delegate.drawDebug(shapes, x, y);
+            shapes.end();
+          }
+
+          batch.begin();
+        }
+      });
+    } else if (extension.equals("DT1")) {
+      tileControls.setCollapsed(false);
+      paletteControls.setCollapsed(false);
+      AssetDesc<Dt1> asset = AssetDesc.of(filename, Dt1.class, Dt1Params.of(0));
+      AtomicReference<AssetDesc<Dt1>> ref = new AtomicReference<>(asset);
+      AtomicReference<Dt1> dt1Ref = new AtomicReference<>();
+      assets.load(asset)
+          .addListener(future -> {
+            dt1Ref.set((Dt1) future.getNow());
+            log.debug("Loaded {}", asset);
+            renderer.initialize();
+          });
+      renderer.setDrawable(new DelegatingDrawable<Drawable>() {
+        int tileId = 0;
+        int curTileId = 0;
+
+        @Override
+        protected void initialize() {
+          Dt1 dt1 = dt1Ref.get();
+          dt1Info.setDt1(dt1);
+          dt1Info.update(tileId);
+
+          slTileIndex.setValue(0);
+          slTileIndex.setRange(0, dt1.numTiles() - 1);
+          slTileIndex.fire(new ChangeEvent());
+        }
+
+        @Override
+        public void dispose() {
+          super.dispose();
+          assets.unload(ref.get());
+          log.debug("Unloading {}", ref.get());
+        }
+
+        void updateInfo() {
+          if (tileId < 0) return;
+          dt1Info.update(tileId);
+        }
+
+        void updateTile(int t) {
+          if (curTileId == t) return; // prevents multiple calls during init
+          log.traceEntry("updateTile(t: {})", t);
+          curTileId = t;
+          final AssetDesc<Dt1> oldAsset = ref.get();
+          assert oldAsset.params(Dt1Params.class).tileId != t;
+          final AssetDesc<Dt1> asset = AssetDesc.of(oldAsset, oldAsset.params(Dt1Params.class).copy(t));
+          ref.set(asset);
+          assets.load(asset)
+              .addListener(future -> {
+                if (future.cause() != null) {
+                  Dialogs.showDetailsDialog(
+                          stage,
+                          "Failed to load " + asset.path(),
+                          "Error",
+                          ExceptionUtils.getStackTrace(future.cause()),
+                          true)
+                      .show(stage);
+                  return;
+                }
+
+                log.debug("Loaded {}", asset);
+                log.debug("Unloading {}", oldAsset);
+                assets.unload(oldAsset);
+                final Dt1 dt1 = (Dt1) future.getNow();
+                dt1Info.setDt1(dt1);
+                dt1Info.update(tileId);
+              });
+        }
+
+        @Override
+        protected void clicked(InputEvent event, float x, float y) {
+          Actor actor = event.getListenerActor();
+          if (actor == btnFirstTile) {
+            slTileIndex.setValue(0);
+          } else if (actor == btnLastTile) {
+            Dt1 dt1 = dt1Ref.get();
+            slTileIndex.setValue(dt1.numTiles() - 1);
+          } else if (actor == btnPrevTile) {
+            if (tileId > 0) slTileIndex.setValue(tileId - 1);
+          } else if (actor == btnNextTile) {
+            Dt1 dt1 = dt1Ref.get();
+            if (tileId < dt1.numTiles() - 1) slTileIndex.setValue(tileId + 1);
+          }
+        }
+
+        @Override
+        protected void changed(ChangeEvent event, Actor actor) {
+          if (actor == slTileIndex) {
+            tileId = (int) slTileIndex.getValue();
+            updateTile(tileId);
+            updateInfo();
+          }
+        }
+
+        @Override
+        public void draw(Batch batch, float x, float y, float width, float height) {
+          Dt1 dt1 = dt1Ref.get();
+          if (dt1 == null) return;
+          Tile tile = dt1.get(tileId);
+          if (tile == null) return;
+          PaletteIndexedBatch b = Riiablo.batch;
+          batch.end();
+
+          String palette = paletteList.getSelected();
+          b.setPalette(palettes.get(palette));
+          b.setTransformMatrix(batch.getTransformMatrix());
+          b.begin();
+          b.draw(tile.texture(), x, y);
+          b.end();
+
+          shapes.setTransformMatrix(batch.getTransformMatrix());
+          if (cbTileDebug.isChecked()) {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            // delegate.drawDebug(shapes, x, y);
             shapes.end();
           }
 
@@ -2217,6 +2418,11 @@ public class MpqViewer extends Tool {
       // sbBlendModePage  .addListener(changeListener);
       components       .addListener(changeListener);
       wclasses         .addListener(changeListener);
+      btnFirstTile     .addListener(clickListener);
+      btnLastTile      .addListener(clickListener);
+      btnPrevTile      .addListener(clickListener);
+      btnNextTile      .addListener(clickListener);
+      slTileIndex      .addListener(changeListener);
     }
 
     public DelegatingDrawable(T delegate) {
@@ -2256,6 +2462,11 @@ public class MpqViewer extends Tool {
       //sbBlendModePage  .removeListener(changeListener);
       components       .removeListener(changeListener);
       wclasses         .removeListener(changeListener);
+      btnFirstTile     .removeListener(clickListener);
+      btnLastTile      .removeListener(clickListener);
+      btnPrevTile      .removeListener(clickListener);
+      btnNextTile      .removeListener(clickListener);
+      slTileIndex      .removeListener(changeListener);
     }
 
     protected void clicked(InputEvent event, float x, float y) {}
