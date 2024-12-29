@@ -6,6 +6,13 @@ import com.riiablo.map5.Dt1;
 import com.riiablo.mpq_bytebuf.Mpq;
 
 public class Dt1Params extends MpqParams<Dt1> {
+  private static final int LIBRARY_TILE_ID = -1;
+  private static final Dt1Params LIBRARY = new Dt1Params(LIBRARY_TILE_ID);
+
+  public static Dt1Params library() {
+    return LIBRARY;
+  }
+
   public static Dt1Params of(int tileId) {
     return new Dt1Params(tileId);
   }

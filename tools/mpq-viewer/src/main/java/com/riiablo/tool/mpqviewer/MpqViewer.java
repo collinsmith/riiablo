@@ -2091,24 +2091,22 @@ public class MpqViewer extends Tool {
     } else if (extension.equals("DT1")) {
       tileControls.setCollapsed(false);
       paletteControls.setCollapsed(false);
-      AssetDesc<Dt1> asset = AssetDesc.of(filename, Dt1.class, Dt1Params.of(0));
-      AtomicReference<AssetDesc<Dt1>> ref = new AtomicReference<>(asset);
+      final AssetDesc<Dt1> dt1Library = AssetDesc.of(filename, Dt1.class, Dt1Params.library());
+      AtomicReference<AssetDesc<Dt1>> ref = new AtomicReference<>();
       AtomicReference<Dt1> dt1Ref = new AtomicReference<>();
-      assets.load(asset)
+      assets.load(dt1Library)
           .addListener(future -> {
             dt1Ref.set((Dt1) future.getNow());
-            log.debug("Loaded {}", asset);
+            log.debug("Loaded dt1 library {}", dt1Library);
             renderer.initialize();
           });
       renderer.setDrawable(new DelegatingDrawable<Drawable>() {
-        int tileId = 0;
-        int curTileId = 0;
+        int tileId = -1;
 
         @Override
         protected void initialize() {
           Dt1 dt1 = dt1Ref.get();
           dt1Info.setDt1(dt1);
-          dt1Info.update(tileId);
 
           slTileIndex.setValue(0);
           slTileIndex.setRange(0, dt1.numTiles() - 1);
@@ -2118,22 +2116,19 @@ public class MpqViewer extends Tool {
         @Override
         public void dispose() {
           super.dispose();
-          assets.unload(ref.get());
           log.debug("Unloading {}", ref.get());
-        }
-
-        void updateInfo() {
-          if (tileId < 0) return;
-          dt1Info.update(tileId);
+          assets.unload(ref.get());
+          log.debug("Unloading dt1 library {}", dt1Library);
+          assets.unload(dt1Library);
         }
 
         void updateTile(int t) {
-          if (curTileId == t) return; // prevents multiple calls during init
+          if (tileId == t) return; // unnecessary call
           log.traceEntry("updateTile(t: {})", t);
-          curTileId = t;
+          tileId = t;
           final AssetDesc<Dt1> oldAsset = ref.get();
-          assert oldAsset.params(Dt1Params.class).tileId != t;
-          final AssetDesc<Dt1> asset = AssetDesc.of(oldAsset, oldAsset.params(Dt1Params.class).copy(t));
+          assert oldAsset == null || oldAsset.params(Dt1Params.class).tileId != t;
+          final AssetDesc<Dt1> asset = AssetDesc.of(dt1Library, dt1Library.params(Dt1Params.class).copy(t));
           ref.set(asset);
           assets.load(asset)
               .addListener(future -> {
@@ -2148,12 +2143,13 @@ public class MpqViewer extends Tool {
                   return;
                 }
 
+                if (oldAsset != null) {
+                  log.debug("Unloading {}", oldAsset);
+                  assets.unload(oldAsset);
+                }
+
                 log.debug("Loaded {}", asset);
-                log.debug("Unloading {}", oldAsset);
-                assets.unload(oldAsset);
-                final Dt1 dt1 = (Dt1) future.getNow();
-                dt1Info.setDt1(dt1);
-                dt1Info.update(tileId);
+                dt1Info.update(asset.params(Dt1Params.class).tileId);
               });
         }
 
@@ -2176,9 +2172,7 @@ public class MpqViewer extends Tool {
         @Override
         protected void changed(ChangeEvent event, Actor actor) {
           if (actor == slTileIndex) {
-            tileId = (int) slTileIndex.getValue();
-            updateTile(tileId);
-            updateInfo();
+            updateTile((int) slTileIndex.getValue());
           }
         }
 

@@ -23,7 +23,7 @@ import com.riiablo.map5.Dt1Decoder;
 public class Dt1Loader extends AssetLoader<Dt1> {
   private static final Logger log = LogManager.getLogger(Dt1Loader.class);
 
-  private static final Dt1Params PARENT_DT1 = Dt1Params.of(-1);
+  private static final Dt1Params PARENT_DT1 = Dt1Params.library();
 
   @Override
   protected AssetDesc[] dependencies0(AssetDesc<Dt1> asset) {

@@ -70,7 +70,7 @@ public enum Dt1Decoder7 {
   }
 
   public static Dt1 readHeaders(Dt1 dt1, ByteInputStream in) {
-    readLibHeader(dt1, in);
+    readLibraryHeader(dt1, in);
     log.trace("dt1: {}", dt1);
     Tile[] tiles = dt1.tiles;
     for (int i = 0, s = dt1.numTiles; i < s; i++) {
@@ -85,7 +85,7 @@ public enum Dt1Decoder7 {
     return dt1;
   }
 
-  public static Dt1 readLibHeader(Dt1 dt1, ByteInputStream in) {
+  public static Dt1 readLibraryHeader(Dt1 dt1, ByteInputStream in) {
     assert dt1.version == VERSION : "dt1.version(" + dt1.version + ") != VERSION(" + VERSION + ")";
     dt1.flags = in.read32();
     in.skipBytes(RESERVED_BYTES);
