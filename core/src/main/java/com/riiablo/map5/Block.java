@@ -12,6 +12,14 @@ import static com.riiablo.map5.Tile.SUBTILE_WIDTH;
 public class Block {
   private Block() {}
 
+  static Block[] newArray(int length) {
+    Block[] blocks = new Block[length];
+    for (int i = 0, s = blocks.length; i < s; i++) {
+      blocks[i] = new Block();
+    }
+    return blocks;
+  }
+
   static final BucketPool<Block[]> pool = BucketPool
       .builder(Block[].class)
       .add(Tile.NUM_SUBTILES)
@@ -37,7 +45,7 @@ public class Block {
 
   static final int RLE_WIDTH = 32;
   static final int RLE_HEIGHT = 32;
-  static final int RLE_SIZE = RLE_WIDTH * RLE_HEIGHT * 3 / 2; // 1024 * 1.5 to account for rle compression overhead
+  static final int RLE_SIZE = RLE_WIDTH * RLE_HEIGHT * 3; // 1024 * 3 for worse-case compression ratio
 
   static final int ISO_FORMAT = 0x0001;
   static final int ISO_RLE_FORMAT = 0x2005;
@@ -68,7 +76,7 @@ public class Block {
         return isoData.obtain();
       case ISO_RLE_FORMAT:
       case RLE_FORMAT:
-        return dataPool.obtain(length);
+        return rleData.obtain();
       default:
         throw new AssertionError("Unsupported format: " + formatToString(format));
     }
@@ -78,9 +86,10 @@ public class Block {
     switch (format) {
       case ISO_FORMAT:
         isoData.free(data);
+        break;
       case ISO_RLE_FORMAT:
       case RLE_FORMAT:
-        dataPool.free(data);
+        rleData.free(data);
         break;
       default:
         throw new AssertionError("Unsupported format: " + formatToString(format));
@@ -106,5 +115,9 @@ public class Block {
         .append("dataLength", String.format("0x%x", dataLength))
         .append("dataOffset", String.format("+0x%08x", dataOffset))
         .toString();
+  }
+
+  public String format() {
+    return formatToString(format);
   }
 }

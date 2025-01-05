@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import com.badlogic.gdx.files.FileHandle;
 
+import com.riiablo.codec.util.BBox;
 import com.riiablo.graphics.PaletteIndexedPixmap;
 import com.riiablo.io.ByteInput;
 import com.riiablo.io.ByteInputStream;
@@ -131,18 +132,6 @@ public enum Dt1Decoder7 {
     }
   }
 
-  @Deprecated
-  public static void decodeBlocks(Dt1 dt1, ByteInput in) {
-    try {
-      for (int i = 0, s = dt1.numTiles; i < s; i++) {
-        MDC.put("tile", i);
-        decodeBlocks(dt1, i, in);
-      }
-    } finally{
-      MDC.remove("tile");
-    }
-  }
-
   public static void decodeBlocks(
       Dt1 dt1,
       int tile,
@@ -151,33 +140,9 @@ public enum Dt1Decoder7 {
     try {
       MDC.put("tile", tile);
       Tile t = dt1.tiles[tile];
-      int width = t.width, height = -t.height;
-
-      if (Orientation.isSpecial(t.orientation)) {
-        width = t.width; // 160 to enforce default tile size?
-      }
-
-      int yOffs = Tile.WALL_HEIGHT;
-      if (t.orientation == FLOOR || t.orientation == ROOF) {
-        if (height != 0) {
-          height = 80;
-          yOffs = 0;
-        }
-      } else if (t.orientation < ROOF) {
-        if (height != 0) {
-          height += 32;
-          yOffs = height;
-        }
-      }
-
-      log.trace("t.size: {}x{}", width, height);
+      log.trace("t.size: {}x{}", t.width, t.height);
       log.trace("t.numBlocks: {}", t.numBlocks);
-      byte[] pixmap = pool.obtain(width * height);
-      try {
-        decodeBlocks(dt1, t, in, pixmap, width, height, yOffs);
-      } finally {
-        pool.free(pixmap);
-      }
+      decodeBlocks(dt1, t, in);
     } finally {
       MDC.remove("tile");
     }
@@ -186,19 +151,70 @@ public enum Dt1Decoder7 {
   private static void decodeBlocks(
       Dt1 dt1,
       Tile t,
-      ByteInput in,
-      byte[] pixmap,
-      int width,
-      int height,
-      int blockOffsY
+      ByteInput in
   ) {
     Block[] blocks = Block.obtain(t.numBlocks);
     try {
       readBlockHeaders(blocks, t.numBlocks, in);
-      readBlockData(blocks, t.numBlocks, in, pixmap, width, blockOffsY);
-      t.pixmap = new PaletteIndexedPixmap(width, height, pixmap, width * height);
+      calculateBox(blocks, t.numBlocks, t.box);
+      log.trace("bbox: {}", t.box);
+      final int yOffs = yOffset(t.orientation);
+      log.trace("yOffs: {}, box.yMax: {}", yOffs, t.box.yMax);
+      byte[] pixmap = pool.obtain(t.box.width * t.box.height);
+      try {
+        readBlockData(blocks, t.numBlocks, in, pixmap, t.box.width, t.box.xMin, t.box.yMax + yOffs);
+        t.pixmap = new PaletteIndexedPixmap(t.box.width, t.box.height, pixmap, t.box.width * t.box.height);
+      } finally {
+        pool.free(pixmap);
+      }
     } finally {
       Block.free(blocks);
+    }
+  }
+
+  static void calculateBox(Block[] blocks, int numBlocks, BBox box) {
+    box.prepare();
+    for (int i = 0, s = numBlocks; i < s; i++) {
+      Block block = blocks[i];
+      final int x;
+      final int y;
+      switch (block.format) {
+        case ISO_FORMAT:
+        case ISO_RLE_FORMAT:
+          x = block.x;
+          y = block.y - Tile.HEIGHT;
+          if (x < box.xMin) box.xMin = x;
+          if (y < box.yMin) box.yMin = y;
+          if (x + Tile.SUBTILE_WIDTH > box.xMax) box.xMax = x + Tile.SUBTILE_WIDTH;
+          if (y + Tile.SUBTILE_HEIGHT > box.yMax) box.yMax = y + Tile.SUBTILE_HEIGHT;
+          break;
+        case RLE_FORMAT:
+          x = block.x;
+          y = block.y;
+          if (x < box.xMin) box.xMin = x;
+          if (y < box.yMin) box.yMin = y;
+          if (x + Block.RLE_WIDTH > box.xMax) box.xMax = x + Block.RLE_WIDTH;
+          if (y + Block.RLE_HEIGHT > box.yMax) box.yMax = y + Block.RLE_HEIGHT;
+          break;
+        default:
+          throw new AssertionError("Unsupported block format: " + Block.formatToString(block.format));
+      }
+    }
+    // flip bbox to normalize it
+    final int yMin = box.yMin;
+    box.yMin = -box.yMax;
+    box.yMax = -yMin;
+    box.update();
+  }
+
+  static int yOffset(int orientation) {
+    switch (orientation) {
+      case ROOF:
+      case FLOOR:
+        // TODO: origin shifted Tile.HEIGHT up (positive y-down)
+        return -Tile.HEIGHT;
+      default:
+        return 0;
     }
   }
 
@@ -236,16 +252,19 @@ public enum Dt1Decoder7 {
       ByteInput in,
       byte[] pixmap,
       int pixmapWidth,
+      int blockOffsX,
       int blockOffsY
   ) {
     try {
       for (int i = 0, s = numBlocks; i < s; i++) {
         MDC.put("block", i);
         Block block = blocks[i];
+        log.trace("block.x - blockOffsX: {} ({})", block.x - blockOffsX, blockOffsX);
+        log.trace("block.y + blockOffsY: {} ({})", block.y + blockOffsY, blockOffsY);
         byte[] data = block.obtainData(block.dataLength);
         try {
           in.readBytes(data, 0, block.dataLength);
-          decodeBlockData(block, data, pixmap, pixmapWidth, blockOffsY);
+          decodeBlockData(block, data, pixmap, pixmapWidth, blockOffsX, blockOffsY);
         } finally {
           block.release(data);
         }
@@ -261,15 +280,16 @@ public enum Dt1Decoder7 {
       byte[] data,
       byte[] pixmap,
       int pixmapWidth,
+      int blockOffsX,
       int blockOffsY
   ) {
     switch (block.format) {
       case ISO_FORMAT:
-        decodeIsoBlock(pixmap, pixmapWidth, block.x, blockOffsY + block.y, data);
+        decodeIsoBlock(pixmap, pixmapWidth, block.x - blockOffsX, blockOffsY + block.y, data);
         break;
       case ISO_RLE_FORMAT:
       case RLE_FORMAT:
-        decodeRleBlock(pixmap, pixmapWidth, block.x, blockOffsY + block.y, data, block.dataLength);
+        decodeRleBlock(pixmap, pixmapWidth, block.x - blockOffsX, blockOffsY + block.y, data, block.dataLength);
         break;
       default:
         throw new AssertionError("Unsupported block format: " + Block.formatToString(block.format));

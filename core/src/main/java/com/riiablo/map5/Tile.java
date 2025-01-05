@@ -10,8 +10,10 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 
 import com.riiablo.asset.AssetUtils;
+import com.riiablo.codec.util.BBox;
 
 import static com.riiablo.map5.Dt1.MISSING_TEXTURE;
+import static com.riiablo.util.ImplUtils.unsupported;
 
 public class Tile implements Disposable {
   public static final int SUBTILE_SIZE = 5;
@@ -37,12 +39,13 @@ public class Tile implements Disposable {
 
   @Override
   public void dispose() {
-    pool.free(this);
+    box.reset();
     AssetUtils.disposeQuietly(pixmap);
     pixmap = null;
     AssetUtils.disposeQuietly(texture);
     texture = null;
     region.setTexture(MISSING_TEXTURE);
+    pool.free(this);
   }
 
   public static final int MATERIAL_OTHER    = 0x0001;
@@ -56,6 +59,30 @@ public class Tile implements Disposable {
   public static final int MATERIAL_LAVA     = 0x0100; // lighting + animated
   public static final int MATERIAL_SNOW     = 0x0400;
   public static final int ANIMATED_MATERIAL = MATERIAL_LAVA;
+
+  public static final int FLAG_BLOCK_WALK        = 1 << 0;
+  public static final int FLAG_BLOCK_LIGHT_LOS   = 1 << 1;
+  public static final int FLAG_BLOCK_JUMP        = 1 << 2;
+  public static final int FLAG_BLOCK_PLAYER_WALK = 1 << 3;
+  public static final int FLAG_BLOCK_UNKNOWN1    = 1 << 4;
+  public static final int FLAG_BLOCK_LIGHT       = 1 << 5;
+  public static final int FLAG_BLOCK_UNKNOWN2    = 1 << 6;
+  public static final int FLAG_BLOCK_UNKNOWN3    = 1 << 7;
+
+  public static String flagToString(int flag) {
+    switch (flag) {
+      case FLAG_BLOCK_WALK:        return "FLAG_BLOCK_WALK";
+      case FLAG_BLOCK_LIGHT_LOS:   return "FLAG_BLOCK_LIGHT_LOS";
+      case FLAG_BLOCK_JUMP:        return "FLAG_BLOCK_JUMP";
+      case FLAG_BLOCK_PLAYER_WALK: return "FLAG_BLOCK_PLAYER_WALK";
+      case FLAG_BLOCK_UNKNOWN1:    return "FLAG_BLOCK_UNKNOWN1";
+      case FLAG_BLOCK_LIGHT:       return "FLAG_BLOCK_LIGHT";
+      case FLAG_BLOCK_UNKNOWN2:    return "FLAG_BLOCK_UNKNOWN2";
+      case FLAG_BLOCK_UNKNOWN3:    return "FLAG_BLOCK_UNKNOWN3";
+      case 0: return "";
+      default: return unsupported("only supports single bit flags");
+    }
+  }
 
   public int lightDirection;
   public int roofHeight;
@@ -74,6 +101,7 @@ public class Tile implements Disposable {
   public short cacheIndex;
 
   int tileIndex; // synthetic
+  final BBox box = new BBox(); // coords are y-down, min top-left, max bottom-right
   Pixmap pixmap;
   Texture texture;
   final TextureRegion region = new TextureRegion(MISSING_TEXTURE);
@@ -95,6 +123,10 @@ public class Tile implements Disposable {
 
   public boolean animated() {
     return (materialFlags & ANIMATED_MATERIAL) != 0;
+  }
+
+  public BBox box() {
+    return box;
   }
 
   public TextureRegion texture() {
@@ -140,7 +172,6 @@ public class Tile implements Disposable {
         .append("blocksLength", String.format("0x%x", blocksLength))
         .append("numBlocks", numBlocks)
         .append("cacheIndex", cacheIndex)
-        // .append("blocks", blocks)
         .toString();
   }
 

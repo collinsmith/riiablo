@@ -73,4 +73,28 @@ public class Dt1Decoder {
       MDC.remove("dt1");
     }
   }
+
+  public static Block[] readBlockHeaders(Dt1 dt1, int tile, ByteInput in) {
+    try {
+      MDC.put("dt1", dt1.handle.path());
+      try {
+        MDC.put("tile", tile);
+        Tile t = dt1.tiles[tile];
+        Block[] blocks = Block.newArray(t.numBlocks);
+        switch (dt1.version) {
+          case Dt1Decoder7.VERSION:
+            Dt1Decoder7.readBlockHeaders(blocks, blocks.length, in);
+            return blocks;
+          default:
+            throw new InvalidFormat(
+                in,
+                String.format("Unsupported dt1 version: 0x%08x", dt1.version));
+        }
+      } finally {
+        MDC.remove("tile");
+      }
+    } finally {
+      MDC.remove("dt1");
+    }
+  }
 }

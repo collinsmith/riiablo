@@ -88,6 +88,8 @@ import com.riiablo.Riiablo;
 import com.riiablo.asset.AssetDesc;
 import com.riiablo.asset.AssetManager;
 import com.riiablo.asset.AssetUtils;
+import com.riiablo.asset.BlockLoader;
+import com.riiablo.asset.BlockParams;
 import com.riiablo.asset.adapter.MpqFileHandleAdapter;
 import com.riiablo.asset.loader.CofLoader;
 import com.riiablo.asset.loader.Dc6Loader;
@@ -104,15 +106,17 @@ import com.riiablo.file.Dc6;
 import com.riiablo.file.Dc6Info;
 import com.riiablo.file.Dcc;
 import com.riiablo.file.DccInfo;
-import com.riiablo.file.Dt1Info;
+import com.riiablo.map5.Dt1Info;
 import com.riiablo.file.Palette;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
 import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
+import com.riiablo.map5.Block;
 import com.riiablo.map5.Dt1;
 import com.riiablo.map5.Tile;
+import com.riiablo.map5.TileRenderer;
 import com.riiablo.mpq.widget.DirectionActor;
 import com.riiablo.mpq_bytebuf.MpqFileHandle;
 import com.riiablo.mpq_bytebuf.MpqFileResolver;
@@ -136,7 +140,7 @@ public class MpqViewer extends Tool {
 
   public static void main(String[] args) throws Exception {
     Lwjgl3Tool.create(MpqViewer.class, "mpq-viewer", args)
-        .size(1380, 870, true) // arbitrary, comfortable widget layout
+        .size(1600, 1080, true) // arbitrary, comfortable widget layout
         .config((Lwjgl3Tool.Lwjgl3ToolConfigurator) config -> {
           config.setWindowSizeLimits(640, 480, -1, -1);
           config.useVsync(false);
@@ -362,6 +366,7 @@ public class MpqViewer extends Tool {
 
     LogManager.setLevel("com.riiablo.file", Level.TRACE);
     // LogManager.setLevel("com.riiablo.asset.AssetManager", Level.TRACE);
+    // LogManager.setLevel(Dt1Decoder7.class.getCanonicalName(), Level.TRACE);
 
     prefs = Gdx.app.getPreferences(MpqViewer.class.getCanonicalName());
     bundle = I18NBundle.createBundle(Gdx.files.internal("lang/MpqViewer"));
@@ -1439,6 +1444,7 @@ public class MpqViewer extends Tool {
         .loader(Dcc.class, new DccLoader())
         .loader(Dc6.class, new Dc6Loader())
         .loader(Dt1.class, new Dt1Loader())
+        .loader(Block[].class, new BlockLoader())
         ;
   }
 
@@ -2101,7 +2107,10 @@ public class MpqViewer extends Tool {
             renderer.initialize();
           });
       renderer.setDrawable(new DelegatingDrawable<Drawable>() {
+        final TileRenderer tileRenderer = TileRenderer.INSTANCE;
         int tileId = -1;
+        AssetDesc<Block[]> blocksRef = null;
+        Block[] blocks = null;
 
         @Override
         protected void initialize() {
@@ -2118,6 +2127,8 @@ public class MpqViewer extends Tool {
           super.dispose();
           log.debug("Unloading {}", ref.get());
           assets.unload(ref.get());
+          log.debug("Unloading dt1 blocks {}", blocksRef);
+          assets.unload(blocksRef);
           log.debug("Unloading dt1 library {}", dt1Library);
           assets.unload(dt1Library);
         }
@@ -2126,6 +2137,7 @@ public class MpqViewer extends Tool {
           if (tileId == t) return; // unnecessary call
           log.traceEntry("updateTile(t: {})", t);
           tileId = t;
+          blocks = null;
           final AssetDesc<Dt1> oldAsset = ref.get();
           assert oldAsset == null || oldAsset.params(Dt1Params.class).tileId != t;
           final AssetDesc<Dt1> asset = AssetDesc.of(dt1Library, dt1Library.params(Dt1Params.class).copy(t));
@@ -2147,6 +2159,19 @@ public class MpqViewer extends Tool {
                   log.debug("Unloading {}", oldAsset);
                   assets.unload(oldAsset);
                 }
+
+                if (blocksRef != null) {
+                  log.debug("Unloading blocks {}", blocksRef);
+                  assets.unload(blocksRef);
+                }
+
+                blocksRef = AssetDesc.of(asset.path(), Block[].class, BlockParams.of(asset.params(Dt1Params.class).tileId));
+                assets.load(blocksRef)
+                    .addListener(future1 -> {
+                      blocks = (Block[]) future1.getNow();
+                      log.debug("Loaded blocks {}", (Object) blocks);
+                      dt1Info.updateBlocks(blocks);
+                    });
 
                 log.debug("Loaded {}", asset);
                 dt1Info.update(asset.params(Dt1Params.class).tileId);
@@ -2179,24 +2204,33 @@ public class MpqViewer extends Tool {
         @Override
         public void draw(Batch batch, float x, float y, float width, float height) {
           Dt1 dt1 = dt1Ref.get();
-          if (dt1 == null) return;
+          if (dt1 == null || tileId == -1) return;
           Tile tile = dt1.get(tileId);
           if (tile == null) return;
           PaletteIndexedBatch b = Riiablo.batch;
           batch.end();
 
+          // Apple offset to center tile in frame
+          x -= Tile.WIDTH50;
+          y -= Tile.HEIGHT;
+
           String palette = paletteList.getSelected();
           b.setPalette(palettes.get(palette));
           b.setTransformMatrix(batch.getTransformMatrix());
           b.begin();
-          b.draw(tile.texture(), x, y);
+          tileRenderer.draw(b, tile, x, y);
           b.end();
 
           shapes.setTransformMatrix(batch.getTransformMatrix());
           if (cbTileDebug.isChecked()) {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            // delegate.drawDebug(shapes, x, y);
+            tileRenderer.drawDebug(shapes, tile, x, y);
+            shapes.setAutoShapeType(true);
+            shapes.begin();
+            tileRenderer.drawDebugFlags(shapes, tile, x, y);
             shapes.end();
+            if (blocks != null) {
+              tileRenderer.drawDebug(shapes, tile, blocks, tile.numBlocks, x, y);
+            }
           }
 
           batch.begin();
