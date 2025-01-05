@@ -14,8 +14,12 @@ public enum TileRenderer {
   private static final Color GRID_COLOR = new Color().fromHsv(0f, 0f, .15f);
 
   public void draw(Batch batch, Tile tile, float x, float y) {
+    // TODO: Perhaps Tile#roofHeight should only be applied when Tile#orientation
+    //  is Orientation#ROOF. Maybe that can be built into Tile#box#yMin at the
+    //  end of reading the tile blocks from memory (since doing this before would
+    //  bloat the texture height by Tile#roofHeight). I'll revisit this later.
     final BBox box = tile.box();
-    batch.draw(tile.texture(), x + box.xMin, y + box.yMin);
+    batch.draw(tile.texture(), x + box.xMin, y + box.yMin + tile.roofHeight);
   }
 
   public void drawDebug(ShapeRenderer shapes, Tile tile, Block[] blocks, int numBlocks, float x, float y) {
@@ -39,6 +43,7 @@ public enum TileRenderer {
       yOffs = 0;
     }
 
+    y += tile.roofHeight;
     final int PADDING = 2;
     for (int i = 0, s = numBlocks; i < s; i++) {
       final Block block = blocks[i];
@@ -63,6 +68,7 @@ public enum TileRenderer {
       shapes.begin(ShapeRenderer.ShapeType.Line);
     }
 
+    y += tile.roofHeight;
     final BBox box = tile.box();
     shapes.setColor(GRID_COLOR);
     for (int yOffs = box.yMin; yOffs < box.yMax; yOffs += Block.RLE_HEIGHT) {
@@ -85,6 +91,14 @@ public enum TileRenderer {
     shapes.setColor(Color.WHITE); // bbox
     shapes.rect(x + box.xMin, y + box.yMin, box.width, box.height);
 
+    if (Orientation.isRoof(tile.orientation)) {
+      shapes.setColor(Color.ORANGE);
+      shapes.line(x, y, x, y - tile.roofHeight);
+      shapes.line(x - 3, y, x + 2, y);
+      shapes.line(x - 3, y - tile.roofHeight, x + 2, y - tile.roofHeight);
+    }
+
+    y -= tile.roofHeight;
     shapes.setColor(Color.MAGENTA);
     shapes.line(x - Tile.WIDTH, y, x + Tile.WIDTH + Tile.WIDTH, y);
     shapes.end();
