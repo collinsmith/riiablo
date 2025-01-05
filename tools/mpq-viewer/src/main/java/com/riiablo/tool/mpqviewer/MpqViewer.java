@@ -2125,6 +2125,7 @@ public class MpqViewer extends Tool {
         @Override
         public void dispose() {
           super.dispose();
+          if (ref.get() == null) return;
           log.debug("Unloading {}", ref.get());
           assets.unload(ref.get());
           log.debug("Unloading dt1 blocks {}", blocksRef);
