@@ -21,6 +21,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -127,6 +128,26 @@ public final class MpqFileHandle extends FileHandle implements ReferenceCounted 
     this.flags = flags;
 
     this.archive = mpq.map().slice(offset, CSize);
+  }
+
+  /**
+   * Matches FileHandle irrespective of {@link FileHandle#type}
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof MpqFileHandle) {
+      MpqFileHandle other = (MpqFileHandle) o;
+      return Objects.equals(filename, other.path());
+    } else {
+      if (!(o instanceof FileHandle)) return false;
+      FileHandle other = (FileHandle) o;
+      return super.equals(other);
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return filename.hashCode();
   }
 
   @Override
