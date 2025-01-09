@@ -7,6 +7,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -129,7 +130,9 @@ public final class AssetManager implements Disposable {
 
   AssetParams defaultParams(Class type) throws ParamsNotFound {
     try {
-      return defaultParams.get(type).newInstance();
+      Constructor<? extends AssetParams> constructor = defaultParams.get(type).getDeclaredConstructor();
+      constructor.setAccessible(true);
+      return constructor.newInstance();
     } catch (Throwable t) {
       throw new ParamsNotFound(type, t);
     }
