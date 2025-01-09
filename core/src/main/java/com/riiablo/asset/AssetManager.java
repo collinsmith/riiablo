@@ -186,6 +186,7 @@ public final class AssetManager implements Disposable {
   public <T> Promise<? extends T> load(final AssetDesc<T> asset) {
     log.traceEntry("load(asset: {})", asset);
 
+    if (asset.params == null) asset.params = defaultParams(asset.type); // TODO: required by AssetDesc#hashCode()
     final AssetContainer container0 = loadedAssets.get(asset);
     if (container0 != null) return container0.retain().get(asset.type);
 
