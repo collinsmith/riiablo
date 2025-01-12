@@ -14,8 +14,8 @@ public enum TileRenderer {
   private static final Color GRID_COLOR = new Color().fromHsv(0f, 0f, .15f);
 
   public void draw(Batch batch, Tile tile, float x, float y) {
-    // TODO: Perhaps Tile#roofHeight should only be applied when Tile#orientation
-    //  is Orientation#ROOF. Maybe that can be built into Tile#box#yMin at the
+    // TODO: Perhaps Tile#roofHeight should only be applied when Tile#tileType
+    //  is TileType#ROOF. Maybe that can be built into Tile#box#yMin at the
     //  end of reading the tile blocks from memory (since doing this before would
     //  bloat the texture height by Tile#roofHeight). I'll revisit this later.
     final BBox box = tile.box();
@@ -35,7 +35,7 @@ public enum TileRenderer {
     shapes.setColor(Color.GREEN);
     final int xOffs;
     final int yOffs;
-    if (tile.orientation == Orientation.FLOOR || tile.orientation == Orientation.ROOF) {
+    if (tile.tileType == TileType.FLOOR || tile.tileType == TileType.ROOF) {
       xOffs = 0;
       yOffs = Tile.HEIGHT;
     } else {
@@ -91,7 +91,7 @@ public enum TileRenderer {
     shapes.setColor(Color.WHITE); // bbox
     shapes.rect(x + box.xMin, y + box.yMin, box.width, box.height);
 
-    if (Orientation.isRoof(tile.orientation)) {
+    if (TileType.isRoof(tile.tileType)) {
       shapes.setColor(Color.ORANGE);
       shapes.line(x, y, x, y - tile.roofHeight);
       shapes.line(x - 3, y, x + 2, y);

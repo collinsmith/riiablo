@@ -18,8 +18,8 @@ import com.riiablo.map5.util.BucketPool;
 import static com.riiablo.map5.Block.ISO_FORMAT;
 import static com.riiablo.map5.Block.ISO_RLE_FORMAT;
 import static com.riiablo.map5.Block.RLE_FORMAT;
-import static com.riiablo.map5.Orientation.FLOOR;
-import static com.riiablo.map5.Orientation.ROOF;
+import static com.riiablo.map5.TileType.FLOOR;
+import static com.riiablo.map5.TileType.ROOF;
 import static com.riiablo.map5.Tile.NUM_SUBTILES;
 import static com.riiablo.map5.Tile.SUBTILE_SIZE;
 
@@ -103,7 +103,7 @@ public enum Dt1Decoder7 {
     tile.height = in.read32();
     tile.width = in.read32();
     tile.heightToBottom = in.read32();
-    tile.orientation = in.readSafe32u();
+    tile.tileType = in.readSafe32u();
     tile.mainIndex = in.readSafe32u();
     tile.subIndex = in.readSafe32u();
     tile.updateIndex();
@@ -158,7 +158,7 @@ public enum Dt1Decoder7 {
       readBlockHeaders(blocks, t.numBlocks, in);
       calculateBox(blocks, t.numBlocks, t.box);
       log.trace("bbox: {}", t.box);
-      final int yOffs = yOffset(t.orientation);
+      final int yOffs = yOffset(t.tileType);
       log.trace("yOffs: {}, box.yMax: {}", yOffs, t.box.yMax);
       byte[] pixmap = pool.obtain(t.box.width * t.box.height);
       try {
@@ -207,8 +207,8 @@ public enum Dt1Decoder7 {
     box.update();
   }
 
-  static int yOffset(int orientation) {
-    switch (orientation) {
+  static int yOffset(int tileType) {
+    switch (tileType) {
       case ROOF:
       case FLOOR:
         // TODO: origin shifted Tile.HEIGHT up (positive y-down)

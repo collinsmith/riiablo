@@ -1,7 +1,7 @@
 package com.riiablo.map5;
 
-public final class Orientation {
-  private Orientation() {}
+public final class TileType {
+  private TileType() {}
 
   /** Floors */
   public static final int FLOOR = 0;
@@ -36,35 +36,35 @@ public final class Orientation {
   /** Roofs */
   public static final int ROOF = 15;
   /**
-   * Lower walls equivalent to Orientation 1
+   * Lower walls equivalent to TileType 1
    *
    * @see #LEFT_WALL
    */
   public static final int LOWER_LEFT_WALL = 16;
   /**
-   * Lower walls equivalent to Orientation 2
+   * Lower walls equivalent to TileType 2
    *
    * @see #RIGHT_WALL
    */
   public static final int LOWER_RIGHT_WALL = 17;
   /**
-   * Lower walls equivalent to Orientation 3 and 4
+   * Lower walls equivalent to TileType 3 and 4
    *
    * @see #RIGHT_NORTH_CORNER_WALL
    * @see #LEFT_NORTH_CORNER_WALL
    */
   public static final int LOWER_NORTH_CORNER_WALL = 18;
   /**
-   * Lower walls equivalent to Orientation 7
+   * Lower walls equivalent to TileType 7
    *
    * @see #SOUTH_CORNER_WALL
    */
   public static final int LOWER_SOUTH_CORNER_WALL = 19;
-  /** Unknown. Is an expected result for orientation lookup table. */
+  /** Unknown. Is an expected result for tile type lookup table. */
   public static final int UNKNOWN_20 = 20;
 
-  public static String toString(int orientation) {
-    switch (orientation) {
+  public static String toString(int tileType) {
+    switch (tileType) {
       case FLOOR:
         return "FLOOR";
       case LEFT_WALL:
@@ -110,8 +110,8 @@ public final class Orientation {
     }
   }
 
-  public static int toDirection(int orientation) {
-    switch (orientation) {
+  public static int toDirection(int tileType) {
+    switch (tileType) {
       case LEFT_WALL:
       case LEFT_END_WALL:
       case LEFT_WALL_DOOR:
@@ -158,8 +158,8 @@ public final class Orientation {
     }
   }
 
-  public static boolean isFloor(int orientation) {
-    switch (orientation) {
+  public static boolean isFloor(int tileType) {
+    switch (tileType) {
       case FLOOR:
         return true;
       default:
@@ -167,8 +167,8 @@ public final class Orientation {
     }
   }
 
-  public static boolean isRoof(int orientation) {
-    switch (orientation) {
+  public static boolean isRoof(int tileType) {
+    switch (tileType) {
       case ROOF:
         return true;
       default:
@@ -176,8 +176,8 @@ public final class Orientation {
     }
   }
 
-  public static boolean isWall(int orientation) {
-    switch (orientation) {
+  public static boolean isWall(int tileType) {
+    switch (tileType) {
       case LEFT_WALL:
       case RIGHT_WALL:
       case RIGHT_NORTH_CORNER_WALL:
@@ -199,8 +199,8 @@ public final class Orientation {
     }
   }
 
-  public static boolean isSpecial(int orientation) {
-    switch (orientation) {
+  public static boolean isSpecial(int tileType) {
+    switch (tileType) {
       case SPECIAL_10:
       case SPECIAL_11:
         return true;
@@ -209,8 +209,8 @@ public final class Orientation {
     }
   }
 
-  public static boolean isLowerWall(int orientation) {
-    switch (orientation) {
+  public static boolean isLowerWall(int tileType) {
+    switch (tileType) {
       case LOWER_LEFT_WALL:
       case LOWER_RIGHT_WALL:
       case LOWER_NORTH_CORNER_WALL:

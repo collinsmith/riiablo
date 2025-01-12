@@ -96,8 +96,8 @@ public class Dt1Info extends VisTable {
     add(tileTable, "tileIndex: ", "0x%08x", tile.tileIndex());
     add(tileTable, "mainIndex: ", tile.mainIndex);
     add(tileTable, "subIndex: ", tile.subIndex);
-    add(tileTable, "orientation: ", "%d (%s)", tile.orientation, Orientation.toString(tile.orientation));
-    add(tileTable, "light direction: ", "%d (%s)", tile.lightDirection, Orientation.directionToString(tile.lightDirection));
+    add(tileTable, "tileType: ", "%d (%s)", tile.tileType, TileType.toString(tile.tileType));
+    add(tileTable, "light direction: ", "%d (%s)", tile.lightDirection, TileType.directionToString(tile.lightDirection));
     add(tileTable, "width,height: ", "%d,%d", tile.width, tile.height);
     add(tileTable, "texture: ", "%dx%d", tile.textureWidth(), tile.textureHeight());
     add(tileTable, "tile: ", "green");

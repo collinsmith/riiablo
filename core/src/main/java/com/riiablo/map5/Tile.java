@@ -90,7 +90,7 @@ public class Tile implements Disposable {
   public int height;
   public int width;
   public int heightToBottom;
-  public int orientation;
+  public int tileType;
   public int mainIndex;
   public int subIndex;
   public int rarityFrame;
@@ -107,7 +107,7 @@ public class Tile implements Disposable {
   final TextureRegion region = new TextureRegion(MISSING_TEXTURE);
 
   int updateIndex() {
-    return tileIndex = Index.create(orientation, mainIndex, subIndex);
+    return tileIndex = Index.create(tileType, mainIndex, subIndex);
   }
 
   public int tileIndex() {
@@ -157,10 +157,10 @@ public class Tile implements Disposable {
   public String toString() {
     return new ToStringBuilder(this)
         .append("tileIndex", String.format("0x%08x", tileIndex))
-        .append("orientation", String.format("%d (%s)", orientation, Orientation.toString(orientation)))
+        .append("tileType", String.format("%d (%s)", tileType, TileType.toString(tileType)))
         .append("mainIndex", mainIndex)
         .append("subIndex", subIndex)
-        .append("lightDirection", String.format("%d (%s)", lightDirection, Orientation.directionToString(lightDirection)))
+        .append("lightDirection", String.format("%d (%s)", lightDirection, TileType.directionToString(lightDirection)))
         .append("roofHeight", roofHeight)
         .append("materialFlags", materialFlags)
         .append("height", height)
@@ -178,23 +178,23 @@ public class Tile implements Disposable {
   public static final class Index {
     private Index() {}
 
-    private static final int MAIN_INDEX_OFFSET  = 16;
-    private static final int MAIN_INDEX_BITS    = 0xFF;
+    private static final int MAIN_INDEX_OFFSET = 16;
+    private static final int MAIN_INDEX_BITS   = 0xFF;
 
-    private static final int SUB_INDEX_OFFSET   = 8;
-    private static final int SUB_INDEX_BITS     = 0xFF;
+    private static final int SUB_INDEX_OFFSET  = 8;
+    private static final int SUB_INDEX_BITS    = 0xFF;
 
-    private static final int ORIENTATION_OFFSET = 0;
-    private static final int ORIENTATION_BITS   = 0xFF;
+    private static final int TILE_TYPE_OFFSET  = 0;
+    private static final int TILE_TYPE_BITS    = 0xFF;
 
-    public static int create(int orientation, int mainIndex, int subIndex) {
-      return (mainIndex   & MAIN_INDEX_BITS)  << MAIN_INDEX_OFFSET
-           | (subIndex    & SUB_INDEX_BITS)   << SUB_INDEX_OFFSET
-           | (orientation & ORIENTATION_BITS) << ORIENTATION_OFFSET;
+    public static int create(int tileType, int mainIndex, int subIndex) {
+      return (mainIndex & MAIN_INDEX_BITS) << MAIN_INDEX_OFFSET
+           | (subIndex  & SUB_INDEX_BITS)  << SUB_INDEX_OFFSET
+           | (tileType  & TILE_TYPE_BITS)  << TILE_TYPE_OFFSET;
     }
 
-    public static int mainIndex(int index)   { return (index >>> MAIN_INDEX_OFFSET)  & MAIN_INDEX_BITS; }
-    public static int subIndex(int index)    { return (index >>> SUB_INDEX_OFFSET)   & SUB_INDEX_BITS; }
-    public static int orientation(int index) { return (index >>> ORIENTATION_OFFSET) & ORIENTATION_BITS; }
+    public static int mainIndex(int index) { return (index >>> MAIN_INDEX_OFFSET) & MAIN_INDEX_BITS; }
+    public static int subIndex(int index)  { return (index >>> SUB_INDEX_OFFSET)  & SUB_INDEX_BITS; }
+    public static int tileType(int index)  { return (index >>> TILE_TYPE_OFFSET)  & TILE_TYPE_BITS; }
   }
 }
