@@ -15,6 +15,8 @@ public class Dt1
     extends AbstractReferenceCounted
     implements Disposable
 {
+  private Dt1() {}
+
   @SuppressWarnings("GDXJavaStaticResource")
   public static Texture MISSING_TEXTURE;
 
