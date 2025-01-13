@@ -94,8 +94,10 @@ import com.riiablo.asset.adapter.MpqFileHandleAdapter;
 import com.riiablo.asset.loader.CofLoader;
 import com.riiablo.asset.loader.Dc6Loader;
 import com.riiablo.asset.loader.DccLoader;
+import com.riiablo.asset.loader.Ds1Loader;
 import com.riiablo.asset.loader.Dt1Loader;
 import com.riiablo.asset.param.DcParams;
+import com.riiablo.asset.param.Ds1Params;
 import com.riiablo.asset.param.Dt1Params;
 import com.riiablo.asset.param.MpqParams;
 import com.riiablo.file.Animation;
@@ -106,7 +108,6 @@ import com.riiablo.file.Dc6;
 import com.riiablo.file.Dc6Info;
 import com.riiablo.file.Dcc;
 import com.riiablo.file.DccInfo;
-import com.riiablo.map5.Dt1Info;
 import com.riiablo.file.Palette;
 import com.riiablo.graphics.BlendMode;
 import com.riiablo.graphics.PaletteIndexedBatch;
@@ -114,7 +115,10 @@ import com.riiablo.logger.Level;
 import com.riiablo.logger.LogManager;
 import com.riiablo.logger.Logger;
 import com.riiablo.map5.Block;
+import com.riiablo.map5.Ds1;
+import com.riiablo.map5.Ds1Info;
 import com.riiablo.map5.Dt1;
+import com.riiablo.map5.Dt1Info;
 import com.riiablo.map5.Tile;
 import com.riiablo.map5.TileRenderer;
 import com.riiablo.mpq.widget.DirectionActor;
@@ -316,6 +320,9 @@ public class MpqViewer extends Tool {
 
   CollapsibleVisTable dt1Controls;
   Dt1Info dt1Info;
+
+  CollapsibleVisTable ds1Controls;
+  Ds1Info ds1Info;
 
   CollapsibleVisTable paletteControls;
   Trie<String, Texture> palettes;
@@ -764,7 +771,7 @@ public class MpqViewer extends Tool {
         addListener(new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            // ds1Panel.setCollapsed(!ds1Panel.isCollapsed());
+            ds1Controls.setCollapsed(!ds1Controls.isCollapsed());
           }
         });
       }}).row();
@@ -1170,14 +1177,27 @@ public class MpqViewer extends Tool {
         add().growY();
       }}).pad(4).growY();
     }});
+    controlPanel.add(ds1Controls = new CollapsibleVisTable() {{
+      add(new VisTable() {{
+        setBackground(VisUI.getSkin().getDrawable("default-pane"));
+        pad(controlPadding);
+        padTop(0); // 0 on top to account for font height
+        // debug();
+        add(i18n("ds1")).align(topLeft).row();
+        add(ds1Info = new Ds1Info()).row();
+        add().growY();
+      }}).pad(4).growY();
+    }});
 
     controlPanels = new Array<>();
     controlPanels.add(animationControls);
-    controlPanels.add(tileControls);
     controlPanels.add(paletteControls);
     controlPanels.add(cofControls);
     controlPanels.add(dccControls);
     controlPanels.add(dc6Controls);
+    controlPanels.add(tileControls);
+    controlPanels.add(dt1Controls);
+    controlPanels.add(ds1Controls);
     for (CollapsibleVisTable o : controlPanels) {
       o.setCollapsed(true);
     }
@@ -1439,11 +1459,13 @@ public class MpqViewer extends Tool {
     assets = new AssetManager()
         .resolver(mpqs)
         .paramResolver(Dc.class, DcParams.class)
+        .paramResolver(Ds1.class, Ds1Params.class)
         .adapter(MpqFileHandle.class, new MpqFileHandleAdapter())
         .loader(Cof.class, new CofLoader())
         .loader(Dcc.class, new DccLoader())
         .loader(Dc6.class, new Dc6Loader())
         .loader(Dt1.class, new Dt1Loader())
+        .loader(Ds1.class, new Ds1Loader())
         .loader(Block[].class, new BlockLoader())
         ;
   }
@@ -2097,6 +2119,7 @@ public class MpqViewer extends Tool {
     } else if (extension.equals("DT1")) {
       tileControls.setCollapsed(false);
       paletteControls.setCollapsed(false);
+      dt1Controls.setCollapsed(false);
       final AssetDesc<Dt1> dt1Library = AssetDesc.of(filename, Dt1.class, Dt1Params.library());
       AtomicReference<AssetDesc<Dt1>> ref = new AtomicReference<>();
       AtomicReference<Dt1> dt1Ref = new AtomicReference<>();
@@ -2235,6 +2258,31 @@ public class MpqViewer extends Tool {
           }
 
           batch.begin();
+        }
+      });
+    } else if (extension.equals("DS1")) {
+      ds1Controls.setCollapsed(false);
+      paletteControls.setCollapsed(false);
+      final AssetDesc<Ds1> ds1 = AssetDesc.of(filename, Ds1.class);
+      AtomicReference<Ds1> ds1Ref = new AtomicReference<>();
+      assets.load(ds1)
+          .addListener(future -> {
+            ds1Ref.set((Ds1) future.getNow());
+            log.debug("Loaded ds1 preset {}", ds1);
+            renderer.initialize();
+          });
+      renderer.setDrawable(new DelegatingDrawable<Drawable>() {
+        @Override
+        protected void initialize() {
+          Ds1 ds1 = ds1Ref.get();
+          ds1Info.setDs1(ds1);
+        }
+
+        @Override
+        public void dispose() {
+          super.dispose();
+          log.debug("Unloading {}", ds1);
+          assets.unload(ds1);
         }
       });
     } else if (extension.equals("DAT")) { // palette
@@ -2396,7 +2444,6 @@ public class MpqViewer extends Tool {
 
     @Override
     public void drawDebug(ShapeRenderer shapes) {
-      //drawDebugOrigin(shapes);
       super.drawDebug(shapes);
     }
   }

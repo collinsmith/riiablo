@@ -34,6 +34,17 @@ public class Riiablo {
   public static final int ACT4 = 3;
   public static final int ACT5 = 4;
 
+  public static String actToString(int act) {
+    switch (act) {
+      case ACT1: return "ACT1";
+      case ACT2: return "ACT2";
+      case ACT3: return "ACT3";
+      case ACT4: return "ACT4";
+      case ACT5: return "ACT5";
+      default: return "UNSUPPORTED_ACT(" + act + ")";
+    }
+  }
+
   public static final byte AMAZON      = 0;
   public static final byte SORCERESS   = 1;
   public static final byte NECROMANCER = 2;
